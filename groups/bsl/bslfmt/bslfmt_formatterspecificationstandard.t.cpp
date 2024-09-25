@@ -6,7 +6,10 @@
 #include <bslstl_string.h>
 
 #include <bslfmt_formatarg.h> // Testing only
+#include <bslfmt_formatargs.h> // Testing only
 #include <bslfmt_formatparsecontext.h> // Testing only
+#include <bslfmt_formatstring.h> // Testing only
+#include <bslfmt_formattertestutil.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>
@@ -78,9 +81,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                  ASSISTANCE FUNCTIONS
+//                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string<>
+#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<>
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+#else
+// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
+// have to use non-template versions instead.
+#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#if 0
 template <class t_CHAR>
 struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
     MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
@@ -93,7 +110,7 @@ template <class t_CHAR>
 struct MockFormatContext {
   public:
     // TYPES
-    typedef basic_format_arg<basic_format_context<void, t_CHAR> > Arg;
+    typedef basic_format_arg<basic_format_context<t_CHAR*, t_CHAR> > Arg;
 
   private:
     // DATA
@@ -161,27 +178,56 @@ struct MockFormatContext {
         return Arg();
     }
 };
+#endif
+
+typedef FormatterSpecificationStandard<char>     FSSC;
+typedef FormatterSpecificationStandard<wchar_t>  FSSW;
+
+BSLFMT_FORMATTER_TEST_CONSTEVAL FSSC parseStandard(
+                             BSLFMT_FORMAT_STRING_PARAMETER inputSpecification,
+                             FSSC::Category                 category)
+{
+    FSSC splitter;
+
+    bsl::basic_string_view<char> inputStringView(inputSpecification.get());
+
+    bslfmt::Formatter_MockParseContext<char> mpc(inputStringView, 4);
+
+    FSSC::parse(&splitter, &mpc, category);
+
+    return splitter;
+}
+
+BSLFMT_FORMATTER_TEST_CONSTEVAL FSSW parseStandard(
+                            BSLFMT_FORMAT_WSTRING_PARAMETER inputSpecification,
+                            FSSW::Category                  category)
+{
+    FSSW splitter;
+
+    bsl::basic_string_view<wchar_t> inputStringView(inputSpecification.get());
+
+    bslfmt::Formatter_MockParseContext<wchar_t> mpc(inputStringView, 4);
+
+    FSSW::parse(&splitter, &mpc, category);
+
+    return splitter;
+}
 
 void checkStandard(
-          const char                                       *inputSpecification,
-          FormatterSpecificationStandard<char>::Category    category,
-          bsl::basic_string_view<char>                      filler,
-          FormatterSpecificationStandard<char>::Alignment   alignment,
-          FormatterSpecificationStandard<char>::Sign        sign,
-          bool                                              alternativeFlag,
-          bool                                              zeroPaddingFlag,
-          FormatterSpecification_NumericValue               postprocessedWidth,
-          FormatterSpecification_NumericValue               postprocessedPrecision,
-          bool                                              localeSpecificFlag,
-          FormatterSpecificationStandard<char>::FormatType  formatType)
+       const FSSC&                                      splitter,
+       bsl::basic_string_view<char>                     filler,
+       FormatterSpecificationStandard<char>::Alignment  alignment,
+       FormatterSpecificationStandard<char>::Sign       sign,
+       bool                                             alternativeFlag,
+       bool                                             zeroPaddingFlag,
+       FormatterSpecification_NumericValue              postprocessedWidth,
+       FormatterSpecification_NumericValue              postprocessedPrecision,
+       bool                                             localeSpecificFlag,
+       FormatterSpecificationStandard<char>::FormatType formatType)
 {
-    FormatterSpecificationStandard<char> fs;
+    FSSC fs = splitter;
 
-    MockParseContext<char> pc(inputSpecification);
-
-    FormatterSpecificationStandard<char>::parse(&fs, &pc, category);
-
-    MockFormatContext<char> mfc(99, 98, 97, 96);
+    bslfmt::Formatter_MockFormatContext<char> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<char>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
@@ -197,27 +243,20 @@ void checkStandard(
 }
 
 void checkStandard(
-       const wchar_t                                       *inputSpecification,
-       FormatterSpecificationStandard<wchar_t>::Category    category,
-       bsl::basic_string_view<wchar_t>                      filler,
-       FormatterSpecificationStandard<wchar_t>::Alignment   alignment,
-       FormatterSpecificationStandard<wchar_t>::Sign        sign,
-       bool                                                 alternativeFlag,
-       bool                                                 zeroPaddingFlag,
-       FormatterSpecification_NumericValue                  postprocessedWidth,
-       FormatterSpecification_NumericValue                  postprocessedPrecision,
-       bool                                                 localeSpecificFlag,
-       FormatterSpecificationStandard<wchar_t>::FormatType  formatType)
+    const FSSW&                                         splitter,
+    bsl::basic_string_view<wchar_t>                     filler,
+    FormatterSpecificationStandard<wchar_t>::Alignment  alignment,
+    FormatterSpecificationStandard<wchar_t>::Sign       sign,
+    bool                                                alternativeFlag,
+    bool                                                zeroPaddingFlag,
+    FormatterSpecification_NumericValue                 postprocessedWidth,
+    FormatterSpecification_NumericValue                 postprocessedPrecision,
+    bool                                                localeSpecificFlag,
+    FormatterSpecificationStandard<wchar_t>::FormatType formatType)
 {
-    FormatterSpecificationStandard<wchar_t> fs;
+    FSSW fs = splitter;
 
-    MockParseContext<wchar_t> pc(inputSpecification);
-
-    FormatterSpecificationStandard<wchar_t>::parse(&fs,
-                                                            &pc,
-                                                            category);
-
-    MockFormatContext<wchar_t> mfc(99, 98, 97, 96);
+    bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<wchar_t>::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
@@ -252,7 +291,7 @@ int main(int argc, char **argv)
         typedef FormatterSpecificationStandard<wchar_t> FSW;
         typedef FormatterSpecification_NumericValue     FSValue;
 
-        checkStandard("", FSC::e_CATEGORY_STRING,
+        checkStandard(parseStandard("", FSC::e_CATEGORY_STRING),
                       " ",
                       FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
@@ -263,8 +302,8 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_STRING_DEFAULT);
 
-        checkStandard("*<06.3d",
-                      FSC::e_CATEGORY_INTEGRAL,
+        checkStandard(parseStandard("*<06.3d",
+                      FSC::e_CATEGORY_INTEGRAL),
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -275,8 +314,8 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_INTEGRAL_DECIMAL);
 
-        checkStandard("*<{1}.{3}F",
-                      FSC::e_CATEGORY_FLOATING,
+        checkStandard(parseStandard("*<{1}.{3}F",
+                      FSC::e_CATEGORY_FLOATING),
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -287,8 +326,8 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_FLOATING_DECIMAL_UC);
 
-        checkStandard(L"",
-                      FSW::e_CATEGORY_STRING,
+        checkStandard(parseStandard(L"",
+                      FSW::e_CATEGORY_STRING),
                       L" ",
                       FSW::e_ALIGN_DEFAULT,
                       FSW::e_SIGN_DEFAULT,
@@ -299,8 +338,8 @@ int main(int argc, char **argv)
                       false,
                       FSW::e_STRING_DEFAULT);
 
-        checkStandard(L"*<06.3d",
-                      FSW::e_CATEGORY_INTEGRAL,
+        checkStandard(parseStandard(L"*<06.3d",
+                      FSW::e_CATEGORY_INTEGRAL),
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
@@ -311,8 +350,8 @@ int main(int argc, char **argv)
                       false,
                       FSW::e_INTEGRAL_DECIMAL);
 
-        checkStandard(L"*<{0}.{3}f",
-                      FSW::e_CATEGORY_FLOATING,
+        checkStandard(parseStandard(L"*<{0}.{3}f",
+                      FSW::e_CATEGORY_FLOATING),
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,

@@ -9,7 +9,10 @@
 #include <string.h>
 
 #include <bslfmt_formatarg.h> // Testing only
+#include <bslfmt_formatargs.h> // Testing only
 #include <bslfmt_formatparsecontext.h> // Testing only
+#include <bslfmt_formatstring.h> // Testing only
+#include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -81,8 +84,22 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string<>
+#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<>
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+#else
+// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
+// have to use non-template versions instead.
+#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 namespace {
 
+#if 0
 template <class t_CHAR>
 struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
     MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
@@ -95,7 +112,7 @@ template <class t_CHAR>
 struct MockFormatContext {
   public:
     // TYPES
-    typedef basic_format_arg<basic_format_context<void, t_CHAR> > Arg;
+    typedef basic_format_arg<basic_format_context<t_CHAR*, t_CHAR> > Arg;
 
   private:
     // DATA
@@ -144,8 +161,53 @@ struct MockFormatContext {
     }
 };
 
+#endif
+
+typedef FormatterSpecification_Splitter<char>    FSC;
+typedef FormatterSpecification_Splitter<wchar_t> FSW;
+
+BSLFMT_FORMATTER_TEST_CONSTEVAL FSC parseStandard(
+       BSLFMT_FORMAT_STRING_PARAMETER                   inputSpecification)
+{
+    const FSC::Sections sect = static_cast<FSC::Sections>(
+            FSC::e_SECTIONS_FILL_ALIGN | FSC::e_SECTIONS_SIGN_FLAG |
+            FSC::e_SECTIONS_ALTERNATE_FLAG | FSC::e_SECTIONS_ZERO_PAD_FLAG |
+            FSC::e_SECTIONS_WIDTH | FSC::e_SECTIONS_PRECISION |
+            FSC::e_SECTIONS_LOCALE_FLAG | FSC::e_SECTIONS_FINAL_SPECIFICATION);
+
+    FSC splitter;
+
+    bsl::basic_string_view<char> inputStringView(inputSpecification.get());
+
+    bslfmt::Formatter_MockParseContext<char> mpc(inputStringView, 3);
+
+    FSC::parse(&splitter, &mpc, sect);
+
+    return splitter;
+}
+
+BSLFMT_FORMATTER_TEST_CONSTEVAL FSW parseStandard(
+                             BSLFMT_FORMAT_WSTRING_PARAMETER inputSpecification)
+{
+    const FSC::Sections sect = static_cast<FSC::Sections>(
+            FSC::e_SECTIONS_FILL_ALIGN | FSC::e_SECTIONS_SIGN_FLAG |
+            FSC::e_SECTIONS_ALTERNATE_FLAG | FSC::e_SECTIONS_ZERO_PAD_FLAG |
+            FSC::e_SECTIONS_WIDTH | FSC::e_SECTIONS_PRECISION |
+            FSC::e_SECTIONS_LOCALE_FLAG | FSC::e_SECTIONS_FINAL_SPECIFICATION);
+
+    FSW splitter;
+
+    bsl::basic_string_view<wchar_t> inputStringView(inputSpecification.get());
+
+    bslfmt::Formatter_MockParseContext<wchar_t> mpc(inputStringView, 3);
+
+    FSW::parse(&splitter, &mpc, sect);
+
+    return splitter;
+}
+
 void checkStandard(
-          const char                                       *inputSpecification,
+          const FSC                                        &splitter,
           bsl::basic_string_view<char>                      filler,
           FormatterSpecification_Splitter<char>::Alignment  alignment,
           FormatterSpecification_Splitter<char>::Sign       sign,
@@ -158,22 +220,9 @@ void checkStandard(
           bool                                              localeSpecificFlag,
           bsl::basic_string_view<char>                      finalSpec)
 {
-    typedef FormatterSpecification_Splitter<char>         FSC;
-    const FSC::Sections sect = static_cast<FSC::Sections>(
-            FSC::e_SECTIONS_FILL_ALIGN | FSC::e_SECTIONS_SIGN_FLAG |
-            FSC::e_SECTIONS_ALTERNATE_FLAG | FSC::e_SECTIONS_ZERO_PAD_FLAG |
-            FSC::e_SECTIONS_WIDTH | FSC::e_SECTIONS_PRECISION |
-            FSC::e_SECTIONS_LOCALE_FLAG | FSC::e_SECTIONS_FINAL_SPECIFICATION);
+    FSC fs = splitter;
 
-    FSC fs;
-
-    bsl::basic_string_view<char> inputStringView(inputSpecification);
-
-    MockParseContext<char> mpc(inputStringView);
-
-    FSC::parse(&fs, &mpc, sect);
-
-    MockFormatContext<char> mfc(99, 98, 97);
+    bslfmt::Formatter_MockFormatContext<char> mfc(99, 98, 97);
     FSC::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
@@ -191,7 +240,7 @@ void checkStandard(
 }
 
 void checkStandard(
-       const wchar_t                                       *inputSpecification,
+       const FSW&                                           splitter,
        bsl::basic_string_view<wchar_t>                      filler,
        FormatterSpecification_Splitter<wchar_t>::Alignment  alignment,
        FormatterSpecification_Splitter<wchar_t>::Sign       sign,
@@ -212,15 +261,9 @@ void checkStandard(
             FSW::e_SECTIONS_WIDTH | FSW::e_SECTIONS_PRECISION |
             FSW::e_SECTIONS_LOCALE_FLAG | FSW::e_SECTIONS_FINAL_SPECIFICATION);
 
-    FSW fs;
+    FSW fs = splitter;
 
-    bsl::basic_string_view<wchar_t> inputStringView(inputSpecification);
-
-    MockParseContext<wchar_t> mpc(inputStringView);
-
-    FSW::parse(&fs, &mpc, sect);
-
-    MockFormatContext<wchar_t> mfc(99, 98, 97);
+    bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97);
     FSW::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
@@ -259,7 +302,7 @@ int main(int argc, char **argv)
         typedef FormatterSpecification_Splitter<wchar_t> FSW;
         typedef FormatterSpecification_NumericValue      FSValue;
 
-        checkStandard("",
+        checkStandard(parseStandard(""),
                       " ",
                       FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
@@ -272,7 +315,7 @@ int main(int argc, char **argv)
                       false,
                       "");
 
-        checkStandard("*<06.3XYZ",
+        checkStandard(parseStandard("*<06.3XYZ"),
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -285,7 +328,7 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard("*<{}.{}XYZ",
+        checkStandard(parseStandard("*<{}.{}XYZ"),
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -298,7 +341,7 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard("*<{1}.{2}XYZ",
+        checkStandard(parseStandard("*<{1}.{2}XYZ"),
                       "*",
                       FSC::e_ALIGN_LEFT,
                       FSC::e_SIGN_DEFAULT,
@@ -311,7 +354,7 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard(L"",
+        checkStandard(parseStandard(L""),
                       L" ",
                       FSW::e_ALIGN_DEFAULT,
                       FSW::e_SIGN_DEFAULT,
@@ -324,7 +367,7 @@ int main(int argc, char **argv)
                       false,
                       L"");
 
-        checkStandard(L"*<06.3XYZ",
+        checkStandard(parseStandard(L"*<06.3XYZ"),
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
@@ -337,7 +380,7 @@ int main(int argc, char **argv)
                       false,
                       L"XYZ");
 
-        checkStandard(L"*<{}.{}XYZ",
+        checkStandard(parseStandard(L"*<{}.{}XYZ"),
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
@@ -350,7 +393,7 @@ int main(int argc, char **argv)
                       false,
                       L"XYZ");
 
-        checkStandard(L"*<{1}.{2}XYZ",
+        checkStandard(parseStandard(L"*<{1}.{2}XYZ"),
                       L"*",
                       FSW::e_ALIGN_LEFT,
                       FSW::e_SIGN_DEFAULT,
