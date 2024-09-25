@@ -203,6 +203,7 @@ struct Formatter_MockFormatContext {
     Arg      d_arg_0;
     Arg      d_arg_1;
     Arg      d_arg_2;
+    Arg      d_arg_3;
 
     t_CHAR   d_buffer[k_BUFFER_SIZE];
     iterator d_iterator;
@@ -247,6 +248,26 @@ struct Formatter_MockFormatContext {
         d_arg_2 = Arg(arr[2]);
     }
 
+    template <class t_ARG0, class t_ARG1, class t_ARG2, class t_ARG3>
+    Formatter_MockFormatContext(const t_ARG0& arg_0,
+                                const t_ARG1& arg_1,
+                                const t_ARG2& arg_2,
+                                const t_ARG3& arg_3)
+    : d_buffer()
+    , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
+    {
+        bsl::array<Arg, 4> arr;
+        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
+                                                     arg_0,
+                                                     arg_1,
+                                                     arg_2,
+                                                     arg_3);
+        d_arg_0 = Arg(arr[0]);
+        d_arg_1 = Arg(arr[1]);
+        d_arg_2 = Arg(arr[2]);
+        d_arg_3 = Arg(arr[3]);
+    }
+
     // ACCESSORS
     Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
     {
@@ -256,6 +277,8 @@ struct Formatter_MockFormatContext {
             return d_arg_1;
         if (id == 2)
             return d_arg_2;
+        if (id == 3)
+            return d_arg_3;
 
         return Arg();
     }
