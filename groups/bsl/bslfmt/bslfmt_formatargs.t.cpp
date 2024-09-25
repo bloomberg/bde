@@ -454,41 +454,6 @@ bool checkFormattableTypeValue(
            (FormattableType::formatSum == 2 * handleValue);
 }
 
-
-// ============================================================================
-//                    GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
-// ----------------------------------------------------------------------------
-
-struct UsageExampleVisitor {
-    void operator()(bsl::monostate) const
-    {
-        ASSERT(false);  // contains no value
-    }
-
-    template <class t_TYPE>
-    typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type operator()(
-                                                                t_TYPE x) const
-    {
-        ASSERT(static_cast<t_TYPE>(99) == x);
-    }
-
-    template <class t_TYPE>
-    typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
-                                                               t_TYPE) const
-    {
-        ASSERT(false);  // contains non-integral value
-    }
-};
-
-struct UsageExampleChecker {
-    static void checkValue(bslfmt::format_args args)
-    {
-        UsageExampleVisitor visitor;
-        visit_format_arg(visitor, args.get(0));
-        ASSERT(!args.get(1));
-    }
-};
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -512,8 +477,6 @@ int main(int argc, char **argv)
         //
         // Plan:
         //: 1 Construct an instance and verify it holds no value.
-        //:
-        //: 2 Construct an instance with a single value and verify contents.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -521,38 +484,24 @@ int main(int argc, char **argv)
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-///Example: 1 Construct a `basic_format_args` object
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
-// are only a very limited number of public methods so this example is
-// necessarily unrealistic.
-//
-// Suppose we want to construct a `basic_format_args` containing a single int.
-//
-//..
-        int                 value = 5;
-        bslfmt::format_args args(bslfmt::make_format_args(value));
 
-        ASSERT( args.get(0));
-        ASSERT(!args.get(1));
-//..
-//
-///Example 2: Non-default construction and value verification
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example: Default construction and value verification
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
 // are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to construct a int-containing `basic_format_args` and verify
-// that it contains that int. Note the use of a function to workaround the
-// lifetime issues specified above.
+// Suppose we want to construct a default-constructed `basic_format_arg` and
+// verify that it contains no value.
 //
 //..
-        int value2 = 99;
-        UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
+        bslfmt::basic_format_arg<
+            bslfmt::basic_format_context<char *, char> > arg;
+
+        ASSERT(!arg);
 //..
+//
       } break;
       case 12: {
         // --------------------------------------------
@@ -1353,6 +1302,10 @@ int main(int argc, char **argv)
             printf("\nTESTING ASSIGNMENT OPERATOR"
                    "\n===========================\n");
 
+        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
+
+        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
+
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
         typedef bslfmt::Format_FormatArgStore<bslfmt::wformat_context, int>
@@ -1582,6 +1535,10 @@ int main(int argc, char **argv)
             printf("\nTESTING SWAP"
                    "\n============\n");
 
+        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
+
+        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
+
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
         typedef bslfmt::Format_FormatArgStore<bslfmt::wformat_context, int>
@@ -1668,6 +1625,10 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nTESTING COPY CONSTRUCTOR"
                    "\n========================\n");
+
+        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
+
+        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
 
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
