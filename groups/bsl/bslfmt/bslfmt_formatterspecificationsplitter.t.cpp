@@ -253,14 +253,6 @@ void checkStandard(
        bool                                                 localeSpecificFlag,
        bsl::basic_string_view<wchar_t>                      finalSpec)
 {
-    typedef FormatterSpecification_Splitter<wchar_t> FSW;
-
-    const FSW::Sections sect = static_cast<FSW::Sections>(
-            FSW::e_SECTIONS_FILL_ALIGN | FSW::e_SECTIONS_SIGN_FLAG |
-            FSW::e_SECTIONS_ALTERNATE_FLAG | FSW::e_SECTIONS_ZERO_PAD_FLAG |
-            FSW::e_SECTIONS_WIDTH | FSW::e_SECTIONS_PRECISION |
-            FSW::e_SECTIONS_LOCALE_FLAG | FSW::e_SECTIONS_FINAL_SPECIFICATION);
-
     FSW fs = splitter;
 
     bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97);
