@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 20 16:36:50 2024
+// Generated on Wed Sep 25 18:54:27 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -121,6 +121,7 @@ class Format_FormatArgStore<t_CONTEXT> {
 
     friend class Format_FormatArgs_ImpUtil;
 
+
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  0u>& args)
         BSLS_KEYWORD_NOEXCEPT;
@@ -138,6 +139,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01> {
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  1u>& args)
@@ -158,6 +160,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  2u>& args)
@@ -180,6 +183,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  3u>& args)
@@ -204,6 +208,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  4u>& args)
@@ -230,6 +235,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  5u>& args)
@@ -258,6 +264,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  6u>& args)
@@ -288,6 +295,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  7u>& args)
@@ -320,6 +328,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  8u>& args)
@@ -354,6 +363,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  9u>& args)
@@ -391,6 +401,7 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     friend class Format_FormatArgs_ImpUtil;
 
+
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, 10u>& args)
         BSLS_KEYWORD_NOEXCEPT;
@@ -410,6 +421,7 @@ class Format_FormatArgStore {
     friend class basic_format_args;
 
     friend class Format_FormatArgs_ImpUtil;
+
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
@@ -433,7 +445,6 @@ class Format_FormatArgStore {
 #ifndef BSLFMT_FORMATARGS_VARIADIC_LIMIT_B
 #define BSLFMT_FORMATARGS_VARIADIC_LIMIT_B BSLFMT_FORMATARGS_VARIADIC_LIMIT
 #endif
-
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_B >= 0
 Format_FormatArgStore<format_context> make_format_args(
                                                           );
@@ -838,7 +849,6 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-
 template <class... t_ARGS>
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
                                                           t_ARGS&... fmt_args);
@@ -854,15 +864,22 @@ Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                      // class basic_format_args<t_CONTEXT>
                      // ----------------------------------
 
-
+/// A class intended to provide access to formatting arguments. This should not
+/// be constructed directly but indirectly using one of the `make_format_args`
+/// or the `make_wformat_args` functions. Note that this type has reference
+/// semantics and users must ensure that this type does not outlive the
+/// arguments used in its construction.
 template <class t_CONTEXT>
 class basic_format_args {
   private:
     // DATA
-    size_t                             d_size;
-    const basic_format_arg<t_CONTEXT> *d_data;
+    size_t                             d_size;   // Number of arguments held
+    const basic_format_arg<t_CONTEXT> *d_data;   // Pointer to the first element
+                                                 // of the contained array.
 
     // PRIVATE ACCESSORS
+
+    // Return the number of arguments contained within this object.
     size_t size() const;
 
     // FRIENDS
@@ -870,6 +887,8 @@ class basic_format_args {
 
   public:
     // CREATORS
+
+    // Construct a `basic_format_args` object which contains no arguments.
     basic_format_args() BSLS_KEYWORD_NOEXCEPT;
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1046,7 +1065,11 @@ class basic_format_args {
 #endif
 
     // ACCESSORS
-    basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT;
+
+    // Return the argument held at the position given by the specified `pos`.
+    // If `pos >= size()` then a default-constructed `basic_format_arg` is
+    // returned.
+    basic_format_arg<t_CONTEXT> get(size_t pos) const BSLS_KEYWORD_NOEXCEPT;
 };
 
                       // -------------------------------
@@ -1791,9 +1814,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 // ACCESSORS
 template <class t_CONTEXT>
 basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
-                                          size_t i) const BSLS_KEYWORD_NOEXCEPT
+                                        size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
-    return i < d_size ? d_data[i] : basic_format_arg<t_CONTEXT>();
+    return pos < d_size ? d_data[pos] : basic_format_arg<t_CONTEXT>();
 }
 
 
