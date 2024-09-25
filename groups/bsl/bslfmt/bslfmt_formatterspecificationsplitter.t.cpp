@@ -84,21 +84,17 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
-#else
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 #define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string<>
 #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<>
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
 #else
 // We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
 // have to use non-template versions instead.
 #define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
 #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 namespace {
@@ -257,6 +253,14 @@ void checkStandard(
        bool                                                 localeSpecificFlag,
        bsl::basic_string_view<wchar_t>                      finalSpec)
 {
+    typedef FormatterSpecification_Splitter<wchar_t> FSW;
+
+    const FSW::Sections sect = static_cast<FSW::Sections>(
+            FSW::e_SECTIONS_FILL_ALIGN | FSW::e_SECTIONS_SIGN_FLAG |
+            FSW::e_SECTIONS_ALTERNATE_FLAG | FSW::e_SECTIONS_ZERO_PAD_FLAG |
+            FSW::e_SECTIONS_WIDTH | FSW::e_SECTIONS_PRECISION |
+            FSW::e_SECTIONS_LOCALE_FLAG | FSW::e_SECTIONS_FINAL_SPECIFICATION);
+
     FSW fs = splitter;
 
     bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97);
