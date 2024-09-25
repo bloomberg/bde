@@ -377,6 +377,22 @@ int main(int argc, char **argv)
             ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
                     EXPECTED == result);
         }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) printf("\tTesting locale prohibition.\n");
+        {
+            try {
+                bslfmt::format("{:L}", 5);
+                ASSERTV("No exception was thrown", false);
+            }
+            catch(const bsl::format_error& err) {
+                ASSERTV(err.what(),
+                        bsl::string("Formatting L specifier not supported") ==
+                            bsl::string(err.what()));
+            }
+        }
+#endif
+
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
