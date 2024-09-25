@@ -1531,10 +1531,6 @@ int main(int argc, char **argv)
             printf("\nTESTING SWAP"
                    "\n============\n");
 
-        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
-
-        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
-
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
         typedef bslfmt::Format_FormatArgStore<bslfmt::wformat_context, int>
@@ -1621,10 +1617,6 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nTESTING COPY CONSTRUCTOR"
                    "\n========================\n");
-
-        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
-
-        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
 
         typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
             FASI;
