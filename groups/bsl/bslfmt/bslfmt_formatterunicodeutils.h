@@ -41,13 +41,12 @@ BSLS_IDENT("$Id: $")
 
 #include <stdio.h>    // for 'snprintf'
 
-
 namespace BloombergLP {
 namespace bslfmt {
 
-                        // ----------------------------
+                        // ============================
                         // class Formatter_UnicodeUtils
-                        // ----------------------------
+                        // ============================
 
 struct Formatter_UnicodeUtils {
   public:
@@ -160,12 +159,14 @@ struct Formatter_UnicodeUtils {
 
 template <class t_CHAR>
 struct Formatter_CharUtils {
-  public:
-    // CLASS METHODS
 };
 
 template <>
 struct Formatter_CharUtils<char> {
+
+    // CLASS DATA
+    static const char *const s_toUpper_p;  //
+
   public:
     // CLASS METHODS
     template <class t_ITERATOR>
@@ -193,11 +194,22 @@ struct Formatter_CharUtils<char> {
 
         return out;
     }
+
+    static void toUpper(char *begin, const char *end)
+    {
+        for (; begin != end; (void)++begin) {
+            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+        }
+    }
 };
 
 
 template <>
 struct Formatter_CharUtils<wchar_t> {
+
+    // CLASS DATA
+    static const char *const s_toUpper_p;  //
+
   public:
     // CLASS METHODS
     template <class t_ITERATOR>
@@ -234,6 +246,13 @@ struct Formatter_CharUtils<wchar_t> {
         *out++ = ct.widen(v);
 
         return out;
+    }
+
+    static void toUpper(char *begin, const char *end)
+    {
+        for (; begin != end; (void)++begin) {
+            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+        }
     }
 };
 

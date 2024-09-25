@@ -94,51 +94,69 @@ struct Formatter_IntegerBase {
 
         // Adding sign.
 
-        switch (final_spec.sign()) {
-          case FSS::e_SIGN_POSITIVE: {
-            if (x > 0) {
-                *prefixEnd = '+';
-                ++prefixEnd;
+        if (x > 0) {
+            switch (final_spec.sign()) {
+              case FSS::e_SIGN_POSITIVE: {
+                if (x > 0) {
+                    *prefixEnd = '+';
+                    ++prefixEnd;
+                }
+              } break;
+              case FSS::e_SIGN_SPACE: {
+                if (x > 0) {
+                    *prefixEnd = ' ';
+                    ++prefixEnd;
+                }
+              } break;
+              default: {
+                // Suppress compiler warning.
+                // FSS::e_SIGN_DEFAULT
+                // FSS::e_SIGN_NEGATIVE
+              }
             }
-          } break;
-          case FSS::e_SIGN_SPACE: {
-            if (x > 0) {
-                *prefixEnd = ' ';
-                ++prefixEnd;
-            }
-          } break;
-          default: {
-            // Suppress compiler warning.
-            // FSS::e_SIGN_DEFAULT
-            // FSS::e_SIGN_NEGATIVE
-          }
+        }
+        else if (x < 0) {
+            // As we might have an alternate form that requires special prefix,
+            // we add the minus sign ourselves without relying on
+            // `NumericFormatterUtil::toChars` negative value conversion.
+
+            *prefixEnd = '-';
+            ++prefixEnd;
+            x = -x;
         }
 
         // Adding alternate form prefix.
 
-        if (d_spec.alternativeFlag()) {
-            const char *formatPrefix = 0;
+        {
+            const char *formatPrefix       = 0;
+            int         formatPrefixLength = 0;
             switch (final_spec.formatType()) {
               case FSS::e_INTEGRAL_BINARY: {     // `b`
                   formatPrefix = "0b";
+                  formatPrefixLength = 2;
                   valueBase = 2;
               } break;
               case FSS::e_INTEGRAL_BINARY_UC: {  // `B`
                   formatPrefix = "0B";
+                  formatPrefixLength = 2;
                   valueBase = 2;
               } break;
               case FSS::e_INTEGRAL_DECIMAL: {    // none or `d`
                   valueBase = 10;
               } break;
               case FSS::e_INTEGRAL_OCTAL: {      // `o`
+                  formatPrefix = "0";
+                  formatPrefixLength = 1;
                   valueBase = 8;
               } break;
               case FSS::e_INTEGRAL_HEX: {        // `x`
                   formatPrefix = "0x";
+                  formatPrefixLength = 2;
                   valueBase = 16;
               } break;
               case FSS::e_INTEGRAL_HEX_UC: {     // `X`
                   formatPrefix = "0X";
+                  formatPrefixLength = 2;
                   valueBase = 16;
               } break;
               default: {
@@ -147,7 +165,7 @@ struct Formatter_IntegerBase {
             }
             if (formatPrefix) {
                 prefixEnd = bsl::copy(formatPrefix,
-                                      formatPrefix + 2,
+                                      formatPrefix + formatPrefixLength,
                                       prefixEnd);
             }
         }
@@ -158,6 +176,16 @@ struct Formatter_IntegerBase {
                                        valueBuf + sizeof(valueBuf),
                                        x,
                                        valueBase);
+
+        if (FSS::e_INTEGRAL_HEX_UC == final_spec.formatType()) {
+            // Unfortunately, `NumericFormatterUtil::toChars` uses only
+            // lowercase characters to represent hexadecimal numbers.  So we
+            // have to additionally modify the resulting string for uppercase
+            // hexadecimal format.
+
+            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(valueBuf,
+                                                                      result);
+        }
 
         int commonLength = static_cast<int>((result - valueBuf) +
                                               (prefixEnd - prefixBuf));
@@ -216,11 +244,18 @@ struct Formatter_IntegerBase {
                            outIterator);
         }
 
-        outIterator = bsl::copy(prefixBuf, prefixEnd, outIterator);
+        outIterator =
+              BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
+                  prefixBuf,
+                  prefixEnd,
+                  outIterator);
 
         for (int i = 0; i < zeroPadFillerCopiesNum; ++i) {
             const char *zeroFiller = "0";
-            outIterator = bsl::copy(zeroFiller, zeroFiller + 1, outIterator);
+            outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                t_CHAR>::outputFromChar(zeroFiller,
+                                        zeroFiller + 1,
+                                        outIterator);
         }
 
         outIterator =
