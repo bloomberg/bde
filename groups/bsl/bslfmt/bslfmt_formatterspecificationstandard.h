@@ -133,7 +133,6 @@ class FormatterSpecificationStandard
     FormatType    d_formatType;
     int           d_widthArgId;
     int           d_precisionArgId;
-    std::string   d_dummy;
 
     // PRIVATE CLASS FUNCTIONS
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
@@ -463,10 +462,12 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
           bsl::format_error("Standard types are single-character"));  // RETURN
     }
 
-    const std::ctype<wchar_t>& ct =
-                std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
+    t_CHAR frontChar = typeString.front();
 
-    char typeChar = ct.narrow(typeString.front(), '\0');
+    // The type character can only be ascii so we can do a simple cast.
+    char typeChar = (frontChar >= 0 && frontChar <= 0x7f)
+                        ? static_cast<char>(frontChar)
+                        : static_cast<char>(0);
 
     switch (category) {
       case e_CATEGORY_UNASSIGNED: {
