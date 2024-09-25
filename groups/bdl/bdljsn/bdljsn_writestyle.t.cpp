@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
             { L_,     0,    4,  Obj::e_ONELINE,          "ONELINE" NL       },
             { L_,     0,    4,  Obj::e_COMPACT,          "COMPACT" NL       },
 
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE) && !defined(BDE_BUILD_TARGET_UBSAN)
             { L_,     0,    4,  ABOVE_ENUM_RANGE,        UNKNOWN_STYLE NL   },
             { L_,     0,    4,  -1,                      UNKNOWN_STYLE NL   },
             { L_,     0,    4,  -5,                      UNKNOWN_STYLE NL   },
@@ -355,7 +355,9 @@ int main(int argc, char *argv[])
                 {  L_,     Obj::e_COMPACT,              "COMPACT"         },
                 {  L_,     Obj::e_ONELINE,              "ONELINE"         },
                 {  L_,     Obj::e_PRETTY,               "PRETTY"          },
+#ifndef BDE_BUILD_TARGET_UBSAN
                 {  L_,     (Enum) -1,                   UNKNOWN_STYLE     },
+#endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

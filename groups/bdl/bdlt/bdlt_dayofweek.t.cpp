@@ -1019,10 +1019,12 @@ if (verbose) {  // added in test driver
             { L_,     Obj::BDET_SATURDAY,         "SAT"              },
 #endif
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     ABOVE_ENUM_RANGE,           UNKNOWN_FORMAT     },
             { L_,     -1,                         UNKNOWN_FORMAT     },
             { L_,     -5,                         UNKNOWN_FORMAT     },
             { L_,     99,                         UNKNOWN_FORMAT     },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1157,7 +1159,7 @@ if (verbose) {  // added in test driver
             { L_,     0,    4,  Obj::BDET_SAT,           "SAT" NL           },
 #endif
 
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE) && !defined(BDE_BUILD_TARGET_UBSAN)
             { L_,     0,    4,  ABOVE_ENUM_RANGE,        UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  -1,                      UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  -5,                      UNKNOWN_FORMAT NL  },

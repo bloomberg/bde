@@ -259,10 +259,12 @@ if (veryVerbose)
             { L_,     0,    4,  Obj::e_STANDARD,        "STANDARD" NL      },
             { L_,     0,    4,  Obj::e_UNSPECIFIED,     "UNSPECIFIED" NL   },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     0,    4,  (Enum)NUM_ENUMERATORS,  UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)-1,               UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)-5,               UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)99,               UNKNOWN_FORMAT NL  },
+#endif
 
             { L_,     0,   -1,  Obj::e_DST,            "DST"               },
             { L_,     0,    0,  Obj::e_DST,            "DST" NL            },
@@ -423,10 +425,12 @@ if (veryVerbose)
             { L_,     Obj::e_STANDARD,            "STANDARD"         },
             { L_,     Obj::e_UNSPECIFIED,         "UNSPECIFIED"      },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     (Enum)NUM_ENUMERATORS,      UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                   UNKNOWN_FORMAT     },
             { L_,     (Enum)-5,                   UNKNOWN_FORMAT     },
             { L_,     (Enum)99,                   UNKNOWN_FORMAT     },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -545,10 +549,12 @@ if (veryVerbose)
             {  L_,     Obj::e_STANDARD,             "STANDARD"        },
             {  L_,     Obj::e_UNSPECIFIED,          "UNSPECIFIED"     },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)-5,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

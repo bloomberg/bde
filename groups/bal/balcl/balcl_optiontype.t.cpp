@@ -850,11 +850,13 @@ if (veryVerbose)
           , {  L_,    Obj::e_DATE_ARRAY    , "DATE_ARRAY"     }  // 16
           , {  L_,    Obj::e_TIME_ARRAY    , "TIME_ARRAY"     }  // 17
 
+#ifndef BDE_BUILD_TARGET_UBSAN
           , {  L_,    static_cast<Enum>(-1), UNKNOWN_FORMAT   }
           , {  L_,    static_cast<Enum>(NUM_ENUMERATORS), UNKNOWN_FORMAT   }
 
           , {  L_,    static_cast<Enum>(-5)             , UNKNOWN_FORMAT   }
           , {  L_,    static_cast<Enum>(99)             , UNKNOWN_FORMAT   }
+#endif
         };
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -992,11 +994,13 @@ if (veryVerbose)
           , { L_,    0,   4, Obj::e_DATETIME,             "DATETIME"     NL }
           , { L_,    0,   4, Obj::e_CHAR_ARRAY,           "CHAR_ARRAY"   NL }
 
+#ifndef BDE_BUILD_TARGET_UBSAN
           , { L_,    0,   4, static_cast<Enum>(NUM_ENUMERATORS + 1),
                                                           UNKNOWN_FORMAT NL }
           , { L_,    0,   4, static_cast<Enum>(-1),       UNKNOWN_FORMAT NL }
           , { L_,    0,   4, static_cast<Enum>(-5),       UNKNOWN_FORMAT NL }
           , { L_,    0,   4, static_cast<Enum>(99),       UNKNOWN_FORMAT NL }
+#endif
 
           , { L_,    0,  -1, Obj::e_INT64,                "INT64"           }
           , { L_,    0,   0, Obj::e_STRING,               "STRING"       NL }
@@ -1151,11 +1155,12 @@ if (veryVerbose)
           , {  L_,    Obj::e_DATE_ARRAY,     "DATE_ARRAY"      }  // 16
           , {  L_,    Obj::e_TIME_ARRAY,     "TIME_ARRAY"      }  // 17
 
+#ifndef BDE_BUILD_TARGET_UBSAN
           , {  L_,    static_cast<Enum>(-1),                  UNKNOWN_FORMAT }
           , {  L_,    static_cast<Enum>(NUM_ENUMERATORS),     UNKNOWN_FORMAT }
-
           , {  L_,    static_cast<Enum>(-5),                  UNKNOWN_FORMAT }
           , {  L_,    static_cast<Enum>(99),                  UNKNOWN_FORMAT }
+#endif
         };
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC

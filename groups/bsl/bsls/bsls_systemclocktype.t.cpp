@@ -205,8 +205,10 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_REALTIME,             "REALTIME"        },
             {  L_,     Obj::e_MONOTONIC,            "MONOTONIC"       },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     NUM_ENUMERATORS,             UNKNOWN_FORMAT    },
             {  L_,     99,                          UNKNOWN_FORMAT    }
+#endif
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 

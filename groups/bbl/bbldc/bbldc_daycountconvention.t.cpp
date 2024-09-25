@@ -946,10 +946,12 @@ int main(int argc, char *argv[])
             { L_,     Obj::e_ISDA_30_360_EOM,     "ISDA_30_360_EOM"    },
             { L_,     Obj::e_NL_365,              "NL_365"             },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     k_ABOVE_ENUM_RANGE,         UNKNOWN_FORMAT       },
             { L_,     -1,                         UNKNOWN_FORMAT       },
             { L_,     -5,                         UNKNOWN_FORMAT       },
             { L_,     99,                         UNKNOWN_FORMAT       },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1072,7 +1074,7 @@ int main(int argc, char *argv[])
             { L_,  0,  4, Obj::e_ISDA_30_360_EOM,    "ISDA_30_360_EOM" NL    },
             { L_,  0,  4, Obj::e_NL_365,             "NL_365" NL             },
 
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE) && !defined(BDE_BUILD_TARGET_UBSAN)
             { L_,  0,  4, k_ABOVE_ENUM_RANGE,        UNKNOWN_FORMAT NL       },
             { L_,  0,  4, -1,                        UNKNOWN_FORMAT NL       },
             { L_,  0,  4, -5,                        UNKNOWN_FORMAT NL       },
@@ -1236,12 +1238,14 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_ISDA_30_360_EOM,             1, "ISDA_30_360_EOM"  },
             {  L_, Obj::e_NL_365,                      1, "NL_365"           },
             {  L_, Obj::e_ACTUAL_365_25,               1, "ACTUAL_365_25"    },
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, k_ABOVE_ENUM_RANGE,                   0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, 19,                                 0,
                                                   "(* Unknown Enumerator *)" },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

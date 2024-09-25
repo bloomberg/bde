@@ -273,10 +273,12 @@ if (veryVerbose)
             { L_,     Obj::e_VALID_AMBIGUOUS,         "VALID_AMBIGUOUS"  },
             { L_,     Obj::e_INVALID,                 "INVALID"          },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
             { L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
             { L_,     (Enum)99,                       UNKNOWN_FORMAT     },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -414,10 +416,12 @@ if (veryVerbose)
             { L_,    0,   4, Obj::e_VALID_AMBIGUOUS,    "VALID_AMBIGUOUS" NL },
             { L_,    0,   4, Obj::e_INVALID,            "INVALID" NL         },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,    0,   4, (Enum)NUM_ENUMERATORS,     UNKNOWN_FORMAT NL    },
             { L_,    0,   4, (Enum)-1,                  UNKNOWN_FORMAT NL    },
             { L_,    0,   4, (Enum)-5,                  UNKNOWN_FORMAT NL    },
             { L_,    0,   4, (Enum)99,                  UNKNOWN_FORMAT NL    },
+#endif
 
             { L_,    0,  -1, Obj::e_VALID_UNIQUE,       "VALID_UNIQUE"       },
             { L_,    0,   0, Obj::e_VALID_UNIQUE,       "VALID_UNIQUE" NL    },
@@ -554,10 +558,12 @@ if (veryVerbose)
             {  L_,     Obj::e_VALID_AMBIGUOUS,         "VALID_AMBIGUOUS"  },
             {  L_,     Obj::e_INVALID,                 "INVALID"          },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT     },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
             {  L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
             {  L_,     (Enum)99,                       UNKNOWN_FORMAT     }
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

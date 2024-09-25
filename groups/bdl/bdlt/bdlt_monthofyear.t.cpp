@@ -1037,12 +1037,14 @@ if (veryVerbose)
             {  L_,    Obj::e_DECEMBER,                   "DEC"          },
             {  L_,    Obj::e_DEC,                        "DEC"          },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,    static_cast<Enum>(-1),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(0),                   UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT },
 
             {  L_,    static_cast<Enum>(-5),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(99),                  UNKNOWN_FORMAT }
+#endif
         };
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -1175,11 +1177,13 @@ if (veryVerbose)
             { L_,    0,   4, Obj::e_FEB,             "FEB" NL           },
             { L_,    0,   4, Obj::e_MARCH,           "MAR" NL           },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,    0,   4, static_cast<Enum>(NUM_ENUMERATORS + 1),
                                                           UNKNOWN_FORMAT NL  },
             { L_,    0,   4, static_cast<Enum>(-1),       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, static_cast<Enum>(-5),       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, static_cast<Enum>(99),       UNKNOWN_FORMAT NL  },
+#endif
 
             { L_,    0,  -1, Obj::e_APR,             "APR"              },
             { L_,    0,   0, Obj::e_MAY,             "MAY" NL           },
@@ -1342,12 +1346,14 @@ if (veryVerbose)
             {  L_,    Obj::e_DECEMBER,                        "DEC"          },
             {  L_,    Obj::e_DEC,                             "DEC"          },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,    static_cast<Enum>(-1),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(0),                   UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT },
 
             {  L_,    static_cast<Enum>(-5),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(99),                  UNKNOWN_FORMAT }
+#endif
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

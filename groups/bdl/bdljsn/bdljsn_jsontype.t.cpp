@@ -275,10 +275,12 @@ int main(int argc, char *argv[])
             {  L_,    0,    4,  Obj::e_BOOLEAN,         "BOOLEAN"      NL },
             {  L_,    0,    4,  Obj::e_NULL,            "NULL"         NL },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,    0,    4,  (Enum)NUM_ENUMERATORS,  UNKNOWN_FORMAT NL },
             {  L_,    0,    4,  (Enum)-1,               UNKNOWN_FORMAT NL },
             {  L_,    0,    4,  (Enum)-5,               UNKNOWN_FORMAT NL },
             {  L_,    0,    4,  (Enum)99,               UNKNOWN_FORMAT NL },
+#endif
 
             { L_,     0,   -1,  Obj::e_OBJECT,          "OBJECT"          },
             { L_,     0,    0,  Obj::e_OBJECT,          "OBJECT"       NL },
@@ -435,10 +437,12 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_BOOLEAN,              "BOOLEAN"         },
             {  L_,     Obj::e_NULL,                 "NULL"            },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)-5,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+#endif
         };
 #ifdef BSLS_PLATFORM_CMP_GNU
 #pragma GCC diagnostic pop
@@ -556,10 +560,12 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_BOOLEAN,              "BOOLEAN"         },
             {  L_,     Obj::e_NULL,                 "NULL"            },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)-5,                    UNKNOWN_FORMAT    },
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+#endif
         };
 #ifdef BSLS_PLATFORM_CMP_GNU
 #pragma GCC diagnostic pop

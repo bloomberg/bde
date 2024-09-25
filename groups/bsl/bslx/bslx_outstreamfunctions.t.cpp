@@ -345,7 +345,7 @@ struct TestWithVersion {
 
         MyTestOutStream stream(VERSION_SELECTOR);
 
-        TYPE mValue;  const TYPE& value = mValue;
+        TYPE mValue = TYPE();  const TYPE& value = mValue;
         bsl::vector<TYPE> mV;
         const bsl::vector<TYPE>& V = mV;
         bsl::vector<bsl::vector<TYPE> > mVV;
@@ -442,7 +442,7 @@ struct TestWithoutVersion {
     {
         using bslx::OutStreamFunctions::bdexStreamOut;
 
-        TYPE mValue;  const TYPE& value = mValue;
+        TYPE mValue = TYPE();  const TYPE& value = mValue;
         bsl::vector<TYPE> mV;
         const bsl::vector<TYPE>& V = mV;
         bsl::vector<bsl::vector<TYPE> > mVV;

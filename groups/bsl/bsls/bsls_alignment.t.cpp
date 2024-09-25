@@ -281,7 +281,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'enum' and 'toAscii'"
                             "\n============================\n");
 
-        int invalidEnumValues[] = { -1, -5, 99 };
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -293,10 +292,12 @@ int main(int argc, char *argv[])
             {  L_,     Obj::BSLS_NATURAL,              "NATURAL"         },
             {  L_,     Obj::BSLS_BYTEALIGNED,          "BYTEALIGNED"     },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
-            {  L_,     (Enum)invalidEnumValues[0],     UNKNOWN_FORMAT    },
-            {  L_,     (Enum)invalidEnumValues[1],     UNKNOWN_FORMAT    },
-            {  L_,     (Enum)invalidEnumValues[2],     UNKNOWN_FORMAT    }
+            {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
+            {  L_,     (Enum)-5,                       UNKNOWN_FORMAT    },
+            {  L_,     (Enum)00,                       UNKNOWN_FORMAT    }
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

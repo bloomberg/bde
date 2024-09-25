@@ -333,9 +333,10 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_MOVED,                 "MOVED"          },
             {  L_,     Obj::e_UNKNOWN,               "UNKNOWN"        },
 
-
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+#endif
         };
 
 #if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC

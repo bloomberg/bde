@@ -261,10 +261,12 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_IGNORE_NONE,          "IGNORE_NONE"         },
             {  L_,     Obj::e_IGNORE_WHITESPACE,    "IGNORE_WHITESPACE"   },
             {  L_,     Obj::e_IGNORE_UNRECOGNIZED,  "IGNORE_UNRECOGNIZED" },
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT    },
             {  L_,     -1,                          UNKNOWN_FORMAT    },
             {  L_,     -5,                          UNKNOWN_FORMAT    },
             {  L_,     99,                          UNKNOWN_FORMAT    }
+#endif
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -380,9 +382,11 @@ int main(int argc, char *argv[])
             { L_,    0,    4,  Obj::e_IGNORE_NONE,       "IGNORE_NONE" NL  },
             { L_,    0,    4,  Obj::e_IGNORE_WHITESPACE,
                                                       "IGNORE_WHITESPACE" NL },
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,    0,    4,  -1,                       UNKNOWN_FORMAT NL  },
             { L_,    0,    4,  -5,                       UNKNOWN_FORMAT NL  },
             { L_,    0,    4,  99,                       UNKNOWN_FORMAT NL  },
+#endif
 
             { L_,    0,   -1,  Obj::e_IGNORE_NONE,       "IGNORE_NONE"       },
             { L_,    0,    0,  Obj::e_IGNORE_NONE,       "IGNORE_NONE" NL    },
@@ -513,10 +517,12 @@ int main(int argc, char *argv[])
             {  L_,     Obj::e_IGNORE_NONE,          "IGNORE_NONE"         },
             {  L_,     Obj::e_IGNORE_WHITESPACE,    "IGNORE_WHITESPACE"   },
             {  L_,     Obj::e_IGNORE_UNRECOGNIZED,  "IGNORE_UNRECOGNIZED" },
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     NUM_VALUES,                  UNKNOWN_FORMAT        },
             {  L_,     -1,                          UNKNOWN_FORMAT        },
             {  L_,     -5,                          UNKNOWN_FORMAT        },
             {  L_,     99,                          UNKNOWN_FORMAT        }
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

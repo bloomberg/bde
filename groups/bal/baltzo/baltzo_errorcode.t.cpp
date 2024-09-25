@@ -257,10 +257,12 @@ if (veryVerbose)
             //---- ----- --- ---------------------------  ------------------
             { L_,    0,   4, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,    0,   4, e(NUM_ENUMERATORS + 1),      UNKNOWN_FORMAT NL  },
             { L_,    0,   4, e(-1),                       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, e(-5),                       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, e(99),                       UNKNOWN_FORMAT NL  },
+#endif
 
             { L_,    0,  -1, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID"    },
             { L_,    0,   0, Obj::k_UNSUPPORTED_ID,      "UNSUPPORTED_ID" NL },
@@ -420,10 +422,12 @@ if (veryVerbose)
 
             { L_,     Obj::k_OUT_OF_RANGE,            "OUT_OF_RANGE"     },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     e(NUM_ENUMERATORS + 1),         UNKNOWN_FORMAT     },
             { L_,     e(-1),                          UNKNOWN_FORMAT     },
             { L_,     e(-5),                          UNKNOWN_FORMAT     },
             { L_,     e(99),                          UNKNOWN_FORMAT     },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -532,10 +536,12 @@ if (veryVerbose)
             {  L_,     Obj::k_UNSUPPORTED_ID,          "UNSUPPORTED_ID"   },
             {  L_,     Obj::k_OUT_OF_RANGE,            "OUT_OF_RANGE"     },
 
+#ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     e(NUM_ENUMERATORS + 1),         UNKNOWN_FORMAT     },
             {  L_,     e(-1),                          UNKNOWN_FORMAT     },
             {  L_,     e(-5),                          UNKNOWN_FORMAT     },
             {  L_,     e(99),                          UNKNOWN_FORMAT     }
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

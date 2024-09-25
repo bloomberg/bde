@@ -5315,7 +5315,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         bsl::ostringstream oss;
-        const char *exp;
 
 #undef  STEST
 #define STEST(pfx, id)                                                        \
@@ -5363,11 +5362,15 @@ int main(int argc, char *argv[])
         exp = "Invalid '" #type "' == 100";                                   \
         ASSERTV(oss.str(), exp, exp == oss.str());
 
+# ifndef BDE_BUILD_TARGET_UBSAN
+        const char *exp;
+
         BADTEST(Whence);
         BADTEST(ErrorType);
         BADTEST(FileOpenPolicy);
         BADTEST(FileIOPolicy);
         BADTEST(FileTruncatePolicy);
+# endif
 #undef  BADTEST
       } break;
       case 26: {
