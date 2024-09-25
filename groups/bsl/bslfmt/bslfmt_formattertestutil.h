@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatcontext.h>
+#include <bslfmt_formatstring.h>
 #include <bslfmt_formatterbase.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
@@ -55,6 +56,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 using namespace BloombergLP;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+#else
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING                              \
@@ -71,7 +78,6 @@ using namespace BloombergLP;
     std::basic_format_string<t_CHAR, t_TYPE, int, int>
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
     ARG.get()
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
 #else
 #define BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING                              \
     bsl::string_view
@@ -87,7 +93,6 @@ using namespace BloombergLP;
     bsl::basic_string_view<t_CHAR>
 #define BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_GETTER(ARG)            \
     ARG
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif
 
 namespace BloombergLP {
