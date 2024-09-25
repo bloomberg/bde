@@ -3,6 +3,39 @@
 #ifndef INCLUDED_BSLFMT_FORMATARGS
 #define INCLUDED_BSLFMT_FORMATARGS
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a container of arguments for use by bsl::format
+//
+//@CLASSES:
+//  bslfmt::basic_format_args: standard-compliant argment store
+//
+//@DESCRIPTION: This component provides an implementation of the C++20 Standard
+// Library's `basic_format_args`, providing access to an array of
+// `basic_format_arg` types.
+//
+///Usage
+///-----
+// In this section we show the intended use of this component.
+//
+///Example: Construct a `basic_format_args` object and verify what it contains.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
+// are only a very limited number of public methods so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to construct a `basic_format_args` containing a single int.
+//
+//..
+//   bslfmt::format_args args(bslfmt::make_format_args((int)5);
+//
+//   assert( args.get(0));
+//   assert(!args.get(1));
+//..
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>
@@ -73,12 +106,17 @@ typedef basic_format_args<wformat_context> wformat_args;
 
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+/// This component-private type holds an array of `basic_format_arg` objects
+/// and is intended to be implicitly convertible to `basic_format_args`. Note
+/// that this type has reference semantics and users must ensure that this type
+/// does not outlive the arguments used in its construction.
 template <class t_CONTEXT, class... t_ARGS>
 class Format_FormatArgStore {
 
   private:
     // DATA
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> d_args;
+                                             // Contained array of arguments.
 
     // FRIENDS
     template <class t_INNER_CONTEXT>
@@ -87,6 +125,9 @@ class Format_FormatArgStore {
     friend class Format_FormatArgs_ImpUtil;
 
     // PRIVATE CREATORS
+
+    /// Construct a `Format_FormatArgStore` containing a copy of the specified
+    /// `args`.
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
         BSLS_KEYWORD_NOEXCEPT;
@@ -100,11 +141,16 @@ class Format_FormatArgStore {
                                // --------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-
+/// From the specified `fmt_args` return a type convertible to
+/// `format_arg_store` that is suitable for use by the `char`-based
+/// `bslfmt::format` functions.
 template <class... t_ARGS>
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
                                                           t_ARGS&... fmt_args);
 
+/// From the specified `fmt_args` return a type convertible to
+/// `format_arg_store` that is suitable for use by the `wchar_t`-based
+/// `bslfmt::format` functions.
 template <class... t_ARGS>
 Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                                                           t_ARGS&... fmt_args);
@@ -115,15 +161,22 @@ Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                      // class basic_format_args<t_CONTEXT>
                      // ----------------------------------
 
-
+/// A class intended to provide access to formatting arguments. This should not
+/// be constructed directly but indirectly using one of the `make_format_args`
+/// or the `make_wformat_args` functions. Note that this type has reference
+/// semantics and users must ensure that this type does not outlive the
+/// arguments used in its construction.
 template <class t_CONTEXT>
 class basic_format_args {
   private:
     // DATA
-    size_t                             d_size;
-    const basic_format_arg<t_CONTEXT> *d_data;
+    size_t                             d_size;   // Number of arguments held
+    const basic_format_arg<t_CONTEXT> *d_data;   // Pointer to the first element
+                                                 // of the contained array.
 
     // PRIVATE ACCESSORS
+
+    // Return the number of arguments contained within this object.
     size_t size() const;
 
     // FRIENDS
@@ -131,16 +184,25 @@ class basic_format_args {
 
   public:
     // CREATORS
+
+    // Construct a `basic_format_args` object which contains no arguments.
     basic_format_args() BSLS_KEYWORD_NOEXCEPT;
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    // Construct a `basic_format_args` object which contains the arguments held
+    // by the specified `store`. Typically this constructor would be called
+    // using the return value of `make_format_args` or of `make_wformat_args`.
     template <class... t_ARGS>
     basic_format_args(const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
         BSLS_KEYWORD_NOEXCEPT;                                     // IMPLICIT
 #endif
 
     // ACCESSORS
-    basic_format_arg<t_CONTEXT> get(size_t i) const BSLS_KEYWORD_NOEXCEPT;
+
+    // Return the argument held at the position given by the specified `pos`.
+    // If `pos >= size()` then a default-constructed `basic_format_arg` is
+    // returned.
+    basic_format_arg<t_CONTEXT> get(size_t pos) const BSLS_KEYWORD_NOEXCEPT;
 };
 
                       // -------------------------------
@@ -219,9 +281,9 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 // ACCESSORS
 template <class t_CONTEXT>
 basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
-                                          size_t i) const BSLS_KEYWORD_NOEXCEPT
+                                        size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
-    return i < d_size ? d_data[i] : basic_format_arg<t_CONTEXT>();
+    return pos < d_size ? d_data[pos] : basic_format_arg<t_CONTEXT>();
 }
 
 
