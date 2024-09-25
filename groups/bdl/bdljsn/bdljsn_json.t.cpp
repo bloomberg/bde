@@ -12386,8 +12386,9 @@ int main(int argc, char *argv[])
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj              mX(&oa);
-                const size_t     numBlocks = oa.numBlocksTotal();
+                Obj                       mX(&oa);
+                const bsls::Types::Int64  numBlocks = oa.numBlocksTotal();
+
                 bsl::string_view short_sv = "ABC";
                 bsl::string_view long_sv  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345";
 
