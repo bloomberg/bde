@@ -9,8 +9,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -21,22 +21,22 @@ using namespace BloombergLP;
 //                             --------
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 8] -- 'swap' is not implemented for this class.
+//  - [ 8] -- `swap` is not implemented for this class.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
-//: o No memory is allocated from any allocator.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
+//  - No memory is allocated from any allocator.
 //
 // Note that all contracts are wide, so there are no precondition violations
 // to be detect in any build mode.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
+//  - ACCESSOR methods are `const` thread-safe.
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] BidirectionalLink()
@@ -55,9 +55,9 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
-// [ 3] 'gg' FUNCTION
-// [ 2] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [ 4] CONCERN: All accessor methods are declared 'const'.
+// [ 3] `gg` FUNCTION
+// [ 2] CONCERN: All creator/manipulator ptr./ref. parameters are `const`.
+// [ 4] CONCERN: All accessor methods are declared `const`.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -137,8 +137,8 @@ void debugprint(const Obj& val)
 }  // close package namespace
 }  // close enterprise namespace
 
+/// Initialize the specified `result` with the specified `prev`, and `next`.
 static Obj& gg(Obj *result, Obj *prev, Obj *next)
-    // Initialize the specified 'result' with the specified 'prev', and 'next'.
 {
     ASSERT(result);
 
@@ -147,11 +147,11 @@ static Obj& gg(Obj *result, Obj *prev, Obj *next)
     return *result;
 }
 
+/// Convenience function to verify all attributes of the specified `lhs` has
+/// the same value as the attributes of the specified `rhs`.  This is not
+/// called `==`, because two copies of `Obj` can't really be equivalent
+/// unless they reside in the same location of memory.
 static bool haveSameState(const Obj& lhs, const Obj& rhs)
-    // Convenience function to verify all attributes of the specified 'lhs' has
-    // the same value as the attributes of the specified 'rhs'.  This is not
-    // called '==', because two copies of 'Obj' can't really be equivalent
-    // unless they reside in the same location of memory.
 {
     return (lhs.previousLink() == rhs.previousLink()
              && lhs.nextLink() == rhs.nextLink());
@@ -180,11 +180,11 @@ const DefaultDataRow DEFAULT_DATA[] =
 
     { L_,         0,          0 },
 
-    // 'previousLink'
+    // `previousLink`
     { L_,  (Obj *)4,          0 },
     { L_,  PTR2,              0 },
 
-    // 'nextLink'
+    // `nextLink`
     { L_,         0,   (Obj *)4 },
     { L_,         0,       PTR2 },
 
@@ -205,11 +205,11 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 ///Example 1: Creating and Using a List Template Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a linked list template class, it will be called
-// 'MyList'.
+// `MyList`.
 //
-// First, we create the 'MyNode' class, which derives from the
-// BidirectionalLink class to carry a 'PAYLOAD' object.
-//..
+// First, we create the `MyNode` class, which derives from the
+// BidirectionalLink class to carry a `PAYLOAD` object.
+// ```
 template <class PAYLOAD>
 class MyNode : public bslalg::BidirectionalLink {
   public:
@@ -228,21 +228,24 @@ class MyNode : public bslalg::BidirectionalLink {
 
   public:
     // CREATOR
+
+    /// Destroy this object.
     ~MyNode() {}
-        // Destroy this object.
 
     // MANIPULATOR
+
+    /// Return a reference to the modifiable value stored in this node.
     ValueType& value() { return d_value; }
-        // Return a reference to the modifiable value stored in this node.
 
     // ACCESSOR
+
+    /// Return a reference to the non-modifiable value stored in this node.
     const ValueType& value() const { return d_value; }
-        // Return a reference to the non-modifiable value stored in this node.
 };
-//..
+// ```
 // Next, we create the iterator helper class, which will eventually be
-// defined as a nested type within the 'MyList' class.
-//..
+// defined as a nested type within the `MyList` class.
+// ```
                             // ===============
                             // MyList_Iterator
                             // ===============
@@ -275,12 +278,12 @@ class MyList_Iterator {
     // ACCESSORS
     PAYLOAD& operator*() const { return d_node->value(); }
 };
-//..
-// Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
-// typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
+// ```
+// Then, we define our `MyList` class, with `MyList::Iterator` being a public
+// typedef of `MyList_Iterator`.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
 // implmenting only what we will need for this example.
-//..
+// ```
                                 // ======
                                 // MyList
                                 // ======
@@ -318,9 +321,9 @@ class MyList {
     void pushBack(const ValueType& value);
     void popBack();
 };
-//..
+// ```
 // Next, we implment the functions for the iterator type.
-//..
+// ```
                             // ---------------
                             // MyList_Iterator
                             // ---------------
@@ -348,9 +351,9 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 {
     return !(lhs == rhs);
 }
-//..
-// Then, we implement the functions for the 'MyList' class:
-//..
+// ```
+// Then, we implement the functions for the `MyList` class:
+// ```
                                 // ------
                                 // MyList
                                 // ------
@@ -468,25 +471,25 @@ int main(int argc, char *argv[])
                             "=============\n");
 
         expectedDefaultAllocations = -1;
-//..
-// Next, in 'main', we use our 'MyList' class to store a list of ints:
-//..
+// ```
+// Next, in `main`, we use our `MyList` class to store a list of ints:
+// ```
         MyList<int> intList;
-//..
+// ```
 // Then, we declare an array of ints to populate it with:
-//..
+// ```
         int intArray[] = { 8, 2, 3, 5, 7, 2 };
         enum { NUM_INTS = sizeof intArray / sizeof *intArray };
-//..
+// ```
 // Now, we iterate, pushing ints to the list:
-//..
+// ```
         for (const int *pInt = intArray; pInt != intArray + NUM_INTS; ++pInt) {
             intList.pushBack(*pInt);
         }
-//..
-// Finally, we use our 'Iterator' type to traverse the list and observe its
+// ```
+// Finally, we use our `Iterator` type to traverse the list and observe its
 // values:
-//..
+// ```
         MyList<int>::Iterator it = intList.begin();
         ASSERT(8 == *it);
         ASSERT(2 == *++it);
@@ -504,74 +507,74 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
-        //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, the source object, 'Z', is a reference to the target
-        //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
-        //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
-        //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-3.2):  (C-1, 3..4)
+        //
+        //     1. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, the source object, `Z`, is a reference to the target
+        //    object, `mX`, and both `mX` and `ZZ` are initialized to have the
+        //    value `V`.  For each row (representing a distinct object value,
+        //    `V`) in the table described in P-2:  (C-5)
+        //
+        //   1. Use the value constructor to create a modifiable `Obj` `mX`;
+        //      also use the value constructor to create a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-3)
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-5)
         //
         // Testing:
         //   BidirectionalLink& operator=(const BidirectionalLink& rhs);
@@ -653,37 +656,37 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X',
-        //:     supplying it the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:     (C-1, 3)
-        //:
-        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
-        //:       (C-1)
-        //:
-        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`,
+        //      supplying it the `const` object `Z`.  (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //      (C-1, 3)
+        //
+        //     1. The newly constructed object, `X`, has the same value as `Z`.
+        //        (C-1)
+        //
+        //     2. `Z` still has the same value as `ZZ`.  (C-3)
         //
         // Testing:
         //   BidirectionalLink(const BidirectionalLink& original);
@@ -717,7 +720,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE,  Z, X,  haveSameState(Z, X));
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERTV(LINE, ZZ, Z, haveSameState(ZZ, Z));
         }  // end for each row
@@ -740,10 +743,10 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
         //   In case 3 we demonstrated that all basic accessors work properly
@@ -752,19 +755,19 @@ int main(int argc, char *argv[])
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   BidirectionalLink *previousLink() const
@@ -776,20 +779,20 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef Obj * T1;  // 'prev'
-        typedef Obj * T2;  // 'next'
+        typedef Obj * T1;  // `prev`
+        typedef Obj * T2;  // `next`
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
         // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = 0;    // 'prev'
-        const T2 D2 = 0;    // 'next'
+        const T1 D1 = 0;    // `prev`
+        const T2 D2 = 0;    // `next`
 
         // -------------------------------------------------------
-        // 'A' values: Boundary values.
+        // `A` values: Boundary values.
         // -------------------------------------------------------
 
         const T1 A1 = PTR1;
@@ -827,39 +830,39 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'gg' FUNCTION
+        // TESTING `gg` FUNCTION
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The 'gg' can create an object having any value that does not
-        //:   violate the constructor's documented preconditions.
-        //:
-        //: 2 Any argument can be 'const'.
+        // 1. The `gg` can create an object having any value that does not
+        //    violate the constructor's documented preconditions.
+        //
+        // 2. Any argument can be `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..2)
-        //:
-        //:   1 Use the value constructor to create an object having the value
-        //:     'V' supplying all the arguments as 'const'.  (C-2)
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to verify
-        //:     that all of the attributes of each object have their expected
-        //:     values.  (C-1)
+        // 1. Using the table-driven technique:
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, and (b) boundary values corresponding to every
+        //      range of values that each individual attribute can
+        //      independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..2)
+        //
+        //   1. Use the value constructor to create an object having the value
+        //      `V` supplying all the arguments as `const`.  (C-2)
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to verify
+        //      that all of the attributes of each object have their expected
+        //      values.  (C-1)
         //
         // Testing:
         //   Obj& gg(Obj *r, Obj *l, Obj *r)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'gg' FUNCTION"
+        if (verbose) printf("\nTESTING `gg` FUNCTION"
                             "\n=====================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
@@ -897,40 +900,40 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Any argument can be 'const'.
-        //:
-        //: 3 Each attribute is modifiable independently.
-        //:
-        //: 4 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Any argument can be `const`.
+        //
+        // 3. Each attribute is modifiable independently.
+        //
+        // 4. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values correspond to the default attribute values,
-        //:   and 'A' and 'B' values are chosen to be distinct boundary values
-        //:   where possible.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 Use the individual (as yet unproven) salient attribute
-        //:   accessors to verify the default-constructed value.  (C-1)
-        //:
-        //: 4 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's
-        //:   value, passing a 'const' argument representing each of the
-        //:   three test values, in turn (see P-1), first to 'Ai', then to
-        //:   'Bi', and finally back to 'Di'.  After each transition, use the
-        //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-2, 4)
-        //:
-        //: 5 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulation that only that attribute's value
-        //:   changed.  (C-3)
+        // 1. Create three sets of attribute values for the object: `D`, `A`,
+        //    and `B`.  `D` values correspond to the default attribute values,
+        //    and `A` and `B` values are chosen to be distinct boundary values
+        //    where possible.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. Use the individual (as yet unproven) salient attribute
+        //    accessors to verify the default-constructed value.  (C-1)
+        //
+        // 4. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's
+        //    value, passing a `const` argument representing each of the
+        //    three test values, in turn (see P-1), first to `Ai`, then to
+        //    `Bi`, and finally back to `Di`.  After each transition, use the
+        //    (as yet unproven) basic accessors to verify that only the
+        //    intended attribute value changed.  (C-2, 4)
+        //
+        // 5. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to its `B` value and verify
+        //    after each manipulation that only that attribute's value
+        //    changed.  (C-3)
         //
         // Testing:
         //   BidirectionalLink();
@@ -945,17 +948,17 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        Obj *const  D1 = 0;          // 'prev'
-        Obj *const  D2 = 0;          // 'next'
+        Obj *const  D1 = 0;          // `prev`
+        Obj *const  D2 = 0;          // `next`
 
-        // 'A' values.
+        // `A` values.
 
         Obj *const  A1 = (Obj *)0x08;
         Obj *const  A2 = (Obj *)0x0c;
 
-        // 'B' values.
+        // `B` values.
 
         Obj *const  B1 = PTR1;
         Obj *const  B2 = PTR2;
@@ -981,7 +984,7 @@ int main(int argc, char *argv[])
                     "Verify that each attribute is independently settable.\n");
 
         // -----------
-        // 'prev'
+        // `prev`
         // -----------
         {
             mX.setPreviousLink(A1);
@@ -998,7 +1001,7 @@ int main(int argc, char *argv[])
         }
 
         // ------------
-        // 'next'
+        // `next`
         // ------------
         {
             mX.setNextLink(A2);
@@ -1017,7 +1020,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Corroborate attribute independence.\n");
         {
             // ---------------------------------------
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
             // ---------------------------------------
 
             mX.setPreviousLink(A1);
@@ -1028,7 +1031,7 @@ int main(int argc, char *argv[])
 
 
             // ---------------------------------------
-            // Set all attributes to their 'B' values.
+            // Set all attributes to their `B` values.
             // ---------------------------------------
 
             mX.setPreviousLink(B1);
@@ -1047,11 +1050,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -1062,15 +1065,15 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef Obj * T1;  // 'prev'
-        typedef Obj * T2;  // 'next'
+        typedef Obj * T1;  // `prev`
+        typedef Obj * T2;  // `next`
 
-        // Attribute 1 Values: 'prev'
+        // Attribute 1 Values: `prev`
 
         const T1 D1 = 0;        // default value
         const T1 A1 = PTR2;
 
-        // Attribute 2 Values: 'next'
+        // Attribute 2 Values: `next`
 
         const T2 D2 = 0;        // default value
         const T2 A2 = PTR2;
@@ -1078,30 +1081,30 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create an object 'w'.\n");
+        if (verbose) printf("\n Create an object `w`.\n");
 
         Obj mW;  const Obj& W = mW;
         mW.setPreviousLink(D1);
         mW.setNextLink(D2);
 
-        if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
+        if (veryVerbose) printf("\ta. Check initial value of `w`.\n");
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.previousLink());
         ASSERT(D2 == W.nextLink());
 
         if (veryVerbose) printf(
-                               "\tb. Try equality operators: 'w' <op> 'w'.\n");
+                               "\tb. Try equality operators: `w` <op> `w`.\n");
 
         ASSERT(1 == haveSameState(W, W));    ASSERT(0 == !haveSameState(W, W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create 'X' from 'W').\n");
+        if (verbose) printf("\n Create `X` from `W`).\n");
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.previousLink());
@@ -1109,7 +1112,7 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(1 == haveSameState(X, W));    ASSERT(0 == !haveSameState(X, W));
         ASSERT(1 == haveSameState(X, X));    ASSERT(0 == !haveSameState(X, X));
@@ -1117,12 +1120,12 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) printf(
-                    "\n Set 'X' with values 'A' (value distinct from 'D').\n");
+                    "\n Set `X` with values `A` (value distinct from `D`).\n");
 
         mX.setPreviousLink(A1);
         mX.setNextLink(A2);
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.previousLink());
@@ -1130,26 +1133,26 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(0 == haveSameState(X, W));  ASSERT(1 == !haveSameState(X, W));
         ASSERT(1 == haveSameState(X, X));  ASSERT(0 == !haveSameState(X, X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create 'Y' and set 'Y' with 'X'.\n");
+        if (verbose) printf("\n Create `Y` and set `Y` with `X`.\n");
 
         Obj mY;  const Obj& Y = mY;
         mY = X;
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == Y.previousLink());
         ASSERT(A2 == Y.nextLink());
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(0 == haveSameState(X, W));    ASSERT(1 == !haveSameState(X, W));
         ASSERT(1 == haveSameState(X, X));    ASSERT(0 == !haveSameState(X, X));

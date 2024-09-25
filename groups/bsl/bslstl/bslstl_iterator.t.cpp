@@ -23,9 +23,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bsl::reverse_iterator' is an iterator adaptor (in-core value-semantic type)
+// `bsl::reverse_iterator` is an iterator adaptor (in-core value-semantic type)
 // that adapts a more limited type, which offers a basic set of operations, so
-// that the resulting 'bsl::reverse_iterator' object meets all the requirements
+// that the resulting `bsl::reverse_iterator` object meets all the requirements
 // of a standard reverse iterator.  These requirements are spelled out in
 // [reverse.iter.requirements] (24.5.1.2), reverse_iterator requirements.  The
 // primary manipulator of a reverse iterator is the pre-increment operator
@@ -37,10 +37,10 @@ using namespace BloombergLP;
 //
 // In order to test this iterator adaptor, a simple container supporting
 // reverse iterators will be implemented, to provide the basic type to be
-// adapted.  This container will use the 'bsl::reverse_iterator' template to
+// adapted.  This container will use the `bsl::reverse_iterator` template to
 // declare its iterators, as suggested in the usage example.
 //-----------------------------------------------------------------------------
-// CLASS 'bsl::reverse_iterator'
+// CLASS `bsl::reverse_iterator`
 //
 // CREATORS
 // [ 2] bsl::reverse_iterator();
@@ -102,7 +102,7 @@ using namespace BloombergLP;
 // [ 8] TESTING SWAP:                Not Applicable
 // [ 9] TESTING ASSIGNMENT OPERATOR: Not Applicable
 // [10] STREAMING FUNCTIONALITY:     Not Applicable
-// [15] CONCERN: Range functions are not ambiguous with 'std' under ADL
+// [15] CONCERN: Range functions are not ambiguous with `std` under ADL
 // [19] USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
@@ -196,24 +196,25 @@ namespace testcontainer {
 //
 ///Example 1: Using Iterators to Traverse a Container
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will use the 'bsl::iterator' and 'bsl::reverse_iterator'
+// In this example, we will use the `bsl::iterator` and `bsl::reverse_iterator`
 // to traverse an iterable container type.
 //
-// Suppose that we have an iterable container template type 'MyFixedSizeArray'.
-// An instantiation of 'MyFixedSizeArray' represents an array having fixed
+// Suppose that we have an iterable container template type `MyFixedSizeArray`.
+// An instantiation of `MyFixedSizeArray` represents an array having fixed
 // number of elements, which is a parameter passed to the class constructor
-// during construction.  A traversal of 'MyFixedSizeArray' can be accomplished
+// during construction.  A traversal of `MyFixedSizeArray` can be accomplished
 // using basic iterators (pointers) as well as reverse iterators.
 //
 // First, we create a elided definition of the template container class,
-// 'MyFixedSizeArray', which provides mutable and constant iterators of
-// template type 'bsl::iterator' and 'reverse_iterator':
-//..
+// `MyFixedSizeArray`, which provides mutable and constant iterators of
+// template type `bsl::iterator` and `reverse_iterator`:
+// ```
+
+/// This is a container that contains a fixed number of elements.  The
+/// number of elements is specified upon construction and can not be
+/// changed afterwards.
 template <class VALUE, int SIZE>
 class MyFixedSizeArray
-    // This is a container that contains a fixed number of elements.  The
-    // number of elements is specified upon construction and can not be
-    // changed afterwards.
 {
     // DATA
     VALUE d_array[SIZE];  // storage of the container
@@ -221,9 +222,9 @@ class MyFixedSizeArray
   public:
     // PUBLIC TYPES
     typedef VALUE value_type;
-//..
+// ```
 // Here, we define mutable and constant iterators and reverse iterators:
-//..
+// ```
     typedef VALUE                                 *iterator;
     typedef VALUE const                           *const_iterator;
     typedef bsl::reverse_iterator<iterator>        reverse_iterator;
@@ -231,78 +232,80 @@ class MyFixedSizeArray
 
     // CREATORS
     //! MyFixedSizeArray() = default;
-        // Create a 'MyFixedSizeArray' object having the parameterized
-        // 'SIZE' elements of the parameterized type 'VALUE'.
+        // Create a `MyFixedSizeArray` object having the parameterized
+        // `SIZE` elements of the parameterized type `VALUE`.
 
     //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
-        // Create a 'MyFixedSizeArray' object having same number of
-        // elements as that of the specified 'rhs', and the same value of
-        // each element as that of corresponding element in 'rhs'.
+        // Create a `MyFixedSizeArray` object having same number of
+        // elements as that of the specified `rhs`, and the same value of
+        // each element as that of corresponding element in `rhs`.
 
     //! ~MyFixedSizeArray() = default;
         // Destroy this object.
-//..
-// Now, we define the 'begin' and 'end' methods to return basic iterators
-// ('VALUE*' and 'const VALUE*'), and the 'rbegin' and 'rend' methods to return
-// reverse iterators ('bsl::reverse_iterator<VALUE*>' and
+// ```
+// Now, we define the `begin` and `end` methods to return basic iterators
+// (`VALUE*` and `const VALUE*`), and the `rbegin` and `rend` methods to return
+// reverse iterators (`bsl::reverse_iterator<VALUE*>` and
 // 'bsl::reverse_iterator<const VALUE*>) type:
-//..
+// ```
     // MANIPULATORS
+
+    /// Return the basic iterator providing modifiable access to the
+    /// first valid element of this object.
     iterator begin();
-        // Return the basic iterator providing modifiable access to the
-        // first valid element of this object.
 
+    /// Return the basic iterator providing modifiable access to the
+    /// position one after the last valid element of this object.
     iterator end();
-        // Return the basic iterator providing modifiable access to the
-        // position one after the last valid element of this object.
 
+    /// Return the reverse iterator providing modifiable access to the
+    /// last valid element of this object.
     reverse_iterator rbegin();
-        // Return the reverse iterator providing modifiable access to the
-        // last valid element of this object.
 
+    /// Return the reverse iterator providing modifiable access to the
+    /// position one before the first valid element of this object.
     reverse_iterator rend();
-        // Return the reverse iterator providing modifiable access to the
-        // position one before the first valid element of this object.
 
+    /// Return the reference providing modifiable access of the
+    /// specified `i`th element of this object.
     VALUE& operator[](int i);
-        // Return the reference providing modifiable access of the
-        // specified 'i'th element of this object.
 
     // ACCESSORS
+
+    /// Return the basic iterator providing non-modifiable access to the
+    /// first valid element of this object.
     const_iterator begin() const;
-        // Return the basic iterator providing non-modifiable access to the
-        // first valid element of this object.
 
+    /// Return the basic iterator providing non-modifiable access to the
+    /// position one after the last valid element of this object.
     const_iterator end() const;
-        // Return the basic iterator providing non-modifiable access to the
-        // position one after the last valid element of this object.
 
+    /// Return the reverse iterator providing non-modifiable access to
+    /// the last valid element of this object.
     const_reverse_iterator rbegin() const;
-        // Return the reverse iterator providing non-modifiable access to
-        // the last valid element of this object.
 
+    /// Return the reverse iterator providing non-modifiable access to
+    /// the position one before the first valid element of this object.
     const_reverse_iterator rend() const;
-        // Return the reverse iterator providing non-modifiable access to
-        // the position one before the first valid element of this object.
 
+    /// Return the number of elements contained in this object.
     int size() const;
-        // Return the number of elements contained in this object.
 
+    /// Return the reference providing non-modifiable access of the
+    /// specified `i`th element of this object.
     const VALUE& operator[](int i) const;
-        // Return the reference providing non-modifiable access of the
-        // specified 'i'th element of this object.
 
+    /// Return a pointer providing non-modifiable access to the initial
+    /// element of this object.
     const VALUE *data() const;
-        // Return a pointer providing non-modifiable access to the initial
-        // element of this object.
 
+    /// Return a pointer providing modifiable access to the initial element
+    /// of this object.
     VALUE *data();
-        // Return a pointer providing modifiable access to the initial element
-        // of this object.
 };
 
 // ...
-//..
+// ```
 
                             // ----------------
                             // MyFixedSizeArray
@@ -415,10 +418,10 @@ bool operator==(const MyFixedSizeArray<VALUE,SIZE>& lhs,
     return true;
 }
 
+/// This is a container that contains a fixed number of elements.  The
+/// number of elements is specified upon construction and can not be
+/// changed afterwards.
 class AccessTestContainer
-    // This is a container that contains a fixed number of elements.  The
-    // number of elements is specified upon construction and can not be
-    // changed afterwards.
 {
     // TYPES
     enum {
@@ -445,46 +448,49 @@ class AccessTestContainer
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
 
     // CREATORS
+
+    /// Create a `AccessTestContainer` object.
     AccessTestContainer();
-        // Create a 'AccessTestContainer' object.
 
     // MANIPULATORS
+
+    /// Return the basic iterator providing modifiable access to the
+    /// first valid element of this object.
     iterator begin();
-        // Return the basic iterator providing modifiable access to the
-        // first valid element of this object.
 
+    /// Return the basic iterator providing modifiable access to the
+    /// position one after the last valid element of this object.
     iterator end();
-        // Return the basic iterator providing modifiable access to the
-        // position one after the last valid element of this object.
 
+    /// Return the reverse iterator providing modifiable access to the
+    /// last valid element of this object.
     reverse_iterator rbegin();
-        // Return the reverse iterator providing modifiable access to the
-        // last valid element of this object.
 
+    /// Return the reverse iterator providing modifiable access to the
+    /// position one before the first valid element of this object.
     reverse_iterator rend();
-        // Return the reverse iterator providing modifiable access to the
-        // position one before the first valid element of this object.
 
 
     // ACCESSORS
+
+    /// Return the basic iterator providing non-modifiable access to the
+    /// first valid element of this object.
     const_iterator begin() const;
-        // Return the basic iterator providing non-modifiable access to the
-        // first valid element of this object.
 
+    /// Return the basic iterator providing non-modifiable access to the
+    /// position one after the last valid element of this object.
     const_iterator end() const;
-        // Return the basic iterator providing non-modifiable access to the
-        // position one after the last valid element of this object.
 
+    /// Return the reverse iterator providing non-modifiable access to
+    /// the last valid element of this object.
     const_reverse_iterator rbegin() const;
-        // Return the reverse iterator providing non-modifiable access to
-        // the last valid element of this object.
 
+    /// Return the reverse iterator providing non-modifiable access to
+    /// the position one before the first valid element of this object.
     const_reverse_iterator rend() const;
-        // Return the reverse iterator providing non-modifiable access to
-        // the position one before the first valid element of this object.
 
+    /// Return the length of this container.
     size_t size() const;
-        // Return the length of this container.
 
     int  functionCalled() const;
     bool beginCalled() const;
@@ -633,26 +639,26 @@ bool AccessTestContainer::sizeCalled() const
 // ============================================================================
 //                          BSL/STD FIXED SET CONTAINER
 //
-// Originally, TC 15 simultaneously exposed both 'bsl::set' and 'std::set' and
-// then used 'bsl::set'.  This was problematic because including 'bslstl_set.h'
+// Originally, TC 15 simultaneously exposed both `bsl::set` and `std::set` and
+// then used `bsl::set`.  This was problematic because including `bslstl_set.h`
 // in this test driver introduced a cycle.  So we declare a minimal simulation
-// of a set in both 'bsl' and 'std' here, such that the 'bsl' set will pass the
-// test and the 'std' set won't.
+// of a set in both `bsl` and `std` here, such that the `bsl` set will pass the
+// test and the `std` set won't.
 // ----------------------------------------------------------------------------
 
 namespace std {
 
+/// This container just has to simulate a `bsl::set<int>` containing 1, 2,
+/// 3, 4, and 5.  We do not want to use `bsl::set` because including it from
+/// this file introduces dependency cycles.  It is not necessary for this
+/// container to be modifiable.
+///
+/// This `std` version of `FixedSet` is meant to never be used by the test,
+/// it is just here to see if the compiler gets confused between
+/// `bsl::FixedSet` (below) and `std::FixedSet` (this one).  This `std` one
+/// is slightly different from the `bsl` one to ensure that if the compiler
+/// chooses this one, the tests will fail at run-time.
 class FixedSet {
-    // This container just has to simulate a 'bsl::set<int>' containing 1, 2,
-    // 3, 4, and 5.  We do not want to use 'bsl::set' because including it from
-    // this file introduces dependency cycles.  It is not necessary for this
-    // container to be modifiable.
-    //
-    // This 'std' version of 'FixedSet' is meant to never be used by the test,
-    // it is just here to see if the compiler gets confused between
-    // 'bsl::FixedSet' (below) and 'std::FixedSet' (this one).  This 'std' one
-    // is slightly different from the 'bsl' one to ensure that if the compiler
-    // chooses this one, the tests will fail at run-time.
 
     // DATA
     int d_ints[5];
@@ -809,11 +815,11 @@ FixedSet::const_reverse_iterator FixedSet::crend() const
 
 namespace bsl {
 
+/// This container just has to simulate a `bsl::set<int>` containing 1, 2,
+/// and 3.  We do not want to use `bsl::set` because including it from this
+/// file introduces dependency cycles.  It is not necessary for this
+/// container to be modifiable.
 class FixedSet {
-    // This container just has to simulate a 'bsl::set<int>' containing 1, 2,
-    // and 3.  We do not want to use 'bsl::set' because including it from this
-    // file introduces dependency cycles.  It is not necessary for this
-    // container to be modifiable.
 
     // DATA
     int d_ints[3];
@@ -1032,8 +1038,8 @@ int main(int argc, char *argv[])
     #pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
-// Then, we create a 'MyFixedSizeArray' and initialize its elements:
-//..
+// Then, we create a `MyFixedSizeArray` and initialize its elements:
+// ```
     // Create a fixed array having five elements.
 
     MyFixedSizeArray<int, 5> fixedArray;
@@ -1043,25 +1049,25 @@ int main(int argc, char *argv[])
     for (int i = 0; i < fixedArray.size(); ++i) {
         fixedArray[i] = i + 1;
     }
-//..
-// Next, we generate reverse iterators using the 'rbegin' and 'rend' methods of
+// ```
+// Next, we generate reverse iterators using the `rbegin` and `rend` methods of
 // the fixed array object:
-//..
+// ```
     MyFixedSizeArray<int, 5>::reverse_iterator rstart  = fixedArray.rbegin();
     MyFixedSizeArray<int, 5>::reverse_iterator rfinish = fixedArray.rend();
-//..
+// ```
 // Now, we note that we could have acquired the iterators and container size by
 // calling the appropriate free functions:
-//..
+// ```
     ASSERT(rstart  == bsl::rbegin(fixedArray));
     ASSERT(rfinish == bsl::rend(  fixedArray));
 
     ASSERT(fixedArray.size() == bsl::size(fixedArray));
     ASSERT(rfinish - rstart  == bsl::ssize(fixedArray));
-//..
+// ```
 // Finally, we traverse the fixed array again in reverse order using the two
 // generated reverse iterators:
-//..
+// ```
     if (veryVerbose) {
         printf("Traverse array using reverse iterator:\n");
         while (rstart != rfinish) {
@@ -1069,16 +1075,16 @@ int main(int argc, char *argv[])
             ++rstart;
         }
     }
-//..
-// The preceding loop produces the following output on 'stdout':
-//..
+// ```
+// The preceding loop produces the following output on `stdout`:
+// ```
 //  Traverse array using reverse iterator:
 //       Element: 5
 //       Element: 4
 //       Element: 3
 //       Element: 2
 //       Element: 1
-//..
+// ```
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
     #pragma GCC diagnostic pop
 #endif
@@ -1088,13 +1094,13 @@ int main(int argc, char *argv[])
         // TESTING CONTAINER DATA CALLS
         //
         // Concern:
-        //: 1 That the function under test returns the same value as the member
-        //:   function 'data()' of the containers
+        // 1. That the function under test returns the same value as the member
+        //    function `data()` of the containers
         //
         // Plan:
-        //: 1 Create containers of different types.
-        //:
-        //: 3 Call the functions under test on those containers.
+        // 1. Create containers of different types.
+        //
+        // 2. Call the functions under test on those containers.
         //
         // Testing:
         //   T const *empty(const CONTAINER&);
@@ -1117,13 +1123,13 @@ int main(int argc, char *argv[])
         // TESTING CONTAINER EMPTY CALLS
         //
         // Concern:
-        //: 1 That the function under test returns 'true' when the container
-        //:   contains no elements, and 'false' otherwise.
+        // 1. That the function under test returns `true` when the container
+        //    contains no elements, and `false` otherwise.
         //
         // Plan:
-        //: 1 Create containers of different sizes.
-        //:
-        //: 3 Call the functions under test on those containers.
+        // 1. Create containers of different sizes.
+        //
+        // 2. Call the functions under test on those containers.
         //
         // Testing:
         //   bool empty(const CONTAINER&);
@@ -1156,15 +1162,15 @@ int main(int argc, char *argv[])
         // TEST CONTAINER SIZE CALLS
         //
         // Concern:
-        //: 1 That the functions under test return the number of elements in a
-        //:   container that provides a 'size' accessor.
+        // 1. That the functions under test return the number of elements in a
+        //    container that provides a `size` accessor.
         //
         // Plan:
-        //: 1 Create a type, 'MyContainer', in the unnamed namespace.
-        //:
-        //: 2 Create an object of type 'MyContainer'.
-        //:
-        //: 3 Call the functions under test on that object.
+        // 1. Create a type, `MyContainer`, in the unnamed namespace.
+        //
+        // 2. Create an object of type `MyContainer`.
+        //
+        // 3. Call the functions under test on that object.
         //
         // Testing:
         //   size_t size(const CONTAINER&);
@@ -1191,21 +1197,21 @@ int main(int argc, char *argv[])
         // TESTING ADL CONCERN
         //
         // Concerns:
-        //: 1 Range functions can be used with 'std' containers under ADL.
+        // 1. Range functions can be used with `std` containers under ADL.
         //
         // Plan:
-        //: 1 Call all 10 range functions (unqualified) for a 'bsl::FixedSet'
-        //:   (defined in this test driver), as this will be associated with
-        //:   both namespace 'bsl' and native 'std' (for 'std::less' as a
-        //:   template parameter).  Note that this test scenario is implemented
-        //:   in the test driver of the 'bslim_bslstandardheadertest' component
-        //:   to avoid include loop.
-        //:
-        //: 2 Explicitly introduce both namespaces ('bsl' and 'std') and
-        //:   call all 10 range functions for an array of integers.  (C-1)
+        // 1. Call all 10 range functions (unqualified) for a `bsl::FixedSet`
+        //    (defined in this test driver), as this will be associated with
+        //    both namespace `bsl` and native `std` (for `std::less` as a
+        //    template parameter).  Note that this test scenario is implemented
+        //    in the test driver of the `bslim_bslstandardheadertest` component
+        //    to avoid include loop.
+        //
+        // 2. Explicitly introduce both namespaces (`bsl` and `std`) and
+        //    call all 10 range functions for an array of integers.  (C-1)
         //
         // Testing
-        //   CONCERN: Range functions are not ambiguous with 'std' under ADL
+        //   CONCERN: Range functions are not ambiguous with `std` under ADL
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ADL CONCERN"
@@ -1273,22 +1279,22 @@ int main(int argc, char *argv[])
         //   expected methods have been called.
         //
         // Concerns:
-        //: 1 The access functions call appropriate methods of the passed
-        //:   object.
-        //:
-        //: 2 The access functions correctly transfer return values obtained
-        //:   from the methods of the passed object.
+        // 1. The access functions call appropriate methods of the passed
+        //    object.
+        //
+        // 2. The access functions correctly transfer return values obtained
+        //    from the methods of the passed object.
         //
         // Plan:
-        //: 1 Using object of the class 'AccessTestContainer' call an access
-        //:   function and check that appropriate methods of the special class
-        //:   have been called.  (C-1)
-        //:
-        //: 2 Compare return value of an access function with the value
-        //:   obtained from direct call of the appropriate container method.
-        //:
-        //: 3 Using arrays and initializer lists check that access functions
-        //:   return expected results.  (C-2)
+        // 1. Using object of the class `AccessTestContainer` call an access
+        //    function and check that appropriate methods of the special class
+        //    have been called.  (C-1)
+        //
+        // 2. Compare return value of an access function with the value
+        //    obtained from direct call of the appropriate container method.
+        //
+        // 3. Using arrays and initializer lists check that access functions
+        //    return expected results.  (C-2)
         //
         // Testing
         //   T::iterator begin(T& container);
@@ -1443,7 +1449,7 @@ int main(int argc, char *argv[])
                   int mX5[] = {1, 2, 3, 4, 5};
             const int  X5[] = {1, 2, 3, 4, 5};
 
-            // Testing 'begin' and 'end'.
+            // Testing `begin` and `end`.
 
                   int *mXBIt1 = bsl::begin(mX1);
             const int  *XBIt1 = bsl::begin( X1);
@@ -1466,7 +1472,7 @@ int main(int argc, char *argv[])
                   int *mXEIt5 = bsl::end  (mX5);
             const int  *XEIt5 = bsl::end  ( X5);
 
-            // Testing 'size' and 'ssize'.
+            // Testing `size` and `ssize`.
 
             ASSERT(1 == bsl::size(mX1));
             ASSERT(1 == bsl::size(X1));
@@ -1515,7 +1521,7 @@ int main(int argc, char *argv[])
             ASSERTV(mX5[4], *mXEIt5, mX5 + 4 == mXEIt5);
             ASSERTV( X5[4],  *XEIt5,  X5 + 4 ==  XEIt5);
 
-            // Testing 'cbegin' and 'cend'.
+            // Testing `cbegin` and `cend`.
             const int *mXCBIt1 = bsl::cbegin(mX1);
             const int  *XCBIt1 = bsl::cbegin( X1);
             const int *mXCEIt1 = bsl::cend  (mX1);
@@ -1571,7 +1577,7 @@ int main(int argc, char *argv[])
             ASSERTV(mX5[4], *mXCEIt5, mX5 + 4 == mXCEIt5);
             ASSERTV( X5[4],  *XCEIt5,  X5 + 4 ==  XCEIt5);
 
-            // Testing 'rbegin' and 'rend'.
+            // Testing `rbegin` and `rend`.
 
             bsl::reverse_iterator<      int *> mXRBIt1 = bsl::rbegin(mX1);
             bsl::reverse_iterator<const int *>  XRBIt1 = bsl::rbegin( X1);
@@ -1630,7 +1636,7 @@ int main(int argc, char *argv[])
             ASSERTV(mX5[0], *mXREIt5, mX5[0] == *mXREIt5);
             ASSERTV( X5[0],  *XREIt5,  X5[0] ==  *XREIt5);
 
-            // Testing 'crbegin' and 'crend'.
+            // Testing `crbegin` and `crend`.
 
             bsl::reverse_iterator<const int *> mXCRBIt1 = bsl::crbegin(mX1);
             bsl::reverse_iterator<const int *>  XCRBIt1 = bsl::crbegin( X1);
@@ -1699,7 +1705,7 @@ int main(int argc, char *argv[])
             std::initializer_list<int> mX4 = {1, 2, 3, 4};
             std::initializer_list<int> mX5 = {1, 2, 3, 4, 5};
 
-            // Testing 'rbegin' and 'rend'.
+            // Testing `rbegin` and `rend`.
 
             reverse_iterator mXRBIt1 = bsl::rbegin(mX1);
             reverse_iterator mXREIt1 = bsl::rend  (mX1);
@@ -1734,37 +1740,37 @@ int main(int argc, char *argv[])
         // TESTING FREE FUNCTIONS
         //
         // Concerns:
-        //: 1 'operator<' returns the lexicographic comparison on two objects.
-        //:
-        //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
-        //:   'operator<'.  i.e., For two objects, 'a' and 'b':
-        //:
-        //:   1 '(a > b) == (b < a)'
-        //:
-        //:   2 '(a <= b) == !(b < a)'
-        //:
-        //:   3 '(a >= b) == !(a < b)'
-        //:
-        //: 3 'operator-' and 'distance' return same results if parameters are
-        //:   passed correctly.
-        //:
-        //: 4 'operator+' and 'bsl::reverse_iterator::operator+' return same
-        //:   results if parameters are passed correctly.
+        // 1. `operator<` returns the lexicographic comparison on two objects.
+        //
+        // 2. `operator>`, `operator<=`, and `operator>=` are correctly tied to
+        //    `operator<`.  i.e., For two objects, `a` and `b`:
+        //
+        //   1. `(a > b) == (b < a)`
+        //
+        //   2. `(a <= b) == !(b < a)`
+        //
+        //   3. `(a >= b) == !(a < b)`
+        //
+        // 3. `operator-` and `distance` return same results if parameters are
+        //    passed correctly.
+        //
+        // 4. `operator+` and `bsl::reverse_iterator::operator+` return same
+        //    results if parameters are passed correctly.
         //
         // Plan:
-        //: 1 Create reverse iterators 'it1' and 'it2'.  Verify 'operator<'
-        //:   returns the correct lexicographic comparison results.  (C-1)
-        //:
-        //: 2 Verify 'operator>', 'operator<=', and 'operator>=' return correct
-        //:   results using 'it1' and 'it2'.  Verify their results are
-        //:   tied to results of 'operator<'.  (C-2)
-        //:
-        //: 3 Compare results of 'operator-' and 'distance' using 'it1' and
-        //:   'it2', verify they return same results.  (C-3)
-        //:
-        //: 4 Compare results of 'operator+' and 'reverse_iterator::operator+'
-        //:   using 'it1' and a distance, verify they return same results.
-        //:   (C-4)
+        // 1. Create reverse iterators `it1` and `it2`.  Verify `operator<`
+        //    returns the correct lexicographic comparison results.  (C-1)
+        //
+        // 2. Verify `operator>`, `operator<=`, and `operator>=` return correct
+        //    results using `it1` and `it2`.  Verify their results are
+        //    tied to results of `operator<`.  (C-2)
+        //
+        // 3. Compare results of `operator-` and `distance` using `it1` and
+        //    `it2`, verify they return same results.  (C-3)
+        //
+        // 4. Compare results of `operator+` and `reverse_iterator::operator+`
+        //    using `it1` and a distance, verify they return same results.
+        //    (C-4)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING FREE FUNCTIONS"
@@ -1782,8 +1788,8 @@ int main(int argc, char *argv[])
 
         reverse_iterator it1(testData + numElements);
 
-        if (verbose) printf("\nTest 'operator-', 'operator>', "
-                            "'operator<=', and 'operator>='\n");
+        if (verbose) printf("\nTest `operator-`, `operator>`, "
+                            "`operator<=`, and `operator>=`\n");
 
         for (int i = 0; i < numElements; ++i) {
             reverse_iterator it2(testData + i);
@@ -1816,11 +1822,11 @@ int main(int argc, char *argv[])
         // TESTING OTHER ACCESSORS
         //
         // Concerns:
-        //: 1 All other accessors of 'bsl::reverse_iterator' work correctly.
+        // 1. All other accessors of `bsl::reverse_iterator` work correctly.
         //
         // Plan:
-        //: 1 Create reverse iterators 'it'.  Call different accessors of 'it'.
-        //:   Verify each accessor returns expected values.  (C-1)
+        // 1. Create reverse iterators `it`.  Call different accessors of `it`.
+        //    Verify each accessor returns expected values.  (C-1)
         //
         // Testing:
         //   operator+(typename difference_type n) const;
@@ -1838,7 +1844,7 @@ int main(int argc, char *argv[])
         typedef int                             *iterator;
         typedef bsl::reverse_iterator<iterator>  reverse_iterator;
 
-        if (verbose) printf("\nTest 'operator+'\n");
+        if (verbose) printf("\nTest `operator+`\n");
 
         reverse_iterator it(testData + numElements);
         for (int i = 1;i < numElements; ++i) {
@@ -1847,7 +1853,7 @@ int main(int argc, char *argv[])
                          testData[numElements - i - 1] == *(it + i));
         }
 
-        if (verbose) printf("\nTest 'operator-'\n");
+        if (verbose) printf("\nTest `operator-`\n");
 
         it += numElements - 1;
         for (int i = 1;i < numElements; ++i) {
@@ -1860,12 +1866,12 @@ int main(int argc, char *argv[])
         // TESTING OTHER MANIPULATORS
         //
         // Concerns:
-        //: 1 All other manipulators of 'bsl::reverse_iterator' work correctly.
+        // 1. All other manipulators of `bsl::reverse_iterator` work correctly.
         //
         // Plan:
-        //: 1 Create reverse iterators 'it1' and 'it2'.  Use 'it1' as a
-        //:   reference and call different manipulators of 'it2'.  Verify 'it2'
-        //:   has expected values after each manipulation.  (C-1)
+        // 1. Create reverse iterators `it1` and `it2`.  Use `it1` as a
+        //    reference and call different manipulators of `it2`.  Verify `it2`
+        //    has expected values after each manipulation.  (C-1)
         //
         // Testing:
         //   bsl::reverse_iterator  operator++(int);
@@ -1914,13 +1920,13 @@ int main(int argc, char *argv[])
         ASSERT(*it2 == testData[numElements - 1]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) printf("\nTest 'operator+='\n");
+        if (verbose) printf("\nTest `operator+=`\n");
         it2 += numElements - 1;
         ASSERT(it2 != it1);
         ASSERT(*it2 == testData[0]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        if (verbose) printf("\nTest 'operator-='\n");
+        if (verbose) printf("\nTest `operator-=`\n");
         it2 -= numElements - 1;
         ASSERT(it2 == it1);
         ASSERT(*it2 == testData[numElements - 1]);
@@ -1934,8 +1940,8 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR: Not Applicable
-        //   The 'operator=' method of 'bsl::reverse_iterator' is directly
-        //   inherited from 'std::reverse_iterator'.
+        //   The `operator=` method of `bsl::reverse_iterator` is directly
+        //   inherited from `std::reverse_iterator`.
         // --------------------------------------------------------------------
       } break;
       case 8: {
@@ -1948,29 +1954,29 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 A copy-constructed reverse iterator has the same value as the
-        //:   original reverse iterator.
-        //:
-        //: 2 The value of the original reverse iterator is left unaffected.
-        //:
-        //: 3 Subsequent changes in or destruction of the original reverse
-        //:   iterator have no effect on the copy-constructed reverse iterator.
-        //:
-        //: 4 Subsequent changes on the copy-constructed reverse iterator have
-        //:   no effect on the original.
+        // 1. A copy-constructed reverse iterator has the same value as the
+        //    original reverse iterator.
+        //
+        // 2. The value of the original reverse iterator is left unaffected.
+        //
+        // 3. Subsequent changes in or destruction of the original reverse
+        //    iterator have no effect on the copy-constructed reverse iterator.
+        //
+        // 4. Subsequent changes on the copy-constructed reverse iterator have
+        //    no effect on the original.
         //
         // Plan:
-        //: 1 Create reverse iterators 'it1' and 'it2',  copy-construct 'it3'
-        //:   and 'it4' using 'it1' and 'it2' respectively.  Verify 'it3' has
-        //:   the same value as 'it1' and 'it4' has the same value
-        //:   as 'it2'.  Also verify 'it1' and 'it2' are unchanged by
-        //:   checking the element values they refer to.  (C-1,2)
-        //:
-        //: 2 Alter value of 'it2', verify 'it4' is unchanged.  (C-3)
-        //:
-        //: 3 Let 'it2' go out of scope, verify 'it4' is unchanged.  (C-3)
-        //:
-        //: 4 Alter value of 'it3', verify 'it1' is unchanged.  (C-4)
+        // 1. Create reverse iterators `it1` and `it2`,  copy-construct `it3`
+        //    and `it4` using `it1` and `it2` respectively.  Verify `it3` has
+        //    the same value as `it1` and `it4` has the same value
+        //    as `it2`.  Also verify `it1` and `it2` are unchanged by
+        //    checking the element values they refer to.  (C-1,2)
+        //
+        // 2. Alter value of `it2`, verify `it4` is unchanged.  (C-3)
+        //
+        // 3. Let `it2` go out of scope, verify `it4` is unchanged.  (C-3)
+        //
+        // 4. Alter value of `it3`, verify `it1` is unchanged.  (C-4)
         //
         // Testing:
         //   bsl::reverse_iterator(const bsl::reverse_iterator&);
@@ -2007,7 +2013,7 @@ int main(int argc, char *argv[])
             reverse_iterator it2(testData + numElements);
             ASSERT(it2 == it1);
 
-            new(pit4) reverse_iterator(it2); // construct '*pit4' from 'it2'.
+            new(pit4) reverse_iterator(it2); // construct `*pit4` from `it2`.
 
             ASSERT( *pit4 == it2);
             ASSERT(  *it2 == testData[numElements - 1]);
@@ -2017,7 +2023,7 @@ int main(int argc, char *argv[])
             if (verbose) printf(
                        "\nValidate changing original does not affect copy.\n");
 
-            // After this line, 'it2' will go out of scope.
+            // After this line, `it2` will go out of scope.
 
             ++it2;
             ASSERT( *pit4 != it2);
@@ -2036,7 +2042,7 @@ int main(int argc, char *argv[])
         ASSERT(*it3 == testData[numElements - 2]);
         ASSERT(*it1 == testData[numElements - 1]);
 
-        // Destroy '*pit4'.
+        // Destroy `*pit4`.
 
         buffer.object().~reverse_iterator();
       } break;
@@ -2045,31 +2051,31 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY OPERATOR
         //
         // Concerns:
-        //: 1 The reverse iterators must compare equal to themselves.
-        //:
-        //: 2 Constant reverse iterators can be compared with mutable reverse
-        //:   iterators.
-        //:
-        //: 3 Constant and mutable reverse iterators referring to the same
-        //:   element shall compare equal.
-        //:
-        //: 4 Reverse iterators (either constant or mutable) that do not refer
-        //:   to the same element shall not compare equal.
+        // 1. The reverse iterators must compare equal to themselves.
+        //
+        // 2. Constant reverse iterators can be compared with mutable reverse
+        //    iterators.
+        //
+        // 3. Constant and mutable reverse iterators referring to the same
+        //    element shall compare equal.
+        //
+        // 4. Reverse iterators (either constant or mutable) that do not refer
+        //    to the same element shall not compare equal.
         //
         // Plan:
-        //: 1 Create a fixed size array 'A', assign values to each of its
-        //:   elements.
-        //:
-        //: 2 Get a constant reverse iterator 'itc1' generated by 'rbegin' of
-        //:   'A'.  Use 'itc1' to verify self-equality and equality between
-        //:   constant and mutable reverse iterators.  (C-1..3)
-        //:
-        //: 3 Get another constant reverse iterator 'itc2' generated by 'rend'
-        //:   of 'A'.  Use 'itc1' and 'itc2' to verify inequality.  (C-4)
-        //:
-        //: 4 Get a third mutable reverse iterator 'itc2', change its value
-        //:   using primary manipulators.  Verify various equality and
-        //:   inequality against 'itc1' and 'itc2'.  (C-4)
+        // 1. Create a fixed size array `A`, assign values to each of its
+        //    elements.
+        //
+        // 2. Get a constant reverse iterator `itc1` generated by `rbegin` of
+        //    `A`.  Use `itc1` to verify self-equality and equality between
+        //    constant and mutable reverse iterators.  (C-1..3)
+        //
+        // 3. Get another constant reverse iterator `itc2` generated by `rend`
+        //    of `A`.  Use `itc1` and `itc2` to verify inequality.  (C-4)
+        //
+        // 4. Get a third mutable reverse iterator `itc2`, change its value
+        //    using primary manipulators.  Verify various equality and
+        //    inequality against `itc1` and `itc2`.  (C-4)
         //
         // Testing:
         //   bool operator==(const reverse_iterator&, const reverse_iterator&);
@@ -2140,36 +2146,36 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING (PRIMITIVE) GENERATORS
         //   The primitive generators for our reverse iterator, the primary
-        //   piece of test apparatus, are the 'rbegin' and 'rend' member
-        //   functions of the sample container type 'MyFixedSizeArray'.
+        //   piece of test apparatus, are the `rbegin` and `rend` member
+        //   functions of the sample container type `MyFixedSizeArray`.
         //
         // Concerns:
-        //: 1 All public methods of the test container work correctly.
-        //:
-        //: 2 The iterators generated by 'begin' and 'end' shall delimit the
-        //:   valid memory range allocated in test container.
-        //:
-        //: 3 The reverse iterators generated by 'rbegin' and 'rend' shall
-        //:   delimit the valid memory range allocated in test container.
-        //:
-        //: 4 The iterators and reverse iterators refer to correct values.
-        //:
-        //: 5 The above concerns are also valid on constant iterators and
-        //:   constant reverse iterators.
+        // 1. All public methods of the test container work correctly.
+        //
+        // 2. The iterators generated by `begin` and `end` shall delimit the
+        //    valid memory range allocated in test container.
+        //
+        // 3. The reverse iterators generated by `rbegin` and `rend` shall
+        //    delimit the valid memory range allocated in test container.
+        //
+        // 4. The iterators and reverse iterators refer to correct values.
+        //
+        // 5. The above concerns are also valid on constant iterators and
+        //    constant reverse iterators.
         //
         // Plan:
-        //: 1 Create a fixed size array 'A', assign values to each of its
-        //:   elements.  (C-1)
-        //:
-        //: 2 Verify iterators and reverse iterators generated by 'A' delimit
-        //:   correct memory range.  (C-1..3)
-        //:
-        //: 3 Verify the values in the memory range delimited by iterators and
-        //:   reverse iterators generated by 'A' refer to correct values in
-        //:   'A'.  (C-4)
-        //:
-        //: 4 Repeat the above three steps to verify constant iterators and
-        //:   constant reverse iterators.  (C-1..4)
+        // 1. Create a fixed size array `A`, assign values to each of its
+        //    elements.  (C-1)
+        //
+        // 2. Verify iterators and reverse iterators generated by `A` delimit
+        //    correct memory range.  (C-1..3)
+        //
+        // 3. Verify the values in the memory range delimited by iterators and
+        //    reverse iterators generated by `A` refer to correct values in
+        //    `A`.  (C-4)
+        //
+        // 4. Repeat the above three steps to verify constant iterators and
+        //    constant reverse iterators.  (C-1..4)
         //
         // Testing:
         //   class MyFixedSizeArray<VALUE>;
@@ -2202,7 +2208,7 @@ int main(int argc, char *argv[])
         TestContainer tc;
         ASSERT(arrayLength == tc.size());
 
-        if (verbose) printf("\nCheck 'operator[]' and 'operator[] const'\n");
+        if (verbose) printf("\nCheck `operator[]` and `operator[] const`\n");
 
         for (int i = 0; i < tc.size(); ++i) {
             tc[i] = i + 1;
@@ -2282,32 +2288,32 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 A reverse iterator created with value constructor has the
-        //:   specified value.
-        //:
-        //: 2 The pre-increment operator changes the iterator to refer to the
-        //:   element one before the previously referred element.
-        //:
-        //: 3 The above concerns are also valid on a constant reverse iterator.
+        // 1. A reverse iterator created with value constructor has the
+        //    specified value.
+        //
+        // 2. The pre-increment operator changes the iterator to refer to the
+        //    element one before the previously referred element.
+        //
+        // 3. The above concerns are also valid on a constant reverse iterator.
         //
         // Plan:
-        //: 1 Create a reverse iterator 'A' and a constant reverse iterator
-        //:   'cA' using default constructor.
-        //:
-        //: 2 Create another reverse iterator 'B' and another constant reverse
-        //:   iterator 'cB' using value constructor, verify they both have the
-        //:   specified value passed in constructor, and they have different
-        //:   values from 'A' and 'cA' (using yet unproven 'operator!=').
-        //:   (C-1,3)
-        //:
-        //: 3 Pre-increment 'B', verify its value has changed by comparing 'B'
-        //:   with 'cB'.  Also verify the increment was performed correctly by
-        //:   checking the value 'cB' refers to.  (C-2)
-        //:
-        //: 4 Create another constant reverse iterator 'cC' using value
-        //:   constructor, pre-increment it.  Verify 'cC' has changed by
-        //:   comparing 'cC' with 'cB'.  Also verify the pre-increment was
-        //:   performed correctly by checking the value it refers to.  (C-2,3)
+        // 1. Create a reverse iterator `A` and a constant reverse iterator
+        //    `cA` using default constructor.
+        //
+        // 2. Create another reverse iterator `B` and another constant reverse
+        //    iterator `cB` using value constructor, verify they both have the
+        //    specified value passed in constructor, and they have different
+        //    values from `A` and `cA` (using yet unproven `operator!=`).
+        //    (C-1,3)
+        //
+        // 3. Pre-increment `B`, verify its value has changed by comparing `B`
+        //    with `cB`.  Also verify the increment was performed correctly by
+        //    checking the value `cB` refers to.  (C-2)
+        //
+        // 4. Create another constant reverse iterator `cC` using value
+        //    constructor, pre-increment it.  Verify `cC` has changed by
+        //    comparing `cC` with `cB`.  Also verify the pre-increment was
+        //    performed correctly by checking the value it refers to.  (C-2,3)
         //
         // Testing:
         //   bsl::reverse_iterator();
@@ -2319,7 +2325,7 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         if (verbose) printf(
-                          "\nTesting default constructor and 'operator++'.\n");
+                          "\nTesting default constructor and `operator++`.\n");
 
         //  Declare test data and types.
 
@@ -2371,15 +2377,15 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That basic functionality appears to work as advertised before
-        //:   before beginning testing in earnest:
-        //:   - default and copy constructors
-        //:   - assignment operator
-        //:   - primary manipulators, basic accessors
-        //:   - 'operator==', 'operator!='
+        // 1. That basic functionality appears to work as advertised before
+        //    before beginning testing in earnest:
+        //    - default and copy constructors
+        //    - assignment operator
+        //    - primary manipulators, basic accessors
+        //    - `operator==`, `operator!=`
         //
         // Plan:
-        //: 1 Test all public methods mentioned in concerns.  (C-1)
+        // 1. Test all public methods mentioned in concerns.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2421,10 +2427,10 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(&*it1, &*it2,   it1 ==   it2);
         LOOP2_ASSERT(&*it1, &*it2, &*it1 == &*it2);
 
-        if (verbose) printf("\nConstruct a 'const_reverse_iterator'\n");
+        if (verbose) printf("\nConstruct a `const_reverse_iterator`\n");
         const_reverse_iterator itEnd(testData + 4);
 
-        if (verbose) printf("\nMake a copy of 'const_reverse_iterator'\n");
+        if (verbose) printf("\nMake a copy of `const_reverse_iterator`\n");
 
         const_reverse_iterator itBegin(it1);
         bsl::iterator_traits<

@@ -23,11 +23,11 @@ namespace {
 
 typedef DatumIntMapBuilder::allocator_type allocator_type;
 
+/// Calculate the new capacity needed to accommodate data having the
+/// specified `size` for the datum int-map having the specified `capacity`.
 static DatumIntMapBuilder::SizeType getNewCapacity(
                                          DatumIntMapBuilder::SizeType capacity,
                                          DatumIntMapBuilder::SizeType size)
-    // Calculate the new capacity needed to accommodate data having the
-    // specified 'size' for the datum int-map having the specified 'capacity'.
 {
     // Maximum allowed size (theoretical limit)
     static const DatumIntMapBuilder::SizeType k_MAX_BYTES =
@@ -47,12 +47,12 @@ static DatumIntMapBuilder::SizeType getNewCapacity(
     return capacity;
 }
 
+/// Load the specified `mapping` with a reference to newly created datum
+/// int-map having the specified `capacity`, using the specified
+/// `allocator`.
 static void createMapStorage(DatumMutableIntMapRef        *mapping,
                              DatumIntMapBuilder::SizeType  capacity,
                              const allocator_type&         allocator)
-    // Load the specified 'mapping' with a reference to newly created datum
-    // int-map having the specified 'capacity', using the specified
-    // 'allocator'.
 {
     Datum::createUninitializedIntMap(mapping, capacity, allocator.mechanism());
     // Initialize the memory.
@@ -73,10 +73,10 @@ static bool compareGreater(const DatumIntMapEntry& lhs,
 }
 #endif
 
+/// Return `true` if key in the specified `lhs` is less than key in the
+/// specified `rhs` and `false` otherwise.
 static bool compareLess(const DatumIntMapEntry& lhs,
                         const DatumIntMapEntry& rhs)
-    // Return 'true' if key in the specified 'lhs' is less than key in the
-    // specified 'rhs' and 'false' otherwise.
 {
     return lhs.key() < rhs.key();
 }

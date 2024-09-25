@@ -36,9 +36,9 @@ using bsl::ends;
 //                             Overview
 //                             --------
 // This component provides a namespace containing a user-defined literal
-// operator '_json' for 'bdljsn::Json' objects.  This facility is a simple
-// wrapper around already tested facilities in 'bdljsn_json' and
-// 'bdljsn_jsonutil'.
+// operator `_json` for `bdljsn::Json` objects.  This facility is a simple
+// wrapper around already tested facilities in `bdljsn_json` and
+// `bdljsn_jsonutil`.
 // ----------------------------------------------------------------------------
 // [ 1] bdljsn::Json operator "" _json(const char *, bsl::size_t );
 // ----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -158,13 +158,13 @@ int main(int argc, char *argv[])
         //   First usage example extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -199,25 +199,25 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Creating a 'bdljsn::Json' Object with a User Defined Literal
+///Example 1: Creating a `bdljsn::Json` Object with a User Defined Literal
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component provides a namespace in which user-defined literal operations
-// for 'bdljsn::Json' are defined.
+// for `bdljsn::Json` are defined.
 //
 // First, we use the appropriate namespace:
-//..
+// ```
     using namespace bdljsn::JsonLiterals;
-//..
-// Then we create a 'bdljsn::Json' object:
-//..
+// ```
+// Then we create a `bdljsn::Json` object:
+// ```
     bdljsn::Json json = R"({ "number": 4, "array": [0, 2, null] })"_json;
 
     ASSERT(bdljsn::JsonType::e_NUMBER == json["number"].type());
     ASSERT(bdljsn::JsonType::e_ARRAY  == json["array"].type());
-//..
+// ```
 // Notice that the user-defined literal operators will unconditionally invoke
-// the 'bsls::Assert' handler if the supplied text is not valid JSON.
-//..
+// the `bsls::Assert` handler if the supplied text is not valid JSON.
+// ```
         if (veryVerbose) {
             P(json);
         }
@@ -230,31 +230,31 @@ int main(int argc, char *argv[])
         //   This case exercises the user-defined literal operator.
         //
         //   This operator is built on top of existing well tested components
-        //   'bdljsn_json' and 'bdljsn_jsonutil', so we need only verify
+        //   `bdljsn_json` and `bdljsn_jsonutil`, so we need only verify
         //   that the arguments are forward appropriately.
         //
         // Concerns:
-        //: 1 That the user defined literal operator is exposed from the
-        //:    appropriate namespace ('bdljsn::JsonLiterals')
-        //:
-        //: 2 That a user defined literal text containing valid JSON will
-        //:   result in a corresponding 'bdljsn::Json' object.
-        //:
-        //: 3 That memory for the user defined literal JSON is allocated
-        //:   from the global allocator.
-        //:
-        //: 4 That a user defined literal that does not contain valid JSON
-        //:   invokes the 'bsls::Assert' failure handler.
+        // 1. That the user defined literal operator is exposed from the
+        //     appropriate namespace (`bdljsn::JsonLiterals`)
+        //
+        // 2. That a user defined literal text containing valid JSON will
+        //    result in a corresponding `bdljsn::Json` object.
+        //
+        // 3. That memory for the user defined literal JSON is allocated
+        //    from the global allocator.
+        //
+        // 4. That a user defined literal that does not contain valid JSON
+        //    invokes the `bsls::Assert` failure handler.
         //
         // Plan:
-        //: 1 Define a using declaration for 'bdljsn::JsonLiterals' and then
-        //:   define a couple JSON literals.  Verify the 'bdljsn::Json'
-        //:   resulting 'bdljsn::Json' objects meet expectations.
-        //:
-        //: 2 Define a using declaration for 'bdljsn::JsonLiterals' and
-        //:   the define an invalid JSON literal.  Use 'bsls_asserttest'
-        //:   machinery to verify that the 'bsls::Assert' failure handler
-        //:   is invoked.
+        // 1. Define a using declaration for `bdljsn::JsonLiterals` and then
+        //    define a couple JSON literals.  Verify the `bdljsn::Json`
+        //    resulting `bdljsn::Json` objects meet expectations.
+        //
+        // 2. Define a using declaration for `bdljsn::JsonLiterals` and
+        //    the define an invalid JSON literal.  Use `bsls_asserttest`
+        //    machinery to verify that the `bsls::Assert` failure handler
+        //    is invoked.
         //
         // Testing:
         //   bdljsn::Json operator "" _json(const char *, bsl::size_t );

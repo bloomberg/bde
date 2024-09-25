@@ -65,11 +65,11 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
   // able to handle either case in the same binary due to the dynamic linking
   // of libc.
 
+  /// Up to version 2.14 GNU glibc `strtod` implementation contains a bug
+  /// where certain underflows are reported using the `EDOM == errno`,
+  /// instead of the required `ERANGE == errno`.  The corresponding issue is
+  /// 9696 (https://sourceware.org/bugzilla/show_bug.cgi?id=9696 ).
   #define u_GLIBC2_STRTOD_EDOM_BUG                                            1
-      // Up to version 2.14 GNU glibc 'strtod' implementation contains a bug
-      // where certain underflows are reported using the 'EDOM == errno',
-      // instead of the required 'ERANGE == errno'.  The corresponding issue is
-      // 9696 (https://sourceware.org/bugzilla/show_bug.cgi?id=9696 ).
 #endif
 
 namespace {
@@ -80,12 +80,12 @@ using namespace BloombergLP;
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
+/// Return a string reference to the characters of the specified
+/// `positiveNum` that do not contain the optionally present first `+`
+/// ASCII character.  The behavior is undefined if `positiveNum.empty()`.
 static
 inline
 bsl::string_view stripOptionalPlus(const bsl::string_view& positiveNum)
-    // Return a string reference to the characters of the specified
-    // 'positiveNum' that do not contain the optionally present first '+'
-    // ASCII character.  The behavior is undefined if 'positiveNum.empty()'.
 {
     BSLS_ASSERT(!positiveNum.empty());
 
@@ -94,25 +94,25 @@ bsl::string_view stripOptionalPlus(const bsl::string_view& positiveNum)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
 #ifdef BDLB_NUMERICPARSEUTIL_VALUE_NOT_SET_ON_RANGE_ERROR
+/// Parse the specified `strtodInput` that is known to be a signless,
+/// parsable representation of a number too small or too large to
+/// be represented in a `double` and return 0.0 if it underflows and
+/// Infinity if it overflows.  Also fill the specified `restPtr` with the
+/// address of the first character of `strtodInput` that was not parsed as
+/// part of the returned value.
+///
+/// Except when the proposed resolution to LWG 3081 is implemented, floating
+/// point `std::from_chars` does not "tell" us the difference between under-
+/// and overflow by filling its `double` output argument with 0.0 or
+/// Infinity, it just reports there was a range error.  We have to parse the
+/// number again using `std::strtod` so we can tell which one of the 4
+/// possibilities it was.  We have to do this because our original
+/// implementation of `parseDouble` did not implement the promised grammar
+/// correctly and return an error on under/overflow correctly but it
+/// returned success and filled value with +/-0.0 or +-Infinity.
 static
 double reparseOutOfRange(const char              **restPtr,
                          const bsl::string_view&   strtodInput)
-    // Parse the specified 'strtodInput' that is known to be a signless,
-    // parsable representation of a number too small or too large to
-    // be represented in a 'double' and return 0.0 if it underflows and
-    // Infinity if it overflows.  Also fill the specified 'restPtr' with the
-    // address of the first character of 'strtodInput' that was not parsed as
-    // part of the returned value.
-    //
-    // Except when the proposed resolution to LWG 3081 is implemented, floating
-    // point 'std::from_chars' does not "tell" us the difference between under-
-    // and overflow by filling its 'double' output argument with 0.0 or
-    // Infinity, it just reports there was a range error.  We have to parse the
-    // number again using 'std::strtod' so we can tell which one of the 4
-    // possibilities it was.  We have to do this because our original
-    // implementation of 'parseDouble' did not implement the promised grammar
-    // correctly and return an error on under/overflow correctly but it
-    // returned success and filled value with +/-0.0 or +-Infinity.
 {
     const bsl::size_t          k_BUFFER_SIZE = 128;
     char                       rawBuffer[k_BUFFER_SIZE];
@@ -265,8 +265,9 @@ int NumericParseUtil::parseDouble(double                  *result,
                                        bsl::chars_format::general);
 
     // We can start calculating 'remainder'
+
+    // Position of the first unparsed character within `stdlibInput`
     const bsl::size_t restOffset = fromCharsResult.ptr - stdlibInput.data();
-        // Position of the first unparsed character within 'stdlibInput'
 
     if (bsl::errc::result_out_of_range == fromCharsResult.ec) {
 #ifdef BDLB_NUMERICPARSEUTIL_VALUE_NOT_SET_ON_RANGE_ERROR

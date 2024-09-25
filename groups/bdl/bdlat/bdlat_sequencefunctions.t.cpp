@@ -111,31 +111,35 @@ class Point {
     };
 
     enum {
+        /// index for `X` attribute
         ATTRIBUTE_INDEX_X = 0,
-            // index for 'X' attribute
+
+        /// index for `Y` attribute
         ATTRIBUTE_INDEX_Y = 1
-            // index for 'Y' attribute
     };
 
     enum {
+        /// id for `X` attribute
         ATTRIBUTE_ID_X = 1,
-            // id for 'X' attribute
+
+        /// id for `Y` attribute
         ATTRIBUTE_ID_Y = 2
-            // id for 'Y' attribute
     };
 
   public:
     // CONSTANTS
+
+    /// the name of this class (i.e., "Point")
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "Point")
 
+    /// default value of `X` attribute
     static const double DEFAULT_X;
-        // default value of 'X' attribute
-    static const double DEFAULT_Y;
-        // default value of 'Y' attribute
 
+    /// default value of `Y` attribute
+    static const double DEFAULT_Y;
+
+    /// attribute info for each attribute
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-        // attribute info for each attribute
 
   public:
     // TYPE TRAITS
@@ -147,41 +151,44 @@ class Point {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an instance having default values, when appropriate.
     Point()
-        // Create an instance having default values, when appropriate.
     : d_x(0)
     , d_y(0)
     {
     }
 
+    /// Create an instance having the value of the specified `original`
+    /// object.
     Point(const Point& original)
-        // Create an instance having the value of the specified 'original'
-        // object.
     : d_x(original.d_x)
     , d_y(original.d_y)
     {
     }
 
+    /// Destroy this object.
     ~Point()
-        // Destroy this object.
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Point& operator=(const Point& rhs)
-        // Assign to this object the value of the specified 'rhs' object.
     {
         if (this != &rhs) {
             d_x = rhs.d_x;
@@ -190,75 +197,76 @@ class Point {
         return *this;
     }
 
+    /// visit the modifiable attribute with a given name
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&, const char *, int)
-        // visit the modifiable attribute with a given name
     {
         globalFlag = 1;
         return globalFlag;
     }
 
+    /// visit the modifiable attribute with a given id
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&, int)
-        // visit the modifiable attribute with a given id
     {
         globalFlag = 2;
         return globalFlag;
     }
 
+    /// visits modifiable attributes
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR&)
-        // visits modifiable attributes
     {
         globalFlag = 3;
         return globalFlag;
     }
 
+    /// Return a reference to the modifiable x coordinate
     double& x()
-        // Return a reference to the modifiable x coordinate
     {
         return d_x;
     }
 
+    /// Return a reference to the modifiable y coordinate
     double& y()
-        // Return a reference to the modifiable y coordinate
     {
         return d_y;
     }
 
     // ACCESSORS
+
+    /// visit the non-modifiable attribute with a given name
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&, const char *, int) const
-        // visit the non-modifiable attribute with a given name
     {
         globalFlag = 4;
         return globalFlag;
     }
 
+    /// visit the non-modifiable attribute with a given id
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&, int) const
-        // visit the non-modifiable attribute with a given id
     {
         globalFlag = 5;
         return globalFlag;
     }
 
+    /// visits non-modifiable attributes
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR&) const
-        // visits non-modifiable attributes
     {
         globalFlag = 6;
         return globalFlag;
     }
 
+    /// Return the x coordinate
     double x() const
-        // Return the x coordinate
     {
         return d_x;
     }
 
+    /// Return the y coordinate
     double y() const
-        // Return the y coordinate
     {
         return d_y;
     }
@@ -267,9 +275,9 @@ class Point {
 const char Point::CLASS_NAME[] = "Point";
 
 const double Point::DEFAULT_X = 0;
-     // default value of 'X' attribute
+     // default value of `X` attribute
 const double Point::DEFAULT_Y = 0;
-     // default value of 'Y' attribute
+     // default value of `Y` attribute
 
 const bdlat_AttributeInfo Point::ATTRIBUTE_INFO_ARRAY[] = {
     {ATTRIBUTE_ID_X, "X", sizeof("X") - 1, "X coordinate", 0},
@@ -320,16 +328,16 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 ///Usage
 ///-----
 // The following snippets of code illustrate the usage of this component.
-// Suppose you had a 'struct' that contains three members:
-//..
+// Suppose you had a `struct` that contains three members:
+// ```
 
     namespace BloombergLP {
 
     namespace mine {
 
+    /// This struct represents a sequence containing a `string` member, an
+    /// `int` member, and a `float` member.
     struct MySequence {
-        // This struct represents a sequence containing a 'string' member, an
-        // 'int' member, and a 'float' member.
 
         // CONSTANTS
         enum {
@@ -345,12 +353,12 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
     };
 
     }  // close namespace mine
-//..
-// We can now make 'mine::MySequence' expose "sequence" behavior by
-// implementing the necessary 'bdlat_sequence*' functions for 'MySequence'
-// inside the 'mine' namespace.  First, we should forward declare all the
-// functions that we will implement inside the 'mine' namespace:
-//..
+// ```
+// We can now make `mine::MySequence` expose "sequence" behavior by
+// implementing the necessary `bdlat_sequence*` functions for `MySequence`
+// inside the `mine` namespace.  First, we should forward declare all the
+// functions that we will implement inside the `mine` namespace:
+// ```
     namespace mine {
 
     template <class MANIPULATOR>
@@ -384,13 +392,13 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
                                     int               attributeId);
 
     }  // close namespace mine
-//..
+// ```
 // Now, we will implement these functions.  Note that for this implementation,
-// we will create a temporary 'bdlat_AttributeInfo' object and pass it along
-// when invoking the manipulator or accessor.  See the {'bdlat_attributeinfo'}
+// we will create a temporary `bdlat_AttributeInfo` object and pass it along
+// when invoking the manipulator or accessor.  See the {`bdlat_attributeinfo`}
 // component-level documentation for more information.  The implementation of
 // the functions are as follows:
-//..
+// ```
     template <class MANIPULATOR>
     int mine::bdlat_sequenceManipulateAttribute(
                                           MySequence   *object,
@@ -654,12 +662,12 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
             || MySequence::AGE_ATTRIBUTE_ID    == attributeId
             || MySequence::SALARY_ATTRIBUTE_ID == attributeId;
     }
-//..
-// Finally, we need to specialize the 'IsSequence' meta-function in the
-// 'bdlat_SequenceFunctions' namespace for the 'mine::MySequence' type.  This
-// makes the 'bdlat' infrastructure recognize 'mine::MySequence' as a sequence
+// ```
+// Finally, we need to specialize the `IsSequence` meta-function in the
+// `bdlat_SequenceFunctions` namespace for the `mine::MySequence` type.  This
+// makes the `bdlat` infrastructure recognize `mine::MySequence` as a sequence
 // abstraction:
-//..
+// ```
     namespace bdlat_SequenceFunctions {
 
     template <>
@@ -668,21 +676,21 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 
     }  // close namespace bdlat_SequenceFunctions
     }  // close enterprise namespace
-//..
-// The 'bdlat' infrastructure (and any component that uses this infrastructure)
-// will now recognize 'mine::MySequence' as a "sequence" type.  For example,
+// ```
+// The `bdlat` infrastructure (and any component that uses this infrastructure)
+// will now recognize `mine::MySequence` as a "sequence" type.  For example,
 // suppose we have the following XML data:
-//..
+// ```
 //  <?xml version='1.0' encoding='UTF-8' ?>
 //  <MySequence>
 //      <name>John Doe</name>
 //      <age>29</age>
 //      <salary>12345.00</salary>
 //  </MySequence>
-//..
-// Using the 'balxml_decoder' component, we can now load this XML data into a
-// 'mine::MySequence' object:
-//..
+// ```
+// Using the `balxml_decoder` component, we can now load this XML data into a
+// `mine::MySequence` object:
+// ```
 //  #include <balxml_decoder.h>
 //
 //  void decodeMySequenceFromXML(bsl::istream& inputData)
@@ -703,15 +711,16 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 //      assert(29         == object.d_age);
 //      assert(12345.00   == object.d_salary);
 //  }
-//..
-// Note that the 'bdlat' framework can be used for functionality other than
-// encoding/decoding into XML.  When 'mine::MySequence' is plugged into the
+// ```
+// Note that the `bdlat` framework can be used for functionality other than
+// encoding/decoding into XML.  When `mine::MySequence` is plugged into the
 // framework, then it will be automatically usable within the framework.  For
 // example, the following snippets of code will print out all the attributes of
 // a sequence object:
-//..
+// ```
+
+    /// Print each visited object to the bound `d_stream_p` object.
     struct PrintAttribute {
-        // Print each visited object to the bound 'd_stream_p' object.
 
         // DATA MEMBERS
         bsl::ostream *d_stream_p;
@@ -732,11 +741,11 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 
         bdlat_SequenceFunctions::accessAttributes(object, accessor);
     }
-//..
+// ```
 // Now we have a generic function that takes an output stream and a sequence
 // object, and prints out each attribute with its name and value.  We can use
 // this generic function as follows:
-//..
+// ```
     void printMySequence(bsl::ostream& stream)
     {
         mine::MySequence object;
@@ -749,13 +758,13 @@ const bdlat_AttributeInfo *Point::lookupAttributeInfo(int id)
 
         printSequenceAttributes(stream, object);
     }
-//..
+// ```
 // The function above will print the following to provided stream:
-//..
+// ```
 //  name: John Doe
 //  age: 25
 //  salary: 12345.00
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM

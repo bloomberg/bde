@@ -127,19 +127,19 @@ bsls::Types::Int64 epochBuffer[1] = { 0 };
 class EarlyEpochCopier
 {
   public:
+    /// Create an object of this type.
     EarlyEpochCopier();
-        // Create an object of this type.
 
+    /// Return a reference providing non-modifiable access to the `Datetime`
+    /// object stored in the `epochBuffer`.
     static const bdlt::Datetime& copiedValue();
-        // Return a reference providing non-modifiable access to the 'Datetime'
-        // object stored in the 'epochBuffer'.
 };
 
 EarlyEpochCopier::EarlyEpochCopier()
 {
     const bdlt::Datetime &epoch = bdlt::EpochUtil::epoch();
 
-    // The following code wants to check that the 'epoch' method returns a
+    // The following code wants to check that the `epoch` method returns a
     // valid reference regardless of how early in the execution process this
     // method is called, since the epoch object is meant to be statically
     // initialized at load time.  However, the C++ standard says that a null
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -226,13 +226,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -251,36 +251,36 @@ int main(int argc, char *argv[])
 // When processing date/time data, we are often required to deal with a variety
 // of ways in which to represent that data, and therefore we need to be able to
 // convert between those representations.  We can use the methods contained in
-// 'bdlt::EpochUtil' to do this.
+// `bdlt::EpochUtil` to do this.
 //
 // First, we set up date/time input values in a variety of formats.  We'll use
 // 900ms past midnight of January 1, 2000 as the base date and time, dropping
 // the 900ms if the resolution of a format doesn't support it:
-//..
+// ```
     const bsl::time_t            inputTime         (946684800);
     const bsls::TimeInterval     inputTimeInterval (946684800, 900000000);
     const bdlt::DatetimeInterval inputDatetimeInterval(
                                                   0, 0, 0, 0, 946684800900LL);
     const bdlt::Datetime         inputDatetime     (2000, 1, 1, 0, 0, 0, 900);
-//..
+// ```
 // Then, we set up a set of output variables to receive converted values:
-//..
+// ```
     bsl::time_t            outputTime = 0;
     bsls::TimeInterval     outputTimeInterval;
     bdlt::DatetimeInterval outputDatetimeInterval;
     bdlt::Datetime         outputDatetime;
-//..
-// Next, because 'bdlt::EpochUtil' uses 'bdlt::Datetime' as the common format
+// ```
+// Next, because `bdlt::EpochUtil` uses `bdlt::Datetime` as the common format
 // for conversion, we will set up a pair of variables in this format to
 // represent the values we expect to see:
-//..
+// ```
     const bdlt::Datetime epochDatetimeWithMs   (2000, 1, 1, 0, 0, 0, 900);
     const bdlt::Datetime epochDatetimeWithoutMs(2000, 1, 1, 0, 0, 0, 0);
-//..
-// Now, we perform a set of conversions to 'bdlt::Datetime' and verify that the
+// ```
+// Now, we perform a set of conversions to `bdlt::Datetime` and verify that the
 // results are correct.  We will use the conversion methods that return by
 // value:
-//..
+// ```
     outputDatetime = bdlt::EpochUtil::convertFromTimeT(inputTime);
     ASSERT(epochDatetimeWithoutMs == outputDatetime);
 
@@ -291,11 +291,11 @@ int main(int argc, char *argv[])
     outputDatetime =
            bdlt::EpochUtil::convertFromDatetimeInterval(inputDatetimeInterval);
     ASSERT(epochDatetimeWithMs    == outputDatetime);
-//..
-// Finally, we perform a set of conversions from 'bdlt::Datetime' and verify
+// ```
+// Finally, we perform a set of conversions from `bdlt::Datetime` and verify
 // that the results are correct.  This time, for variety, we will illustrate
 // the conversion methods which return through an object pointer:
-//..
+// ```
     ASSERT(0 == bdlt::EpochUtil::convertToTimeT(&outputTime, inputDatetime));
     ASSERT(inputTime             == outputTime);
 
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
                                                        &outputDatetimeInterval,
                                                        inputDatetime));
     ASSERT(inputDatetimeInterval == outputDatetimeInterval);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -315,12 +315,12 @@ int main(int argc, char *argv[])
         //   Test the adjustments for DRQS 100907184.
         //
         // Concerns:
-        //: 1 The defining of behavior for negative intervals and datetimes
-        //:   prior to the epoch results in correct behavior for the provided
-        //:   examples.
+        // 1. The defining of behavior for negative intervals and datetimes
+        //    prior to the epoch results in correct behavior for the provided
+        //    examples.
         //
         // Plan:
-        //: 1 Directly verify the examples from the DRQS.
+        // 1. Directly verify the examples from the DRQS.
         //
         // Testing:
         //   DRQS 100907184
@@ -354,73 +354,73 @@ int main(int argc, char *argv[])
         // CONVERT BDLT_DATETIME TO/FROM BDLT_DATETIMEINTERVAL
         //
         // Concerns:
-        //: 1 All bdlt::Datetime fields are converted properly.
-        //:
-        //: 2 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
-        //:
-        //: 3 Limit values of 'bdlt::Datetime' convert properly.
-        //:
-        //: 4 Datetime values producing negative 'bdlt::DatetimeInterval'
-        //:   values fail.
-        //:
-        //: 5 Non-zero status value implies no change to result
-        //:
-        //: 6 All relevant fields from bdlt::DatetimeInterval are recovered
-        //:   properly.
-        //:
-        //: 7 In safe mode, contract violations are detected.
+        // 1. All bdlt::Datetime fields are converted properly.
+        //
+        // 2. Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
+        //
+        // 3. Limit values of `bdlt::Datetime` convert properly.
+        //
+        // 4. Datetime values producing negative `bdlt::DatetimeInterval`
+        //    values fail.
+        //
+        // 5. Non-zero status value implies no change to result
+        //
+        // 6. All relevant fields from bdlt::DatetimeInterval are recovered
+        //    properly.
+        //
+        // 7. In safe mode, contract violations are detected.
         //
         // Plan:
-        //: 1 Test convertToDatetimeInterval (C-1..5,7)
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:   Construct a table in which each input field, status, and output
-        //:   value are represented in separate columns.  A failure status
-        //:   implies that the result is not changed, which is verified within
-        //:   the body of the loop on two separate initial values.  In safe
-        //:   mode, check that assertions trigger.  Note that the body of the
-        //:   main loop will also be used to partially test
-        //:   'convertFromDatetimeInterval'.
-        //:
-        //: 2 Test convertFromDatetimeInterval (C-6,7)
-        //:   * Reuse
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Exploit proven inverse operation: 'convertToDatetimeInterval'
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:     A) First, REUSE the table used to test
-        //:        'convertToDatetimeInterval' to reverse every successful
-        //:        conversion to 'bdlt::DatetimeInterval', and compare that
-        //:        result against the initial input.
-        //:
-        //:     B) Second, create a separate table that explicitly converts
-        //:        valid (non-negative) 'bdlt::DatetimeInterval' to
-        //:        'bdlt::Datetime' values with input and individual output
-        //:        fields represented as separate columns.  For each result,
-        //:        that the input is the table's expected value is verified
-        //:        via the proven 'convertToDatetimeInterval';
-        //:        'convertFromDatetimeInterval' is then applied, and the
-        //:        result of that calculation is compared with the expected
-        //:        result values in the table.
-        //:
-        //: 3 Test 'convertToDatetimeInterval' and then
-        //:   'convertFromDatetimeInterval' (C-1,6)
-        //:   * Exploit Inverse Relationship
-        //:   * Loop-Based Implementation]
-        //:   * Pseudo-Random Data Selection
-        //:   * Exploiting Inverse Relationship
-        //:
-        //:     Use a loop-based approach to verify that pseudo-randomly
-        //:     selected, non-repeating datetime values that can be converted
-        //:     to and then from 'bdlt::DatetimeInterval' objects result in
-        //:     exactly the same object.  Note that the intermediate
-        //:     'bdlt::DatetimeInterval' object is initialized to a different
-        //:     "garbage" value on each iteration.
+        // 1. Test convertToDatetimeInterval (C-1..5,7)
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //    Construct a table in which each input field, status, and output
+        //    value are represented in separate columns.  A failure status
+        //    implies that the result is not changed, which is verified within
+        //    the body of the loop on two separate initial values.  In safe
+        //    mode, check that assertions trigger.  Note that the body of the
+        //    main loop will also be used to partially test
+        //    `convertFromDatetimeInterval`.
+        //
+        // 2. Test convertFromDatetimeInterval (C-6,7)
+        //    * Reuse
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Exploit proven inverse operation: `convertToDatetimeInterval`
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //      A) First, REUSE the table used to test
+        //         `convertToDatetimeInterval` to reverse every successful
+        //         conversion to `bdlt::DatetimeInterval`, and compare that
+        //         result against the initial input.
+        //
+        //      B) Second, create a separate table that explicitly converts
+        //         valid (non-negative) `bdlt::DatetimeInterval` to
+        //         `bdlt::Datetime` values with input and individual output
+        //         fields represented as separate columns.  For each result,
+        //         that the input is the table's expected value is verified
+        //         via the proven `convertToDatetimeInterval`;
+        //         `convertFromDatetimeInterval` is then applied, and the
+        //         result of that calculation is compared with the expected
+        //         result values in the table.
+        //
+        // 3. Test `convertToDatetimeInterval` and then
+        //    `convertFromDatetimeInterval` (C-1,6)
+        //    * Exploit Inverse Relationship
+        //    * Loop-Based Implementation]
+        //    * Pseudo-Random Data Selection
+        //    * Exploiting Inverse Relationship
+        //
+        //      Use a loop-based approach to verify that pseudo-randomly
+        //      selected, non-repeating datetime values that can be converted
+        //      to and then from `bdlt::DatetimeInterval` objects result in
+        //      exactly the same object.  Note that the intermediate
+        //      `bdlt::DatetimeInterval` object is initialized to a different
+        //      "garbage" value on each iteration.
         //
         // Testing:
         //   int convertToDatetimeInterval(DtI *result, const Dt& dt);
@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
-            //               "No Change" to 'result' on FAILURE.
+            //               "No Change" to `result` on FAILURE.
 
             static const bsl::time_t INITIAL_VALUES[] = {
                 // standard b-box int partition
@@ -979,73 +979,73 @@ int main(int argc, char *argv[])
         // CONVERT BDLT_DATETIME TO/FROM BSLS_TIMEINTERVAL
         //
         // Concerns:
-        //: 1 All bdlt::Datetime fields are converted properly.
-        //:
-        //: 2 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
-        //:
-        //: 3 Limit values of 'bdlt::Datetime' convert properly.
-        //:
-        //: 4 Datetime values producing negative 'bsls::TimeInterval' values
-        //:   fail.
-        //:
-        //: 5 Non-zero status value implies no change to result
-        //:
-        //: 6 All relevant fields from bsls::TimeInterval are recovered
-        //:   properly.
-        //:
-        //: 7 In safe mode, contract violations are detected.
+        // 1. All bdlt::Datetime fields are converted properly.
+        //
+        // 2. Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
+        //
+        // 3. Limit values of `bdlt::Datetime` convert properly.
+        //
+        // 4. Datetime values producing negative `bsls::TimeInterval` values
+        //    fail.
+        //
+        // 5. Non-zero status value implies no change to result
+        //
+        // 6. All relevant fields from bsls::TimeInterval are recovered
+        //    properly.
+        //
+        // 7. In safe mode, contract violations are detected.
         //
         // Plan:
-        //: 1 Test convertToTimeInterval (C-1..5,7)
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:   Construct a table in which each input field, status, and output
-        //:   value are represented in separate columns.  A failure status
-        //:   implies that the result is not changed, which is verified within
-        //:   the body of the loop on two separate initial values.  In safe
-        //:   mode, check that assertions trigger.  Note that the body of the
-        //:   main loop will also be used to partially test
-        //:   'convertFromTimeInterval'.
-        //:
-        //: 2 Test convertFromTimeInterval (C-6,7)
-        //:   * Reuse
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Exploit proven inverse operation: 'convertToTimeInterval'
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:     A) First, REUSE the table used to test 'convertToTimeInterval'
-        //:        to reverse every successful conversion to
-        //:        'bsls::TimeInterval', and compare that result against
-        //:        the initial input.
-        //:
-        //:     B) Second, create a separate table that explicitly converts
-        //:        valid (non-negative) 'bsls::TimeInterval' to
-        //:        'bdlt::Datetime' values with input and individual output
-        //:        fields represented as separate columns.  For each result,
-        //:        that the input is the table's expected value is verified via
-        //:        the proven 'convertToTimeInterval';
-        //:        'convertFromTimeInterval' is then applied, and the result of
-        //:        that calculation is compared with the expected result values
-        //:        in the table.
-        //:
-        //: 3 Test 'convertToTimeInterval' and then
-        //:   'convertFromTimeInterval' (C-1,6)
-        //:   * Exploit Inverse Relationship
-        //:   * Loop-Based Implementation
-        //:   * Pseudo-Random Data Selection
-        //:   * Exploiting Inverse Relationship
-        //:
-        //:     Use a loop-based approach to verify that pseudo-randomly
-        //:     selected, non-repeating datetime values that can be converted
-        //:     to and then from 'bsls::TimeInterval' objects result in
-        //:     exactly the same object.  Note that the intermediate
-        //:     'bsls::TimeInterval' object is initialized to a different
-        //:     "garbage" value on each iteration.
+        // 1. Test convertToTimeInterval (C-1..5,7)
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //    Construct a table in which each input field, status, and output
+        //    value are represented in separate columns.  A failure status
+        //    implies that the result is not changed, which is verified within
+        //    the body of the loop on two separate initial values.  In safe
+        //    mode, check that assertions trigger.  Note that the body of the
+        //    main loop will also be used to partially test
+        //    `convertFromTimeInterval`.
+        //
+        // 2. Test convertFromTimeInterval (C-6,7)
+        //    * Reuse
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Exploit proven inverse operation: `convertToTimeInterval`
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //      A) First, REUSE the table used to test `convertToTimeInterval`
+        //         to reverse every successful conversion to
+        //         `bsls::TimeInterval`, and compare that result against
+        //         the initial input.
+        //
+        //      B) Second, create a separate table that explicitly converts
+        //         valid (non-negative) `bsls::TimeInterval` to
+        //         `bdlt::Datetime` values with input and individual output
+        //         fields represented as separate columns.  For each result,
+        //         that the input is the table's expected value is verified via
+        //         the proven `convertToTimeInterval`;
+        //         `convertFromTimeInterval` is then applied, and the result of
+        //         that calculation is compared with the expected result values
+        //         in the table.
+        //
+        // 3. Test `convertToTimeInterval` and then
+        //    `convertFromTimeInterval` (C-1,6)
+        //    * Exploit Inverse Relationship
+        //    * Loop-Based Implementation
+        //    * Pseudo-Random Data Selection
+        //    * Exploiting Inverse Relationship
+        //
+        //      Use a loop-based approach to verify that pseudo-randomly
+        //      selected, non-repeating datetime values that can be converted
+        //      to and then from `bsls::TimeInterval` objects result in
+        //      exactly the same object.  Note that the intermediate
+        //      `bsls::TimeInterval` object is initialized to a different
+        //      "garbage" value on each iteration.
         //
         // Testing:
         //   int convertToTimeInterval(TI *result, const Dt& dt);
@@ -1250,7 +1250,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
-            //               "No Change" to 'result' on FAILURE.
+            //               "No Change" to `result` on FAILURE.
 
             static const bsl::time_t INITIAL_VALUES[] = {
                 // standard b-box int partition
@@ -1657,75 +1657,75 @@ int main(int argc, char *argv[])
         // CONVERT BDLT_DATETIME TO/FROM TIME_T
         //
         // Concerns:
-        //: 1 All bdlt::Datetime fields are converted properly.
-        //:
-        //: 2 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
-        //:
-        //: 3 The millisecond and microsecond fields are ignored.
-        //:
-        //: 4 Datetime values producing out-of-range time_t values fail:
-        //:   a) time_t < 0
-        //:   b) time_t > 2^31 - 1
-        //:   c) internal 32-bit integer temporaries do not overflow.
-        //:
-        //: 5 Non-zero status value implies no change to result
-        //:
-        //: 6 All relevant fields from time_t are recovered properly.
-        //:
-        //: 7 Milliseconds and microseconds are set to 0 when converting from
-        //:   time_t.
-        //:
-        //: 8 In safe mode, contract violations are detected.
+        // 1. All bdlt::Datetime fields are converted properly.
+        //
+        // 2. Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
+        //
+        // 3. The millisecond and microsecond fields are ignored.
+        //
+        // 4. Datetime values producing out-of-range time_t values fail:
+        //    a) time_t < 0
+        //    b) time_t > 2^31 - 1
+        //    c) internal 32-bit integer temporaries do not overflow.
+        //
+        // 5. Non-zero status value implies no change to result
+        //
+        // 6. All relevant fields from time_t are recovered properly.
+        //
+        // 7. Milliseconds and microseconds are set to 0 when converting from
+        //    time_t.
+        //
+        // 8. In safe mode, contract violations are detected.
         //
         // Plan:
-        //: 1 Test convertToTimeT (C-1..5,8)
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:   Construct a table in which each input field, status, and output
-        //:   value are represented in separate columns.  A failure status
-        //:   implies that the result is not changed, which is verified within
-        //:   the body of the loop on two separate initial values.  In safe
-        //:   mode, check that assertions trigger.  Note that the body of the
-        //:   main loop will also be used to partially test 'convertFromTimeT'.
-        //:
-        //: 2 Test convertFromTimeT (C-6..8)
-        //:   * Reuse
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Exploit proven inverse operation: 'convertToTimeT'
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:     A) First, REUSE the table used to test 'convertToTimeT' to
-        //:        reverse every successful conversion to 'time_t', and compare
-        //:        that result against the initial input, except in cases where
-        //:        milliseconds were initially non-zero.
-        //:
-        //:     B) Second, create a separate table that explicitly converts
-        //:        valid (non-negative) 'time_t' to 'bdlt::Datetime' values
-        //:        with input and individual output fields represented as
-        //:        separate columns.  For each result, that the input is the
-        //:        table's expected value is verified via the proven
-        //:        'convertToTimeT'; 'convertFromTimeT' is then applied, and
-        //:        the result of that calculation is compared with the expected
-        //:        result values in the table.  Note that the 'millisecond'
-        //:        field is necessarily 0, and is tested directly within the
-        //:        main loop.
-        //:
-        //: 3 Test 'convertToTimeT' and then 'convertFromTimeT' (C-1,6)
-        //:   * Exploit Inverse Relationship
-        //:   * Loop-Based Implementation
-        //:   * Pseudo-Random Data Selection
-        //:   * Exploiting Inverse Relationship
-        //:
-        //:     Use a loop-based approach to verify that pseudo-randomly
-        //:     selected, non-repeating datetime values that can be converted
-        //:     to and then from 'struct tm' objects result in exactly the same
-        //:     object.  Note that the intermediate 'time_t' object is
-        //:     initialized to a different "garbage" value on each iteration.
+        // 1. Test convertToTimeT (C-1..5,8)
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //    Construct a table in which each input field, status, and output
+        //    value are represented in separate columns.  A failure status
+        //    implies that the result is not changed, which is verified within
+        //    the body of the loop on two separate initial values.  In safe
+        //    mode, check that assertions trigger.  Note that the body of the
+        //    main loop will also be used to partially test `convertFromTimeT`.
+        //
+        // 2. Test convertFromTimeT (C-6..8)
+        //    * Reuse
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Exploit proven inverse operation: `convertToTimeT`
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //      A) First, REUSE the table used to test `convertToTimeT` to
+        //         reverse every successful conversion to `time_t`, and compare
+        //         that result against the initial input, except in cases where
+        //         milliseconds were initially non-zero.
+        //
+        //      B) Second, create a separate table that explicitly converts
+        //         valid (non-negative) `time_t` to `bdlt::Datetime` values
+        //         with input and individual output fields represented as
+        //         separate columns.  For each result, that the input is the
+        //         table's expected value is verified via the proven
+        //         `convertToTimeT`; `convertFromTimeT` is then applied, and
+        //         the result of that calculation is compared with the expected
+        //         result values in the table.  Note that the `millisecond`
+        //         field is necessarily 0, and is tested directly within the
+        //         main loop.
+        //
+        // 3. Test `convertToTimeT` and then `convertFromTimeT` (C-1,6)
+        //    * Exploit Inverse Relationship
+        //    * Loop-Based Implementation
+        //    * Pseudo-Random Data Selection
+        //    * Exploiting Inverse Relationship
+        //
+        //      Use a loop-based approach to verify that pseudo-randomly
+        //      selected, non-repeating datetime values that can be converted
+        //      to and then from `struct tm` objects result in exactly the same
+        //      object.  Note that the intermediate `time_t` object is
+        //      initialized to a different "garbage" value on each iteration.
         //
         // Testing:
         //   int convertToTimeT(time_t *result, const Dt& dt);
@@ -1876,7 +1876,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
-            //               "No Change" to 'result' on FAILURE.
+            //               "No Change" to `result` on FAILURE.
 
             static const bsl::time_t INITIAL_VALUES[] = {
                 // standard b-box int partition
@@ -2241,77 +2241,77 @@ int main(int argc, char *argv[])
         // CONVERT BDLT_DATETIME TO/FROM BSLS_TYPES::INT64
         //
         // Concerns:
-        //: 1 All bdlt::Datetime fields are converted properly.
-        //:
-        //: 2 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
-        //:
-        //: 3 The millisecond and microsecond fields are ignored.
-        //:
-        //: 4 Non-zero status value implies no change to result
-        //:
-        //: 5 In converting from 'bsls::Types::Int64', all relevant fields are
-        //:   recovered properly.
-        //:
-        //: 6 The millisecond and microsecond fields are always set to 0.
-        //:
-        //: 7 'bsls::Types::Int64' values producing invalid 'Datetime' values
-        //:   fail:
-        //:   a) time_t <  -62135596800 (01/01/0001 - 00:00:00)
-        //:   b) time_t > 2253402300799 (12/31/9999 - 23:59:59)
-        //:   c) internal 64-bit integer temporaries do not overflow.
-        //:
-        //: 8 In safe mode, contract violations are detected.
+        // 1. All bdlt::Datetime fields are converted properly.
+        //
+        // 2. Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
+        //
+        // 3. The millisecond and microsecond fields are ignored.
+        //
+        // 4. Non-zero status value implies no change to result
+        //
+        // 5. In converting from `bsls::Types::Int64`, all relevant fields are
+        //    recovered properly.
+        //
+        // 6. The millisecond and microsecond fields are always set to 0.
+        //
+        // 7. `bsls::Types::Int64` values producing invalid `Datetime` values
+        //    fail:
+        //    a) time_t <  -62135596800 (01/01/0001 - 00:00:00)
+        //    b) time_t > 2253402300799 (12/31/9999 - 23:59:59)
+        //    c) internal 64-bit integer temporaries do not overflow.
+        //
+        // 8. In safe mode, contract violations are detected.
         //
         // Plan:
-        //: 1 Test convertToTimeT64 (C-1..4)
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Orthogonal Perturbation:
-        //:
-        //:   Construct a table in which each input field and output value are
-        //:   represented in separate columns.  Note that the body of the main
-        //:   loop will also be used to partially test 'convertFromTimeT64'.
-        //:
-        //: 2 Test convertFromTimeT64 (C-5..8)
-        //:   * Reuse
-        //:   * Table-Based Implementation
-        //:   * Category Partitioning Data Selection
-        //:   * Exploit proven inverse operation: 'convertToTimeT64'
-        //:   * Orthogonal Perturbation:
-        //:     * Unaltered Initial Values
-        //:
-        //:     A) First, REUSE the table used to test 'convertToTimeT64'
-        //:        to reverse every conversion to 'bsls::Types::Int64', and
-        //:        compare that result against the initial input, except in
-        //:        cases where milliseconds were initially non-zero.
-        //:
-        //:     B) Second, create a separate table that explicitly converts
-        //:        valid 'bsls::Types::Int64' to 'bdlt::Datetime' values with
-        //:        input and individual output fields represented as separate
-        //:        columns.  For each result that yields a status equal to 0
-        //:        (in a separate column) verify that the input is the table's
-        //:        expected value via the proven 'convertToTimeT64';
-        //:        'convertFromTimeT64' is then applied, and the result of that
-        //:        calculation is compared with the expected result values
-        //:        in the table.  For each result that yields a non-0 status,
-        //:        verify that the result is unchanged from its original value
-        //:        after 'convertFromTimeT64'.  In safe mode, check that
-        //:        contract violations are detected.  Note that the
-        //:        'millisecond' field is necessarily 0, and is tested directly
-        //:        within the main loop.
-        //:
-        //: 3 Test 'convertToTimeT64' and then 'convertFromTimeT64' (C-1,5)
-        //:   * Exploit Inverse Relationship
-        //:   * Loop-Based Implementation
-        //:   * Pseudo-Random Data Selection
-        //:   * Exploiting Inverse Relationship
-        //:
-        //:     Use a loop-based approach to verify that pseudo-randomly
-        //:     selected, non-repeating datetime values that can be converted
-        //:     to and then from 'bsls::Types::Int64' objects result in exactly
-        //:     the same object.  Note that the intermediate
-        //:     'bsls::Types::Int64' instance is initialized to a different
-        //:     "garbage" value on each iteration.
+        // 1. Test convertToTimeT64 (C-1..4)
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Orthogonal Perturbation:
+        //
+        //    Construct a table in which each input field and output value are
+        //    represented in separate columns.  Note that the body of the main
+        //    loop will also be used to partially test `convertFromTimeT64`.
+        //
+        // 2. Test convertFromTimeT64 (C-5..8)
+        //    * Reuse
+        //    * Table-Based Implementation
+        //    * Category Partitioning Data Selection
+        //    * Exploit proven inverse operation: `convertToTimeT64`
+        //    * Orthogonal Perturbation:
+        //      * Unaltered Initial Values
+        //
+        //      A) First, REUSE the table used to test `convertToTimeT64`
+        //         to reverse every conversion to `bsls::Types::Int64`, and
+        //         compare that result against the initial input, except in
+        //         cases where milliseconds were initially non-zero.
+        //
+        //      B) Second, create a separate table that explicitly converts
+        //         valid `bsls::Types::Int64` to `bdlt::Datetime` values with
+        //         input and individual output fields represented as separate
+        //         columns.  For each result that yields a status equal to 0
+        //         (in a separate column) verify that the input is the table's
+        //         expected value via the proven `convertToTimeT64`;
+        //         `convertFromTimeT64` is then applied, and the result of that
+        //         calculation is compared with the expected result values
+        //         in the table.  For each result that yields a non-0 status,
+        //         verify that the result is unchanged from its original value
+        //         after `convertFromTimeT64`.  In safe mode, check that
+        //         contract violations are detected.  Note that the
+        //         `millisecond` field is necessarily 0, and is tested directly
+        //         within the main loop.
+        //
+        // 3. Test `convertToTimeT64` and then `convertFromTimeT64` (C-1,5)
+        //    * Exploit Inverse Relationship
+        //    * Loop-Based Implementation
+        //    * Pseudo-Random Data Selection
+        //    * Exploiting Inverse Relationship
+        //
+        //      Use a loop-based approach to verify that pseudo-randomly
+        //      selected, non-repeating datetime values that can be converted
+        //      to and then from `bsls::Types::Int64` objects result in exactly
+        //      the same object.  Note that the intermediate
+        //      `bsls::Types::Int64` instance is initialized to a different
+        //      "garbage" value on each iteration.
         //
         // Testing:
         //   Dt convertFromTimeT64(TimeT64 time);
@@ -2468,7 +2468,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
-            //               "No Change" to 'result' on FAILURE.
+            //               "No Change" to `result` on FAILURE.
 
             static const bsl::time_t INITIAL_VALUES[] = {
                 // standard b-box int partition
@@ -2879,15 +2879,15 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // UNIX EPOCH DATETIME
-        //   Test the function that returns the Unix epoch 'bdlt::Datetime'.
+        //   Test the function that returns the Unix epoch `bdlt::Datetime`.
         //
         // Concerns:
-        //: 1 That this function returns the epoch 'bdlt::Datetime' in a
-        //:   thread-safe fashion.
+        // 1. That this function returns the epoch `bdlt::Datetime` in a
+        //    thread-safe fashion.
         //
         // Plan:
-        //: 1 We know that the implementation is thread-safe by design.
-        //:   We want to verify only that the correct value is returned. (C-1)
+        // 1. We know that the implementation is thread-safe by design.
+        //    We want to verify only that the correct value is returned. (C-1)
         //
         // Testing:
         //   Dt& epoch();

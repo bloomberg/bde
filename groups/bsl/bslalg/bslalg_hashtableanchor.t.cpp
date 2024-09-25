@@ -21,8 +21,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -44,48 +44,48 @@ using namespace BloombergLP;
 // (value-semantic) attribute class.  The Primary Manipulators and Basic
 // Accessors are therefore, respectively, the attribute setters and getters,
 // each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setDescription'
-//: o 'setDstInEffectFlag'
-//: o 'setUtcOffsetInSeconds'
+//  - `setDescription`
+//  - `setDstInEffectFlag`
+//  - `setUtcOffsetInSeconds`
 //
 // Basic Accessors:
-//: o 'allocator' (orthogonal to value)
-//: o 'description'
-//: o 'dstInEffectFlag'
-//: o 'utcOffsetInSeconds'
+//  - `allocator` (orthogonal to value)
+//  - `description`
+//  - `dstInEffectFlag`
+//  - `utcOffsetInSeconds`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
 // manipulators tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//  - [10] -- BSLX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
-//:   o swap
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
+//  - ACCESSOR methods are `const` thread-safe.
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
+//    - swap
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] HashTableAnchor(HashTableBucket *, size_t, BidirectionalLink *);
@@ -114,11 +114,11 @@ using namespace BloombergLP;
 // [11] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [ 5] CONCERN: All accessor methods are declared 'const'.
+// [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are `const`.
+// [ 5] CONCERN: All accessor methods are declared `const`.
 // [ 9] CONCERN: There is no temporary allocation from any allocator.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
-// [10] Reserved for 'bslx' streaming.
+// [10] Reserved for `bslx` streaming.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -209,7 +209,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     // default (must be first)
     { L_,     (Bucket *) 0xd3adb33f, MY_SIZE_T_MIN, (Link *)    0 },
 
-    // 'data'
+    // `data`
     { L_,     (Bucket *) 0xd3adb33f, MY_SIZE_T_MIN, &DefaultLink1 },
     { L_,     (Bucket *) 0xf33db33f,             2, &DefaultLink1 },
     { L_,     (Bucket *) 0xd3adb33f,             3, &DefaultLink1 },
@@ -222,7 +222,7 @@ const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 
 void initializeGlobalData()
 {
-    // This function must be called from 'main' in order to perform any
+    // This function must be called from `main` in order to perform any
     // runtime initialization of objects addressed in the default test tables.
     DefaultLink1.reset();
     DefaultLink2.reset();
@@ -238,11 +238,11 @@ void initializeGlobalData()
 ///Example 1: Implementing a primitive hash table
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to create a hash table that keeps track of pointers.
-// Pointers can be added ('insert'ed) or removed ('erase'd) from the table, and
+// Pointers can be added (`insert`ed) or removed (`erase`d) from the table, and
 // the table will keep track, at any time, of whether a pointer is currently
-// stored in the table using the 'count' method.  It will also be table to
-// return the total number of objects stored in the table (the 'size' method).
-// Redundant 'insert's have no effect -- a given pointer may only be stored in
+// stored in the table using the `count` method.  It will also be table to
+// return the total number of objects stored in the table (the `size` method).
+// Redundant `insert`s have no effect -- a given pointer may only be stored in
 // the table once.
 //
 // First, we create our class:
@@ -260,26 +260,28 @@ class PtrHashSet : public bslalg::HashTableAnchor {
     bslma::Allocator *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Roughly double the number of buckets, such that the number of
+    /// buckets shall always be `2^N - 1`.
     void grow();
-        // Roughly double the number of buckets, such that the number of
-        // buckets shall always be '2^N - 1'.
 
     // PRIVATE ACCESSORS
-    bool checkInvariants() const;
-        // Perform sanity checks on this table, returning 'true' if all the
-        // tests pass and 'false' otherwise.  Note that many of the checks
-        // are done with the 'ASSERTV' macro and will cause messages to be
-        // written to the console.
 
+    /// Perform sanity checks on this table, returning `true` if all the
+    /// tests pass and `false` otherwise.  Note that many of the checks
+    /// are done with the `ASSERTV` macro and will cause messages to be
+    /// written to the console.
+    bool checkInvariants() const;
+
+    /// If the specified value `ptr` is stored in this table, return
+    /// pointers to its node and bucket in the specified `node` and
+    /// `bucket`.  If it is not in this table, return the bucket it should
+    /// be in, and a pointer to the first node, if any, in that bucket.  If
+    /// the bucket is empty, return with `*node == listRootAddress()`.
+    /// Return `true` if `ptr` was found in the table and `false` otherwise.
+    /// Note that it is permissible to pass 0 to `node` and / or `bucket`,
+    /// in which case these arguments are ignored.
     bool find(Node **node, Bucket **bucket, const void *ptr) const;
-        // If the specified value 'ptr' is stored in this table, return
-        // pointers to its node and bucket in the specified 'node' and
-        // 'bucket'.  If it is not in this table, return the bucket it should
-        // be in, and a pointer to the first node, if any, in that bucket.  If
-        // the bucket is empty, return with '*node == listRootAddress()'.
-        // Return 'true' if 'ptr' was found in the table and 'false' otherwise.
-        // Note that it is permissible to pass 0 to 'node' and / or 'bucket',
-        // in which case these arguments are ignored.
 
   private:
     // NOT IMPLEMENTED
@@ -288,38 +290,41 @@ class PtrHashSet : public bslalg::HashTableAnchor {
 
   public:
     // CREATORS
+
+    /// Create a `PtrHashSet`, using the specified `allocator`.  If no
+    /// allocator is specified, use the default allocator.
     explicit
     PtrHashSet(bslma::Allocator *allocator = 0);
-        // Create a 'PtrHashSet', using the specified 'allocator'.  If no
-        // allocator is specified, use the default allocator.
 
+    /// Destroy this `PtrHashSet`, freeing all its memory.
     ~PtrHashSet();
-        // Destroy this 'PtrHashSet', freeing all its memory.
 
     // MANIPULATORS
-    bool insert(void *ptr);
-        // If the specified 'ptr' is not in this hash table, add it, returning
-        // 'true'.  If it is already in the table, return 'false' with no
-        // action taken.
 
+    /// If the specified `ptr` is not in this hash table, add it, returning
+    /// `true`.  If it is already in the table, return `false` with no
+    /// action taken.
+    bool insert(void *ptr);
+
+    /// If the specified `ptr` is in this hash table, remove it, returning
+    /// `true`.  If it is not found in the table, return `false` with no
+    /// action taken.
     bool erase(void *ptr);
-        // If the specified 'ptr' is in this hash table, remove it, returning
-        // 'true'.  If it is not found in the table, return 'false' with no
-        // action taken.
 
     // ACCESSORS
-    std::size_t count(void *ptr) const;
-        // Return 1 if the specified value 'ptr' is in this table and 0
-        // otherwise.
 
+    /// Return 1 if the specified value `ptr` is in this table and 0
+    /// otherwise.
+    std::size_t count(void *ptr) const;
+
+    /// Return the number of discrete values that are stored in this table.
     std::size_t size() const;
-        // Return the number of discrete values that are stored in this table.
 };
 
 // PRIVATE MANIPULATORS
 void PtrHashSet::grow()
 {
-    // 'bucketArraySize' will always be '2^N - 1', so that when pointers
+    // `bucketArraySize` will always be `2^N - 1`, so that when pointers
     // are aligned by some 2^N they're likely to be relatively prime.
 
     std::size_t newBucketArraySize = bucketArraySize() * 2 + 1;
@@ -608,9 +613,9 @@ int main(int argc, char *argv[])
         char *pc = (char *) ta.allocate(SEGMENT_LENGTH);
 
         // Next, we iterate through the length of the segment, insert those
-        // pointers for which 'ptr - pc == N * 7' is true.  We keep a count of
+        // pointers for which `ptr - pc == N * 7` is true.  We keep a count of
         // the number of items we insert into the table in the variable
-        // 'sevens':
+        // `sevens`:
 
         unsigned sevens = 0;
         for (int i = 0; i < SEGMENT_LENGTH; i += 7) {
@@ -623,16 +628,16 @@ int main(int argc, char *argv[])
 
         ASSERT(phs.size() == sevens);
 
-        // Next, we iterate through ALL pointers in the 'pc' array, using the
-        // 'count' method to verify that the ones we expect are in the table:
+        // Next, we iterate through ALL pointers in the `pc` array, using the
+        // `count` method to verify that the ones we expect are in the table:
 
         for (int i = 0; i < SEGMENT_LENGTH; ++i) {
             ASSERT(phs.count(&pc[i]) == (0 == i % 7));
         }
 
         // Then, we iterate, deleting all elements from the table for which
-        // 'ptr - pc == 3 * N' is true.  We keep a count of the number of
-        // elements that were deleted from the table in the variable 'killed':
+        // `ptr - pc == 3 * N` is true.  We keep a count of the number of
+        // elements that were deleted from the table in the variable `killed`:
 
         unsigned killed = 0;
         for (int i = 0; i < SEGMENT_LENGTH; i += 3) {
@@ -653,8 +658,8 @@ int main(int argc, char *argv[])
                                                 killed, (unsigned) phs.size());
         }
 
-        // Now, we iterate through every element of the 'pc' array, verifying
-        // that the surviving elements are exactly those for which 'ptr - pc'
+        // Now, we iterate through every element of the `pc` array, verifying
+        // that the surviving elements are exactly those for which `ptr - pc`
         // was divisible by 7 and not by 3:
 
         for (int i = 0; i < SEGMENT_LENGTH; ++i) {
@@ -662,7 +667,7 @@ int main(int argc, char *argv[])
             ASSERT(present == ((0 == i % 7) && (0 != i % 3)));
         }
 
-        // Finally, we clean up our 'pc' array:
+        // Finally, we clean up our `pc` array:
 
         ta.deallocate(pc);
       } break;
@@ -680,61 +685,61 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 For each row 'R2 in the tree of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.  (C-1)
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 For each node 'N1' in tree of P-2:  (C-3, 5)
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   1 Create a 'const' 'Obj', 'ZZ', pointing to 'N1'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equal-comparison operator to verify that 'mX' has the
-        //:     same value as 'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. For each row 'R2 in the tree of P-2:  (C-1, 3..4)
+        //
+        //     1. Create a modifiable `Obj`, `mX`, having the value of `R2`.
+        //
+        //     2. Assign `mX` from `Z`.  (C-1)
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that:
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. For each node `N1` in tree of P-2:  (C-3, 5)
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   1. Create a `const` `Obj`, `ZZ`, pointing to `N1`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //   5. Use the equal-comparison operator to verify that `mX` has the
+        //      same value as `ZZ`.  (C-5)
         //
         // Testing:
         //   SimpleTestType& operator=(const SimpleTestType& rhs);
@@ -828,31 +833,31 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X', supplying it
-        //:     the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Verify that the newly constructed object 'X', has the same
-        //:     value as that of 'Z'.  (C-1)
-        //:
-        //:   4 Verify that 'Z' still has the same value as that of 'ZZ'.
-        //:     (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1..3)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. Use the copy constructor to create an object `X`, supplying it
+        //      the `const` object `Z`.  (C-2)
+        //
+        //   3. Verify that the newly constructed object `X`, has the same
+        //      value as that of `Z`.  (C-1)
+        //
+        //   4. Verify that `Z` still has the same value as that of `ZZ`.
+        //      (C-3)
         //
         // Testing:
         //   SimpleTestType(const SimpleTestType& original);
@@ -887,59 +892,59 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same node in the same tree.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //; 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same node in the same tree.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        //  9 The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-2..3)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value of 'R1'.  Create
-        //:       another object 'Y' having the value of 'R2'.
-        //:
-        //:     3 Verify the commutativity property and the expected return
-        //:       value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-2..3)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value of `R1`.  Create
+        //        another object `Y` having the value of `R2`.
+        //
+        //     3. Verify the commutativity property and the expected return
+        //        value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(lhs, rhs);
@@ -1035,21 +1040,21 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Use the default constructor, create an object having default
-        //:   attribute values.  Verify that the accessor for the 'data'
-        //:   attribute invoked on a reference providing non-modifiable access
-        //:   to the object return the expected value.  (C-1)
-        //:
-        //: 2 Set the 'data' attribute of the object to another value.  Verify
-        //:   that the accessor for the 'data' attribute invoked on a reference
-        //:   providing non-modifiable access to the object return the expected
-        //:   value.  (C-1, 2)
+        // 1. Use the default constructor, create an object having default
+        //    attribute values.  Verify that the accessor for the `data`
+        //    attribute invoked on a reference providing non-modifiable access
+        //    to the object return the expected value.  (C-1)
+        //
+        // 2. Set the `data` attribute of the object to another value.  Verify
+        //    that the accessor for the `data` attribute invoked on a reference
+        //    providing non-modifiable access to the object return the expected
+        //    value.  (C-1, 2)
         //
         // Testing:
         //   int bucketArraySize() const;
@@ -1087,20 +1092,20 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the documented constraints.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the documented constraints.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1)
-        //:
-        //:   1 Use the value constructor to create an object 'X', having the
-        //:     value of 'R1'.
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to verify
-        //:     the attributes of the object have their expected value.  (C-1)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1)
+        //
+        //   1. Use the value constructor to create an object `X`, having the
+        //      value of `R1`.
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to verify
+        //      the attributes of the object have their expected value.  (C-1)
         //
         // Testing:
         //   SimpleTestType(int data);
@@ -1138,24 +1143,24 @@ int main(int argc, char *argv[])
         //   relevant for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the value constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the value constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
-        //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the boundary values.
-        //:
-        //: 2 Default-construct an object and use the individual (as yet
-        //:   unproven) salient attribute accessors to verify the
-        //:   default-constructed value.  (C-1)
-        //:
-        //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attribute
-        //:   accessors.  (C-2)
+        // 1. Create three attribute values for the `data` attribute `D`, `A`,
+        //    and `B`.  `D` should be the default value.  `A` and `B` should be
+        //    the boundary values.
+        //
+        // 2. Default-construct an object and use the individual (as yet
+        //    unproven) salient attribute accessors to verify the
+        //    default-constructed value.  (C-1)
+        //
+        // 3. Set and object's `data` attribute to `A` and `B`.  Verify the
+        //    state of object using the (as yet unproven) salient attribute
+        //    accessors.  (C-2)
         //
         // Testing:
         //   SimpleTestType();
@@ -1194,7 +1199,7 @@ int main(int argc, char *argv[])
         ASSERTV(D2, X.bucketArraySize(),    D2 == X.bucketArraySize());
         ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
 
-        // 'bucketArrayAddress' and 'bucketArraySize'
+        // `bucketArrayAddress` and `bucketArraySize`
         {
             mX.setBucketArrayAddressAndSize(A1, A2);
             ASSERTV(A1, X.bucketArrayAddress(), A1 == X.bucketArrayAddress());
@@ -1212,7 +1217,7 @@ int main(int argc, char *argv[])
             ASSERTV(D3, X.listRootAddress(),    D3 == X.listRootAddress());
         }
 
-        // 'listRootAddress'
+        // `listRootAddress`
         {
             mX.setListRootAddress(A3);
             ASSERTV(D1, X.bucketArrayAddress(), D1 == X.bucketArrayAddress());
@@ -1233,7 +1238,7 @@ int main(int argc, char *argv[])
         // Corroborate attribute independence.
         {
 
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
 
             mX.setBucketArrayAddressAndSize(A1, A2);
             mX.setListRootAddress(A3);
@@ -1241,7 +1246,7 @@ int main(int argc, char *argv[])
             ASSERTV(A2, X.bucketArraySize(),    A2 == X.bucketArraySize());
             ASSERTV(A3, X.listRootAddress(),    A3 == X.listRootAddress());
 
-            // Set all attributes to their 'B' values.
+            // Set all attributes to their `B` values.
 
             mX.setBucketArrayAddressAndSize(B1, B2);
             ASSERTV(B1, X.bucketArrayAddress(), B1 == X.bucketArrayAddress());
@@ -1293,11 +1298,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

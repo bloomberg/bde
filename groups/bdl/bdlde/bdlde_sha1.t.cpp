@@ -158,9 +158,9 @@ namespace {
 bool     verbose = false;
 bool veryVerbose = false;
 
+/// Return a string that contains every value of `char` exactly once, sorted
+/// in numerical order.
 bsl::string allCharacters()
-    // Return a string that contains every value of 'char' exactly once, sorted
-    // in numerical order.
 {
     bsl::string result;
     for (int c = -128; c != 128; ++c)
@@ -170,8 +170,8 @@ bsl::string allCharacters()
     return result;
 }
 
+/// Return the value of the specified `c` interpreted as a base 16 digit.
 int fromHexDigit(char c)
-    // Return the value of the specified 'c' interpreted as a base 16 digit.
 {
     if (c >= 'a' && c <= 'f') {
         return c - 'a' + 10;                                          // RETURN
@@ -183,10 +183,10 @@ int fromHexDigit(char c)
     }
 }
 
+/// Return a string whose characters have the values obtained from
+/// interpreting each block of 2 characters from the specified `hexString`
+/// as a base 16 integer.
 bsl::string fromHex(const bsl::string_view& hexString)
-    // Return a string whose characters have the values obtained from
-    // interpreting each block of 2 characters from the specified 'hexString'
-    // as a base 16 integer.
 {
     ASSERT(hexString.length() % 2 == 0);
     bsl::string result;
@@ -256,12 +256,13 @@ const char *const sha1Results[6] =
 // applications.  A function like 'validatePassword' must only be used to
 // validate passwords against previously computed SHA-1 hashes, and only during
 // a transition period to a more secure password hashing function.
+
+/// Return `true` if the specified `password` concatenated with the
+/// specified `salt` has a SHA-1 hash equal to the specified `expected`, and
+/// `false` otherwise.
 bool validatePassword(const bsl::string_view&  password,
                       const bsl::string_view&  salt,
                       const unsigned char     *expected)
-    // Return 'true' if the specified 'password' concatenated with the
-    // specified 'salt' has a SHA-1 hash equal to the specified 'expected', and
-    // 'false' otherwise.
 {
     bdlde::Sha1 hasher;
     hasher.update(password.data(), password.length());
@@ -273,10 +274,10 @@ bool validatePassword(const bsl::string_view&  password,
     return bsl::equal(bsl::begin(digest), bsl::end(digest), expected);
 }
 
+/// Asserts that the constant string `pass` salted with `word` has the
+/// expected hash value.  In a real application, the expected hash would
+/// likely come from some sort of database.
 void assertPasswordIsExpected()
-    // Asserts that the constant string 'pass' salted with 'word' has the
-    // expected hash value.  In a real application, the expected hash would
-    // likely come from some sort of database.
 {
     const bsl::string   password = "pass";
     const bsl::string   salt     = "word";
@@ -292,10 +293,10 @@ void assertPasswordIsExpected()
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Store into the specified `output` the hex representation of the bytes in
+/// the specified `input`.
 template <bsl::size_t SIZE>
 void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
-    // Store into the specified 'output' the hex representation of the bytes in
-    // the specified 'input'.
 {
     const char *hexTable = "0123456789abcdef";
     output->clear();
@@ -306,9 +307,9 @@ void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
     }
 }
 
+/// Verify that our `Sha1` hasher produces the same hash when hashing a
+/// small message as it does when hashing the message in pieces.
 void testIncrementalSmall()
-    // Verify that our 'Sha1' hasher produces the same hash when hashing a
-    // small message as it does when hashing the message in pieces.
 {
     const char *inputs[] =
     {
@@ -346,14 +347,14 @@ void testIncrementalSmall()
     }
 }
 
+/// Hash the specified `input` incrementally using the specified
+/// `chunkSizes`, and assert that the final result equals the specified
+/// `digest`.
 template <bsl::size_t NUMBER_OF_CHUNKS>
 void testWithChunkSizes(
                    const bsl::string_view& input,
                    const unsigned char   (&digest)[bdlde::Sha1::k_DIGEST_SIZE],
                    const int             (&chunkSizes)[NUMBER_OF_CHUNKS])
-    // Hash the specified 'input' incrementally using the specified
-    // 'chunkSizes', and assert that the final result equals the specified
-    // 'digest'.
 {
     bdlde::Sha1 hasher;
     bsl::size_t charsProcessed = 0;
@@ -378,10 +379,10 @@ void testWithChunkSizes(
                       bsl::begin(incrementalDigest)));
 }
 
+/// Verify that our `Sha1` hasher produces the same hash when hashing a
+/// long message (whose length is a multiple of the 64 byte block size) as
+/// it does when hashing the message in pieces.
 void testIncrementalLargeMultiple()
-    // Verify that our 'Sha1' hasher produces the same hash when hashing a
-    // long message (whose length is a multiple of the 64 byte block size) as
-    // it does when hashing the message in pieces.
 {
     // Generate a low-quality pseudorandom input string.
     bsl::string input;
@@ -402,10 +403,10 @@ void testIncrementalLargeMultiple()
     testWithChunkSizes(input, digest, chunkSizes);
 }
 
+/// Verify that our `Sha1` hasher produces the same hash when hashing a
+/// long message (whose length is *not* a multiple of the 64 byte block
+/// size) as it does when hashing the message in pieces.
 void testIncrementalLargeNonMultiple()
-    // Verify that our 'Sha1' hasher produces the same hash when hashing a
-    // long message (whose length is *not* a multiple of the 64 byte block
-    // size) as it does when hashing the message in pieces.
 {
     // Generate a low-quality pseudorandom input string
     bsl::string input;
@@ -426,9 +427,9 @@ void testIncrementalLargeNonMultiple()
     testWithChunkSizes(input, digest, chunkSizes);
 }
 
+/// Hash certain known messages using an instance of `Sha1`, and verify that
+/// the results match the known expected results in `sha1Results`.
 void testKnownHashes()
-    // Hash certain known messages using an instance of 'Sha1', and verify that
-    // the results match the known expected results in 'sha1Results'.
 {
     unsigned char digest[bdlde::Sha1::k_DIGEST_SIZE];
     bsl::string   hexDigest;
@@ -446,11 +447,11 @@ void testKnownHashes()
     }
 }
 
+/// Test the member function `loadDigestAndReset` after updating the digest
+/// with the specified `message`.  The result can be verified to be correct
+/// by using the result from `loadDigest` as an oracle, since this function
+/// has already been tested.
 void testLoadDigestAndReset(const char *message)
-    // Test the member function 'loadDigestAndReset' after updating the digest
-    // with the specified 'message'.  The result can be verified to be correct
-    // by using the result from 'loadDigest' as an oracle, since this function
-    // has already been tested.
 {
     const bsl::size_t length = bsl::strlen(message);
     bdlde::Sha1       digest1;
@@ -472,9 +473,9 @@ void testLoadDigestAndReset(const char *message)
     ASSERT(digest1 == digest2);
 }
 
+/// Test that the member function `print` and the stream operator (`<<`)
+/// both output the correct value for each of the inputs with known hashes.
 void testPrinting()
-    // Test that the member function 'print' and the stream operator ('<<')
-    // both output the correct value for each of the inputs with known hashes.
 {
     ASSERT(bsl::size(inputMessages) == bsl::size(sha1Results));
     for (bsl::size_t index = 0; index != bsl::size(inputMessages); ++index)
@@ -494,9 +495,9 @@ void testPrinting()
     }
 }
 
+/// Test the member function `reset` after updating the digest with the
+/// specified `message` and the specified `length`.
 void testReset(const char *message)
-    // Test the member function 'reset' after updating the digest with the
-    // specified 'message' and the specified 'length'.
 {
     bdlde::Sha1 digest1;
     bdlde::Sha1 digest2;
@@ -509,9 +510,9 @@ void testReset(const char *message)
     ASSERT(digest1 == digest2);
 }
 
+/// Test the two-argument constructor accepting the specified `message` and
+/// the specified `length`.
 void testTwoArgumentConstructor(const char *message)
-    // Test the two-argument constructor accepting the specified 'message' and
-    // the specified 'length'.
 {
     const bsl::size_t length = bsl::strlen(message);
     bdlde::Sha1       digest1(message, length);

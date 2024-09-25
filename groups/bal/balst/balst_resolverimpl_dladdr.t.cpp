@@ -28,15 +28,15 @@ using bsl::endl;
 //=============================================================================
 // TEST PLAN
 //
-// The component has only one public function, 'resolve'.  There are two ways
+// The component has only one public function, `resolve`.  There are two ways
 // to test it:
-//: 1 supplying the stack trace with valid code addresses, and after resolution
-//:   we will confirm that the symbol names it has resolved are correct.
-//: 2 supplying the stack trace with a large number of garbage addresses, to
-//:   see if any addresses cause undefined behavior such as a segfault or
-//:   crash.  This is important because most of the work is being done by the
-//:   'dladdr' function, which is supplied to us by the operating system, and
-//:   for which we have no source and over which we have no control.
+// 1. supplying the stack trace with valid code addresses, and after resolution
+//    we will confirm that the symbol names it has resolved are correct.
+// 2. supplying the stack trace with a large number of garbage addresses, to
+//    see if any addresses cause undefined behavior such as a segfault or
+//    crash.  This is important because most of the work is being done by the
+//    `dladdr` function, which is supplied to us by the operating system, and
+//    for which we have no source and over which we have no control.
 // ----------------------------------------------------------------------------
 // CLASS METHoDS
 // [ 2] static int resolve(balst::StackTrace *, bool);
@@ -115,7 +115,7 @@ static int phonyCompare(const void *, const void*)
 
 inline
 UintPtr foilOptimizer(const UintPtr u)
-    // The function just returns 'u', but only after putting it through a
+    // The function just returns `u`, but only after putting it through a
     // transform that the optimizer can't possibly understand that leaves it
     // with its original value.
 {
@@ -127,8 +127,8 @@ UintPtr foilOptimizer(const UintPtr u)
         u2 ^= (i & mask);
     }
 
-    // That previous loop toggled all the bits in 'u2' that it touched an even
-    // number of times, so 'u2 == u', but I'm pretty sure the optimizer can't
+    // That previous loop toggled all the bits in `u2` that it touched an even
+    // number of times, so `u2 == u`, but I'm pretty sure the optimizer can't
     // figure that out.
 
     ASSERT(u == u2);
@@ -180,8 +180,8 @@ int funcStaticInlineOne(int i)
 
 static
 const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
-    // Given a function pointer stored in a 'UintPtr', add an offset to the
-    // pointer and return it as a 'const void *'.
+    // Given a function pointer stored in a `UintPtr`, add an offset to the
+    // pointer and return it as a `const void *`.
 {
     const char *ptr = (const char *) funcAddress;
 
@@ -190,8 +190,8 @@ const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
 
 static
 bool safeCmp(const char *a, const char *b, int len = -1)
-    // Do '!strcmp', returning 'true' if the specified 'a' and 'b' point to
-    // identical strings.  Return 'false' if either one is null.
+    // Do `!strcmp`, returning `true` if the specified `a` and `b` point to
+    // identical strings.  Return `false` if either one is null.
 {
     if (!a || !b) {
         return false;                                                 // RETURN
@@ -203,8 +203,8 @@ bool safeCmp(const char *a, const char *b, int len = -1)
 
 static
 bool safeStrStr(const char *string, const char *target)
-    // Return 'true' if the specified 'target' points to a string contained in
-    // the specified 'string'.  Return 'false' if 'string' or 'target' is null.
+    // Return `true` if the specified `target` points to a string contained in
+    // the specified `string`.  Return `false` if `string` or `target` is null.
 {
     if (!string || !target) {
         return false;                                                 // RETURN
@@ -230,7 +230,7 @@ const char *safeBaseName(const char *str)
 
 static
 const char *ng(const char *str)
-    // null guard -- substitute "(null)" for the specified 'str' if 'str' is
+    // null guard -- substitute "(null)" for the specified `str` if `str` is
     // null.
 {
     return str ? str : "(null)";
@@ -318,27 +318,27 @@ int main(int argc, char *argv[])
         // INVALID INPUT TEST
         //
         // Concerns:
-        //: 1 That, given invalid data, the stack trace facility won't
-        //:   segfault.
-        //:
-        //: 2 That, given invalid data, the stack trace facility won't fail an
-        //:   assert.
-        //:
-        //: 3 That, given invalid data, the stack trace facility won't return a
-        //:   non-zero status.
+        // 1. That, given invalid data, the stack trace facility won't
+        //    segfault.
+        //
+        // 2. That, given invalid data, the stack trace facility won't fail an
+        //    assert.
+        //
+        // 3. That, given invalid data, the stack trace facility won't return a
+        //    non-zero status.
         //
         // Plan:
-        //: 1 Seed a long stackTrace of StackTraceFrames with a combination of
-        //:   random and maliciously chosen garbase addresses.
-        //:
-        //: 2 Resolve it.
-        //:
-        //: 3 Observe if it segfaults or fails any asserts.
-        //:
-        //: 4 Observe if it returns a non-zero return code.
-        //:
-        //: 5 Stream all the frames to a stringstream to see if the stream
-        //:   operator causes any segfaults of failed asserts.
+        // 1. Seed a long stackTrace of StackTraceFrames with a combination of
+        //    random and maliciously chosen garbase addresses.
+        //
+        // 2. Resolve it.
+        //
+        // 3. Observe if it segfaults or fails any asserts.
+        //
+        // 4. Observe if it returns a non-zero return code.
+        //
+        // 5. Stream all the frames to a stringstream to see if the stream
+        //    operator causes any segfaults of failed asserts.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Invalid Input Test\n"
@@ -374,42 +374,42 @@ int main(int argc, char *argv[])
         // TESTING: RESOLVE
         //
         // Concerns:
-        //: 1 That 'resolve' can corectly resolve the address of alobal symbol
-        //:   in this file.
-        //:
-        //: 2 That 'resolve' can corectly resolve the address of a static
-        //:   non-inline function in this file.
-        //:
-        //: 3 That 'resolve' can corectly resolve the address of static inline
-        //:   function in this file.
-        //:
-        //: 4 That 'resolve' can corectly resolve the address of a function in
-        //:   a shared library.
-        //:
-        //: 5 That 'resolve' can corectly resolve the address of global
-        //:   function in a different file.
-        //:
-        //: 6 That 'resolve' can corectly resolve the address of global inline
-        //:   function in another file.
+        // 1. That `resolve` can corectly resolve the address of alobal symbol
+        //    in this file.
+        //
+        // 2. That `resolve` can corectly resolve the address of a static
+        //    non-inline function in this file.
+        //
+        // 3. That `resolve` can corectly resolve the address of static inline
+        //    function in this file.
+        //
+        // 4. That `resolve` can corectly resolve the address of a function in
+        //    a shared library.
+        //
+        // 5. That `resolve` can corectly resolve the address of global
+        //    function in a different file.
+        //
+        // 6. That `resolve` can corectly resolve the address of global inline
+        //    function in another file.
         //
         // Plan:
-        //: 1 Populate a 'balst::StackTrace' object with several code pointers
-        //:   of all the different types outlined in 'Concerns".
-        //:
-        //: 2 Verify all fields other than the 'address' fields are 'unknown'.
-        //:
-        //: 3 Call 'resolve' on the stack trace object
-        //:
-        //: 4 Verify some of the expected fields are known
-        //:
-        //: 5 Verify the 'libraryFileName' fields are as expected
-        //:
-        //: 6 Verify the 'sourceFileName' fields are as expected
-        //:
-        //: 7 Verify the 'mangledSymbolName' and 'symbolName' fields are as
-        //:   expected.
-        //:
-        //: 8 For the non-static symbols, verify they demangled properly.
+        // 1. Populate a `balst::StackTrace` object with several code pointers
+        //    of all the different types outlined in 'Concerns".
+        //
+        // 2. Verify all fields other than the `address` fields are `unknown`.
+        //
+        // 3. Call `resolve` on the stack trace object
+        //
+        // 4. Verify some of the expected fields are known
+        //
+        // 5. Verify the `libraryFileName` fields are as expected
+        //
+        // 6. Verify the `sourceFileName` fields are as expected
+        //
+        // 7. Verify the `mangledSymbolName` and `symbolName` fields are as
+        //    expected.
+        //
+        // 8. For the non-static symbols, verify they demangled properly.
         //
         // TESTING:
         //    static int resolve(balst::StackTrace *, bool);
@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
             // Symbol in a shared library
 
             {
-                // make sure the component contain 'qsort' is loaded
+                // make sure the component contain `qsort` is loaded
 
                 int ints[] = { 0, 1 };
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
@@ -619,9 +619,9 @@ int main(int argc, char *argv[])
         //   Exercise basic functionality.
         //
         // Plan:
-        //: 1 Load a single function pointer into a stack trace object.
-        //: 2 Resolve it.
-        //: 3 Check some of the symbol information for correctness.
+        // 1. Load a single function pointer into a stack trace object.
+        // 2. Resolve it.
+        // 3. Check some of the symbol information for correctness.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"

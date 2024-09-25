@@ -19,10 +19,10 @@ using namespace BloombergLP;
 // write log messages.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o By default, the 'platformDefaultMessageHandler' is used.
-//: o Exceptions thrown in a log message handler are propagated.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - By default, the `platformDefaultMessageHandler` is used.
+//  - Exceptions thrown in a log message handler are propagated.
+//  - Precondition violations are detected in appropriate build modes.
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     case 2: {
         // --------------------------------------------------------------------
         // TESTING CONSTRUCTOR
-        //   'OutputRedirector' has just one constructor, which does not start
+        //   `OutputRedirector` has just one constructor, which does not start
         //   the redirection/capturing behavior, so test thoroughly in just
         //   this test case.  The destructor can test only bootstrap behavior,
         //   as the interesting cases will involve starting (and stopping)
@@ -126,22 +126,22 @@ int main(int argc, char *argv[])
         //   running the test driver in those modes.
         //
         // Concerns:
-        //: 1 'OutputRedirector' objects construct and destroy properly.
-        //: 2 A freshly constructed object is not actively redirecting output.
-        //: 3 After construction, the object is set to redirect the stream
-        //:   specified at construction.
-        //: 4 Attempts to specify an invlalid stream are detected though
-        //:   assertions in appropriate build modes.
+        // 1. `OutputRedirector` objects construct and destroy properly.
+        // 2. A freshly constructed object is not actively redirecting output.
+        // 3. After construction, the object is set to redirect the stream
+        //    specified at construction.
+        // 4. Attempts to specify an invlalid stream are detected though
+        //    assertions in appropriate build modes.
         //
         // Plan:
-        //: 1 In distinct scopes, constructor an 'OutputRedirector' for each of
-        //:   the valid streams, and allow that object destructor to run safely
-        //:   at the end of that local scope.
-        //: 2 Using the basic accessors, confirm that each newly constructed
-        //:   object is in an empty disabled state.
-        //: 3 In appropriate build modes, repeat the tests for the constructor
-        //:   with invalid stream values, and confirm the expected assertions
-        //:   are triggered.
+        // 1. In distinct scopes, constructor an `OutputRedirector` for each of
+        //    the valid streams, and allow that object destructor to run safely
+        //    at the end of that local scope.
+        // 2. Using the basic accessors, confirm that each newly constructed
+        //    object is in an empty disabled state.
+        // 3. In appropriate build modes, repeat the tests for the constructor
+        //    with invalid stream values, and confirm the expected assertions
+        //    are triggered.
         //
         // Testing:
         //   OutputRedirector(Stream which, bool verbose, bool veryVerbose);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONSTRUCTOR"
                             "\n===================\n");
 
-        if (verbose) printf("Redirector for 'stdout'\n");
+        if (verbose) printf("Redirector for `stdout`\n");
         {
             bsls::OutputRedirector redirector(
                                       bsls::OutputRedirector::e_STDOUT_STREAM);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
                     BUFFER - OBJ_START <  REDIRECTOR_SIZE);
         }
 
-        if (verbose) printf("Redirector for 'stderr'\n");
+        if (verbose) printf("Redirector for `stderr`\n");
         {
             bsls::OutputRedirector redirector(
                                       bsls::OutputRedirector::e_STDERR_STREAM);
@@ -208,11 +208,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform an ad-hoc test of the primary manipulators and accessors.
+        // 1. Perform an ad-hoc test of the primary manipulators and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
 
         printf("Hello world!");  // note, no '\n'
 
-        // Ensure the redirector is 'disable'd after the call to 'load' so that
-        // 'ASSERT' macros display any errors correctly.
+        // Ensure the redirector is `disable`d after the call to `load` so that
+        // `ASSERT` macros display any errors correctly.
 
         if (!redirector.load()) {
             redirector.disable();

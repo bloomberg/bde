@@ -8,8 +8,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -77,7 +77,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 // Define a C++11-style trait, to provide the interface expected by
-// 'BSLMF_NESTED_TRAIT_DECLARATION_IF'.
+// `BSLMF_NESTED_TRAIT_DECLARATION_IF`.
 
 namespace abcd {
 
@@ -105,34 +105,36 @@ struct RequiresLockTrait : bsl::false_type {
 // associating types with custom traits that indicate what capabilities are
 // provided by a given type.
 //
-// First, assume that a compatible trait, 'abcd::RequiresLockTrait', has been
+// First, assume that a compatible trait, `abcd::RequiresLockTrait`, has been
 // defined that indicates that a type's methods must not be called unless a
 // known lock it first acquired:
-//..
+// ```
     namespace abcd { template <class TYPE> struct RequiresLockTrait; }
-//..
-// The implementation of 'abcd::RequiresLockTrait' is not shown.
+// ```
+// The implementation of `abcd::RequiresLockTrait` is not shown.
 //
-// Then, in package 'xyza', we declare a type, 'DoesNotRequireLockType', that
+// Then, in package `xyza`, we declare a type, `DoesNotRequireLockType`, that
 // can be used without acquiring the lock:
-//..
+// ```
     namespace xyza {
 
+    /// ...
     class DoesNotRequireLockType {
-        // ...
 
       public:
         // CREATORS
+
+        /// ...
         DoesNotRequireLockType();
-            // ...
     };
-//..
-// Next, we declare a type, 'RequiresLockType', that does require the lock.  We
-// use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with
-// the 'abcd::RequiresLockTrait' trait:
-//..
+// ```
+// Next, we declare a type, `RequiresLockType`, that does require the lock.  We
+// use the `BSLMF_NESTED_TRAIT_DECLARATION` macro to associate the type with
+// the `abcd::RequiresLockTrait` trait:
+// ```
+
+    /// ...
     class RequiresLockType {
-        // ...
 
       public:
         // TRAITS
@@ -140,24 +142,26 @@ struct RequiresLockTrait : bsl::false_type {
                                        abcd::RequiresLockTrait);
 
         // CREATORS
+
+        /// ...
         RequiresLockType();
-            // ...
 
     };
-//..
+// ```
 // Notice that the macro declaration is performed within the scope of the class
 // declaration, and must be done with public scope.
 //
-// Now, we declare a templatized container type, 'Container', that is
-// parameterized on some 'ELEMENT' type.  If 'ELEMENT' requires a lock, then a
-// 'Container' of 'ELEMENT's will require a lock as well.  This can be
-// expressed using the 'BSLMF_NESTED_TRAIT_DECLARATION_IF' macro, by providing
-// 'abcd::RequiresLockTrait<ELEMENT>::value' as the condition for associating
-// the trait with 'Container'.
-//..
+// Now, we declare a templatized container type, `Container`, that is
+// parameterized on some `ELEMENT` type.  If `ELEMENT` requires a lock, then a
+// `Container` of `ELEMENT`s will require a lock as well.  This can be
+// expressed using the `BSLMF_NESTED_TRAIT_DECLARATION_IF` macro, by providing
+// `abcd::RequiresLockTrait<ELEMENT>::value` as the condition for associating
+// the trait with `Container`.
+// ```
+
+    /// ...
     template <class ELEMENT>
     struct Container {
-        // ...
 
       public:
         // TRAITS
@@ -168,15 +172,15 @@ struct RequiresLockTrait : bsl::false_type {
     };
 
     }  // close namespace xyza
-//..
-// Finally, code interacting with 'xyza::DoesNotRequireLockType',
-// 'xyza::RequiresLockType' or 'xyza::Container' objects will be able to choose
-// the appropriate code path by checking for the 'abcd::RequiresLockTrait'
-// trait.  See 'bslmf_detectnestedtrait' for an example of how generic code
+// ```
+// Finally, code interacting with `xyza::DoesNotRequireLockType`,
+// `xyza::RequiresLockType` or `xyza::Container` objects will be able to choose
+// the appropriate code path by checking for the `abcd::RequiresLockTrait`
+// trait.  See `bslmf_detectnestedtrait` for an example of how generic code
 // would use such a trait.
 
-// Associate 'abcd::RequiresLockTrait' with 'xyza::RequiresLockType', so that
-// we can control the condition in 'BSLMF_NESTED_TRAIT_DECLARATION_IF'.
+// Associate `abcd::RequiresLockTrait` with `xyza::RequiresLockType`, so that
+// we can control the condition in `BSLMF_NESTED_TRAIT_DECLARATION_IF`.
 
 namespace abcd {
 
@@ -213,17 +217,17 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 The usage example has no run-time part, because a nested trait
-        //:   declaration cannot actually associate a trait with a type unless
-        //:   that trait is based on machinery that will be introduced in
-        //:   'bslmf_detectnestedtrait'.  To test the usage example, we confirm
-        //:   that the syntax presented is correct by checking the intended
-        //:   effect of the macros used: that they make a type convertible to a
-        //:   'bslmf::NestedTraitDeclaration' (C-1)
+        // 1. The usage example has no run-time part, because a nested trait
+        //    declaration cannot actually associate a trait with a type unless
+        //    that trait is based on machinery that will be introduced in
+        //    `bslmf_detectnestedtrait`.  To test the usage example, we confirm
+        //    that the syntax presented is correct by checking the intended
+        //    effect of the macros used: that they make a type convertible to a
+        //    `bslmf::NestedTraitDeclaration` (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE

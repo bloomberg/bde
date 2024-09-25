@@ -28,13 +28,13 @@ using namespace bsl;
 // -------------
 // For the sake of brevity in the Test Plan below, the following abbreviations
 // are used as needed:
-//..
+// ```
 //    ball::LMC   ball::LoggerManagerConfiguration
 //    ball::LMD   ball::LoggerManagerDefaults
 //    Populator   bsl::function<void(UserFields *)>
 //    CNF         bsl::function<void(bsl::string *, const char *)>
 //    DTC         bsl::function<void(int *, int *, int *, int *, const char*)>
-//..
+// ```
 //-----------------------------------------------------------------------------
 // [ 1] ball::LoggerManagerConfiguration();
 // [ 1] ball::LoggerManagerConfiguration(const LoggerManagerConfiguration&)
@@ -137,31 +137,31 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)> DtCb;
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use a
-// 'ball::LoggerManagerConfiguration' object.
+// `ball::LoggerManagerConfiguration` object.
 //
 // First, we define a simple function that will serve as a
-// 'UserFieldsPopulatorCallback', a callback that will be invoked for each
+// `UserFieldsPopulatorCallback`, a callback that will be invoked for each
 // logged message to populate user defined fields for the log record:
-//..
+// ```
     void exampleCallback(ball::UserFields *fields)
     {
         fields->appendString("example user field value");
     }
-//..
-// Next, we define a function 'inititialize' in which we will create and
-// configure a 'ball::LoggerManagerConfiguration' object (see
-// {'ball_loggermanager'} for an example of how to create the logger-manager
+// ```
+// Next, we define a function `inititialize` in which we will create and
+// configure a `ball::LoggerManagerConfiguration` object (see
+// {`ball_loggermanager`} for an example of how to create the logger-manager
 // singleton object):
-//..
+// ```
     void initializeConfiguration(bool verbose)
     {
       ball::LoggerManagerConfiguration config;
 //
-//..
+// ```
 // Then, we configure the default record buffer size, logger buffer size, and
-// the various logging thresholds (see {'ball_loggermanager'} for more
+// the various logging thresholds (see {`ball_loggermanager`} for more
 // information on the various threshold levels):
-//..
+// ```
       if (0 != config.setDefaultRecordBufferSizeIfValid(32768) ||
           0 != config.setDefaultLoggerBufferSizeIfValid(1024)  ||
           0 != config.setDefaultThresholdLevelsIfValid(0, 64, 0, 0)) {
@@ -175,29 +175,29 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)> DtCb;
       ASSERT(   64 == config.defaultPassLevel());
       ASSERT(    0 == config.defaultTriggerLevel());
       ASSERT(    0 == config.defaultTriggerAllLevel());
-//..
+// ```
 // Next, we populate the remaining attributes of our configuration object (note
-// that the following methods cannot fail and return 'void'):
-//..
+// that the following methods cannot fail and return `void`):
+// ```
       config.setUserFieldsPopulatorCallback(&exampleCallback);
       config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
       config.setTriggerMarkers(ball::LoggerManagerConfiguration::e_NO_MARKERS);
-//..
+// ```
 // Now, we verify the options are configured correctly:
-//..
+// ```
       ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
       ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
                                                    == config.triggerMarkers());
-//..
-// Finally, we print the configuration value to 'stdout' and return:
-//..
+// ```
+// Finally, we print the configuration value to `stdout` and return:
+// ```
       if (verbose) {
         bsl::cout << config << bsl::endl;
       }
     }
-//..
+// ```
 // This produces the following (multi-line) output:
-//..
+// ```
 //  [
 //      Defaults:
 //      [
@@ -214,7 +214,7 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)> DtCb;
 //      Logging order is FIFO
 //      Trigger markers are NO_MARKERS
 //  ]
-//..
+// ```
 
 //-----------------------------------------------------------------------------
 //          Dummy functions to populate each of the three functors
@@ -232,13 +232,13 @@ void dtc(int *, int *, int *, int *, const char *)
 }
 
 //-----------------------------------------------------------------------------
-//          Some 'ball::LoggerManagerDefaults' field values
+//          Some `ball::LoggerManagerDefaults` field values
 //-----------------------------------------------------------------------------
 
 const int NUM_VALUES = 7;
 
 // The 0th element in each array contains the implementation-defined value used
-// by the default constructor for 'ball::LoggerManagerDefaults'.
+// by the default constructor for `ball::LoggerManagerDefaults`.
 
 const int _DRBS = Defs::defaultDefaultRecordBufferSize();
 const int _DLBS = Defs::defaultDefaultLoggerBufferSize();
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
     //                           Useful Test Data
     //-------------------------------------------------------------------------
 
-    // Build up a non-default 'ball::LoggerManagerDefaults' value.
+    // Build up a non-default `ball::LoggerManagerDefaults` value.
     Defs d1;
     d1.setDefaultRecordBufferSizeIfValid(RECORD_BUFFER_SIZE[1]);
     d1.setDefaultLoggerBufferSizeIfValid(LOGGER_BUFFER_SIZE[1]);
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 
     DtCb dtCb1(&dtc);
 
-    // Create a default ('X0') and a non-default ('X1') attribute object
+    // Create a default (`X0`) and a non-default (`X1`) attribute object
     const Defs   D0;
     const Defs   D1(d1);
 
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -321,18 +321,18 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING  'setTriggerMarkers' AND 'triggerMarkers':
-        //   Verify 'setTriggerMarkers' and 'triggerMarkers'.
+        // TESTING  `setTriggerMarkers` AND `triggerMarkers`:
+        //   Verify `setTriggerMarkers` and `triggerMarkers`.
         //
         // Concern:
-        //   That 'setTriggerMarkers' and 'triggerMarkers' works correctly.
+        //   That `setTriggerMarkers` and `triggerMarkers` works correctly.
         //
         // Plan:
-        //   1. Create a logger manager and verify 'logOrder'.
-        //   2. Invoke 'setTriggerMarkers' with 'e_NO_MARKERS' and verify
-        //      'triggerMarkers'.
-        //   3. Invoke 'setTriggerMarkers' with 'e_BEGIN_END_MARKERS' and
-        //      verify 'triggerMarkers'.
+        //   1. Create a logger manager and verify `logOrder`.
+        //   2. Invoke `setTriggerMarkers` with `e_NO_MARKERS` and verify
+        //      `triggerMarkers`.
+        //   3. Invoke `setTriggerMarkers` with `e_BEGIN_END_MARKERS` and
+        //      verify `triggerMarkers`.
         //
         // Testing:
         //   void setTriggerMarkers(TriggerMarkers value);
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING  'setTriggerMarkers' AND 'triggerMarkers'"
+            cout << "\nTESTING  `setTriggerMarkers` AND `triggerMarkers`"
                  << "\n=================================================\n";
 
         Obj lmc;
@@ -355,23 +355,23 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING  'setLogOrder' AND 'logOrder':
-        //   Verify 'setLogOrder' and 'logOrder'.
+        // TESTING  `setLogOrder` AND `logOrder`:
+        //   Verify `setLogOrder` and `logOrder`.
         //
         // Concern:
-        //   That 'setLogOrder' and 'logOrder' works correctly.
+        //   That `setLogOrder` and `logOrder` works correctly.
         //
         // Plan:
-        //   Create a logger manager and verify 'logOrder'.
-        //   Invoke 'setLogOrder' with 'e_FIFO' and verify 'logOrder'.
-        //   Invoke 'setLogOrder' with 'e_LIFO' and verify 'logOrder'.
+        //   Create a logger manager and verify `logOrder`.
+        //   Invoke `setLogOrder` with `e_FIFO` and verify `logOrder`.
+        //   Invoke `setLogOrder` with `e_LIFO` and verify `logOrder`.
         //
         // Testing:
         //   void setLogOrder(LogOrder value);
         //   const LogOrder logOrder() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING  'setLogOrder' AND 'logOrder'"
+        if (verbose) cout << "\nTESTING  `setLogOrder` AND `logOrder`"
                           << "\n====================================" << endl;
 
         Obj lmc;
@@ -386,16 +386,16 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY:
+        // TESTING `bdex` STREAMING FUNCTIONALITY:
         //
-        // This component does not support 'bdex' streaming.
+        // This component does not support `bdex` streaming.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Streaming Functionality"
                           << "\n===============================" << endl;
 
         if (verbose)
-            cout << "\nThis component does not support 'bdex' streaming."
+            cout << "\nThis component does not support `bdex` streaming."
                  << endl;
 
       } break;
@@ -404,20 +404,20 @@ int main(int argc, char *argv[])
         // TESTING: setDefaultThresholdLevels
         //
         // Concerns:
-        //: 1 'setDefaultThresholdLevels' sets the pass-through level to the
-        //:    supplied value, and all the other thresholds to 0.
-        //:
-        //: 2 'setDefaultThresholdLevels' returns 0 on success
-        //:
-        //: 3 If the supplied pass-through level is not in the ranage [0..255]
-        //:   the 'setDefaultThresholdLevels' returns a non-zero value
+        // 1. `setDefaultThresholdLevels` sets the pass-through level to the
+        //     supplied value, and all the other thresholds to 0.
+        //
+        // 2. `setDefaultThresholdLevels` returns 0 on success
+        //
+        // 3. If the supplied pass-through level is not in the ranage [0..255]
+        //    the `setDefaultThresholdLevels` returns a non-zero value
         //
         // Plan:
-        //: 1 Manually call method with valid values and verify the expected
-        //:   configuration and the return value is 0.  (C-1, C-2)
-        //:
-        //: 2 Manually call method with invalid values and verify the
-        //:   configuration is not changed and the method is not 0.  (C-3)
+        // 1. Manually call method with valid values and verify the expected
+        //    configuration and the return value is 0.  (C-1, C-2)
+        //
+        // 2. Manually call method with invalid values and verify the
+        //    configuration is not changed and the method is not 0.  (C-3)
         //
         // Testing:
         //   int setDefaultThresholdLevels(int);
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
 
 
         if (verbose) cout
-            << "\nTest successful call to 'setDefaultThresholdLevelsIfValid'."
+            << "\nTest successful call to `setDefaultThresholdLevelsIfValid`."
             << endl;
         {
             Obj mX; const Obj& X = mX;
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
             ASSERT(0   == X.defaultTriggerAllLevel());
         }
         if (verbose) cout
-            << "\nTest incorrect call to 'setDefaultThresholdLevelsIfValid'."
+            << "\nTest incorrect call to `setDefaultThresholdLevelsIfValid`."
             << endl;
 
         {
@@ -473,15 +473,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   This component imposes exactly the constraints on its contained
-        //   'ball::LoggerManagerDefaults' object as that object imposes on
-        //   itself; the constrained 'set' manipulators and "get" accessors
-        //   forward their arguments to the corresponding 'Defaults' methods.
-        //   It is sufficient to repeat the test from the 'Defaults' test
+        //   `ball::LoggerManagerDefaults` object as that object imposes on
+        //   itself; the constrained `set` manipulators and "get" accessors
+        //   forward their arguments to the corresponding `Defaults` methods.
+        //   It is sufficient to repeat the test from the `Defaults` test
         //   driver
         //
         //
         // Plan:
-        //    1. Set a "good" function in 'assertH' and 'assertCpp'
+        //    1. Set a "good" function in `assertH` and `assertCpp`
         //
         //
         //
@@ -505,7 +505,7 @@ int main(int argc, char *argv[])
                           << "================" << endl;
 
         if (verbose)
-            cout << "\nTesting constraints on contained 'Defaults' object."
+            cout << "\nTesting constraints on contained `Defaults` object."
                  << endl;
         Obj mX1; const Obj& X1 = mX1;
 

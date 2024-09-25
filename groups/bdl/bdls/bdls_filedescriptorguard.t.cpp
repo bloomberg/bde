@@ -28,8 +28,8 @@ using bsl::flush;
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
-// [ 3] 'closeAndRelease'
-// [ 2] 'release'
+// [ 3] `closeAndRelease`
+// [ 2] `release`
 // [ 1] Breathing, d'tor
 //-----------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
         char host[80];
         ASSERT(0 ==::gethostname(host, sizeof(host)));
 #else
-        const char *host = "win";     // 'gethostname' is very difficult on
+        const char *host = "win";     // `gethostname` is very difficult on
                                       // Windows, and we usually aren't using
                                       // nfs there anyway.
 #endif
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
                              "=====================\n";
 
 // Suppose we want to open a file and perform some I/O operations.  We use an
-// object of type 'bdls::FileDescriptorGuard' to ensure this handle is closed
+// object of type `bdls::FileDescriptorGuard` to ensure this handle is closed
 // after the operations are complete.
 //
 // First, we create a name for our temporary file name and a few local
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                          Util::e_READ_WRITE);
     ASSERT(Util::k_INVALID_FD != fd);
 
-// Next, we enter a lexical scope and create a guard object to manage 'fd':
+// Next, we enter a lexical scope and create a guard object to manage `fd`:
 
     {
         bdls::FileDescriptorGuard guard(fd);
@@ -206,12 +206,12 @@ int main(int argc, char *argv[])
         rc = Util::write(fd, essay, sizeof(essay));
         ASSERT(sizeof(essay) == rc);
 
-// Now, 'guard' goes out of scope, and its destructor closes the file
+// Now, `guard` goes out of scope, and its destructor closes the file
 // descriptor.
 
     }
 
-// Finally, we observe that further attempts to access 'fd' fail because the
+// Finally, we observe that further attempts to access `fd` fail because the
 // descriptor has been closed:
 
     Util::Offset off = Util::seek(fd,
@@ -221,20 +221,20 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Testing 'closeAndRelease'
+        // Testing `closeAndRelease`
         //
         // Concerns:
-        //   That 'closeAndRelease' properly closes the file and restores the
+        //   That `closeAndRelease` properly closes the file and restores the
         //   guard to a released state.
         //
         // Plan:
         //   Repeat the breathing test, except rather than having guards
-        //   go out of scope, call 'closeAndRelease' on them.  Observe the
+        //   go out of scope, call `closeAndRelease` on them.  Observe the
         //   state of the released guards through the accessors to verify
         //   that they are released.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'closeAndRelease'\n"
+        if (verbose) cout << "Testing `closeAndRelease`\n"
                              "=========================\n";
 
         Util::FileDescriptor fd = Util::open(fileName,
@@ -278,14 +278,14 @@ int main(int argc, char *argv[])
         bsl::memset(buffer, 0, sizeof(buffer));
         rc = Util::read(fd, buffer, sizeof(buffer));
         ASSERT(rc < 0);     // A negative value will show that read failed
-                            // since 'fdGuard' closed 'desc'.
+                            // since `fdGuard` closed `desc`.
 #ifdef BSLS_PLATFORM_OS_UNIX
         ASSERT(EBADF == errno);
 #endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Testing 'release'
+        // Testing `release`
         //
         // Concern:
         //   That a released guard does not close files.
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
         //   through that file handle.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'release'\n"
+        if (verbose) cout << "Testing `release`\n"
                              "================\n";
 
         Util::FileDescriptor fd = Util::open(fileName,
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
             ASSERT(Util::k_INVALID_FD == guard.descriptor());
         }
 
-        // Observe we can still write to 'fd'.
+        // Observe we can still write to `fd`.
 
         int rc = Util::write(fd, "Arf arf!", 8);
         ASSERT(8 == rc);
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
             ASSERT(Util::k_INVALID_FD == guard.descriptor());
         }
 
-        // Observe we can still read from 'fd'.
+        // Observe we can still read from `fd`.
 
         char buffer[100];
         bsl::memset(buffer, 0, sizeof(buffer));
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
             ASSERT(9 == rc);
         }
 
-        // Attempt a write using 'fd' and observe that it fails since 'fd' is
+        // Attempt a write using `fd` and observe that it fails since `fd` is
         // closed.
 
         rc = Util::write(fd, "meow meow", 9);

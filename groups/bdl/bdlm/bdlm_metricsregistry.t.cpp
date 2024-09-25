@@ -147,17 +147,18 @@ void testMetric(BloombergLP::bdlm::Metric *value)
                            // class LargeCallback
                            // ===================
 
+/// This class implements the callback type `MetricsAdapter::Callback` and
+/// is very large so as to trigger allocation.
 class LargeCallback {
-    // This class implements the callback type 'MetricsAdapter::Callback' and
-    // is very large so as to trigger allocation.
 
     // DATA
     char d_large[1024];
 
     public:
     // MANIPULATORS
+
+    /// Do nothing.
     void operator()(BloombergLP::bdlm::Metric*);
-        // Do nothing.
 };
 
                            // ===================
@@ -185,11 +186,11 @@ struct Callback2 {
                          // class TestMetricsAdapter
                          // ========================
 
+/// This class implements a pure abstract interface for clients and
+/// suppliers of metrics adapters.  The implemtation does not register
+/// callbacks with any monitoring system, but does track registrations to
+/// enable testing of thread-enabled objects metric registration.
 class TestMetricsAdapter : public bdlm::MetricsAdapter {
-    // This class implements a pure abstract interface for clients and
-    // suppliers of metrics adapters.  The implemtation does not register
-    // callbacks with any monitoring system, but does track registrations to
-    // enable testing of thread-enabled objects metric registration.
 
     // PRIVATE TYPES
     typedef bsl::pair<bdlm::MetricDescriptor, Callback> MetricPair;
@@ -202,36 +203,39 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
 
   public:
     // CREATORS
-    TestMetricsAdapter(bslma::Allocator *basicAllocator = 0);
-        // Create a 'TestMetricsAdapter'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Create a `TestMetricsAdapter`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
+    TestMetricsAdapter(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this object.
     ~TestMetricsAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Save the specified `metricsDescriptor` and `callback` pair.
+    /// Return a callback handle that will be verified in
+    /// `removeCollectionCallback`.
     CallbackHandle registerCollectionCallback(
                  const bdlm::MetricDescriptor& metricDescriptor,
                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
-        // Save the specified 'metricsDescriptor' and 'callback' pair.
-        // Return a callback handle that will be verified in
-        // 'removeCollectionCallback'.
 
     int removeCollectionCallback(const CallbackHandle& handle)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified 'handle'.  Assert the supplied
-        // 'handle' matches what was provided by 'registerCollectionCallback'.
+        // Do nothing with the specified `handle`.  Assert the supplied
+        // `handle` matches what was provided by `registerCollectionCallback`.
         // Return 0.
 
     // ACCESSORS
-    int size() const;
-        // Return the number of registered metrics.
 
+    /// Return the number of registered metrics.
+    int size() const;
+
+    /// Return `true` if this adapter contains a pair of the specified
+    /// `descriptor` and `Callback`, and `false` otherwise.
     template <class Callback>
     bool contains(const bdlm::MetricDescriptor& descriptor) const;
-        // Return 'true' if this adapter contains a pair of the specified
-        // 'descriptor' and 'Callback', and 'false' otherwise.
 };
 
                          // ------------------------
@@ -294,15 +298,15 @@ bool TestMetricsAdapter::contains(const bdlm::MetricDescriptor& descriptor)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlm::MetricsRegistry'
+///Example 1: Using `bdlm::MetricsRegistry`
 ///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the initialization and usage of the
-// 'bdlm::MetricsRegistry' object, allowing for registering metric callback
-// functions with the 'bdlm' monitoring system.
+// `bdlm::MetricsRegistry` object, allowing for registering metric callback
+// functions with the `bdlm` monitoring system.
 //
-// First, we declare a class that provides some metric for the 'bdlm'
+// First, we declare a class that provides some metric for the `bdlm`
 // monitoring system:
-//..
+// ```
     class LowLevelFacility {
         // PRIVATE DATA
         bdlm::MetricsRegistryRegistrationHandle d_metricHandle;
@@ -317,19 +321,19 @@ bool TestMetricsAdapter::contains(const bdlm::MetricDescriptor& descriptor)
             return 0; // just a stub
         }
     };
-//..
+// ```
 // Next, we provide a metric function to be used during callback registration:
-//..
+// ```
     void metricCallback(bdlm::Metric *value, const LowLevelFacility *object)
     {
         *value = bdlm::Metric::Gauge(object->someMetric());
     }
-//..
+// ```
 // Here is the constructor definition that registers the collection callback:
-//..
+// ```
     LowLevelFacility::LowLevelFacility(bdlm::MetricsRegistry& metricsRegistry)
     {
-        // Construct a 'bdlm::MetricsDescriptor' object to be used when
+        // Construct a `bdlm::MetricsDescriptor` object to be used when
         // registering the callback function:
         bdlm::MetricDescriptor descriptor("bdlm",
                                           "example",
@@ -347,9 +351,9 @@ bool TestMetricsAdapter::contains(const bdlm::MetricDescriptor& descriptor)
                                                         this));
         ASSERT(d_metricHandle.isRegistered());
     }
-//..
+// ```
 // Notice that the compiler-supplied destructor is sufficient because the
-// 'd_metricHandle' will deregister the metric on destruction.
+// `d_metricHandle` will deregister the metric on destruction.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -368,7 +372,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // Access the default instance before assign the global allocator
@@ -394,14 +398,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -411,39 +415,39 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Now, we construct a 'bdlm::MetricsRegistry' object with a test allocator:
-//..
+// Now, we construct a `bdlm::MetricsRegistry` object with a test allocator:
+// ```
     bslma::TestAllocator  ta;
     bdlm::MetricsRegistry registry(&ta);
     ASSERT(registry.numRegisteredCollectionCallbacks() == 0);
-//..
-// Then, we create the object and pass the constructed 'bdlm::MetricsRegistry'
+// ```
+// Then, we create the object and pass the constructed `bdlm::MetricsRegistry`
 // object there:
-//..
+// ```
     {
         LowLevelFacility facility(registry);
         ASSERT(registry.numRegisteredCollectionCallbacks() == 1);
-//..
-// If we don't provide a 'bdlm::MetricsRegistry' object explicitly, the default
+// ```
+// If we don't provide a `bdlm::MetricsRegistry` object explicitly, the default
 // global instance will be used.
 //
 // Finally, the callback is removed the monitoring system by the destructor of
-// 'facility' object:
-//..
-    } // 'facility.d_metricHandle.unregister()' is called here
+// `facility` object:
+// ```
+    } // `facility.d_metricHandle.unregister()` is called here
     ASSERT(registry.numRegisteredCollectionCallbacks() == 0);
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // DRQS 174793420
         //
         // Concerns:
-        //: 1 All allocations are from the specified allocator.
+        // 1. All allocations are from the specified allocator.
         //
         // Plan:
-        //: 1 Provide an allocator to an object, then exercise it while
-        //:   monitoring the default and global allocators.
+        // 1. Provide an allocator to an object, then exercise it while
+        //    monitoring the default and global allocators.
         //
         // Testing:
         //   DRQS 174793420
@@ -478,31 +482,31 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'defaultInstance'
+        // CLASS METHOD `defaultInstance`
         //
         // Concerns:
-        //: 1 The 'defaultInstance' class method returns a reference to default
-        //:   instance of 'MetricsRegistry'.
-        //:
-        //: 2 Subsequent calls return the same instance.
-        //:
-        //: 3 The instance uses global allocator.
+        // 1. The `defaultInstance` class method returns a reference to default
+        //    instance of `MetricsRegistry`.
+        //
+        // 2. Subsequent calls return the same instance.
+        //
+        // 3. The instance uses global allocator.
         //
         // Plan:
-        //: 1 Call the class method and save the returned reference.  (C-1)
-        //:
-        //: 2 Call the class method again.  Verify that the same reference has
-        //:   been returned.  (C-2)
-        //:
-        //: 3 Save the allocator set before 'setGlobalAllocator()' call.
-        //:   Verify that 'defaultInstance().allocator()' returns the same
-        //:   allocator.  (C-3)
+        // 1. Call the class method and save the returned reference.  (C-1)
+        //
+        // 2. Call the class method again.  Verify that the same reference has
+        //    been returned.  (C-2)
+        //
+        // 3. Save the allocator set before `setGlobalAllocator()` call.
+        //    Verify that `defaultInstance().allocator()` returns the same
+        //    allocator.  (C-3)
         //
         // Testing:
         //   static MetricsRegistry& defaultInstance();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nCLASS METHOD 'defaultInstance'"
+        if (verbose) cout << "\nCLASS METHOD `defaultInstance`"
                              "\n==============================" << endl;
 
         Obj& mX = Obj::defaultInstance();
@@ -516,19 +520,19 @@ int main(int argc, char *argv[])
         // CONCERN: THE DESTRUCTOR UNREGISTERS ALL FROM THE ADAPTER
         //
         // Concerns:
-        //: 1 The destructor unregisters all the registered metric callbacks
-        //:   from the associated adapter.
+        // 1. The destructor unregisters all the registered metric callbacks
+        //    from the associated adapter.
         //
         // Plan:
-        //: 1 Create a metric adapter object.
-        //:
-        //: 2 In a nested scope create a metric registry object, associate the
-        //:   adapter with it, and register 2 callbacks.  Verify that the
-        //:   adapter contains the registered callbacks.
-        //:
-        //: 3 Close the nested scope causing the metric registry end-of-life.
-        //:
-        //: 4 Verify that the adapter is empty.
+        // 1. Create a metric adapter object.
+        //
+        // 2. In a nested scope create a metric registry object, associate the
+        //    adapter with it, and register 2 callbacks.  Verify that the
+        //    adapter contains the registered callbacks.
+        //
+        // 3. Close the nested scope causing the metric registry end-of-life.
+        //
+        // 4. Verify that the adapter is empty.
         //
         // Testing:
         //   CONCERN: THE DESTRUCTOR UNREGISTERS ALL FROM THE ADAPTER
@@ -585,26 +589,26 @@ int main(int argc, char *argv[])
         // CONCERN: REGISTRATION HANDLE CAN OUTLIVE THE REGISTRY
         //
         // Concerns:
-        //: 1 When metric registry object ends its lifetime, all registered
-        //:   callbacks it owns are unregistered.  All handles associated with
-        //:   the registered callbacks become "unregistered".
+        // 1. When metric registry object ends its lifetime, all registered
+        //    callbacks it owns are unregistered.  All handles associated with
+        //    the registered callbacks become "unregistered".
         //
         // Plan:
-        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
-        //:   the current default allocator.
-        //:
-        //: 2 Create a 'MetricDescriptor' object and a registraiton handle.
-        //:
-        //: 3 Open a nested scope.  Use the default constructor, using the
-        //:   other test allocator from P-1, to create a registry object.
-        //:
-        //: 4 Register a new callback.  Verify it was successful.
-        //:
-        //: 5 Close the nested scope causing the metric registry end-of-life.
-        //:   Verify that the 'isRegistered' accessor of the handle returns
-        //:   false.
-        //:
-        //: 6 Verify that no memory allocated from the default allocator.
+        // 1. Create two `bslma::TestAllocator` objects, and install one as
+        //    the current default allocator.
+        //
+        // 2. Create a `MetricDescriptor` object and a registraiton handle.
+        //
+        // 3. Open a nested scope.  Use the default constructor, using the
+        //    other test allocator from P-1, to create a registry object.
+        //
+        // 4. Register a new callback.  Verify it was successful.
+        //
+        // 5. Close the nested scope causing the metric registry end-of-life.
+        //    Verify that the `isRegistered` accessor of the handle returns
+        //    false.
+        //
+        // 6. Verify that no memory allocated from the default allocator.
         //
         // Testing:
         //   CONCERN: REGISTRATION HANDLE CAN OUTLIVE THE REGISTRY
@@ -647,44 +651,44 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
         //
         // Plan:
-        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
-        //:   the current default allocator.
-        //:
-        //: 2 Use the default constructor, using the other test allocator
-        //:   from P-1, to create an object.
-        //:
-        //: 3 Verify that each basic accessor, invoked on a 'const' reference
-        //:   to the object created in P-2, returns the expected value.  (C-2)
-        //:
-        //: 4 Verify that the 'allocator' accessor returns the allocator
-        //:   provided during construction.  (C-1)
-        //:
-        //: 5 Verify that the 'numRegisteredCollectionCallbacks' accessor
-        //:   returns 0.  (C-1)
-        //:
-        //: 6 Register a new callback.  Save the returned handle.  Verify that
-        //:   'numRegisteredCollectionCallbacks' accessor returns 1.
-        //:
-        //: 7 Register one more callback.  Save the returned handle.  Verify
-        //:   that 'numRegisteredCollectionCallbacks' accessor returns 2.
-        //:
-        //: 8 Call 'unregister()' with one of the saved handles.  Verify that
-        //:   'numRegisteredCollectionCallbacks' accessor returns 1.
-        //:
-        //: 9 Invoke the destructor of the second handle.  Verify that
-        //:   'numRegisteredCollectionCallbacks' accessor returns 0 again.
-        //:
-        //: 7 Monitor the memory allocated from both the default and object
-        //:   allocators before and after calling the accessor; verify that
-        //:   there is no change in total memory allocation.  (C-3)
+        // 1. Create two `bslma::TestAllocator` objects, and install one as
+        //    the current default allocator.
+        //
+        // 2. Use the default constructor, using the other test allocator
+        //    from P-1, to create an object.
+        //
+        // 3. Verify that each basic accessor, invoked on a `const` reference
+        //    to the object created in P-2, returns the expected value.  (C-2)
+        //
+        // 4. Verify that the `allocator` accessor returns the allocator
+        //    provided during construction.  (C-1)
+        //
+        // 5. Verify that the `numRegisteredCollectionCallbacks` accessor
+        //    returns 0.  (C-1)
+        //
+        // 6. Register a new callback.  Save the returned handle.  Verify that
+        //    `numRegisteredCollectionCallbacks` accessor returns 1.
+        //
+        // 7. Register one more callback.  Save the returned handle.  Verify
+        //    that `numRegisteredCollectionCallbacks` accessor returns 2.
+        //
+        // 8. Call `unregister()` with one of the saved handles.  Verify that
+        //    `numRegisteredCollectionCallbacks` accessor returns 1.
+        //
+        // 9. Invoke the destructor of the second handle.  Verify that
+        //    `numRegisteredCollectionCallbacks` accessor returns 0 again.
+        //
+        // 7. Monitor the memory allocated from both the default and object
+        //    allocators before and after calling the accessor; verify that
+        //    there is no change in total memory allocation.  (C-3)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -734,7 +738,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.numRegisteredCollectionCallbacks(),
                     X.numRegisteredCollectionCallbacks() == 1);
 
-        }  // Destructor of 'handle1' is invoked here
+        }  // Destructor of `handle1` is invoked here
         ASSERTV(X.numRegisteredCollectionCallbacks(),
                 X.numRegisteredCollectionCallbacks() == 0);
 
@@ -755,112 +759,112 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object can be created using the default constructor (with or
-        //:   without a supplied allocator).
-        //:
-        //: 2 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a default-constructed allocator has the same effect as
-        //:   not supplying an allocator.
-        //:
-        //: 5 Any memory allocation is from the object allocator.
-        //:
-        //: 6 There is no temporary allocation from any allocator.
-        //:
-        //: 7 Every object releases any allocated memory at destruction.
-        //:
-        //: 8 A successful call of the 'registerCollectionCallback' manipulator
-        //:   increments the 'numRegisteredCollectionCallbacks' accessor value.
-        //:
-        //: 9 A registered callback is registered until the handle object,
-        //:   returned by the 'registerCollectionCallback' call, is alive.  End
-        //:   of its life (the destructor call) decrements  the
-        //:   'numRegisteredCollectionCallbacks' accessor value.
-        //:
-        //:10 The 'setMetricsAdapter' call registers all the collection
-        //:   callbacks with the specified adapter.
-        //:
-        //:11 The 'setMetricsAdapter' call unregisters all the collection
-        //:   callbacks from the previous adapter, if any.
-        //:
-        //:12 The 'removeMetricsAdapter' call disassociates the current adapter
-        //:   if its address is passed to the call.
-        //:
-        //:13 The 'removeMetricsAdapter' call unregisters all the collection
-        //:   callbacks from the current adapter if its address is passed to
-        //:   the call.
-        //:
-        //:14 The same callback can be registered more than once.
-        //:
-        //:15 Unregistering callbacks from the registry unregisters them from
-        //:   the adapter.
-        //:
-        //:16 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object can be created using the default constructor (with or
+        //    without a supplied allocator).
+        //
+        // 2. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a default-constructed allocator has the same effect as
+        //    not supplying an allocator.
+        //
+        // 5. Any memory allocation is from the object allocator.
+        //
+        // 6. There is no temporary allocation from any allocator.
+        //
+        // 7. Every object releases any allocated memory at destruction.
+        //
+        // 8. A successful call of the `registerCollectionCallback` manipulator
+        //    increments the `numRegisteredCollectionCallbacks` accessor value.
+        //
+        // 9. A registered callback is registered until the handle object,
+        //    returned by the `registerCollectionCallback` call, is alive.  End
+        //    of its life (the destructor call) decrements  the
+        //    `numRegisteredCollectionCallbacks` accessor value.
+        //
+        // 10. The `setMetricsAdapter` call registers all the collection
+        //    callbacks with the specified adapter.
+        //
+        // 11. The `setMetricsAdapter` call unregisters all the collection
+        //    callbacks from the previous adapter, if any.
+        //
+        // 12. The `removeMetricsAdapter` call disassociates the current adapter
+        //    if its address is passed to the call.
+        //
+        // 13. The `removeMetricsAdapter` call unregisters all the collection
+        //    callbacks from the current adapter if its address is passed to
+        //    the call.
+        //
+        // 14. The same callback can be registered more than once.
+        //
+        // 15. Unregistering callbacks from the registry unregisters them from
+        //    the adapter.
+        //
+        // 16. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Execute an inner loop that creates an object by
-        //:   default-construction, but invokes the default constructor
-        //:   differently in each iteration: (a) without passing an allocator,
-        //:   (b) passing a default-constructed allocator explicitly, and (c)
-        //:   passing the address of a test allocator distinct from the
-        //:   default.  For each of these iterations:  (C-1..14)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator.
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'X', with its object allocator configured appropriately; use a
-        //:     distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the 'allocator' accessor to ensure that its object
-        //:     allocator is properly installed.  (C-2..4)
-        //:
-        //:   4 Create 2 'MetricsAdapter' instances: 'adapter1' & 'adapter2'.
-        //:     Verify that no callbacks are registered.
-        //:
-        //:   5 Register one callback using the 'registerCollectionCallback'
-        //:     manipulator.  Save the returned handle. Verify that the
-        //:     'numRegisteredCollectionCallbacks' accessor returns 1.  Verify
-        //:     that 'adapter1' & 'adapter2' still have no registered
-        //:     callbacks.  (C-8..9)
-        //:
-        //:   6 Call 'setMetricsAdapter(&adapter1)'.  Verify that 'adapter1'
-        //:     has 1 registered callback, and 'adapter2' has no registered
-        //:     callbacks.  (C-10)
-        //:
-        //:   7 Call 'setMetricsAdapter(&adapter2)'.  Verify that 'adapter2'
-        //:     has 1 registered callback, and 'adapter1' has no registered
-        //:     callbacks.  (C-10..11)
-        //:
-        //:   8 Call 'removeMetricsAdapter(&adapter2)'.  Verify that 'adapter1'
-        //:     & 'adapter2' have no registered callbacks.  (C-12..13)
-        //:
-        //:   9 Destroy the handle from P-5.  Verify that the
-        //:     'numRegisteredCollectionCallbacks' accessor returns 0.  (C-9)
-        //:
-        //:  10 Register the same callback 2 times.  Verify that the registry
-        //:     contains 2 registered callbacks.  Clear the registry.
-        //:
-        //:  11 Associate an adapter with the registry.  Register 2 callbacks.
-        //:     Verify that the adapter contains these callbacks.  Unregister
-        //:     the callbacks one by one from the registry.  After each step
-        //:     verify that the callback was unregistered from the adapter.
-        //:
-        //:  12 Verify that no temporary memory is allocated from the object
-        //:     allocator.  (C-6)
-        //:
-        //:  13 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-7)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-16)
+        // 1. Execute an inner loop that creates an object by
+        //    default-construction, but invokes the default constructor
+        //    differently in each iteration: (a) without passing an allocator,
+        //    (b) passing a default-constructed allocator explicitly, and (c)
+        //    passing the address of a test allocator distinct from the
+        //    default.  For each of these iterations:  (C-1..14)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator.
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `X`, with its object allocator configured appropriately; use a
+        //      distinct test allocator for the object's footprint.
+        //
+        //   3. Use the `allocator` accessor to ensure that its object
+        //      allocator is properly installed.  (C-2..4)
+        //
+        //   4. Create 2 `MetricsAdapter` instances: `adapter1` & `adapter2`.
+        //      Verify that no callbacks are registered.
+        //
+        //   5. Register one callback using the `registerCollectionCallback`
+        //      manipulator.  Save the returned handle. Verify that the
+        //      `numRegisteredCollectionCallbacks` accessor returns 1.  Verify
+        //      that `adapter1` & `adapter2` still have no registered
+        //      callbacks.  (C-8..9)
+        //
+        //   6. Call `setMetricsAdapter(&adapter1)`.  Verify that `adapter1`
+        //      has 1 registered callback, and `adapter2` has no registered
+        //      callbacks.  (C-10)
+        //
+        //   7. Call `setMetricsAdapter(&adapter2)`.  Verify that `adapter2`
+        //      has 1 registered callback, and `adapter1` has no registered
+        //      callbacks.  (C-10..11)
+        //
+        //   8. Call `removeMetricsAdapter(&adapter2)`.  Verify that `adapter1`
+        //      & `adapter2` have no registered callbacks.  (C-12..13)
+        //
+        //   9. Destroy the handle from P-5.  Verify that the
+        //      `numRegisteredCollectionCallbacks` accessor returns 0.  (C-9)
+        //
+        //  10. Register the same callback 2 times.  Verify that the registry
+        //      contains 2 registered callbacks.  Clear the registry.
+        //
+        //  11. Associate an adapter with the registry.  Register 2 callbacks.
+        //      Verify that the adapter contains these callbacks.  Unregister
+        //      the callbacks one by one from the registry.  After each step
+        //      verify that the callback was unregistered from the adapter.
+        //
+        //  12. Verify that no temporary memory is allocated from the object
+        //      allocator.  (C-6)
+        //
+        //  13. Verify that all object memory is released when the object is
+        //      destroyed.  (C-7)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-16)
         //
         // Testing:
         //   MetricsRegistry(bslma::Allocator *basicAllocator = 0);
@@ -1095,11 +1099,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Exercise the class.  (C-1)
+        // 1. Exercise the class.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1122,7 +1126,7 @@ int main(int argc, char *argv[])
         mX.registerCollectionCallback(&handle, descriptor, &testMetric);
         typedef void (*CallbackPtr)(BloombergLP::bdlm::Metric*);
         {
-            // Verify that 'CallbackPtr' is 'decltype(&testMetric)'
+            // Verify that `CallbackPtr` is `decltype(&testMetric)`
             CallbackPtr ptr = &testMetric;
             (void) ptr;
         }

@@ -6,8 +6,8 @@
 #include <bsls_buildtarget.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'abort', 'atoi', 'getenv'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `abort`, `atoi`, `getenv`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -22,22 +22,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -48,11 +48,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  -------
 //  BSLA_NORETURN                         Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
@@ -117,10 +117,10 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Assertion Handler
 /// - - - - - - - - - - - - - -
-// First, we create an assertion handler, 'myHandlerA', which never returns,
-// and annotate it with 'BSLA_NORETURN' so that the compiler will warn if it
+// First, we create an assertion handler, `myHandlerA`, which never returns,
+// and annotate it with `BSLA_NORETURN` so that the compiler will warn if it
 // does return:
-//..
+// ```
     BSLA_NORETURN void myHandlerA(const bsls::AssertViolation& assertViolation)
     {
         printf("%s:%d %s", assertViolation.fileName(),
@@ -136,11 +136,11 @@ void aSsErT(bool condition, const char *message, int line)
 
         ::abort();
     }
-//..
-// Now, a new hire copies 'myHandlerA' and creates a new handler, 'myHandlerB',
+// ```
+// Now, a new hire copies `myHandlerA` and creates a new handler, `myHandlerB`,
 // that doesn't abort unless instructed to via an environment variable, not
 // realizing that this opens up the possibility of the handler returning:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
     BSLA_NORETURN void myHandlerB(const bsls::AssertViolation& assertViolation)
     {
@@ -159,15 +159,15 @@ void aSsErT(bool condition, const char *message, int line)
         }
     }
 #endif
-//..
+// ```
 // Finally, we observe the compiler warning that occurs to point out the
-// possibility of 'myHandlerB' returning:
-//..
-//  .../bsla_noreturn.t.cpp:157:5: warning: function declared 'noreturn' should
+// possibility of `myHandlerB` returning:
+// ```
+//  .../bsla_noreturn.t.cpp:157:5: warning: function declared `noreturn` should
 //  not return [-Winvalid-noreturn]
 //  }
 //  ^
-//..
+// ```
 
 #endif  // defined(BDE_BUILD_TARGET_EXC)
 
@@ -224,11 +224,11 @@ BSLA_NORETURN void use_with_error_message_NORETURN_function()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -305,20 +305,20 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

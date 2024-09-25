@@ -98,9 +98,9 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::ScopedAttribute           Obj;
 typedef ball::ScopedAttribute_Container Obj_Container;
 
+/// Append the value of the specified `attribute` to the specified `result`.
 void testVisitor(bsl::vector<ball::Attribute>  *result,
                  const ball::Attribute&         attribute)
-    // Append the value of the specified 'attribute' to the specified 'result'.
 {
     result->push_back(attribute);
 }
@@ -227,16 +227,16 @@ int main(int argc, char *argv[])
         // TESTING ATTRIBUTE CONTEXT VISITATION
         //
         // Concerns:
-        //: 1 'ball::ScopedAttribute' adds an attribute to the local thread's
-        //:    'ball::AttributeContext'.
-        //:
-        //: 2 Calling local thread's
-        //:   'ball::AttributeContext::visitAttributes()' visits all attributes
-        //:   in the current scope.
+        // 1. `ball::ScopedAttribute` adds an attribute to the local thread's
+        //     `ball::AttributeContext`.
+        //
+        // 2. Calling local thread's
+        //    `ball::AttributeContext::visitAttributes()` visits all attributes
+        //    in the current scope.
         //
         // Plan:
-        //: 1 Create a set of scoped attributes and verify that they can be
-        //:   collected by visiting attribute context.
+        // 1. Create a set of scoped attributes and verify that they can be
+        //    collected by visiting attribute context.
         //
         // Testing
         //   ATTRIBUTE CONTEXT VISITATION
@@ -337,12 +337,12 @@ int main(int argc, char *argv[])
         // TESTING SCOPED ATTRIBUTE CONTAINER VISITATION
         //
         // Concerns:
-        //: 1 'ball::ScopedAttribute_Container' contains exactly one attribute.
-        //:
+        // 1. `ball::ScopedAttribute_Container` contains exactly one attribute.
+        //
         //
         // Plan:
-        //: 1 Create a set of scoped attribute containers and verify that their
-        //:   attribytes can be visited.
+        // 1. Create a set of scoped attribute containers and verify that their
+        //    attribytes can be visited.
         //
         // Testing
         //   ATTRIBUTE CONTAINER VISITATION

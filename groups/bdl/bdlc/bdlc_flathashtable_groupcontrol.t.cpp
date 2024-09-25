@@ -23,17 +23,17 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a mechanism,
-// 'bdlc::FlatHashTable_GroupControl'.  No allocator is involved.  Testing
+// `bdlc::FlatHashTable_GroupControl`.  No allocator is involved.  Testing
 // concerns are (safely) limited to the mechanical functioning of the various
 // methods.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] FlatHashTable_GroupControl(const bsl::uint8_t *data);
@@ -121,8 +121,8 @@ const bsl::uint8_t VE = 0x11;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Print a representation of the specified `data`.
 void print(const bsl::uint8_t *data)
-    // Print a representation of the specified 'data'.
 {
     const char *hex = "0123456789abcdef";
 
@@ -135,9 +135,9 @@ void print(const bsl::uint8_t *data)
     bsl::cout << bsl::endl;
 }
 
+/// Verify the accessor methods of a `bdlc::FlatHashTable_GroupControl`
+/// return the expected values for the specified `data`.
 void verifyWithOracle(const bsl::uint8_t *data)
-    // Verify the accessor methods of a 'bdlc::FlatHashTable_GroupControl'
-    // return the expected values for the specified 'data'.
 {
     Obj mX(data);  const Obj& X = mX;
 
@@ -238,24 +238,24 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // ACCESSORS
-        //   Ensure the accessors 'available', 'inUse', 'match', and
-        //   'neverFull' operate as expected.
+        //   Ensure the accessors `available`, `inUse`, `match`, and
+        //   `neverFull` operate as expected.
         //
         // Concerns:
-        //: 1 The accessors 'available', 'inUse', 'match', and 'neverFull'
-        //:   operate as expected.
-        //:
-        //: 2 The cardinality of possible inputs is very large and difficult to
-        //:   explore.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The accessors `available`, `inUse`, `match`, and `neverFull`
+        //    operate as expected.
+        //
+        // 2. The cardinality of possible inputs is very large and difficult to
+        //    explore.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the depth-enumerated technique, compare the results of
-        //:   'available', 'inUse', 'match(V)', and 'neverFull' methods with
-        //:   oracle implementations.  (C-1,2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Using the depth-enumerated technique, compare the results of
+        //    `available`, `inUse`, `match(V)`, and `neverFull` methods with
+        //    oracle implementations.  (C-1,2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   bsl::uint32_t available() const;
@@ -405,16 +405,16 @@ for (bsl::size_t i = 0; i < Obj::k_SIZE; ++i) {
         //   The creators operate as expected.
         //
         // Concerns:
-        //: 1 The constructor correctly stores the provided data.
-        //:
-        //: 2 The destructor operats as expected.
+        // 1. The constructor correctly stores the provided data.
+        //
+        // 2. The destructor operats as expected.
         //
         // Plan:
-        //: 1 Instantiate objects and verify the object's state using the
-        //:   (untested) accessors.  (C-1)
-        //:
-        //: 2 Allow the objects to go out-of-scope (lack of a crash implies
-        //:   success).  (C-2)
+        // 1. Instantiate objects and verify the object's state using the
+        //    (untested) accessors.  (C-1)
+        //
+        // 2. Allow the objects to go out-of-scope (lack of a crash implies
+        //    success).  (C-2)
         //
         // Testing:
         //   FlatHashTable_GroupControl(const bsl::uint8_t *data);
@@ -474,11 +474,11 @@ for (bsl::size_t i = 0; i < Obj::k_SIZE; ++i) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

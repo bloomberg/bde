@@ -24,11 +24,11 @@ namespace {
 
 typedef DatumMapBuilder::allocator_type allocator_type;
 
+/// Calculate the new capacity needed to accommodate data having the
+/// specified `size` for the datum map having the specified `capacity`.
 static DatumMapBuilder::SizeType getNewCapacity(
                                             DatumMapBuilder::SizeType capacity,
                                             DatumMapBuilder::SizeType size)
-    // Calculate the new capacity needed to accommodate data having the
-    // specified 'size' for the datum map having the specified 'capacity'.
 {
     // Maximum allowed size (theoretical limit)
     static const DatumMapBuilder::SizeType MAX_BYTES =
@@ -48,11 +48,11 @@ static DatumMapBuilder::SizeType getNewCapacity(
     return capacity;
 }
 
+/// Load the specified `mapping` with a reference to newly created datum map
+/// having the specified `capacity`, using the specified `allocator`.
 static void createMapStorage(DatumMutableMapRef        *mapping,
                              DatumMapBuilder::SizeType  capacity,
                              const allocator_type&      allocator)
-    // Load the specified 'mapping' with a reference to newly created datum map
-    // having the specified 'capacity', using the specified 'allocator'.
 {
     Datum::createUninitializedMap(mapping, capacity, allocator.mechanism());
     // Initialize the memory.
@@ -72,9 +72,9 @@ static bool compareGreater(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 }
 #endif
 
+/// Return `true` if key in the specified `lhs` is less than key in the
+/// specified `rhs` and `false` otherwise.
 static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
-    // Return 'true' if key in the specified 'lhs' is less than key in the
-    // specified 'rhs' and 'false' otherwise.
 {
     return lhs.key() < rhs.key();
 }

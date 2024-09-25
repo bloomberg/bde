@@ -31,7 +31,7 @@ using namespace bslh;
 //                                  --------
 // The component under test is a standards-conformant hashing algorithm
 // functor.  The component will be tested for conformance to the interface
-// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// requirements on `std::hash`, outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
 // output of the underlying hashing algorithms.
 //-----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ typedef bsls::Types::Uint64 Uint64;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of user-specified nicknames, and we want a really
 // fast way to find out if values are contained in the array.  We can create a
-// 'HashTable' data structure that is capable of looking up values in O(1)
+// `HashTable` data structure that is capable of looking up values in O(1)
 // time.
 //
 // Because we will be storing arbitrary user input in our table, it is possible
@@ -140,82 +140,85 @@ typedef bsls::Types::Uint64 Uint64;
 // hash algorithm with a random seed.  This algorithm will need to be in the
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
-// outside observer to predict that it appear random.  'bslh::SeededHash'
+// outside observer to predict that it appear random.  `bslh::SeededHash`
 // provides a convenient functor that can wrap any seeded hashing algorithm and
-// use it to produce a hash for any type them implements 'hashAppend'.
+// use it to produce a hash for any type them implements `hashAppend`.
 //
 // We can use the result of the hash function to index into our array of
-// 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.
+// `buckets`.  Each `bucket` is simply a pointer to a value in our original
+// array of `TYPE` objects.
 //
-// First, we define our 'HashTable' template class, with the two type
-// parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
+// First, we define our `HashTable` template class, with the two type
+// parameters: `TYPE` (the type being referenced) and `HASHER` (a functor that
 // produces the hash).
-//..
+// ```
 
+    /// This class template implements a hash table providing fast lookup of
+    /// an external, non-owned, array of values of (template parameter)
+    /// `TYPE`.
+    ///
+    /// The (template parameter) `TYPE` shall have a transitive, symmetric
+    /// `operator==` function and it will be hashable using `bslh::Hash`.
+    /// Note that there is no requirement that it have any kind of creator
+    /// defined.
+    ///
+    /// The `HASHER` template parameter type must be a functor with a method
+    /// having the following signature:
+    /// ```
+    /// size_t operator()(TYPE)  const;
+    ///                  -OR-
+    /// size_t operator()(const TYPE&) const;
+    /// ```
+    /// and `HASHER` shall have a publicly accessible default constructor
+    /// and destructor.  Here we use `bslh::Hash` as our default template
+    /// argument.  This allows us to hash any type for which `hashAppend`
+    /// has been implemented.
+    ///
+    /// Note that this hash table has numerous simplifications because we
+    /// know the size of the array and never have to resize the table.
     template <class TYPE, class HASHER>
     class HashTable {
-        // This class template implements a hash table providing fast lookup of
-        // an external, non-owned, array of values of (template parameter)
-        // 'TYPE'.
-        //
-        // The (template parameter) 'TYPE' shall have a transitive, symmetric
-        // 'operator==' function and it will be hashable using 'bslh::Hash'.
-        // Note that there is no requirement that it have any kind of creator
-        // defined.
-        //
-        // The 'HASHER' template parameter type must be a functor with a method
-        // having the following signature:
-        //..
-        //  size_t operator()(TYPE)  const;
-        //                   -OR-
-        //  size_t operator()(const TYPE&) const;
-        //..
-        // and 'HASHER' shall have a publicly accessible default constructor
-        // and destructor.  Here we use 'bslh::Hash' as our default template
-        // argument.  This allows us to hash any type for which 'hashAppend'
-        // has been implemented.
-        //
-        // Note that this hash table has numerous simplifications because we
-        // know the size of the array and never have to resize the table.
 
         // DATA
         const TYPE       *d_values;          // Array of values table is to
                                              // hold
-        size_t            d_numValues;       // Length of 'd_values'.
-        const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
-        size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
+        size_t            d_numValues;       // Length of `d_values`.
+        const TYPE      **d_bucketArray;     // Contains ptrs into `d_values`
+        size_t            d_bucketArrayMask; // Will always be `2^N - 1`.
         HASHER            d_hasher;          // User supplied hashing algorithm
 
       private:
         // PRIVATE ACCESSORS
+
+        /// Look up the specified `value`, having the specified `hashValue`,
+        /// and load its index in `d_bucketArray` into the specified `idx`.
+        /// If not found, return the vacant entry in `d_bucketArray` where
+        /// it should be inserted.  Return `true` if `value` is found and
+        /// `false` otherwise.
         bool lookup(size_t      *idx,
                     const TYPE&  value,
                     size_t       hashValue) const;
-            // Look up the specified 'value', having the specified 'hashValue',
-            // and load its index in 'd_bucketArray' into the specified 'idx'.
-            // If not found, return the vacant entry in 'd_bucketArray' where
-            // it should be inserted.  Return 'true' if 'value' is found and
-            // 'false' otherwise.
 
       public:
         // CREATORS
+
+        /// Create a hash table referring to the specified `valuesArray`
+        /// having length of the specified `numValues` and using the
+        /// specified `hasher` to generate hash values.  No value in
+        /// `valuesArray` shall have the same value as any of the other
+        /// values in `valuesArray`
         HashTable(const TYPE *valuesArray,
                   size_t      numValues,
                   HASHER      hasher);
-            // Create a hash table referring to the specified 'valuesArray'
-            // having length of the specified 'numValues' and using the
-            // specified 'hasher' to generate hash values.  No value in
-            // 'valuesArray' shall have the same value as any of the other
-            // values in 'valuesArray'
 
+        /// Free up memory used by this cross-reference.
         ~HashTable();
-            // Free up memory used by this cross-reference.
 
         // ACCESSORS
+
+        /// Return true if the specified `value` is found in the table and
+        /// false otherwise.
         bool contains(const TYPE& value) const;
-            // Return true if the specified 'value' is found in the table and
-            // false otherwise.
     };
 
 //=============================================================================
@@ -285,24 +288,24 @@ bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
 //          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class implements a predictable mock random number generator for use
+/// in testing.
 class MockRNG {
-    // This class implements a predictable mock random number generator for use
-    // in testing.
 
   public:
+    /// The type of the random data that `operator()` will return.
     typedef Uint64 result_type;
-        // The type of the random data that 'operator()' will return.
 
   private:
+    // Counter that provides some variance in the random numbers returned.
     result_type d_counter;
-        // Counter that provides some variance in the random numbers returned.
 
   public:
+    /// Create a `MockRNG` that will return predictable "random" values.
     MockRNG();
-        // Create a 'MockRNG' that will return predictable "random" values.
 
+    /// Return a predictable "random" number of `result_type`.
     result_type operator()();
-        // Return a predictable "random" number of 'result_type'.
 };
 
 MockRNG::MockRNG()
@@ -318,16 +321,16 @@ MockRNG::result_type MockRNG::operator()()
     return BSLS_BYTEORDER_HOST_U64_TO_LE(d_counter);
 }
 
+/// Provides a member function to determine if passed data is of the same
+/// type as the (template parameter) `EXPECTED_TYPE`
 template<class EXPECTED_TYPE>
 class TypeChecker {
-    // Provides a member function to determine if passed data is of the same
-    // type as the (template parameter) 'EXPECTED_TYPE'
   public:
+      /// Return true if the specified `type` is of the same type as the
+      /// (template parameter) `EXPECTED_TYPE`.
       static bool isCorrectType(EXPECTED_TYPE type);
       template<class BDE_OTHER_TYPE>
       static bool isCorrectType(BDE_OTHER_TYPE type);
-          // Return true if the specified 'type' is of the same type as the
-          // (template parameter) 'EXPECTED_TYPE'.
 };
 
 template<class EXPECTED_TYPE>
@@ -341,8 +344,8 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(BDE_OTHER_TYPE /* type */) {
     return false;
 }
 
+/// Not actually cryptographically secure!
 typedef MockRNG CryptographicallySecureRNG;
-    // Not actually cryptographically secure!
 
 typedef bslh::SeedGenerator<MockRNG> SeedGen;
 typedef bslh::SeededHash<SeedGen, DefaultSeededHashAlgorithm> Obj;
@@ -370,15 +373,15 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   The 'bslh::SeededHash' can be used with seeded algorithms to
+        //   The `bslh::SeededHash` can be used with seeded algorithms to
         //   secure more powerful components such as hash tables.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -387,10 +390,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-//..
+// ```
 // Then, we will create an array of user supplied nicknames that would create
 // collisions in some other hashing algorithm.
-//..
+// ```
 
         const char names[6][11] = { "COLLISION!",
                                     "COLLISION@",
@@ -401,24 +404,24 @@ int main(int argc, char *argv[])
 
         enum { NUM_NAMES = sizeof names / sizeof *names };
 
-//..
+// ```
 // Next, we create a seed generator, with a cryptographically secure random
 // number generator, that can be used to generate seeds for our secure hashing
-// algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We
-// use the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
-//..
+// algorithm.  We then pass that seed generator into `bslh::SeededHash`.  We
+// use the `bslh::SipHashAlgorithm` as our secure hashing algorithm.
+// ```
         typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
         typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
 
         SecureSeedGenerator secureSeedGenerator;
         SecureHash          secureHash(secureSeedGenerator);
 
-//..
-// Then, we create our hash table 'hashTable'.  We pass it the 'secureHash'
+// ```
+// Then, we create our hash table `hashTable`.  We pass it the `secureHash`
 // hashing functor we created.  Passing it in through the functor, rather than
 // just having it default constructed from the template parameter, allows us to
 // pass in an algorithm with a pre-configured state if we so desire.
-//..
+// ```
 
         HashTable<const char [11], SecureHash> hashTable(names,
                                                          NUM_NAMES,
@@ -440,25 +443,25 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEFS
-        //   Verify that the struct hashes the proper 'typedef's.
+        //   Verify that the struct hashes the proper `typedef`s.
         //
         // Concerns:
-        //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'size_t'.
-        //:
-        //: 2 'result_type' is 'size_t' even when the algorithm returns a
-        //:   'result_type' of a different size
-        //:
-        //: 3 'operator()' returns 'result_type'
+        // 1. The typedef `result_type` is publicly accessible and an alias for
+        //    `size_t`.
+        //
+        // 2. `result_type` is `size_t` even when the algorithm returns a
+        //    `result_type` of a different size
+        //
+        // 3. `operator()` returns `result_type`
         //
         //
         // Plan:
-        //: 1 ASSERT the 'typedef' accessibly aliases the correct type using
-        //:   'bslmf::IsSame' for a number of algorithms of different result
-        //:   types. (C-1,2)
-        //:
-        //: 2 Invoke 'operator()' and verify the return type is 'result_type'.
-        //:   (C-3)
+        // 1. ASSERT the `typedef` accessibly aliases the correct type using
+        //    `bslmf::IsSame` for a number of algorithms of different result
+        //    types. (C-1,2)
+        //
+        // 2. Invoke `operator()` and verify the return type is `result_type`.
+        //    (C-3)
         //
         // Testing:
         //   typedef size_t result_type;
@@ -467,8 +470,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
                             "\n=========================\n");
 
-        if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
-                            " correct type using 'bslmf::IsSame' for a number"
+        if (verbose) printf("ASSERT the `typedef` accessibly aliases the"
+                            " correct type using `bslmf::IsSame` for a number"
                             " of algorithms of different result types."
                             " (C-1,2)\n");
         {
@@ -490,8 +493,8 @@ int main(int argc, char *argv[])
                                                        ::result_type>::value));
         }
 
-        if (verbose) printf("Invoke 'operator()' and verify the return type is"
-                            " 'result_type'. (C-3)\n");
+        if (verbose) printf("Invoke `operator()` and verify the return type is"
+                            " `result_type`. (C-3)\n");
         {
             typedef SeededHash<SeedGen, DefaultSeededHashAlgorithm> S1;
             typedef SeededHash<SeedGen, SipHashAlgorithm>           S2;
@@ -510,26 +513,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'operator()'
+        // TESTING `operator()`
         //   Verify that the struct offers the ability to invoke it with some
         //   bytes and a length, and that it return a hash.
         //
         // Concerns:
-        //: 1 The function call operator will return the expected value
-        //:   according to the canonical implementation of the algorithm being
-        //:   used.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
+        // 1. The function call operator will return the expected value
+        //    according to the canonical implementation of the algorithm being
+        //    used.
+        //
+        // 2. The function call operator can be invoked on constant objects.
         //
         // Plan:
-        //: 1 Create 'const' ints and hash them.  Compare the results against
-        //:   known good values.  (C-1,2)
+        // 1. Create `const` ints and hash them.  Compare the results against
+        //    known good values.  (C-1,2)
         //
         // Testing:
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'operator()'"
+        if (verbose) printf("\nTESTING `operator()`"
                             "\n====================\n");
 
         static const struct {
@@ -574,7 +577,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-        if (verbose) printf("Create little-endian 'int's and hash them."
+        if (verbose) printf("Create little-endian `int`s and hash them."
                             "  Compare the results against known good values."
                             "  (C-1,2)\n");
         {
@@ -628,36 +631,36 @@ int main(int argc, char *argv[])
         //   that the expected expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the parameterized constructor.
-        //:
-        //: 3 Objects can be created using the copy constructor.
-        //:
-        //: 4 The copy constructor is not declared as explicit.
-        //:
-        //: 5 Objects can be assigned to from constant objects.
-        //:
-        //: 6 Assignments operations can be chained.
-        //:
-        //: 7 Objects can be destroyed.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the parameterized constructor.
+        //
+        // 3. Objects can be created using the copy constructor.
+        //
+        // 4. The copy constructor is not declared as explicit.
+        //
+        // 5. Objects can be assigned to from constant objects.
+        //
+        // 6. Assignments operations can be chained.
+        //
+        // 7. Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'SeededHash' and allow it to leave
-        //:   scope to be destroyed. (C-1,7)
-        //:
-        //: 2 Construct a 'SeededHash' using the parameterized constructor.
-        //:   (C-2)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
-        //:   'SeededHash' from an existing instance. (C-3,4)
-        //:
-        //: 4 Assign the value of the one (const) instance of 'SeededHash' to a
-        //:   second. (C-5)
-        //:
-        //: 5 Chain the assignment of the value of the one instance of
-        //:   'SeededHash' to a second instance of 'SeededHash', into a
-        //:   self-assignment of the second object. (C-6)
+        // 1. Create a default constructed `SeededHash` and allow it to leave
+        //    scope to be destroyed. (C-1,7)
+        //
+        // 2. Construct a `SeededHash` using the parameterized constructor.
+        //    (C-2)
+        //
+        // 3. Use the copy-initialization syntax to create a new instance of
+        //    `SeededHash` from an existing instance. (C-3,4)
+        //
+        // 4. Assign the value of the one (const) instance of `SeededHash` to a
+        //    second. (C-5)
+        //
+        // 5. Chain the assignment of the value of the one instance of
+        //    `SeededHash` to a second instance of `SeededHash`, into a
+        //    self-assignment of the second object. (C-6)
         //
         // Testing:
         //   SeededHash()
@@ -671,7 +674,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING CREATORS"
                    "\n================\n");
 
-        if (verbose) printf("Create a default constructed 'SeededHash' and"
+        if (verbose) printf("Create a default constructed `SeededHash` and"
                             " allow it to leave scope to be destroyed."
                             " (C-1,7)\n");
         {
@@ -679,7 +682,7 @@ int main(int argc, char *argv[])
             (void) alg1;
         }
 
-        if (verbose) printf("Construct a 'SeededHash' using the parameterized"
+        if (verbose) printf("Construct a `SeededHash` using the parameterized"
                             " constructor. (C-2)\n");
         {
             SeedGen seedGen;
@@ -688,7 +691,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SeededHash' from an existing"
+                            " new instance of `SeededHash` from an existing"
                             " instance. (C-3,4)\n");
         {
             Obj alg1;
@@ -697,7 +700,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'SeededHash' to a second. (C-5)\n");
+                            " `SeededHash` to a second. (C-5)\n");
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
@@ -705,8 +708,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'SeededHash' to a second instance of"
-                            " 'SeededHash', into a self-assignment of the"
+                            " instance of `SeededHash` to a second instance of"
+                            " `SeededHash`, into a self-assignment of the"
                             " second object. (C-6)\n");
         {
             Obj alg1;
@@ -722,15 +725,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::SecureHash'. (C-1)
-        //:
-        //: 2 Verify different hashes are produced for different ints. (C-1)
-        //:
-        //: 3 Verify the same hashes are produced for the same ints. (C-1)
+        // 1. Create an instance of `bslh::SecureHash`. (C-1)
+        //
+        // 2. Verify different hashes are produced for different ints. (C-1)
+        //
+        // 3. Verify the same hashes are produced for the same ints. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -739,7 +742,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("Create an instance of 'bslh::SecureHash'."
+        if (verbose) printf("Create an instance of `bslh::SecureHash`."
                             " (C-1)\n");
         {
             Obj hashAlg;

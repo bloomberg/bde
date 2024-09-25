@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate the usage example from the header file into the test
-        //   driver, changing 'assert' to 'ASSERT'.
+        //   driver, changing `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 // Typically, a program will register namespaces as it encounters them in an
 // XML document.  Alternatively, namespaces that are important to the program
 // are registered in advance, as in the following code:
-//..
+// ```
     const char googleUri[] = "http://www.google.com/schemas/results.xsd";
     const char yahooUri[]  = "http://www.yahoo.com/xsd/searchResults.xsd";
 
@@ -143,10 +143,10 @@ int main(int argc, char *argv[])
     int yahooId = namespaceRegistry.lookupOrRegister(yahooUri);
     ASSERT(yahooId >= 0);
     ASSERT(yahooId != googleId);
-//..
+// ```
 // Later, IDs can be looked up without concern for whether they have already
 // been registered.  Any new namespaces are simply given a new ID:
-//..
+// ```
     char input[100];
 
     // First input is a new namespace URI.
@@ -160,29 +160,29 @@ int main(int argc, char *argv[])
     bsl::strcpy(input, "http://www.yahoo.com/xsd/searchResults.xsd");
     int id2 = namespaceRegistry.lookupOrRegister(input);
     ASSERT(id2 == yahooId);
-//..
+// ```
 // If one of the preregistered namespaces is presented, it's predefined ID is
 // returned, even though it was never explicitly registered:
-//..
+// ```
     bsl::strcpy(input, "http://www.w3.org/2001/XMLSchema");
     int id3 = namespaceRegistry.lookupOrRegister(input);
     ASSERT(id3 == balxml::NamespaceRegistry::e_XMLSCHEMA);
-//..
-// Using the 'lookup' method, a namespace ID can be looked up without
+// ```
+// Using the `lookup` method, a namespace ID can be looked up without
 // registering it.  In this case, an unregistered namespace will result in an
 // ID of -1:
-//..
+// ```
     ASSERT(googleId  == namespaceRegistry.lookup(googleUri));
     ASSERT(balxml::NamespaceRegistry::e_BDEM ==
            namespaceRegistry.lookup("http://bloomberg.com/schemas/bdem"));
     ASSERT(-1 == namespaceRegistry.lookup("urn:1234"));
-//..
-// There is also a 'lookup' method for performing the reverse mapping -- from
+// ```
+// There is also a `lookup` method for performing the reverse mapping -- from
 // ID to URI:
-//..
+// ```
     const char *uri = namespaceRegistry.lookup(googleId);
     ASSERT(0 == bsl::strcmp(uri, googleUri));
-//..
+// ```
       } break;
 
       case 5:
@@ -190,39 +190,39 @@ int main(int argc, char *argv[])
       case 3:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'lookupOrRegister':
-        //   Verify 'lookupOrRegister'.
+        // TESTING `lookupOrRegister`:
+        //   Verify `lookupOrRegister`.
         //
         // Concerns:
-        //   That 'lookupOrRegister' works correctly in various white-box
+        //   That `lookupOrRegister` works correctly in various white-box
         //   states.
         //
         // Plan:
         //   Create 3 namespace N, N1 and N2.
         //
-        //   Lookup 'N' in the registry when registry is empty and then verify
+        //   Lookup `N` in the registry when registry is empty and then verify
         //   the result.
         //
-        //   Lookup 'N' in the registry when registry has [N] in it and
+        //   Lookup `N` in the registry when registry has [N] in it and
         //   then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1] in it
+        //   Lookup `N` in the registry when registry has [N1] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1, N2] in it
+        //   Lookup `N` in the registry when registry has [N1, N2] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N, N2] in it
+        //   Lookup `N` in the registry when registry has [N, N2] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1, N] in it
+        //   Lookup `N` in the registry when registry has [N1, N] in it
         //   and then verify the result.
         //
         // Testing:
         //   int lookupOrRegister(const bsl::string& namespaceUri);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'lookupOrRegister'" << endl
+                          << "TESTING `lookupOrRegister`" << endl
                           << "================" << endl;
 
         static const char N[]  = "http://google.com/xml";
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
         //   That basic essential functionality is operational.
         //
         // Plan:
-        //   Invoke each of the basic functions of 'balxml::NamespaceRegistry'
+        //   Invoke each of the basic functions of `balxml::NamespaceRegistry`
         //   under a combination of the following conditions:
         //   - An empty registry
         //   - A non-empty registry

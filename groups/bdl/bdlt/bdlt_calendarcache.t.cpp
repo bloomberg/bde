@@ -26,9 +26,9 @@
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
-#include <bsl_climits.h>    // 'INT_MAX'
-#include <bsl_cstdlib.h>    // 'atoi'
-#include <bsl_cstring.h>    // 'strcmp'
+#include <bsl_climits.h>    // `INT_MAX`
+#include <bsl_cstdlib.h>    // `atoi`
+#include <bsl_cstring.h>    // `strcmp`
 #include <bsl_iostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -46,23 +46,23 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a thread-safe mechanism, 'bdlt::CalendarCache', that is a
-// cache of 'bdlt::Calendar' objects.  We make extensive use of a concrete
-// instance of 'bdlt::CalendarLoader', 'TestLoader', that has been crafted for
-// our purposes, and the 'bslma' test allocator.
+// We are testing a thread-safe mechanism, `bdlt::CalendarCache`, that is a
+// cache of `bdlt::Calendar` objects.  We make extensive use of a concrete
+// instance of `bdlt::CalendarLoader`, `TestLoader`, that has been crafted for
+// our purposes, and the `bslma` test allocator.
 //
 // Two issues of note are taken into account in testing this component.  One is
-// that 'bsl::shared_ptr' objects can take ownership of calendars that have
-// been removed from the cache (either via 'invalidate' or 'invalidateAll', or
+// that `bsl::shared_ptr` objects can take ownership of calendars that have
+// been removed from the cache (either via `invalidate` or `invalidateAll`, or
 // due to a timeout).  We need to be mindful of this when, for example,
 // checking test allocators for expected memory use.  To that end, shared
 // pointers are scoped in such a way that takes this into account.
 //
 // The second issue is that of the timeout with which a cache object may be
 // optionally configured.  Thorough testing of timeouts is problematic in that
-// it entails use of 'sleep', which increases the running time of test cases
+// it entails use of `sleep`, which increases the running time of test cases
 // and can lead to intermittent failures in regression testing.  Consequently,
-// we make very judicious use of 'sleep' in positively-numbered test cases; in
+// we make very judicious use of `sleep` in positively-numbered test cases; in
 // particular, we generally use a timeout of 0 where we are only interested in
 // whether or not a cache has been constructed with a timeout.  We relegate the
 // few lengthy sleeps in the test driver to a negative test case (-1).
@@ -72,7 +72,7 @@ using namespace bsl;
 // cases, to ensure that precondition violations are detected in appropriate
 // build modes.
 // ----------------------------------------------------------------------------
-// 'CalendarCache' class:
+// `CalendarCache` class:
 // [ 2] CalendarCache(Loader *loader,          Allocator *ba = 0);
 // [ 2] CalendarCache(Loader *loader, timeout, Allocator *ba = 0);
 // [ 2] ~CalendarCache();
@@ -192,11 +192,11 @@ static const bdlt::Date gLastDate(2020, 12, 31);
 
 static const int        gHolidayOffset = 38;
 
+/// This concrete calendar loader successfully loads calendars named
+/// "CAL-1", "CAL-2", and "CAL-3" only.  An attempt to load a calendar by
+/// any other name results in a non-zero result status being returned from
+/// the `load` method.
 class TestLoader : public bdlt::CalendarLoader {
-    // This concrete calendar loader successfully loads calendars named
-    // "CAL-1", "CAL-2", and "CAL-3" only.  An attempt to load a calendar by
-    // any other name results in a non-zero result status being returned from
-    // the 'load' method.
 
   private:
     // NOT IMPLEMENTED
@@ -205,17 +205,18 @@ class TestLoader : public bdlt::CalendarLoader {
 
   public:
     // CREATORS
-    TestLoader();
-        // Create a test loader.
 
+    /// Create a test loader.
+    TestLoader();
+
+    /// Destroy this object.
     ~TestLoader() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
     int load(bdlt::PackedCalendar *result, const char *calendarName)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Load, into the specified 'result', the calendar identified by the
-        // specified 'calendarName'.  Return 0 on success, and a non-zero value
+        // Load, into the specified `result`, the calendar identified by the
+        // specified `calendarName`.  Return 0 on success, and a non-zero value
         // otherwise.
 };
 
@@ -260,7 +261,7 @@ int TestLoader::load(bdlt::PackedCalendar *result, const char *calendarName)
         result->removeAll();
         result->setValidRange(firstDate, gLastDate);
 
-        // The following is required to trigger an allocation in 'result'.
+        // The following is required to trigger an allocation in `result`.
 
         result->addHoliday(firstDate + gHolidayOffset);
 
@@ -274,25 +275,25 @@ int TestLoader::load(bdlt::PackedCalendar *result, const char *calendarName)
     return 1;
 }
 
+/// Return `false`.
 static
 bool providesNonModifiableAccessOnly(bdlt::Calendar *)
-    // Return 'false'.
 {
     return false;
 }
 
+/// Return `true`.
 static
 bool providesNonModifiableAccessOnly(const bdlt::Calendar *)
-    // Return 'true'.
 {
     return true;
 }
 
+/// Create a thread whose entry point is the specified `function` that is
+/// supplied with the specified `arg` list, and return the id of the new
+/// thread.
 static
 ThreadId createThread(ThreadFunction function, void *arg)
-    // Create a thread whose entry point is the specified 'function' that is
-    // supplied with the specified 'arg' list, and return the id of the new
-    // thread.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)function, arg, 0, 0);
@@ -303,9 +304,9 @@ ThreadId createThread(ThreadFunction function, void *arg)
 #endif
 }
 
+/// Join with the thread having the specified `id`.
 static
 void joinThread(ThreadId id)
-    // Join with the thread having the specified 'id'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(id, INFINITE);
@@ -315,9 +316,9 @@ void joinThread(ThreadId id)
 #endif
 }
 
+/// Sleep for the specified number of `seconds`.
 static
 void sleepSeconds(int seconds)
-    // Sleep for the specified number of 'seconds'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     Sleep(seconds * 1000);
@@ -660,7 +661,7 @@ extern "C" void *threadFunction3(void *arg)
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-// Define the 'MyCalendarLoader' class that is used in the Usage example.
+// Define the `MyCalendarLoader` class that is used in the Usage example.
 
 class MyCalendarLoader : public bdlt::CalendarLoader {
 
@@ -671,17 +672,18 @@ class MyCalendarLoader : public bdlt::CalendarLoader {
 
   public:
     // CREATORS
-    MyCalendarLoader();
-        // Create a 'MyCalendarLoader' object.
 
+    /// Create a `MyCalendarLoader` object.
+    MyCalendarLoader();
+
+    /// Destroy this object.
     ~MyCalendarLoader() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
     int load(bdlt::PackedCalendar *result, const char *calendarName)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Load, into the specified 'result', the calendar identified by the
-        // specified 'calendarName'.  Return 0 on success, and a non-zero value
+        // Load, into the specified `result`, the calendar identified by the
+        // specified `calendarName`.  Return 0 on success, and a non-zero value
         // otherwise.
 };
 
@@ -748,13 +750,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -764,19 +766,19 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        if (verbose) cout << "Example 1: Using a 'bdlt::CalendarCache'"
+        if (verbose) cout << "Example 1: Using a `bdlt::CalendarCache`"
                           << endl;
         {
 ///Usage
 ///-----
-// The following example illustrates how to use a 'bdlt::CalendarCache'.
+// The following example illustrates how to use a `bdlt::CalendarCache`.
 //
-///Example 1: Using a 'bdlt::CalendarCache'
+///Example 1: Using a `bdlt::CalendarCache`
 /// - - - - - - - - - - - - - - - - - - - -
-// This example shows basic use of a 'bdlt::CalendarCache' object.
+// This example shows basic use of a `bdlt::CalendarCache` object.
 //
 // In this example, we assume a hypothetical calendar loader,
-// 'MyCalendarLoader', the details of which are not important other than that
+// `MyCalendarLoader`, the details of which are not important other than that
 // it supports calendars identified by "DE", "FR", and "US", which nominally
 // identify the major holidays in Germany, France, and the United States,
 // respectively.  Furthermore, we cite two specific dates of interest:
@@ -784,49 +786,49 @@ int main(int argc, char *argv[])
 // France, and 2011/07/14, which was a holiday in France (Bastille Day), but
 // not in the US.  Note that neither of these dates were holidays in Germany.
 //
-// First, we create a calendar loader, an instance of 'MyCalendarLoader', and
+// First, we create a calendar loader, an instance of `MyCalendarLoader`, and
 // use it, in turn, to create a cache.  For the purposes of this example, it is
 // sufficient to let the cache use the default allocator:
-//..
+// ```
     MyCalendarLoader    loader;
     bdlt::CalendarCache cache(&loader);
-//..
-// Next, we retrieve the calendar 'usA', identified by "US", verify that the
-// loading of that calendar into the cache was successful ('usA.get()' is
+// ```
+// Next, we retrieve the calendar `usA`, identified by "US", verify that the
+// loading of that calendar into the cache was successful (`usA.get()` is
 // non-null), and verify that 2011/07/04 is recognized as a holiday in the "US"
 // calendar, whereas 2011/07/14 is not:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> usA = cache.getCalendar("US");
 
                               ASSERT( usA.get());
                               ASSERT( usA->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT(!usA->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Then, we fetch the calendar identified by "FR", this time verifying that
 // 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
 // is not:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> frA = cache.getCalendar("FR");
 
                               ASSERT( frA.get());
                               ASSERT(!frA->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT( frA->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Next, we retrieve the "FR" calendar again, this time via the
-// 'lookupCalendar' accessor, and note that the request is satisfied by the
+// `lookupCalendar` accessor, and note that the request is satisfied by the
 // calendar that is already in the cache:
-//..
+// ```
     const bdlt::CalendarCache& readonlyCache = cache;
 
     bsl::shared_ptr<const bdlt::Calendar> frB =
                                             readonlyCache.lookupCalendar("FR");
 
                               ASSERT( frA.get() == frB.get());
-//..
+// ```
 // Then, we invalidate the "US" calendar in the cache and immediately fetch it
-// again.  The call to 'invalidate' removed the "US" calendar from the cache,
+// again.  The call to `invalidate` removed the "US" calendar from the cache,
 // so it had to be reloaded into the cache to satisfy the request:
-//..
+// ```
     int numInvalidated = cache.invalidate("US");
                               ASSERT(1 == numInvalidated);
 
@@ -836,9 +838,9 @@ int main(int argc, char *argv[])
                               ASSERT( usB.get());
                               ASSERT( usB->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT(!usB->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Next, all calendars in the cache are invalidated, then reloaded:
-//..
+// ```
     numInvalidated = cache.invalidateAll();
                               ASSERT(2 == numInvalidated);
 
@@ -857,11 +859,11 @@ int main(int argc, char *argv[])
                               ASSERT( frC.get());
                               ASSERT(!frC->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT( frC->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Now, verify that references to calendars that were invalidated in the cache
 // are still valid for clients that obtained references to them before they
 // were made invalid:
-//..
+// ```
                               ASSERT( usA->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT(!usA->isHoliday(bdlt::Date(2011, 7, 14)));
 
@@ -873,20 +875,20 @@ int main(int argc, char *argv[])
 
                               ASSERT(!frB->isHoliday(bdlt::Date(2011, 7,  4)));
                               ASSERT( frB->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
-// When 'usA', 'usB', 'frA', and 'frB' go out of scope, the resources used by
+// ```
+// When `usA`, `usB`, `frA`, and `frB` go out of scope, the resources used by
 // the calendars to which they refer are automatically reclaimed.
 //
-// Finally, using the 'lookupCalendar' accessor, we attempt to retrieve a
+// Finally, using the `lookupCalendar` accessor, we attempt to retrieve a
 // calendar that has not yet been loaded into the cache, but that we *know* to
-// be supported by the calendar loader.  Since the 'lookupCalendar' accessor
+// be supported by the calendar loader.  Since the `lookupCalendar` accessor
 // does not load calendars into the cache as a side-effect, the request fails:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> de =
                                             readonlyCache.lookupCalendar("DE");
 
                               ASSERT(!de.get());
-//..
+// ```
         }
 
         if (verbose) cout << "Example 2: A Calendar Cache with a Timeout"
@@ -895,9 +897,9 @@ int main(int argc, char *argv[])
 //
 ///Example 2: A Calendar Cache with a Timeout
 /// - - - - - - - - - - - - - - - - - - - - -
-// This second example shows the effects on a 'bdlt::CalendarCache' object that
+// This second example shows the effects on a `bdlt::CalendarCache` object that
 // is constructed to have a timeout value.  Note that the following snippets of
-// code assume a platform-independent 'sleepSeconds' method that sleeps for the
+// code assume a platform-independent `sleepSeconds` method that sleeps for the
 // specified number of seconds.
 //
 // First, we create a calendar loader and a calendar cache.  The cache is
@@ -905,55 +907,55 @@ int main(int argc, char *argv[])
 // is inappropriate for production use, but it is necessary for illustrating
 // the effects of a timeout in this example.  As in example 1 (above), we again
 // let the cache use the default allocator:
-//..
+// ```
     MyCalendarLoader           loader;
     bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3, 0));
     const bdlt::CalendarCache& readonlyCache = cache;
-//..
+// ```
 // Next, we retrieve the calendar identified by "DE" from the cache:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> deA = cache.getCalendar("DE");
 
                               ASSERT( deA.get());
-//..
+// ```
 // Next, we sleep for 2 seconds before retrieving the "FR" calendar:
-//..
+// ```
     sleepSeconds(2);
 
     bsl::shared_ptr<const bdlt::Calendar> frA = cache.getCalendar("FR");
 
                               ASSERT( frA.get());
-//..
+// ```
 // Next, we sleep for 2 more seconds before attempting to retrieve the "DE"
-// calendar again, this time using the 'lookupCalendar' accessor.  Since the
+// calendar again, this time using the `lookupCalendar` accessor.  Since the
 // cumulative sleep time exceeds the timeout value established for the cache
 // when it was constructed, the "DE" calendar has expired; hence, it has been
 // removed from the cache:
-//..
+// ```
     sleepSeconds(2);
 
     bsl::shared_ptr<const bdlt::Calendar> deB =
                                             readonlyCache.lookupCalendar("DE");
 
                               ASSERT(!deB.get());
-//..
+// ```
 // Next, we verify that the "FR" calendar is still available in the cache:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> frB =
                                             readonlyCache.lookupCalendar("FR");
 
                               ASSERT( frA.get() == frB.get());
-//..
+// ```
 // Finally, we sleep for an additional 2 seconds and verify that the "FR"
 // calendar has also expired:
-//..
+// ```
     sleepSeconds(2);
 
     bsl::shared_ptr<const bdlt::Calendar> frC =
                                             readonlyCache.lookupCalendar("FR");
 
                               ASSERT(!frC.get());
-//..
+// ```
         }
 
       } break;
@@ -963,16 +965,16 @@ int main(int argc, char *argv[])
         //   Ensure that all manipulators and accessors are thread-safe.
         //
         // Concerns:
-        //: 1 That all manipulators and accessors are thread-safe.
+        // 1. That all manipulators and accessors are thread-safe.
         //
         // Plan:
-        //: 1 Create two 'bslma::TestAllocator' objects; install one as the
-        //:   current default allocator and supply the other to two caches,
-        //:   one that does not have a timeout and one that does.
-        //:
-        //: 2 Within a loop, create three threads that iterate a specified
-        //:   number of times and that perform a different ("random") sequence
-        //:   of operations on the two caches from P-1.  (C-1)
+        // 1. Create two `bslma::TestAllocator` objects; install one as the
+        //    current default allocator and supply the other to two caches,
+        //    one that does not have a timeout and one that does.
+        //
+        // 2. Within a loop, create three threads that iterate a specified
+        //    number of times and that perform a different ("random") sequence
+        //    of operations on the two caches from P-1.  (C-1)
         //
         // Testing:
         //   CONCERN: All manipulators and accessors are thread-safe.
@@ -1019,14 +1021,14 @@ int main(int argc, char *argv[])
         //   Ensure that all memory allocation is exception neutral.
         //
         // Concerns:
-        //: 1 That 'getCalendar', the only method that allocates memory, is
-        //:   exception neutral.
+        // 1. That `getCalendar`, the only method that allocates memory, is
+        //    exception neutral.
         //
         // Plan:
-        //: 1 We use the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to generate
-        //:   exceptions in order to verify that there is no memory leak when
-        //:   we invoke 'getCalendar'.  (C-1)
+        // 1. We use the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros to generate
+        //    exceptions in order to verify that there is no memory leak when
+        //    we invoke `getCalendar`.  (C-1)
         //
         // Testing:
         //   CONCERN: All memory allocation is exception neutral.
@@ -1110,14 +1112,14 @@ int main(int argc, char *argv[])
                                          ASSERT(e.get());
                                          ASSERT(e->firstDate() == gFirstDate2);
 
-              // "CAL-1" is invalidated in cache by 'getCalendar' before being
+              // "CAL-1" is invalidated in cache by `getCalendar` before being
               // reloaded.
 
               e = mX.getCalendar("CAL-1");
                                          ASSERT(e.get());
                                          ASSERT(e->firstDate() == gFirstDate1);
 
-              // "CAL-2" is invalidated in cache by 'lookupCalendar'.
+              // "CAL-2" is invalidated in cache by `lookupCalendar`.
 
               e = X.lookupCalendar("CAL-2");
                                          ASSERT(!e.get());
@@ -1134,68 +1136,68 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'invalidate' AND 'invalidateAll'
-        //   Ensure that 'invalidate' and 'invalidateAll' behave as expected.
+        // `invalidate` AND `invalidateAll`
+        //   Ensure that `invalidate` and `invalidateAll` behave as expected.
         //
         // Concerns:
-        //: 1 That 'invalidate', when supplied with a string identifying a
-        //:   calendar in the cache, invalidates the named calendar and leaves
-        //:   other calendars in the cache (if any) unaffected.
-        //:
-        //: 2 That 'invalidate' has no effect if the string supplied to it does
-        //:   not identify any calendar in the cache.
-        //:
-        //: 3 That 'invalidate' returns the correct status value.
-        //:
-        //: 4 That 'invalidate' can be called on an empty cache.
-        //:
-        //: 5 That calendars that have been invalidated by 'invalidate' can be
-        //:   reloaded successfully.
-        //:
-        //: 6 That 'invalidate' is not affected by a timeout.
-        //:
-        //: 7 That 'invalidateAll' invalidates all calendars in the calendar.
-        //:
-        //: 8 That 'invalidateAll' returns the correct status value.
-        //:
-        //: 9 That calendars that have been invalidated by 'invalidateAll' can
-        //:   be reloaded successfully.
-        //:
-        //:10 That 'invalidateAll' can be called on an empty cache.
-        //:
-        //:11 That 'invalidateAll' is not affected by a timeout.
-        //:
-        //:12 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `invalidate`, when supplied with a string identifying a
+        //    calendar in the cache, invalidates the named calendar and leaves
+        //    other calendars in the cache (if any) unaffected.
+        //
+        // 2. That `invalidate` has no effect if the string supplied to it does
+        //    not identify any calendar in the cache.
+        //
+        // 3. That `invalidate` returns the correct status value.
+        //
+        // 4. That `invalidate` can be called on an empty cache.
+        //
+        // 5. That calendars that have been invalidated by `invalidate` can be
+        //    reloaded successfully.
+        //
+        // 6. That `invalidate` is not affected by a timeout.
+        //
+        // 7. That `invalidateAll` invalidates all calendars in the calendar.
+        //
+        // 8. That `invalidateAll` returns the correct status value.
+        //
+        // 9. That calendars that have been invalidated by `invalidateAll` can
+        //    be reloaded successfully.
+        //
+        // 10. That `invalidateAll` can be called on an empty cache.
+        //
+        // 11. That `invalidateAll` is not affected by a timeout.
+        //
+        // 12. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 'invalidate' is tested ad hoc as follows: (C-1..6)
-        //:
-        //:   1 'invalidate' is called on an empty cache that has no timeout.
-        //:     (C-4)
-        //:
-        //:   2 "CAL-1" is loaded into the cache, then 'invalidate' is called
-        //:     with strings slightly different from "CAL-1".  (C-2)
-        //:
-        //:   3 'invalidate' is called with "CAL-1".
-        //:
-        //:   4 "CAL-1" and "CAL-2" are loaded into the cache (reloaded in the
-        //:     case of "CAL-1") and each is invalidated in turn.  (C-1, C-3,
-        //:     C-5)
-        //:
-        //:   5 P-1.1..4 is repeated on a cache that has a timeout.  (C-6)
-        //:
-        //: 2 'invalidateAll' is tested ad hoc as follows: (C-7..11)
-        //:
-        //:   1 'invalidateAll' is called on an empty cache that has no
-        //:     timeout.  (C-10)
-        //:
-        //:   2 'invalidateAll' is successively called on the cache after it
-        //:     has been loaded with one, two, and three calendars.  (C-7..9)
-        //:
-        //:   3 P-2.1..2 is repeated on a cache that has a timeout.  (C-11)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-12)
+        // 1. `invalidate` is tested ad hoc as follows: (C-1..6)
+        //
+        //   1. `invalidate` is called on an empty cache that has no timeout.
+        //      (C-4)
+        //
+        //   2. "CAL-1" is loaded into the cache, then `invalidate` is called
+        //      with strings slightly different from "CAL-1".  (C-2)
+        //
+        //   3. `invalidate` is called with "CAL-1".
+        //
+        //   4. "CAL-1" and "CAL-2" are loaded into the cache (reloaded in the
+        //      case of "CAL-1") and each is invalidated in turn.  (C-1, C-3,
+        //      C-5)
+        //
+        //   5. P-1.1..4 is repeated on a cache that has a timeout.  (C-6)
+        //
+        // 2. `invalidateAll` is tested ad hoc as follows: (C-7..11)
+        //
+        //   1. `invalidateAll` is called on an empty cache that has no
+        //      timeout.  (C-10)
+        //
+        //   2. `invalidateAll` is successively called on the cache after it
+        //      has been loaded with one, two, and three calendars.  (C-7..9)
+        //
+        //   3. P-2.1..2 is repeated on a cache that has a timeout.  (C-11)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-12)
         //
         // Testing:
         //   int invalidate(const char *name);
@@ -1203,10 +1205,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'invalidate' AND 'invalidateAll'" << endl
+                          << "`invalidate` AND `invalidateAll`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'invalidate' (w/o timeout)." << endl;
+        if (verbose) cout << "\nTesting `invalidate` (w/o timeout)." << endl;
         {
             TestLoader loader;
 
@@ -1220,7 +1222,7 @@ int main(int argc, char *argv[])
             Entry e;
             int   rc;
 
-            // Call 'invalidate' on an empty cache.
+            // Call `invalidate` on an empty cache.
 
             rc = mX.invalidate("x");         ASSERT(0 == rc);
 
@@ -1255,7 +1257,7 @@ int main(int argc, char *argv[])
             rc = mX.invalidate("CAL-2");     ASSERT(0 == rc);
         }
 
-        if (verbose) cout << "\nTesting 'invalidate' (with timeout)." << endl;
+        if (verbose) cout << "\nTesting `invalidate` (with timeout)." << endl;
         {
             TestLoader loader;
 
@@ -1269,7 +1271,7 @@ int main(int argc, char *argv[])
             Entry e;
             int   rc;
 
-            // Call 'invalidate' on an empty cache.
+            // Call `invalidate` on an empty cache.
 
             rc = mX.invalidate("x");         ASSERT(0 == rc);
 
@@ -1304,7 +1306,7 @@ int main(int argc, char *argv[])
             rc = mX.invalidate("CAL-2");     ASSERT(0 == rc);
         }
 
-        if (verbose) cout << "\nTesting 'invalidateAll' (w/o timeout)."
+        if (verbose) cout << "\nTesting `invalidateAll` (w/o timeout)."
                           << endl;
         {
             TestLoader loader;
@@ -1319,7 +1321,7 @@ int main(int argc, char *argv[])
             Entry e;
             int   rc;
 
-            // Call 'invalidateAll' on an empty cache.
+            // Call `invalidateAll` on an empty cache.
 
             rc = mX.invalidateAll();         ASSERT(0 == rc);
 
@@ -1354,7 +1356,7 @@ int main(int argc, char *argv[])
             e  = X.lookupCalendar("CAL-3");  ASSERT(!e.get());
         }
 
-        if (verbose) cout << "\nTesting 'invalidateAll' (with timeout)."
+        if (verbose) cout << "\nTesting `invalidateAll` (with timeout)."
                           << endl;
         {
             TestLoader loader;
@@ -1369,7 +1371,7 @@ int main(int argc, char *argv[])
             Entry e;
             int   rc;
 
-            // Call 'invalidateAll' on an empty cache.
+            // Call `invalidateAll` on an empty cache.
 
             rc = mX.invalidateAll();         ASSERT(0 == rc);
 
@@ -1423,101 +1425,101 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'
-        //   Ensure that 'getCalendar', 'lookupCalendar', and 'lookupLoadTime'
+        // `getCalendar`, `lookupCalendar`, AND `lookupLoadTime`
+        //   Ensure that `getCalendar`, `lookupCalendar`, and `lookupLoadTime`
         //   behave as expected in the absence of exceptions (exception
         //   neutrality is tested in a later test case).
         //
         // Concerns:
-        //: 1 That 'getCalendar', when supplied with a string not recognized
-        //:   by the loader, returns null.
-        //:
-        //: 2 That 'getCalendar', when supplied with a string identifying a
-        //:   calendar recognized by the loader that is NOT present in the
-        //:   cache, loads the specified calendar into the cache and returns a
-        //:   reference to that calendar.
-        //:
-        //: 3 That 'getCalendar', when supplied with a string identifying a
-        //:   calendar recognized by the loader that IS present in the cache
-        //:   and has NOT expired, returns a reference to that calendar.
-        //:
-        //: 4 That 'getCalendar', when supplied with a string identifying a
-        //:   calendar recognized by the loader that IS present in the cache
-        //:   but HAS expired, reloads the specified calendar into the cache
-        //:   and returns a reference to that (newly-loaded) calendar.
-        //:
-        //: 5 That 'getCalendar' allocates memory if and only if it loads a
-        //:   calendar into the cache.
-        //:
-        //: 6 That 'lookupCalendar', when supplied with a string not
-        //:   identifying a calendar present in the cache, returns null.
-        //:
-        //: 7 That 'lookupCalendar', when supplied with a string identifying a
-        //:   calendar present in the cache that has NOT expired, returns a
-        //:   reference to that calendar.
-        //:
-        //: 8 That 'lookupCalendar', when supplied with a string identifying a
-        //:   calendar present in the cache that HAS expired, returns null.
-        //:
-        //: 9 That 'lookupCalendar' allocates no memory from any allocator.
-        //:
-        //:10 That both 'getCalendar' and 'lookupCalendar' return pointers
-        //:   providing non-modifiable access (only).
-        //:
-        //:11 That 'lookupLoadTime', when supplied with a string not
-        //:   identifying a calendar present in the cache, returns
-        //:   'Datetime()'.
-        //:
-        //:12 That 'lookupLoadTime', when supplied with a string identifying a
-        //:   calendar present in the cache that has NOT expired, returns the
-        //:   the time at which that calendar was loaded.
-        //:
-        //:13 That 'lookupLoadTime', when supplied with a string identifying a
-        //:   calendar present in the cache that HAS expired, returns
-        //:   'Datetime()'.
-        //:
-        //:14 That 'lookupLoadTime' allocates no memory from any allocator.
-        //:
-        //:15 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `getCalendar`, when supplied with a string not recognized
+        //    by the loader, returns null.
+        //
+        // 2. That `getCalendar`, when supplied with a string identifying a
+        //    calendar recognized by the loader that is NOT present in the
+        //    cache, loads the specified calendar into the cache and returns a
+        //    reference to that calendar.
+        //
+        // 3. That `getCalendar`, when supplied with a string identifying a
+        //    calendar recognized by the loader that IS present in the cache
+        //    and has NOT expired, returns a reference to that calendar.
+        //
+        // 4. That `getCalendar`, when supplied with a string identifying a
+        //    calendar recognized by the loader that IS present in the cache
+        //    but HAS expired, reloads the specified calendar into the cache
+        //    and returns a reference to that (newly-loaded) calendar.
+        //
+        // 5. That `getCalendar` allocates memory if and only if it loads a
+        //    calendar into the cache.
+        //
+        // 6. That `lookupCalendar`, when supplied with a string not
+        //    identifying a calendar present in the cache, returns null.
+        //
+        // 7. That `lookupCalendar`, when supplied with a string identifying a
+        //    calendar present in the cache that has NOT expired, returns a
+        //    reference to that calendar.
+        //
+        // 8. That `lookupCalendar`, when supplied with a string identifying a
+        //    calendar present in the cache that HAS expired, returns null.
+        //
+        // 9. That `lookupCalendar` allocates no memory from any allocator.
+        //
+        // 10. That both `getCalendar` and `lookupCalendar` return pointers
+        //    providing non-modifiable access (only).
+        //
+        // 11. That `lookupLoadTime`, when supplied with a string not
+        //    identifying a calendar present in the cache, returns
+        //    `Datetime()`.
+        //
+        // 12. That `lookupLoadTime`, when supplied with a string identifying a
+        //    calendar present in the cache that has NOT expired, returns the
+        //    the time at which that calendar was loaded.
+        //
+        // 13. That `lookupLoadTime`, when supplied with a string identifying a
+        //    calendar present in the cache that HAS expired, returns
+        //    `Datetime()`.
+        //
+        // 14. That `lookupLoadTime` allocates no memory from any allocator.
+        //
+        // 15. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are tested
-        //:   ad hoc, using a cache with no timeout, as follows:
-        //:
-        //:   1 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
-        //:     called with various strings on the initially empty cache.
-        //:     (C-1, C-6, C-11)
-        //:
-        //:   2 Using 'getCalendar', the "CAL-1" calendar is loaded into the
-        //:     cache, then 'getCalendar', 'lookupCalendar', and
-        //:     'lookupLoadTime' are called with various strings.
-        //:
-        //:   3 A second calendar, "CAL-2", is loaded into the cache, and
-        //:     'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
-        //:     again called with various strings.  (C-2)
-        //:
-        //:   4 Verify that 'getCalendar' and 'lookupCalendar' return pointers
-        //:     providing non-modifiable access (only).  (C-10)
-        //:
-        //: 2 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
-        //:    further tested ad hoc, using a cache with a 1-second timeout,
-        //:    as follows:
-        //:
-        //:   1 Calendars "CAL-1" and "CAL-2" are loaded into the cache, then
-        //:     'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are used
-        //:     to verify that the calendars have not yet expired.  (C-3, C-7,
-        //:     C-12).
-        //:
-        //:   2 Sleep for 2 seconds.
-        //:
-        //:   3 'lookupCalendar' and 'lookupLoadTime' are used to verify that
-        //:     "CAL-1" has expired (null/'Datetime()' is returned);
-        //:     'getCalendar' is used to verify that "CAL-2" has expired
-        //:     ("CAL-2" is reloaded into the cache).  (C-4, C-5, C-8, C-9,
-        //:     C-13, C-14).
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-15)
+        // 1. `getCalendar`, `lookupCalendar`, and `lookupLoadTime` are tested
+        //    ad hoc, using a cache with no timeout, as follows:
+        //
+        //   1. `getCalendar`, `lookupCalendar`, and `lookupLoadTime` are
+        //      called with various strings on the initially empty cache.
+        //      (C-1, C-6, C-11)
+        //
+        //   2. Using `getCalendar`, the "CAL-1" calendar is loaded into the
+        //      cache, then `getCalendar`, `lookupCalendar`, and
+        //      `lookupLoadTime` are called with various strings.
+        //
+        //   3. A second calendar, "CAL-2", is loaded into the cache, and
+        //      `getCalendar`, `lookupCalendar`, and `lookupLoadTime` are
+        //      again called with various strings.  (C-2)
+        //
+        //   4. Verify that `getCalendar` and `lookupCalendar` return pointers
+        //      providing non-modifiable access (only).  (C-10)
+        //
+        // 2. `getCalendar`, `lookupCalendar`, and `lookupLoadTime` are
+        //     further tested ad hoc, using a cache with a 1-second timeout,
+        //     as follows:
+        //
+        //   1. Calendars "CAL-1" and "CAL-2" are loaded into the cache, then
+        //      `getCalendar`, `lookupCalendar`, and `lookupLoadTime` are used
+        //      to verify that the calendars have not yet expired.  (C-3, C-7,
+        //      C-12).
+        //
+        //   2. Sleep for 2 seconds.
+        //
+        //   3. `lookupCalendar` and `lookupLoadTime` are used to verify that
+        //      "CAL-1" has expired (null/`Datetime()` is returned);
+        //      `getCalendar` is used to verify that "CAL-2" has expired
+        //      ("CAL-2" is reloaded into the cache).  (C-4, C-5, C-8, C-9,
+        //      C-13, C-14).
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-15)
         //
         // Testing:
         //   shared_ptr<const Calendar> getCalendar(const char *name);
@@ -1527,7 +1529,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'"
+                 << "`getCalendar`, `lookupCalendar`, AND `lookupLoadTime`"
                  << endl
                  << "====================================================="
                  << endl;
@@ -1780,68 +1782,68 @@ int main(int argc, char *argv[])
         //   all memory.
         //
         // Concerns:
-        //: 1 The cache uses the loader supplied at construction.
-        //:
-        //: 2 If a timeout is NOT supplied at construction, calendars do not
-        //:   expire from the cache.
-        //:
-        //: 3 If a timeout IS supplied at construction, calendars expire from
-        //:   the cache per the specified timeout.
-        //:
-        //: 4 If an allocator is NOT supplied at construction, the default
-        //:   allocator in effect at the time of construction becomes the
-        //:   object allocator for the resulting cache.
-        //:
-        //: 5 If an allocator IS supplied at construction, that allocator
-        //:   becomes the object allocator for the resulting cache.
-        //:
-        //: 6 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 7 No memory is allocated from any allocator during construction.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The cache uses the loader supplied at construction.
+        //
+        // 2. If a timeout is NOT supplied at construction, calendars do not
+        //    expire from the cache.
+        //
+        // 3. If a timeout IS supplied at construction, calendars expire from
+        //    the cache per the specified timeout.
+        //
+        // 4. If an allocator is NOT supplied at construction, the default
+        //    allocator in effect at the time of construction becomes the
+        //    object allocator for the resulting cache.
+        //
+        // 5. If an allocator IS supplied at construction, that allocator
+        //    becomes the object allocator for the resulting cache.
+        //
+        // 6. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 7. No memory is allocated from any allocator during construction.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using a loop-based approach, construct three distinct objects
-        //:   without a timeout, in turn, but configured differently: (a)
-        //:   without passing an allocator, (b) passing a null allocator
-        //:   address explicitly, and (c) passing the address of a test
-        //:   allocator distinct from the default.  For each of these three
-        //:   iterations: (C-1..2, C-4..8)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the two-argument constructor to dynamically create an
-        //:     object, 'mX', with its object allocator configured
-        //:     appropriately (see P-1); use a distinct test allocator for the
-        //:     object's footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the constructor.  (C-7)
-        //:
-        //:   4 Use the (as yet unproven) 'getCalendar' manipulator to load a
-        //:     a calendar into 'mX'; verify that the calendar loader supplied
-        //:     at construction is used and that use of the object and default
-        //:     allocators are as expected.  (C-1, C4..6)
-        //:
-        //:   5 Use the (as yet unproven) 'lookupCalendar' accessor to verify
-        //:     that a timeout is not in effect (see the TEST PLAN regarding
-        //:     timeout testing).  (C-2)
-        //:
-        //:   6 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
-        //:
-        //: 2 Repeat P-1, but this time using the three-argument constructor
-        //:   to supply a timeout (P-1.2), and using 'getCalendar' instead of
-        //:   'lookupCalendar' to reload the calendar (P-1.5).  (C-1, C-3..8)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-9)
+        // 1. Using a loop-based approach, construct three distinct objects
+        //    without a timeout, in turn, but configured differently: (a)
+        //    without passing an allocator, (b) passing a null allocator
+        //    address explicitly, and (c) passing the address of a test
+        //    allocator distinct from the default.  For each of these three
+        //    iterations: (C-1..2, C-4..8)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the two-argument constructor to dynamically create an
+        //      object, `mX`, with its object allocator configured
+        //      appropriately (see P-1); use a distinct test allocator for the
+        //      object's footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the constructor.  (C-7)
+        //
+        //   4. Use the (as yet unproven) `getCalendar` manipulator to load a
+        //      a calendar into `mX`; verify that the calendar loader supplied
+        //      at construction is used and that use of the object and default
+        //      allocators are as expected.  (C-1, C4..6)
+        //
+        //   5. Use the (as yet unproven) `lookupCalendar` accessor to verify
+        //      that a timeout is not in effect (see the TEST PLAN regarding
+        //      timeout testing).  (C-2)
+        //
+        //   6. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
+        //
+        // 2. Repeat P-1, but this time using the three-argument constructor
+        //    to supply a timeout (P-1.2), and using `getCalendar` instead of
+        //    `lookupCalendar` to reload the calendar (P-1.5).  (C-1, C-3..8)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-9)
         //
         // Testing:
         //   CalendarCache(Loader *loader,          Allocator *ba = 0);
@@ -2071,29 +2073,29 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a calendar cache 'mX'.
-        //:
-        //: 2 Load "CAL-1" into 'mX' with 'Entry' 'e1' referring to "CAL-1".
-        //:
-        //: 3 Create 'Entry' 'e2' as a copy of 'e1'.
-        //:
-        //: 4 Let 'e2' go out of scope.
-        //:
-        //: 5 Let 'e1' go out of scope.
-        //:
-        //: 6 Look up "CAL-1" in the cache.
-        //:
-        //: 7 Invalidate "CAL-1" in the cache.
-        //:
-        //: 8 Verify "CAL-1" is no longer present in the cache.
-        //:
-        //: 9 Reload "CAL-1" into the cache.
-        //:
-        //:10 Let 'mX' go out of scope.
+        // 1. Create a calendar cache `mX`.
+        //
+        // 2. Load "CAL-1" into `mX` with `Entry` `e1` referring to "CAL-1".
+        //
+        // 3. Create `Entry` `e2` as a copy of `e1`.
+        //
+        // 4. Let `e2` go out of scope.
+        //
+        // 5. Let `e1` go out of scope.
+        //
+        // 6. Look up "CAL-1" in the cache.
+        //
+        // 7. Invalidate "CAL-1" in the cache.
+        //
+        // 8. Verify "CAL-1" is no longer present in the cache.
+        //
+        // 9. Reload "CAL-1" into the cache.
+        //
+        // 10. Let `mX` go out of scope.
         //
         // Testing:
         //   BREATHING TEST
@@ -2121,7 +2123,7 @@ int main(int argc, char *argv[])
         bsls::Types::Int64 saLastNumBlocksTotal, saLastNumBlocksInUse;
 
         {
-            // 1 Create a calendar cache 'mX'.
+            // 1 Create a calendar cache `mX`.
 
             Obj mX(&loader, &sa);  const Obj& X = mX;
 
@@ -2129,7 +2131,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
 
             {
-                // 2 Load "CAL-1" into 'mX' with 'Entry' 'e1' referring to
+                // 2 Load "CAL-1" into `mX` with `Entry` `e1` referring to
                 //   "CAL-1".
 
                 Entry e1 = mX.getCalendar("CAL-1");
@@ -2145,7 +2147,7 @@ int main(int argc, char *argv[])
                 saLastNumBlocksInUse = sa.numBlocksInUse();
 
                 {
-                    // 3 Create 'Entry' 'e2' as a copy of 'e1'.
+                    // 3 Create `Entry` `e2` as a copy of `e1`.
 
                     Entry e2(e1);
 
@@ -2157,7 +2159,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
                                  saLastNumBlocksTotal == sa.numBlocksTotal());
                 }
-                // 4 Let 'e2' go out of scope.
+                // 4 Let `e2` go out of scope.
 
                 ASSERT(e1->firstDate() == gFirstDate1);
 
@@ -2168,7 +2170,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
                              saLastNumBlocksInUse == sa.numBlocksInUse());
             }
-            // 5 Let 'e1' go out of scope.
+            // 5 Let `e1` go out of scope.
 
             LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
                          daLastNumBlocksTotal == da.numBlocksTotal());
@@ -2226,7 +2228,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(saLastNumBlocksInUse, sa.numBlocksInUse(),
                          saLastNumBlocksInUse < sa.numBlocksInUse());
         }
-        // 10 Let 'mX' go out of scope.
+        // 10 Let `mX` go out of scope.
 
         LOOP_ASSERT(da.numBlocksInUse(), 0 == da.numBlocksInUse());
         LOOP_ASSERT(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
@@ -2238,25 +2240,25 @@ int main(int argc, char *argv[])
         //   Ensure that a non-trivial timeout is processed correctly.
         //
         // Concerns:
-        //: 1 A cache having a timeout greater than 20 seconds correctly
-        //:   expires its entries.
+        // 1. A cache having a timeout greater than 20 seconds correctly
+        //    expires its entries.
         //
         // Plan:
-        //: 1 Create a cache with a timeout of greater than 20 seconds.
-        //:
-        //: 2 Use the 'getCalendar' method to load a calendar into the cache.
-        //:
-        //: 3 Wait a period significantly less than the timeout and use the
-        //:   'lookupCalendar' method to retrieve the calendar loaded in P-1.
-        //:   Verify that the calendar was successfully retrieved.
-        //:
-        //: 4 Wait another period so that the cumulative waiting time for P-2
-        //:   and P-3 is greater than the timeout of the cache.  Again use the
-        //:   'lookupCalendar' method to retrieve the calendar loaded in P-1,
-        //:   and verify that the calendar is no longer in the cache.
-        //:
-        //: 5 Repeat P-1..4, but this time use the 'getCalendar' method to
-        //:   observe the effects of a timeout.  (C-1)
+        // 1. Create a cache with a timeout of greater than 20 seconds.
+        //
+        // 2. Use the `getCalendar` method to load a calendar into the cache.
+        //
+        // 3. Wait a period significantly less than the timeout and use the
+        //    `lookupCalendar` method to retrieve the calendar loaded in P-1.
+        //    Verify that the calendar was successfully retrieved.
+        //
+        // 4. Wait another period so that the cumulative waiting time for P-2
+        //    and P-3 is greater than the timeout of the cache.  Again use the
+        //    `lookupCalendar` method to retrieve the calendar loaded in P-1,
+        //    and verify that the calendar is no longer in the cache.
+        //
+        // 5. Repeat P-1..4, but this time use the `getCalendar` method to
+        //    observe the effects of a timeout.  (C-1)
         //
         // Testing:
         //   CONCERN: A non-trivial timeout is processed correctly.
@@ -2272,7 +2274,7 @@ int main(int argc, char *argv[])
 
         Obj mX(&loader, Interval(30, 0), &sa);  const Obj& X = mX;
 
-        // Observe effects of timeout via 'lookupCalendar' method.
+        // Observe effects of timeout via `lookupCalendar` method.
         {
             Entry e;
 
@@ -2287,7 +2289,7 @@ int main(int argc, char *argv[])
             e = X.lookupCalendar("CAL-1");       ASSERT(!e.get());
         }
 
-        // Observe effects of timeout via 'getCalendar' method.
+        // Observe effects of timeout via `getCalendar` method.
         {
             Entry e1 = mX.getCalendar("CAL-1");  ASSERT(e1.get());
 

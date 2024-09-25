@@ -24,7 +24,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component is a utility operating on 'bldb::IndexSpan' and string
+// This component is a utility operating on `bldb::IndexSpan` and string
 // objects.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -135,14 +135,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -151,34 +151,34 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
 
-///Example 1: Creating 'IndexSpan' Objects Safely
+///Example 1: Creating `IndexSpan` Objects Safely
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we are creating a parser, and we want the results of the
-// parsing to be stored in 'IndexSpan' objects.  The parser will have either a
+// parsing to be stored in `IndexSpan` objects.  The parser will have either a
 // pointer (or "begin" iterator) into the original string input and then
 // another pointer (or iterator) or a length to identify the end of the input.
-// Turning the beginning and ending identifiers into an 'IndexSpan' is a simple
+// Turning the beginning and ending identifiers into an `IndexSpan` is a simple
 // calculation, but one that is verbose and potentially error prone.  Instead
 // of implementing the calculation ourselves we use the convenience function
-// 'create' from 'IndexSpanStringUtil'.
+// `create` from `IndexSpanStringUtil`.
 //
 // First, we define a string that we want to parse:
-//..
+// ```
     const bsl::string full("James Tiberius Kirk");
-//..
+// ```
 // Then, we implement the parsing of the first name:
-//..
+// ```
     typedef bsl::string::const_iterator Cit;
     Cit it = bsl::find(full.begin(), full.end(), ' ');
     // Error checking omitted since we know the string
     bdlb::IndexSpan first = bdlb::IndexSpanStringUtil::create(full,
                                                               full.begin(),
                                                               it);
-//..
+// ```
 // Next, we implement the parsing of the middle name, this time using length,
-// rather than an end iterator (demonstrating an alternative 'create' overload
-// provided by 'IndexSpanStringUtil'):
-//..
+// rather than an end iterator (demonstrating an alternative `create` overload
+// provided by `IndexSpanStringUtil`):
+// ```
     ++it;  // Skip the space
     Cit it2 = bsl::find(it, full.end(), ' ');
     bdlb::IndexSpan middle;
@@ -186,55 +186,55 @@ int main(int argc, char *argv[])
         middle = bdlb::IndexSpanStringUtil::create(full, it, it2 - it);
         it = it2 + 1;
     }
-//..
-// Then, we create the 'IndexSpan' for the last name, using two positions:
-//..
+// ```
+// Then, we create the `IndexSpan` for the last name, using two positions:
+// ```
     bdlb::IndexSpan last = bdlb::IndexSpanStringUtil::createFromPositions(
                                                              full,
                                                              it - full.begin(),
                                                              full.length());
-//..
-// Finally, we verify that the resulting 'IndexSpan' objects correctly describe
-// the parsed names of the 'full' name:
-//..
+// ```
+// Finally, we verify that the resulting `IndexSpan` objects correctly describe
+// the parsed names of the `full` name:
+// ```
     ASSERT(full.substr(first.position(), first.length()) == "James");
 
     ASSERT(full.substr(middle.position(), middle.length()) == "Tiberius");
 
     ASSERT(full.substr(last.position(), last.length()) == "Kirk");
-//..
+// ```
 //
 ///Example 2: Creating String References
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose that we have 'IndexSpan' objects that define the 'first', 'middle',
-// and 'last' part of a string that has a full name in it and we want to get
+// Suppose that we have `IndexSpan` objects that define the `first`, `middle`,
+// and `last` part of a string that has a full name in it and we want to get
 // actual string references that correspond to those parts of the string.  The
-// 'bind' functions of 'IndexSpanStringUtil' provide that functionality.  The
-// 'bind' functions return a 'StringRef' into the original string (so the
+// `bind` functions of `IndexSpanStringUtil` provide that functionality.  The
+// `bind` functions return a `StringRef` into the original string (so the
 // characters of the string are not copied).  Note that this example builds on
 // Example 1.
 //
-// First, we define a string reference of the parsed string to show that 'bind'
+// First, we define a string reference of the parsed string to show that `bind`
 // works both on strings and string references:
-//..
+// ```
     const bsl::string_view full_view(full);
-//..
-// Then we demonstrate binding 'IndexSpan' object to that reference:
-//..
+// ```
+// Then we demonstrate binding `IndexSpan` object to that reference:
+// ```
     ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, first) == "James");
 
     ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, middle) == "Tiberius");
 
     ASSERT(bdlb::IndexSpanStringUtil::bind(full_view, last) == "Kirk");
-//..
-// Finally we demonstrate binding 'IndexSpan' object to a string:
-//..
+// ```
+// Finally we demonstrate binding `IndexSpan` object to a string:
+// ```
     ASSERT(bdlb::IndexSpanStringUtil::bind(full, first) == "James");
 
     ASSERT(bdlb::IndexSpanStringUtil::bind(full, middle) == "Tiberius");
 
     ASSERT(bdlb::IndexSpanStringUtil::bind(full, last) == "Kirk");
-//..
+// ```
       } break;
 
       case 3: {
@@ -242,31 +242,31 @@ int main(int argc, char *argv[])
         // TESTING CREATE
         //
         // Concerns:
-        //: 1 Calls create the expected 'IndexSpan' values.
-        //:
-        //: 2 Bad arguments assert in the proper build mode.
-        //:
-        //: 3 All functions are callable with 'const' references to
-        //:   'bsl::string_view', 'bslstl::StringRef', 'bsl::string',
-        //:   'std::string', and 'std::pmr::string' objects as first argument,
-        //:   as well as their wide equivalents.
+        // 1. Calls create the expected `IndexSpan` values.
+        //
+        // 2. Bad arguments assert in the proper build mode.
+        //
+        // 3. All functions are callable with `const` references to
+        //    `bsl::string_view`, `bslstl::StringRef`, `bsl::string`,
+        //    `std::string`, and `std::pmr::string` objects as first argument,
+        //    as well as their wide equivalents.
         //
         // Plan:
-        //: 1 Use table based testing for both good and bad (invalid
-        //:   precondition) calls.
-        //:
-        //: 2 Test all overloads of 'create', as well as 'createFromPositions'
-        //:   for all rows of the tables.
-        //:
-        //: 3 Test both wide and narrow character versions.
-        //:
-        //: 4 Separately verify that too low 'begin' for 'create' with
-        //:   'bsl::string_view' and 'bslstl::StringRef' inputs asserts.  Note
-        //:   that too low begin position or iterator cannot be tested with a
-        //:   'bsl::string', 'std::string', or 'std::pmr::string' input as we
-        //:   cannot create a valid iterator', or even a 'StringRef', that
-        //:   would point into the same allocated memory area (as required by
-        //:   the C++ standard) and has a lower begin value than 'begin()'.
+        // 1. Use table based testing for both good and bad (invalid
+        //    precondition) calls.
+        //
+        // 2. Test all overloads of `create`, as well as `createFromPositions`
+        //    for all rows of the tables.
+        //
+        // 3. Test both wide and narrow character versions.
+        //
+        // 4. Separately verify that too low `begin` for `create` with
+        //    `bsl::string_view` and `bslstl::StringRef` inputs asserts.  Note
+        //    that too low begin position or iterator cannot be tested with a
+        //    `bsl::string`, `std::string`, or `std::pmr::string` input as we
+        //    cannot create a valid iterator', or even a `StringRef`, that
+        //    would point into the same allocated memory area (as required by
+        //    the C++ standard) and has a lower begin value than `begin()`.
         //
         // Testing:
         //   IndexSpan createFromPositions([w]string, pos, end);
@@ -747,7 +747,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BDLB_INDEXSPANSTRINGUTIL_DEBUGGING_NATIVE_STRING_VIEW_ITERATORS
-        if (verbose)  cout << "Testing assertions with too low 'begin'.\n";
+        if (verbose)  cout << "Testing assertions with too low `begin`.\n";
         {
             bslstl::StringRef string("0123456789");
             bslstl::StringRef input = bdlb::StringRefUtil::substr(string, 1);
@@ -818,45 +818,45 @@ int main(int argc, char *argv[])
         // TESTING BIND
         //
         // Concerns:
-        //: 1 Return value references the proper substring.
-        //:
-        //: 2 Return value references a substring of the passed in string.
-        //:
-        //: 3 If the specified span does not fit into the specified string an
-        //:   assertion is raised (if the build mode calls for it).
-        //:
-        //: 4 'bind' can be called with 'bsl::string', 'bsl::string_view',
-        //:    'bslstl::StringRef', 'std::string', and 'std::pmr::string'
-        //:    first argument.
-        //:
-        //: 5 'bind' result can be assigned to 'bslstl::StringRef', or
-        //:   'const bslstl::StringRef&', 'bsl::string' variable.
-        //:
-        //: 6 'bind' result can initialize a 'bslstl::StringRef', or
-        //:   'const bslstl::StringRef&', 'bsl::string' variable.
-        //:
-        //: 7 When 'bsl::string_view' is an alias to the native
-        //:   'std::string_view' the result of 'bind' can direct-initialize a
-        //:   'std::string', or 'std::pmr::string' variable.
+        // 1. Return value references the proper substring.
+        //
+        // 2. Return value references a substring of the passed in string.
+        //
+        // 3. If the specified span does not fit into the specified string an
+        //    assertion is raised (if the build mode calls for it).
+        //
+        // 4. `bind` can be called with `bsl::string`, `bsl::string_view`,
+        //     `bslstl::StringRef`, `std::string`, and `std::pmr::string`
+        //     first argument.
+        //
+        // 5. `bind` result can be assigned to `bslstl::StringRef`, or
+        //    `const bslstl::StringRef&`, `bsl::string` variable.
+        //
+        // 6. `bind` result can initialize a `bslstl::StringRef`, or
+        //    `const bslstl::StringRef&`, `bsl::string` variable.
+        //
+        // 7. When `bsl::string_view` is an alias to the native
+        //    `std::string_view` the result of `bind` can direct-initialize a
+        //    `std::string`, or `std::pmr::string` variable.
         //
         // Plan:
-        //: 1 Table based testing with values that test
-        //:
-        //:   1 Valid and invalid substrings of an empty string
-        //:
-        //:   2 Valid substrings of a string
-        //:
-        //:   3 Boundary substrings at the beginning and the end of the string
-        //:
-        //:   4 Spans that does not define a valid substring
-        //:
-        //:   5 The same calls with all possible combinations of first argument
-        //:     and results types both with initialization and assignment
-        //:
-        //:   6 Test all with assigning result to 'StringRef' and 'const' ref
-        //:
-        //:   7 Verify 'StringRef' results are identical
-        //:
+        // 1. Table based testing with values that test
+        //
+        //   1. Valid and invalid substrings of an empty string
+        //
+        //   2. Valid substrings of a string
+        //
+        //   3. Boundary substrings at the beginning and the end of the string
+        //
+        //   4. Spans that does not define a valid substring
+        //
+        //   5. The same calls with all possible combinations of first argument
+        //      and results types both with initialization and assignment
+        //
+        //   6. Test all with assigning result to `StringRef` and `const` ref
+        //
+        //   7. Verify `StringRef` results are identical
+        //
         //
         // Testing:
         //   bsl::[w]string_view bind([w]string, span);
@@ -1331,11 +1331,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call the utility functions to verify their existence and basics.
+        // 1. Call the utility functions to verify their existence and basics.
         //
         // Testing:
         //   BREATHING TEST

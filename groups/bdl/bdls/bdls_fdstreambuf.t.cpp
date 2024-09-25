@@ -109,7 +109,7 @@ const int mask17 = 1 << 17;
 const int mask6  = 1 << 6;
 
 static bdls::FilesystemUtil::FileDescriptor invalid;    // Initialized at start
-                                                        // of 'main'.
+                                                        // of `main`.
 
 void seedRandChar(int i)
 {
@@ -126,7 +126,7 @@ char randChar()
     return (char) (accum & 0xff);
 }
 
-// can't use 'random()' because it does not exist on Windows
+// can't use `random()` because it does not exist on Windows
 
 int randInt()
 {
@@ -137,9 +137,9 @@ int randInt()
     return (accum & 0xffff0000) | lo;
 }
 
+/// Given the specified `string` without CRs, calculate the length it would
+/// be if the NLs were translated to CRNLs.
 int diskLength(const char *string)
-    // Given the specified 'string' without CRs, calculate the length it would
-    // be if the NLs were translated to CRNLs.
 {
     if (e_WINDOWS) {
         IntPtr unixLen = bsl::strlen(string);
@@ -201,11 +201,11 @@ int digits(bsls::Types::Int64 n)
     return 0;
 }
 
+/// The purpose of this allocator is to reproduce an intermittent bug
+/// reported in DRQS 137573159 where a read of a byte one past the end of
+/// buffer occurs, and if that bytes contains ^Z (26), the streambuf will
+/// mistakenly conclude that it encountered EOF.
 class CtrlZAllocator : public bslma::TestAllocator {
-    // The purpose of this allocator is to reproduce an intermittent bug
-    // reported in DRQS 137573159 where a read of a byte one past the end of
-    // buffer occurs, and if that bytes contains ^Z (26), the streambuf will
-    // mistakenly conclude that it encountered EOF.
 
     typedef bslma::TestAllocator BaseAllocator;
 
@@ -226,8 +226,8 @@ class CtrlZAllocator : public bslma::TestAllocator {
     }
 };
 
+/// Do a null seek, making sure that
 static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
-    // Do a null seek, making sure that
 {
     enum { CUR = FileUtil::e_SEEK_FROM_CURRENT };
 
@@ -254,8 +254,8 @@ bsl::string printableString(const bsl::string& str,
                             bsl::size_t        start,
                             bsl::size_t        len)
 {
-    // Return a string containing the first specified 'len' characters of the
-    // specified 'str', with carriage returns translated to "\\r" and newlines
+    // Return a string containing the first specified `len` characters of the
+    // specified `str`, with carriage returns translated to "\\r" and newlines
     // translated to "\\n" to facilitate human readability.
 
     len = str.length() > start + len ? bsl::min<size_t>(str.length() - start,
@@ -277,9 +277,9 @@ bsl::string printableString(const bsl::string& str,
     return ret;
 }
 
+/// Return the length of the specified `str`, as an `int`.
 inline
 int intStrLen(const char *str)
-    // Return the length of the specified 'str', as an 'int'.
 {
     return static_cast<int>(bsl::strlen(str));
 }
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 
     u::invalid = bdls::FilesystemUtil::k_INVALID_FD;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Demonstrate reading, writing, and seeking with a bdls::FdStreamBuf
-        //   on Unix using the 'streambuf' interface.
+        //   on Unix using the `streambuf` interface.
         //
         // Plan:
         //   Create a file, write to it, read back from it, do some seeks,
@@ -343,10 +343,10 @@ int main(int argc, char *argv[])
         //
         // Preamble:
         //   In this example we open a file descriptor on a file, then create
-        //   a 'bdls::FdStreamBuf' associated with that file descriptor, and
+        //   a `bdls::FdStreamBuf` associated with that file descriptor, and
         //   perform some standard streambuf I/O (e.g., writes, reads, and
-        //   seeks) on the file.  Note that the 'sputn', 'sgetn', 'pubseekoff'
-        //   and 'pubseekpos' methods are all part of the standard 'streambuf'
+        //   seeks) on the file.  Note that the `sputn`, `sgetn`, `pubseekoff`
+        //   and `pubseekpos` methods are all part of the standard `streambuf`
         //   interface described in Stroustrup 21.6.4.
         // --------------------------------------------------------------------
 
@@ -387,11 +387,11 @@ int main(int argc, char *argv[])
 
         ASSERT(bdls::FilesystemUtil::k_INVALID_FD != fd);
 
-        // Now, we create a 'bdls::FdStreamBuf' object named 'streamBuffer'
-        // associated with the file descriptor 'fd'.  Note that 'streamBuffer'
-        // defaults to assuming ownership of 'fd', meaning that when
-        // 'streamBuffer' is cleared, reset, or destroyed, 'fd' will be closed.
-        // Note that 'FdStreamBuf' implements 'streambuf', which provides the
+        // Now, we create a `bdls::FdStreamBuf` object named `streamBuffer`
+        // associated with the file descriptor `fd`.  Note that `streamBuffer`
+        // defaults to assuming ownership of `fd`, meaning that when
+        // `streamBuffer` is cleared, reset, or destroyed, `fd` will be closed.
+        // Note that `FdStreamBuf` implements `streambuf`, which provides the
         // public methods used in this example:
 
         bdls::FdStreamBuf streamBuffer(fd, true);
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
         ASSERT(streamBuffer.fileDescriptor() == fd);
         ASSERT(streamBuffer.isOpened());
 
-        // Next we use the 'sputn' method to write two lines to the file:
+        // Next we use the `sputn` method to write two lines to the file:
 
         streamBuffer.sputn(line1, lengthLine1);
         streamBuffer.sputn(line2, lengthLine2);
@@ -409,8 +409,8 @@ int main(int argc, char *argv[])
         bsl::streamoff status = streamBuffer.pubseekpos(0);
         ASSERT(0 == status);
 
-        // Next, we read the first 'lengthLine1' characters of the file into
-        // 'buf', with the method 'sgetn'.
+        // Next, we read the first `lengthLine1` characters of the file into
+        // `buf`, with the method `sgetn`.
 
         char buf[1000];
         bsl::memset(buf, 0, sizeof(buf));
@@ -418,10 +418,10 @@ int main(int argc, char *argv[])
         ASSERT(lengthLine1 == status);
         ASSERT(!bsl::strcmp(line1, buf));
 
-        // Next we try to read '2 * lengthLine2' characters when only
-        // 'lengthLine2' characters are available in the file to read, so the
-        // 'sgetn' method will stop after reading 'lengthLine2' characters.
-        // The 'sgetn' method will return the number of chars successfully
+        // Next we try to read `2 * lengthLine2` characters when only
+        // `lengthLine2` characters are available in the file to read, so the
+        // `sgetn` method will stop after reading `lengthLine2` characters.
+        // The `sgetn` method will return the number of chars successfully
         // read:
 
         bsl::memset(buf, 0, sizeof(buf));
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
         // Trying to read past the end of the file invalidated the current
         // cursor position in the file, so we must seek from the end or the
         // beginning of the file in order to establish a new cursor position.
-        // Note the 'pubseekpos' method always seeks relative to the beginning.
+        // Note the `pubseekpos` method always seeks relative to the beginning.
         // We seek back to the start of the file:
 
         status = streamBuffer.pubseekpos(0);
@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
 
         ASSERT(lengthLine1 == lengthLine3);
 
-        // Then we write, replacing 'line1' in the file with 'line3':
+        // Then we write, replacing `line1` in the file with `line3`:
 
         status = streamBuffer.sputn(line3, lengthLine3);
         ASSERT(lengthLine3 == status);
@@ -456,26 +456,26 @@ int main(int argc, char *argv[])
         ASSERT(0 == status);
 
         // Then we read and verify the first line, which now contains the text
-        // of 'line3':
+        // of `line3`:
 
         bsl::memset(buf, 0, sizeof(buf));
         status = streamBuffer.sgetn(buf, lengthLine3);
         ASSERT(lengthLine3 == status);
         ASSERT(!bsl::strcmp(line3, buf));
 
-        // Now we read and verify the second line, still 'line2':
+        // Now we read and verify the second line, still `line2`:
 
         bsl::memset(buf, 0, sizeof(buf));
         status = streamBuffer.sgetn(buf, lengthLine2);
         ASSERT(lengthLine2 == status);
         ASSERT(!bsl::strcmp(line2, buf));
 
-        // Next we close 'fd' and disconnect 'streamBuffer' from 'fd':
+        // Next we close `fd` and disconnect `streamBuffer` from `fd`:
 
         status = streamBuffer.clear();
         ASSERT(0 == status);
 
-        // Note that 'streamBuffer' is now no longer open, and is not
+        // Note that `streamBuffer` is now no longer open, and is not
         // associated with a file descriptor:
 
         ASSERT(!streamBuffer.isOpened());
@@ -491,18 +491,18 @@ int main(int argc, char *argv[])
         // TESTING STREAM USAGE EXAMPLE
         //
         // Concerns:
-        //   Demonstrate using an 'FdStreamBuf' to write to and read from a
+        //   Demonstrate using an `FdStreamBuf` to write to and read from a
         //   file using streams.
         //
         // Plan:
-        //   Initialize a non-binary 'FdStreamBuf' with a file descriptor, then
-        //   initialize an ostream with the 'FdStreamBuf', then write some
-        //   data to the file.  Then initialize a new binary 'FdStreamBuf' with
+        //   Initialize a non-binary `FdStreamBuf` with a file descriptor, then
+        //   initialize an ostream with the `FdStreamBuf`, then write some
+        //   data to the file.  Then initialize a new binary `FdStreamBuf` with
         //   the file descriptor, seek back to the start of the file,
-        //   initialize an istream with the 'FdStreamBuf', then read in the
-        //   contents of the file.  Then initialize a non-binary 'FdStreamBuf',
+        //   initialize an istream with the `FdStreamBuf`, then read in the
+        //   contents of the file.  Then initialize a non-binary `FdStreamBuf`,
         //   seek back to the start of the file, read the file in again, and,
-        //   if on windows, observe that the '\r\n's have been translated back
+        //   if on windows, observe that the `\r\n`s have been translated back
         //   to '\n's.
         // --------------------------------------------------------------------
 
@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
                              "============================\n";
 
         // The most common usage of this component is to initialize a stream.
-        // In this case, the 'bdls::FdStreamBuf' will be used for either input
+        // In this case, the `bdls::FdStreamBuf` will be used for either input
         // or output, but not both.
 
         // First we create a suitable file name, and make sure that no file of
@@ -536,17 +536,17 @@ int main(int argc, char *argv[])
 
         ASSERT(bdls::FilesystemUtil::k_INVALID_FD != fd);
 
-        // Now, we create an 'bdls::FdStreamBuf' type of stream buffer
-        // associated with file descriptor 'fd'.  Note that the 'false'
-        // argument indicates that 'streamBuffer' will not assume ownership of
-        // 'fd', meaning that when 'streamBuffer' is destroyed 'fd' will remain
+        // Now, we create an `bdls::FdStreamBuf` type of stream buffer
+        // associated with file descriptor `fd`.  Note that the `false`
+        // argument indicates that `streamBuffer` will not assume ownership of
+        // `fd`, meaning that when `streamBuffer` is destroyed `fd` will remain
         // open:
 
         {
             bdls::FdStreamBuf streamBuffer(fd,
                                            true,    // writable
-                                           false);  // 'fd' won't be closed
-                                                    // when 'streamBuffer' is
+                                           false);  // `fd` won't be closed
+                                                    // when `streamBuffer` is
                                                     // destroyed
 
             bsl::ostream os(&streamBuffer);
@@ -566,8 +566,8 @@ int main(int argc, char *argv[])
 
             bdls::FdStreamBuf streamBuffer(fd,
                                            false,  // not writable
-                                           false,  // 'streamBuffer' does not
-                                                   // own 'fd'
+                                           false,  // `streamBuffer` does not
+                                                   // own `fd`
                                            true);  // binary mode
 
             streamBuffer.pubseekpos(0);
@@ -584,21 +584,21 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_UNIX
             ASSERT(!bsl::strcmp("Five times nine point five = 47.5\n", buf));
 #else
-            //On Windows we see a CRLF ('\r\n') instead of a simple LF '\n'
+            //On Windows we see a CRLF (`\r\n`) instead of a simple LF '\n'
 
             ASSERT(!bsl::strcmp("Five times nine point five = 47.5\r\n", buf));
 #endif
         }
 
         // Finally, read the file back a second time, this time in text mode.
-        // Note how, on Windows, the '\r\n' is translated back to '\n'
+        // Note how, on Windows, the `\r\n` is translated back to '\n'
 
         {
             // read it back in text mode
 
             bdls::FdStreamBuf streamBuffer(fd,
                                            false);  // not writable
-                                                 // 'fd' will be closed when
+                                                 // `fd` will be closed when
                                                  // streamBuffer is destroyed.
                                                  // Mode will be binary on
                                                  // Unix, text on Dos.
@@ -626,25 +626,25 @@ int main(int argc, char *argv[])
         // TESTING NULL SEEKS
         //
         // Concerns:
-        //: 1 That null seeks accurately return the position as perceived by
-        //:   the 'FdStreambuf' client.
-        //: 2 That null seeks don't interfere with the proper functioning of
+        // 1. That null seeks accurately return the position as perceived by
+        //    the `FdStreambuf` client.
+        // 2. That null seeks don't interfere with the proper functioning of
         //    the component.
         //
         // Plan:
         //
-        // Take the 'alternate reads and writes test' case 13, and pepper it
+        // Take the `alternate reads and writes test` case 13, and pepper it
         // with lots of null seeks, and see if concerns 1 and 2 are met in the
         // following situations:
-        //: 1 Null seek after a read, before another read.
-        //: 2 Null seek after a read, before a write.
-        //: 3 Null seek after a read, before a seek.
-        //: 4 Null seek after a write, before another write.
-        //: 5 Null seek after a write, before a read.
-        //: 6 Null seek after a write, before a seek.
-        //: 7 Null seek after a seek, before a read.
-        //: 8 Null seek after a seek, before a write.
-        //: 9 Null seek after a seek, before a seek.
+        // 1. Null seek after a read, before another read.
+        // 2. Null seek after a read, before a write.
+        // 3. Null seek after a read, before a seek.
+        // 4. Null seek after a write, before another write.
+        // 5. Null seek after a write, before a read.
+        // 6. Null seek after a write, before a seek.
+        // 7. Null seek after a seek, before a read.
+        // 8. Null seek after a seek, before a write.
+        // 9. Null seek after a seek, before a seek.
         // Also vary the buffer size of the streambuf to inflict different
         // types of overflow error.  Reads will usually go through mmap so
         // will be less affected by buffer size than writes.
@@ -873,32 +873,32 @@ int main(int argc, char *argv[])
         // WINDOWS READ PAST END OF BUFFER PROBLEM
         //
         // Concerns:
-        //: 1 Reproduce bug where 'FdStreamBuf_FileHandler::read' was reading
+        // 1. Reproduce bug where `FdStreamBuf_FileHandler::read` was reading
         //    one past the end of the buffer looking for ^Z, causing an
         //    intermittend error when that random byte happened to have that
         //    error, reported in DRQS 137573159.
         //
         // Plan:
-        //: 1 Create memory alloctor, 'u::CtrlZAlloc' which, when asked to
-        //:   allocate 'n' bytes, allocates 'n + 1' bytes and fills the segment
-        //:   with '^Z' characters before returning it.
-        //:
-        //: 2 Create a huge file, many times the page size in length, filled
-        //:   with interesting patterns containing '\r' and '\n' sequences,
-        //:   since the code we're testing is the Windows imp which accesses
-        //:   text files and translates "\r\n" sequences to '\n' and leaves
-        //:   everything else alone.
-        //:
-        //: 3 Create a memory seqment which contains the sequence of bytes we
-        //:   expect to get from that file if read by an 'FdStreamBuf' in text
-        //:   mode.
-        //:
-        //: 4 Read the whole file with 'FdStreamBuf::sgetc' and compare
-        //:   everything to the expected pattern, and observe that you make it
-        //:   through the whole file.
-        //:
-        //: 5 Before the bug was fixed, an unexpected eof would occur at the
-        //:   first page boundary.  After the bug was fixed, everything passed.
+        // 1. Create memory alloctor, `u::CtrlZAlloc` which, when asked to
+        //    allocate `n` bytes, allocates `n + 1` bytes and fills the segment
+        //    with `^Z` characters before returning it.
+        //
+        // 2. Create a huge file, many times the page size in length, filled
+        //    with interesting patterns containing '\r' and '\n' sequences,
+        //    since the code we're testing is the Windows imp which accesses
+        //    text files and translates "\r\n" sequences to '\n' and leaves
+        //    everything else alone.
+        //
+        // 3. Create a memory seqment which contains the sequence of bytes we
+        //    expect to get from that file if read by an `FdStreamBuf` in text
+        //    mode.
+        //
+        // 4. Read the whole file with `FdStreamBuf::sgetc` and compare
+        //    everything to the expected pattern, and observe that you make it
+        //    through the whole file.
+        //
+        // 5. Before the bug was fixed, an unexpected eof would occur at the
+        //    first page boundary.  After the bug was fixed, everything passed.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "WINDOWS READ PAST END OF BUFFER PROBLEM\n"
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
         // TESTING ALTERNATE READS AND WRITES
         //
         // Concerns:
-        //   That an 'FdStreamBuf' can transition directly from read to write
+        //   That an `FdStreamBuf` can transition directly from read to write
         //   and back.
         //
         // Plan:
@@ -1728,7 +1728,7 @@ int main(int argc, char *argv[])
         //   multiple pages.
         //
         // Plan:
-        //   Use local routine 'randChar()' to generate chars to write to
+        //   Use local routine `randChar()` to generate chars to write to
         //   a file, write them to the file, verify that the correct chars
         //   were written.  Have a large segment of memory where we write a
         //   copy of everything, the memory should be a mirror of what's in
@@ -1868,10 +1868,10 @@ int main(int argc, char *argv[])
         // TESTING SUNGETC, SPUTBACKC ON INPUT
         //
         // Concerns:
-        //   That the 'sungetc' and 'sputbackc' methods work properly.
+        //   That the `sungetc` and `sputbackc` methods work properly.
         //
         // Plan:
-        //   Try putting back chars using both the 'sungetc' and 'sputbackc'
+        //   Try putting back chars using both the `sungetc` and `sputbackc`
         //   methods, then read from the buffer, verifying that
         //   we get the expected input.
         // --------------------------------------------------------------------
@@ -1944,11 +1944,11 @@ int main(int argc, char *argv[])
         // RESET, RELEASE, CLEAR ON FDSTREAMBUF
         //
         // Concerns:
-        //   That the 'reset', 'release' and 'clear' methods, as well as
+        //   That the `reset`, `release` and `clear` methods, as well as
         //   destruction, have the desired effects on a file descriptor.
         //
         // Plan:
-        //   Perform the 'reset', 'release' and 'clear' operations, as well
+        //   Perform the `reset`, `release` and `clear` operations, as well
         //   as destruction, and verify that they have the desired effect on
         //   the file descriptor.
         // --------------------------------------------------------------------
@@ -2106,7 +2106,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\tTesting 'clear' on an u::invalid file handle" << endl;
+            cout << "\tTesting `clear` on an u::invalid file handle" << endl;
         }
         {
             Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\tTesting 'reset' on an invalid file handle" << endl;
+            cout << "\tTesting `reset` on an invalid file handle" << endl;
         }
 
         {
@@ -2146,7 +2146,7 @@ int main(int argc, char *argv[])
             FileUtil::remove(filename);
         }
 
-        // getting '0' from close verifies fd's are still open
+        // getting `0` from close verifies fd's are still open
 
         ASSERT(0 == FileUtil::close(fd));
         ASSERT(0 == FileUtil::close(fd2));
@@ -2256,9 +2256,9 @@ int main(int argc, char *argv[])
             ASSERT(!fh.isOpened());
             ASSERT(u::invalid == fh.fileDescriptor());
 
-            // We expect that 'clear()' has closed the file.  To make sure we
+            // We expect that `clear()` has closed the file.  To make sure we
             // try to close it again.  If it has been closed already,
-            // 'k_BAD_FILE_DESCRIPTOR' should be returned.
+            // `k_BAD_FILE_DESCRIPTOR` should be returned.
 
             int rc = FileUtil::close(fd);
 
@@ -2322,9 +2322,9 @@ int main(int argc, char *argv[])
             // destroying fh should close fd2
         }
 
-        // We expect that 'fh' destructor has closed the file.  To make sure we
+        // We expect that `fh` destructor has closed the file.  To make sure we
         // try to close it again.  If it has been closed already,
-        // 'k_BAD_FILE_DESCRIPTOR' should be returned.
+        // `k_BAD_FILE_DESCRIPTOR` should be returned.
 
         int rc = FileUtil::close(fd2);
 
@@ -2349,7 +2349,7 @@ int main(int argc, char *argv[])
             // destroying fh should not close fd
         }
 
-        // getting '0' from close verifies fd's are still open
+        // getting `0` from close verifies fd's are still open
 
         ASSERT(0 == FileUtil::close(fd));
         ASSERT(0 == FileUtil::close(fd2));
@@ -2486,7 +2486,7 @@ int main(int argc, char *argv[])
         //   That the constructor works properly.
         // Plan:
         //   Repeat and expand upon test 3, only the c'tor instead of the
-        //   'reset' method to connect to the fd.
+        //   `reset` method to connect to the fd.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "bdls::FdStreamBuf C'TOR TEST\n"
@@ -2589,9 +2589,9 @@ int main(int argc, char *argv[])
 
             ASSERT(!sb.clear());
 
-            // We expect that 'clear()' has closed the file.  To make sure we
+            // We expect that `clear()` has closed the file.  To make sure we
             // try to close it again.  If it has been closed already,
-            // 'k_BAD_FILE_DESCRIPTOR' should be returned.
+            // `k_BAD_FILE_DESCRIPTOR` should be returned.
 
             int rc = FileUtil::close(fd);
 
@@ -2624,9 +2624,9 @@ int main(int argc, char *argv[])
 
             sb.release();
 
-            // We expect that 'release()' does not close file.  To make sure we
-            // try to close it.  'k_BAD_FILE_DESCRIPTOR' should be returned if
-            // it has been closed already, and '0' otherwise.
+            // We expect that `release()` does not close file.  To make sure we
+            // try to close it.  `k_BAD_FILE_DESCRIPTOR` should be returned if
+            // it has been closed already, and `0` otherwise.
 
             int rc = FileUtil::close(fd);
 
@@ -2773,9 +2773,9 @@ int main(int argc, char *argv[])
         //   That reads and writes work properly.
         //
         // Plan:
-        //   Write to and read from the file.  The two lines 'line1' and
-        //   'line3' are the same length, so we will replace 'line1' with
-        //   'line3' in the file.
+        //   Write to and read from the file.  The two lines `line1` and
+        //   `line3` are the same length, so we will replace `line1` with
+        //   `line3` in the file.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "bdls::FdStreamBuf READ-WRITE TEST\n"
@@ -3389,7 +3389,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!bsl::memcmp(bufToWrite, readBuf, sz));
             }
-            cout << j << " bytes read with 'sgetn'\n";
+            cout << j << " bytes read with `sgetn`\n";
         }
 
         ASSERT(!sb.clear());
@@ -3410,7 +3410,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!bsl::memcmp(bufToWrite, readBuf, sz));
             }
-            cout << j << " bytes read with 'sgetn' after close, open\n";
+            cout << j << " bytes read with `sgetn` after close, open\n";
         }
 
         sb.release();
@@ -3426,7 +3426,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!bsl::memcmp(bufToWrite, readBuf, sz));
             }
-            cout << j << " bytes read wtih 'FileUtil::read()'\n";
+            cout << j << " bytes read wtih `FileUtil::read()`\n";
         }
 
         ASSERT(0 == FileUtil::close(fd));

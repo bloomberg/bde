@@ -24,12 +24,12 @@ using bsl::uint64_t;
 namespace BloombergLP {
 namespace bdlc {
 
+/// Return a value with only the specified low-order `numBits` set.  The
+/// behavior is undefined unless `0 <= numBits < k_BITS_PER_UINT64`.  Note
+/// that this is a faster version of `bdlb::BitMaskUtil::lt64` with a
+/// narrower contract.
 static inline
 uint64_t rawLt64(int numBits)
-    // Return a value with only the specified low-order 'numBits' set.  The
-    // behavior is undefined unless '0 <= numBits < k_BITS_PER_UINT64'.  Note
-    // that this is a faster version of 'bdlb::BitMaskUtil::lt64' with a
-    // narrower contract.
 {
     BSLS_ASSERT(0 <= numBits);
     BSLS_ASSERT(     numBits < BitArray::k_BITS_PER_UINT64);

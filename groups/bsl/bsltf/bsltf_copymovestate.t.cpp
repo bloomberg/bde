@@ -102,14 +102,14 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bsltf::CopyMoveState       Util;
 typedef bsltf::CopyMoveState::Enum Enum;
 
-// Namespace 'xyz' for ADL testing
+// Namespace `xyz` for ADL testing
 namespace xyz {
 
-// Address of last argument to 'xyz::copyMoveState' found via ADL
+// Address of last argument to `xyz::copyMoveState` found via ADL
 const void *lastAdl_p = 0;
 
+/// `struct` having a `copyMoveState` customization point
 struct Test1 {
-    // 'struct' having a 'copyMoveState' customization point
     Enum d_value;
 
     explicit Test1(Enum e = Util::e_UNKNOWN) : d_value(e) { }
@@ -129,20 +129,20 @@ void setCopyMoveState(Test1 *obj_p, Enum state)
     obj_p->d_value = state;
 }
 
+/// `struct` inheriting a `copyMoveState` customization point
 struct Test2 : Test1 {
-    // 'struct' inheriting a 'copyMoveState' customization point
     explicit Test2(Enum e = Util::e_UNKNOWN) : Test1(e) { }
 };
 
+/// `struct` not having a `copyMoveState` customization point
 struct Test3 {
-    // 'struct' not having a 'copyMoveState' customization point
     Enum d_value;
     explicit Test3(Enum e = Util::e_UNKNOWN) : d_value(e) { }
 };
 
+/// `struct` template having a `copyMoveState` customization point
 template <unsigned ID>
 struct TemplateTest1 {
-    // 'struct' template having a 'copyMoveState' customization point
     Enum d_value;
 
     explicit TemplateTest1(Enum e = Util::e_UNKNOWN) : d_value(e) { }
@@ -160,15 +160,15 @@ struct TemplateTest1 {
     }
 };
 
+/// `struct` template inheriting a `copyMoveState` customization point
 template <unsigned ID>
 struct TemplateTest2 : TemplateTest1<ID> {
-    // 'struct' template inheriting a 'copyMoveState' customization point
     explicit TemplateTest2(Enum e = Util::e_UNKNOWN) : TemplateTest1<ID>(e) { }
 };
 
+/// `struct` template not having a `copyMoveState` customization point
 template <unsigned ID>
 struct TemplateTest3 {
-    // 'struct' template not having a 'copyMoveState' customization point
     Enum d_value;
     explicit TemplateTest3(Enum e = Util::e_UNKNOWN) : d_value(e) { }
 };
@@ -209,9 +209,9 @@ const Enum VALID_STATE_LIST[] = {
     Util::e_UNKNOWN
 };
 
+/// Return `true` if the specified `e` enumerator has a name starting with
+/// `e_COPIED`.
 bool isCopiedEnum(Enum e)
-    // Return 'true' if the specified 'e' enumerator has a name starting with
-    // 'e_COPIED'.
 {
     return (e == Util::e_COPIED_INTO          ||
             e == Util::e_COPIED_CONST_INTO    ||
@@ -228,12 +228,12 @@ bool isCopiedEnum(Enum e)
 //
 ///Example 1: Tracking an object's history
 ///- - - - - - - - - - - - - - - - - - - -
-// In this example, we show how 'CopyMoveState' can be used to track the most
+// In this example, we show how `CopyMoveState` can be used to track the most
 // recent copy or move operation applied to an object.
 //
-// First, we define a 'TrackedValue' type that contains an integer value and a
-// 'CopyMoveState'
-//..
+// First, we define a `TrackedValue` type that contains an integer value and a
+// `CopyMoveState`
+// ```
 //  #include <bsltf_copymovestate.h>
 //  #include <bslmf_movableref.h>
 //  #include <cstring>
@@ -241,27 +241,27 @@ bool isCopiedEnum(Enum e)
     struct TrackedValue {
         int                        d_value;
         bsltf::CopyMoveState::Enum d_copyMoveState;
-//..
+// ```
 // Next, we define a value constructor that indicates that the object was
 // neither copied into, moved into, nor moved from:
-//..
+// ```
         TrackedValue(int v = 0)                                     // IMPLICIT
             : d_value(v)
             , d_copyMoveState(bsltf::CopyMoveState::e_ORIGINAL) { }
-//..
+// ```
 // Next, we define a copy constructor that records the fact that the object was
 // copied into.  As in the case of most copy constructors, the original is
-// accessed through a 'const' reference, and the copy/moved state reflects that
+// accessed through a `const` reference, and the copy/moved state reflects that
 // fact.
-//..
+// ```
         TrackedValue(const TrackedValue& original)
             : d_value(original.d_value)
             , d_copyMoveState(bsltf::CopyMoveState::e_COPIED_CONST_INTO) { }
-//..
+// ```
 // Next, we define a move constructor that records both that the object being
 // constructed was moved into, but also that the original object was moved
 // from.
-//..
+// ```
         TrackedValue(bslmf::MovableRef<TrackedValue> original)
             : d_value(bslmf::MovableRefUtil::access(original).d_value)
             , d_copyMoveState(bsltf::CopyMoveState::e_MOVED_INTO)
@@ -270,40 +270,40 @@ bool isCopiedEnum(Enum e)
             originalRef.d_value         = -1;
             originalRef.d_copyMoveState = bsltf::CopyMoveState::e_MOVED_FROM;
         }
-//..
+// ```
 // Next, we declare the destructor and assignment operators, but, for the
 // purpose of this example, we don't need to see their implementations:
-//..
+// ```
         //! ~TrackedValue() = default;
 
         TrackedValue& operator=(const TrackedValue&);
         TrackedValue& operator=(bslmf::MovableRef<TrackedValue>);
-//..
+// ```
 // Then, we define accessors for the value and copy/move state.
-//..
+// ```
         int value() const { return d_value; }
         bsltf::CopyMoveState::Enum copyMoveState() const
             { return d_copyMoveState; }
-//..
+// ```
 // Now, outside of the class definition or (better yet) as a hidden friend
 // function, we define an ADL customization point used to retrieve the
 // copy/move state of the tracked value.  This free function will be called in
 // generic code that doesn't know whether the type it's working with has a
-// 'copyMoveState' accessor; a default is provided for types that don't:
-//..
+// `copyMoveState` accessor; a default is provided for types that don't:
+// ```
         friend bsltf::CopyMoveState::Enum copyMoveState(const TrackedValue& v)
         {
             return v.copyMoveState();
         }
     };
-//..
-// Finally, we test our 'TrackedValue' class by creating an object, copying it,
+// ```
+// Finally, we test our `TrackedValue` class by creating an object, copying it,
 // and moving it.  After each step, we test that each object's copy/move state
-// is as expected.  Note that 'e_COPIED_INTO' names a bit that is set in both
-// of the other 'e_COPIED_*' enumerators.  At the end, we verify that the
-// copy/move state is correctly converted to a string by the 'toAscii' method
-// and that the copy/move state of a plain 'int' is always "e_UNKNOWN".
-//..
+// is as expected.  Note that `e_COPIED_INTO` names a bit that is set in both
+// of the other `e_COPIED_*` enumerators.  At the end, we verify that the
+// copy/move state is correctly converted to a string by the `toAscii` method
+// and that the copy/move state of a plain `int` is always "e_UNKNOWN".
+// ```
     void usageExample1()
     {
         typedef bsltf::CopyMoveState Cms;
@@ -327,9 +327,9 @@ bool isCopiedEnum(Enum e)
         ASSERT(0 == std::strcmp("MOVED_FROM",
                                 Cms::toAscii(tv1.copyMoveState())));
 
-        ASSERT(Cms::e_UNKNOWN == Cms::get(5));  // 'int' doesn't track state
+        ASSERT(Cms::e_UNKNOWN == Cms::get(5));  // `int` doesn't track state
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -355,13 +355,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, recopy
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, recopy
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -376,21 +376,21 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // -------------------------------------------------------------------
-        // TESTING 'operator!'
+        // TESTING `operator!`
         //
         // Concerns:
-        //: 1 'operator!' returns 'true' for 'e_ORIGINAL' and 'false' for all
-        //:   other enumerators in 'CopyMoveState'.
+        // 1. `operator!` returns `true` for `e_ORIGINAL` and `false` for all
+        //    other enumerators in `CopyMoveState`.
         //
         // Plan:
-        //: 1 For each enumerator 'e', verify that '! e' yields the expected
-        //:   value.  (C-1)
+        // 1. For each enumerator `e`, verify that `! e` yields the expected
+        //    value.  (C-1)
         //
         // Testing:
         //     bool operator!(CopyMoveState::Enum value);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'operator!'"
+        if (verbose) printf("\nTESTING `operator!`"
                             "\n===================\n");
 
         ASSERT(true == ! Util::e_ORIGINAL);
@@ -404,22 +404,22 @@ int main(int argc, char *argv[])
       case 8: {
         // -------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
-        //     Verify that an 'Enum' value can be campared to an 'int'.
+        //     Verify that an `Enum` value can be campared to an `int`.
         //
         // Concerns:
-        //: 1 An 'Enum' value and an 'int' can be compared using 'operator=='
-        //:   and 'operater!='; the resulting 'bool' value is the same as if
-        //:   both were converted to 'int'.
-        //: 2 The previous concern applies even for bit patterns that don't
-        //:   represent a specific enumerator (e.g., if it is the bitwise OR of
-        //:   two or more enumerators).
+        // 1. An `Enum` value and an `int` can be compared using `operator==`
+        //    and `operater!=`; the resulting `bool` value is the same as if
+        //    both were converted to `int`.
+        // 2. The previous concern applies even for bit patterns that don't
+        //    represent a specific enumerator (e.g., if it is the bitwise OR of
+        //    two or more enumerators).
         //
         // Plan:
-        //: 1 Use a pair fo nested loops over every integer value from '0' to
-        //:   'e_MAX_ENUM' to generate a set of integer pairs.  Cast one of the
-        //:   integers to 'Enum', then compare to the other using 'operator=='
-        //:   and 'operator!='.  Verify that the comparison produces the
-        //:   expected result. (C-1, C-2)
+        // 1. Use a pair fo nested loops over every integer value from `0` to
+        //    `e_MAX_ENUM` to generate a set of integer pairs.  Cast one of the
+        //    integers to `Enum`, then compare to the other using `operator==`
+        //    and `operator!=`.  Verify that the comparison produces the
+        //    expected result. (C-1, C-2)
         //
         // Testing:
         //     bool operator==(CopyMoveState::Enum a, int b);
@@ -447,43 +447,43 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // -------------------------------------------------------------------
-        // TESTING 'is*' CLASS METHODS
-        //   Verify operation of the 'isCopiedInto', 'isMovedInto' and similar
+        // TESTING `is*` CLASS METHODS
+        //   Verify operation of the `isCopiedInto`, `isMovedInto` and similar
         //   class methods that check specific bits in an object's copy/move
         //   state.
         //
         // Concerns:
-        //: 1 When called on an object that does not provide a copy/move state,
-        //:   all of the 'is*' queries return 'false' except 'isUnknown'.
-        //: 2 When called on an object returning a copy/move state that
-        //:   includes neither 'e_COPIED_INTO' nor the 'e_MOVED_INTO' bit,
-        //:   'isOriginal' returns 'true' and all of the 'is*Into' queries
-        //:   return 'false'.
-        //: 3 Each query other than 'isOriginal' returns 'true' if the
-        //:   copy/move state contains the bits from the corresponding
-        //:   enumerator.
-        //: 4 Setting the 'e_MOVED_FROM' bit in the copy/move state causes
-        //:   'isMovedFrom' to return 'true' (unless the 'e_UNKNOWN' bit is
-        //:   also set) and does not change the result from any of the other
-        //:   queries.
-        //: 5 When called on an object returning a copy/move state for which
-        //:   the 'e_UNKNOWN' bit is set, all of the other 'is*' queries return
-        //:   'false', regardless of the value of the remaining bits.  This
-        //:   concern overrides concerns 2-4.
+        // 1. When called on an object that does not provide a copy/move state,
+        //    all of the `is*` queries return `false` except `isUnknown`.
+        // 2. When called on an object returning a copy/move state that
+        //    includes neither `e_COPIED_INTO` nor the `e_MOVED_INTO` bit,
+        //    `isOriginal` returns `true` and all of the `is*Into` queries
+        //    return `false`.
+        // 3. Each query other than `isOriginal` returns `true` if the
+        //    copy/move state contains the bits from the corresponding
+        //    enumerator.
+        // 4. Setting the `e_MOVED_FROM` bit in the copy/move state causes
+        //    `isMovedFrom` to return `true` (unless the `e_UNKNOWN` bit is
+        //    also set) and does not change the result from any of the other
+        //    queries.
+        // 5. When called on an object returning a copy/move state for which
+        //    the `e_UNKNOWN` bit is set, all of the other `is*` queries return
+        //    `false`, regardless of the value of the remaining bits.  This
+        //    concern overrides concerns 2-4.
         //
         // Plan:
-        //: 1 Call each query on an object that does not return a copy/move
-        //:   state and verify that 'isUnknown' returns 'true' and all the rest
-        //:   return 'false'.  (C-1)
-        //: 2 Use a table-driven approach to verify that each query produces
-        //:   the expected value for each enumerator.  (C-2, C-3)
-        //: 3 Verify that 'isMovedFrom' returns 'false' when called on each
-        //:   object from step 3.  Then set the 'e_MOVED_FROM' bit in the
-        //:   object's state, without modifying any other bits, and verify that
-        //:   'isMovedFrom' now returns 'true'.  (C-4)
-        //: 4 Set the 'e_UNKNOWN' bit in the move/copy state for each object in
-        //:   step 2, without modifying any other bit, and verify that all of
-        //:   the queries now return 'false'. (C-5)
+        // 1. Call each query on an object that does not return a copy/move
+        //    state and verify that `isUnknown` returns `true` and all the rest
+        //    return `false`.  (C-1)
+        // 2. Use a table-driven approach to verify that each query produces
+        //    the expected value for each enumerator.  (C-2, C-3)
+        // 3. Verify that `isMovedFrom` returns `false` when called on each
+        //    object from step 3.  Then set the `e_MOVED_FROM` bit in the
+        //    object's state, without modifying any other bits, and verify that
+        //    `isMovedFrom` now returns `true`.  (C-4)
+        // 4. Set the `e_UNKNOWN` bit in the move/copy state for each object in
+        //    step 2, without modifying any other bit, and verify that all of
+        //    the queries now return `false`. (C-5)
         //
         // Testing:
         //     bool isCopiedConstInto(const TYPE& v);
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
         //     bool isUnknown(const TYPE& v);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'is*' CLASS METHODS"
+        if (verbose) printf("\nTESTING `is*` CLASS METHODS"
                             "\n===========================\n");
 
         // Step 1
@@ -588,46 +588,46 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // -------------------------------------------------------------------
-        // TESTING 'set'
-        //   Verify that the static 'CopyMoveState::set' function template
-        //   calls the ADL 'setCopyMoveState' customization function for its
+        // TESTING `set`
+        //   Verify that the static `CopyMoveState::set` function template
+        //   calls the ADL `setCopyMoveState` customization function for its
         //   argument, or does nothing if such a customization function does
         //   not exist.
         //
         // Concerns:
-        //: 1 A call to 'CopyMoveState::set(x, state))' returns
-        //:   'setCopyMoveState(x, state))' if such a call is found by ADL.
-        //: 2 Concern 1 also applies to objects of class derived from classes
-        //:   providing the 'setCopyMoveState' ADL customization.
-        //: 3 A call to 'CopyMoveState::set(x, state))' has no effect if
-        //:   'setCopyMoveState(x, state))' not found by ADL.
-        //: 4 The above concerns apply whether or not the type of 'x' is a
-        //:   template specialization.
+        // 1. A call to `CopyMoveState::set(x, state))` returns
+        //    `setCopyMoveState(x, state))` if such a call is found by ADL.
+        // 2. Concern 1 also applies to objects of class derived from classes
+        //    providing the `setCopyMoveState` ADL customization.
+        // 3. A call to `CopyMoveState::set(x, state))` has no effect if
+        //    `setCopyMoveState(x, state))` not found by ADL.
+        // 4. The above concerns apply whether or not the type of `x` is a
+        //    template specialization.
         //
         // Plan:
-        //: 1 Create a class 'xyz::Test1' and a function
-        //:   'xyz::setCopyMoveState(Test1 *, state))' that tracks its most
-        //:   recent call.  Create an object 'x' of type 'xyz::Test1' and
-        //:   verify that 'CopyMoveState::set(&x, state))' calls
-        //:   'xyz::setCopyMoveState(&x, state))'.  (C-1)
-        //: 2 Create a class 'xyz::Test2' inheriting from 'xyz::Test1' but not
-        //:   providing its own 'setCopyMoveState(Test2 *, state))' free
-        //:   function.  Create an object 'y' of type 'xyz::Test2' and verify
-        //:   that the 'CopyMoveState::set(&y, state))' has the same effect as
-        //:   for 'Test1'.  (C-2)
-        //: 3 Create a class 'xyz::Test3' having no 'setCopyMoveState'
-        //:   overload.  Create an object 'z' of type 'xyz::Test3' and verify
-        //:   that 'CopyMoveState::set(&z, state))' has no effect.  Also verify
-        //:   that, for 'int i', 'CopyMoveState::set(&i, state)' has no effect.
-        //:   (C-3)
-        //: 4 Repeat the steps above with class templates instead of 'Test1',
-        //:   'Test2', and 'Test3'.  (C-4)
+        // 1. Create a class `xyz::Test1` and a function
+        //    `xyz::setCopyMoveState(Test1 *, state))` that tracks its most
+        //    recent call.  Create an object `x` of type `xyz::Test1` and
+        //    verify that `CopyMoveState::set(&x, state))` calls
+        //    `xyz::setCopyMoveState(&x, state))`.  (C-1)
+        // 2. Create a class `xyz::Test2` inheriting from `xyz::Test1` but not
+        //    providing its own `setCopyMoveState(Test2 *, state))` free
+        //    function.  Create an object `y` of type `xyz::Test2` and verify
+        //    that the `CopyMoveState::set(&y, state))` has the same effect as
+        //    for `Test1`.  (C-2)
+        // 3. Create a class `xyz::Test3` having no `setCopyMoveState`
+        //    overload.  Create an object `z` of type `xyz::Test3` and verify
+        //    that `CopyMoveState::set(&z, state))` has no effect.  Also verify
+        //    that, for `int i`, `CopyMoveState::set(&i, state)` has no effect.
+        //    (C-3)
+        // 4. Repeat the steps above with class templates instead of `Test1`,
+        //    `Test2`, and `Test3`.  (C-4)
         //
         // Testing:
         //     void set(TYPE *obj_p, Enum state);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'set'"
+        if (verbose) printf("\nTESTING `set`"
                             "\n=============\n");
 
         xyz::Test1 x;
@@ -668,44 +668,44 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // -------------------------------------------------------------------
-        // TESTING 'get'
-        //   Verify that the static 'CopyMoveState::get' function template
-        //   calls the ADL 'copyMoveState' customization function for its
-        //   argument, or returns 'e_UNKNOWN' if such a customization function
+        // TESTING `get`
+        //   Verify that the static `CopyMoveState::get` function template
+        //   calls the ADL `copyMoveState` customization function for its
+        //   argument, or returns `e_UNKNOWN` if such a customization function
         //   does not exist.
         //
         // Concerns:
-        //: 1 A call to 'CopyMoveState::get(x)' returns 'copyMoveState(x)' if
-        //:   such a call is found by ADL.
-        //: 2 Concern 1 also applies to objects of class derived from classes
-        //:   providing the 'copyMoveState' ADL customization.
-        //: 3 A call to 'CopyMoveState::get(x)' returns 'e_UNKNOWN' if
-        //:   'copyMoveState(x)' not found by ADL.
-        //: 4 The above concerns apply whether or not the type of 'x' is a
-        //:   template specialization.
+        // 1. A call to `CopyMoveState::get(x)` returns `copyMoveState(x)` if
+        //    such a call is found by ADL.
+        // 2. Concern 1 also applies to objects of class derived from classes
+        //    providing the `copyMoveState` ADL customization.
+        // 3. A call to `CopyMoveState::get(x)` returns `e_UNKNOWN` if
+        //    `copyMoveState(x)` not found by ADL.
+        // 4. The above concerns apply whether or not the type of `x` is a
+        //    template specialization.
         //
         // Plan:
-        //: 1 Create a class 'xyz::Test1' and a function
-        //:   'xyz::copyMoveState(Test1)' that tracks its most recent call.
-        //:   Create an object 'x' of type 'xyz::Test1' and verify that
-        //:   'CopyMoveState::get(x)' calls 'xyz::copyMoveState(x)'.  (C-1)
-        //: 2 Create a class 'xyz::Test2' inheriting from 'xyz::Test1' but not
-        //:   providing its own 'xyz::copyMoveState(Test2)' free function.
-        //:   Create an object 'y' of type 'xyz::Test2' and verify that the
-        //:   'CopyMoveState::get(y)' has the same result as for 'Test1'.
-        //:   (C-2)
-        //: 3 Create a class 'xyz::Test3' having no 'copyMoveState' overload.
-        //:   Create an object 'z' of type 'xyz::Test3' and verify that
-        //:   'CopyMoveState::get(z)' returns 'e_UNKNOWN'.  Also verify that,
-        //:   for 'int i', 'CopyMoveState::get(i)' returns 'e_UNKNOWN'.  (C-3)
-        //: 4 Repeat the steps above with class templates instead of 'Test1'
-        //:   and 'Test3'.  (C-4)
+        // 1. Create a class `xyz::Test1` and a function
+        //    `xyz::copyMoveState(Test1)` that tracks its most recent call.
+        //    Create an object `x` of type `xyz::Test1` and verify that
+        //    `CopyMoveState::get(x)` calls `xyz::copyMoveState(x)`.  (C-1)
+        // 2. Create a class `xyz::Test2` inheriting from `xyz::Test1` but not
+        //    providing its own `xyz::copyMoveState(Test2)` free function.
+        //    Create an object `y` of type `xyz::Test2` and verify that the
+        //    `CopyMoveState::get(y)` has the same result as for `Test1`.
+        //    (C-2)
+        // 3. Create a class `xyz::Test3` having no `copyMoveState` overload.
+        //    Create an object `z` of type `xyz::Test3` and verify that
+        //    `CopyMoveState::get(z)` returns `e_UNKNOWN`.  Also verify that,
+        //    for `int i`, `CopyMoveState::get(i)` returns `e_UNKNOWN`.  (C-3)
+        // 4. Repeat the steps above with class templates instead of `Test1`
+        //    and `Test3`.  (C-4)
         //
         // Testing:
         //     Enum get(const TYPE& obj);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'get'"
+        if (verbose) printf("\nTESTING `get`"
                             "\n=============\n");
 
         xyz::Test1 x(Util::e_COPIED_INTO);
@@ -746,40 +746,40 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // -------------------------------------------------------------------
-        // TESTING 'toAscii'
-        //   Verify that the static 'toAscii' method returns an appropriate
-        //   static null-terminated ASCII string for each possible 'Enum'
+        // TESTING `toAscii`
+        //   Verify that the static `toAscii` method returns an appropriate
+        //   static null-terminated ASCII string for each possible `Enum`
         //   value.
         //
         // Concerns:
-        //: 1 The 'toAscii' method returns a string containing the name of the
-        //:   enumerator without the leading "e_".
-        //: 2 For each enumerator that indicates a copied-into or moved-into
-        //:   state, passing the bitwise OR of that enumerator and
-        //:   'e_MOVED_FROM' to 'toAscii' returns a string containing both the
-        //:   enumerator name and 'MOVED_FROM', separated by a comma.
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
-        //: 4 The string returned by 'toAscii' is not modifiable.
-        //: 5 The 'toAscii' method has the expected signature.
+        // 1. The `toAscii` method returns a string containing the name of the
+        //    enumerator without the leading "e_".
+        // 2. For each enumerator that indicates a copied-into or moved-into
+        //    state, passing the bitwise OR of that enumerator and
+        //    `e_MOVED_FROM` to `toAscii` returns a string containing both the
+        //    enumerator name and `MOVED_FROM`, separated by a comma.
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.
+        // 4. The string returned by `toAscii` is not modifiable.
+        // 5. The `toAscii` method has the expected signature.
         //
         // Plan:
-        //: 1 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each individual enumerator.  (C-1)
-        //: 2 Supply 'toAscii' with the logical OR of each appropriate
-        //:   enumerator and 'e_MOVED_FROM'.  Verify that the returned string
-        //:   has the expected value.  (C-2)
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4, C-5)
+        // 1. Verify that the `toAscii` method returns the expected string
+        //    representation for each individual enumerator.  (C-1)
+        // 2. Supply `toAscii` with the logical OR of each appropriate
+        //    enumerator and `e_MOVED_FROM`.  Verify that the returned string
+        //    has the expected value.  (C-2)
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4, C-5)
         //
         // Testing:
         //     const char *toAscii(CopyMoveState::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'toAscii'"
+        if (verbose) printf("\nTESTING `toAscii`"
                             "\n=================\n");
 
         static const struct {
@@ -827,7 +827,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify 'toAscii' signature.\n");
+        if (verbose) printf("\nVerify `toAscii` signature.\n");
         {
             typedef const char *(*FuncPtr)(Enum);
 
@@ -837,21 +837,21 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // -------------------------------------------------------------------
-        // TESTING 'isValid'
+        // TESTING `isValid`
         //
         // Concerns:
-        //: 1 'CopyMoveState::isValid(x)' returns 'true' if 'x' is a valid
-        //:   value of 'CopyMoveState::Enum' and 'false' otherwise.
+        // 1. `CopyMoveState::isValid(x)` returns `true` if `x` is a valid
+        //    value of `CopyMoveState::Enum` and `false` otherwise.
         //
         // Plan:
-        //: 1 For every value of 'x' between 'e_ORIGINAL' and 'e_UNKNOWN + 1',
-        //:   verify that 'isValid(x)' returns the expected value.
+        // 1. For every value of `x` between `e_ORIGINAL` and `e_UNKNOWN + 1`,
+        //    verify that `isValid(x)` returns the expected value.
         //
         // TESTING
         //    bool isValid(Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'isValid'"
+        if (verbose) printf("\nTESTING `isValid`"
                             "\n=================\n");
 
         std::size_t nextValid = 0;  // Index of next valid state
@@ -873,34 +873,34 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // -------------------------------------------------------------------
-        // TESTING 'Enum'
+        // TESTING `Enum`
         //    Verify the expected relationships between enumerators in
         //    `CopyMoveState'.
         //
         // Concerns:
-        //: 1 When converted to 'bool', 'e_ORIGINAL' yields 'false' and the
-        //:   remaining enumerators yield 'true'.
-        //: 2 Every enumerator has a distinct value.
-        //: 3 The enumerators 'e_COPIED_INTO', 'e_COPIED_CONST_INTO', and
-        //:   'e_COPIED_NONCONST_INTO', have the 'e_COPIED_INTO' bit in
-        //:   common; otherwise no two enumerators have any bits in common.
+        // 1. When converted to `bool`, `e_ORIGINAL` yields `false` and the
+        //    remaining enumerators yield `true`.
+        // 2. Every enumerator has a distinct value.
+        // 3. The enumerators `e_COPIED_INTO`, `e_COPIED_CONST_INTO`, and
+        //    `e_COPIED_NONCONST_INTO`, have the `e_COPIED_INTO` bit in
+        //    common; otherwise no two enumerators have any bits in common.
         //
         // Plan:
-        //: 1 Using nested loops, iterate through every pair of enumerators.
-        //: 2 In the outer loop, verify that only 'e_ORIGINAL' has an value of
-        //:   '0' when cast to 'int'.  (C-1)
-        //: 3 For each pair of distinct enumerators, verify that they have
-        //:   different values. (C-2)
-        //: 4 If both of the enumerators have names starting with 'e_COPIED',
-        //:   verify that the bitwise AND of the two iterators is
-        //:   'e_COPIED_INTO'; otherwise verify that the bitwise AND is zero.
-        //:   (C-3)
+        // 1. Using nested loops, iterate through every pair of enumerators.
+        // 2. In the outer loop, verify that only `e_ORIGINAL` has an value of
+        //    `0` when cast to `int`.  (C-1)
+        // 3. For each pair of distinct enumerators, verify that they have
+        //    different values. (C-2)
+        // 4. If both of the enumerators have names starting with `e_COPIED`,
+        //    verify that the bitwise AND of the two iterators is
+        //    `e_COPIED_INTO`; otherwise verify that the bitwise AND is zero.
+        //    (C-3)
         //
         // TESTING
         //    Enum
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'Enum'"
+        if (verbose) printf("\nTESTING `Enum`"
                             "\n==============\n");
 
         for (std::size_t i = 0; i < NUM_ENUMS; ++i) {
@@ -931,11 +931,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST

@@ -19,7 +19,7 @@ using namespace bsl;
 // This component is generated.  Therefore, we will only test that the classes
 // in the component can be instantiated, and explicitly reported issues:
 //
-// * '{DRQS 162368148}' - fuzz test
+// * `{DRQS 162368148}` - fuzz test
 // ----------------------------------------------------------------------------
 // [ 2] FUZZ TEST
 // [ 1] BREATHING TEST
@@ -99,10 +99,10 @@ int main(int argc, char *argv[])
         // FUZZ TEST
         //
         // Concerns:
-        //: 1 Badly mangled input does not crash - '{DRQS 162368148}'
+        // 1. Badly mangled input does not crash - `{DRQS 162368148}`
         //
         // Plan:
-        //: 1 Call 'checkRestriction' on fuzzy input.
+        // 1. Call `checkRestriction` on fuzzy input.
         //
         // Testing:
         //   FUZZ TEST
@@ -119,10 +119,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 All class can be instantiated.
+        // 1. All class can be instantiated.
         //
         // Plan:
-        //: 1 Create an object for every test message type.
+        // 1. Create an object for every test message type.
         //
         // Testing:
         //   BREATHING TEST

@@ -17,11 +17,11 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test consists of one or more simple 'typedef's.
+// The component under test consists of one or more simple `typedef`s.
 //
-// We make sure that each 'typedef' in the component is to the correct
+// We make sure that each `typedef` in the component is to the correct
 // corresponding type, and that that type is complete (e.g., not simply a
-// forward declaration) by constructing an object of the 'typedef' type.
+// forward declaration) by constructing an object of the `typedef` type.
 //
 // ----------------------------------------------------------------------------
 // [ 1] TESTING TYPEDEFS
@@ -59,18 +59,18 @@ int main(int argc, char *argv[])
         // TESTING TYPEDEF
         //
         // Concerns:
-        //: 1 Each 'typedef' in the component aliases the correct underlying
-        //:   type.
-        //:
-        //: 2 Each 'typedef' in the component can be constructed (the 'typedef'
-        //:   is not to a forward-declared type).
+        // 1. Each `typedef` in the component aliases the correct underlying
+        //    type.
+        //
+        // 2. Each `typedef` in the component can be constructed (the `typedef`
+        //    is not to a forward-declared type).
         //
         // Plan:
-        //: 1 For each 'typedef'
-        //:   1 Use 'bsl::is_same' to make sure the alias is correct.
-        //:
-        //:   2 Construct an object of the 'typedef' to make sure the
-        //:     underlying type is complete.
+        // 1. For each `typedef`
+        //   1. Use `bsl::is_same` to make sure the alias is correct.
+        //
+        //   2. Construct an object of the `typedef` to make sure the
+        //      underlying type is complete.
         //
         // Testing:
         //   TESTING TYPEDEFS

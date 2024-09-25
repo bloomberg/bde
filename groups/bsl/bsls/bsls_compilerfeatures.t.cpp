@@ -8,9 +8,9 @@
 #include <exception>    // testing exception specifications
 #include <limits>       // testing hexfloat literals
 
-#include <stdio.h>      // 'printf', 'puts', 'fwrite'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'memcmp'
+#include <stdio.h>      // `printf`, `puts`, `fwrite`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `memcmp`
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
     #include <compare>
@@ -31,8 +31,8 @@
 //-----------------------------------------------------------------------------
 //                            * Overview *
 // Testing available C++ language features by trying to compile code that uses
-// them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
-// defined, then we try to compile code that uses 'static_assert'.  Many of
+// them.  For example, if `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT` is
+// defined, then we try to compile code that uses `static_assert`.  Many of
 // the tests are purely compile-time; if the code compiles, then the test
 // succeeds.  Due to the limitations of the testing framework, there is no way
 // to turn compile-time failures into runtime failures.  Note that we don't
@@ -155,14 +155,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 //=============================================================================
-//                'u_HAS_CPP_ATTRIBUTE(attribute_token)'
+//                `u_HAS_CPP_ATTRIBUTE(attribute_token)`
 //-----------------------------------------------------------------------------
 
-// We define 'u_HAS_CPP_ATTRIBUTE(attribute_token)' to either retrieve the
-// value of '__has_cpp_attribute(attribute_token)' on platforms that support
+// We define `u_HAS_CPP_ATTRIBUTE(attribute_token)` to either retrieve the
+// value of `__has_cpp_attribute(attribute_token)` on platforms that support
 // it, or zero on platforms that don't.  This simplifies otherwise very long
 // preprocessor conditions that would need to check for the presence of
-// '__has_cpp_attribute'.
+// `__has_cpp_attribute`.
 
 #if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
     #define u_HAS_CPP_ATTRIBUTE(attribute_token)                              \
@@ -178,48 +178,48 @@ void aSsErT(bool condition, const char *message, int line)
 
 // Due to long macro names printing test case titles can easily run out of the
 // 79 characters line limit.  Wrapper renders the code irregular and harder to
-// read.  The 'VERBOSE_PUTS(str)' macro makes the very frequently repeated
-// 'if (verbose) puts("string-literal")' less "busy" looking, and shorter.  The
-// 'MACRO_TEST_TITLE(suffix, line)' macro makes long titles readable by
+// read.  The `VERBOSE_PUTS(str)` macro makes the very frequently repeated
+// `if (verbose) puts("string-literal")` less "busy" looking, and shorter.  The
+// `MACRO_TEST_TITLE(suffix, line)` macro makes long titles readable by
 // eliminating the need to specify the "BSLS_COMPILERFEATURES" prefix.
 
 #ifdef VERBOSE_PUTS
   #undef VERBOSE_PUTS
 #endif
+/// Print the specified `str` string literal or C-string using the `stdio.h`
+/// `puts` function unless `false == verbose`.
 #define VERBOSE_PUTS(str) do { if (verbose) puts(str); } while (false)
-    // Print the specified 'str' string literal or C-string using the 'stdio.h'
-    // 'puts' function unless 'false == verbose'.
 
 #ifdef VERYVERBOSE_PUTS
   #undef VERYVERBOSE_PUTS
 #endif
+/// Print the specified `str` string literal or C-string using the `stdio.h`
+/// `puts` function unless `false == veryVerbose`.
 #define VERYVERBOSE_PUTS(str) do { if (veryVerbose) puts(str); } while (false)
-    // Print the specified 'str' string literal or C-string using the 'stdio.h'
-    // 'puts' function unless 'false == veryVerbose'.
 
 #ifdef VERBOSE_P
   #undef VERBOSE_P
 #endif
+/// Print the specified `expr` using `P` unless `false == verbose`.
 #define VERBOSE_P(expr) do { if (verbose) { P(expr); } } while (false)
-    // Print the specified 'expr' using 'P' unless 'false == verbose'.
 
 #ifdef VERYVERBOSE_P
   #undef VERYVERBOSE_P
 #endif
+/// Print the specified `expr` using `P` unless `false == veryVerbose`.
 #define VERYVERBOSE_P(expr) do { if (veryVerbose) { P(expr); } } while (false)
-    // Print the specified 'expr' using 'P' unless 'false == veryVerbose'.
 
 #ifdef MACRO_TEST_TITLE
   #undef MACRO_TEST_TITLE
 #endif
+/// Print the standard test case title for the specified macro `suffix`
+/// string literal for a macro that starts with "BSLS_COMPILERFEATURES".
+/// Use the specified `line` string literal as underline for the suffix
+/// portion.  The behavior is ugly unless `line` consists of '=' characters
+/// only, and has the same length as `suffix`.
 #define MACRO_TEST_TITLE(suffix, line)                                        \
     VERBOSE_PUTS("\nBSLS_COMPILERFEATURES" suffix                             \
                  "\n=====================" line)
-    // Print the standard test case title for the specified macro 'suffix'
-    // string literal for a macro that starts with "BSLS_COMPILERFEATURES".
-    // Use the specified 'line' string literal as underline for the suffix
-    // portion.  The behavior is ugly unless 'line' consists of '=' characters
-    // only, and has the same length as 'suffix'.
 
 //=============================================================================
 //              SUPPORTING FUNCTIONS AND TYPES USED FOR TESTING
@@ -227,7 +227,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 namespace externTemplateTesting {
-// Note that 'extern template' declarations cannot have internal linkage, so
+// Note that `extern template` declarations cannot have internal linkage, so
 // are not allowed in unnamed namespaces, even for testing the feature.
 
 // define class template
@@ -287,9 +287,9 @@ struct A {
     int d_m;
 };
 
+/// This class and out-of-line constructor demonstrate a known problem when
+/// trying to support `constexpr` with Oracle studio CC 5.12.4
 class OracleMiscompile {
-    // This class and out-of-line constructor demonstrate a known problem when
-    // trying to support 'constexpr' with Oracle studio CC 5.12.4
     unsigned d_data[2];
 
   public:
@@ -314,9 +314,9 @@ struct aggregate_derived : aggregate_base<TYPE> {};
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
 #endif
+/// The following line is a regression that will not compile with Oracle CC
+/// 12.5/6, and is a significant problem for type traits.
 void test_dependent_constexpr_aggregate() {
-    // The following line is a regression that will not compile with Oracle CC
-    // 12.5/6, and is a significant problem for type traits.
     constexpr aggregate_derived<bool> X{};    (void)X;
 
     (void)&test_dependent_constexpr_aggregate;
@@ -329,7 +329,7 @@ void test_dependent_constexpr_aggregate() {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
-// libc++ defines 'decltype' as a function-like macro when it is not provided
+// libc++ defines `decltype` as a function-like macro when it is not provided
 // by the compiler.  Our test should not be fooled by this macro.
 #ifdef decltype
     #undef decltype
@@ -371,7 +371,7 @@ struct ClassWithDefaultOps {
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
-// This test is distilled from 'shared_ptr' use of the feature that has been
+// This test is distilled from `shared_ptr` use of the feature that has been
 // shown to crash on at least one buggy compiler.
 
 typedef decltype(nullptr) nullptr_t;  // avoids dependencies
@@ -414,10 +414,10 @@ struct ClassWithDeletedOps {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 namespace initializerFeatureTest {
 // The following code demonstrates a bug with Oracle CC 12.4, where the
-// 'initializer_list' method dominates another single-argument method in
+// `initializer_list` method dominates another single-argument method in
 // overload resolution, despite not having a suitable conversion to the
-// required 'initializer_list' instantiation, and so rejecting a valid call.
-// The 'use' function is invoked directly from the test case in 'main'.
+// required `initializer_list` instantiation, and so rejecting a valid call.
+// The `use` function is invoked directly from the test case in `main`.
 
 struct object {
     object() {}
@@ -498,24 +498,25 @@ struct RvalueTest {
     RvalueTest(RvalueArg const &) {}                                // IMPLICIT
 };
 
-// Check for support for move-constructors declared with a 'typedef'.  This is
+// Check for support for move-constructors declared with a `typedef`.  This is
 // known to expose a bug on some compilers that causes issues for our
 // compatibility with emulated C++03 move.
 
+/// The class template `MovableRef_Helper` just defines a nested type `type`
+/// that is used by an alias template.  Using this indirection the template
+/// argument of the alias template is prevented from being deduced.
 template <class TYPE>
 struct my_movable_ref_helper {
-    // The class template 'MovableRef_Helper' just defines a nested type 'type'
-    // that is used by an alias template.  Using this indirection the template
-    // argument of the alias template is prevented from being deduced.
+
+    /// The type `type` defined to be an r-value reference to the argument
+    /// type of `MovableRef_Helper`.
     using type = TYPE&&;
-        // The type 'type' defined to be an r-value reference to the argument
-        // type of 'MovableRef_Helper'.
 };
 
+/// The alias template `MovableRef<TYPE>` yields an r-value reference of
+/// type `TYPE&&`.
 template <class TYPE>
 using my_movable_ref = typename my_movable_ref_helper<TYPE>::type;
-    // The alias template 'MovableRef<TYPE>' yields an r-value reference of
-    // type 'TYPE&&'.
 
 template <class TYPE>
 struct TemplateType {
@@ -609,8 +610,8 @@ struct AClassTemplate {};
 
 void showRefCollapsingBug() {
     AClassTemplate< RValueeRef<int>& > X;
-    (void)X;                        // silence 'unused'
-    (void)&showRefCollapsingBug;    // silence 'never called'
+    (void)X;                        // silence `unused`
+    (void)&showRefCollapsingBug;    // silence `never called`
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -633,16 +634,16 @@ struct PackSize<TYPE> {
 // sufficiently well to be supported on the Sun CC 12.4 compiler (and any
 // others that suffer similar bugs).
 
+/// This function should deduce `TYPE` from the pointer, and bind to a
+/// reference of any argument convertible to that type.
 template <class TYPE>
 void func(TYPE*, const TYPE&) {
-    // This function should deduce 'TYPE' from the pointer, and bind to a
-    // reference of any argument convertible to that type.
 }
 
+/// This function should deduce `TYPE` from the pointer, perfectly match the
+/// second argument.
 template <class TYPE, class ARG1, class... TAIL>
 void func(TYPE *, const ARG1&, const TAIL&...) {
-    // This function should deduce 'TYPE' from the pointer, perfectly match the
-    // second argument.
 }
 
 void test_func() {
@@ -654,15 +655,15 @@ void test_func() {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 // Note that the tests below also rely on the use of rvalue-references and the
-// 'decltype' operator.  This has not been a problem on any tested platform
-// that also supports at least the C++11 level of 'constexpr'.
+// `decltype` operator.  This has not been a problem on any tested platform
+// that also supports at least the C++11 level of `constexpr`.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
+/// Return a different integer value depending on the specified `b` boolean
+/// value.  This function demonstrates relaxed `constexpr` requirements
+/// since it has multiple statements, including mutating of a local variable
+/// and multiple return statements.
 constexpr int relaxedConstExprFunc(bool b)
-    // Return a different integer value depending on the specified 'b' boolean
-    // value.  This function demonstrates relaxed 'constexpr' requirements
-    // since it has multiple statements, including mutating of a local variable
-    // and multiple return statements.
 {
     int i = -1;
     if (b) {
@@ -677,9 +678,9 @@ constexpr int relaxedConstExprFunc(bool b)
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+/// Return the result of a invoking a locally defined lambda, with a lambda
+/// that cannot be evaluated at compile time used on the false path.
 constexpr int moreRelaxedConstExprFunc(bool b)
-    // Return the result of a invoking a locally defined lambda, with a lambda
-    // that cannot be evaluated at compile time used on the false path.
 {
     if (b) {
         return []{
@@ -695,78 +696,80 @@ constexpr int moreRelaxedConstExprFunc(bool b)
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
 
+/// A type to represent `false`.  Notice that its size is different from
+/// that of `TrueType`.
 struct FalseType {
-    // A type to represent 'false'.  Notice that its size is different from
-    // that of 'TrueType'.
 
     // PUBLIC DATA
     char d_dummy;
 };
 
+/// A type to represent `true`.  Notice that its size is different from that
+/// of `FalseType`.
 struct TrueType {
-    // A type to represent 'true'.  Notice that its size is different from that
-    // of 'FalseType'.
 
     // PUBLIC DATA
     char d_dummy[13];
 };
 
+/// This class template turns a compile time constant into a distinct type.
 template <int VALUE>
 struct TypeN {
-    // This class template turns a compile time constant into a distinct type.
 };
 
+/// This class provides a means to detect if the expression
+/// `TARGET().call(true)` is valid, and usable in SFINAE constraints.
 struct Sniffer {
-    // This class provides a means to detect if the expression
-    // 'TARGET().call(true)' is valid, and usable in SFINAE constraints.
 
+    /// The "catch all" overload that gets selected when
+    /// `TARGET{}.call(true)` is not a compile time constant.
     template <class TARGET>
     static FalseType test(...);
-        // The "catch all" overload that gets selected when
-        // 'TARGET{}.call(true)' is not a compile time constant.
 
+    /// The overload that gets selected when `TARGET{}.call(true)` is a
+    /// valid compile time constant (`constexpr`).
     template <class TARGET>
     static TrueType test(TARGET *, TypeN < TARGET{}.call(true) > * = 0);
-        // The overload that gets selected when 'TARGET{}.call(true)' is a
-        // valid compile time constant ('constexpr').
 };
 
+/// This class uses expression SFINAE to detect if the expression
+/// `const TARGET{}.call(true)` is a valid compile time constant expression.
 struct ConstexprConst {
-    // This class uses expression SFINAE to detect if the expression
-    // 'const TARGET{}.call(true)' is a valid compile time constant expression.
 
+    /// Return an rvalue-reference to the (template parameter) `TYPE`.
+    /// Note that this function is never defined, and should be called only
+    /// from unevaluated contexts, such as `decltype` and `sizeof`.
     template<class TYPE>
     static TYPE&& declval();
-        // Return an rvalue-reference to the (template parameter) 'TYPE'.
-        // Note that this function is never defined, and should be called only
-        // from unevaluated contexts, such as 'decltype' and 'sizeof'.
 
+    /// The "catch all" overload that gets selected when
+    /// `const TARGET{}.call(true)` is not a valid compile time constant
+    /// expression.  Notice that since in `Feature14` the function `call` is
+    /// not defined explicitly `const`, therefore this catch all function
+    /// returns `TrueType`, because in C++14 `constexpr` does not make
+    /// member functions implicitly `const`.
     template <class TARGET>
     static TrueType test(...);
-        // The "catch all" overload that gets selected when
-        // 'const TARGET{}.call(true)' is not a valid compile time constant
-        // expression.  Notice that since in 'Feature14' the function 'call' is
-        // not defined explicitly 'const', therefore this catch all function
-        // returns 'TrueType', because in C++14 'constexpr' does not make
-        // member functions implicitly 'const'.
 
+    /// The overload that gets selected when `TARGET{}.call(true)` is a
+    /// valid expression.
     template <class TARGET,
               class = decltype(declval<const TARGET>().call(true))>
     static FalseType test(TARGET *);
-        // The overload that gets selected when 'TARGET{}.call(true)' is a
-        // valid expression.
 };
 
+/// This literal type is for testing C++11 `constexpr` support.
 struct Feature11 {
-    // This literal type is for testing C++11 'constexpr' support.
 
     // CREATORS
+
+    /// Create a, possibly `constexpr`, `Feature11` object.
     constexpr Feature11();
-        // Create a, possibly 'constexpr', 'Feature11' object.
 
     // MANIPULATORS
+
+    /// Return an integer usable in constant expressions.
     constexpr int call(bool) const;
-        // Return an integer usable in constant expressions.
 };
 
 constexpr Feature11::Feature11() {}
@@ -776,20 +779,21 @@ constexpr int Feature11::call(bool) const {
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
+/// This literal type is for testing C++14 `constexpr` support.
 struct Feature14 {
-    // This literal type is for testing C++14 'constexpr' support.
 
     // PUBLIC DATA
     int d_value;
 
     // CREATORS
-    constexpr Feature14();
-        // Create a, possibly 'constexpr', 'Feature14' object.
 
+    /// Create a, possibly `constexpr`, `Feature14` object.
+    constexpr Feature14();
+
+    /// Return, a possibly `constexpr` integer value that depends on the
+    /// specified `b` flag.  This method is "complex", cannot be `constexpr`
+    /// in C++11, only in C++14 and onwards.
     constexpr int call(bool b);
-        // Return, a possibly 'constexpr' integer value that depends on the
-        // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
-        // in C++11, only in C++14 and onwards.
 };
 
 constexpr Feature14::Feature14() : d_value(-1) {}
@@ -807,20 +811,21 @@ constexpr int Feature14::call(bool b) {
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+/// This literal type is for testing C++17 `constexpr` support.
 struct Feature17 {
-    // This literal type is for testing C++17 'constexpr' support.
 
     // PUBLIC DATA
     int d_value;
 
     // CREATORS
-    constexpr Feature17();
-        // Create a, possibly 'constexpr', 'Feature17' object.
 
+    /// Create a, possibly `constexpr`, `Feature17` object.
+    constexpr Feature17();
+
+    /// Return, a possibly `constexpr` integer value that depends on the
+    /// specified `b` flag.  This method is "complex", cannot be `constexpr`
+    /// in C++11, only in C++17 and onwards.
     constexpr int call(bool b);
-        // Return, a possibly 'constexpr' integer value that depends on the
-        // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
-        // in C++11, only in C++17 and onwards.
 };
 
 constexpr Feature17::Feature17() : d_value(-1) {}
@@ -917,8 +922,8 @@ namespace test_case_25 {
     while (true) {}
 }
 #elif u_HAS_CPP_ATTRIBUTE(noreturn)
-    // If specific compiler versions do have '__has_cpp_attribute' but do not
-    // support '[[noreturn]]' properly then those should be excluded from the
+    // If specific compiler versions do have `__has_cpp_attribute` but do not
+    // support `[[noreturn]]` properly then those should be excluded from the
     // check here.
     #error '[[noreturn]]' is available but                                    \
             'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN' is not defined.
@@ -932,8 +937,8 @@ namespace test_case_26 {
     return 1;
 }
 #elif u_HAS_CPP_ATTRIBUTE(nodiscard)
-    // If specific compiler versions do have '__has_cpp_attribute' but do not
-    // support '[[nodiscard]]' properly then those should be excluded from the
+    // If specific compiler versions do have `__has_cpp_attribute` but do not
+    // support `[[nodiscard]]` properly then those should be excluded from the
     // check here.
     #error '[[nodiscard]]' is available but                                   \
            'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD' is not defined.
@@ -956,8 +961,8 @@ void runTest() {
     }
 }
 #elif u_HAS_CPP_ATTRIBUTE(fallthrough)
-    // if specific compiler versions do have '__has_cpp_attribute' but do not
-    // support '[[fallthrough]]' properly then those should be excluded from
+    // if specific compiler versions do have `__has_cpp_attribute` but do not
+    // support `[[fallthrough]]` properly then those should be excluded from
     // the check here.
     #error '[[fallthrough]]' is available but                                 \
          'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH' is not defined.
@@ -972,7 +977,7 @@ void runTest([[maybe_unused]] int i) {}
 #elif u_HAS_CPP_ATTRIBUTE(maybe_unused) && !defined(BSLS_PLATFORM_CMP_CLANG)
     // clang does not allow maybe_unused where other compilers do, so we
     // exclude it to keep portability.  If any other specific compiler version
-    // does have '__has_cpp_attribute' but do not support '[[maybe_unused]]'
+    // does have `__has_cpp_attribute` but do not support `[[maybe_unused]]`
     // properly those should also be excluded from the check here.
         #error '[[maybe_unused]]' is available but                            \
         'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED' is not defined.
@@ -991,10 +996,10 @@ void bar() noexcept {}
 namespace test_case_32 {
 #ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
 
+/// Instances of this class can be constructed only using the factory
+/// methods and must never be copied or moved.  This class is used to test
+/// guaranteed copy elision.
 class NeverCopied {
-    // Instances of this class can be constructed only using the factory
-    // methods and must never be copied or moved.  This class is used to test
-    // guaranteed copy elision.
 
     enum { NOT_COPIED = false };
 
@@ -1006,75 +1011,78 @@ class NeverCopied {
 
   public:
     // CLASS METHODS
+
+    /// Return a `NeverCopied` object by value.  A compiler for which
+    /// `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION` is defined will
+    /// create no copies in the process of returning the prvalue.
     static NeverCopied factory1(int v);
-        // Return a 'NeverCopied' object by value.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
-        // create no copies in the process of returning the prvalue.
 
+    /// Return `factory1(v)`.  A compiler for which
+    /// `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION` is defined will
+    /// create no copies in the process of returning the prvalue.
     static NeverCopied factory2(int v);
-        // Return 'factory1(v)'.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
-        // create no copies in the process of returning the prvalue.
 
+    /// Return `factory1(v)` as a const prvalue.  A compiler for which
+    /// `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION` is defined will
+    /// create no copies in the process of returning the prvalue.
     static const NeverCopied factory3(int v);
-        // Return 'factory1(v)' as a const prvalue.  A compiler for which
-        // 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined will
-        // create no copies in the process of returning the prvalue.
 
     // CREATORS
+
+    /// "Extended" copy constructor (which is also the move constructor)
+    /// that is never called.  Note that some compilers (e.g., xlC) will
+    /// elide some calls to a regular copy constructor, but not to an
+    /// extended copy constructor like this one.
     NeverCopied(const NeverCopied&, int *allocator = 0)
-        // "Extended" copy constructor (which is also the move constructor)
-        // that is never called.  Note that some compilers (e.g., xlC) will
-        // elide some calls to a regular copy constructor, but not to an
-        // extended copy constructor like this one.
         : d_data(allocator ? *allocator : 0) { ASSERT(NOT_COPIED); }
 
     // MANIPULATORS
+
+    /// Copy assignment operator (which is also the move assignment
+    /// operator) that is never called.
     NeverCopied& operator=(const NeverCopied&)
-        // Copy assignment operator (which is also the move assignment
-        // operator) that is never called.
         { ASSERT(NOT_COPIED); return *this; }
 
     // ACCESSORS
     int value() const { return d_data; }
 };
 
+/// RVO and copy elision prevent a copy from being made.
 NeverCopied NeverCopied::factory1(int v) {
-    // RVO and copy elision prevent a copy from being made.
     return NeverCopied(v);
 }
 
+/// RVO and copy elision prevent a copy from being made.
 NeverCopied NeverCopied::factory2(int v) {
-    // RVO and copy elision prevent a copy from being made.
     return factory1(v);
 }
 
+/// RVO and copy elision prevent a copy from being made.
 const NeverCopied NeverCopied::factory3(int v) {
-    // RVO and copy elision prevent a copy from being made.
     return factory1(v);
 }
 
+/// Instances of this class wrap a `NeverCopied` object.  The constructors
+/// use the `NeverCopied` factory methods and ensure that initializing the
+/// wrapped value is done without making a copy.
 class NCWrapper {
-    // Instances of this class wrap a 'NeverCopied' object.  The constructors
-    // use the 'NeverCopied' factory methods and ensure that initializing the
-    // wrapped value is done without making a copy.
 
     NeverCopied d_data;
 
   public:
+    /// Create an `NCWrapper` by initializing its data member from
+    /// `NeverCopied::factory1()`.
     explicit NCWrapper(int v)
-        // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory1()'.
         : d_data(NeverCopied::factory1(v)) { }
 
+    /// Create an `NCWrapper` by initializing its data member from
+    /// `NeverCopied::factory2()`.
     NCWrapper(int v, int)
-        // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory2()'.
         : d_data(NeverCopied::factory2(v)) { }
 
+    /// Create an `NCWrapper` by initializing its data member from
+    /// `NeverCopied::factory3()`.
     NCWrapper(int v, int, int)
-        // Create an 'NCWrapper' by initializing its data member from
-        // 'NeverCopied::factory3()'.
         : d_data(NeverCopied::factory3(v)) { }
 
     int value() const { return d_data.value(); }
@@ -1089,15 +1097,16 @@ namespace test_case_34 {
 struct Empty {};
    // An empty class used to test template argument deduction.
 
+/// A class to hold a single value.  Used to test template argument
+/// deduction.
 template <class T>
 struct Holder {
-    // A class to hold a single value.  Used to test template argument
-    // deduction.
 
     // CREATORS
+
+    /// Create a `Holder` by initializing its data member from the specified
+    /// `value`.
     explicit Holder(const T &value) : d_value(value) {}
-        // Create a 'Holder' by initializing its data member from the specified
-        // 'value'.
 
     // PUBLIC DATA
     T d_value;
@@ -1148,9 +1157,9 @@ struct Generator {
             return {};
         }
 
+        /// In this method `d_value` is the "counter", see `co_yield` in
+        /// `coroutine` below.  `s_numCalls` is for the rarely called ones.
         std::suspend_always yield_value(unsigned value) {
-            // In this method 'd_value' is the "counter", see 'co_yield' in
-            // 'coroutine' below.  's_numCalls' is for the rarely called ones.
             d_value = value;
             return {};
         }
@@ -1346,9 +1355,10 @@ struct Task {
                             // =========
                             // struct Io
                             // =========
+
+/// Use of `std` is deliberate, `std::string` is not a literal type
 struct Io {
     using Callback = std::function<void(std::string)>;
-        // Use of 'std' is deliberate, 'std::string' is not a literal type
 
     std::unordered_map<int, Callback> d_outstanding;
 
@@ -1404,7 +1414,7 @@ Task<> coroutineRunner(Io& c) {
     const auto secondLine = co_await g(c);
     ASSERTV(secondLine.c_str(), "second line" == secondLine);
 
-    co_await e();  // 'e()' throws
+    co_await e();  // `e()` throws
 
     ASSERT(0 == "We should never get here");
 }
@@ -1426,11 +1436,11 @@ concept Addable = requires (T v, U u) {
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     puts("printFlags: Enter");
 
@@ -2087,12 +2097,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2101,10 +2111,10 @@ int main(int argc, char *argv[])
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
 
-///Example 2: '__LINE__' macro multi-line value differences demonstration
+///Example 2: `__LINE__` macro multi-line value differences demonstration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Note that this isn't an example of use, it is a demonstration of compiler
-// preprocessor behavior and the 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST'
+// preprocessor behavior and the `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST`
 // macro.
 //
 // Sometimes we write code that uses line numbers for logging or other
@@ -2115,13 +2125,13 @@ int main(int argc, char *argv[])
 // In such cases the precise values for the line numbers may matter.  This
 // example demonstrates the two ways our currently supported C++ compilers
 // generate line numbers in multi-line macro expansion contexts (from the
-// '__LINE__' macro), and how the presence (or absence) of the macro
-// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which method the
-// current compiler uses.  First, we define a macro that uses '__LINE__' in its
+// `__LINE__` macro), and how the presence (or absence) of the macro
+// `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` indicates which method the
+// current compiler uses.  First, we define a macro that uses `__LINE__` in its
 // replacement text:
-//..
+// ```
       #define THATS_MY_LINE(dummy) __LINE__
-//..
+// ```
 // Note that this macro has the function-like syntax so we can easily span its
 // invocation to multiple lines.
 //
@@ -2130,14 +2140,14 @@ int main(int argc, char *argv[])
 // to invoke the unspecified behavior.
 //
 // The two lines must follow each other due to working with line numbering:
-//..
+// ```
       const long A_LINE = __LINE__;
       const long LINE_FROM_MACRO = THATS_MY_LINE
           (
                "dummy"
           )
           ;
-//..
+// ```
 // We deliberately extended the macro invocation to more than 2 physical source
 // code lines so that we can demonstrate the two distinct behaviors: using the
 // line number of the first character or the last.  Extending the number of
@@ -2145,19 +2155,19 @@ int main(int argc, char *argv[])
 // line) has no effect on the line number substitution inside the macro.  The
 // dummy argument is required for C++03 compatibility.
 //
-// If we follow the definition of 'A_LINE' without any intervening empty lines
+// If we follow the definition of `A_LINE` without any intervening empty lines
 // the line number of the first character of the macro invocation will be
-// 'A_LINE + 1', while the last falls on line 'A_LINE + 4'.
+// `A_LINE + 1`, while the last falls on line `A_LINE + 4`.
 //
 // Now we demonstrate the two different behaviors and how the presence of
-// 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' indicates which one will occur:
-//..
+// `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` indicates which one will occur:
+// ```
       #ifdef BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
           ASSERT(A_LINE + 1 == LINE_FROM_MACRO);
       #else
           ASSERT(A_LINE + 4 == LINE_FROM_MACRO);
       #endif
-//..
+// ```
 // Finally note that WG14 N2322 defines this behavior as *unspecified*,
 // therefore it is in the realm of possibilities, although not likely (in C++
 // compilers) that further, more complicated or even indeterminate behaviors
@@ -2166,20 +2176,20 @@ int main(int argc, char *argv[])
       } break;
       case 38: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS'
+        // TESTING `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS' is defined when the
-        //:    concepts feature is fully supported, as defined by ISO C++20.
-        //:
-        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS' is defined when
-        //:   '__cpp_concepts' macro is defined and has value at least
-        //:   '202002L'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS` is defined when the
+        //     concepts feature is fully supported, as defined by ISO C++20.
+        //
+        // 2. `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS` is defined when
+        //    `__cpp_concepts` macro is defined and has value at least
+        //    `202002L`.
         //
         // Plan:
-        //: 1 Verify that '__cpp_concepts >= 202002L'.
-        //:
-        //: 2 Verify that concepts can be defined and used.
+        // 1. Verify that `__cpp_concepts >= 202002L`.
+        //
+        // 2. Verify that concepts can be defined and used.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
@@ -2199,9 +2209,9 @@ int main(int argc, char *argv[])
   #endif
         ASSERTV(__cpp_concepts, whichClang, clangVersion,
                 "clang now appears to support core language C++20 concepts.  "
-                "Please update 'BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS' "
+                "Please update `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS` "
                 "Compiler support and its clang-related note in "
-                "'bsls_compilerfeatures.h' test case 38 to reflect the "
+                "`bsls_compilerfeatures.h` test case 38 to reflect the "
                 "current known compiler support.")
         // BEWARE, there are TWO clang's we need to support, LLVM and Apple,
         // and their similar version numbers may not refer to the same set of
@@ -2217,7 +2227,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf(
                            "concepts are not supported in this configuration. "
-                           "'__cpp_concepts' macro "
+                           "`__cpp_concepts` macro "
 #ifdef __cpp_concepts
                            "has value %ld\n", __cpp_concepts
 #else
@@ -2228,51 +2238,51 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_COROUTINE'
+        // TESTING `BSLS_COMPILERFEATURES_SUPPORT_COROUTINE`
         //
         // Concerns:
-        //: 1 '__cpp_lib_coroutine' is defined by '<coroutine>' to a value
-        //:   equal or larger to 201902L.
-        //:
-        //: 2 The 'std::coroutine_traits' class template provides the expected
-        //:   'promise_type' member.
-        //:
-        //: 3 'std::noop_coroutine_handle' is the same type as
-        //:   'std::coroutine_handle<std::noop_coroutine_promise>'.
-        //:
-        //: 4 The result of a 'std::noop_coroutine()' call is a
-        //:   'std::noop_coroutine_handle'.
-        //:
-        //: 5 'std::suspend_never' and 'std::suspend_always' are available.
-        //:
-        //: 6 'std::coroutine_handle<Promise>' types are comparable.
-        //:
-        //: 7 A simple generator compiles and works as expected.
-        //:
-        //: 8 We have at least a C++20 standard implementation of coroutines,
-        //:   not "just" a Coroutine TR implementation.
+        // 1. `__cpp_lib_coroutine` is defined by `<coroutine>` to a value
+        //    equal or larger to 201902L.
+        //
+        // 2. The `std::coroutine_traits` class template provides the expected
+        //    `promise_type` member.
+        //
+        // 3. `std::noop_coroutine_handle` is the same type as
+        //    `std::coroutine_handle<std::noop_coroutine_promise>`.
+        //
+        // 4. The result of a `std::noop_coroutine()` call is a
+        //    `std::noop_coroutine_handle`.
+        //
+        // 5. `std::suspend_never` and `std::suspend_always` are available.
+        //
+        // 6. `std::coroutine_handle<Promise>` types are comparable.
+        //
+        // 7. A simple generator compiles and works as expected.
+        //
+        // 8. We have at least a C++20 standard implementation of coroutines,
+        //    not "just" a Coroutine TR implementation.
         //
         // Plan:
-        //: 1 Use 'std::is_same_v' to compare types, instantiate templates to
-        //:   make them into types for comparison, use 'decltype' to get the
-        //:   return type of functions (function calls). (C-2, 3, 4)
-        //:
-        //: 2 Compare the return value of 'std::noop_coroutine'. (C-6)
-        //:
-        //: 3 Create a simple 'Generator' type that generates 'unsigned'
-        //:   values.  Create a simple coroutine function (as a class method of
-        //:   a local 'struct' so the function is local and visible here) that
-        //:   returns numbers increasing from zero.  Using a counter external
-        //:   to the 'Generator::promise_type' verify that during construction,
-        //:   counting, and destruction only the expected number of methods are
-        //:   called.  Construct a 'Generator' by calling 'coroutine'.  Use the
-        //:   'get_next()' method of the generator a few times and verify that
-        //:   it returns numbers from zero, incremented one by one. (C-5, 7)
-        //:
-        //: 4 Create a complex coroutine that uses awaiter(s) and returns a
-        //:   coroutine handle from 'await_suspend'.  The TD specification did
-        //:   not allow that, but the C++20 standard does).  Verify that it
-        //:   compiles and works as expected. (C-5, 8)
+        // 1. Use `std::is_same_v` to compare types, instantiate templates to
+        //    make them into types for comparison, use `decltype` to get the
+        //    return type of functions (function calls). (C-2, 3, 4)
+        //
+        // 2. Compare the return value of `std::noop_coroutine`. (C-6)
+        //
+        // 3. Create a simple `Generator` type that generates `unsigned`
+        //    values.  Create a simple coroutine function (as a class method of
+        //    a local `struct` so the function is local and visible here) that
+        //    returns numbers increasing from zero.  Using a counter external
+        //    to the `Generator::promise_type` verify that during construction,
+        //    counting, and destruction only the expected number of methods are
+        //    called.  Construct a `Generator` by calling `coroutine`.  Use the
+        //    `get_next()` method of the generator a few times and verify that
+        //    it returns numbers from zero, incremented one by one. (C-5, 7)
+        //
+        // 4. Create a complex coroutine that uses awaiter(s) and returns a
+        //    coroutine handle from `await_suspend`.  The TD specification did
+        //    not allow that, but the C++20 standard does).  Verify that it
+        //    compiles and works as expected. (C-5, 8)
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
@@ -2283,7 +2293,7 @@ int main(int argc, char *argv[])
         // C-1
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
   #ifndef __cpp_lib_coroutine
-        ASSERT(0 == "'__cpp_lib_coroutine' is not defined by '<coroutine>'");
+        ASSERT(0 == "`__cpp_lib_coroutine` is not defined by `<coroutine>`");
   #else
         ASSERTV(__cpp_lib_coroutine, __cpp_lib_coroutine >= 201902L);
   #endif
@@ -2307,7 +2317,7 @@ int main(int argc, char *argv[])
         ASSERT((std::is_same_v<decltype(std::noop_coroutine()),
                                std::noop_coroutine_handle>));
 
-        // C-5 is verified by C-8, C-9 before 'main'
+        // C-5 is verified by C-8, C-9 before `main`
 
         // C-6
         ASSERT( std::noop_coroutine() == std::noop_coroutine());
@@ -2316,14 +2326,14 @@ int main(int argc, char *argv[])
         ASSERT(!(std::noop_coroutine() > std::noop_coroutine()));
         ASSERT(!(std::noop_coroutine() < std::noop_coroutine()));
 
-        // C-7 (C-5 before 'main')
+        // C-7 (C-5 before `main`)
         {
             using namespace CoroutineTestHelpers::Simple;
 
             Generator g = coroutine();
 
             ASSERTV(s_numCalls, 2 == s_numCalls);
-            // Calls: 'get_return_object()' and 'initial_suspend()'
+            // Calls: `get_return_object()` and `initial_suspend()`
 
             ASSERTV(g.theValue(), 0 == g.theValue());
 
@@ -2341,7 +2351,7 @@ int main(int argc, char *argv[])
         ASSERTV(s_numCalls, 2 == s_numCalls); // Unchanged, we expect no
         // additional calls during the counting and destruction.
 
-        // C-8 (C-5 before 'main')
+        // C-8 (C-5 before `main`)
         {
             using namespace CoroutineTestHelpers::Complex;
 
@@ -2371,30 +2381,30 @@ int main(int argc, char *argv[])
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON'
+        // TESTING `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON`
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
-        //:   when '<=>' operator is fully supported, including the library
-        //:   support.
-        //:
-        //: 2 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' is defined
-        //:   when '__cpp_impl_three_way_comparison' and
-        //:   '__cpp_lib_three_way_comparison' are both defined and have values
-        //:   as defined by the ISO C++20 or greater.
-        //:
-        //: 3 That the types 'partial_ordering', 'weak_ordering',
-        //:   'strong_ordering', 'common_comparison_category',
-        //:   'compare_three_way' and 'compare_three_way_result' are defined.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON` is defined
+        //    when `<=>` operator is fully supported, including the library
+        //    support.
+        //
+        // 2. `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON` is defined
+        //    when `__cpp_impl_three_way_comparison` and
+        //    `__cpp_lib_three_way_comparison` are both defined and have values
+        //    as defined by the ISO C++20 or greater.
+        //
+        // 3. That the types `partial_ordering`, `weak_ordering`,
+        //    `strong_ordering`, `common_comparison_category`,
+        //    `compare_three_way` and `compare_three_way_result` are defined.
         //
         // Plan:
-        //: 1 Verify that both '__cpp_*' macros are defined and have a value at
-        //:   least '201907L' when the macro is defined.
-        //:
-        //: 2 Verify that '<=>' operator can be used when the macro is defined.
-        //:
-        //: 3 Verify that the types that are used in the three-way comparisons
-        //:   exist.
+        // 1. Verify that both `__cpp_*` macros are defined and have a value at
+        //    least `201907L` when the macro is defined.
+        //
+        // 2. Verify that `<=>` operator can be used when the macro is defined.
+        //
+        // 3. Verify that the types that are used in the three-way comparisons
+        //    exist.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -2465,7 +2475,7 @@ int main(int argc, char *argv[])
             (void) pCompareThreeWayResult1;
             (void) pCompareThreeWayResult2;
 #else
-        if (verbose) printf("'<=>' IS NOT SUPPORTED IN THIS CONFIGURATION\n");
+        if (verbose) printf("`<=>` IS NOT SUPPORTED IN THIS CONFIGURATION\n");
 #endif
       } break;
       case 35: {
@@ -2473,13 +2483,13 @@ int main(int argc, char *argv[])
         // BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
         //
         // Concerns:
-        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS' is defined
-        //:   hexadecimal floating point constants are supported.
+        // 1. When `BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS` is defined
+        //    hexadecimal floating point constants are supported.
         //
         // Plan:
-        //: 1 When the feature macro is defined verify hexfloat literal support
-        //:   by comparing 'float', 'double', and 'long double' hexfloat
-        //:   literals to their decimal value, and verifying their type, too.
+        // 1. When the feature macro is defined verify hexfloat literal support
+        //    by comparing `float`, `double`, and `long double` hexfloat
+        //    literals to their decimal value, and verifying their type, too.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
@@ -2491,31 +2501,31 @@ int main(int argc, char *argv[])
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        // 'float'
+        // `float`
         ASSERTV(0x1.5p5f, 42.0f, 0x1.5p5f == 42.0f);
         ASSERT(isSameType(0x1.5p5f, 42.0f));
 
-        // 'double'
+        // `double`
         typedef std::numeric_limits<double> DblLims;
         ASSERTV(0x0.0000000000001p-1022,   DblLims::denorm_min(),
                 0x0.0000000000001p-1022 == DblLims::denorm_min());
         ASSERT(isSameType(0x0.0000000000001p-1022, DblLims::denorm_min()));
-        // 'double' has exacts tests as much of BDE code depends on it being
+        // `double` has exacts tests as much of BDE code depends on it being
         // IEEE 754 binary64.
 
 #ifdef BSLS_PLATFORM_CMP_AIX
         // AIX xlC 16.1.0 (BSLS_PLATFORM_CMP_VER == 0x1001) mistakenly compiles
-        // literals less than '0x0.8000000000000p-1022' into zero.  These
+        // literals less than `0x0.8000000000000p-1022` into zero.  These
         // additional tests to kick in when the compiler version is raised, and
         // roughly verify if the same issue exists (or some new one).
 
         // We avoid using decimal floating point literals that may also be
         // interpreted differently by manipulating the smallest denormal value
-        // '0x0.0000000000001p-1022'.  The 'k_M51' multiplier below moves the
+        // `0x0.0000000000001p-1022`.  The `k_M51` multiplier below moves the
         // one set bit of the significant up to the top position by moving it
-        // 51 positions.  That will result in '0x0.8000000000000p-1022', the
+        // 51 positions.  That will result in `0x0.8000000000000p-1022`, the
         // smallest hexfloat xlC 16.1.0 compiles properly.  Subtracting
-        // 'denorm_min()' from that value gives us the largest subnormal that
+        // `denorm_min()` from that value gives us the largest subnormal that
         // won't compile properly (the smallest was just tested above).
 
         static const double k_M51        = 0x8000000000000ull;
@@ -2531,10 +2541,10 @@ int main(int argc, char *argv[])
                 0x0.8000000000000p-1022 == k_DENORM_MIN * k_M51);
 #endif
 
-        // 'long double'
+        // `long double`
         ASSERTV(0x1.5p5l, 42.0l, 0x1.5p5l == 42.0l);
         ASSERT(isSameType(0x1.5p5l, 42.0l));
-        // As 'long double' may be 64 or 128 bits we don't try anything fancy.
+        // As `long double` may be 64 or 128 bits we don't try anything fancy.
 #endif
       } break;
       case 34: {
@@ -2542,12 +2552,12 @@ int main(int argc, char *argv[])
         // BSLS_COMPILERFEATURES_SUPPORT_CTAD
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CTAD' is defined when template
-        //:   deduction guides are supported.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_CTAD` is defined when template
+        //    deduction guides are supported.
         //
         // Plan:
-        //: 1 Verify that template argument deduction occurs when the macro
-        //:   is defined.
+        // 1. Verify that template argument deduction occurs when the macro
+        //    is defined.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -2582,28 +2592,28 @@ int main(int argc, char *argv[])
         // unspecified means: implementers of the preprocessor do not need to
         // tell.  So we have no other way to find it out but to test.
         //
-        // Also note that there are more distinct '__LINE__' use scenarios for
+        // Also note that there are more distinct `__LINE__` use scenarios for
         // which WG14 N2322 gives recommendations.  Our code is affected by one
         // of those only, hence we have one macro in the header, and test for
-        // that one use case only ('__LINE__' substitution value in replacement
+        // that one use case only (`__LINE__` substitution value in replacement
         // text of a macro that is invoked in a multiline manner).  There has
         // been an experiment done for the other major case, see the
         // conclusions within the test case.  There are no tests or compiler
-        // feature macro for that use case ('__LINE__' as a macro argument not
+        // feature macro for that use case (`__LINE__` as a macro argument not
         // in replacement text) because our code is not affected by that
         // behavior (yet).
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' is defined whenever
-        //:   the preprocessor follows WG21 N2322 Recommended practice.
-        //:
-        //: 2 When 'BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST' is not defined
-        //:   the preprocessor uses the line number of the last character of
-        //:   the macro invocation.
+        // 1. `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` is defined whenever
+        //    the preprocessor follows WG21 N2322 Recommended practice.
+        //
+        // 2. When `BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST` is not defined
+        //    the preprocessor uses the line number of the last character of
+        //    the macro invocation.
         //
         // Plan:
-        //: 1 Reuse the technique in {Example 2} to check that substituted
-        //:   line numbers match expectations to verify C-1 and C-2.
+        // 1. Reuse the technique in {Example 2} to check that substituted
+        //    line numbers match expectations to verify C-1 and C-2.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
@@ -2612,10 +2622,10 @@ int main(int argc, char *argv[])
         MACRO_TEST_TITLE("_PP_LINE_IS_ON_FIRST",
                          "====================");
 
-        VERYVERBOSE_PUTS("'__LINE__' in substitution");
+        VERYVERBOSE_PUTS("`__LINE__` in substitution");
         {
+/// The dummy argument is required for C++03 compatibility
 #define BALL_LOG_LINENR_TESTER(dummy) __LINE__
-    // The dummy argument is required for C++03 compatibility
 
             static const long k_LINE_BEFORE = __LINE__;
             static const long k_LINE_MACRO  = BALL_LOG_LINENR_TESTER
@@ -2638,18 +2648,18 @@ int main(int argc, char *argv[])
 
         // The other use case where WG14 N2322 appears to have caused changes
         // in preprocessor (compiler) behavior is the replacement value of
-        // '__LINE__' as a macro argument, in a context that is not macro
-        // replacement text.  In other words: passing in '__LINE__' to a
+        // `__LINE__` as a macro argument, in a context that is not macro
+        // replacement text.  In other words: passing in `__LINE__` to a
         // macro from code that is not a macro.  The experiment we have done on
         // that behavior is captured in this comment (code and all) so it is
         // not lost to time, but no attempt will be made to indicate that
         // behavior as a compiler feature as none of our code is affected by
         // it, and none of us has seen production code ever been affected by
         // it.  This variability is also simple to work around by placing the
-        // macro invocation with the '__LINE__' argument into another macro,
+        // macro invocation with the `__LINE__` argument into another macro,
         // thereby changing the rules that apply.
-        //..
-        //    if (veryVerbose) puts("'__LINE__' as macro argument");
+        // ```
+        //    if (veryVerbose) puts("`__LINE__` as macro argument");
         //    {
         //        #define BALL_LOG_LINENR_TESTER2(passthrough) (passthrough)
         //
@@ -2665,11 +2675,11 @@ int main(int argc, char *argv[])
         //
         //        P(k_LINE_MACRO - k_LINE_BEFORE); // 6 or 4
         //    }
-        //..
-        // Older compilers consistently substitute '__LINE__' with the line
+        // ```
+        // Older compilers consistently substitute `__LINE__` with the line
         // number of the last character of the macro invocation to which
-        // '__LINE__' is the argument (hence the value 6), while newer
-        // compilers (clang and gcc) report the number of the line '__LINE__'
+        // `__LINE__` is the argument (hence the value 6), while newer
+        // compilers (clang and gcc) report the number of the line `__LINE__`
         // is on, as I believe WG14 N2322 recommends (hence the value 4).
       } break;
       case 32: {
@@ -2677,56 +2687,56 @@ int main(int argc, char *argv[])
         // BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
         //
         // Concerns:
-        //: 1 If 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined,
-        //:   a function returning a prvalue that is initialized in its return
-        //:   statement does not make a copy of the initialized prvalue
-        //:   (i.e., the object is constructed in the caller, not
-        //:   constructed locally and then copied or moved).
-        //:
-        //: 2 If 'BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION' is defined,
-        //:   then initializing an object from a call to a function returning
-        //:   a prvalue of the same type does not make a copy of the returned
-        //:   object (i.e., the target object is initialized directly by
-        //:   the function call).
-        //:
-        //: 3 Concern 2 applies when the target object is a class member
-        //:   being initialized within a member initialization list.
-        //:
-        //: 4 Concerns 2 and 3 apply when the source and target differ in
-        //:   'const' qualification.
+        // 1. If `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION` is defined,
+        //    a function returning a prvalue that is initialized in its return
+        //    statement does not make a copy of the initialized prvalue
+        //    (i.e., the object is constructed in the caller, not
+        //    constructed locally and then copied or moved).
+        //
+        // 2. If `BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION` is defined,
+        //    then initializing an object from a call to a function returning
+        //    a prvalue of the same type does not make a copy of the returned
+        //    object (i.e., the target object is initialized directly by
+        //    the function call).
+        //
+        // 3. Concern 2 applies when the target object is a class member
+        //    being initialized within a member initialization list.
+        //
+        // 4. Concerns 2 and 3 apply when the source and target differ in
+        //    `const` qualification.
         //
         // Plan
-        //: 1 For concern 1, create a class, 'NeverCopied', that asserts
-        //:   failure if its copy/move constructor or assignment operator are
-        //:   called.  Create a static 'factory1' method for 'NeverCopied'
-        //:   that returns a 'NeverCopied' object by value, constructing and
-        //:   returning the 'NeverCopied' object in a single 'return'
-        //:   statement.  Call the 'factory' method and verify that the
-        //:   no-copy assertion is not tripped.  Add a static 'factory2'
-        //:   method such that 'NeverCopied::factory2' returns the result
-        //:   of calling, 'NeverCopied::factory1'.  Call 'factory2' and verify
-        //:   that the no-copy assertion is still not tripped, even across
-        //:   multiple levels of function calls.
-        //:
-        //: 2 For concern 2, create an instance of a 'NeverCopied' object
-        //:   initialized by calling 'NeverCopied::factory2()' as the
-        //:   constructor argument and verify that the no-copy assertion is
-        //:   not tripped.  Repeat using the '=' form of initialization (i.e.,
-        //:   'NeverCopied x = NeverCopied::factory2()').
-        //:
-        //: 3 For concern 3, create a class, 'NCWrapper', containing a data
-        //:   member of type 'NeverCopied'.  Initialize the data member in the
-        //:   constructor's member-initializer list using
-        //:   'NeverCopied::factory2'.  Verify that the non-copied assertion
-        //:   is not tripped.
-        //:
-        //: 4 For concern 4, initialize a 'const NeverCopied' object using
-        //:   'factory2' and verify that the no-copy assertion is not tripped.
-        //:   Create a static 'factory3' method returning a 'const
-        //:   NeverCopied' object and use this overload to initialize a
-        //:   non-const 'NeverCopied' object; again, the no-copy assertion
-        //:   should not be tripped.  Repeat step 3 using an overload for
-        //:   'NCWrapper' that calls 'factory3' instead of 'factory2'.
+        // 1. For concern 1, create a class, `NeverCopied`, that asserts
+        //    failure if its copy/move constructor or assignment operator are
+        //    called.  Create a static `factory1` method for `NeverCopied`
+        //    that returns a `NeverCopied` object by value, constructing and
+        //    returning the `NeverCopied` object in a single `return`
+        //    statement.  Call the `factory` method and verify that the
+        //    no-copy assertion is not tripped.  Add a static `factory2`
+        //    method such that `NeverCopied::factory2` returns the result
+        //    of calling, `NeverCopied::factory1`.  Call `factory2` and verify
+        //    that the no-copy assertion is still not tripped, even across
+        //    multiple levels of function calls.
+        //
+        // 2. For concern 2, create an instance of a `NeverCopied` object
+        //    initialized by calling `NeverCopied::factory2()` as the
+        //    constructor argument and verify that the no-copy assertion is
+        //    not tripped.  Repeat using the '=' form of initialization (i.e.,
+        //    `NeverCopied x = NeverCopied::factory2()`).
+        //
+        // 3. For concern 3, create a class, `NCWrapper`, containing a data
+        //    member of type `NeverCopied`.  Initialize the data member in the
+        //    constructor's member-initializer list using
+        //    `NeverCopied::factory2`.  Verify that the non-copied assertion
+        //    is not tripped.
+        //
+        // 4. For concern 4, initialize a `const NeverCopied` object using
+        //    `factory2` and verify that the no-copy assertion is not tripped.
+        //    Create a static `factory3` method returning a 'const
+        //    NeverCopied' object and use this overload to initialize a
+        //    non-const `NeverCopied` object; again, the no-copy assertion
+        //    should not be tripped.  Repeat step 3 using an overload for
+        //    `NCWrapper` that calls `factory3` instead of `factory2`.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
@@ -2758,7 +2768,7 @@ int main(int argc, char *argv[])
         NeverCopied b = NeverCopied::factory2(11);
         ASSERT(11 == b.value());
 
-        // Step 3: 'NCWrapper' member initialization
+        // Step 3: `NCWrapper` member initialization
         NCWrapper c(12);
         ASSERT(12 == c.value());
         NCWrapper h(17, 0);
@@ -2782,16 +2792,16 @@ int main(int argc, char *argv[])
         // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE' is defined
-        //:   whenever 'noexcept' is part of the type system on function types.
-        //:
-        //: 2 The 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES' deprecated
-        //:   alias is IFF 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE'
-        //:   is defined.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE` is defined
+        //    whenever `noexcept` is part of the type system on function types.
+        //
+        // 2. The `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES` deprecated
+        //    alias is IFF `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE`
+        //    is defined.
         //
         // Plan:
-        //: 1 Verify that the types of functions with a 'noexcept' qualifier
-        //:   are different if the macro is defined, and are the same if not.
+        // 1. Verify that the types of functions with a `noexcept` qualifier
+        //    are different if the macro is defined, and are the same if not.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
@@ -2834,13 +2844,13 @@ int main(int argc, char *argv[])
         // BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is defined
-        //:    only when the compiler properly supports C++11 raw string
-        //:    literals.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS` is defined
+        //     only when the compiler properly supports C++11 raw string
+        //     literals.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS' is defined then
-        //:   compile code that attempts to use a raw string.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS` is defined then
+        //    compile code that attempts to use a raw string.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
@@ -2862,8 +2872,8 @@ will not improve the flavor.
         ASSERTV(rawStringLiteral, stringLiteral,
                 sizeof rawStringLiteral,   sizeof stringLiteral,
                 sizeof rawStringLiteral == sizeof stringLiteral &&
-                0 == memcmp(rawStringLiteral,          // Note the '&&'.
-                            stringLiteral,            // 'memcmp' isn't called
+                0 == memcmp(rawStringLiteral,          // Note the `&&`.
+                            stringLiteral,            // `memcmp` isn't called
                             sizeof stringLiteral));  // if size isn't the same.
 
         VERBOSE_P(rawStringLiteral);
@@ -2874,21 +2884,21 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is defined
-        //:    only when the compiler properly supports C++98 exception
-        //:    specifications, which are removed in C++17, and were never
-        //:    properly implemented by Microsoft.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS` is defined
+        //     only when the compiler properly supports C++98 exception
+        //     specifications, which are removed in C++17, and were never
+        //     properly implemented by Microsoft.
         //
         // Plan:
-        //: 1 If exceptions are disabled, then there is nothing to test, and
-        //:   any reasonable attempt at testing will fail to compile.  Report
-        //:   an supported configuration and return.
-        //:
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is
-        //:   defined then compile code that attempts to throw an invalid
-        //:   exception out of a function that has an exception specification
-        //:   that permits 'std::bad_exception', and confirm it is translated
-        //:   into the expected type through a call to 'unexpected'.
+        // 1. If exceptions are disabled, then there is nothing to test, and
+        //    any reasonable attempt at testing will fail to compile.  Report
+        //    an supported configuration and return.
+        //
+        // 2. If `BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS` is
+        //    defined then compile code that attempts to throw an invalid
+        //    exception out of a function that has an exception specification
+        //    that permits `std::bad_exception`, and confirm it is translated
+        //    into the expected type through a call to `unexpected`.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
@@ -2952,16 +2962,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
         //
         // Concerns:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED' is
-        //:   defined then '[[maybe_unused]]' can be put on a function
-        //:   declaration without issue.
-        //:
-        //: 2 The converse might not be true if there are compiler bugs related
-        //:   to '[[maybe_unused]]', so we cannot test that.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED` is
+        //    defined then `[[maybe_unused]]` can be put on a function
+        //    declaration without issue.
+        //
+        // 2. The converse might not be true if there are compiler bugs related
+        //    to `[[maybe_unused]]`, so we cannot test that.
         //
         // Plan:
-        //: 1 If the macro is defined we have a function declared above which
-        //:   uses '[[maybe_unused]]' that we make sure we can call.
+        // 1. If the macro is defined we have a function declared above which
+        //    uses `[[maybe_unused]]` that we make sure we can call.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
@@ -2983,16 +2993,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
         //
         // Concerns:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH' is
-        //:   defined then '[[fallthrough]]' can be put on a function
-        //:   declaration without issue.
-        //:
-        //: 2 The converse might not be true if there are compiler bugs related
-        //:   to '[[fallthrough]]', so we cannot test that.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH` is
+        //    defined then `[[fallthrough]]` can be put on a function
+        //    declaration without issue.
+        //
+        // 2. The converse might not be true if there are compiler bugs related
+        //    to `[[fallthrough]]`, so we cannot test that.
         //
         // Plan:
-        //: 1 If the macro is defined we have a function declared above which
-        //:   uses '[[fallthrough]]' that we make sure we can call.
+        // 1. If the macro is defined we have a function declared above which
+        //    uses `[[fallthrough]]` that we make sure we can call.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
@@ -3014,16 +3024,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
         //
         // Concerns:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD' is defined
-        //:   then '[[nodiscard]]' can be put on a function declaration without
-        //:   issue.
-        //:
-        //: 2 The converse might not be true if there are compiler bugs related
-        //:   to '[[nodiscard]]', so we cannot test that.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD` is defined
+        //    then `[[nodiscard]]` can be put on a function declaration without
+        //    issue.
+        //
+        // 2. The converse might not be true if there are compiler bugs related
+        //    to `[[nodiscard]]`, so we cannot test that.
         //
         // Plan:
-        //: 1 If the macro is defined we have a function declared above which
-        //:   uses '[[nodiscard]]' that we make sure we can call.
+        // 1. If the macro is defined we have a function declared above which
+        //    uses `[[nodiscard]]` that we make sure we can call.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
@@ -3046,16 +3056,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
         //
         // Concerns:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN' is defined
-        //:   then '[[noreturn]]' can be put on a function declaration without
-        //:   issue.
-        //:
-        //: 2 The converse might not be true if there are compiler bugs related
-        //:   to '[[noreturn]]', so we cannot test that.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN` is defined
+        //    then `[[noreturn]]` can be put on a function declaration without
+        //    issue.
+        //
+        // 2. The converse might not be true if there are compiler bugs related
+        //    to `[[noreturn]]`, so we cannot test that.
         //
         // Plan:
-        //: 1 If the macro is defined we have a function declared above which
-        //:   uses '[[noreturn]]' that we make sure we can call.
+        // 1. If the macro is defined we have a function declared above which
+        //    uses `[[noreturn]]` that we make sure we can call.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
@@ -3077,27 +3087,27 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
         //
         // Concerns:
-        //: 1 The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
-        //:   flag is defined when the native standard library provides the
-        //:   class template 'std::initializer_list<T>', and the constructor
-        //:   called by the compiler when providing a list of initializers does
-        //:   not properly clean up after itself if an exception is thrown
-        //:   copying one of those elements.  This macro should not be defined
-        //:   if the library does not provide 'std::initializer_list<T>', nor
-        //:   in the expected case that the library implementation does not
-        //:   leak.
+        // 1. The `BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS`
+        //    flag is defined when the native standard library provides the
+        //    class template `std::initializer_list<T>`, and the constructor
+        //    called by the compiler when providing a list of initializers does
+        //    not properly clean up after itself if an exception is thrown
+        //    copying one of those elements.  This macro should not be defined
+        //    if the library does not provide `std::initializer_list<T>`, nor
+        //    in the expected case that the library implementation does not
+        //    leak.
         //
         // Plan:
-        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
-        //:   defined conditionally compile code that includes
-        //:   '<initializer_list>', and try to initialize from a list of
-        //:   instrumented user-defined object types, using a constructor that
-        //:   throws when the (instrumented) global object count gets too high.
-        //:
-        //: 2 Verify that the live global object count is reduced to zero after
-        //:   throwing the exception, unless the macro
-        //:   'BSLS_COMPILERFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
-        //:   defined.  (C-1)
+        // 1. When `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS` is
+        //    defined conditionally compile code that includes
+        //    `<initializer_list>`, and try to initialize from a list of
+        //    instrumented user-defined object types, using a constructor that
+        //    throws when the (instrumented) global object count gets too high.
+        //
+        // 2. Verify that the live global object count is reduced to zero after
+        //    throwing the exception, unless the macro
+        //    `BSLS_COMPILERFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS` is
+        //    defined.  (C-1)
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
@@ -3120,22 +3130,22 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
         //
         // Concerns:
-        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined
-        //:   '__has_include' is available in preprocessor conditionals.
-        //:
-        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not
-        //:   available.
+        // 1. When `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE` is defined
+        //    `__has_include` is available in preprocessor conditionals.
+        //
+        // 2. When `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE` is not
+        //    available.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined, try
-        //:   '__has_include(<stddef.h>)', as that is a C header that exists in
-        //:   non-hosted environments as well, so it is the safest bet.
-        //:
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is *not* defined,
-        //:   use the clang-suggested
-        //:   (https://clang.llvm.org/docs/LanguageExtensions.html#has-include)
-        //:   test '#if !defined(__has_include)' to verify that '__has_include'
-        //:   is not available.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE` is defined, try
+        //    `__has_include(<stddef.h>)`, as that is a C header that exists in
+        //    non-hosted environments as well, so it is the safest bet.
+        //
+        // 2. If `BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE` is *not* defined,
+        //    use the clang-suggested
+        //    (https://clang.llvm.org/docs/LanguageExtensions.html#has-include)
+        //    test `#if !defined(__has_include)` to verify that `__has_include`
+        //    is not available.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
@@ -3153,13 +3163,13 @@ will not improve the flavor.
 #else  // BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
     #if defined(__has_include)
         #if __has_include(<stddef.h>)
-            // The above two conditions must not be in the same '#if' condition
-            // as those compilers that does not have '__has_include' defined
+            // The above two conditions must not be in the same `#if` condition
+            // as those compilers that does not have `__has_include` defined
             // may not be able to parse the expression with '<' in it.
 
             #error '__has_include' appears to be present and working but      \
                    'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not defined.
-        #endif  // '__has_include' appears to work
+        #endif  // `__has_include` appears to work
     #else   // __has_include is defined
 
         VERBOSE_PUTS("The feature is not supported in this configuration.");
@@ -3171,28 +3181,28 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined
-        //:   only when the compiler supports the 8-bit 'char8_t' type as
-        //:   defined by C++20.
-        //:
-        //: 2 'u8' prefixed (UTF-8) string literals defined using universal
-        //:   character names result in the expected in-memory sequence of
-        //:   'unsigned char' bytes.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE` is defined
+        //    only when the compiler supports the 8-bit `char8_t` type as
+        //    defined by C++20.
+        //
+        // 2. `u8` prefixed (UTF-8) string literals defined using universal
+        //    character names result in the expected in-memory sequence of
+        //    `unsigned char` bytes.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE' is defined
-        //:   then define 'char8_t[]' and 'char8_t *' variables initialized to
-        //:   string constants with the 'u8' prefix.  Note that 'u8' character
-        //:   constants do not make much sense to test as any "interesting"
-        //:   Unicode code point (that isn't an original 7-bit ASCII character)
-        //:   will require more than one byte of memory, and 'char8_t' is
-        //:   defined to be equivalent in representation to 'unsigned char',
-        //:   which has no more than 8 bits on most architectures.  (C-1)
-        //:
-        //: 2 Also define the expected 'unsigned char' sequence (array) of the
-        //:   equivalent encoding of the universal characters used in the
-        //:   'char8_t' initializer u8-string literals.  Compare the bytes of
-        //:   those arrays to the array and pointer 'char8_t' constants.  (C-2)
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE` is defined
+        //    then define `char8_t[]` and `char8_t *` variables initialized to
+        //    string constants with the `u8` prefix.  Note that `u8` character
+        //    constants do not make much sense to test as any "interesting"
+        //    Unicode code point (that isn't an original 7-bit ASCII character)
+        //    will require more than one byte of memory, and `char8_t` is
+        //    defined to be equivalent in representation to `unsigned char`,
+        //    which has no more than 8 bits on most architectures.  (C-1)
+        //
+        // 2. Also define the expected `unsigned char` sequence (array) of the
+        //    equivalent encoding of the universal characters used in the
+        //    `char8_t` initializer u8-string literals.  Compare the bytes of
+        //    those arrays to the array and pointer `char8_t` constants.  (C-2)
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
@@ -3206,7 +3216,7 @@ will not improve the flavor.
 #else
         // Verify ISO C++ size guarantee
         ASSERTV(sizeof(char8_t), 1 == sizeof(char8_t));
-            // 'sizeof(unsigned char)' is defined to be 1 by the standard.
+            // `sizeof(unsigned char)` is defined to be 1 by the standard.
 
         // UTF-8 arrays
         const char8_t pound[]     = u8"\u00A3";
@@ -3242,9 +3252,9 @@ will not improve the flavor.
         const size_t euroStrLen      = euroArrSize      - 1;  // closing
         const size_t poundEuroStrLen = poundEuroArrSize - 1;  // null.
 
-        // There are no equivalents yet of 'strcmp' or 'strncmp' for dealing
-        // with 'const char8_t *' strings therefore 'memcmp' is used with the
-        // sizes established above.  We compare to 'unsigned char' arrays as
+        // There are no equivalents yet of `strcmp` or `strncmp` for dealing
+        // with `const char8_t *` strings therefore `memcmp` is used with the
+        // sizes established above.  We compare to `unsigned char` arrays as
         // per ISO standard specification.
 
         const unsigned char ucPound[] = { 0xc2u, 0xa3u, 0};
@@ -3254,7 +3264,7 @@ will not improve the flavor.
         ASSERTV(sizeof ucPound, sizeof ucPound == sizeof pound);
         ASSERTV(sizeof ucEuro,  sizeof ucEuro  == sizeof euro );
 
-        // Verify content with 'memcmp'
+        // Verify content with `memcmp`
         ASSERT(0 == memcmp(ucPound,                 pound, poundArrSize));
         ASSERT(0 == memcmp(ucEuro,                  euro,  euroArrSize));
 
@@ -3285,7 +3295,7 @@ will not improve the flavor.
         ASSERTV(poundEuro_p[4], 0xac == poundEuro_p[4]);
         ASSERTV(poundEuro_p[5], 0    == poundEuro_p[5]);
 
-        // Verify content with 'memcmp'
+        // Verify content with `memcmp`
         ASSERT(0 == memcmp(ucPound,                   pound_p, poundArrSize));
         ASSERT(0 == memcmp(ucEuro,                    euro_p,  euroArrSize));
 
@@ -3293,8 +3303,8 @@ will not improve the flavor.
         ASSERT(0 == memcmp(poundEuro_p + poundStrLen, euro_p,  euroStrLen));
 
         if (veryVerbose) {
-            // 'printf("...%s...")' expects a 'const char *', so for printing
-            // 'stdio.h' 'fwrite' is used with the length that we had verified
+            // `printf("...%s...")` expects a `const char *`, so for printing
+            // `stdio.h` `fwrite` is used with the length that we had verified
             // earlier (minus the closing null character).
 
             fputs("Pound: ", stdout);
@@ -3315,19 +3325,19 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
-        //:   only when the compiler supports Unicode character types Unicode
-        //:   character literals, and Unicode string literals.
-        //:
-        //: 2 Both 16-bit and 32-bit Unicode are supported.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES` is defined
+        //    only when the compiler supports Unicode character types Unicode
+        //    character literals, and Unicode string literals.
+        //
+        // 2. Both 16-bit and 32-bit Unicode are supported.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
-        //:   then define 'char16_t' and 'char16_t[]' variables initialized to
-        //:   character and string constants with the 'u' prefix.  (C-1)
-        //:
-        //: 2 Also define 'char32_t' and 'char32_t[]' variables initialized to
-        //:   character and string constants with the 'U' prefix.  (C-2)
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES` is defined
+        //    then define `char16_t` and `char16_t[]` variables initialized to
+        //    character and string constants with the `u` prefix.  (C-1)
+        //
+        // 2. Also define `char32_t` and `char32_t[]` variables initialized to
+        //    character and string constants with the `U` prefix.  (C-2)
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
@@ -3365,26 +3375,26 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS' is defined only
-        //:   when the compiler is able to compile code with ref-qualified
-        //:   functions.
-        //:
-        //: 2 If rvalue references are also supported, then functions can be
-        //:   qualified with rvalue references.
-        //:
-        //: 3 Ref qualification is orthogonal to cv-qualification.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS` is defined only
+        //    when the compiler is able to compile code with ref-qualified
+        //    functions.
+        //
+        // 2. If rvalue references are also supported, then functions can be
+        //    qualified with rvalue references.
+        //
+        // 3. Ref qualification is orthogonal to cv-qualification.
         //
         // Plan:
-        //: 1 For concern 1, if 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
-        //:   is defined then compile a class that defines ref-qualified member
-        //:   functions.
-        //:
-        //: 2 For concern 2, if
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
-        //:   defined, include rvalue-ref-qualified member functions.
-        //:
-        //: 3 For concern 3, try every combination of cv qualification on all
-        //:   ref-qualified member functions.
+        // 1. For concern 1, if `BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS`
+        //    is defined then compile a class that defines ref-qualified member
+        //    functions.
+        //
+        // 2. For concern 2, if
+        //    `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES` is also
+        //    defined, include rvalue-ref-qualified member functions.
+        //
+        // 3. For concern 3, try every combination of cv qualification on all
+        //    ref-qualified member functions.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
@@ -3396,8 +3406,8 @@ will not improve the flavor.
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
+        /// This class defines reference-qualified member functions.
         struct TestClass {
-            // This class defines reference-qualified member functions.
 
             void foo(int)                &  { }
             void foo(int) const          &  { }
@@ -3419,13 +3429,13 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
-        //:    only when the compiler is able to compile code with the
-        //:    'alignas' specifier.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS` is defined
+        //     only when the compiler is able to compile code with the
+        //     `alignas` specifier.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined then
-        //:   compile code that uses the align as specifier.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS` is defined then
+        //    compile code that uses the align as specifier.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
@@ -3446,14 +3456,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
-        //:    only when the compiler is able to compile code with variadic
-        //:    template parameters.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` is defined
+        //     only when the compiler is able to compile code with variadic
+        //     template parameters.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
-        //:   then compile code that uses variadic template parameter pack to
-        //:   count the number of template parameters in the parameter pack.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` is defined
+        //    then compile code that uses variadic template parameter pack to
+        //    count the number of template parameters in the parameter pack.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -3473,12 +3483,12 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined only
-        //:    when the compiler is able to compile code with 'static_assert'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT` is defined only
+        //     when the compiler is able to compile code with `static_assert`.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined then
-        //:   compile code that uses 'static_assert'.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT` is defined then
+        //    compile code that uses `static_assert`.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
@@ -3501,13 +3511,13 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined only
-        //:   when the compiler is able to compile code with rvalue references.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES` is defined only
+        //    when the compiler is able to compile code with rvalue references.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined
-        //:   then compile code that uses rvalue references to implement
-        //:   perfect forwarding.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES` is defined
+        //    then compile code that uses rvalue references to implement
+        //    perfect forwarding.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -3535,16 +3545,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined only when the
-        //:    compiler supports using the 'override' keyword when overriding a
-        //:    'virtual' function.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE` is defined only when the
+        //     compiler supports using the `override` keyword when overriding a
+        //     `virtual` function.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined then
-        //:   compile code using the 'override' keyword when overriding a
-        //:   'virtual' function.  To really test the feature works a function
-        //:   that isn't an override needs to use the 'override' keyword to
-        //:   produce a compile-time error.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE` is defined then
+        //    compile code using the `override` keyword when overriding a
+        //    `virtual` function.  To really test the feature works a function
+        //    that isn't an override needs to use the `override` keyword to
+        //    produce a compile-time error.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
@@ -3567,14 +3577,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined only
-        //:    when the compiler supports 'explicit' conversion operators.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT` is defined only
+        //     when the compiler supports `explicit` conversion operators.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined
-        //:   compile code that uses an 'explicit' conversion operator for a
-        //:   class with another conversion operator and use an object in a
-        //:   context where an ambiguity is caused if 'explicit' is absent
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT` is defined
+        //    compile code that uses an `explicit` conversion operator for a
+        //    class with another conversion operator and use an object in a
+        //    context where an ambiguity is caused if `explicit` is absent
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -3605,12 +3615,12 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined only when the
-        //:    compiler is able to compile code with 'nullptr'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_NULLPTR` is defined only when the
+        //     compiler is able to compile code with `nullptr`.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined then
-        //:   compile code that uses 'nullptr' in various contexts.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_NULLPTR` is defined then
+        //    compile code that uses `nullptr` in various contexts.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
@@ -3634,12 +3644,12 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when
-        //:    the compiler is able to compile code with 'noexcept'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT` is defined only when
+        //     the compiler is able to compile code with `noexcept`.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined then
-        //:   compile code that uses 'noexcept' in various contexts.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT` is defined then
+        //    compile code that uses `noexcept` in various contexts.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -3669,13 +3679,13 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined only when
-        //:   the compiler is actually able to compile code using
-        //:   'include_next'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT` is defined only when
+        //    the compiler is actually able to compile code using
+        //    `include_next`.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined then
-        //:   compile code that uses this feature include a header file.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT` is defined then
+        //    compile code that uses this feature include a header file.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
@@ -3688,7 +3698,7 @@ will not improve the flavor.
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         VERBOSE_PUTS("Compile-time-only test passed.");
-        // '#include_next' is tested at global scope.
+        // `#include_next` is tested at global scope.
 #endif
       } break;
       case 10: {
@@ -3696,14 +3706,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
-        //:   defined only when the compiler is actually able to compile code
-        //:   using 'include_next'.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS` is
+        //    defined only when the compiler is actually able to compile code
+        //    using `include_next`.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
-        //:    defined then compile code that uses this feature include a
-        //:    header file.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS` is
+        //     defined then compile code that uses this feature include a
+        //     header file.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
@@ -3729,16 +3739,16 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_FINAL
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined only when the
-        //:   compiler is actually able to compile code using final classes and
-        //:   final member functions.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_FINAL` is defined only when the
+        //    compiler is actually able to compile code using final classes and
+        //    final member functions.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined then compile
-        //:   code that uses this feature to a final class and class with a
-        //:   final function (to really verify the 'final' keyword work it is
-        //:   necessary to try refining a class or a function declared
-        //:   'final').
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_FINAL` is defined then compile
+        //    code that uses this feature to a final class and class with a
+        //    final function (to really verify the `final` keyword work it is
+        //    necessary to try refining a class or a function declared
+        //    `final`).
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_FINAL
@@ -3762,14 +3772,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined only
-        //:   when the compiler is actually able to compile code with extern
-        //:   templates.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE` is defined only
+        //    when the compiler is actually able to compile code with extern
+        //    templates.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined
-        //:   then compile code that uses this feature to declare extern class
-        //:   templates.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE` is defined
+        //    then compile code that uses this feature to declare extern class
+        //    templates.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -3791,14 +3801,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined only
-        //:   when the compiler is actually able to compile code with deleted
-        //:   functions.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS` is defined only
+        //    when the compiler is actually able to compile code with deleted
+        //    functions.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined
-        //:   then compile code that uses this feature to delete functions in
-        //:   classes.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS` is defined
+        //    then compile code that uses this feature to delete functions in
+        //    classes.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
@@ -3820,14 +3830,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
-        //:   only when the compiler is actually able to compile code with
-        //:   defaulted functions.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS` is defined
+        //    only when the compiler is actually able to compile code with
+        //    defaulted functions.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
-        //:   then compile code that uses this feature to defaulted functions
-        //:   in classes.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS` is defined
+        //    then compile code that uses this feature to defaulted functions
+        //    in classes.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
@@ -3867,13 +3877,13 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined only when the
-        //:   compiler is actually able to compile code with decltype.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE` is defined only when the
+        //    compiler is actually able to compile code with decltype.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined then
-        //:   compile code that uses this feature to define variables of type
-        //:   inferred from decltype.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE` is defined then
+        //    compile code that uses this feature to define variables of type
+        //    inferred from decltype.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -3902,15 +3912,15 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined only
-        //:   when the compiler is actually able to compile code with relaxed
-        //:   constexpr functions that may define lambdas that are themselves
-        //:   'constexpr' or not.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17` is defined only
+        //    when the compiler is actually able to compile code with relaxed
+        //    constexpr functions that may define lambdas that are themselves
+        //    `constexpr` or not.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17' is defined
-        //:   then compile code that uses this feature to define relaxed
-        //:   constant expression functions.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17` is defined
+        //    then compile code that uses this feature to define relaxed
+        //    constant expression functions.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
@@ -3923,7 +3933,7 @@ will not improve the flavor.
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         static_assert(moreRelaxedConstExprFunc(true) == 42,
-                      "Relaxed (C++17) 'constexpr' is not supported");
+                      "Relaxed (C++17) `constexpr` is not supported");
 
         if (sizeof(Sniffer::test<Feature17>(0)) == sizeof(FalseType)) {
             ASSERT(0 == "C++17 did not detect more relaxed constexpr");
@@ -3943,25 +3953,25 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined only
-        //:   when the compiler is actually able to compile code with relaxed
-        //:   constexpr functions that may comprise of multiple statements,
-        //:   including multiple return statements, and may mutate the state of
-        //:   local variables.
-        //:
-        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
-        //:   constexpr member functions are not implicitly const.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14` is defined only
+        //    when the compiler is actually able to compile code with relaxed
+        //    constexpr functions that may comprise of multiple statements,
+        //    including multiple return statements, and may mutate the state of
+        //    local variables.
+        //
+        // 2. When `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14` is defined
+        //    constexpr member functions are not implicitly const.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
-        //:   then compile code that uses this feature to define relaxed
-        //:   constant expression functions.
-        //:
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14' is defined
-        //:   then compile code that uses this feature to define a constexpr
-        //:   member function and detect that it is not a const member
-        //:   function.  Use expression SFINAE to detect this without invoking
-        //:   a compiler error.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14` is defined
+        //    then compile code that uses this feature to define relaxed
+        //    constant expression functions.
+        //
+        // 2. If `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14` is defined
+        //    then compile code that uses this feature to define a constexpr
+        //    member function and detect that it is not a const member
+        //    function.  Use expression SFINAE to detect this without invoking
+        //    a compiler error.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
@@ -3974,7 +3984,7 @@ will not improve the flavor.
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         static_assert(relaxedConstExprFunc(true) == 42,
-                      "Relaxed (C++14) 'constexpr' is not supported");
+                      "Relaxed (C++14) `constexpr` is not supported");
 
         if (sizeof(Sniffer::test<Feature14>(0)) == sizeof(FalseType)) {
             ASSERT(0 == "C++14 did not detect relaxed constexpr");
@@ -3994,13 +4004,13 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined only when
-        //:   the compiler is actually able to compile code with constexpr.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR` is defined only when
+        //    the compiler is actually able to compile code with constexpr.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined then
-        //:   compile code that uses this feature to define constant
-        //:   expressions functions.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR` is defined then
+        //    compile code that uses this feature to define constant
+        //    expressions functions.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -4012,14 +4022,14 @@ will not improve the flavor.
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
-        constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
+        constexpr OracleMiscompile d; // Just declaring `d` crashes CC 12.4.
         (void)d;
 
         constexpr int v = A(true).d_m;
         ASSERT(v == 42);
 
         if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(0 == "C++11 did not detect original 'constexpr'");
+            ASSERT(0 == "C++11 did not detect original `constexpr`");
         }
 #endif
       } break;
@@ -4028,14 +4038,14 @@ will not improve the flavor.
         // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined only
-        //:   when the compiler is actually able to compile code with alias
-        //:   templates.
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` is defined only
+        //    when the compiler is actually able to compile code with alias
+        //    templates.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined
-        //:   then compile code that uses this feature to declare both alias
-        //:   templates and simple aliases.
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` is defined
+        //    then compile code that uses this feature to declare both alias
+        //    templates and simple aliases.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES

@@ -84,15 +84,16 @@ void aSsErT(bool condition, const char *message, int line)
 /// - - - - - - - - - - -
 // Suppose an algorithm requires writing data to a temporary file on disk
 // during processing:
-//..
+// ```
+
+/// Do "algorithm" using the specified `testFileName` for intermidiate state
+/// storage.
 void testAlgorithm(const bsl::string &testFileName);
-    // Do "algorithm" using the specified 'testFileName' for intermidiate state
-    // storage.
-//..
+// ```
 // A function looking to use this algorithm can obtain a directory in which to
 // put this file, guaranteed to not be used by other processes and to be
-// cleaned up on normal exit, using an instance of 'bdls::TempDirectoryGuard':
-//..
+// cleaned up on normal exit, using an instance of `bdls::TempDirectoryGuard`:
+// ```
 void usesTestAlgorithm()
 {
     bdls::TempDirectoryGuard tempDirGuard("my_algo_");
@@ -102,7 +103,7 @@ void usesTestAlgorithm()
 
     testAlgorithm(tmpFileName);
 }
-//..
+// ```
 // After exiting, the scratch file (named "algorithm.scratch") and the
 // temporary directory (with an unspecified name starting with "my_algo_"),
 // possibly in the system temp directory or the current working directory, will
@@ -136,13 +137,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -160,14 +161,14 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 A temporary directory gets created by an instance of the guard.
-        //: 2 That directory is empty.
-        //: 3 That directory's name starts with the right prefix.
-        //: 4 A second guard creats a distinct directory name.
-        //: 5 The directory is removed when the guard is destroyed.
+        // 1. A temporary directory gets created by an instance of the guard.
+        // 2. That directory is empty.
+        // 3. That directory's name starts with the right prefix.
+        // 4. A second guard creats a distinct directory name.
+        // 5. The directory is removed when the guard is destroyed.
         //
         // Plan:
-        //: 1 Create a guard, check all concerns
+        // 1. Create a guard, check all concerns
         //
         // Testing:
         //   BREATHING TEST

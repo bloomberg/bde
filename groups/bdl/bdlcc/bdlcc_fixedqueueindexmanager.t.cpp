@@ -49,20 +49,20 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The 'bdlcc::FixedQueueIndexManager' is a lock-free fully thread-safe
+// The `bdlcc::FixedQueueIndexManager` is a lock-free fully thread-safe
 // mechanism for managing array indices in an externally maintained queue of
 // objects.  There are a few elements that make this component particularly
 // difficult to test thoroughly:
-//: 1 It is fully thread-safe
-//:
-//: 2 The public interface doesn't expose state information helpful in
-//:   verifying correctness of multi-threaded code.
-//:
-//: 3 The generation count used to avoid ABA problems has boundary cases that
-//:   are impractical to test (a task would need to be running for hours or
-//:   days).
+// 1. It is fully thread-safe
+//
+// 2. The public interface doesn't expose state information helpful in
+//    verifying correctness of multi-threaded code.
+//
+// 3. The generation count used to avoid ABA problems has boundary cases that
+//    are impractical to test (a task would need to be running for hours or
+//    days).
 // This test-driver applies standard BDE testing methodology to most of the
-// public interface of 'bdlcc::FixedQueueIndexManager' for single threaded
+// public interface of `bdlcc::FixedQueueIndexManager` for single threaded
 // tests.  To handle the practical concerns above though, this test driver also
 // defines testing mechanisms that access and manipulate private data members
 // of the object under test.  This is allows for setting the generation count
@@ -96,7 +96,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [ 4] CONCERN: 'gg' generator and 'dirtyGG' generator
+// [ 4] CONCERN: `gg` generator and `dirtyGG` generator
 // [11] CONCERN: Thread-Safety (concurrent access does not corrupt state)
 // [12] CONCERN: maxCombinedIndex
 
@@ -183,10 +183,10 @@ bsl::ostream& operator<<(bsl::ostream&                        stream,
 //                        GENERATOR LANGUAGE FOR gg
 //=============================================================================
 //
-// The gg function initializes the state of a 'bdlcc::FixedQueueIndexManager'
-// using a supplied 'pushCombinedIndex' and 'popCombinedIndex'.  Te following
+// The gg function initializes the state of a `bdlcc::FixedQueueIndexManager`
+// using a supplied `pushCombinedIndex` and `popCombinedIndex`.  Te following
 // table shows examples for various states:
-//..
+// ```
 //  Legend: { generation | state }  State = { E => EMPTY,
 //                                            F => FULL }
 //
@@ -221,19 +221,19 @@ bsl::ostream& operator<<(bsl::ostream&                        stream,
 //                                         v-pushIndex
 //     7          5              [ {2|F} {1|E} {1|F) ]
 //                                               ^-popIndex
-//..
+// ```
 
+/// Initialize the specified `result` to have the specified
+/// `pushCombinedIndex` and the specified `popCombinedIndex`.  The behavior
+/// is undefined unless `result` is empty, the push and pop index refer to
+/// the first cell in the circular buffer,
+/// `pushCombinedIndex >= popCombinedIndex` and
+/// `pushCombinedIndex - popCombinedIndex <= result->capacity()`.  Note that
+/// a combined index is the combination of generation count and index, as
+/// `combined index = generation * capacity + index`.
 void gg(Obj          *result,
         unsigned int  pushCombinedIndex,
         unsigned int  popCombinedIndex)
-    // Initialize the specified 'result' to have the specified
-    // 'pushCombinedIndex' and the specified 'popCombinedIndex'.  The behavior
-    // is undefined unless 'result' is empty, the push and pop index refer to
-    // the first cell in the circular buffer,
-    // 'pushCombinedIndex >= popCombinedIndex' and
-    // 'pushCombinedIndex - popCombinedIndex <= result->capacity()'.  Note that
-    // a combined index is the combination of generation count and index, as
-    // 'combined index = generation * capacity + index'.
 {
     BSLS_ASSERT(pushCombinedIndex >= popCombinedIndex);
     BSLS_ASSERT(pushCombinedIndex - popCombinedIndex <= result->capacity());
@@ -273,18 +273,19 @@ void gg(Obj          *result,
 ///Example 1: Creating a Thread-Safe Queue of Integers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple thread-safe queue of integers
-// using a 'bdlcc::FixedQueueIndexManager' to synchronize the queue operations.
+// using a `bdlcc::FixedQueueIndexManager` to synchronize the queue operations.
 //
-// We start by declaring the data members of an 'IntegerQueue', a vector of
+// We start by declaring the data members of an `IntegerQueue`, a vector of
 // integers, to hold the values in the queue, and an index manager to ensure
 // thread-safe access to the indices of the vector:
-//..
+// ```
+
+    /// This class provides a fully thread-safe queue of integers with a
+    /// fixed maximum capacity.
     class IntegerQueue {
-        // This class provides a fully thread-safe queue of integers with a
-        // fixed maximum capacity.
 
         // DATA
-        bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
+        bdlcc::FixedQueueIndexManager d_indexManager;  // manages `d_values`
                                                        // indices
 
         bsl::vector<int>              d_values;        // maintains values
@@ -294,41 +295,44 @@ void gg(Obj          *result,
         IntegerQueue(const IntegerQueue&);
 
       public:
-//..
+// ```
 // Then, we declare the methods of an integer queue:
-//..
+// ```
         // CREATORS
+
+        /// Create a queue capable of holding up to the specified
+        /// `capacity` number of integer values.
         explicit IntegerQueue(bsl::size_t       capacity,
                               bslma::Allocator *basicAllocator = 0);
-            // Create a queue capable of holding up to the specified
-            // 'capacity' number of integer values.
 
+        /// Destroy this queue.
         ~IntegerQueue();
-            // Destroy this queue.
 
         // MANIPULATORS
-        int tryPushBack(int value);
-            // Attempt to push the specified 'value' onto the back of this
-            // queue.  Return 0 on success, and a non-zero value if this queue
-            // is full.
 
+        /// Attempt to push the specified `value` onto the back of this
+        /// queue.  Return 0 on success, and a non-zero value if this queue
+        /// is full.
+        int tryPushBack(int value);
+
+        /// Attempt to remove an element from the front of this queue and
+        /// load the removed value into the specified `result`.  Return 0
+        /// on success, and a non-zero value otherwise.
         int tryPopFront(int *result);
-            // Attempt to remove an element from the front of this queue and
-            // load the removed value into the specified 'result'.  Return 0
-            // on success, and a non-zero value otherwise.
 
         // ACCESSORS
-        bsl::size_t length() const;
-            // Return a snapshot of the number of elements currently in this
-            // queue.
 
+        /// Return a snapshot of the number of elements currently in this
+        /// queue.
+        bsl::size_t length() const;
+
+        /// Return the maximum number of elements that this queue can hold.
         bsl::size_t capacity() const;
-            // Return the maximum number of elements that this queue can hold.
     };
-//..
+// ```
 //  Next, we define the constructor, which initializes both the index manager
 //  and vector with the supplied capacity:
-//..
+// ```
     // CREATORS
     IntegerQueue::IntegerQueue(bsl::size_t       capacity,
                                bslma::Allocator *basicAllocator)
@@ -340,11 +344,11 @@ void gg(Obj          *result,
     IntegerQueue::~IntegerQueue()
     {
     }
-//..
-// Now, we define 'tryPushBack' and 'tryPopFront', which use the index manager
+// ```
+// Now, we define `tryPushBack` and `tryPopFront`, which use the index manager
 // to reserve an index in the vector, operate on that index, and then commit
 // that index back to the index manager:
-//..
+// ```
     // MANIPULATORS
     int IntegerQueue::tryPushBack(int value)
     {
@@ -367,12 +371,12 @@ void gg(Obj          *result,
         }
         return -1;
     }
-//..
+// ```
 // Notice that because none of these operations allocate memory, we do not need
 // to add code to ensure exception safety.
 //
 // Then, we define the accessors to the integer queue:
-//..
+// ```
     // ACCESSORS
     bsl::size_t IntegerQueue::length() const
     {
@@ -383,25 +387,25 @@ void gg(Obj          *result,
     {
         return d_indexManager.capacity();
     }
-//..
+// ```
 
 // ============================================================================
 //                      *IMPLEMENTATION SPECIFIC* TOOLS
 // ----------------------------------------------------------------------------
 
 // The following tools flagrantly make use of implementation details and
-// platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary
+// platform specific behavior (i.e., `reinterpret_cast`).  Extraordinary
 // measures are taken in this test-driver to allow testing that would otherwise
 // not be possible.  Specifically, this enables: (1) testing generation counts
 // beyond the range that could be tested in a reasonable amount of time (2)
 // verify the internal state of an index manager is not corrupted under heavy
 // thread contention.
 
+/// This struct maintains the exact same data members as
+/// `bdlcc::FixedQueueIndexManager` and is used for debugging and extreme
+/// white box testing, where verifying the internal state of the
+/// `bdlcc::FixedQueueIndexManager` is necessary.
 struct FixedQueueIndexManagerDataMembers {
-    // This struct maintains the exact same data members as
-    // 'bdlcc::FixedQueueIndexManager' and is used for debugging and extreme
-    // white box testing, where verifying the internal state of the
-    // 'bdlcc::FixedQueueIndexManager' is necessary.
 
     // PRIVATE CONSTANTS
     enum {
@@ -434,11 +438,11 @@ static const unsigned int k_GENERATION_COUNT_SHIFT = 0x2;
 BSLMF_ASSERT(sizeof(FixedQueueIndexManagerDataMembers) ==
              sizeof(bdlcc::FixedQueueIndexManager));
 
+/// This class provides access to the internal state of a
+/// `bdlcc::FixedQueueIndexManager`, and is used for debugging and extreme
+/// white box testing, where verifying the internal state of the
+/// `bdlcc::FixedQueueIndexManager` is necessary.
 class FixedQueueState {
-    // This class provides access to the internal state of a
-    // 'bdlcc::FixedQueueIndexManager', and is used for debugging and extreme
-    // white box testing, where verifying the internal state of the
-    // 'bdlcc::FixedQueueIndexManager' is necessary.
 
     // DATA
     const FixedQueueIndexManagerDataMembers *d_data;
@@ -446,46 +450,48 @@ class FixedQueueState {
   public:
 
     // CREATORS
+
+    /// Create an `FixedQueueState` object to access the state of the
+    /// specified `indexManager`.
     explicit FixedQueueState(
                             const bdlcc::FixedQueueIndexManager *indexManager);
-        // Create an 'FixedQueueState' object to access the state of the
-        // specified 'indexManager'.
 
     // ACCESSORS
+
+    /// Return the current push index for the index manager supplied at
+    /// construction.
     unsigned int pushIndex() const;
-        // Return the current push index for the index manager supplied at
-        // construction.
 
+    /// Return the current push generation for the index manager supplied at
+    /// construction.
     unsigned int pushGeneration() const;
-        // Return the current push generation for the index manager supplied at
-        // construction.
 
+    /// Return the current pop index for the index manager supplied at
+    /// construction.
     unsigned int popIndex() const;
-        // Return the current pop index for the index manager supplied at
-        // construction.
 
+    /// Return the current pop generation for the index manager supplied at
+    /// construction.
     unsigned int popGeneration() const;
-        // Return the current pop generation for the index manager supplied at
-        // construction.
 
+    /// Return the generation of the element at the specified `index`.
     unsigned int elementGeneration(unsigned int index) const;
-        // Return the generation of the element at the specified 'index'.
 
+    /// Return the state of the element at the specified `index`.
     ElementState elementState(unsigned int index) const;
-        // Return the state of the element at the specified 'index'.
 
+    /// Return the maximum generation value.
     unsigned int capacity() const;
-        // Return the maximum generation value.
 
+    /// Return the maximum generation value.
     unsigned int maxGeneration() const;
-        // Return the maximum generation value.
 
+    /// Return the maximum combined index value.
     unsigned int maxCombinedIndex() const;
-        // Return the maximum combined index value.
 
+    /// Write the state of the index manager supplied at construction to the
+    /// specified `stream`.
     bsl::ostream& print(bsl::ostream &stream) const;
-        // Write the state of the index manager supplied at construction to the
-        // specified 'stream'.
 };
 
 // CREATORS
@@ -543,13 +549,13 @@ unsigned int FixedQueueState::capacity() const
     return static_cast<unsigned int>(d_data->d_capacity);
 }
 
+/// Load into the specified `result` the state of an empty queue at the
+/// beginning of the specified `generation` (i.e., the push and pop index
+/// both refer to the first cell.  Note that this operation is equivalent to
+/// `gg` but flagrantly abuses implementation information and compiler
+/// dependent behavior in order to allow the assignment of combined indices
+/// with vary large values.
 void dirtyAdjustGeneration(Obj *result, unsigned int generation)
-    // Load into the specified 'result' the state of an empty queue at the
-    // beginning of the specified 'generation' (i.e., the push and pop index
-    // both refer to the first cell.  Note that this operation is equivalent to
-    // 'gg' but flagrantly abuses implementation information and compiler
-    // dependent behavior in order to allow the assignment of combined indices
-    // with vary large values.
 {
    FixedQueueIndexManagerDataMembers *data =
                  reinterpret_cast<FixedQueueIndexManagerDataMembers *>(result);
@@ -563,11 +569,11 @@ void dirtyAdjustGeneration(Obj *result, unsigned int generation)
    data->d_popIndex  = static_cast<int>(generation * capacity);
 }
 
+/// Initialize the specified `result` to have the specified
+/// `pushCombinedIndex` and the specified `popCombinedIndex`.
 void dirtyGG(Obj          *result,
              unsigned int  pushCombinedIndex,
              unsigned int  popCombinedIndex)
-    // Initialize the specified 'result' to have the specified
-    // 'pushCombinedIndex' and the specified 'popCombinedIndex'.
 {
     BSLS_ASSERT(pushCombinedIndex >= popCombinedIndex);
     BSLS_ASSERT(pushCombinedIndex - popCombinedIndex <= result->capacity());
@@ -599,43 +605,44 @@ class TestThreadStateBarrier {
      };
 
     // CREATORS
-    explicit TestThreadStateBarrier(int numTestThreads);
-        // Create a state barrier for the specified 'numTestThreads'.  Note
-        // that the test threads are meant to be controlled by an additional
-        // thread.
 
+    /// Create a state barrier for the specified `numTestThreads`.  Note
+    /// that the test threads are meant to be controlled by an additional
+    /// thread.
+    explicit TestThreadStateBarrier(int numTestThreads);
+
+    /// Destroy this state barrier
     ~TestThreadStateBarrier();
-        // Destroy this state barrier
 
     // MANIPULATORS
                          // Test Thread State Functions
 
+    /// Return the state of the current test.  If the resulting state is
+    /// `e_WAIT` the calling thread must call `blockUntilStateChange` before
+    /// continuing, and if the state is `e_EXIT` the calling thread must
+    /// terminate.
     State state();
-        // Return the state of the current test.  If the resulting state is
-        // 'e_WAIT' the calling thread must call 'blockUntilStateChange' before
-        // continuing, and if the state is 'e_EXIT' the calling thread must
-        // terminate.
 
+    /// Block the calling thread until the test administrating thread has
+    /// indicated the test should continue.
     void blockUntilStateChange();
-        // Block the calling thread until the test administrating thread has
-        // indicated the test should continue.
 
                          // Controlled Thread State Functions
 
+    /// Set the state of this state barrier to `e_WAIT`, and block the
+    /// calling thread until the number of threads supplied at construction
+    /// have called `state` and received the `e_WAIT` state.
     void suspendTest();
-        // Set the state of this state barrier to 'e_WAIT', and block the
-        // calling thread until the number of threads supplied at construction
-        // have called 'state' and received the 'e_WAIT' state.
 
+    /// Set the state of this state barrier to `e_CONTINUE` and wait until
+    /// the number of threads supplied at construction have called
+    /// `blockUntilStateChange`.
     void continueTest();
-        // Set the state of this state barrier to 'e_CONTINUE' and wait until
-        // the number of threads supplied at construction have called
-        // 'blockUntilStateChange'.
 
+    /// Set the state of this state barrier to `e_EXIT`, and block the
+    /// calling thread until the number of threads supplied at construction
+    /// have called `state` and received the `e_EXIT` state.
     void exitTest();
-        // Set the state of this state barrier to 'e_EXIT', and block the
-        // calling thread until the number of threads supplied at construction
-        // have called 'state' and received the 'e_EXIT' state.
 };
 
 // CREATORS
@@ -684,11 +691,11 @@ void TestThreadStateBarrier::exitTest()
     d_barrier.wait();
 }
 
+/// If the number of times this function has been called is an even multiple
+/// of the specified `period`, then put the current thread to sleep before
+/// returning, otherwise this function has no effect.
 inline
 void performDelay(int period)
-    // If the number of times this function has been called is an even multiple
-    // of the specified 'period', then put the current thread to sleep before
-    // returning, otherwise this function has no effect.
 {
     static bsls::AtomicInt delayPeriod;
 
@@ -700,11 +707,11 @@ void performDelay(int period)
     }
 }
 
+/// Simulate a client pushing elements from the specified `x` test object,
+/// using the specified `testState` to determine the current state of the
+/// test (running, paused, exiting), and periodically inserting delays using
+/// the specified `delayPeriod`.
 void writerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
-    // Simulate a client pushing elements from the specified 'x' test object,
-    // using the specified 'testState' to determine the current state of the
-    // test (running, paused, exiting), and periodically inserting delays using
-    // the specified 'delayPeriod'.
 {
     const bsl::size_t CAPACITY = x->capacity();
 
@@ -734,11 +741,11 @@ void writerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
 
 }
 
+/// Simulate a client popping elements from the specified `x` test object,
+/// using the specified `testState` to determine the current state of the
+/// test (running, paused, exiting), and periodically inserting delays using
+/// the specified `delayPeriod`.
 void readerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
-    // Simulate a client popping elements from the specified 'x' test object,
-    // using the specified 'testState' to determine the current state of the
-    // test (running, paused, exiting), and periodically inserting delays using
-    // the specified 'delayPeriod'.
 {
     const bsl::size_t CAPACITY = x->capacity();
 
@@ -767,14 +774,14 @@ void readerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
     }
 }
 
+/// Simulate a series of exceptions being handled by a client pushing
+/// elements into the specified `x` test object, using the specified
+/// `testState` to determine the current state of the test (running, paused,
+/// exiting), and periodically inserting delays using the specified
+/// `delayPeriod`.
 void exceptionThread(Obj                    *x,
                      TestThreadStateBarrier *testState,
                      int                     delayPeriod)
-    // Simulate a series of exceptions being handled by a client pushing
-    // elements into the specified 'x' test object, using the specified
-    // 'testState' to determine the current state of the test (running, paused,
-    // exiting), and periodically inserting delays using the specified
-    // 'delayPeriod'.
 {
 
     const bsl::size_t CAPACITY = x->capacity();
@@ -813,8 +820,8 @@ void exceptionThread(Obj                    *x,
     }
 }
 
+/// Use `ASSERT` to verify the properties of the specified `x` test object.
 void assertValidState(Obj *x)
-    // Use 'ASSERT' to verify the properties of the specified 'x' test object.
 {
     const bsl::size_t CAPACITY = x->capacity();
 
@@ -839,14 +846,14 @@ void assertValidState(Obj *x)
 
     bool EMPTY = (combinedPopIndex == combinedPushIndex);
     // The queue can be diagrammed as:
-    //..
+    // ```
     //  ,--------------------------------.
     //  |  Zone 1  |  Zone 2  |  Zone 3  |
     //  `--------------------------------'
     //             ^          ^
     //             |          |
     //          Push/Pop    Push/Pop
-    //..
+    // ```
 
     unsigned int zone1EndIndex   = bsl::min(popIndex, pushIndex);
     unsigned int zone1Generation = popGeneration + 1;
@@ -885,12 +892,12 @@ void assertValidState(Obj *x)
 
 namespace PERFORMANCE_TEST {
 
+/// Simulate a client pushing elements from the specified `x` test object,
+/// using the specified `testState` to determine the current state of the
+/// test (running, paused, exiting).
 void writerThread(Obj                    *x,
                   bsls::AtomicInt64      *writeCount,
                   TestThreadStateBarrier *testState)
-    // Simulate a client pushing elements from the specified 'x' test object,
-    // using the specified 'testState' to determine the current state of the
-    // test (running, paused, exiting).
 {
     bsls::Types::Int64 count = 0;
     const bsl::size_t CAPACITY = x->capacity();
@@ -922,13 +929,13 @@ void writerThread(Obj                    *x,
 
 }
 
+/// Simulate a client popping elements from the specified `x` test object,
+/// using the specified `testState` to determine the current state of the
+/// test (running, paused, exiting), and periodically inserting delays using
+/// the specified `delayPeriod`.
 void readerThread(Obj                    *x,
                   bsls::AtomicInt64      *readCount,
                   TestThreadStateBarrier *testState)
-    // Simulate a client popping elements from the specified 'x' test object,
-    // using the specified 'testState' to determine the current state of the
-    // test (running, paused, exiting), and periodically inserting delays using
-    // the specified 'delayPeriod'.
 {
     bsls::Types::Int64 count = 0;
     const bsl::size_t CAPACITY = x->capacity();
@@ -982,7 +989,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -991,9 +998,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
 
-// Finally, we create an 'IntegerQueue', and push and pop a couple of elements
+// Finally, we create an `IntegerQueue`, and push and pop a couple of elements
 // into the queue:
-//..
+// ```
     IntegerQueue intQueue(2);
     int rc = intQueue.tryPushBack(1);
     ASSERT(0 == rc);
@@ -1011,7 +1018,7 @@ int main(int argc, char *argv[])
     rc = intQueue.tryPopFront(&result);
     ASSERT(0 == rc);
     ASSERT(1 == result);
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1029,7 +1036,7 @@ int main(int argc, char *argv[])
         //  3 That length returns the correct length when the combined push
         //    index has gone past maxCombinedIndex.
         //
-        //  4 That 'reservePopIndexForClear' and 'abortPushIndexReservation'
+        //  4 That `reservePopIndexForClear` and `abortPushIndexReservation`
         //    clear the correct element and increment the push and pop ind
         //
         //  5 Manipulating the index manager near the maximum combined
@@ -1037,8 +1044,8 @@ int main(int argc, char *argv[])
         //    index manager state.
         //
         // Plan:
-        //  1 Call 'reservePushIndex', 'commitPushIndex',
-        //    'reservePopIndex', 'commitPopIndex', on a queue of capacity one
+        //  1 Call `reservePushIndex`, `commitPushIndex`,
+        //    `reservePopIndex`, `commitPopIndex`, on a queue of capacity one
         //    and verify the expected results.
         //
         //  2 For a series of valid combined push index and pop index values,
@@ -1049,14 +1056,14 @@ int main(int argc, char *argv[])
         //
         //  3 For a series of valid combined push index and pop index values,
         //    manipulate an index buffer to the maximum generation value, use
-        //    'gg' to populate the buffer, and then call
-        //    'reservePopIndexForClear' and 'abortPushIndexGeneration' to
+        //    `gg` to populate the buffer, and then call
+        //    `reservePopIndexForClear` and `abortPushIndexGeneration` to
         //    empty the queue.  At each step validate the results of the
         //    operation.
         //
         //  4 For a table driven number of reading threads, writing threads,
-        //    "exception" threads (threads calling 'reservePopIndexForClear'
-        //    and 'abortPushIndexResevation'), and injected delay value:
+        //    "exception" threads (threads calling `reservePopIndexForClear`
+        //    and `abortPushIndexResevation`), and injected delay value:
         //
         //    1 Create the described set of threads and supply the periodic
         //      delay value.
@@ -1329,10 +1336,11 @@ int main(int argc, char *argv[])
             bool COMPLETE = argc > 2 && bsl::string("--complete") == argv[2];
 
             // Configure this test to periodically delay threads.
+
+            // Total elapsed time for this test-case.  This value is not
+            // meant to be accurate, but provides rough control over the
+            // time the test takes.
             const int TOTAL_TIME_S = COMPLETE ? 60 : 3;
-                // Total elapsed time for this test-case.  This value is not
-                // meant to be accurate, but provides rough control over the
-                // time the test takes.
 
             const unsigned int CAPACITY = 20;
 
@@ -1445,14 +1453,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //  1 For a table driven number of reading threads, writing threads,
-        //    "exception" threads (threads calling 'reservePopIndexForClear'
-        //    and 'abortPushIndexResevation'), and injected delay value:
+        //    "exception" threads (threads calling `reservePopIndexForClear`
+        //    and `abortPushIndexResevation`), and injected delay value:
         //
         //    1 Create the described set of threads and supply the periodic
         //      delay value.
         //
         //    2 Execute those threads for a period of time, interupting them
-        //      periodically to validate their state with 'assertValidState'.
+        //      periodically to validate their state with `assertValidState`.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
@@ -1577,13 +1585,13 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: 'print'
+        // TESTING: `print`
         //
         // Concerns:
-        //  1 'print' renders the state of the object to the stream
+        //  1 `print` renders the state of the object to the stream
         //
         // Plan:
-        //  1 'print' the state of a stream and test the output against an
+        //  1 `print` the state of a stream and test the output against an
         //    expected result
         //
         // Testing:
@@ -1672,7 +1680,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: 'circularDifference'
+        // TESTING: `circularDifference`
         //
         // Concerns:
         //  1 Verify that the returned is the absolute value of the minimum
@@ -1681,11 +1689,11 @@ int main(int argc, char *argv[])
         //
         //  2 Verify the sign of the returned value correctly indicates
         //    whether one must increment or decrement that distance from the
-        //    'substrahend' to arrive at the minuend.
+        //    `substrahend` to arrive at the minuend.
         //
         // Plan:
         //  1 For set of interesting capacity values, call
-        //    'numRepresentableGenerations' and verify the expected
+        //    `numRepresentableGenerations` and verify the expected
         //    mathematical properties of the returned value.
         //
         // Testing:
@@ -1773,10 +1781,10 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING: 'numRepresentableGenerations'
+        // TESTING: `numRepresentableGenerations`
         //
         // Concerns:
-        //  1 Verify the 'numRepresentableGenerations' value is the maximum
+        //  1 Verify the `numRepresentableGenerations` value is the maximum
         //    number of complete generations that can fit into a 32bit integer
         //    where 2 bits have been reserved OR when multiplied by the
         //    capacity is the maximum number of combined indices that can be
@@ -1784,7 +1792,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //  1 For set of interesting capacity values, call
-        //    'numRepresentableGenerations' and verify the expected
+        //    `numRepresentableGenerations` and verify the expected
         //    mathematical properties of the returned value.
         //
         // Testing:
@@ -1822,7 +1830,7 @@ int main(int argc, char *argv[])
                 const unsigned int MAX_ELEM_STATE_GEN = (UINT_MAX >> 2);
                 const unsigned int MAX_COMB_INDEX     = (UINT_MAX >> 1);
 
-                // Assert that either the 'numRepresentableGenerations' value
+                // Assert that either the `numRepresentableGenerations` value
                 // is the maximum that can be put into a element state value
                 // (32 bit integer with 2 bits used for state), or is the
                 // maximum value that can fit into a push index (32 bit integer
@@ -1839,26 +1847,26 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING: 'abortPushIndexReservation'
+        // TESTING: `abortPushIndexReservation`
         //
         // Concerns:
-        //  1 'abortPushIndexReservation' marks the cell reserved for writing
+        //  1 `abortPushIndexReservation` marks the cell reserved for writing
         //     as empty.
         //
-        //  2 'abortPushIndexReservation' increments the push index
+        //  2 `abortPushIndexReservation` increments the push index
         //
         //  3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //  1 For a queue of capacity 1, call 'abortPushIndexReseevation' and
+        //  1 For a queue of capacity 1, call `abortPushIndexReseevation` and
         //    verify that the push index is incremented and the reserved cell
         //    is marked empty. (C-1,2).
         //
         //  2 For a table driven set of possible queue states, initialize a
-        //    queue to that state, call 'reservePushIndex' and then
-        //    'reservePopIndexForClear' until 'reservePopIndexForClear'
-        //    returns failure.  Call 'abortPushIndexReservation', then call
-        //    'reservePushIndex' repeatedly to verify that the push index was
+        //    queue to that state, call `reservePushIndex` and then
+        //    `reservePopIndexForClear` until `reservePopIndexForClear`
+        //    returns failure.  Call `abortPushIndexReservation`, then call
+        //    `reservePushIndex` repeatedly to verify that the push index was
         //    correctly implemented and all the cells were marked empty.
         //    (C-1,2).
         //
@@ -2029,18 +2037,18 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: 'reservePopIndexForClear'
+        // TESTING: `reservePopIndexForClear`
         //
         // Concerns:
         //  1 An error status is returned when the head of the queue refers to
-        //    the generation and index supplied to 'endGeneration' and
-        //    'endIndex'
+        //    the generation and index supplied to `endGeneration` and
+        //    `endIndex`
         //
-        //  2 'reservePopIndexForClear' returns success, clears the head of
+        //  2 `reservePopIndexForClear` returns success, clears the head of
         //     the queue if the current combined pop index is not
-        //     'endGeneration' and 'endIndex'.
+        //     `endGeneration` and `endIndex`.
         //
-        //  3 'reservePopIndexForClear' will not clear an index acquired for
+        //  3 `reservePopIndexForClear` will not clear an index acquired for
         //    popping.
         //
         //  4 QoI: Asserted precondition violations are detected when enabled.
@@ -2048,22 +2056,22 @@ int main(int argc, char *argv[])
         // Plan:
         //
         //  1 For a queue of capacity 1, attempt to call
-        //    'reservePopIndexForClear' and verify that it fails. (C-1,3)
+        //    `reservePopIndexForClear` and verify that it fails. (C-1,3)
         //
         //  2 For a queue of capacity 2, perform several iterations, pushing
-        //    an item onto the queue, and calling 'reservePopIndexForClear'.
+        //    an item onto the queue, and calling `reservePopIndexForClear`.
         //    (C-1,2,3)
         //
         //  3 For a table driven set of possible initial queue states: call
-        //    'reservePopIndexForClear' repeatedly unto it returns failure, and
+        //    `reservePopIndexForClear` repeatedly unto it returns failure, and
         //    verify that it succeeds the expected number of times, returns the
         //    correct cleared indices, and leaves those indices empty.
         //    (C-1,2,3)
         //
         //  4 For an arbitrary full queue, iterate through the possible
-        //    capacity values calling 'reservePopIndex' that number of times,
-        //    prior to calling 'reservePopIndexForClear'.  Verify
-        //    'reservePopIndexForClear' does not attempt to clear a index
+        //    capacity values calling `reservePopIndex` that number of times,
+        //    prior to calling `reservePopIndexForClear`.  Verify
+        //    `reservePopIndexForClear` does not attempt to clear a index
         //    reserved for popping.  (C-1,2,3)
         //
         //  5 Use the assertion test facility to test function
@@ -2320,28 +2328,28 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'enable', 'disable', 'isEnabled'
+        // TESTING: `enable`, `disable`, `isEnabled`
         //
         // Concerns:
         //  1 Objects are created in an enabled state.
         //
-        //  2 Calling 'disable' on an enabled queue prevents additional
+        //  2 Calling `disable` on an enabled queue prevents additional
         //    elements from being pushed, but not from being popped.
         //
-        //  3 Calling 'enabled' on a disabled queue allows additional elements
+        //  3 Calling `enabled` on a disabled queue allows additional elements
         //    to be pushed.
         //
-        //  4 Calling 'enable' on an enabled queue has no effect.
+        //  4 Calling `enable` on an enabled queue has no effect.
         //
-        //  5 Calling 'disable' on a disabled queue has no effect.
+        //  5 Calling `disable` on a disabled queue has no effect.
         //
-        //  6 Calling 'isEnabled' returns 'true' if either (1) neither
-        //    'enable' or 'disable' has been called, or (2) 'enable' has been
-        //    called more recently than 'disable'.
+        //  6 Calling `isEnabled` returns `true` if either (1) neither
+        //    `enable` or `disable` has been called, or (2) `enable` has been
+        //    called more recently than `disable`.
         //
         // Plan:
         //
-        //  1 Create a new test-object, verify the 'isEnabled' status, and
+        //  1 Create a new test-object, verify the `isEnabled` status, and
         //    verify an element can be pushed.  (C-1)
         //
         //  2 Create a test-object and using a non-loop based test, enabled
@@ -2442,12 +2450,12 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
+        // GENERATOR FUNCTION `gg`
         //   Ensure that the generator function is able to create an object in
         //   any state.
         //
         // Concerns:
-        //   The 'gg' generator is implemented as a finite state machine (FSM).
+        //   The `gg` generator is implemented as a finite state machine (FSM).
         //   All symbols must be recognized successfully, and all possible
         //   state transitions must be verified.
         //
@@ -2499,7 +2507,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_VALUES = sizeof(VALUES)/sizeof(*VALUES);
 
-        if (verbose) cout << "\nTest 'gg'" << endl;
+        if (verbose) cout << "\nTest `gg`" << endl;
         {
             const int NUM_VALUES = sizeof(VALUES)/sizeof(*VALUES);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2562,7 +2570,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTest 'dirtyGG'" << endl;
+        if (verbose) cout << "\nTest `dirtyGG`" << endl;
 
         {
 
@@ -2625,7 +2633,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTest 'assertValidState'" << endl;
+        if (verbose) cout << "\nTest `assertValidState`" << endl;
         {
             for (unsigned int capacity = 0; capacity < 5; ++capacity) {
                 for (unsigned int startIdx = 0;
@@ -2653,31 +2661,31 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS AND ACCESSORS
         //
         // Concerns:
-        //  1  'length' on a newly constructed queue returns 0.
+        //  1  `length` on a newly constructed queue returns 0.
         //
-        //  2  'acqurePushIndex' increments the 'length' of the queue.
+        //  2  `acqurePushIndex` increments the `length` of the queue.
         //
-        //  3  Calling 'reservePushIndex' multiple times will not return
+        //  3  Calling `reservePushIndex` multiple times will not return
         //     the same index.
         //
-        //  4  Calling 'reservePushIndex' when the queue is full returns the
+        //  4  Calling `reservePushIndex` when the queue is full returns the
         //     correct error.
         //
-        //  5  Calling 'reservePopIndex' when the queue is empty returns the
+        //  5  Calling `reservePopIndex` when the queue is empty returns the
         //     correct error.
         //
-        //  6  Calling 'reservePopIndex' when the queue is not empty, and there
+        //  6  Calling `reservePopIndex` when the queue is not empty, and there
         //     are released push indices, returns the oldest released push
         //     index and the generation from where it was pushed, and
         //     decrements the length.
         //
-        //  7  Calling 'commitPushIndex' permits the index to later be
+        //  7  Calling `commitPushIndex` permits the index to later be
         //     acquired for popping.
         //
-        //  8  Calling 'commitPopIndex' permits the index to later be
+        //  8  Calling `commitPopIndex` permits the index to later be
         //     acquired for pushing
         //
-        //  9  If 'commitPopIndex' or 'commitPushIndex' fails than the return
+        //  9  If `commitPopIndex` or `commitPushIndex` fails than the return
         //     arguments are unmodified.
         //
         //  10 QoI: Asserted precondition violations are detected when enabled.
@@ -2685,13 +2693,13 @@ int main(int argc, char *argv[])
         // Plan:
         //
         //  1 For each capcity value in a series of capacity values, call
-        //    'reservePushIndex' to that maximum capacity.  At each point,
+        //    `reservePushIndex` to that maximum capacity.  At each point,
         //    verify the expected index, generation count, and return
         //    status. (C-1,2,3)
         //
         //  2 For each capcity value in a series of capacity values:
         //
-        //    1 Call 'reservePopIndex' and verify it fails.
+        //    1 Call `reservePopIndex` and verify it fails.
         //
         //    2 Push and pop an index, and verify the expected index, length,
         //      and generation counts.  (C-5)
@@ -2700,7 +2708,7 @@ int main(int argc, char *argv[])
         //
         //    1 Fill the queue
         //
-        //    2 Call 'reservePushIndex' and verify it fails.
+        //    2 Call `reservePushIndex` and verify it fails.
         //
         //    2 Pop and then push an index, and verify the expected index,
         //      length, and generation counts.  (C-4)
@@ -2753,7 +2761,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nVerify 'acquiringPopIndex' an empty queue"
+        if (verbose) cout << "\nVerify `acquiringPopIndex` an empty queue"
                           << endl;
         {
             for (int i = 1; i < 100; ++i) {
@@ -2793,7 +2801,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nVerify 'acquiringPushIndex' on a full queue"
+        if (verbose) cout << "\nVerify `acquiringPushIndex` on a full queue"
                           << endl;
         {
             for (int i = 1; i < 100; ++i) {
@@ -2840,7 +2848,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nVerify 'acquiringPushIndex' on a full queue"
+        if (verbose) cout << "\nVerify `acquiringPushIndex` on a full queue"
                           << endl;
         {
             for (int i = 1; i < 100; ++i) {
@@ -3056,7 +3064,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        // 1 The 'capacity' accessor returns the capacity supplied at
+        // 1 The `capacity` accessor returns the capacity supplied at
         //   construction
         //
         // 2 The object uses the supplied allocator to allocate memory
@@ -3066,7 +3074,7 @@ int main(int argc, char *argv[])
         //
         // 4 All allocated memory is released on destruction.
         //
-        // 5 'k_MAX_CAPACITY' is the maximum capacity the allows for at least 2
+        // 5 `k_MAX_CAPACITY` is the maximum capacity the allows for at least 2
         //   generations and a disabled status to be represented in a 32bit
         //   integer.
         //
@@ -3086,7 +3094,7 @@ int main(int argc, char *argv[])
         //   allocator. Verify allocated memory is released on destruction.
         //   (C-3,4)
         //
-        // 4 Verify that representing 'k_MAX_CAPACITY' in an 'unsigned int'
+        // 4 Verify that representing `k_MAX_CAPACITY` in an `unsigned int`
         //   leaves 2 bits to represent the disabled state and 2 complete
         //   generations. (C-5).
         //
@@ -3153,7 +3161,7 @@ int main(int argc, char *argv[])
             ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTest 'k_MAX_CAPACITY' properties." << endl;
+        if (verbose) cout << "\nTest `k_MAX_CAPACITY` properties." << endl;
         {
             bsls::Types::Uint64 maxCapacity = Obj::k_MAX_CAPACITY;
             ASSERTV(UINT_MAX == maxCapacity * 4 - 1);
@@ -3185,8 +3193,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Testing:
         //   BREATHING TEST
@@ -3243,7 +3251,7 @@ int main(int argc, char *argv[])
        // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //   This negative case performs a performance test on a
-        //   'bdlcc::FixedQueueIndexManager'.
+        //   `bdlcc::FixedQueueIndexManager`.
         //
         // Concerns:
         //

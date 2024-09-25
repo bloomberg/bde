@@ -48,7 +48,7 @@
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
-#include <bsl_c_stdlib.h>            // 'atoi'
+#include <bsl_c_stdlib.h>            // `atoi`
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4312)
@@ -158,8 +158,8 @@ typedef bdlcc::FixedQueue<Element*> Obj;
 namespace {
 namespace u {
 
+/// Return the current time, as a `TimeInterval`.
 bsls::TimeInterval now()
-    // Return the current time, as a 'TimeInterval'.
 {
     return bsls::SystemTime::nowRealtimeClock();
 }
@@ -388,11 +388,11 @@ ThreadArgs::ThreadArgs(int iterations, int size)
 
 extern "C" {
 
+/// This function is used to simulate a thread pool job.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply blocks until the conditional variable is
+/// signaled.
 void* pushBackTestThread(void *ptr)
-    // This function is used to simulate a thread pool job.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply blocks until the conditional variable is
-    // signaled.
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
@@ -424,11 +424,11 @@ void* pushBackTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to simulate a thread pool job.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply blocks until the conditional variable is
+/// signaled.
 void* popFrontTestThread(void *ptr)
-    // This function is used to simulate a thread pool job.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply blocks until the conditional variable is
-    // signaled.
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
@@ -1019,29 +1019,32 @@ class MoveTester {
 
   public:
     // CREATORS
-    explicit MoveTester(int value, int *moveCounter = 0);
-        // Construct a new 'MoveTester' object with the specified 'value'.
-        // Optionally specify a 'moveCounter' that, if specified, will be
-        // incremented when this object is moved from.
 
+    /// Construct a new `MoveTester` object with the specified `value`.
+    /// Optionally specify a `moveCounter` that, if specified, will be
+    /// incremented when this object is moved from.
+    explicit MoveTester(int value, int *moveCounter = 0);
+
+    /// Move-construct a new `MoveTester` object from the specified `other`.
     explicit MoveTester(bslmf::MovableRef<MoveTester> other);
-        // Move-construct a new 'MoveTester' object from the specified 'other'.
 
     // MANIPULATORS
-    MoveTester& operator=(bslmf::MovableRef<MoveTester> other);
-        // Move-assign the value of the specified 'other' object to this one.
-        // Set 'isMoved' to 'true', and if non-null value is specified at
-        // construction time also set '*d_moveCounter_p' to 'true'
 
+    /// Move-assign the value of the specified `other` object to this one.
+    /// Set `isMoved` to `true`, and if non-null value is specified at
+    /// construction time also set `*d_moveCounter_p` to `true`
+    MoveTester& operator=(bslmf::MovableRef<MoveTester> other);
+
+    /// Reset `isMoved` to false.
     void reset();
-        // Reset 'isMoved' to false.
 
     // ACCESSORS
-    bool isMoved() const;
-        // Return the value of the moved non-salient attribute.
 
+    /// Return the value of the moved non-salient attribute.
+    bool isMoved() const;
+
+    /// Return the value of this object.
     int value() const;
-        // Return the value of this object.
 };
 
                               // ----------
@@ -1099,52 +1102,55 @@ int MoveTester::value() const
               // class IncorrectlyMatchingMoveConstructorTestType
               // ================================================
 
+/// This class is convertible from any type that has a `data` method
+/// returning a `int` value.  It is used to facilitate testing that the
+/// implementation of `bdlcc::FixedQueue` does not pass a
+/// `bslmf::MovableRef<T>` object to a class whose interface does not
+/// support it (in C++03 mode).  For more details, see test case 18.
 class IncorrectlyMatchingMoveConstructorTestType {
-    // This class is convertible from any type that has a 'data' method
-    // returning a 'int' value.  It is used to facilitate testing that the
-    // implementation of 'bdlcc::FixedQueue' does not pass a
-    // 'bslmf::MovableRef<T>' object to a class whose interface does not
-    // support it (in C++03 mode).  For more details, see test case 18.
 
     // DATA
     int d_data;  // value not meaningful
 
   public:
     // CREATORS
+
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the default value.
     IncorrectlyMatchingMoveConstructorTestType();
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the default value.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the specified `data` value.
     explicit IncorrectlyMatchingMoveConstructorTestType(int data);
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the specified 'data' value.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the same value as the specified `original` object.
     IncorrectlyMatchingMoveConstructorTestType(
                    const IncorrectlyMatchingMoveConstructorTestType& original);
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the same value as the specified 'original' object.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the same value as the specified `other` object of (template
+    /// parameter) `TYPE`.
     template <class TYPE>
     IncorrectlyMatchingMoveConstructorTestType(const TYPE& other);  // IMPLICIT
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the same value as the specified 'other' object of (template
-        // parameter) 'TYPE'.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
     IncorrectlyMatchingMoveConstructorTestType& operator=(
                         const IncorrectlyMatchingMoveConstructorTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
 
+    /// Assign to this object the value of the specified `rhs` object of
+    /// (template parameter) `TYPE`, and return a non-`const` reference to
+    /// this object.
     template <class TYPE>
     IncorrectlyMatchingMoveConstructorTestType& operator=(const TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs' object of
-        // (template parameter) 'TYPE', and return a non-'const' reference to
-        // this object.
 
     // ACCESSORS
+
+    /// Return the (meaningless) value held by this object.
     int data() const;
-        // Return the (meaningless) value held by this object.
 };
 
 
@@ -1210,18 +1216,19 @@ int IncorrectlyMatchingMoveConstructorTestType::data() const
 //
 ///Example 1: A Simple Thread Pool
 ///- - - - - - - - - - - - - - - -
-// In the following example a 'bdlcc::FixedQueue' is used to communicate
+// In the following example a `bdlcc::FixedQueue` is used to communicate
 // between a single "producer" thread and multiple "consumer" threads.  The
 // "producer" will push work requests onto the queue, and each "consumer" will
 // iteratively take a work request from the queue and service the request.
 // This example shows a partial, simplified implementation of the
-// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// `bdlmt::FixedThreadPool` class.  See component `bdlmt_fixedthreadpool` for
 // more information.
 //
 // First, we define a utility classes that handles a simple "work item":
-//..
+// ```
+
+    /// Work data...
     struct my_WorkData {
-        // Work data...
     };
 
     struct my_WorkRequest {
@@ -1234,45 +1241,45 @@ int IncorrectlyMatchingMoveConstructorTestType::data() const
         my_WorkData d_data;
         // Work data...
     };
-//..
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
-//..
+// ```
     void myDoWork(my_WorkData& data)
     {
         // do some stuff...
         (void)data;
     }
-//..
-// Then, we define a 'myConsumer' function that will pop elements off the queue
-// and process them.  Note that the call to 'queue->popFront()' will block
+// ```
+// Then, we define a `myConsumer` function that will pop elements off the queue
+// and process them.  Note that the call to `queue->popFront()` will block
 // until there is an element available on the queue.  This function will be
 // executed in multiple threads, so that each thread waits in
-// 'queue->popFront()', and 'bdlcc::FixedQueue' guarantees that each thread
+// `queue->popFront()`, and `bdlcc::FixedQueue` guarantees that each thread
 // gets a unique element from the queue:
-//..
+// ```
     void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
     {
         while (1) {
-            // 'popFront()' will wait for a 'my_WorkRequest' until available.
+            // `popFront()` will wait for a `my_WorkRequest` until available.
 
             my_WorkRequest item = queue->popFront();
             if (item.d_type == my_WorkRequest::e_STOP) { break; }
             myDoWork(item.d_data);
         }
     }
-//..
-// Finally, we define a 'myProducer' function that serves multiple roles: it
-// creates the 'bdlcc::FixedQueue', starts the consumer threads, and then
+// ```
+// Finally, we define a `myProducer` function that serves multiple roles: it
+// creates the `bdlcc::FixedQueue`, starts the consumer threads, and then
 // produces and enqueues work items.  When work requests are exhausted, this
-// function enqueues one 'e_STOP' item for each consumer queue.  This 'e_STOP'
+// function enqueues one `e_STOP` item for each consumer queue.  This `e_STOP`
 // item indicates to the consumer thread to terminate its thread-handling
 // function.
 //
-// Note that, although the producer cannot control which thread 'pop's a
+// Note that, although the producer cannot control which thread `pop`s a
 // particular work item, it can rely on the knowledge that each consumer thread
-// will read a single 'e_STOP' item and then terminate.
-//..
+// will read a single `e_STOP` item and then terminate.
+// ```
     void myProducer(int numThreads)
     {
         enum {
@@ -1301,7 +1308,7 @@ int IncorrectlyMatchingMoveConstructorTestType::data() const
 
         consumerThreads.joinAll();
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -1340,13 +1347,13 @@ int main(int argc, char *argv[])
           // ---------------------------------------------------------
           // Moving tests
           //
-          // Test that the 'pushBack', 'tryPushBack' 'popFront', and
-          // 'tryPopFront' methods of the queue have move semantics in regards
+          // Test that the `pushBack`, `tryPushBack` `popFront`, and
+          // `tryPopFront` methods of the queue have move semantics in regards
           // of their arguments.  After pushing back a value it will be in
           // moved-from state.  After popping a value it increases the global
           // moved-from counter.  Move-only type is supported in C++11 mode.
           // Allocating move-only type is supported in C++11 mode.
-          // 'IncorrectlyMatchingMoveConstructorTestType' works in C++03 mode.
+          // `IncorrectlyMatchingMoveConstructorTestType` works in C++03 mode.
           // ---------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1355,12 +1362,12 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
          && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+/// This macro indicates whether the component uses C++11 r-value references
+/// to implement `bslmf::MovableRef<TYPE>`.  It will evaluate to `false` for
+/// C++03 implementations and to `true` for proper C++11 implementations.
+/// For partial C++11 implementations it may evaluate to `false` because
+/// both r-value reference and alias templates need to be supported.
 #    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-    // This macro indicates whether the component uses C++11 r-value references
-    // to implement 'bslmf::MovableRef<TYPE>'.  It will evaluate to 'false' for
-    // C++03 implementations and to 'true' for proper C++11 implementations.
-    // For partial C++11 implementations it may evaluate to 'false' because
-    // both r-value reference and alias templates need to be supported.
 #endif
 
         typedef bslmf::MovableRefUtil MoveUtil;
@@ -1401,7 +1408,7 @@ int main(int argc, char *argv[])
 
             ASSERT(4 == moveCtr);
 
-            // Test 'popFront', 'tryPopFront'
+            // Test `popFront`, `tryPopFront`
 
             MoveTester popped(42);
             queue.popFront(&popped);
@@ -1833,7 +1840,7 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'length()' Stress Test" << endl
+                          << "`length()` Stress Test" << endl
                           << "======================" << endl;
 
         const int k_NUM_PUSHPOP_THREADS = 6;
@@ -1899,7 +1906,7 @@ int main(int argc, char *argv[])
         }
 
         // Additional verification that threads are blocked on the
-        // implementation's semaphore when 'disable' is invoked (and that they
+        // implementation's semaphore when `disable` is invoked (and that they
         // are immediately released).
 
         disabletst::runtest(k_NUM_THREADS, 8, true, true);
@@ -2239,8 +2246,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "done" << endl;
             }
-            // TBD: RACE! 'isEmpty' does not guarantee that the semaphore used
-            //            by 'tryPopFront' is updated.
+            // TBD: RACE! `isEmpty` does not guarantee that the semaphore used
+            //            by `tryPopFront` is updated.
             //ASSERT(0 == queue.tryPopFront(&result));
             queue.popFront();
             done = true;
@@ -2320,7 +2327,7 @@ int main(int argc, char *argv[])
 
       case 7: {
         // ---------------------------------------------------------
-        // CONCERN: ABA 'empty' PROBLEM
+        // CONCERN: ABA `empty` PROBLEM
         //
         // If several threads attempt to push an object into the same position
         // in the queue (in this test, it will be the first position in an
@@ -2396,23 +2403,23 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // CONCERN: REMOVE_ALL
-        //   We want to ensure that 'removeAll' behaves correctly for both
-        //  'bdlcc::FixedQueue<T>' and its specialization
-        //  'bdlcc::FixedQueue<T*>' in a single threaded environment.
+        //   We want to ensure that `removeAll` behaves correctly for both
+        //  `bdlcc::FixedQueue<T>` and its specialization
+        //  `bdlcc::FixedQueue<T*>` in a single threaded environment.
         //
         // Single-Threaded Test Plan:
         //   Instantiate a queue.  Push a known number of elements on to the
-        //   queue.  Verify the queue length.  Invoke 'removeAll' and verify
+        //   queue.  Verify the queue length.  Invoke `removeAll` and verify
         //   the queue length is zero.
         //
         // Multi-Threaded Test Plan:
         //   Have several threads pushing at a known rate.  Wait until the
-        //   queue reaches a certain size.  Call 'removeAll'.  The pushing
+        //   queue reaches a certain size.  Call `removeAll`.  The pushing
         //   threads will continue to push while the calling thread processes
-        //   'removeAll'.  When the calling thread returns from 'removeAll'
+        //   `removeAll`.  When the calling thread returns from `removeAll`
         //   take a snapshot of the number of elements in the queue, and
         //   ensure there a fewer elements in the queue than before the call
-        //   to 'removeAll'.
+        //   to `removeAll`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2995,8 +3002,8 @@ int main(int argc, char *argv[])
         // The indices into the queue are 32-bit indexes that count up
         // continuously.  They're interpreted modulo the queue size, but the
         // indexes themselves will abruptly roll over to 0 after 2^32
-        // operations on the queue.  For a period of time thereafter, 'front'
-        // will be vastly larger than 'back' while the queue size remains
+        // operations on the queue.  For a period of time thereafter, `front`
+        // will be vastly larger than `back` while the queue size remains
         // normal.
         //
         // Perform various multithreaded tests on a queue AFTER it has reached
