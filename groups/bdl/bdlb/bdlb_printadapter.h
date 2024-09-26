@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //        position = 23
 //        length = 17
 //      ]
-// ``
+// ```
 //
 ///Example 2: Use of `PrintAdapterUtil::makeAdapter`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -

@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 //
 ///Example 1: Future-proofing Member Construction
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we construct an AA member variable, using
 // `bslma::AllocatorUtil::adapt` so that it is both self-documenting and robust
 // in case the member type is modernized from *legacy-AA* (using
@@ -267,7 +267,7 @@ BSLS_IDENT("$Id: $")
 // operators (thus also disabling swap):
 // ```
 // #include <bsls_keyword.h>
-
+//
 // template <class t_TYPE>
 // class MyAlloc {
 //     bsl::allocator<t_TYPE> d_imp;

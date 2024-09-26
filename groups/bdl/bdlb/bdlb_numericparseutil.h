@@ -136,22 +136,23 @@ BSLS_IDENT("$Id: $")
 // * **infinity-expression**: results in negative of positive
 //   bsl::numeric_limits<double>::infinity() value.  The expresssion
 //   consists of the following elements:
-//   - an optional plus (`+`) or minus (`-`) sign
-//   - the word "INF" or INFINITY", ignoring case
+//    - an optional plus (`+`) or minus (`-`) sign
+//    - the word "INF" or "INFINITY", ignoring case
+//
 // * **not-a-number-expression**: results in a negative or positive
-//   bsl::numeric_limits<double>::quiet_NaN() value.  The expresssion
-//   consists of the following elements:
-//   - an optional plus (`+`) or minus (`-`) sign
-//   - "NAN" or "NAN(char-sequence)" ignoring the case of "NAN".  The
-//     char-sequence may be empty or contain digits, letters from the Latin
-//     alphabet and underscores.
+//   bsl::numeric_limits<double>::quiet_NaN() value.  The expresssion consists
+//   of the following elements:
+//    - an optional plus (`+`) or minus (`-`) sign
+//    - "NAN" or "NAN(char-sequence)" ignoring the case of "NAN".  The
+//      char-sequence may be empty or contain digits, letters from the Latin
+//      alphabet and underscores.
 //
 ///Usage Example
 ///-------------
 // In this section, we show the intended usage of this component.
 //
-///Example 1: Parsing an Integer Value from a `string_view`
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Parsing an Integer Value from a string_view
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we have a `string_view` that presumably contains a (not
 // necessarily NUL terminated) string representing a 32-bit integer value and
 // we want to convert that string into an `int` (32-bit integer).
