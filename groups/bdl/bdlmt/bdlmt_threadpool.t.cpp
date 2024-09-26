@@ -1033,35 +1033,18 @@ int main(int argc, char *argv[])
         // TESTING THREAD NAMES
         //
         // Concerns:
-        //: 1 On platforms that support thread names:
-        //:   o The thread names of subthreads defaults to "bdl.ThreadPool" if
-        //:     no thread name is specified in the thread attributes object.
-        //:
-        //:   o If a thread name is specified in the thread attributes object,
-        //:     that thread name is used.
+        //: 1 On platforms that support thread names, the thread name is set
+        //:   correctly.
         //
         // Plan:
-        //: 1 Set up a global variable 'expectedThreadName'.
+        //: 1 Verify when `threadAttributes.threadName()` and `threadPoolName`
+        //:   are empty, the global default is used.
         //:
-        //: 2 Testing default:
-        //:   o Specify no thread name in the attribute object.
+        //: 2 Verify when `threadAttributes.threadName()` is empty and
+        //:   `threadPoolName` is specified, `threadPoolName` is used.
         //:
-        //:   o Create a threadpool using that attribute object.
-        //:
-        //:   o Submit a bunch of jobs running the function
-        //:     'threadNameCheckJob', with a ptr to the expected default thread
-        //:     name as the argument to the function.  The function then checks
-        //:     that this string matches the thread name.
-        //:
-        //: 3 Testing default:
-        //:   o Specify "bow wow" as the thread name in the attribute object.
-        //:
-        //:   o Create a threadpool using that attribute object.
-        //:
-        //:   o Submit a bunch of jobs running the function
-        //:     'threadNameCheckJob', with a ptr to the string "bow wow" as the
-        //:     argument to the function.  The function then checks that this
-        //:     string matches the thread name.
+        //: 3 Verify when `threadAttributes.threadName()` is specified, it is
+        //:   used.
         //
         // Testing:
         //   THREAD NAMES
@@ -1076,8 +1059,9 @@ int main(int argc, char *argv[])
         const int k_MAX_THREADS = 10;
         const int k_IDLE_TIME   = 0;
 
-        char defaultThreadName[]    = { "bdl.ThreadPool" };
-        char nonDefaultThreadName[] = { "bow wow" };
+        char defaultThreadName[]     = { "bdl.ThreadPool" };
+        char constructorThreadName[] = { "name" };
+        char nonDefaultThreadName[]  = { "bow wow" };
 
         if (verbose) cout << "Check default thread name\n";
         {
@@ -1097,8 +1081,103 @@ int main(int argc, char *argv[])
 
             mX.stop();
         }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   "",
+                   0,
+                   &testAllocator);
 
-        if (verbose) cout << "Check non-default thread name\n";
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   bsls::TimeInterval(0),
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   bsls::TimeInterval(0),
+                   "",
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Check thread name set in constructor argument\n";
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, constructorThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   bsls::TimeInterval(0),
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, constructorThreadName);
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Check thread name set in attributes\n";
         {
             bslmt::ThreadAttributes attr;
             attr.setThreadName(nonDefaultThreadName);
@@ -1106,6 +1185,61 @@ int main(int argc, char *argv[])
                    k_MIN_THREADS,
                    k_MAX_THREADS,
                    k_IDLE_TIME,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   k_IDLE_TIME,
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   bsls::TimeInterval(0),
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_MIN_THREADS,
+                   k_MAX_THREADS,
+                   bsls::TimeInterval(0),
+                   constructorThreadName,
+                   0,
                    &testAllocator);
 
             mX.start();
@@ -1733,75 +1867,92 @@ int main(int argc, char *argv[])
             const int          IDLE = VALUES[i].d_maxIdle;
             const TimeInterval INTERVAL(IDLE/1000, 0);
 
-            bslmt::ThreadAttributes attr;
+            bslmt::ThreadAttributes  attrNoName;
+            bslmt::ThreadAttributes  attrName1;
+            bslmt::ThreadAttributes  attrName2;
 
-            {
-                Obj        mX(attr, MIN, MAX, IDLE);
-                const Obj& X = mX;
+            const char *ATTR_NAME[] = { "", "name1", "name2" };
+                
+            attrName1.setThreadName(ATTR_NAME[1]);
+            attrName2.setThreadName(ATTR_NAME[2]);
 
-                if (veryVerbose) {
-                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+            bslmt::ThreadAttributes *ATTRS[] = { &attrNoName,
+                                                 &attrName1,
+                                                 &attrName2 };
+
+            const int NUM_ATTRS = sizeof ATTRS / sizeof *ATTRS;
+
+            for (int j = 0; j < NUM_ATTRS; ++j) {
+                bslmt::ThreadAttributes attr(*ATTRS[j]);
+
+                {
+                    Obj        mX(attr, MIN, MAX, IDLE);
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    }
+
+                    ASSERTV(i, MIN      == X.minThreads());
+                    ASSERTV(i, MAX      == X.maxThreads());
+                    ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                    ASSERTV(i, IDLE     == X.maxIdleTime());
+                    ASSERTV(i, 0        == X.threadFailures());
                 }
+                ASSERT(defaultAdapter.verify(ATTR_NAME[j]));
+                defaultAdapter.reset();
 
-                ASSERTV(i, MIN      == X.minThreads());
-                ASSERTV(i, MAX      == X.maxThreads());
-                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
-                ASSERTV(i, IDLE     == X.maxIdleTime());
-                ASSERTV(i, 0        == X.threadFailures());
-            }
-            ASSERT(defaultAdapter.verify(""));
-            defaultAdapter.reset();
+                {
+                    Obj        mX(attr, MIN, MAX, IDLE, "", 0);
+                    const Obj& X = mX;
 
-            {
-                Obj        mX(attr, MIN, MAX, IDLE, "", 0);
-                const Obj& X = mX;
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    }
 
-                if (veryVerbose) {
-                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    ASSERTV(i, MIN      == X.minThreads());
+                    ASSERTV(i, MAX      == X.maxThreads());
+                    ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                    ASSERTV(i, IDLE     == X.maxIdleTime());
+                    ASSERTV(i, 0        == X.threadFailures());
                 }
+                ASSERT(defaultAdapter.verify(""));
+                defaultAdapter.reset();
 
-                ASSERTV(i, MIN      == X.minThreads());
-                ASSERTV(i, MAX      == X.maxThreads());
-                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
-                ASSERTV(i, IDLE     == X.maxIdleTime());
-                ASSERTV(i, 0        == X.threadFailures());
-            }
-            ASSERT(defaultAdapter.verify(""));
-            defaultAdapter.reset();
+                {
+                    Obj        mX(attr, MIN, MAX, IDLE, "a", 0);
+                    const Obj& X = mX;
 
-            {
-                Obj        mX(attr, MIN, MAX, IDLE, "a", 0);
-                const Obj& X = mX;
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    }
 
-                if (veryVerbose) {
-                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    ASSERTV(i, MIN      == X.minThreads());
+                    ASSERTV(i, MAX      == X.maxThreads());
+                    ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                    ASSERTV(i, IDLE     == X.maxIdleTime());
+                    ASSERTV(i, 0        == X.threadFailures());
                 }
+                ASSERT(defaultAdapter.verify("a"));
+                defaultAdapter.reset();
 
-                ASSERTV(i, MIN      == X.minThreads());
-                ASSERTV(i, MAX      == X.maxThreads());
-                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
-                ASSERTV(i, IDLE     == X.maxIdleTime());
-                ASSERTV(i, 0        == X.threadFailures());
-            }
-            ASSERT(defaultAdapter.verify("a"));
-            defaultAdapter.reset();
+                {
+                    Obj        mX(attr, MIN, MAX, IDLE, "b", &otherRegistry);
+                    const Obj& X = mX;
 
-            {
-                Obj        mX(attr, MIN, MAX, IDLE, "b", &otherRegistry);
-                const Obj& X = mX;
+                    if (veryVerbose) {
+                        T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    }
 
-                if (veryVerbose) {
-                    T_ P_(i); P(IDLE); T_ P_(MIN); P(MAX);
+                    ASSERTV(i, MIN      == X.minThreads());
+                    ASSERTV(i, MAX      == X.maxThreads());
+                    ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
+                    ASSERTV(i, IDLE     == X.maxIdleTime());
+                    ASSERTV(i, 0        == X.threadFailures());
                 }
-
-                ASSERTV(i, MIN      == X.minThreads());
-                ASSERTV(i, MAX      == X.maxThreads());
-                ASSERTV(i, INTERVAL == X.maxIdleTimeInterval());
-                ASSERTV(i, IDLE     == X.maxIdleTime());
-                ASSERTV(i, 0        == X.threadFailures());
+                ASSERT(otherAdapter.verify("b"));
+                otherAdapter.reset();
             }
-            ASSERT(otherAdapter.verify("b"));
-            otherAdapter.reset();
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2327,76 +2478,94 @@ int main(int argc, char *argv[])
                 const int k_NANOSEC = VALUES[i].d_maxIdleNanoseconds;
 
                 const bsls::TimeInterval IDLE_TIME(k_SEC, k_NANOSEC);
-                bslmt::ThreadAttributes  attr;
 
-                {
-                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
-                    const Obj& X = mX;
+                bslmt::ThreadAttributes  attrNoName;
+                bslmt::ThreadAttributes  attrName1;
+                bslmt::ThreadAttributes  attrName2;
 
-                    if (veryVerbose) {
-                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                const char *ATTR_NAME[] = { "", "name1", "name2" };
+                
+                attrName1.setThreadName(ATTR_NAME[1]);
+                attrName2.setThreadName(ATTR_NAME[2]);
+
+                bslmt::ThreadAttributes *ATTRS[] = { &attrNoName,
+                                                     &attrName1,
+                                                     &attrName2 };
+
+                const int NUM_ATTRS = sizeof ATTRS / sizeof *ATTRS;
+
+                for (int j = 0; j < NUM_ATTRS; ++j) {
+                    bslmt::ThreadAttributes attr(*ATTRS[j]);
+                
+                    {
+                        Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
+                        const Obj& X = mX;
+
+                        if (veryVerbose) {
+                            T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        }
+
+                        ASSERTV(i, k_MIN     == X.minThreads());
+                        ASSERTV(i, k_MAX     == X.maxThreads());
+                        ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                        ASSERTV(i, 0         == X.threadFailures());
                     }
+                    ASSERT(defaultAdapter.verify(ATTR_NAME[j]));
+                    defaultAdapter.reset();
 
-                    ASSERTV(i, k_MIN     == X.minThreads());
-                    ASSERTV(i, k_MAX     == X.maxThreads());
-                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
-                    ASSERTV(i, 0         == X.threadFailures());
-                }
-                ASSERT(defaultAdapter.verify(""));
-                defaultAdapter.reset();
+                    {
+                        Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "", 0);
+                        const Obj& X = mX;
 
-                {
-                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "", 0);
-                    const Obj& X = mX;
+                        if (veryVerbose) {
+                            T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        }
 
-                    if (veryVerbose) {
-                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        ASSERTV(i, k_MIN     == X.minThreads());
+                        ASSERTV(i, k_MAX     == X.maxThreads());
+                        ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                        ASSERTV(i, 0         == X.threadFailures());
                     }
+                    ASSERT(defaultAdapter.verify(""));
+                    defaultAdapter.reset();
 
-                    ASSERTV(i, k_MIN     == X.minThreads());
-                    ASSERTV(i, k_MAX     == X.maxThreads());
-                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
-                    ASSERTV(i, 0         == X.threadFailures());
-                }
-                ASSERT(defaultAdapter.verify(""));
-                defaultAdapter.reset();
+                    {
+                        Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "a", 0);
+                        const Obj& X = mX;
 
-                {
-                    Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME, "a", 0);
-                    const Obj& X = mX;
+                        if (veryVerbose) {
+                            T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        }
 
-                    if (veryVerbose) {
-                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        ASSERTV(i, k_MIN     == X.minThreads());
+                        ASSERTV(i, k_MAX     == X.maxThreads());
+                        ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                        ASSERTV(i, 0         == X.threadFailures());
                     }
+                    ASSERT(defaultAdapter.verify("a"));
+                    defaultAdapter.reset();
 
-                    ASSERTV(i, k_MIN     == X.minThreads());
-                    ASSERTV(i, k_MAX     == X.maxThreads());
-                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
-                    ASSERTV(i, 0         == X.threadFailures());
-                }
-                ASSERT(defaultAdapter.verify("a"));
-                defaultAdapter.reset();
+                    {
+                        Obj        mX(attr,
+                                      k_MIN,
+                                      k_MAX,
+                                      IDLE_TIME,
+                                      "b",
+                                      &otherRegistry);
+                        const Obj& X = mX;
 
-                {
-                    Obj        mX(attr,
-                                  k_MIN,
-                                  k_MAX,
-                                  IDLE_TIME,
-                                  "b",
-                                  &otherRegistry);
-                    const Obj& X = mX;
+                        if (veryVerbose) {
+                            T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        }
 
-                    if (veryVerbose) {
-                        T_ P_(i); P(IDLE_TIME); T_ P_(k_MIN); P(k_MAX);
+                        ASSERTV(i, k_MIN     == X.minThreads());
+                        ASSERTV(i, k_MAX     == X.maxThreads());
+                        ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
+                        ASSERTV(i, 0         == X.threadFailures());
                     }
-
-                    ASSERTV(i, k_MIN     == X.minThreads());
-                    ASSERTV(i, k_MAX     == X.maxThreads());
-                    ASSERTV(i, IDLE_TIME == X.maxIdleTimeInterval());
-                    ASSERTV(i, 0         == X.threadFailures());
+                    ASSERT(otherAdapter.verify("b"));
+                    otherAdapter.reset();
                 }
-                ASSERT(otherAdapter.verify("b"));
-                otherAdapter.reset();
             }
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS

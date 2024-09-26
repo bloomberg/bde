@@ -146,6 +146,7 @@ using namespace bsl;
 // [30] scheduleEventRaw(Event**, time_point&, function<void()>&);
 // [31] TESTING 'scheduleRecurringEventRaw' WITH CHRONO CLOCKS
 // [32] CONCERN: 'EventData' and 'RecurringEventData' are allocator-aware.
+// [33] CONCERN: THREAD NAMES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1106,6 +1107,67 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
 
+// This is a dispatcher function that simply executes the specified `functor`.
+void dispatcherFunction(bsl::function<void()> functor)
+{
+    functor();
+}
+
+// Check that the name of the current thread matches the specified
+// `expectedThreadName` and arrive on the specified `barrier`.
+void threadNameCheckJob(const char     *expectedThreadName,
+                        bslmt::Barrier *barrier)
+{
+    bsl::string name;
+    bslmt::ThreadUtil::getThreadName(&name);
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+    ASSERTV(expectedThreadName, name, expectedThreadName == name);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    // The threadname will only be visible if we're running on Windows 10,
+    // version 1607 or later, otherwise it will be empty.
+
+    ASSERTV(expectedThreadName, name, expectedThreadName == name ||
+                                                                 name.empty());
+#else
+    // Platform doesn't support thread names.
+
+    ASSERTV(name, name.empty());
+#endif
+
+    barrier->arrive();
+}
+
+// For the specified event scheduler 'x', ensure the created thread name is the
+// specified `expectedName` when `x.start()` is invoked, and the name from the
+// thread attributes `attr` when `x.start(attr)` is invoked.
+void testThreadName(Obj&               x,
+                    const bsl::string& expectedName)
+{
+    const bsl::string threadName("name");
+
+    bslmt::ThreadAttributes attr;
+    attr.setThreadName(threadName);
+
+    bslmt::Barrier barrier(2);
+
+    x.start();
+    x.scheduleEvent(bsls::TimeInterval(),
+                    bdlf::BindUtil::bind(&threadNameCheckJob,
+                                         expectedName.c_str(),
+                                         &barrier));
+    barrier.wait();
+    x.stop();
+
+    x.start(attr);
+    x.scheduleEvent(bsls::TimeInterval(),
+                    bdlf::BindUtil::bind(&threadNameCheckJob,
+                                         threadName.c_str(),
+                                         &barrier));
+    barrier.wait();
+    x.stop();
+}
+
 static bsls::AtomicInt s_continue;
 
 static char s_watchdogText[128];
@@ -1445,21 +1507,6 @@ void case25CallbackFunction()
 {
     ++s_case25CallbackInvocationCount;
 }
-
-// ============================================================================
-//                         CASE 20 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-namespace EVENTSCHEDULER_TEST_CASE_20 {
-
-void dispatcherFunction(bsl::function<void()> functor)
-    // This is a dispatcher function that simply executes the specified
-    // 'functor'.
-{
-    functor();
-}
-
-}  // close namespace EVENTSCHEDULER_TEST_CASE_20
 
 // ============================================================================
 //                         CASE 19 RELATED ENTITIES
@@ -1991,21 +2038,6 @@ void startStopConcurrencyTest()
 }
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_9
-
-// ============================================================================
-//                          CASE 8 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-namespace EVENTSCHEDULER_TEST_CASE_8 {
-
-void dispatcherFunction(bsl::function<void()> functor)
-    // This is a dispatcher function that simply executes the specified
-    // 'functor'.
-{
-    functor();
-}
-
-}  // close namespace EVENTSCHEDULER_TEST_CASE_8
 
 // ============================================================================
 //                          CASE 7 RELATED ENTITIES
@@ -2884,7 +2916,156 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-        case 32: {
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING THREAD NAME
+        //
+        // Concerns:
+        //: 1 The created thread has the expected name.
+        //
+        // Plan:
+        //: 1 Use all constructors to create an object, start the event
+        //:   scheduler with and without thread attibutes, and verify the
+        //:   thread name.
+        //
+        // Testing:
+        //   CONCERN: THREAD NAME
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING THREAD NAME" << endl
+                          << "===================" << endl;
+
+        const bsl::string defaultThreadName("bdl.EventSched");
+        const bsl::string specifiedName("specified");
+
+        {
+            Obj x;
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            Obj x(specifiedName, static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+        {
+            Obj x(bsls::SystemClockType::e_REALTIME);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            Obj x(bsls::SystemClockType::e_REALTIME,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            bsl::chrono::system_clock clock;
+
+            Obj x(clock);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            bsl::chrono::system_clock clock;
+
+            Obj x(clock,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+        {
+            bsl::chrono::steady_clock clock;
+
+            Obj x(clock);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            bsl::chrono::steady_clock clock;
+
+            Obj x(clock,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+#endif
+
+        using namespace bdlf::PlaceHolders;
+
+        bdlmt::EventScheduler::Dispatcher dispatcher =
+                                 bdlf::BindUtil::bind(&dispatcherFunction, _1);
+
+        {
+            Obj x(dispatcher);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            Obj x(dispatcher,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+        {
+            Obj x(dispatcher, bsls::SystemClockType::e_REALTIME);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            Obj x(dispatcher,
+                  bsls::SystemClockType::e_REALTIME,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            bsl::chrono::system_clock clock;
+
+            Obj x(dispatcher, clock);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            bsl::chrono::system_clock clock;
+
+            Obj x(dispatcher,
+                  clock,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+        {
+            bsl::chrono::steady_clock clock;
+
+            Obj x(dispatcher, clock);
+
+            testThreadName(x, defaultThreadName);
+        }
+        {
+            bsl::chrono::steady_clock clock;
+
+            Obj x(dispatcher,
+                  clock,
+                  specifiedName,
+                  static_cast<bdlm::MetricsRegistry *>(0));
+
+            testThreadName(x, specifiedName);
+        }
+#endif
+      } break;
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING 'EventData', 'RecurringEventData' ALLOCATOR-AWARENESS
         //
@@ -3746,7 +3927,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING CLOCKTYPE ACCESSOR\n"
                              "==========================\n";
 
-        using namespace EVENTSCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -3902,7 +4082,6 @@ int main(int argc, char *argv[])
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
 
-        using namespace EVENTSCHEDULER_TEST_CASE_20;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
@@ -5605,7 +5784,6 @@ int main(int argc, char *argv[])
         defaultRegistry.setMetricsAdapter(&defaultAdapter);
         otherRegistry.setMetricsAdapter(&otherAdapter);
 
-        using namespace EVENTSCHEDULER_TEST_CASE_8;
         using namespace bdlf::PlaceHolders;
 
         const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms

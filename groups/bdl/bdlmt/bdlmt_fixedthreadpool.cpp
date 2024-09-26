@@ -81,7 +81,7 @@ const char FixedThreadPool::s_defaultThreadName[16] = { "bdl.FixedPool" };
 
 // PRIVATE MANIPULATORS
 void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                                 const bsl::string_view&  metricsIdentifier)
+                                 const bsl::string_view&  threadPoolName)
 {
     d_queue.disablePushBack();
     d_queue.disablePopFront();
@@ -107,7 +107,7 @@ void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
              instanceNumber,
              "bdlmt.fixedthreadpool",
              "ftp",
-             metricsIdentifier);
+             threadPoolName);
 
     bdlm::MetricDescriptor mdUsedCapacity(
              bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
@@ -115,7 +115,7 @@ void FixedThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
              instanceNumber,
              "bdlmt.fixedthreadpool",
              "ftp",
-             metricsIdentifier);
+             threadPoolName);
 
     registry->registerCollectionCallback(
                                 &d_backlogHandle,
@@ -192,15 +192,17 @@ FixedThreadPool::FixedThreadPool(
     BSLS_ASSERT_OPT(1 <= numThreads);
 
     initialize(
-            0,
-            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+        0,
+        (!d_threadAttributes.threadName().empty()
+         ? d_threadAttributes.threadName()
+         : bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION));
 }
 
 FixedThreadPool::FixedThreadPool(
                              const bslmt::ThreadAttributes&  threadAttributes,
                              int                             numThreads,
                              int                             maxNumPendingJobs,
-                             const bsl::string_view&         metricsIdentifier,
+                             const bsl::string_view&         threadPoolName,
                              bdlm::MetricsRegistry          *metricsRegistry,
                              bslma::Allocator               *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
@@ -213,7 +215,11 @@ FixedThreadPool::FixedThreadPool(
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize(metricsRegistry, metricsIdentifier);
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(threadPoolName);
+    }
+
+    initialize(metricsRegistry, threadPoolName);
 }
 
 FixedThreadPool::FixedThreadPool(int               numThreads,
@@ -236,8 +242,8 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 
 FixedThreadPool::FixedThreadPool(int                      numThreads,
                                  int                      maxNumPendingJobs,
-                                 const bsl::string_view&  metricsIdentifier,
-                                 bdlm::MetricsRegistry  *metricsRegistry,
+                                 const bsl::string_view&  threadPoolName,
+                                 bdlm::MetricsRegistry   *metricsRegistry,
                                  bslma::Allocator        *basicAllocator)
 : d_queue(maxNumPendingJobs, basicAllocator)
 , d_numActiveThreads(0)
@@ -249,7 +255,9 @@ FixedThreadPool::FixedThreadPool(int                      numThreads,
 {
     BSLS_ASSERT_OPT(1 <= numThreads);
 
-    initialize(metricsRegistry, metricsIdentifier);
+    d_threadAttributes.setThreadName(threadPoolName);
+
+    initialize(metricsRegistry, threadPoolName);
 }
 
 FixedThreadPool::~FixedThreadPool()

@@ -311,7 +311,7 @@ void EventScheduler::dispatchEvents()
 }
 
 void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                                const bsl::string_view& metricsIdentifier)
+                                const bsl::string_view&  eventSchedulerName)
 {
     bdlm::MetricsRegistry *registry = metricsRegistry
                                    ? metricsRegistry
@@ -326,7 +326,7 @@ void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
              instanceNumber,
              "bdlmt.eventscheduler",
              "es",
-             metricsIdentifier);
+             eventSchedulerName);
 
     registry->registerCollectionCallback(
                                    &d_startLagHandle,
@@ -447,14 +447,15 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
 }
 
-EventScheduler::EventScheduler(const bsl::string_view&  metricsIdentifier,
-                               bdlm::MetricsRegistry  *metricsRegistry,
+EventScheduler::EventScheduler(const bsl::string_view&  eventSchedulerName,
+                               bdlm::MetricsRegistry   *metricsRegistry,
                                bslma::Allocator        *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -471,8 +472,9 @@ EventScheduler::EventScheduler(const bsl::string_view&  metricsIdentifier,
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
@@ -492,6 +494,7 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(clockType)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -499,8 +502,8 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 }
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
-                               const bsl::string_view&      metricsIdentifier,
-                               bdlm::MetricsRegistry      *metricsRegistry,
+                               const bsl::string_view&      eventSchedulerName,
+                               bdlm::MetricsRegistry       *metricsRegistry,
                                bslma::Allocator            *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -517,8 +520,9 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(clockType)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -540,6 +544,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -548,8 +553,8 @@ EventScheduler::EventScheduler(
 
 EventScheduler::EventScheduler(
                            const bsl::chrono::system_clock&,
-                           const bsl::string_view&           metricsIdentifier,
-                           bdlm::MetricsRegistry           *metricsRegistry,
+                           const bsl::string_view&           eventSchedulerName,
+                           bdlm::MetricsRegistry            *metricsRegistry,
                            bslma::Allocator                 *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -566,8 +571,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 EventScheduler::EventScheduler(
@@ -588,6 +594,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -596,9 +603,9 @@ EventScheduler::EventScheduler(
 
 EventScheduler::EventScheduler(
                           const bsl::chrono::steady_clock&,
-                          const bsl::string_view&            metricsIdentifier,
+                          const bsl::string_view&           eventSchedulerName,
                           bdlm::MetricsRegistry            *metricsRegistry,
-                          bslma::Allocator                  *basicAllocator)
+                          bslma::Allocator                 *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                            bsls::SystemClockType::e_MONOTONIC))
@@ -614,8 +621,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
@@ -637,6 +645,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -645,8 +654,8 @@ EventScheduler::EventScheduler(
 
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
-                          const bsl::string_view&            metricsIdentifier,
-                          bdlm::MetricsRegistry            *metricsRegistry,
+                          const bsl::string_view&            eventSchedulerName,
+                          bdlm::MetricsRegistry             *metricsRegistry,
                           bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -663,8 +672,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 EventScheduler::EventScheduler(
@@ -686,6 +696,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(clockType)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -695,8 +706,8 @@ EventScheduler::EventScheduler(
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bsls::SystemClockType::Enum        clockType,
-                          const bsl::string_view&            metricsIdentifier,
-                          bdlm::MetricsRegistry            *metricsRegistry,
+                          const bsl::string_view&            eventSchedulerName,
+                          bdlm::MetricsRegistry             *metricsRegistry,
                           bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(clockType))
@@ -713,8 +724,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(clockType)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -737,6 +749,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -746,8 +759,8 @@ EventScheduler::EventScheduler(
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           const bsl::chrono::system_clock&,
-                          const bsl::string_view&            metricsIdentifier,
-                          bdlm::MetricsRegistry            *metricsRegistry,
+                          const bsl::string_view&            eventSchedulerName,
+                          bdlm::MetricsRegistry             *metricsRegistry,
                           bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -764,8 +777,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 
 EventScheduler::EventScheduler(
@@ -787,6 +801,7 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
+, d_eventSchedulerName(basicAllocator)
 {
     initialize(
             0,
@@ -796,8 +811,8 @@ EventScheduler::EventScheduler(
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           const bsl::chrono::steady_clock&,
-                          const bsl::string_view&            metricsIdentifier,
-                          bdlm::MetricsRegistry            *metricsRegistry,
+                          const bsl::string_view&            eventSchedulerName,
+                          bdlm::MetricsRegistry             *metricsRegistry,
                           bslma::Allocator                  *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
@@ -814,8 +829,9 @@ EventScheduler::EventScheduler(
 , d_currentEvent(0)
 , d_waitCount(0)
 , d_clockType(bsls::SystemClockType::e_MONOTONIC)
+, d_eventSchedulerName(eventSchedulerName, basicAllocator)
 {
-    initialize(metricsRegistry, metricsIdentifier);
+    initialize(metricsRegistry, eventSchedulerName);
 }
 #endif // defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
@@ -1109,7 +1125,12 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     bslmt::ThreadAttributes modAttr(threadAttributes);
     modAttr.setDetachedState(bslmt::ThreadAttributes::e_CREATE_JOINABLE);
     if (modAttr.threadName().empty()) {
-        modAttr.setThreadName(s_defaultThreadName);
+        if (d_eventSchedulerName.empty()) {
+            modAttr.setThreadName(s_defaultThreadName);
+        }
+        else {
+            modAttr.setThreadName(d_eventSchedulerName.c_str());
+        }
     }
 
     if (bslmt::ThreadUtil::createWithAllocator(

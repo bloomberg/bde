@@ -363,6 +363,7 @@ BSLS_IDENT("$Id: $")
     #include <bsl_csignal.h>              // sigfillset
 #endif
 #include <bsl_functional.h>
+#include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
@@ -486,11 +487,11 @@ class ThreadPool {
     void doEnqueueJob(bslmf::MovableRef<Job> job);
 
     /// Initialize this thread pool using the stored attributes and the
-    /// specified `metricsRegistry` and `metricsIdentifier`.  If
+    /// specified `metricsRegistry` and `threadPoolName`.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()`  is
     /// used.
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                    const bsl::string_view&  metricsIdentifier);
+                    const bsl::string_view&  threadPoolName);
 
     /// Signal this thread and pop the current thread from the wait list.
     void wakeThreadIfNeeded();
@@ -526,12 +527,14 @@ class ThreadPool {
 
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
-    /// `maxThreads` maximum number of threads, and the specified `maxIdleTime`
-    /// idle time (in milliseconds) after which a thread may be considered for
-    /// destruction.  Optionally specify a `basicAllocator` used to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.  The behavior is undefined unless `0 <= minThreads`,
-    /// `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
+    /// `maxThreads` maximum number of threads, and the specified
+    /// `maxIdleTime` idle time (in milliseconds) after which a thread may
+    /// be considered for destruction.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The name used for
+    /// created threads is `threadAttributes.threadName()` if not empty,
+    /// otherwise "bdl.ThreadPool".  The behavior is undefined unless
+    /// `0 <= minThreads`, `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
@@ -541,30 +544,34 @@ class ThreadPool {
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
     /// `maxThreads` maximum number of threads, the specified `maxIdleTime`
-    /// idle time (in milliseconds) after which a thread may be considered for
-    /// destruction, the specified `metricsIdentifier` to be used to identify
-    /// this thread pool, and the specified `metricsRegistry` to be used for
-    /// reporting metrics.  If `metricsRegistry` is 0,
+    /// idle time (in milliseconds) after which a thread may be considered
+    /// for destruction, the specified `threadPoolName` to be used to
+    /// identify this thread pool, and the specified `metricsRegistry` to
+    /// be used for reporting metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.  The behavior is
-    /// undefined unless `0 <= minThreads`, `minThreads <= maxThreads`, and
-    /// `0 <= maxIdleTime`.
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The name used for
+    /// created threads is `threadAttributes.threadName()` if not empty,
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThreadPool".
+    /// The behavior is undefined unless `0 <= minThreads`,
+    /// `minThreads <= maxThreads`, and `0 <= maxIdleTime`.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
                int                             maxIdleTime,
-               const bsl::string_view&         metricsIdentifier,
+               const bsl::string_view&         threadPoolName,
                bdlm::MetricsRegistry          *metricsRegistry,
                bslma::Allocator               *basicAllocator = 0);
 
     /// Construct a thread pool with the specified `threadAttributes`, the
     /// specified `minThreads` minimum number of threads, the specified
-    /// `maxThreads` maximum number of threads, and the specified `maxIdleTime`
-    /// idle time after which a thread may be considered for destruction.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  The behavior is undefined unless `0 <= minThreads`,
+    /// `maxThreads` maximum number of threads, and the specified
+    /// `maxIdleTime` idle time after which a thread may be considered for
+    /// destruction.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The name used for created threads is
+    /// `threadAttributes.threadName()` if not empty, otherwise
+    /// "bdl.ThreadPool".  The behavior is undefined unless `0 <= minThreads`,
     /// `minThreads <= maxThreads`, `0 <= maxIdleTime`, and the `maxIdleTime`
     /// has a value less than or equal to `INT_MAX` milliseconds.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -577,20 +584,22 @@ class ThreadPool {
     /// specified `minThreads` minimum number of threads, the specified
     /// `maxThreads` maximum number of threads, the specified `maxIdleTime`
     /// idle time after which a thread may be considered for destruction,
-    /// the specified `metricsIdentifier` to be used to identify this thread
+    /// the specified `threadPoolName` to be used to identify this thread
     /// pool, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
-    /// undefined unless `0 <= minThreads`, `minThreads <= maxThreads`,
-    /// `0 <= maxIdleTime`, and the `maxIdleTime` has a value less than or
-    /// equal to `INT_MAX` milliseconds.
+    /// the currently installed default allocator is used.  The name used for
+    /// created threads is `threadAttributes.threadName()` if not empty,
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.ThreadPool".
+    /// The behavior is undefined unless `0 <= minThreads`,
+    /// `minThreads <= maxThreads`, `0 <= maxIdleTime`, and the `maxIdleTime`
+    /// has a value less than or equal to `INT_MAX` milliseconds.
     ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                int                             minThreads,
                int                             maxThreads,
                bsls::TimeInterval              maxIdleTime,
-               const bsl::string_view&         metricsIdentifier,
+               const bsl::string_view&         threadPoolName,
                bdlm::MetricsRegistry          *metricsRegistry,
                bslma::Allocator               *basicAllocator = 0);
 

@@ -101,6 +101,7 @@ using bsl::flush;
 // [17] CONCERN: 'drain', 'shutdown', 'stop' behavior when '!isStarted()'
 // [18] DRQS 167232024: 'drain' FAILS TO WAIT FOR ALL JOBS TO FINISH
 // [19] CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'
+// [20] THREAD NAMES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -325,6 +326,34 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace THREAD_NAMES_TEST {
+
+void threadNameCheckJob(void *arg)
+    // Check that the name of the current thread matches 'expectedThreadName',
+    // where 'expectedThreadName' is the specified 'arg'.
+{
+    const char *expectedThreadName = static_cast<const char *>(arg);
+
+    bsl::string name;
+    bslmt::ThreadUtil::getThreadName(&name);
+#if defined(BSLS_PLATFORM_OS_LINUX) ||  defined(BSLS_PLATFORM_OS_DARWIN) ||   \
+    defined(BSLS_PLATFORM_OS_SOLARIS)
+    ASSERTV(expectedThreadName, name, expectedThreadName == name);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    // The threadname will only be visible if we're running on Windows 10,
+    // version 1607 or later, otherwise it will be empty.
+
+    ASSERTV(expectedThreadName, name, expectedThreadName == name ||
+                                                                 name.empty());
+#else
+    // Platform doesn't support thread names.
+
+    ASSERTV(name, name.empty());
+#endif
+}
+
+}  // close namespace THREAD_NAMES_TEST
 
 void noop(void *)
     // This function does nothing.
@@ -1095,6 +1124,175 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // case 0 is always the first case
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING THREAD NAMES
+        //
+        // Concerns:
+        //: 1 On platforms that support thread names, the thread name is set
+        //:   correctly.
+        //
+        // Plan:
+        //: 1 Verify when `threadAttributes.threadName()` and `threadPoolName`
+        //:   are empty, the global default is used.
+        //:
+        //: 2 Verify when `threadAttributes.threadName()` is empty and
+        //:   `threadPoolName` is specified, `threadPoolName` is used.
+        //:
+        //: 3 Verify when `threadAttributes.threadName()` is specified, it is
+        //:   used.
+        //
+        // Testing:
+        //   THREAD NAMES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING THREAD NAMES\n"
+                             "====================\n";
+
+        namespace TC = THREAD_NAMES_TEST;
+
+        const int k_NUM_THREADS =  5;
+        const int k_MAX_PENDING = 10;
+
+        char defaultThreadName[]     = { "bdl.FixedPool" };
+        char constructorThreadName[] = { "name" };
+        char nonDefaultThreadName[]  = { "bow wow" };
+
+        if (verbose) cout << "Check default thread name\n";
+        {
+            Obj mX(k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            Obj mX(k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   "",
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   "",
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, defaultThreadName);
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Check thread name set in constructor argument\n";
+        {
+            Obj mX(k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, constructorThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            ASSERT(attr.threadName().empty());
+            Obj mX(attr,
+                   k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, constructorThreadName);
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Check thread name set in attributes\n";
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+        {
+            bslmt::ThreadAttributes attr;
+            attr.setThreadName(nonDefaultThreadName);
+            Obj mX(attr,
+                   k_NUM_THREADS,
+                   k_MAX_PENDING,
+                   constructorThreadName,
+                   0,
+                   &testAllocator);
+
+            mX.start();
+
+            for (int ii = 0; ii < 10; ++ii) {
+                mX.enqueueJob(&TC::threadNameCheckJob, nonDefaultThreadName);
+            }
+
+            mX.stop();
+        }
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: POOL OBJECT CAN OUTLIVE USED 'MetricsRegistry'
@@ -2356,72 +2554,87 @@ int main(int argc, char *argv[])
                 ASSERT(otherAdapter.verify("b"));
                 otherAdapter.reset();
 
-                {
-                    bslmt::ThreadAttributes attr;
-                    Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
+                bslmt::ThreadAttributes  attrNoName;
+                bslmt::ThreadAttributes  attrName1;
+                bslmt::ThreadAttributes  attrName2;
 
-                    const Obj& X = x;
+                const char *ATTR_NAME[] = { "", "name1", "name2" };
+                
+                attrName1.setThreadName(ATTR_NAME[1]);
+                attrName2.setThreadName(ATTR_NAME[2]);
 
-                    ASSERTV(i, THREADS        == X.numThreads());
-                    ASSERTV(i, 0              == X.numThreadsStarted());
-                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                bslmt::ThreadAttributes *ATTRS[] = { &attrNoName,
+                                                     &attrName1,
+                                                     &attrName2 };
+
+                const int NUM_ATTRS = sizeof ATTRS / sizeof *ATTRS;
+
+                for (int j = 0; j < NUM_ATTRS; ++j) {
+                    bslmt::ThreadAttributes attr(*ATTRS[j]);
+
+                    {
+                        Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
+
+                        const Obj& X = x;
+
+                        ASSERTV(i, THREADS        == X.numThreads());
+                        ASSERTV(i, 0              == X.numThreadsStarted());
+                        ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                    }
+                    ASSERT(defaultAdapter.verify(ATTR_NAME[j]));
+                    defaultAdapter.reset();
+
+                    {
+                        Obj x(attr,
+                              THREADS,
+                              QUEUE_CAPACITY,
+                              "",
+                              0,
+                              &testAllocator);
+
+                        const Obj& X = x;
+
+                        ASSERTV(i, THREADS        == X.numThreads());
+                        ASSERTV(i, 0              == X.numThreadsStarted());
+                        ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                    }
+                    ASSERT(defaultAdapter.verify(""));
+                    defaultAdapter.reset();
+
+                    {
+                        Obj x(attr,
+                              THREADS,
+                              QUEUE_CAPACITY,
+                              "a",
+                              0,
+                              &testAllocator);
+
+                        const Obj& X = x;
+
+                        ASSERTV(i, THREADS        == X.numThreads());
+                        ASSERTV(i, 0              == X.numThreadsStarted());
+                        ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                    }
+                    ASSERT(defaultAdapter.verify("a"));
+                    defaultAdapter.reset();
+
+                    {
+                        Obj x(attr,
+                              THREADS,
+                              QUEUE_CAPACITY,
+                              "b",
+                              &otherRegistry,
+                              &testAllocator);
+
+                        const Obj& X = x;
+
+                        ASSERTV(i, THREADS        == X.numThreads());
+                        ASSERTV(i, 0              == X.numThreadsStarted());
+                        ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
+                    }
+                    ASSERT(otherAdapter.verify("b"));
+                    otherAdapter.reset();
                 }
-                ASSERT(defaultAdapter.verify(""));
-                defaultAdapter.reset();
-
-                {
-                    bslmt::ThreadAttributes attr;
-                    Obj x(attr,
-                          THREADS,
-                          QUEUE_CAPACITY,
-                          "",
-                          0,
-                          &testAllocator);
-
-                    const Obj& X = x;
-
-                    ASSERTV(i, THREADS        == X.numThreads());
-                    ASSERTV(i, 0              == X.numThreadsStarted());
-                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
-                }
-                ASSERT(defaultAdapter.verify(""));
-                defaultAdapter.reset();
-
-                {
-                    bslmt::ThreadAttributes attr;
-                    Obj x(attr,
-                          THREADS,
-                          QUEUE_CAPACITY,
-                          "a",
-                          0,
-                          &testAllocator);
-
-                    const Obj& X = x;
-
-                    ASSERTV(i, THREADS        == X.numThreads());
-                    ASSERTV(i, 0              == X.numThreadsStarted());
-                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
-                }
-                ASSERT(defaultAdapter.verify("a"));
-                defaultAdapter.reset();
-
-                {
-                    bslmt::ThreadAttributes attr;
-                    Obj x(attr,
-                          THREADS,
-                          QUEUE_CAPACITY,
-                          "b",
-                          &otherRegistry,
-                          &testAllocator);
-
-                    const Obj& X = x;
-
-                    ASSERTV(i, THREADS        == X.numThreads());
-                    ASSERTV(i, 0              == X.numThreadsStarted());
-                    ASSERTV(i, QUEUE_CAPACITY == X.queueCapacity());
-                }
-                ASSERT(otherAdapter.verify("b"));
-                otherAdapter.reset();
             }
         }
       } break;

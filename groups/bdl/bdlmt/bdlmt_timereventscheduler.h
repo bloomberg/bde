@@ -345,6 +345,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -518,6 +519,8 @@ class TimerEventScheduler {
     bsls::SystemClockType::Enum
                       d_clockType;          // clock type used
 
+    const bsl::string d_eventSchedulerName; // name of this scheduler
+    
     bsls::AtomicInt64 d_cachedClockMicroseconds;
                                             // microseconds from epoch of next
                                             // cached clock
@@ -542,10 +545,10 @@ class TimerEventScheduler {
     // PRIVATE MANIPULATORS
 
     /// Initialize this event scheduler using the stored attributes and the
-    /// specified `metricsRegistry` and `metricsIdentifier`.  If
+    /// specified `metricsRegistry` and `eventSchedulerName`.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is used.
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                    const bsl::string_view&  metricsIdentifier);
+                    const bsl::string_view&  eventSchedulerName);
 
     /// Repeatedly wake up dispatcher thread until it noticeably starts
     /// running.
@@ -572,14 +575,14 @@ class TimerEventScheduler {
     /// (see the "The dispatcher thread and the dispatcher functor" section
     /// in component-level doc), use the realtime clock epoch for all time
     /// intervals (see [](#Supported Clock-Types)), the specified
-    /// `metricsIdentifier` to be used to identify this event scheduler, and
+    /// `eventSchedulerName` to be used to identify this event scheduler, and
     /// the specified `metricsRegistry` to be used for reporting metrics.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is used.
     /// Optionally specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.  Note that the maximal number of scheduled non-recurring events
     /// and recurring events defaults to an implementation defined constant.
-    explicit TimerEventScheduler(const bsl::string_view&  metricsIdentifier,
+    explicit TimerEventScheduler(const bsl::string_view&  eventSchedulerName,
                                  bdlm::MetricsRegistry   *metricsRegistry,
                                  bslma::Allocator        *basicAllocator = 0);
 
@@ -600,7 +603,7 @@ class TimerEventScheduler {
     /// the "The dispatcher thread and the dispatcher functor" section in
     /// component-level doc), use the specified `clockType` to indicate the
     /// epoch used for all time intervals (see []#(Supported Clock-Types)), the
-    /// specified `metricsIdentifier` to be used to identify this event
+    /// specified `eventSchedulerName` to be used to identify this event
     /// scheduler, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
@@ -610,7 +613,7 @@ class TimerEventScheduler {
     /// to an implementation defined constant.
     explicit TimerEventScheduler(
                               bsls::SystemClockType::Enum  clockType,
-                              const bsl::string_view&      metricsIdentifier,
+                              const bsl::string_view&      eventSchedulerName,
                               bdlm::MetricsRegistry       *metricsRegistry,
                               bslma::Allocator            *basicAllocator = 0);
 
@@ -629,7 +632,7 @@ class TimerEventScheduler {
     /// (see "The dispatcher thread and the dispatcher functor" section in
     /// component-level doc), use the realtime clock epoch for all time
     /// intervals (see [](#Supported Clock-Types)), the specified
-    /// `metricsIdentifier` to be used to identify this event scheduler, and
+    /// `eventSchedulerName` to be used to identify this event scheduler, and
     /// the specified `metricsRegistry` to be used for reporting metrics.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is used.
     /// Optionally specify a `basicAllocator` used to supply memory.  If
@@ -637,7 +640,7 @@ class TimerEventScheduler {
     /// used.  Note that the maximal number of scheduled non-recurring events
     /// and recurring events defaults to an implementation defined constant.
     explicit TimerEventScheduler(const Dispatcher&        dispatcherFunctor,
-                                 const bsl::string_view&  metricsIdentifier,
+                                 const bsl::string_view&  eventSchedulerName,
                                  bdlm::MetricsRegistry   *metricsRegistry,
                                  bslma::Allocator        *basicAllocator = 0);
 
@@ -658,7 +661,7 @@ class TimerEventScheduler {
     /// (see "The dispatcher thread and the dispatcher functor" section in
     /// component-level doc), use the specified `clockType` to indicate the
     /// epoch used for all time intervals (see [](#Supported Clock-Types)), the
-    /// specified `metricsIdentifier` to be used to identify this event
+    /// specified `eventSchedulerName` to be used to identify this event
     /// scheduler, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
@@ -669,7 +672,7 @@ class TimerEventScheduler {
     explicit TimerEventScheduler(
                               const Dispatcher&            dispatcherFunctor,
                               bsls::SystemClockType::Enum  clockType,
-                              const bsl::string_view&      metricsIdentifier,
+                              const bsl::string_view&      eventSchedulerName,
                               bdlm::MetricsRegistry       *metricsRegistry,
                               bslma::Allocator            *basicAllocator = 0);
 
@@ -691,7 +694,7 @@ class TimerEventScheduler {
     /// section in component level doc) that has the capability to
     /// concurrently schedule *at* *least* the specified `numEvents` and
     /// `numClocks`, use the realtime clock epoch for all time intervals
-    /// (see [](#Supported Clock-Types)), the specified `metricsIdentifier` to
+    /// (see [](#Supported Clock-Types)), the specified `eventSchedulerName` to
     /// be used to identify this event scheduler, and the specified
     /// `metricsRegistry` to be used for reporting metrics.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is used.
@@ -701,7 +704,7 @@ class TimerEventScheduler {
     /// `0 <= numClocks < 2**24`.
     TimerEventScheduler(int                      numEvents,
                         int                      numClocks,
-                        const bsl::string_view&  metricsIdentifier,
+                        const bsl::string_view&  eventSchedulerName,
                         bdlm::MetricsRegistry   *metricsRegistry,
                         bslma::Allocator        *basicAllocator = 0);
 
@@ -725,7 +728,7 @@ class TimerEventScheduler {
     /// *at* *least* the specified `numEvents` and `numClocks`, use the
     /// specified `clockType` to indicate the epoch used for all time intervals
     /// (see [](#Supported Clock-Types) in the component documentation), the
-    /// specified `metricsIdentifier` to be used to identify this event
+    /// specified `eventSchedulerName` to be used to identify this event
     /// scheduler, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
@@ -735,7 +738,7 @@ class TimerEventScheduler {
     TimerEventScheduler(int                          numEvents,
                         int                          numClocks,
                         bsls::SystemClockType::Enum  clockType,
-                        const bsl::string_view&      metricsIdentifier,
+                        const bsl::string_view&      eventSchedulerName,
                         bdlm::MetricsRegistry       *metricsRegistry,
                         bslma::Allocator            *basicAllocator = 0);
 
@@ -758,7 +761,7 @@ class TimerEventScheduler {
     /// functor" section in component level doc) that has the capability to
     /// concurrently schedule **at least** the specified `numEvents` and
     /// `numClocks`, use the realtime clock epoch for all time intervals (see
-    /// [](#Supported Clock-Types)), the specified `metricsIdentifier` to be
+    /// [](#Supported Clock-Types)), the specified `eventSchedulerName` to be
     /// used to identify this event scheduler, and the specified
     /// `metricsRegistry` to be used for reporting metrics.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is used.
@@ -769,7 +772,7 @@ class TimerEventScheduler {
     TimerEventScheduler(int                      numEvents,
                         int                      numClocks,
                         const Dispatcher&        dispatcherFunctor,
-                        const bsl::string_view&  metricsIdentifier,
+                        const bsl::string_view&  eventSchedulerName,
                         bdlm::MetricsRegistry   *metricsRegistry,
                         bslma::Allocator        *basicAllocator = 0);
 
@@ -795,7 +798,7 @@ class TimerEventScheduler {
     /// concurrently schedule **at least** the specified `numEvents` and
     /// `numClocks`, use the specified `clockType` to indicate the epoch
     /// used for all time intervals (see [](#Supported Clock-Types)), the
-    /// specified `metricsIdentifier` to be used to identify this event
+    /// specified `eventSchedulerName` to be used to identify this event
     /// scheduler, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
@@ -806,7 +809,7 @@ class TimerEventScheduler {
                         int                          numClocks,
                         const Dispatcher&            dispatcherFunctor,
                         bsls::SystemClockType::Enum  clockType,
-                        const bsl::string_view&      metricsIdentifier,
+                        const bsl::string_view&      eventSchedulerName,
                         bdlm::MetricsRegistry       *metricsRegistry,
                         bslma::Allocator            *basicAllocator = 0);
 
@@ -816,29 +819,34 @@ class TimerEventScheduler {
 
     // MANIPULATORS
 
-    /// Begin dispatching events on this scheduler using default attributes for
-    /// the dispatcher thread.  Return 0 on success, and a nonzero value
-    /// otherwise.  If another thread is currently executing `stop`, wait until
-    /// the dispatcher thread stops before starting a new one.  If this
-    /// scheduler has already started (and is not currently being stopped by
-    /// another thread) then this invocation has no effect and 0 is returned.
-    /// The behavior is undefined if this method is invoked in the dispatcher
-    /// thread (i.e., in a job executed by this scheduler).  Note that any
-    /// event whose time has already passed is pending and will be dispatched
-    /// immediately.
+    /// Begin dispatching events on this scheduler using default attributes
+    /// for the dispatcher thread.  Return 0 on success, and a nonzero value
+    /// otherwise.  If another thread is currently executing `stop`, wait
+    /// until the dispatcher thread stops before starting a new one.  If
+    /// this scheduler has already started (and is not currently being
+    /// stopped by another thread) then this invocation has no effect and 0
+    /// is returned.  The created thread will use the `eventSchedulerName`
+    /// supplied at construction if it is not empty, otherwise
+    /// "bdl.TimerEvent".  The behavior is undefined if this method is invoked
+    /// in the dispatcher thread (i.e., in a job executed by this scheduler).
+    /// Note that any event whose time has already passed is pending and
+    /// will be dispatched immediately.
     int start();
 
     /// Begin dispatching events on this scheduler using the specified
-    /// `threadAttributes` for the dispatcher thread (except that the DETACHED
-    /// attribute is ignored).  Return 0 on success, and a nonzero value
-    /// otherwise.  If another thread is currently executing `stop`, wait until
-    /// the dispatcher thread stops before starting a new one.  If this
-    /// scheduler has already started (and is not currently being stopped by
-    /// another thread) then this invocation has no effect and 0 is returned.
-    /// The behavior is undefined if this method is invoked in the dispatcher
-    /// thread (i.e., in a job executed by this scheduler).  Note that any
-    /// event whose time has already passed is pending and will be dispatched
-    /// immediately.
+    /// `threadAttributes` for the dispatcher thread (except that the
+    /// DETACHED attribute is ignored).  Return 0 on success, and a nonzero
+    /// value otherwise.  If another thread is currently executing `stop`,
+    /// wait until the dispatcher thread stops before starting a new one.
+    /// If this scheduler has already started (and is not currently being
+    /// stopped by another thread) then this invocation has no effect and 0
+    /// is returned.  The created thread will use the name
+    /// `threadAttributes.getThreadName()` if it is not empty, otherwise
+    /// `eventSchedulerName` supplied at construction if it is not empty,
+    /// otherwise "bdl.TimerEvent".  The behavior is undefined if this method
+    /// is invoked in the dispatcher thread (i.e., in a job executed by this
+    /// scheduler). Note that any event whose time has already passed is
+    /// pending and will be dispatched immediately.
     int start(const bslmt::ThreadAttributes& threadAttributes);
 
     /// End the dispatching of events on this scheduler (but do not remove any

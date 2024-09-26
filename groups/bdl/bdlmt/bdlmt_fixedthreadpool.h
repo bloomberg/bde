@@ -323,6 +323,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
+#include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
@@ -431,11 +432,11 @@ class FixedThreadPool {
     // PRIVATE MANIPULATORS
 
     /// Initialize this thread pool using the stored attributes and the
-    /// specified `metricsRegistry` and `metricsIdentifier`.  If
+    /// specified `metricsRegistry` and `threadPoolName`.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()`  is
     /// used.
     void initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                    const bsl::string_view&  metricsIdentifier);
+                    const bsl::string_view&  threadPoolName);
 
     /// The main function executed by each worker thread.
     void workerThread();
@@ -456,8 +457,9 @@ class FixedThreadPool {
     /// threads and a job queue of capacity sufficient to enqueue the
     /// specified `maxNumPendingJobs` without blocking.  Optionally specify
     /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
-    /// undefined unless `1 <= numThreads`.
+    /// the currently installed default allocator is used.  The name used for
+    /// created threads is "bdl.FixedPool".  The behavior is undefined unless
+    /// `1 <= numThreads`.
     FixedThreadPool(int               numThreads,
                     int               maxNumPendingJobs,
                     bslma::Allocator *basicAllocator = 0);
@@ -465,15 +467,17 @@ class FixedThreadPool {
     /// Construct a thread pool with the specified `numThreads` number of
     /// threads, a job queue of capacity sufficient to enqueue the specified
     /// `maxNumPendingJobs` without blocking, the specified
-    /// `metricsIdentifier` to be used to identify this thread pool, and the
+    /// `threadPoolName` to be used to identify this thread pool, and the
     /// specified `metricsRegistry` to be used for reporting metrics.  If
     /// `metricsRegistry` is 0, `bdlm::MetricsRegistry::singleton()` is
     /// used.  Optionally specify a'basicAllocator' used to supply memory.
     /// If `basicAllocator` is 0, the currently installed default allocator
-    /// is used.  The behavior is undefined unless `1 <= numThreads`.
+    /// is used.  The name used for created threads is `threadPoolName` if not
+    /// empty, otherwise "bdl.FixedPool".  The behavior is undefined unless
+    /// `1 <= numThreads`.
     FixedThreadPool(int                      numThreads,
                     int                      maxNumPendingJobs,
-                    const bsl::string_view&  metricsIdentifier,
+                    const bsl::string_view&  threadPoolName,
                     bdlm::MetricsRegistry   *metricsRegistry,
                     bslma::Allocator        *basicAllocator = 0);
 
@@ -482,8 +486,9 @@ class FixedThreadPool {
     /// sufficient to enqueue the specified `maxNumPendingJobs` without
     /// blocking.  Optionally specify a `basicAllocator` used to supply
     /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.  The behavior is undefined unless
-    /// `1 <= numThreads`.
+    /// allocator is used.  The name used for created threads is
+    /// `threadAttributes.threadName()` if not empty, otherwise
+    /// "bdl.FixedPool".  The behavior is undefined unless `1 <= numThreads`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
@@ -492,17 +497,19 @@ class FixedThreadPool {
     /// Construct a thread pool with the specified `threadAttributes`,
     /// `numThreads` number of threads, a job queue with capacity sufficient
     /// to enqueue the specified `maxNumPendingJobs` without blocking, the
-    /// specified `metricsIdentifier` to be used to identify this thread
+    /// specified `threadPoolName` to be used to identify this thread
     /// pool, and the specified `metricsRegistry` to be used for reporting
     /// metrics.  If `metricsRegistry` is 0,
     /// `bdlm::MetricsRegistry::singleton()` is used.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
-    /// undefined unless `1 <= numThreads`.
+    /// the currently installed default allocator is used.  The name used for
+    /// created threads is `threadAttributes.threadName()` if not empty,
+    /// otherwise `threadPoolName` if not empty, otherwise "bdl.FixedPool".
+    /// The behavior is undefined unless `1 <= numThreads`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
-                    const bsl::string_view&         metricsIdentifier,
+                    const bsl::string_view&         threadPoolName,
                     bdlm::MetricsRegistry          *metricsRegistry,
                     bslma::Allocator               *basicAllocator = 0);
 

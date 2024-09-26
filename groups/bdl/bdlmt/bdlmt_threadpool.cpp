@@ -122,7 +122,7 @@ void ThreadPool::doEnqueueJob(bslmf::MovableRef<Job> job)
 }
 
 void ThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
-                            const bsl::string_view& metricsIdentifier)
+                            const bsl::string_view&  threadPoolName)
 {
     if (d_threadAttributes.threadName().empty()) {
         d_threadAttributes.setThreadName(s_defaultThreadName);
@@ -150,7 +150,7 @@ void ThreadPool::initialize(bdlm::MetricsRegistry   *metricsRegistry,
              instanceNumber,
              "bdlmt.threadpool",
              "tp",
-             metricsIdentifier);
+             threadPoolName);
 
     registry->registerCollectionCallback(
                                    &d_backlogHandle,
@@ -424,15 +424,17 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
     initialize(
-            0,
-            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+        0,
+        (!d_threadAttributes.threadName().empty()
+         ? d_threadAttributes.threadName()
+         : bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION));
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             minThreads,
                        int                             maxThreads,
                        int                             maxIdleTime,
-                       const bsl::string_view&         metricsIdentifier,
+                       const bsl::string_view&         threadPoolName,
                        bdlm::MetricsRegistry          *metricsRegistry,
                        bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
@@ -452,7 +454,11 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 
     d_maxIdleTime.setTotalMilliseconds(maxIdleTime);
 
-    initialize(metricsRegistry, metricsIdentifier);
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(threadPoolName);
+    }
+
+    initialize(metricsRegistry, threadPoolName);
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -478,15 +484,17 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
     initialize(
-            0,
-            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+        0,
+        (!d_threadAttributes.threadName().empty()
+         ? d_threadAttributes.threadName()
+         : bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION));
 }
 
 ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             minThreads,
                        int                             maxThreads,
                        bsls::TimeInterval              maxIdleTime,
-                       const bsl::string_view&         metricsIdentifier,
+                       const bsl::string_view&         threadPoolName,
                        bdlm::MetricsRegistry          *metricsRegistry,
                        bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
@@ -506,7 +514,11 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
     BSLS_ASSERT(bsls::TimeInterval(0, 0) <= maxIdleTime);
     BSLS_ASSERT(INT_MAX                  >= maxIdleTime.totalMilliseconds());
 
-    initialize(metricsRegistry, metricsIdentifier);
+    if (d_threadAttributes.threadName().empty()) {
+        d_threadAttributes.setThreadName(threadPoolName);
+    }
+
+    initialize(metricsRegistry, threadPoolName);
 }
 
 ThreadPool::~ThreadPool()
