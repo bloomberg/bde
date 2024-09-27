@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //      void operator()(char v) { value = v; }
 //
 //      template <class t_TYPE>
-//      void operator()(const t_TYPE &x) const
+//      void operator()(const t_TYPE &) const
 //      {
 //          assert(false);  // Wrong Type
 //      }
