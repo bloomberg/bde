@@ -12,15 +12,31 @@ BSLS_IDENT("$Id: $")
 //  bslfmt::basic_format_args: standard-compliant argment store
 //
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
-// Library's `basic_format_args`, providing access to an array of
-// `basic_format_arg` types.
+// Library's `std::basic_format_args`, providing access to an array of
+// `basic_format_arg` types. It also provides implementations of the standard
+// library free functions `make_format_args` and `make_wformat_args`.
+//
+// As also specified by the standard, the provided free functions return an
+// exposition-only type that holds *references to* the arguments passed in. A
+// `basic_format_args` constructed from an instance of this type holds a
+// reference to it. This means it is the users responsibility to ensure that
+// the lifetime of the returned type does not end before the lifetime of the
+// constructed `basic_format_args` type. This means that, for example, the
+// following code results in Undefined Behavior, in both the standard library
+// and the `bslfmt` versions:
+// ..
+//     int value = 5;
+//     format_args args = make_format_args(value);
+//     // args now holds a reference to a temporary whose lifetime has ended.
+//     do_something_with(args);
+// ..
 //
 ///Usage
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: Construct a `basic_format_args` object and verify what it contains.
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example: 1 Construct a `basic_format_args` object
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
 // are only a very limited number of public methods so this example is
@@ -29,12 +45,59 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to construct a `basic_format_args` containing a single int.
 //
 //..
-//   bslfmt::format_args args(bslfmt::make_format_args((int)5);
+//   int                 value = 5;
+//   bslfmt::format_args args(bslfmt::make_format_args(value));
 //
 //   assert( args.get(0));
 //   assert(!args.get(1));
 //..
 //
+///Example 2: Non-default construction and value verification
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
+// are only a very limited number of public methods so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to construct a int-containing `basic_format_args` and verify
+// that it contains that int. Note the use of a function to workaround the
+// lifetime issues specified above.
+//
+//..
+//   struct UsageExampleVisitor {
+//
+//     void operator()(bsl::monostate) const
+//     {
+//       assert(false); // contains no value
+//     }
+//
+//     template <class t_TYPE>
+//     typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type
+//                                           operator()(t_TYPE x) const
+//     {
+//       assert(static_cast<t_TYPE>(99) == x);
+//     }
+//
+//     template <class t_TYPE>
+//     typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
+//                                           operator()(t_TYPE x) const
+//     {
+//       assert(false); // contains non-integral value
+//     }
+//   };
+//
+//   struct UsageExampleChecker {
+//     static void checkValue(bslfmt::format_args args)
+//     {
+//       UsageExampleVisitor visitor;
+//       visit_format_arg(visitor, args.get(0));
+//       asssert(args.get(1));
+//     }
+//   };
+//
+//   int value2 = 99;
+//   UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
+//..
 
 #include <bslscm_version.h>
 
@@ -63,7 +126,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
