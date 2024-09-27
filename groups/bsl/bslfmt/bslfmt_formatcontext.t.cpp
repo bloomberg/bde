@@ -385,7 +385,7 @@ struct MyCharFormatterTestVisitor {
     void operator()(char v) const { value = v; }
 
     template <class t_TYPE>
-    void operator()(const t_TYPE &) const
+    void operator()(const t_TYPE &x) const
     {
         ASSERT(false);  // Wrong Type
     }
