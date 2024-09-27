@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //
 //     template <class t_TYPE>
 //     typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
-//                                           operator()(t_TYPE x) const
+//                                           operator()(t_TYPE) const
 //     {
 //       assert(false); // contains non-integral value
 //     }

@@ -474,7 +474,7 @@ struct UsageExampleVisitor {
 
     template <class t_TYPE>
     typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
-                                                               t_TYPE x) const
+                                                               t_TYPE) const
     {
         ASSERT(false);  // contains non-integral value
     }
