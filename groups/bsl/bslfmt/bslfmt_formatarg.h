@@ -48,10 +48,9 @@ BSLS_IDENT("$Id: $")
 // verify that it contains no value.
 //
 //..
-//   bslfmt::basic_format_arg<
-//       bslfmt::basic_format_context<char *, char> > arg;
+//   bslfmt::format_args args;
 //
-//   assert(!arg);
+//   assert(!args.get(0));
 //..
 //
 
