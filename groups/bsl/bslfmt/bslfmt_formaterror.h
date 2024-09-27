@@ -3,6 +3,44 @@
 #ifndef INCLUDED_BSLFMT_FORMATERROR
 #define INCLUDED_BSLFMT_FORMATERROR
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide an exception type for format library errors
+//
+//@CLASSES:
+//  bslfmt::format_error: standard-compliant format library exception type.
+//
+//@DESCRIPTION: This component provides an implementation of the C++20 Standard
+// Library's `format_error`, providing an excption type thrown in the event of
+// an error in the formatting library.
+//
+// Where the standard library `<format>` header is available, this is an alias
+// to the `std::format_error` type.
+//
+///Usage
+///-----
+// In this section we show the intended use of this component.
+//
+///Example: Throw an exception
+/// - - - - - - - - - - - - -
+//
+// Typically this would be thrown from attempts to use the `format` or
+// `vformat` functions. However, as this is at the very bottom of the
+// dependency hierarchy the usage example cannot accurately reflect that case.
+//
+//..
+//   try
+//   {
+//     throw bsl::format_error("Error message");
+//   }
+//   catch (const bsl::format_error &exc)
+//   {
+//     assert(true); // Successful catch.
+//   }
+//..
+//
+
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
@@ -24,19 +62,25 @@ namespace bslfmt {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_error;
 #else
+/// This class represents exceptions thrown by the formatting library.
 class format_error : public std::runtime_error {
   public:
     // CREATORS
-    BSLS_KEYWORD_EXPLICIT format_error(const std::string& what_arg);
 
+    /// Create an object of this type holding the error message given by the
+    /// specified `what_arg`
+    BSLS_KEYWORD_EXPLICIT format_error(const std::string& what_arg);
     BSLS_KEYWORD_EXPLICIT format_error(const char *what_arg);
 
-    // If a 'bsl::string' is passed to the 'std::string' constructor, two
-    // copies occur (one to initialize 'what_arg', and one to initialize the
-    // internal reference-counted string).  This constructor ensures that only
-    // a single copy needs to be performed.
+    /// Create an object of this type holding the error message given by the
+    /// specified `what_arg` Note that if a 'bsl::string' is passed to the
+    /// 'std::string' constructor, two copies occur (one to initialize
+    /// 'what_arg', and one to initialize the internal reference-counted
+    /// string).  This constructor ensures that only a single copy needs to be
+    /// performed.
     BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& what_arg);
 
+    /// Create an object of this type which is a copy of the specified `other`.
     format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT;
 };
 #endif
@@ -49,7 +93,7 @@ namespace bsl {
 // Unlike other format-related types and free functions, `format_error`
 // specifically needs to be promoted into the `bsl` namespace here rather than
 // in `bslfmt_format.h` so that `formatter` partial specializations can be
-// written to reference `bsl::format_error` and thus be written compatibly with
+// written to reference `bsl::format_error` and thus remain compatible with
 // both the BSL implementation and the standard library implementation.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
