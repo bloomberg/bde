@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
             {  L_,     (Enum)-5,                       UNKNOWN_FORMAT    },
-            {  L_,     (Enum)00,                       UNKNOWN_FORMAT    }
+            {  L_,     (Enum)99,                       UNKNOWN_FORMAT    }
 #endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
