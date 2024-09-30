@@ -13,6 +13,34 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for integer types.
 //
+///Usage
+///-----
+// In this section we show the intended use of this component.
+//
+///Example: Formatting an integer
+/// - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test this formatter's ability to a substring with padding
+// and minimum width.
+//
+//..
+//  bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
+//
+//  bsl::formatter<int, char> f;
+//  mpc.advance_to(f.parse(mpc));
+//
+//  int value = 42;
+//
+//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//
+//  mfc.advance_to(bsl::as_const(f).format(value, mfc));
+//
+//  assert("2a***" == mfc.finalString());
+//..
+//
 
 #include <bslscm_version.h>
 
@@ -43,48 +71,61 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
+/// This struct is a specialization of the `bsl::formatter` template for the
+/// integer types.
 template <class t_VALUE, class t_CHAR>
 struct Formatter_IntegerBase {
   private:
     // PRIVATE CLASS TYPES
+
+    /// A type alias for the `FormatterSpecificationStandard<t_CHAR>`.
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
 
     // DATA
-    FSS d_spec;    // Parsed specification.
+    FSS d_spec;  // Parsed specification.
 
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
 
     // MANIPULATORS
+
+    /// Parse the specified `parseContext` and return an iterator, pointing to
+    /// the beginning of the format string.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT& pc)
+                                                 t_PARSE_CONTEXT& parseContext)
     {
-        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_INTEGRAL);
+        FSS::parse(&d_spec, &parseContext, FSS::e_CATEGORY_INTEGRAL);
 
         if (d_spec.localeSpecificFlag()) {
             BSLS_THROW(
                     bsl::format_error("Formatting L specifier not supported"));
         }
 
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
+        if (parseContext.begin() != parseContext.end() &&
+            *parseContext.begin() != '}') {
             BSLS_THROW(bsl::format_error("not implemented"));
         }
 
-        return pc.begin();
+        return parseContext.begin();
     }
 
+    /// Create string representation of the specified `value`, customized in
+    /// accordance with the requested format and the specified `formatContext`,
+    /// and copy it to the output that the output iterator of the
+    /// `formatContext` points to.
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
-                                               t_FORMAT_CONTEXT& fc) const
+    typename t_FORMAT_CONTEXT::iterator format(
+                                         t_VALUE           value,
+                                         t_FORMAT_CONTEXT& formatContext) const
     {
         typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
         typedef FormatterSpecification_NumericValue       FSNVAlue;
 
         FSS final_spec(d_spec);
 
-        FSS::postprocess(&final_spec, fc);
+        FSS::postprocess(&final_spec, formatContext);
 
         char       valueBuf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
         int        valueBase         = 10;
@@ -94,16 +135,16 @@ struct Formatter_IntegerBase {
 
         // Adding sign.
 
-        if (x > 0) {
+        if (value > 0) {
             switch (final_spec.sign()) {
               case FSS::e_SIGN_POSITIVE: {
-                if (x > 0) {
+                if (value > 0) {
                     *prefixEnd = '+';
                     ++prefixEnd;
                 }
               } break;
               case FSS::e_SIGN_SPACE: {
-                if (x > 0) {
+                if (value > 0) {
                     *prefixEnd = ' ';
                     ++prefixEnd;
                 }
@@ -115,14 +156,14 @@ struct Formatter_IntegerBase {
               }
             }
         }
-        else if (x < 0) {
+        else if (value < 0) {
             // As we might have an alternate form that requires special prefix,
             // we add the minus sign ourselves without relying on
             // `NumericFormatterUtil::toChars` negative value conversion.
 
             *prefixEnd = '-';
             ++prefixEnd;
-            x = -x;
+            value = -value;
         }
 
         // Adding alternate form prefix.
@@ -131,33 +172,43 @@ struct Formatter_IntegerBase {
             const char *formatPrefix       = 0;
             int         formatPrefixLength = 0;
             switch (final_spec.formatType()) {
-              case FSS::e_INTEGRAL_BINARY: {     // `b`
-                  formatPrefix = "0b";
-                  formatPrefixLength = 2;
-                  valueBase = 2;
+              case FSS::e_INTEGRAL_BINARY: {  // `b`
+                if (final_spec.alternativeFlag()) {
+                    formatPrefix       = "0b";
+                    formatPrefixLength = 2;
+                }
+                valueBase = 2;
               } break;
               case FSS::e_INTEGRAL_BINARY_UC: {  // `B`
-                  formatPrefix = "0B";
-                  formatPrefixLength = 2;
-                  valueBase = 2;
+                if (final_spec.alternativeFlag()) {
+                    formatPrefix       = "0B";
+                    formatPrefixLength = 2;
+                }
+                valueBase = 2;
               } break;
-              case FSS::e_INTEGRAL_DECIMAL: {    // none or `d`
-                  valueBase = 10;
+              case FSS::e_INTEGRAL_DECIMAL: {  // none or `d`
+                valueBase = 10;
               } break;
-              case FSS::e_INTEGRAL_OCTAL: {      // `o`
-                  formatPrefix = "0";
-                  formatPrefixLength = 1;
-                  valueBase = 8;
+              case FSS::e_INTEGRAL_OCTAL: {  // `o`
+                if (final_spec.alternativeFlag()) {
+                    formatPrefix       = "0";
+                    formatPrefixLength = 1;
+                }
+                valueBase = 8;
               } break;
-              case FSS::e_INTEGRAL_HEX: {        // `x`
-                  formatPrefix = "0x";
-                  formatPrefixLength = 2;
-                  valueBase = 16;
+              case FSS::e_INTEGRAL_HEX: {  // `x`
+                if (final_spec.alternativeFlag()) {
+                    formatPrefix       = "0x";
+                    formatPrefixLength = 2;
+                }
+                valueBase = 16;
               } break;
-              case FSS::e_INTEGRAL_HEX_UC: {     // `X`
-                  formatPrefix = "0X";
-                  formatPrefixLength = 2;
-                  valueBase = 16;
+              case FSS::e_INTEGRAL_HEX_UC: {  // `X`
+                if (final_spec.alternativeFlag()) {
+                    formatPrefix       = "0X";
+                    formatPrefixLength = 2;
+                }
+                valueBase = 16;
               } break;
               default: {
                 BSLS_THROW(bsl::format_error("Invalid integer format type"));
@@ -174,7 +225,7 @@ struct Formatter_IntegerBase {
 
         char *result = NFUtil::toChars(valueBuf,
                                        valueBuf + sizeof(valueBuf),
-                                       x,
+                                       value,
                                        valueBase);
 
         if (FSS::e_INTEGRAL_HEX_UC == final_spec.formatType()) {
@@ -235,7 +286,7 @@ struct Formatter_IntegerBase {
 
         // Assembling the final string.
 
-        typename t_FORMAT_CONTEXT::iterator outIterator = fc.out();
+        typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
         for (int i = 0; i < leftPadFillerCopiesNum; ++i) {
             outIterator = bsl::copy(
@@ -281,46 +332,60 @@ struct Formatter_IntegerBase {
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `short int`.
 template <class t_CHAR>
 struct formatter<short, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<short, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `unsigned short int`.
 template <class t_CHAR>
 struct formatter<unsigned short, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<unsigned short, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type `int`.
 template <class t_CHAR>
 struct formatter<int, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<int, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `unsigned int`.
 template <class t_CHAR>
 struct formatter<unsigned, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<unsigned, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `long int`.
 template <class t_CHAR>
 struct formatter<long, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<long, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `unsigned long int`.
 template <class t_CHAR>
 struct formatter<unsigned long, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<unsigned long, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `long long int`.
 template <class t_CHAR>
 struct formatter<long long, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<long long, t_CHAR> {
 };
 
+/// Partial specialization of the `bsl::formatter` template for the type
+/// `unsigned long long int`.
 template <class t_CHAR>
 struct formatter<unsigned long long, t_CHAR>
 : BloombergLP::bslfmt::Formatter_IntegerBase<unsigned long long, t_CHAR> {
 };
-
 }
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE

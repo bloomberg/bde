@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// 
+//
 // We can then write a test function. Note that it is not possible for users to
 // construct a context directly, so we are forced to abuse the
 // internal-use-only types `Format_OutputIteratorRef` and
@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //      bslfmt::Format_OutputIteratorImpl<
 //          char, bsl::back_insert_iterator<bsl::string> >
 //                                             iter(backiter);
-//      bslfmt::format_context fc = 
+//      bslfmt::format_context fc =
 //          bslfmt::Format_FormatContextFactory::construct(
 //                           bslfmt::Format_OutputIteratorRef<char>(&iter),
 //                           args);
@@ -262,8 +262,8 @@ class basic_format_context {
     typedef basic_format_arg<basic_format_context> Arg;
 
     // DATA
-    basic_format_args<basic_format_context> d_args; // Format arguments
-    t_OUT                                   d_out;  // Output iterator
+    basic_format_args<basic_format_context> d_args;  // format arguments
+    t_OUT                                   d_out;   // futput iterator
 
   public:
     // TYPES

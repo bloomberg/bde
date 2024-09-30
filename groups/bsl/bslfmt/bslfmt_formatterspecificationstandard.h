@@ -15,13 +15,7 @@ BSLS_IDENT("$Id: $")
 // string that is a "standard formatting specification" as defined by
 // [format.string.std].
 //
-//@DESCRIPTION: This component provides a mechanism to perform a first-pass
-// split of a formatting string into its component parts in a way that is
-// compatible with [format.string] and [time.format] in the Standard. No
-// validation is performed by this component and further type-specific
-// processing will be required prior to use.
-//
-// This component is for private use only.
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 

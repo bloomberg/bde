@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a utility to facilitate testing of
 // `bsl::formatter` partial specializations where, due to hierarchical reasons,
 // the testing cannot be performed using `bslfmt::format`.
-// 
+//
 // This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
@@ -154,8 +154,11 @@ class Formatter_MockFormatContext_Iterator {
 
   public:
     // TYPES
-    typedef std::ptrdiff_t difference_type;
-    typedef t_CHAR         value_type;
+    typedef std::ptrdiff_t           difference_type;
+    typedef t_CHAR                   value_type;
+    typedef t_CHAR *                 pointer;
+    typedef t_CHAR&                  reference;
+    typedef std::output_iterator_tag iterator_category;
 
     // CREATORS
     Formatter_MockFormatContext_Iterator(t_CHAR *ptr, t_CHAR *max)

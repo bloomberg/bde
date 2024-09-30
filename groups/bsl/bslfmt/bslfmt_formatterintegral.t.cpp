@@ -1,7 +1,8 @@
 // bslstl_formatterintegral.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterintegral.h>
 
-#include <bslfmt_formatimp.h> // Testing only (`bsl::format` - breathing test)
+#include <bslfmt_formatimp.h>         // Testing only (`bsl::format`)
+#include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
 
@@ -89,7 +90,63 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Use test contexts to format a single string.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Example: Formatting an integer
+/// - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test this formatter's ability to a substring with padding
+// and minimum width.
+//
+//..
+    bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
+
+    bsl::formatter<int, char> f;
+    mpc.advance_to(f.parse(mpc));
+
+    int value = 42;
+
+    bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+
+    mfc.advance_to(bsl::as_const(f).format(value, mfc));
+
+    ASSERT("2a***" == mfc.finalString());
+//..
+//
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
@@ -128,12 +185,13 @@ int main(int argc, char **argv)
             { L_,   "{:#d}",                      "12",             12   },
             { L_,   "{:#o}",                      "05",             5    },
             { L_,   "{:#o}",                      "014",            12   },
-            { L_,   "{:b}",                       "0b1100",         12   },
-            { L_,   "{:B}",                       "0B1100",         12   },
+            { L_,   "{:b}",                       "1100",           12   },
+            { L_,   "{:B}",                       "1100",           12   },
             { L_,   "{:d}",                       "12",             12   },
-            { L_,   "{:o}",                       "014",            12   },
-            { L_,   "{:x}",                       "0xc",            12   },
-            { L_,   "{:X}",                       "0XC",            12   },
+            { L_,   "{:o}",                       "14",             12   },
+            { L_,   "{:x}",                       "c",              12   },
+            { L_,   "{:X}",                       "C",              12   },
+            { L_,   "{:#<5x}",                    "5####",          5    },
         };
 
         enum {
@@ -141,7 +199,7 @@ int main(int argc, char **argv)
                                      sizeof *POSITIVE_CHAR_DATA
         };
 
-        static const struct {
+         static const struct {
             int         d_line;        // source line number
             const char *d_format_p;    // format spec
             const char *d_expected_p;  // format
@@ -170,12 +228,12 @@ int main(int argc, char **argv)
             { L_,   "{:#d}",                      "-12",             -12   },
             { L_,   "{:#o}",                      "-05",             -5    },
             { L_,   "{:#o}",                      "-014",            -12   },
-            { L_,   "{:b}",                       "-0b1100",         -12   },
-            { L_,   "{:B}",                       "-0B1100",         -12   },
+            { L_,   "{:b}",                       "-1100",           -12   },
+            { L_,   "{:B}",                       "-1100",           -12   },
             { L_,   "{:d}",                       "-12",             -12   },
-            { L_,   "{:o}",                       "-014",            -12   },
-            { L_,   "{:x}",                       "-0xc",            -12   },
-            { L_,   "{:X}",                       "-0XC",            -12   },
+            { L_,   "{:o}",                       "-14",             -12   },
+            { L_,   "{:x}",                       "-c",              -12   },
+            { L_,   "{:X}",                       "-C",              -12   },
         };
 
         enum {
@@ -212,12 +270,12 @@ int main(int argc, char **argv)
             { L_,   L"{:#d}",                      L"12",             12   },
             { L_,   L"{:#o}",                      L"05",             5    },
             { L_,   L"{:#o}",                      L"014",            12   },
-            { L_,   L"{:b}",                       L"0b1100",         12   },
-            { L_,   L"{:B}",                       L"0B1100",         12   },
+            { L_,   L"{:b}",                       L"1100",           12   },
+            { L_,   L"{:B}",                       L"1100",           12   },
             { L_,   L"{:d}",                       L"12",             12   },
-            { L_,   L"{:o}",                       L"014",            12   },
-            { L_,   L"{:x}",                       L"0xc",            12   },
-            { L_,   L"{:X}",                       L"0XC",            12   },
+            { L_,   L"{:o}",                       L"14",             12   },
+            { L_,   L"{:x}",                       L"c",              12   },
+            { L_,   L"{:X}",                       L"C",              12   },
         };
 
         enum {
@@ -254,12 +312,12 @@ int main(int argc, char **argv)
             { L_,   L"{:#d}",                      L"-12",             -12   },
             { L_,   L"{:#o}",                      L"-05",             -5    },
             { L_,   L"{:#o}",                      L"-014",            -12   },
-            { L_,   L"{:b}",                       L"-0b1100",         -12   },
-            { L_,   L"{:B}",                       L"-0B1100",         -12   },
+            { L_,   L"{:b}",                       L"-1100",           -12   },
+            { L_,   L"{:B}",                       L"-1100",           -12   },
             { L_,   L"{:d}",                       L"-12",             -12   },
-            { L_,   L"{:o}",                       L"-014",            -12   },
-            { L_,   L"{:x}",                       L"-0xc",            -12   },
-            { L_,   L"{:X}",                       L"-0XC",            -12   },
+            { L_,   L"{:o}",                       L"-14",             -12   },
+            { L_,   L"{:x}",                       L"-c",              -12   },
+            { L_,   L"{:X}",                       L"-C",              -12   },
         };
 
         enum {
