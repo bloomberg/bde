@@ -3583,21 +3583,6 @@ struct AwkwardMaplikeForDefaultParams {
         // Degenerate functors are not CopyAssignable, and rely on the
         // copy/swap idiom for the copy-assignment operator to function.
 
-// case 10, 15
-#define u_TEST_TYPES_NOALLOC                                 \
-            BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,  \
-            bsltf::EnumeratedTestType::Enum,                   \
-            bsltf::UnionTestType,                               \
-            bsltf::SimpleTestType,                               \
-            bsltf::BitwiseMoveableTestType,                       \
-            bsltf::NonTypicalOverloadsTestType,                    \
-            bsltf::NonAssignableTestType,                           \
-            bsltf::NonDefaultConstructibleTestType
-    // Next we have a sub-set of tests that do not yet want to support testing
-    // the allocatable types, as non-BDE allocators do not scope the object
-    // allocator to the elements, and so use the default allocator instead,
-    // which confuses the math of the test case.
-
 //- - - - - - - - - - Test Machinery Verification Helpers - - - - - - - - - - -
 
 //@bdetdsplit FOR 3 BEGIN
@@ -9564,8 +9549,8 @@ int main(int argc, char *argv[])
         // TBD: Is this expected?  The above long explanation seems to address
         //      something completely different.
         u_RUN_HARNESS_WITH(TestCases_ConvertibleValueConfiguration,
-                           u_TEST_TYPES_NOALLOC);
-#undef u_TEST_TYPES_NOALLOC
+                           u_TESTED_TYPES_NOALLOC);
+#undef u_TESTED_TYPES_NOALLOC
 //@bdetdsplit CODE SLICING END
 
 #undef u_RUN_HARNESS_WITH
@@ -9741,11 +9726,11 @@ int main(int argc, char *argv[])
         // Obvious problems with allocator-propagating tests, given the driver
         // currently expects to never propagate.
         u_RUN_HARNESS_WITH(TestCases_StdAllocatorConfiguration,
-                           u_TEST_TYPES_NOALLOC);
+                           u_TESTED_TYPES_NOALLOC);
 #endif
         u_RUN_HARNESS_WITH(TestCases_StatefulAllocatorConfiguration,
-                           u_TEST_TYPES_NOALLOC);
-#undef u_TEST_TYPES_NOALLOC
+                           u_TESTED_TYPES_NOALLOC);
+#undef u_TESTED_TYPES_NOALLOC
 //@bdetdsplit CODE SLICING END
 
     //@bdetdsplit INTO LAST SLICE BEGIN
@@ -9755,7 +9740,7 @@ int main(int argc, char *argv[])
             bsltf::NonDefaultConstructibleTestType);
         // The above must be non-allocating types.
         // TBD: Why must be non-allocating? Why these types and not the types
-        //      from 'u_TEST_TYPES_NOALLOC'?
+        //      from 'u_TESTED_TYPES_NOALLOC'?
     //@bdetdsplit INTO LAST SLICE END
 #undef u_RUN_HARNESS_WITH
       } break;
@@ -9994,8 +9979,8 @@ int main(int argc, char *argv[])
         // allocator, and that is not yet accounted for in the arithmetic of
         // this test case.  So we use only those types that do not allocate.
         u_RUN_HARNESS_WITH(TestCases_ConvertibleValueConfiguration,
-                           u_TEST_TYPES_NOALLOC);
-#undef u_TEST_TYPES_NOALLOC
+                           u_TESTED_TYPES_NOALLOC);
+#undef u_TESTED_TYPES_NOALLOC
 //@bdetdsplit CODE SLICING END
 
 #undef u_RUN_HARNESS_WITH

@@ -7271,7 +7271,7 @@ int main(int argc, char *argv[])
             TEST_ITEM_PART1(BMSmallFunctorWithAlloc , 0x2000            ),
             TEST_ITEM_PART1(NTSmallFunctorWithAlloc , 0x2000            ),
             TEST_ITEM_PART1(LargeFunctorWithAlloc   , 0x1000            ),
-            TEST_ITEM_PART1(InnerFunction           , &simpleFunc       )
+            TEST_ITEM_PART1(InnerFunction           , &simpleFunc       ),
 #undef TEST_ITEM_PART1
 //@bdetdsplit CODE SLICING BREAK
             TEST_ITEM_PART2(SimpleFuncPtr_t         , nullFuncPtr       ),
