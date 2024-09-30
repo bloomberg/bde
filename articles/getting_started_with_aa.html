@@ -1,0 +1,852 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Getting Started Writing Allocator-Aware Software &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/getting_started_with_aa.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bsl::variant: An Allocator-Aware Discriminated Union" href="bsl_variant.html" />
+    <link rel="prev" title="Articles" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting Started Writing Allocator Aware Software (May 30, 2024)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-write-allocator-aware-software">Why Write Allocator-Aware Software?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#behavioral-requirements-for-an-allocator-aware-type">Behavioral Requirements for an Allocator-Aware Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-basic-allocator-aware-type">Creating a Basic Allocator-Aware Type</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#define-an-alias-for-bsl-allocator">Define an Alias for <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add-constructors-taking-an-allocator-argument">Add Constructors Taking an Allocator Argument</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-get-allocator-accessor">The <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> Accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#passing-the-allocator-first-using-bsl-allocator-arg-t">Passing the Allocator first Using <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passing-allocators-to-subobjects-of-a-class">Passing Allocators to subobjects of a Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-bslma-constructionutil-make-to-initialize-objects-of-a-template-type">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil::make</span></code> to Initialize Objects of a Template Type</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#allocating-memory-with-an-allocator">Allocating Memory with an Allocator</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-smart-pointer-types">Using Smart-Pointer Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#allocating-and-deleting-objects-directly">Allocating and Deleting Objects Directly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#proctors-and-guards">Proctors and Guards</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-bslma-constructionutil-to-construct-objects-in-place">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil</span></code> to Construct Objects In-place</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#roadmap-to-the-making-c-software-allocator-aware-white-paper">Roadmap to the <code class="docutils literal notranslate"><span class="pre">Making</span> <span class="pre">C++</span> <span class="pre">Software</span> <span class="pre">Allocator</span> <span class="pre">Aware</span></code> White-Paper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li>Getting Started Writing Allocator-Aware Software</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bsl_variant.html" class="btn btn-neutral float-right" title="bsl::variant: An Allocator-Aware Discriminated Union" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Articles" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>May 30, 2024</em></p>
+<div class="section" id="getting-started-writing-allocator-aware-software">
+<h1><a class="toc-backref" href="#id17">Getting Started Writing Allocator-Aware Software</a><a class="headerlink" href="#getting-started-writing-allocator-aware-software" title="Permalink to this headline">¶</a></h1>
+<p>This article is a quick-start guide to writing allocator aware software.  There is a
+related in-depth white-paper, <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a>.
+Although that white-paper is a good comprehensive reference, it can be daunting to read.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Where this document seeks to quickly summarize a few important topics.  The white-paper
+<a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a> provides a series of detailed examples for how
+to make a set of increasingly complex types allocator-aware, and explains these topics
+in context.  See <a class="reference internal" href="#roadmap"><span class="std std-ref">Roadmap to the Making C++ Software Allocator Aware White-Paper</span></a></p>
+</div>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#getting-started-writing-allocator-aware-software" id="id17">Getting Started Writing Allocator-Aware Software</a></p>
+<ul>
+<li><p><a class="reference internal" href="#why-write-allocator-aware-software" id="id18">Why Write Allocator-Aware Software?</a></p></li>
+<li><p><a class="reference internal" href="#behavioral-requirements-for-an-allocator-aware-type" id="id19">Behavioral Requirements for an Allocator-Aware Type</a></p></li>
+<li><p><a class="reference internal" href="#creating-a-basic-allocator-aware-type" id="id20">Creating a Basic Allocator-Aware Type</a></p>
+<ul>
+<li><p><a class="reference internal" href="#define-an-alias-for-bsl-allocator" id="id21">Define an Alias for <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code></a></p></li>
+<li><p><a class="reference internal" href="#add-constructors-taking-an-allocator-argument" id="id22">Add Constructors Taking an Allocator Argument</a></p>
+<ul>
+<li><p><a class="reference internal" href="#default-constructor-and-extended-default-constructor" id="id23">Default Constructor and Extended Default Constructor</a></p></li>
+<li><p><a class="reference internal" href="#copy-constructor-and-extended-copy-constructor" id="id24">Copy Constructor and Extended Copy Constructor</a></p></li>
+<li><p><a class="reference internal" href="#move-constructor-and-extended-move-constructor" id="id25">Move Constructor and Extended Move Constructor</a></p></li>
+<li><p><a class="reference internal" href="#value-constructors" id="id26">Value Constructors</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#the-get-allocator-accessor" id="id27">The <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> Accessor</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#passing-the-allocator-first-using-bsl-allocator-arg-t" id="id28">Passing the Allocator first Using <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code></a></p></li>
+<li><p><a class="reference internal" href="#passing-allocators-to-subobjects-of-a-class" id="id29">Passing Allocators to subobjects of a Class</a></p>
+<ul>
+<li><p><a class="reference internal" href="#using-bslma-constructionutil-make-to-initialize-objects-of-a-template-type" id="id30">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil::make</span></code> to Initialize Objects of a Template Type</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#allocating-memory-with-an-allocator" id="id31">Allocating Memory with an Allocator</a></p>
+<ul>
+<li><p><a class="reference internal" href="#using-smart-pointer-types" id="id32">Using Smart-Pointer Types</a></p></li>
+<li><p><a class="reference internal" href="#allocating-and-deleting-objects-directly" id="id33">Allocating and Deleting Objects Directly</a></p></li>
+<li><p><a class="reference internal" href="#proctors-and-guards" id="id34">Proctors and Guards</a></p></li>
+<li><p><a class="reference internal" href="#using-bslma-constructionutil-to-construct-objects-in-place" id="id35">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil</span></code> to Construct Objects In-place</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#roadmap-to-the-making-c-software-allocator-aware-white-paper" id="id36">Roadmap to the <code class="docutils literal notranslate"><span class="pre">Making</span> <span class="pre">C++</span> <span class="pre">Software</span> <span class="pre">Allocator</span> <span class="pre">Aware</span></code> White-Paper</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="why-write-allocator-aware-software">
+<h2><a class="toc-backref" href="#id18">Why Write Allocator-Aware Software?</a><a class="headerlink" href="#why-write-allocator-aware-software" title="Permalink to this headline">¶</a></h2>
+<p>Allocating memory is a fundamental element of almost every significant software system.
+Language-supplied allocation primitives (<code class="docutils literal notranslate"><span class="pre">new</span></code> and <code class="docutils literal notranslate"><span class="pre">delete</span></code>) often provide acceptable
+performance, and allow for selecting a global allocation strategy (e.g., <a class="reference external" href="https://github.com/google/tcmalloc">tcmalloc</a>).  However,
+using a well-chosen <strong>local</strong> (arena) memory allocator to provide a custom local allocation strategy
+can yield significant (sometimes order-of magnitude) performance improvements over relying
+on even the most efficient state-of-the-art, general-purpose global allocators.</p>
+<p>For example, one could use a local memory pool for a critical long-lived data structure to
+ensure that memory blocks allocated for the data-structure are located in physical proximity
+to one another.  For long-running applications, such memory <em>locality</em> often plays an greater
+role in reducing overall run time than efficient allocation/deallocation of the memory itself.</p>
+<p>One might also use a <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__localsequentialallocator.html">local sequential allocator</a> for a key short-lived data structure
+to ensure that memory for the data-structure is allocated and released quickly.</p>
+<p>In addition to possible performance benefits, there are also collateral benefits to writing
+allocator-aware software like improved testability (see <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__testallocator.html">bslma::TestAllocator</a>), and the
+ability to instrument and plug in custom behaviors (e.g., implementing a framework to
+track the memory usage of various components in a running production system).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The white paper <a class="reference external" href="/bde-resources/pdfs/P2035R0.pdf">Value Proposition: Allocator-Aware (AA) Software</a> provides an in-depth
+analysis of the costs and benefits of writing allocator-aware software.</p>
+</div>
+<p>Notice that for a library user, taking taking advantage of allocator-aware types
+is simple, and provides additional power and flexibility.  However, as a library writer, providing
+allocator-aware types is a feature that requires additional work – work that is explained in this article.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">A simple example of a user customizing the allocation behavior of a vector</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Use an efficient stack-based allocation pool for this temporary vector.</span>
+<span class="n">bdlma</span><span class="o">::</span><span class="n">LocalSequentialAllocator</span><span class="o">&lt;</span><span class="mi">1024</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stackAllocator</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Information</span><span class="o">&gt;</span><span class="w"> </span><span class="n">temp</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stackAllocator</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// ...</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="behavioral-requirements-for-an-allocator-aware-type">
+<span id="behavioral-requirements"></span><h2><a class="toc-backref" href="#id19">Behavioral Requirements for an Allocator-Aware Type</a><a class="headerlink" href="#behavioral-requirements-for-an-allocator-aware-type" title="Permalink to this headline">¶</a></h2>
+<p>In ordered to compose allocator-aware types together and use them with common data structures like <code class="docutils literal notranslate"><span class="pre">vector</span></code>, an
+allocator-aware type must adhere to certain behaviors.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The expectations of an allocator-aware type are laid out in more detail in the
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__usesbslmaallocator.html">component documentation of bslma::UsesBslmaAllocator</a></p>
+</div>
+<p>The key elements are:</p>
+<blockquote>
+<div><ul>
+<li><p><strong>The allocator supplied at construction of an object is used for non-transient memory allocation during the object’s lifetime.</strong></p>
+<p>This includes allocations performed by subobjects that themselves support the bsl allocator model (i.e., the type
+provides the supplied allocator to any AA subobjects).</p>
+</li>
+<li><p><strong>The allocator used by an object does not change after construction</strong></p>
+<p>The assignment operators, for example, do not assign to the allocator used by an object.</p>
+</li>
+<li><p><strong>Transient memory allocations are generally not performed using the object’s allocator.</strong></p>
+<p>I.e., allocations performed within the scope of a function where the resulting memory is deallocated before that function
+returns typically use the default allocator (see <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__default.html">bslma_default</a>).</p>
+</li>
+<li><p><strong>The allocator used by an object is not part of the object’s value</strong></p>
+<p>The allocator’s value is not considered, for example, by the equality-comparison operator <code class="docutils literal notranslate"><span class="pre">operator==</span></code>.</p>
+</li>
+<li><p><strong>If an allocator is not supplied at construction, then the currently installed default allocator will typically be used</strong></p>
+<p>The primary move constructor is an important exception; it uses the moved-from object’s allocator rather than the default allocator.</p>
+<p>See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__default.html">bslma_default</a></p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="creating-a-basic-allocator-aware-type">
+<h2><a class="toc-backref" href="#id20">Creating a Basic Allocator-Aware Type</a><a class="headerlink" href="#creating-a-basic-allocator-aware-type" title="Permalink to this headline">¶</a></h2>
+<p>An allocator-aware type implements an interface having</p>
+<ol class="arabic simple">
+<li><p>an <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> type alias,</p></li>
+<li><p>a set of constructors taking allocator arguments, and</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> accessor returning the allocator provided on construction.</p></li>
+</ol>
+<p>The following example illustrates the interface of a typical allocator-aware class.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">The outline of a typical allocator-aware type</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MyAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+<span class="w">     </span><span class="c1">// TYPES</span>
+<span class="w">     </span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">;</span><span class="w">                    </span><span class="c1">// allocator-aware trait</span>
+
+<span class="w">     </span><span class="c1">// CREATORS</span>
+<span class="w">     </span><span class="n">MyAAClass</span><span class="p">();</span><span class="w">                                                </span><span class="c1">// default constructor</span>
+<span class="w">     </span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="p">);</span><span class="w">                  </span><span class="c1">// extended default constructor</span>
+<span class="w">     </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyAAClass</span><span class="o">&amp;</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{});</span><span class="w">    </span><span class="c1">// extended copy constructor</span>
+<span class="w">     </span><span class="n">MyAAClass</span><span class="p">(</span><span class="n">MyAAClass</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">                            </span><span class="c1">// move constructor</span>
+<span class="w">     </span><span class="n">MyAAClass</span><span class="p">(</span><span class="n">MyAAClass</span><span class="o">&amp;&amp;</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="p">);</span><span class="w">              </span><span class="c1">// extended move constructor</span>
+
+<span class="w">     </span><span class="c1">// ACCESSORS</span>
+<span class="w">     </span><span class="n">allocator_type</span><span class="w"> </span><span class="nf">get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w">                       </span><span class="c1">// allocator accessor</span>
+<span class="w"> </span><span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>The elements of this example are described below.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A complete presentation of this example is on pages 4-8 of <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a></p>
+</div>
+<div class="section" id="define-an-alias-for-bsl-allocator">
+<h3><a class="toc-backref" href="#id21">Define an Alias for <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code></a><a class="headerlink" href="#define-an-alias-for-bsl-allocator" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This typedef indicates that the type is allocator-aware.  When <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> exists, the standard trait
+<code class="code docutils literal notranslate"><span class="pre">bsl::uses_allocator&lt;MyAAClass,</span> <span class="pre">bsl::allocator&lt;&gt;&gt;::value</span></code> and the BDE trait
+<code class="code docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator&lt;MyAAClass&gt;::value</span></code> will both be <code class="docutils literal notranslate"><span class="pre">true</span></code> for <code class="docutils literal notranslate"><span class="pre">MyAAClass</span></code>.</p>
+<p>Generic containers (like <code class="docutils literal notranslate"><span class="pre">bsl::vector</span></code>) and object-construction utilities (like
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__constructionutil.html">bslma::ConstructionUtil</a>) supply an allocator when constructing objects with these traits.</p>
+</div>
+<div class="section" id="add-constructors-taking-an-allocator-argument">
+<h3><a class="toc-backref" href="#id22">Add Constructors Taking an Allocator Argument</a><a class="headerlink" href="#add-constructors-taking-an-allocator-argument" title="Permalink to this headline">¶</a></h3>
+<p>Every constructor for the class should have a variant that can be called with an allocator argument.
+If an allocator is not specified to a constructor, the default allocator should be used.  We typically
+refer to an overload of a constructor taking an allocator as the “extended” version of that constructor,
+e.g., the “extended copy constructor”.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The copy and move constructor variants taking an allocator argument are called the <em>extended</em> copy and
+<em>extended</em> move constructors; in this article, we refer to the variants of these constructors that do
+<em>not</em> take an allocator argument as the <em>primary</em> or <em>non-extended</em> constructors, when the context is
+not obvious.</p>
+</div>
+<p>An extended constructor for a simple type — a type that holds AA members but does not directly
+allocate memory — will simply forward the allocator to the extended constructors of its AA
+data-member and base-class subobjects.  The allocator-aware subobjects will typically retain a copy of the
+allocator, making it unnecessary to dedicate a separate member variable for the allocator.
+<a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a> discusses some more complicated examples (e.g., under
+“Implementing a Class That Allocates Memory”).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Allocator-aware types do <em>not</em> follow the
+<a class="reference external" href="https://web.archive.org/web/20121127171954/http://rmartinho.github.com/cxx11/2012/08/15/rule-of-zero.html">“Rule of zero”</a>.
+I.e., they <em>must</em> explicitly define default, copy and move constructors because the compiler-generated implementations of those
+constructors will <em>not</em> reliably pass the same allocator to all subobjects</p>
+</div>
+<div class="section" id="default-constructor-and-extended-default-constructor">
+<h4><a class="toc-backref" href="#id23">Default Constructor and Extended Default Constructor</a><a class="headerlink" href="#default-constructor-and-extended-default-constructor" title="Permalink to this headline">¶</a></h4>
+<p>For the default constructor, we provide separate primary and extended overloads:</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">An example of a default constructor and <em>extended</em> default constructor</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyAAClass</span><span class="p">();</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// !NOT! MyAAClass(const allocator_type&amp; allocator = allocator_type());</span>
+</pre></div>
+</div>
+</div>
+<p>We do <em>not</em> use a defaulted allocator parameter for the default constructor because we want the default
+constructor to be implicit, but do <em>not</em> want the constructor taking an allocator to be implicit.
+Inadvertently providing an implicit conversion from an allocator is a common mistake that leads
+to confusing compile-time and run-time errors.</p>
+<p>The extended default constructor should pass the allocator to the extended constructors of its allocator-aware
+subobjects.</p>
+</div>
+<div class="section" id="copy-constructor-and-extended-copy-constructor">
+<h4><a class="toc-backref" href="#id24">Copy Constructor and Extended Copy Constructor</a><a class="headerlink" href="#copy-constructor-and-extended-copy-constructor" title="Permalink to this headline">¶</a></h4>
+<p>For the copy constructor, we typically provide a single constructor having a defaulted allocator parameter (though
+one may choose to provide separate primary and extended overloads).</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">An example of a <em>primary/extended</em> copy constructor</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyAAClass</span><span class="o">&amp;</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">());</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>Notice that <code class="docutils literal notranslate"><span class="pre">allocator_type()</span></code> (which is <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;()</span></code>) returns the default allocator.</p>
+<p>The extended copy constructor for a simple type will simply delegate to the extended copy
+constructors of its allocator-aware subobjects.</p>
+</div>
+<div class="section" id="move-constructor-and-extended-move-constructor">
+<h4><a class="toc-backref" href="#id25">Move Constructor and Extended Move Constructor</a><a class="headerlink" href="#move-constructor-and-extended-move-constructor" title="Permalink to this headline">¶</a></h4>
+<p>For the move constructor, we provide two overloads because the primary move-constructor should be <code class="docutils literal notranslate"><span class="pre">noexcept</span></code>,
+but the extended move-construct (taking an allocator argument) <em>cannot</em> be <code class="docutils literal notranslate"><span class="pre">noexcept</span></code>.
+Furthermore, the allocator used for the primary move constructor should <em>not</em> be the default
+allocator but a copy of the allocator from the moved-from object.:</p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">an example of a move constructor and <em>extended</em> move constructor</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyAAClass</span><span class="p">(</span><span class="n">MyAAClass</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w"></span>
+<span class="n">MyAAClass</span><span class="p">(</span><span class="n">MyAAClass</span><span class="o">&amp;&amp;</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>The primary move constructor for a simple type will simply delegate to the primary move constructors of its subobjects and
+the extended move constructor for a simple type will simply delegate to the extended move constructors of its
+subobjects.  <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a> discusses some more complicated examples (e.g., under
+“Implementing a Class That Allocates Memory”).</p>
+</div>
+<div class="section" id="value-constructors">
+<h4><a class="toc-backref" href="#id26">Value Constructors</a><a class="headerlink" href="#value-constructors" title="Permalink to this headline">¶</a></h4>
+<p>For each value constructor there should always be an allocator-aware (extended) variant.  So, for example, if
+<code class="docutils literal notranslate"><span class="pre">MyAAClass</span></code> has a constructor taking a single <code class="docutils literal notranslate"><span class="pre">int</span></code> parameter, the combined primary/extended
+allocator would take an <code class="docutils literal notranslate"><span class="pre">int</span></code> parameter and an optional <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> parameter:</p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text">An example of a value constructor</span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{});</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>Again, the constructor should forward the allocator to its allocator-aware subobject’s constructors.</p>
+</div>
+</div>
+<div class="section" id="the-get-allocator-accessor">
+<h3><a class="toc-backref" href="#id27">The <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> Accessor</a><a class="headerlink" href="#the-get-allocator-accessor" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> member function returns the object’s allocator, i.e., the allocator used to construct
+the object.  The implementation of <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> will typically return a copy of the allocator stored in any
+one of its subobjects, obviating having a redundant allocator data member.</p>
+<p>Providing a <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> function is important for composition; a new class containing an allocator-aware data
+member named <code class="docutils literal notranslate"><span class="pre">d_data</span></code> can, in turn, call <code class="docutils literal notranslate"><span class="pre">d_data.get_allocator()</span></code> to implement its own
+<code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> method (without needing an additional data member to store the allocator).</p>
+<p>Types following the recommendations in this document will provide a <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> method,
+but many older types may still follow an older pattern where an allocator would be obtained using an
+<code class="docutils literal notranslate"><span class="pre">allocator</span></code> method.  A safe and future-proof way to get an allocator from a sub-object, without worrying about
+the pattern it follows is to use <code class="docutils literal notranslate"><span class="pre">bslma::AATypeUtil::getBslAllocator</span></code>, which
+calls either <code class="docutils literal notranslate"><span class="pre">get_allocator()</span></code> or <code class="docutils literal notranslate"><span class="pre">allocator()</span></code>, as appropriate:</p>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text">An example implementation for the get_allocator accessor</span><a class="headerlink" href="#id8" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyAAClass</span><span class="o">::</span><span class="n">allocator_type</span><span class="w"> </span><span class="nf">MyAAClass::get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">AATypeUtil</span><span class="o">::</span><span class="n">getBslAllocator</span><span class="p">(</span><span class="n">d_data</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="passing-the-allocator-first-using-bsl-allocator-arg-t">
+<h2><a class="toc-backref" href="#id28">Passing the Allocator first Using <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code></a><a class="headerlink" href="#passing-the-allocator-first-using-bsl-allocator-arg-t" title="Permalink to this headline">¶</a></h2>
+<p>Typically, constructors take an optional allocator argument as their last argument (the <em>trailing-allocator convention</em>).
+For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">());</span><span class="w"></span>
+</pre></div>
+</div>
+<p>An alternative interface, however, is to specify <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code> as the first parameter of
+the constructor, followed by <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code> as the second parameter (the <em>leading-allocator
+convention</em>).  The leading-allocator convention is necessary when the constructor has a variadic
+parameter list, and is occasionally convenient for disambiguating complex overload sets (e.g., <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>
+has variadic constructors that forward their arguments to the underlying type, and uses
+<code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code> to indicate that an allocator is being passed).</p>
+<p>A class having the leading-allocator convention must define the <code class="docutils literal notranslate"><span class="pre">bslmf::UsesAllocatorArgT</span></code> trait
+and use the leading-allocator convention consistently for all allocator-aware constructors.  Unlike
+the trailing-allocator convention, the allocator parameter cannot have a default value.  The only
+way to make the allocator optional, therefore, is to provide separate overloads for allocator-aware
+and non-allocator-aware constructors:</p>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text">Declaring Traits and Constructors for the Leading-Allocator Convention</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">BSLMF_NESTED_TRAIT_DECLARATION</span><span class="p">(</span><span class="n">MyOtherAAClass</span><span class="p">,</span><span class="w"> </span><span class="n">bslmf</span><span class="o">::</span><span class="n">UsesAllocatorArgT</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// Non-AA constructor</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">MyOtherAAClass</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">ARGS</span><span class="o">&amp;&amp;</span><span class="p">..);</span><span class="w"></span>
+
+<span class="c1">// AA constructor following the leading-allocator convention</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">MyOtherAAClass</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">ARGS</span><span class="o">&amp;&amp;</span><span class="p">..);</span><span class="w"></span>
+
+<span class="c1">// Error: trailing allocator convention conflicts with trait.</span>
+<span class="n">MyOtherAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyOtherAAClass</span><span class="o">&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{});</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>Clients construct objects using the leading allocator convention by passing <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg</span></code>
+(a constant of type <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code>) and an allocator as the first two constructor
+arguments:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyOtherClass</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="n">myAllocator</span><span class="p">,</span><span class="w"> </span><span class="n">intArg</span><span class="p">,</span><span class="w"> </span><span class="n">variadicArg1</span><span class="p">,</span><span class="w"> </span><span class="n">variadicArg2</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Properly written allocator-aware containers such as <code class="docutils literal notranslate"><span class="pre">bsl::vector</span></code> pass an allocator to their
+allocator-aware elements, selecting the appropriate allocator-passing convention automatically.
+This automatic selection is mediated by the utility components <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html">bslma::AllocatorUtil</a> and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__constructionutil.html">bslma::ConstructionUtil</a>, described below.</p>
+</div>
+<div class="section" id="passing-allocators-to-subobjects-of-a-class">
+<h2><a class="toc-backref" href="#id29">Passing Allocators to subobjects of a Class</a><a class="headerlink" href="#passing-allocators-to-subobjects-of-a-class" title="Permalink to this headline">¶</a></h2>
+<p>The function <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.1">bslma::AllocatorUtil::adapt</a> can be used, typically in a type’s constructor, to forward an allocator
+to subobjects that take an allocator.  The way in which classes accept allocator arguments has
+changed over time (from <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code>) and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.1">bslma::AllocatorUtil::adapt</a>
+makes the code agnostic to the allocator argument type of the contained type.  This adaptation is particularly important
+when constructing contained objects that use the older <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code>, as it avoids a compilation
+error if the type upgrades to the newer <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code> convention.</p>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text">Use bslma::AllocatorUtil::adapt to pass an allocator to a data member on construction</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyAAType</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">d_name</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">   </span><span class="c1">// ...</span>
+
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">MyAAType</span><span class="o">::</span><span class="n">MyAAType</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&amp;</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="hll"><span class="o">:</span><span class="w"> </span><span class="n">d_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">AllocatorUtil</span><span class="o">::</span><span class="n">adapt</span><span class="p">(</span><span class="n">allocator</span><span class="p">))</span><span class="w"></span>
+</span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="c1">// ...</span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-bslma-constructionutil-make-to-initialize-objects-of-a-template-type">
+<h3><a class="toc-backref" href="#id30">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil::make</span></code> to Initialize Objects of a Template Type</a><a class="headerlink" href="#using-bslma-constructionutil-make-to-initialize-objects-of-a-template-type" title="Permalink to this headline">¶</a></h3>
+<p>When implementing a class template, <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_constructionutil.h#L776">bslma::ConstructionUtil::make</a> can be used
+to efficiently construct an object of a generic type, and similarly will handle
+determining if, and how, to supply the allocator to the object being constructed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_constructionutil.h#L776">bslma::ConstructionUtil::make</a> is only available in C++17 and later, and requires the
+type being initialized to support move- or copy-construction.  <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslalg__constructorproxy.html">bslalg::ConstructorProxy</a> can be used
+as an alternative (e.g., in C++03), but has more awkward syntax.</p>
+</div>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text">Using ‘bslma::ConstructionUtil::make’ to initialize a subobject</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">d_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// ...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_data</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">ConstructionUtil</span><span class="o">::</span><span class="n">make</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">(</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">...)</span><span class="w"></span>
+</span><span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Note that &#39;t_TYPE&#39; might, or might not, be allocator aware, and if it is</span>
+<span class="w">        </span><span class="c1">// allocator aware, it might use the leading-allocator or trailing-allocator</span>
+<span class="w">        </span><span class="c1">// convention.  ConstructionUtil::make will determine if and how to forward</span>
+<span class="w">        </span><span class="c1">// the &#39;allocator&#39; argument.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="allocating-memory-with-an-allocator">
+<h2><a class="toc-backref" href="#id31">Allocating Memory with an Allocator</a><a class="headerlink" href="#allocating-memory-with-an-allocator" title="Permalink to this headline">¶</a></h2>
+<p>Most often, allocator-aware types simply forward their allocator to their subobjects, relying on
+standard library container types, like <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::vector</span></code>, or smart-pointer types,
+like <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::unique_ptr</span></code>, or  <code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code>, to perform allocations
+and manage memory.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using an allocator to directly manage memory is complex and  error prone and alternatives
+like standard containers and smart-pointers should be preferred.</p>
+</div>
+<p>Occasionally though, types have a need to directly allocate raw memory.  To support this
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma.html">bslma</a> provides facilities
+to simplify managing memory allocated directly from an allocator.</p>
+<div class="section" id="using-smart-pointer-types">
+<h3><a class="toc-backref" href="#id32">Using Smart-Pointer Types</a><a class="headerlink" href="#using-smart-pointer-types" title="Permalink to this headline">¶</a></h3>
+<p>Smart pointers can be used to manage allocated memory in a way that is less error
+prone than managing it directly.  In addition, there are facilities, <code class="docutils literal notranslate"><span class="pre">bsl::allocate_shared</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bslma::ManagePtrUtil::allocateManaged</span></code>, that are recommended for creating smart pointers that
+reduce the opportunity for mistakes when allocating a new object.</p>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-text">Using bsl::allocate_shared to create a bsl::shared_ptr</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAType</span><span class="p">(</span><span class="n">allocator_type</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="hll"><span class="o">:</span><span class="w"> </span><span class="n">d_sharedPtr</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocate_shared</span><span class="o">&lt;</span><span class="n">MyObject</span><span class="o">&gt;</span><span class="p">(</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">arg1</span><span class="p">,</span><span class="w"> </span><span class="n">arg2</span><span class="p">,</span><span class="w"> </span><span class="n">arg3</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span><span class="w"></span>
+</span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id13">
+<div class="code-block-caption"><span class="caption-text">Using bslma::ManagedPtrUtil::allocateManaged to create a bslma::ManagedPtr</span><a class="headerlink" href="#id13" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAType</span><span class="p">(</span><span class="n">allocator_type</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="hll"><span class="o">:</span><span class="w"> </span><span class="n">d_managedPtr</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">ManagedPtrUtil</span><span class="o">::</span><span class="n">allocateManaged</span><span class="o">&lt;</span><span class="n">MyObject</span><span class="o">&gt;</span><span class="p">(</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">arg1</span><span class="p">,</span><span class="w"> </span><span class="n">arg2</span><span class="p">,</span><span class="w"> </span><span class="n">arg3</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span><span class="w"></span>
+</span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>One point that often surprises users is that neither <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> nor <code class="docutils literal notranslate"><span class="pre">bslma::ManagedPtr</span></code> themselves
+follow the <a class="reference external" href="behavioral-requirements">behavioral requirements for an allocator-aware type</a>.  Smart-pointer types are
+unusual because the allocator belongs to the <em>pointed-to</em> object, not the <em>smart-pointer</em> object itself.  For example,
+a copy-constructed <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> does not allocate a new object, but refers to the same
+object managed by the same allocator as the original object.</p>
+</div>
+</div>
+<div class="section" id="allocating-and-deleting-objects-directly">
+<h3><a class="toc-backref" href="#id33">Allocating and Deleting Objects Directly</a><a class="headerlink" href="#allocating-and-deleting-objects-directly" title="Permalink to this headline">¶</a></h3>
+<p>If one must allocate an object directly from an allocator, <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.2">bslma::AllocatorUtil::newObject</a> is the preferred mechanism
+for doing so.  <code class="docutils literal notranslate"><span class="pre">newObject</span></code> will determine whether the type being created is allocator aware, and
+apply the correct allocator-passing convention for to the constructed object.  Similarly,
+<code class="docutils literal notranslate"><span class="pre">deleteObject</span></code> can later be used to destroy the object and release its memory back to the allocator.</p>
+<div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-text">Using bslma::AllocatorUtil::newObject and bslma::AllocatorUtil::deleteObject to create and destroy and object</span><a class="headerlink" href="#id14" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyAAType</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="n">SomeType</span><span class="w"> </span><span class="o">*</span><span class="n">d_value_p</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">   </span><span class="c1">// ...</span>
+
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">MyAAType</span><span class="o">::</span><span class="n">MyAAType</span><span class="p">(...</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="o">:</span><span class="w"> </span><span class="n">d_value_p</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">   </span><span class="n">d_value_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">AllocatorUtil</span><span class="o">::</span><span class="n">newObject</span><span class="o">&lt;</span><span class="n">SomeType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+</span><span class="p">}</span><span class="w"></span>
+
+<span class="o">~</span><span class="n">MyAAType</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="hll"><span class="w">   </span><span class="n">bslma</span><span class="o">::</span><span class="n">AllocatorUtil</span><span class="o">::</span><span class="n">deleteObject</span><span class="p">(</span><span class="n">get_allocator</span><span class="p">(),</span><span class="w"> </span><span class="n">d_value_p</span><span class="p">);</span><span class="w"></span>
+</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="proctors-and-guards">
+<h3><a class="toc-backref" href="#id34">Proctors and Guards</a><a class="headerlink" href="#proctors-and-guards" title="Permalink to this headline">¶</a></h3>
+<p>BDE provides a set of proctor and guard types to safely manage memory in the presence of
+exceptions.  For example, a <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__deleteobjectproctor.html">bslma::DeleteObjectProctor</a> provides exception safety
+if the caller of <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.2">bslma::AllocatorUtil::newObject</a> fails to complete successfully:</p>
+<div class="literal-block-wrapper docutils container" id="id15">
+<div class="code-block-caption"><span class="caption-text">Using bslma::DeleteObjectProctor to provide exception safety</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MyAAClass</span><span class="o">::</span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="o">:</span><span class="w"> </span><span class="n">d_data_p</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="n">d_data_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">AllocatorUtil</span><span class="o">::</span><span class="n">newObject</span><span class="o">&lt;</span><span class="n">Data</span><span class="o">&gt;</span><span class="p">(</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+
+<span class="hll"><span class="w">   </span><span class="n">bslma</span><span class="o">::</span><span class="n">DeleteObjectProctor</span><span class="o">&lt;</span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">Data</span><span class="o">&gt;</span><span class="w"></span>
+</span><span class="hll"><span class="w">                                    </span><span class="n">delProct</span><span class="p">(</span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">d_data_p</span><span class="p">);</span><span class="w"></span>
+</span>
+<span class="w">   </span><span class="c1">// The &#39;DeleteObjectProctor&#39; will destroy the allocated object and</span>
+<span class="w">   </span><span class="c1">// release its memory if an exception occurs, preventing a memory</span>
+<span class="w">   </span><span class="c1">// leak.</span>
+
+<span class="w">   </span><span class="n">doMoreThings</span><span class="p">();</span><span class="w">       </span><span class="c1">// might throw an exception</span>
+
+<span class="hll"><span class="w">   </span><span class="n">delProct</span><span class="p">.</span><span class="n">release</span><span class="p">();</span><span class="w">   </span><span class="c1">// It is now safe to release the proctor.</span>
+</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>The allocation operations on <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html">bslma::AllocatorUtil</a> pair with proctors
+that can be used to provide exception safety for the results of that operation.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 46%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Proctor template</p></th>
+<th class="head"><p>Reverses this operation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__deleteobjectproctor.html">bslma::DeleteObjectProctor</a></p></td>
+<td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.2">bslma::AllocatorUtil::newObject</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__deallocateobjectproctor.html">bslma::DeallocateObjectProctor</a></p></td>
+<td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/structbslma_1_1AllocatorUtil.html">bslma::AllocatorUtil::allocateObject</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__deallocatebytesproctor.html">bslma::DeallocateBytesProctor</a></p></td>
+<td><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/structbslma_1_1AllocatorUtil.html">bslma::AllocatorUtil::allocateBytes</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="using-bslma-constructionutil-to-construct-objects-in-place">
+<h3><a class="toc-backref" href="#id35">Using <code class="docutils literal notranslate"><span class="pre">bslma::ConstructionUtil</span></code> to Construct Objects In-place</a><a class="headerlink" href="#using-bslma-constructionutil-to-construct-objects-in-place" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__constructionutil.html">bslma::ConstructionUtil</a> provides operations to construct objects in place at a memory address (using
+placement new).  <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__constructionutil.html">bslma::ConstructionUtil</a> is used to implement <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html#3.1.2">bslma::AllocatorUtil::newObject</a>,
+correctly determining whether a type is allocator aware, and forwarding
+the allocator according to the allocator-passing convention.</p>
+<div class="literal-block-wrapper docutils container" id="id16">
+<div class="code-block-caption"><span class="caption-text">Using ‘bslma::ConstructionUtil::construct’ to construct an object in place</span><a class="headerlink" href="#id16" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyAAClass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">ObjectBuffer</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">d_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// ...</span>
+
+<span class="w">      </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">explicit</span><span class="w"> </span><span class="n">MyAAClass</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">allocator_type</span><span class="o">&amp;</span><span class="w"> </span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Note that &#39;t_TYPE&#39; might, or might not, be allocator aware, and if it is</span>
+<span class="w">            </span><span class="c1">// allocator aware, it might, or might not, use allocator_arg_t.</span>
+<span class="w">            </span><span class="c1">// ConstructionUtil::construct will determine if and how to forward</span>
+<span class="w">            </span><span class="c1">// the &#39;allocator&#39; argument.</span>
+
+<span class="hll"><span class="w">            </span><span class="n">bslma</span><span class="o">::</span><span class="n">ConstructionUtil</span><span class="o">::</span><span class="n">construct</span><span class="p">(</span><span class="n">d_data</span><span class="p">.</span><span class="n">address</span><span class="p">(),</span><span class="w"> </span><span class="n">allocator</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">...);</span><span class="w"></span>
+</span></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="roadmap-to-the-making-c-software-allocator-aware-white-paper">
+<span id="roadmap"></span><h2><a class="toc-backref" href="#id36">Roadmap to the <code class="docutils literal notranslate"><span class="pre">Making</span> <span class="pre">C++</span> <span class="pre">Software</span> <span class="pre">Allocator</span> <span class="pre">Aware</span></code> White-Paper</a><a class="headerlink" href="#roadmap-to-the-making-c-software-allocator-aware-white-paper" title="Permalink to this headline">¶</a></h2>
+<p>The white-paper <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a> provides a series of examples for how
+to make a set of increasingly complex types allocator-aware.  Where this article serves
+as a brief summary of key topics, <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a> serves as a reference
+for handling different situations.</p>
+<p>Here is an annotated table of contents for <a class="reference external" href="/bde-resources/pdfs/AP2_implementing_AA.pdf">Making C++ Software Allocator Aware</a>.</p>
+<ul>
+<li><p><strong>Making a Simple struct Allocator-Aware</strong> (pages 8-15)</p>
+<p>Walks through the steps to make the most trivial type allocator-aware.   Covers marking types allocator aware by defining <code class="docutils literal notranslate"><span class="pre">allocator_type</span></code>.
+Covers the default, copy, and move constructors.  Also discusses passing an allocator to subobjects using <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html">bslma::AllocatorUtil</a>.</p>
+</li>
+<li><p><strong>Making an Attribute Class Allocator-Aware</strong> (pages 15-18)</p>
+<p>Expands on the simple struct example to discuss value constructors – i.e., constructors other than the default, copy, and move constructors.</p>
+</li>
+<li><p><strong>Implementing a Class That Allocates Memory</strong> (pages 18-28)</p>
+<p>Goes into more detail on how to use an allocator to allocate memory (e.g., using <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslma__allocatorutil.html">bslma::AllocatorUtil</a>), and how to implement operations
+like copy, move and swap in a way that is efficient and exception safe.</p>
+</li>
+<li><p><strong>Implementing an AA Class Template</strong> (pages 28-33)</p>
+<p>Explains how to create a type where one of the data members has a template-parameter type, and where
+that type might or might not be allocator aware.</p>
+</li>
+<li><p><strong>Implementing an AA Container</strong> (pages 33-37)</p>
+<p>Explains how to create a type that allocates memory for dynamically allocated elements of template-parameter type.</p>
+</li>
+<li><p><strong>Pitfall: Inheriting from a bsl-AA Class</strong> (pages 37-38)</p>
+<p>For example creating a type that inherits from <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>.  TL;DR, do not do this.</p>
+</li>
+<li><p><strong>Testing AA Components</strong> (pages 38-44)</p>
+<p>Details on how to write unit tests for an allocator-aware type to verify its allocation
+behavior.</p>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

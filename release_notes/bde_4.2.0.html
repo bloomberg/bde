@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.2.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.2.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.1.0 Release" href="bde_4.1.0.html" />
+    <link rel="prev" title="BDE 4.3.0 Release" href="bde_4.3.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.13.0.html">BDE 4.13.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.12.0.html">BDE 4.12.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.11.0.html">BDE 4.11.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.10.0.html">BDE 4.10.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.9.0.html">BDE 4.9.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.8.0.html">BDE 4.8.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.7.0.html">BDE 4.7.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.5.0.html">BDE 4.5.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.3.0.html">BDE 4.3.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.2.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-2-0-release-highlights">BDE 4.2.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enable-support-for-pmr-allocators">Enable support for PMR allocators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-feature-balcl-commandline-support-for-passing-options-by-environment-variable">New Feature: <code class="docutils literal notranslate"><span class="pre">balcl::CommandLine</span></code> Support for Passing Options By Environment Variable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-feature-configurable-behavior-when-throwing-exceptions-from-bsl">New Feature: Configurable Behavior when Throwing Exceptions from BSL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fixed-gdb-printers-to-support-new-allocator-model">Fixed gdb printers to support new allocator model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.1.0.html">BDE 4.1.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0.0.html">BDE 4.0.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.2.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.1.0.html" class="btn btn-neutral float-right" title="BDE 4.1.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_4.3.0.html" class="btn btn-neutral float-left" title="BDE 4.3.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-2-0-release">
+<span id="bde4-2-0-top"></span><h1>BDE 4.2.0 Release<a class="headerlink" href="#bde-4-2-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-2-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.2.0 production release was
+completed on <strong>Wednesday, February 7, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-2-0-release-highlights">
+<h2>BDE 4.2.0 Release Highlights<a class="headerlink" href="#bde-4-2-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="enable-support-for-pmr-allocators">
+<h3>Enable support for PMR allocators<a class="headerlink" href="#enable-support-for-pmr-allocators" title="Permalink to this headline">¶</a></h3>
+<p>This release enables support for PMR allocators. Please note that this does not
+include support for <code class="docutils literal notranslate"><span class="pre">std::pmr::string</span></code> ( which is explicitely suppressed by
+the production toolchains for backward compatibility ).</p>
+</div>
+<div class="section" id="new-feature-balcl-commandline-support-for-passing-options-by-environment-variable">
+<h3>New Feature: <code class="docutils literal notranslate"><span class="pre">balcl::CommandLine</span></code> Support for Passing Options By Environment Variable<a class="headerlink" href="#new-feature-balcl-commandline-support-for-passing-options-by-environment-variable" title="Permalink to this headline">¶</a></h3>
+<p>This release adds functionality to
+<a class="reference external" href="https://github.com/bloomberg/bde/tree/maingroups/bal/balcl/balcl_commandline.h">balcl::CommandLine</a>
+for supplying options through the environment.  For example, imagine we had a
+program <code class="docutils literal notranslate"><span class="pre">myprog</span></code> that takes a single string argument “-f” or “–filename”,
+and we want to be able to configure the filename through the environment
+variable <code class="docutils literal notranslate"><span class="pre">&quot;MYPROG_FILENAME&quot;</span></code>.  Such a option would be would be configured
+with an <a class="reference external" href="https://github.com/bloomberg/bde/tree/maingroups/bal/balcl/balcl_optioninfo.h">balcl::OptionInfo</a>
+table like the following:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">balcl</span><span class="o">::</span><span class="n">OptionInfo</span><span class="w"> </span><span class="n">specTable</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;f|filename&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;fileName&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;name of input file&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">balcl</span><span class="o">::</span><span class="n">TypeInfo</span><span class="p">(</span><span class="n">balcl</span><span class="o">::</span><span class="n">OptionType</span><span class="o">::</span><span class="n">k_STRING</span><span class="p">),</span><span class="w"></span>
+<span class="w">    </span><span class="n">balcl</span><span class="o">::</span><span class="n">OccurrenceInfo</span><span class="o">::</span><span class="n">e_REQUIRED</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;MYPROG_FILENAME&quot;</span><span class="w">                           </span><span class="c1">// (optionally) specify an environment variable name</span>
+<span class="w">                                                </span><span class="c1">// for the option</span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Within the <code class="docutils literal notranslate"><span class="pre">main</span></code> for <code class="docutils literal notranslate"><span class="pre">myprog</span></code>, the <code class="docutils literal notranslate"><span class="pre">OptionInfo</span></code> object <code class="docutils literal notranslate"><span class="pre">specTable</span></code>
+(above) would be used to construct a
+<a class="reference external" href="https://github.com/bloomberg/bde/tree/maingroups/bal/balcl/balcl_commandline.h">balcl::CommandLine</a>
+used to parse the command line.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommended that environment variable names be all upper case, and
+prefixed with the name of the program or subsystem of the application to ensure
+they are unique.</p>
+</div>
+<p>Below we demonstrate how to execute <code class="docutils literal notranslate"><span class="pre">myprog</span></code> and supply an input file via the
+environment:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">export</span> <span class="nv">MYPROG_FILENAME</span><span class="o">=</span>/home/myname/my_input_file.txt
+$ myprog
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">balc::CommandLine</span></code> incorporates environment variables into the logic to
+determine the value for an option as follows:</p>
+<ul class="simple">
+<li><p>If an environment variable name is <em>not</em> supplied for an option’s
+configuration (the default), that option is unaffected by the environment.</p></li>
+<li><p>If an environment variable name <em>is</em> supplied for an option’s configuration:</p>
+<ul>
+<li><p>If an option value is provided on the command line, the command line option
+value is used (the environment is ignored)</p></li>
+<li><p>If an option value is <em>not</em> provided on the command line, and the configure
+environment variable has a value, the option value supplied by the
+environment is used</p></li>
+<li><p>If an option value is <em>not</em> provided on the command line, or via the
+environment, then the default value for the option, if any, is used</p></li>
+</ul>
+</li>
+</ul>
+<p>See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balcl__commandline.html">balcl_commanline</a>
+component documentation for more details.</p>
+</div>
+<div class="section" id="new-feature-configurable-behavior-when-throwing-exceptions-from-bsl">
+<h3>New Feature: Configurable Behavior when Throwing Exceptions from BSL<a class="headerlink" href="#new-feature-configurable-behavior-when-throwing-exceptions-from-bsl" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__stdexceptutil.html">bslstl_stdexceptutil</a> component provides functions that will
+throw common standard exceptions, without the caller having to include
+<code class="docutils literal notranslate"><span class="pre">&lt;exception&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;stdexcept&gt;</span></code>.  In builds without exceptions, the
+throws are replaced by calls to <code class="docutils literal notranslate"><span class="pre">abort</span></code>.  This component’s most typical use
+is in throwing standard exceptions from the BSL standard library, but is used
+in other places to throw standard exceptions.</p>
+<p>In this release, we’ve added to this component the ability to install custom
+handlers, typically for logging purposes, that are invoked prior to throwing
+exceptions.  This may be useful in diagnosing the cause of uncaught exceptions
+thrown from standard library containers or other components making use of
+standard exceptions via <code class="docutils literal notranslate"><span class="pre">StdExceptUtil</span></code>.</p>
+<p>For each exception type supported by this component, we have added a “pre-throw
+hook”, a function pointer that is normally null.  If that pointer is set to a
+function, that function is called prior to the throw.  This gives the client a
+chance to log a message.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">StdExceptUtil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">PreThrowHook</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">exceptionName</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setRuntimeErrorHook</span><span class="p">(</span><span class="n">PreThrowHook</span><span class="w"> </span><span class="n">hook</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setLogicErrorHook</span><span class="p">(</span><span class="w">  </span><span class="n">PreThrowHook</span><span class="w"> </span><span class="n">hook</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">...</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>We provide two new off-the-shelf functions that can be set as pre-throw hooks
+that provide stack traces.  The first,
+<strong>bslstl::StdExceptUtil::logCheapStackTrace</strong>,
+will log a “cheap stack trace”, that is a sequence of hex addresses from the
+stack.</p>
+<p>The second function is <strong>balst::StackTracePrintUtil::logExceptionStackTrace</strong>,
+that will log a full multi-line stack trace with symbols and, on some
+platforms, symbol demangling, line numbers, and source file names.  This
+alternative requires considerable disk access and is therefore orders of
+magnitude slower than the cheap stack trace.</p>
+<p>Both functions do output using the <code class="docutils literal notranslate"><span class="pre">bsls_log</span></code> facility.  Because the
+<code class="docutils literal notranslate"><span class="pre">balst</span></code> stack trace is so expensive, it is not recommended for exceptions
+that are expected to be frequently thrown, caught, and recovered from.  The
+<code class="docutils literal notranslate"><span class="pre">bslstl</span></code> cheap stack trace function logs with severity
+<strong>bsls::LogSeverity::e_WARN</strong>, the <code class="docutils literal notranslate"><span class="pre">balst</span></code> stack trace function logs with
+severity <strong>bsls::LogSeverity::e_FATAL</strong>.</p>
+<p>See <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__stdexceptutil.html">bslstl_stdexceptutil</a>
+component documentation for more details.</p>
+</div>
+<div class="section" id="fixed-gdb-printers-to-support-new-allocator-model">
+<h3>Fixed gdb printers to support new allocator model<a class="headerlink" href="#fixed-gdb-printers-to-support-new-allocator-model" title="Permalink to this headline">¶</a></h3>
+<p>Gdb pretty printers support new layout for the BDE allocator-aware types.
+The <a class="reference external" href="https://github.com/bde-tools/tree/main/contrib/gdb-printers">gdb pretty printers</a>
+have been updated to support the new, BDE 4.0, layout for BDE allocator-aware
+types.</p>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bslstl::StdExceptUtil: add cheap stack trace to all std exceptions thrown</p></td>
+</tr>
+<tr class="row-odd"><td><p>balcl: Support configuring by environment variable as well</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix deprecation warning in bslma_usesbslmaallocator</p></td>
+</tr>
+<tr class="row-odd"><td><p>Correct introduced clang pragma warning</p></td>
+</tr>
+<tr class="row-even"><td><p>a_cdb2: add support for CDB2_REQUIRE_FASTSQL flag</p></td>
+</tr>
+<tr class="row-odd"><td><p>sim_cpp11_features breaking change</p></td>
+</tr>
+<tr class="row-even"><td><p>Add eraseIf(key, predicate) to bdlcc::StripedUnorderedMap and bdlcc::StripedUnor#</p></td>
+</tr>
+<tr class="row-odd"><td><p>Enchance PMR related library features detection and usage.</p></td>
+</tr>
+<tr class="row-even"><td><p>Multiple gdb pretty printers broken possibly due to BDE 4 allocator changes</p></td>
+</tr>
+<tr class="row-odd"><td><p>bbs_build –cpp11-verify-no-change option has no effect unless passed to configure</p></td>
+</tr>
+<tr class="row-even"><td><p>Please augment bdlb::NullableValueRef interface</p></td>
+</tr>
+<tr class="row-odd"><td><p>Copy ctor issue for ConstNullableValueRef&lt;TYPE&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>baljsn::Decode fails when called from a static initialiser on Solaris</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix clang linker errors for missing Default_NewDeleteSetter</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

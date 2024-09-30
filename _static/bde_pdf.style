@@ -22,3 +22,6 @@ styles:
 
     underline:
         underline: true
+
+    bolditalic:
+        fontName: fontMonoBoldItalic

@@ -1,0 +1,570 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.0.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.0.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 3.127.0 Release" href="bde_3.127.0.html" />
+    <link rel="prev" title="BDE 4.1.0 Release" href="bde_4.1.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.13.0.html">BDE 4.13.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.12.0.html">BDE 4.12.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.11.0.html">BDE 4.11.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.10.0.html">BDE 4.10.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.9.0.html">BDE 4.9.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.8.0.html">BDE 4.8.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.7.0.html">BDE 4.7.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.5.0.html">BDE 4.5.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.3.0.html">BDE 4.3.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.2.0.html">BDE 4.2.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.1.0.html">BDE 4.1.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.0.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-new-major-version">Why a New Major Version?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#timeline-of-major-releases">Timeline of Major Releases</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-0-0-release-highlights">BDE 4.0.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#an-updated-allocator-model">An Updated Allocator Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-type-bsl-variant">New Type: <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#forwarding-headers">Forwarding Headers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-set-of-bde-4-0-features">Complete set of BDE 4.0 Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">An Updated Allocator Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support-for-new-standard-allocator-aware-vocabulary-types">Support for New Standard, Allocator-Aware, Vocabulary Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#improved-compatibility-with-the-platform-standard-library">Improved Compatibility with the Platform Standard Library</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support-for-c-20">Support for C++20</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bde-4-0-work-that-remains">BDE 4.0 Work that Remains</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-issues">Fixed Issues:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.0.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_3.127.0.html" class="btn btn-neutral float-right" title="BDE 3.127.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_4.1.0.html" class="btn btn-neutral float-left" title="BDE 4.1.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-0-0-release">
+<span id="bde4-0-0-top"></span><h1>BDE 4.0.0 Release<a class="headerlink" href="#bde-4-0-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-0-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.0.0 production release was
+completed on <strong>Monday, January 8, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="why-a-new-major-version">
+<h2>Why a New Major Version?<a class="headerlink" href="#why-a-new-major-version" title="Permalink to this headline">¶</a></h2>
+<p>This latest release contains important new features:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#bde4-updated-allocator-model"><span class="std std-ref">An updated model for writing allocator-aware components</span></a></p></li>
+<li><p><a class="reference internal" href="#bde4-bsl-variant"><span class="std std-ref">bsl::variant</span></a></p></li>
+<li><p><a class="reference internal" href="#bde4-forwarding-headers"><span class="std std-ref">A specification for BDE style forwarding headers</span></a></p></li>
+</ul>
+</div></blockquote>
+<p>While those features are important, the major version number change also marks the capstone for the completion of series of features,
+collected under the umbrella project <a class="reference internal" href="#bde4-features"><span class="std std-ref">BDE 4.0</span></a> which have been delivered over the past three years.</p>
+<div class="section" id="timeline-of-major-releases">
+<h3>Timeline of Major Releases<a class="headerlink" href="#timeline-of-major-releases" title="Permalink to this headline">¶</a></h3>
+<p>For some historical perspective, here is how BDE 4.0 fits in a timeline of major BDE releases:</p>
+<blockquote>
+<div><table class="docutils align-default">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 6%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>2024</p></td>
+<td><p>BDE 4.0</p></td>
+<td><p>New model for Allocator-Aware components, optional, variant, C++20 support, better platform standard library integration</p></td>
+</tr>
+<tr class="row-even"><td><p>2017</p></td>
+<td><p>BDE 3.2</p></td>
+<td><p>Completed transition to open-source BDE libraries (bsl, bdl, bal).</p></td>
+</tr>
+<tr class="row-odd"><td><p>2016</p></td>
+<td><p>BDE 3.0</p></td>
+<td><p>Begins adding C++11 support to BSL and transition to open-source libraries.</p></td>
+</tr>
+<tr class="row-even"><td><p>2010</p></td>
+<td><p>BDE 2.0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::</span></code> standard library factored into a separate package-group (<code class="docutils literal notranslate"><span class="pre">bsl</span></code>).  Removed STLPort.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2004</p></td>
+<td><p>BDE 1.0</p></td>
+<td><p>Initial release. No published release notes.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>The following sections explain the changes specifically in BDE 4.0.  Further down,
+there is a more general description of the
+<a class="reference internal" href="#bde4-features"><span class="std std-ref">BDE 4.0 umbrella project</span></a>.</p>
+</div>
+</div>
+<div class="section" id="bde-4-0-0-release-highlights">
+<h2>BDE 4.0.0 Release Highlights<a class="headerlink" href="#bde-4-0-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<p>This release is a capstone on a collection of  <a class="reference internal" href="#bde4-features"><span class="std std-ref">features</span></a>
+intended to improve BDE’s standard conformance and interoperability with the platform standard
+library.  These “BDE 4.0” features have been released as they were ready over the last 2 years.</p>
+<p>This particular release contains the final set of BDE 4.0 library features:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#bde4-updated-allocator-model"><span class="std std-ref">Updated model for writing allocator-aware components</span></a></p></li>
+<li><p><a class="reference internal" href="#bde4-bsl-variant"><span class="std std-ref">bsl::variant</span></a></p></li>
+<li><p><a class="reference internal" href="#bde4-forwarding-headers"><span class="std std-ref">A specification for BDE style forwarding headers</span></a></p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="an-updated-allocator-model">
+<span id="bde4-updated-allocator-model"></span><h3>An Updated Allocator Model<a class="headerlink" href="#an-updated-allocator-model" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A detailed specification for the new allocator model can be found in the white paper
+<a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a></p>
+</div>
+<p>BDE 4.0 introduces support for a new model for writing allocator-aware components,
+documented in the white paper <a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a>.
+Historically, allocators were passed using <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code>, and types were marked
+as allocator-aware using the proprietary type-trait <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code>.
+Bloomberg has worked with the C++ standard committee to introduce <code class="docutils literal notranslate"><span class="pre">pmr</span></code> memory allocators
+into the C++ standard library, and this release aligns BDE’s support for allocators
+with those since adopted by the standard.</p>
+<p>Moving forward, we recommend allocators should be passed using <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code> and
+types be marked as being allocator aware using <code class="docutils literal notranslate"><span class="pre">typedef</span> <span class="pre">bsl::allocator&lt;&gt;</span> <span class="pre">allocator_type</span></code>.
+This release introduces <code class="docutils literal notranslate"><span class="pre">bsl::memory_resource</span></code>, and makes notable changes to
+<code class="docutils literal notranslate"><span class="pre">bslma_allocator.h</span></code> (<code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> now inherits from <code class="docutils literal notranslate"><span class="pre">bsl::memory_resource</span></code>)</p>
+<p>New components (and standard headers) include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl_memory_resource.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_aamodel</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_aatypeutil</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_allocatorutil</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_bslallocator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_deallocatebytesproctor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_deallocateobjectproctor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_deleteobjectproctor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_hasallocatortype</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_isstdallocator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_memoryresource</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslma_polymorphicallocator</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bslmf_allocatorargt</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>More support for writing allocator-aware types, including types that allow
+writing code that operates with both the old and new model can be found in
+the new utilities <code class="docutils literal notranslate"><span class="pre">bslma::AATypeUtil</span></code> and <code class="docutils literal notranslate"><span class="pre">bslma::AllocatorUtil</span></code>.</p>
+<p>There is considerably more detail in the white paper
+<a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a>.</p>
+</div>
+<div class="section" id="new-type-bsl-variant">
+<span id="bde4-bsl-variant"></span><h3>New Type: <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#new-type-bsl-variant" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Details on <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> are in <a class="reference internal" href="../articles/bsl_variant.html"><span class="doc">bsl::variant: An Allocator-Aware Discriminated Union</span></a>.</p>
+</div>
+<p>BDE 4.0 introduces the header <code class="docutils literal notranslate"><span class="pre">&lt;bsl_variant.h&gt;</span></code>, which contains an allocator-aware
+implementation of the C++17 <code class="docutils literal notranslate"><span class="pre">&lt;variant&gt;</span></code> header with select C++20 enhancements.</p>
+<p>The type <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T...&gt;</span></code> is a discriminated union of the types <code class="docutils literal notranslate"><span class="pre">T...</span></code>,
+similar to <code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T...&gt;</span></code>.  The types <code class="docutils literal notranslate"><span class="pre">T...</span></code> are known as
+<em>alternatives</em>.  For example, an object of type
+<code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;int,</span> <span class="pre">double,</span> <span class="pre">const</span> <span class="pre">char*&gt;</span></code> can hold <em>either</em> an <code class="docutils literal notranslate"><span class="pre">int</span></code>, or a
+<code class="docutils literal notranslate"><span class="pre">double</span></code>, or a <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code>, but only one of these alternatives at a time.
+The <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object also keeps track of which alternative is currently
+active, so, for example, if the <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object holds a <code class="docutils literal notranslate"><span class="pre">double</span></code>
+object, then an attempt to retrieve the stored <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code> object will fail
+by returning a null pointer or throwing an exception.</p>
+</div>
+<div class="section" id="forwarding-headers">
+<span id="bde4-forwarding-headers"></span><h3>Forwarding Headers<a class="headerlink" href="#forwarding-headers" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The detailed specification for forwarding headers can be found in  <a class="reference internal" href="../white_papers/forwarding-headers.html"><span class="doc">Forwarding Headers in BSL</span></a></p>
+</div>
+<p>BDE 4.0 introduces a specification for rendering forwarding headers – that is,
+a header containing only forward declarations for types in an associated component.
+Forward declarations are often used to reduce compile time in instances where a
+type is used in name only (avoiding the need to <code class="docutils literal notranslate"><span class="pre">#include</span></code> the type’s header).</p>
+<p>An example of a BDE-style forwarding header is
+<a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslma/bslma_allocator.fwd.h">bslma_allocator.fwd.h</a>.</p>
+</div>
+</div>
+<div class="section" id="complete-set-of-bde-4-0-features">
+<span id="bde4-features"></span><h2>Complete set of BDE 4.0 Features<a class="headerlink" href="#complete-set-of-bde-4-0-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>An Updated Allocator Model<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>BDE 4.0 introduces support for a new model for writing allocator-aware components,
+documented in the white paper <a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a>.
+Historically, allocators were passed using <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code>, and types were marked
+as allocator-aware using the proprietary type-trait <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator</span></code>.
+Bloomberg has worked with the C++ standard committee to introduce <code class="docutils literal notranslate"><span class="pre">pmr</span></code> memory allocators
+into the C++ standard library, and this release aligns BDE’s support for allocators
+with those since adopted by the standard.</p>
+<p>Moving forward, we recommend allocators should be passed using <code class="docutils literal notranslate"><span class="pre">bsl::allocator&lt;&gt;</span></code> and
+types be marked as being allocator aware using <code class="docutils literal notranslate"><span class="pre">typedef</span> <span class="pre">bsl::allocator&lt;&gt;</span> <span class="pre">allocator_type</span></code>.
+This release introduces <code class="docutils literal notranslate"><span class="pre">bsl::memory_resource</span></code>, and makes notable changes to
+<code class="docutils literal notranslate"><span class="pre">bslma_allocator.h</span></code> (<code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> now inherits from <code class="docutils literal notranslate"><span class="pre">bsl::memory_resource</span></code>)</p>
+<p>More support for writing allocator-aware types, including types that allow
+writing code that operates with both the old and new model can be found in
+the new utilities <code class="docutils literal notranslate"><span class="pre">bslma::AATypeUtil</span></code> and <code class="docutils literal notranslate"><span class="pre">bslma::AllocatorUtil</span></code>.</p>
+<p>There is considerably more detail in the white paper
+<a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>More information on the new allocator model can be found in the white paper
+<a class="reference internal" href="../white_papers/making_cpp_software_allocator_aware.html"><span class="doc">Making C++ Software Allocator Aware</span></a></p>
+</div>
+</div>
+<div class="section" id="support-for-new-standard-allocator-aware-vocabulary-types">
+<h3>Support for New Standard, Allocator-Aware, Vocabulary Types<a class="headerlink" href="#support-for-new-standard-allocator-aware-vocabulary-types" title="Permalink to this headline">¶</a></h3>
+<p>BDE 4.0 introduces support for allocator-aware versions of two important vocabulary types in the C++ standard library,
+<a class="reference internal" href="../articles/bsl_optional.html"><span class="doc">bsl::optional</span></a> (released in 2021) and <a class="reference internal" href="../articles/bsl_variant.html"><span class="doc">bsl::variant</span></a> These replace
+the, now deprecated, legacy BDE types <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>.</p>
+<p>In terms of compatibility, <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> now inherits from <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>, to enable interoperability between the
+types.  Unfortunately, the standard definition for <code class="docutils literal notranslate"><span class="pre">variant</span></code> differs substantially from <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> has a “null” state), so
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> are distinct types.</p>
+</div>
+<div class="section" id="improved-compatibility-with-the-platform-standard-library">
+<h3>Improved Compatibility with the Platform Standard Library<a class="headerlink" href="#improved-compatibility-with-the-platform-standard-library" title="Permalink to this headline">¶</a></h3>
+<p>One important goal was for BDE 4.0 to improve interoperability with the platform standard
+library.  This included 3 discrete features:</p>
+<div class="section" id="adopting-bsl-string-view-as-vocabulary-for-passing-strings">
+<h4>Adopting <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> as Vocabulary for Passing Strings<a class="headerlink" href="#adopting-bsl-string-view-as-vocabulary-for-passing-strings" title="Permalink to this headline">¶</a></h4>
+<p>Strings are a quintessential vocabulary type (meaning strings are frequently passed
+as parameters to functions).  <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>, which is an alias to
+<code class="docutils literal notranslate"><span class="pre">std::string_view</span></code> on platforms that support it, provides a means for
+writing functions taking a string as a parameter that is agnostic to whether
+the supplied string is an <code class="docutils literal notranslate"><span class="pre">std::string</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>, or C-string (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>).</p>
+</div>
+<div class="section" id="support-for-bsl-chrono">
+<h4>Support for <code class="docutils literal notranslate"><span class="pre">bsl::chrono</span></code><a class="headerlink" href="#support-for-bsl-chrono" title="Permalink to this headline">¶</a></h4>
+<p>BDE continues to recommend using the date and time types in <code class="docutils literal notranslate"><span class="pre">bdlt</span></code>, but <code class="docutils literal notranslate"><span class="pre">bsl::chrono</span></code> (an alias
+to <code class="docutils literal notranslate"><span class="pre">std::chrono</span></code> available only on platforms where it is supported) provides
+a standard alternative.  As part of BDE 4.0, we provided conversions, particularly between
+<code class="docutils literal notranslate"><span class="pre">chrono::duration</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlt::TimeInterval</span></code>, and updated important concurrency APIs (<code class="docutils literal notranslate"><span class="pre">bslmt</span></code> types
+like <code class="docutils literal notranslate"><span class="pre">bslmt::Condition</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlmt::EventScheduler</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlmt::Throttle</span></code>).</p>
+<p>These changes are detailed in the document: <a class="reference internal" href="../articles/bde_4.0_chrono.html"><span class="doc">bsl::chrono Integration with bsl and bdl</span></a>.</p>
+</div>
+<div class="section" id="a-component-by-component-review-of-the-bde-libraries">
+<h4>A component-by-component Review of the BDE Libraries<a class="headerlink" href="#a-component-by-component-review-of-the-bde-libraries" title="Permalink to this headline">¶</a></h4>
+<p>The most time-consuming piece of BDE 4.0 was a component-by-component review
+of the BDE libraries to make adjustments to allow for existing APIs
+to work more seamlessly with the platform standard library
+(e.g., using <code class="docutils literal notranslate"><span class="pre">string_view</span></code> where appropriate, or providing
+overloads for functions taking a <code class="docutils literal notranslate"><span class="pre">bsl::vector</span></code> to use <code class="docutils literal notranslate"><span class="pre">std::vector</span></code>)</p>
+</div>
+</div>
+<div class="section" id="support-for-c-20">
+<h3>Support for C++20<a class="headerlink" href="#support-for-c-20" title="Permalink to this headline">¶</a></h3>
+<p>BDE has been enhanced to support <a class="reference internal" href="../articles/cpp20_project.html"><span class="doc">C++20 library features</span></a>, which will
+become available to most users once the production build base migrates to C++20.</p>
+<p>The most obvious BSL features include the library and platform detection macros, support for the spaceship operator for BSL containers,
+and a implementation of <code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> that supports C++03.  Additional detail is provided in the article
+<a class="reference internal" href="../articles/cpp20_project.html"><span class="doc">BSL Support for C++20</span></a>.</p>
+<p>A couple of additions planned for 2024:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> support for <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>, and compatible formatters for important vocabulary types.</p></li>
+<li><p>(Non-standard) utilities to support extract and merge operations for associative containers.</p></li>
+</ul>
+</div>
+<div class="section" id="bde-4-0-work-that-remains">
+<h3>BDE 4.0 Work that Remains<a class="headerlink" href="#bde-4-0-work-that-remains" title="Permalink to this headline">¶</a></h3>
+<p>There are a couple of non-library aspects of BDE 4.0 that will be completed in the next few months:</p>
+<ol class="arabic">
+<li><p><strong>Update the BDE documentation standard to better support IDEs and other tools.</strong></p>
+<p>We are are currently reviewing a set of`proposed changes to BDE’s documentation format.  Primarily
+moving documentation above the function signature, and using standard markdown.</p>
+</li>
+<li><p><strong>Using GoogleTest for unit-tests.</strong></p>
+<p>BDE is adopting GoogleTest for unit-tests in at least one library.  This means applying BDE’s rigorous testing methodology
+using a more standard set of unit-test rendering conventions.  This will hopefully lead to a white-paper describing BDE’s
+testing methodology, which is agnostic to the test-framework (and even the programming langauge) being used.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="fixed-issues">
+<h2>Fixed Issues:<a class="headerlink" href="#fixed-issues" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Update the BDE Allocator Model page to support move semantics and noexcept</p></td>
+</tr>
+<tr class="row-odd"><td><p>add an erase_if(key, predicate) to bdlcc::StripedUnorderedContainerImpl</p></td>
+</tr>
+<tr class="row-even"><td><p>SOW19-D4-D7 Numerous AA facilities for BSL</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove bdldfp_decimal.h from bdld_datum.h</p></td>
+</tr>
+<tr class="row-even"><td><p>Create bsl::variant an allocator aware variant type</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘bsl::string_view’ is implicitly convertible to ‘bsl::string’ under Visual Studio</p></td>
+</tr>
+<tr class="row-even"><td><p>‘bdls::FilesystemUtil::createTemporaryDirectory’ provokes to erroneously use it with ‘bdls::Filesyst…</p></td>
+</tr>
+<tr class="row-odd"><td><p>SAFE mode triggers a stringop-overflow warning at -O3 with GCC 11</p></td>
+</tr>
+<tr class="row-even"><td><p>BALL truncates 64 bit integer attributes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Document compiler version check macros as for-testing-only</p></td>
+</tr>
+<tr class="row-even"><td><p>reduce bde repo nb test driver warnings</p></td>
+</tr>
+<tr class="row-odd"><td><p>clean bde repo of nightly build test driver warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix bdldfp_decimal.fwd.t.cpp breakage</p></td>
+</tr>
+<tr class="row-odd"><td><p>clean bde repo test driver warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Optimize sim_cpp11_features.pl for perl 5.16 when handling huge header</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce bde repo nb warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Runtime test failures for allocators</p></td>
+</tr>
+<tr class="row-odd"><td><p>Update bslma_bslallocator to use BSLS_DEPRECATE_FEATURE</p></td>
+</tr>
+<tr class="row-even"><td><p>Add deprecated allocate() accessor to bslstl::basic_string</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

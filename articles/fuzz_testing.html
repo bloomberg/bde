@@ -273,8 +273,8 @@ components that have already been modified this way.  Please see those, e.g.,
 <span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="w">  </span><span class="c1">// Zero is always the leading case.</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">N</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span><span class="w">  </span><span class="c1">// Zero is always the leading case.</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="nl">N</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="c1">// --------------------------------------------------------------------</span>
 <span class="w">        </span><span class="c1">// TESTING &#39;myFunction&#39;</span>
 <span class="w">        </span><span class="c1">//</span>
@@ -334,7 +334,7 @@ prevent errors from being noticed.  So, if we are writing a fuzz test with the
 intent of paralleling the normal test above, we might write it like this.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ,,,</span>
 <span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span><span class="w"></span>
@@ -467,7 +467,7 @@ populate a configuration object:</p>
 <blockquote>
 <div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">typedef</span><span class="w"> </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzUtil</span><span class="w"> </span><span class="n">FuzzUtil</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzDataView</span><span class="w"> </span><span class="nf">fuzzData</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">)</span><span class="w"></span>
 <span class="w">    </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setMaxDepth</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeNumberInRange</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">));</span><span class="w"></span>
@@ -742,7 +742,7 @@ at ft.t.cpp:1
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2023, Bloomberg LP.
+        &#169; Copyright 2024, Bloomberg LP.
 
     </p>
   </div>

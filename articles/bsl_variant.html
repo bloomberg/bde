@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>bsl::variant: An Allocator-Aware Discriminated Union &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bsl_variant.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BSL Support for C++20" href="cpp20_project.html" />
+    <link rel="prev" title="Getting Started Writing Allocator-Aware Software" href="getting_started_with_aa.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#differences-between-std-variant-and-bsl-variant">Differences Between <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#differences-between-bdlb-variant-and-bsl-variant">Differences Between <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#quick-reference">Quick reference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notable-behavioral-differences">Notable behavioral differences</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comparison-of-visitation-apis">Comparison of visitation APIs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#migrating-visitors-from-bdlb-variant-to-bsl-variant">Migrating Visitors From <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-valueless-by-exception-state">The “Valueless By Exception” State</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Articles</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="cpp20_project.html" class="btn btn-neutral float-right" title="BSL Support for C++20" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="getting_started_with_aa.html" class="btn btn-neutral float-left" title="Getting Started Writing Allocator-Aware Software" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>December 25, 2023</em></p>
+<div class="section" id="bsl-variant-an-allocator-aware-discriminated-union">
+<span id="bsl-variant-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union<a class="headerlink" href="#bsl-variant-an-allocator-aware-discriminated-union" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>The latest release of BDE (4.0) provides the header <code class="docutils literal notranslate"><span class="pre">&lt;bsl_variant.h&gt;</span></code>,
+which contains an allocator-aware implementation of the C++17 <code class="docutils literal notranslate"><span class="pre">&lt;variant&gt;</span></code>
+header with select C++20 enhancements.  Some <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> features are not
+yet supported by <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, however.</p>
+<p>The type <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T...&gt;</span></code> is a discriminated union of the types <code class="docutils literal notranslate"><span class="pre">T...</span></code>,
+similar to <code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T...&gt;</span></code>.  The types <code class="docutils literal notranslate"><span class="pre">T...</span></code> are known as
+<em>alternatives</em>.  For example, an object of type
+<code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;int,</span> <span class="pre">double,</span> <span class="pre">const</span> <span class="pre">char*&gt;</span></code> can hold <em>either</em> an <code class="docutils literal notranslate"><span class="pre">int</span></code>, or a
+<code class="docutils literal notranslate"><span class="pre">double</span></code>, or a <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code>, but only one of these alternatives at a time.
+The <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object also keeps track of which alternative is currently
+active, so, for example, if the <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object holds a <code class="docutils literal notranslate"><span class="pre">double</span></code>
+object, then an attempt to retrieve the stored <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code> object will fail
+by returning a null pointer or throwing an exception.</p>
+</div>
+<div class="section" id="differences-between-std-variant-and-bsl-variant">
+<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-std-variant-and-bsl-variant" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is allocator-aware if at least one alternative is
+allocator-aware.  For example, if one of the alternatives is
+<code class="docutils literal notranslate"><span class="pre">bsl::vector&lt;T&gt;</span></code>, then the allocator specified at construction of the
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object will be used by the <code class="docutils literal notranslate"><span class="pre">bsl::vector</span></code> to allocate memory
+to hold its buffer of <code class="docutils literal notranslate"><span class="pre">T</span></code>’s.  Consequently, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> differs from
+<code class="docutils literal notranslate"><span class="pre">std::variant</span></code> in that:</p>
+<ul class="simple">
+<li><p>There are additional overloads for several constructors taking an allocator
+parameter.  These constructors are valid even when no alternative is
+allocator-aware; however, the allocator parameter will be ignored in that
+case.</p></li>
+<li><p>There is an additional <code class="docutils literal notranslate"><span class="pre">get_allocator</span></code> method, which participates in
+overload resolution only if at least one alternative is allocator-aware.</p></li>
+<li><p>If at least one alternative is allocator-aware, the footprint of
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is larger than that of <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> because the former
+needs to store the allocator that it uses to supply memory.</p></li>
+</ul>
+<p>The declarations of the additional overloads are shown below, with some details
+elided for readability:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// CREATORS</span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">t_TYPE</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span><span class="w"></span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">// ACCESSORS</span>
+<span class="n">get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that the constructors above have the same constraints and mandates as
+their standard counterparts.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>We recommend referring to the <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/variant">cppreference documentation for variant</a>
+in order to understand the constructors of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, because the
+documentation generated by Doxygen can be hard to understand.</p>
+</div>
+<p>The current implementation of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> also differs from
+<code class="docutils literal notranslate"><span class="pre">std::variant</span></code> in the following ways:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> can only visit a single variant at a time.</p></li>
+<li><p>Most of the methods and free functions of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> are not
+<code class="docutils literal notranslate"><span class="pre">constexpr</span></code> and do not have <code class="docutils literal notranslate"><span class="pre">noexcept</span></code> specifications.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not have any trivial member functions.  In C++17,
+<code class="docutils literal notranslate"><span class="pre">std::variant</span></code> has a conditionally trivial destructor, and in C++20, the
+copy constructor, move constructor, copy assignment operator, and move
+assignment operator of <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> are also conditionally trivial.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not provide the strong exception safety guarantee for
+any function call that changes which alternative is currently active within a
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object.</p></li>
+</ul>
+<p>Also note that additional limitations apply in C++03 (and some of the above
+constructor signatures are different).  See <code class="docutils literal notranslate"><span class="pre">bslstl_variant.h</span></code> for details.</p>
+</div>
+<div class="section" id="differences-between-bdlb-variant-and-bsl-variant">
+<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-bdlb-variant-and-bsl-variant" title="Permalink to this headline">¶</a></h2>
+<p>Although <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> are both discriminated union
+types, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is not a drop-in replacement for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>.  A
+quick reference, comparing analogous functions in the <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> interfaces, is given in the next subsection.  However, there
+are also significant behavioral differences, which will be explained in more
+detail.  A particularly notable difference is that <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> deduce the return types of visitors using different rules.
+Therefore, a visitor class that was designed to visit <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> objects
+may need to be modified before it can be used to visit <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>
+objects; some guidance is provided in <a class="reference internal" href="#migrating-visitors"><span class="std std-ref">Migrating Visitors From bdlb::Variant to bsl::variant</span></a>.  In addition,
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not have a null state, though it may sometimes fail to
+hold a value (see <a class="reference internal" href="#valueless-by-exception"><span class="std std-ref">The “Valueless By Exception” State</span></a>).  If a <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> needs
+to be able to represent a state that is none of <code class="docutils literal notranslate"><span class="pre">T1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">Tn</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;bsl::monostate,</span> <span class="pre">T1,</span> <span class="pre">...,</span> <span class="pre">Tn&gt;</span></code> should be used.</p>
+<div class="section" id="quick-reference">
+<h3>Quick reference<a class="headerlink" href="#quick-reference" title="Permalink to this headline">¶</a></h3>
+<p>The constructors for <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> are similar to those of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>
+but use the leading allocator convention (with <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code>) while
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> uses the trailing allocator convention.  Most other methods
+of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> have a differently-named counterpart for <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>:</p>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>bdlb::Variant</p></th>
+<th class="head"><p>bsl::variant</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T1,</span> <span class="pre">T2&gt;</span> <span class="pre">v;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;bsl::monostate,</span> <span class="pre">T1,</span> <span class="pre">T2&gt;</span> <span class="pre">v;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.assign(x)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v</span> <span class="pre">=</span> <span class="pre">x</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.assignTo&lt;T1&gt;(x)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v.emplace&lt;T1&gt;(x)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.createInPlace&lt;T1&gt;(args...)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v.emplace&lt;T1&gt;(args...)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.reset()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v.emplace&lt;bsl::monostate&gt;()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.is&lt;T1&gt;()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::holds_alternative&lt;T1&gt;(v)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.isUnset()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::holds_alternative&lt;bsl::monostate&gt;(v)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.the&lt;T1&gt;()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::get&lt;T1&gt;(v)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.typeIndex()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v.index()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.getAllocator()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v.get_allocator()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.apply(visitor)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::visit(visitor,</span> <span class="pre">v)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.apply(visitor,</span> <span class="pre">defaultValue)</span></code></p></td>
+<td><p>See below</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.apply&lt;R&gt;(visitor)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;(visitor,</span> <span class="pre">v)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.apply&lt;R&gt;(visitor,</span> <span class="pre">defaultValue)</span></code></p></td>
+<td><p>See below</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v.applyRaw(...)</span></code></p></td>
+<td><p>See below</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v.applyRaw&lt;R&gt;(...)</span></code></p></td>
+<td><p>See below</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that the numbering for alternatives of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> starts from 0,
+whereas <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> starts from 1.  For example,
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T1,</span> <span class="pre">T2&gt;::typeIndex()</span></code> returns 1 when the <code class="docutils literal notranslate"><span class="pre">T2</span></code> alternative is
+active, and <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;bsl::monostate,</span> <span class="pre">T1,</span> <span class="pre">T2&gt;::index()</span></code> does likewise.
+But if there is no need to represent a null state, then
+<code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T1,</span> <span class="pre">T2&gt;</span></code> may be a suitable replacement.  In that case, the
+<code class="docutils literal notranslate"><span class="pre">index</span></code> method returns 1 when the <code class="docutils literal notranslate"><span class="pre">T2</span></code> alternative is active.</p>
+</div>
+<div class="section" id="notable-behavioral-differences">
+<h3>Notable behavioral differences<a class="headerlink" href="#notable-behavioral-differences" title="Permalink to this headline">¶</a></h3>
+<p>Some of the <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> equivalents given in the table in the preceding
+section behave differently from their <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> counterparts.  In
+addition, some operations that are spelled the same way for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>
+and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, such as the <code class="docutils literal notranslate"><span class="pre">swap</span></code> method, nonetheless have different
+behavior.  Here are some notable differences:</p>
+<ul>
+<li><p>In C++11 and later, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> has full support for move semantics for
+both variants and visitors.  In C++03, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> still supports moving
+from variant alternatives (but not from visitors).  For example, when using
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, a single visitor can be applied to both lvalue and rvalue
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> expressions, and the visitor will be called with an argument
+of the appropriate value category:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">PushBackVisitor</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">d_v</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">d_v</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">arg</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="nf">oss</span><span class="p">(</span><span class="n">d_v</span><span class="p">.</span><span class="n">get_allocator</span><span class="p">());</span><span class="w"></span>
+<span class="w">        </span><span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">oss</span><span class="p">).</span><span class="n">str</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_VARIANT</span><span class="o">&gt;</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">pushBackVariant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">vector</span><span class="p">,</span><span class="w"></span>
+<span class="w">                     </span><span class="n">t_VARIANT</span><span class="o">&amp;&amp;</span><span class="w">               </span><span class="n">variant</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Append to the specified &#39;vector&#39; the value held by the specified</span>
+<span class="w">    </span><span class="c1">// &#39;variant&#39;, which must be of type &#39;bsl::variant&lt;int, bsl::string&gt;&#39;.</span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">vector</span><span class="p">),</span><span class="w"></span>
+<span class="w">               </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">t_VARIANT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">variant</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that if a <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> had been used in the above example, then the
+<code class="docutils literal notranslate"><span class="pre">bsl::string&amp;&amp;</span></code> overload would never be called; it would be necessary to
+write a second visitor taking a <code class="docutils literal notranslate"><span class="pre">bsl::string&amp;</span></code> overload that moves from the
+parameter, and take care to use that visitor only on variant objects that no
+longer need to retain their value.</p>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bsl::get</span></code> methods, which return a reference to an alternative, fail by
+throwing an exception if the desired alternative is not active inside the
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object, whereas <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> does not use exceptions.
+The <code class="docutils literal notranslate"><span class="pre">bsl::get_if</span></code> method, which returns a null pointer on failure, can be
+used to avoid exceptions:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdlbVariant</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span><span class="w">        </span><span class="c1">// returns a reference to the stored &#39;int&#39;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant</span><span class="p">);</span><span class="w">     </span><span class="c1">// returns a reference to the stored &#39;int&#39;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">get_if</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns a pointer to the stored &#39;int&#39;</span>
+
+<span class="n">bdlbVariant</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">();</span><span class="w">        </span><span class="c1">// undefined behavior</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant</span><span class="p">);</span><span class="w">     </span><span class="c1">// throws &#39;bsl::bad_variant_access&#39;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">get_if</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns a null pointer</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not support a null state that is comparable to
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>’s default-constructed state; instead, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>
+always holds a value other than in certain situations where setting a value
+fails due to an exception.  Default construction of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>
+value-initializes the first alternative type.  <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> can be given
+a comparable null state by using <code class="docutils literal notranslate"><span class="pre">bsl::monostate</span></code> as the first alternative.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a null &#39;bdlb::Variant&#39; object.</span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// Create a &#39;bsl::variant&#39; object holding an &#39;int&#39; with value 0.</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// Create a &#39;bsl::variant&#39; object that can hold a &#39;bsl::monostate&#39; (which</span>
+<span class="c1">// may be used by the application to represent the null state), an &#39;int&#39;,</span>
+<span class="c1">// or a &#39;double&#39;.  Because the &#39;bsl::monostate&#39; alternative is first, the</span>
+<span class="c1">// default constructor activates that alternative.</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> method deduces its return type automatically, in contrast
+to <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code>, which returns <code class="docutils literal notranslate"><span class="pre">void</span></code> when the visitor does not
+have a <code class="docutils literal notranslate"><span class="pre">ResultType</span></code> member type.  In cases where conflicting return types
+are deduced for different alternatives or (in C++03) return type deduction
+fails, an explicit return type can be passed as a template parameter to
+<code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> (in C++03, the method <code class="docutils literal notranslate"><span class="pre">bsl::visitR</span></code> must be used).  An
+example is provided in <a class="reference internal" href="#migrating-visitors"><span class="std std-ref">Migrating Visitors From bdlb::Variant to bsl::variant</span></a>.</p></li>
+<li><p>In C++11 and later, the constructors and assignment operators of
+<code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> can accept argument types that have an unambiguous “best
+match” with one of the variant types, whereas <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> requires a
+type that matches exactly with one of the alternative types.  (The C++03
+implementation of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> also has this restriction.)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ERROR: initializer doesn&#39;t match any alternative type</span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c1">// OK: activates the &#39;bsl::string&#39; alternative in C++11 and later</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> follows the guidance in
+<a class="reference external" href="https://wg21.link/P0178R0">P0178R0</a>: a precondition of the <code class="docutils literal notranslate"><span class="pre">swap</span></code> method
+is that the two objects being swapped have equal allocators.  If this
+precondition is not met, the free function <code class="docutils literal notranslate"><span class="pre">swap</span></code> must be used instead.  In
+contrast, for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>, member and non-member <code class="docutils literal notranslate"><span class="pre">swap</span></code> both have
+wide contracts.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="nf">ta1</span><span class="p">(</span><span class="s">&quot;ta1&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="nf">ta2</span><span class="p">(</span><span class="s">&quot;ta2&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is a string&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is another string&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant1</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">);</span><span class="w"></span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant1</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">,</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">,</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
+<span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">swap</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// undefined behavior, &#39;bslVariant1&#39; and &#39;bslVariant2&#39; have different</span>
+<span class="c1">// allocators!</span>
+<span class="n">bslVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> supports relational and equality comparison operators.  Two
+objects of type <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T...&gt;</span></code> can be compared with a particular
+operator if and only if all alternatives support that operator (that is, all
+of <code class="docutils literal notranslate"><span class="pre">T...</span></code>).</p></li>
+</ul>
+</div>
+<div class="section" id="comparison-of-visitation-apis">
+<h3>Comparison of visitation APIs<a class="headerlink" href="#comparison-of-visitation-apis" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> has a complicated set of visitation overloads due to the fact
+that it supports a null state.  In contrast, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not have a
+null state; therefore, only two visitation facilities are provided:
+<code class="docutils literal notranslate"><span class="pre">bsl::visit(visitor,</span> <span class="pre">variant)</span></code>, which deduces the return type of <code class="docutils literal notranslate"><span class="pre">visitor</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;(visitor,</span> <span class="pre">variant)</span></code>, which returns the explicitly specified
+type <code class="docutils literal notranslate"><span class="pre">R</span></code>.  Note that <code class="docutils literal notranslate"><span class="pre">bsl::visitR&lt;R&gt;</span></code> is identical to <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> but
+is provided for C++03 compatibility.</p>
+<p>If a <code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T1,</span> <span class="pre">T2&gt;</span></code> object that is never null is
+replaced by a <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T1,</span> <span class="pre">T2&gt;</span></code> object in a new version of client code,
+then <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> should replace both <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> should replace both
+<code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply&lt;R&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw&lt;R&gt;</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Visitor</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">ResultType</span><span class="p">;</span><span class="w">  </span><span class="c1">// needed by &#39;bdlb::Variant::apply&#39;</span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns 2.0</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns 2.0</span>
+</pre></div>
+</div>
+<p>On the other hand, if a <code class="docutils literal notranslate"><span class="pre">bdlb::Variant&lt;T1,</span> <span class="pre">T2&gt;</span></code> object is replaced by a
+<code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;bsl::monostate,</span> <span class="pre">T1,</span> <span class="pre">T2&gt;</span></code> object, where the first alternative is
+used to represent the null state, then the visitor passed to <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> or
+<code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> must always be able to accept an argument of type
+<code class="docutils literal notranslate"><span class="pre">bsl::monostate</span></code>, since the latter is one of the alternatives.
+Furthermore, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not provide any direct equivalent to the <code class="docutils literal notranslate"><span class="pre">apply</span></code>
+overloads that accept a default value.  Instead, the visitor must be configured
+with the desired default value before <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> is called:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">MyVisitorWithDefault</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">MyVisitorWithDefault</span><span class="p">(</span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">defaultValue</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">(</span><span class="n">defaultValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited int value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited double value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)(</span><span class="n">d_defaultValue</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">visitMyVariant</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// print 42 if &#39;v&#39; is unset</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// print 3.14 if &#39;v&#39; is unset</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">3.14</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that in the example above, the explicit template argument specification at
+the call sites of <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> can be omitted in C++17 and later.</p>
+<p>Because <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not support a null state, there is no need for a
+visitor to handle the null state.  However, if a user chooses to introduce an
+alternative of type <code class="docutils literal notranslate"><span class="pre">bsl::monostate</span></code> into their <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> type in
+order to represent the absence of any other alternative, then they must ensure
+that every visitor for that <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> type has an overload that can
+accept <code class="docutils literal notranslate"><span class="pre">bsl::monostate</span></code>, even if they know that this overload will never be
+called.  There is no analogue to the <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw</span></code> visitation
+method (which does not require the null state of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to be
+handled).</p>
+</div>
+</div>
+<div class="section" id="migrating-visitors-from-bdlb-variant-to-bsl-variant">
+<span id="migrating-visitors"></span><h2>Migrating Visitors From <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#migrating-visitors-from-bdlb-variant-to-bsl-variant" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> both support explicit return type
+specification.  In cases where the return type is not explicitly specified,
+however, <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> determine their
+respective return types using different rules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> looks within the visitor’s type for a member type
+called <code class="docutils literal notranslate"><span class="pre">ResultType</span></code>.  If that type is valid, <code class="docutils literal notranslate"><span class="pre">apply</span></code>’s return type is
+that type.  Otherwise, <code class="docutils literal notranslate"><span class="pre">apply</span></code> returns <code class="docutils literal notranslate"><span class="pre">void</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> attempts to deduce its return type based on the actual type
+that invocation of the visitor will return for each alternative.  If these
+types do not agree with each other, the call is ill-formed.  In C++03, the
+return type deduction facility is imperfect due to language limitations.  In
+cases where the return type cannot be determined in C++03, the call is
+ill-formed.</p></li>
+</ul>
+<p>As a consequence of this difference, some changes might be required to a
+visitor that is designed for use with <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> before that
+visitor can be used with <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>.</p>
+<p>If a visitor does not have a <code class="docutils literal notranslate"><span class="pre">ResultType</span></code> typedef:</p>
+<ul class="simple">
+<li><p>If invoking the visitor yields the same type for all alternatives, then the
+visitor can simply be used as-is with <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code>; the return type of
+<code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> is that type.</p></li>
+<li><p>If invoking the visitor does not yield the same type for all alternatives, or
+if return type deduction fails in C++03, then <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> must be used
+(or <code class="docutils literal notranslate"><span class="pre">bsl::visitR&lt;R&gt;</span></code> in C++03), which has return type <code class="docutils literal notranslate"><span class="pre">R</span></code>.  Note that
+<code class="docutils literal notranslate"><span class="pre">R</span></code> may be <code class="docutils literal notranslate"><span class="pre">void</span></code>.</p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor1</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor1</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns &#39;void&#39;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor1</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns &#39;char&#39;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor2</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w">  </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">short</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+
+<span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor2</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns &#39;void&#39;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor2</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// ERROR: conflicting return types</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="o">&lt;</span><span class="kt">short</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Visitor2</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns &#39;short&#39;</span>
+</pre></div>
+</div>
+<p>If a visitor has a <code class="docutils literal notranslate"><span class="pre">ResultType</span></code> typedef, <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> will ignore
+<code class="docutils literal notranslate"><span class="pre">ResultType</span></code> other than in some cases in C++03 where the return type cannot
+otherwise be deduced.  If invoking the visitor would return <code class="docutils literal notranslate"><span class="pre">ResultType</span></code> for
+all alternatives, then <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> will automatically deduce the same return
+type as <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code>.  If the preceding condition is not met, then
+the presence of <code class="docutils literal notranslate"><span class="pre">ResultType</span></code> can cause problems when using <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>.
+To avoid such problems, <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> (or <code class="docutils literal notranslate"><span class="pre">bsl::visitR&lt;R&gt;</span></code> in C++03)
+should always be used instead of the deduced <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code>.  In addition, in
+order to avoid bugs due to accidental use of the deduced <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code>,
+consider taking one of the following steps, if possible:</p>
+<ul class="simple">
+<li><p>Change the definition of the visitor so that the invocation will return
+<code class="docutils literal notranslate"><span class="pre">ResultType</span></code> for every alternative.</p></li>
+<li><p>If the visitor will not be used with <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> anymore, then remove
+<code class="docutils literal notranslate"><span class="pre">ResultType</span></code>, which will ensure that accidental use of the deduced
+<code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> will always give a compilation error due to conflicting return
+types.</p></li>
+<li><p>If the visitor will still be used with <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>, change the existing
+call sites so that they specify an explicit return type, then remove
+<code class="docutils literal notranslate"><span class="pre">ResultType</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="the-valueless-by-exception-state">
+<span id="valueless-by-exception"></span><h2>The “Valueless By Exception” State<a class="headerlink" href="#the-valueless-by-exception-state" title="Permalink to this headline">¶</a></h2>
+<p>Although <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not support a null state, it can sometimes be
+left in a state where it does not hold any value.  This state can be produced
+only by operations that destroy the currently active alternative and then
+construct a new one: if the construction of the new alternative exits via an
+exception, then there will be no object held by the variant.  For this reason,
+this state is called “valueless by exception”.</p>
+<p>The valueless by exception state is not intended to be used as a null state.
+Although certain operations can produce a valueless by exception state, it is
+unspecified whether they actually do; there is no supported method for creating
+this state deliberately.  The <code class="docutils literal notranslate"><span class="pre">valueless_by_exception</span></code> accessor can be used
+to check whether a <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is valueless by exception.</p>
+<p>An exception of type <code class="docutils literal notranslate"><span class="pre">bsl::bad_variant_access</span></code> is thrown if a variant is
+visited while it is valueless by exception.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.3.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.3.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.2.0 Release" href="bde_4.2.0.html" />
+    <link rel="prev" title="BDE 4.5.0 Release" href="bde_4.5.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.13.0.html">BDE 4.13.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.12.0.html">BDE 4.12.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.11.0.html">BDE 4.11.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.10.0.html">BDE 4.10.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.9.0.html">BDE 4.9.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.8.0.html">BDE 4.8.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.7.0.html">BDE 4.7.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.5.0.html">BDE 4.5.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.3.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-3-0-release-highlights">BDE 4.3.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#improved-bdlb-bitutil-platform-compatibility">Improved <code class="docutils literal notranslate"><span class="pre">bdlb::BitUtil</span></code> Platform Compatibility</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-feature-bdlb-blobutil-append-with-a-fill-character">New Feature: <code class="docutils literal notranslate"><span class="pre">bdlb::BlobUtil::append</span></code> with a Fill Character</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inreased-performance-of-bdlb-guid-print-and-bdlb-guidutil-guidtostring">Inreased Performance of <code class="docutils literal notranslate"><span class="pre">bdlb::Guid::print</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::guidToString</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.2.0.html">BDE 4.2.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.1.0.html">BDE 4.1.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0.0.html">BDE 4.0.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.3.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.2.0.html" class="btn btn-neutral float-right" title="BDE 4.2.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_4.5.0.html" class="btn btn-neutral float-left" title="BDE 4.5.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-3-0-release">
+<span id="bde4-3-0-top"></span><h1>BDE 4.3.0 Release<a class="headerlink" href="#bde-4-3-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-3-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.3.0 production release was
+completed on <strong>Thursday, February 22, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-3-0-release-highlights">
+<h2>BDE 4.3.0 Release Highlights<a class="headerlink" href="#bde-4-3-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="improved-bdlb-bitutil-platform-compatibility">
+<h3>Improved <code class="docutils literal notranslate"><span class="pre">bdlb::BitUtil</span></code> Platform Compatibility<a class="headerlink" href="#improved-bdlb-bitutil-platform-compatibility" title="Permalink to this headline">¶</a></h3>
+<p>In this release, the overload sets of the functions in <code class="docutils literal notranslate"><span class="pre">bdlb::BitUtil</span></code> have
+been updated to avoid ambiguities in overload resolution.  Prior to this
+change, the overload sets accepted 32- and 64-bit width unsigned types
+(<code class="docutils literal notranslate"><span class="pre">uint32_t</span></code> and <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code> respectively), which might result in an
+ambiguous call when invoked with the fundamental <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></code>,
+depending on the types that the fixed-width types are aliased to on the
+particular platform. Instead, <code class="docutils literal notranslate"><span class="pre">bdlb::BitUtil</span></code> now provides the overloads
+accepting fundamental types (<code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">long</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span></code>) which prevent any such ambiguities on all platforms.</p>
+</div>
+<div class="section" id="new-feature-bdlb-blobutil-append-with-a-fill-character">
+<h3>New Feature: <code class="docutils literal notranslate"><span class="pre">bdlb::BlobUtil::append</span></code> with a Fill Character<a class="headerlink" href="#new-feature-bdlb-blobutil-append-with-a-fill-character" title="Permalink to this headline">¶</a></h3>
+<p>This release adds a new overload to <code class="docutils literal notranslate"><span class="pre">bdlb::BlobUtil::append</span></code> that accepts a
+number of characters to append as well as the charater with which to initialize
+the new elements.  This overload is particularly beneficial when used instead
+of <code class="docutils literal notranslate"><span class="pre">bdlbb::Blob::setLength</span></code> in test drivers run using tools like Valgrind
+that issue an error when a buffer having uninitialized values is passed to a
+system call.</p>
+</div>
+<div class="section" id="inreased-performance-of-bdlb-guid-print-and-bdlb-guidutil-guidtostring">
+<h3>Inreased Performance of <code class="docutils literal notranslate"><span class="pre">bdlb::Guid::print</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::GuidUtil::guidToString</span></code><a class="headerlink" href="#inreased-performance-of-bdlb-guid-print-and-bdlb-guidutil-guidtostring" title="Permalink to this headline">¶</a></h3>
+<p>This release introduces significant improvements to the performance of string
+formatting functions for <code class="docutils literal notranslate"><span class="pre">bdlb::Guid</span></code> objects by avoiding the use of string
+streams and employing SSE instructions where available.  In addition,
+<code class="docutils literal notranslate"><span class="pre">bdlb::Guid::format</span></code> has been added that allows formatting the GUID into an
+arbitrary buffer, bypassing an allocation that would be required by converting
+a GUID to a <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">printGuid</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">Guid</span><span class="o">&amp;</span><span class="w"> </span><span class="n">guid</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="n">bdlb</span><span class="o">::</span><span class="n">Guid</span><span class="o">::</span><span class="n">k_GUID_NUM_CHARS</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="n">guid</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Thank you to Cameron Desrochers for the contribution!</p>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>is_constructible&lt;bsl::pair&gt; returns incorrect results because of disabled SFINAE constraints</p></td>
+</tr>
+<tr class="row-odd"><td><p>‘bsls::Types::Uint64’ and ‘bsl::uint64_t’ are different on Linux, breaking overloads for ‘bdld::BitUtil’</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove the ‘allocator’ accessor to bsl::string</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlbb::Blob create ‘append’</p></td>
+</tr>
+<tr class="row-even"><td><p>Multiple definitions of bsl::monostate operators</p></td>
+</tr>
+<tr class="row-odd"><td><p>-Wmaybe-uninitialized and bsl::optional&lt;bsl::vector&lt;&gt;&gt; issue on DTS-12</p></td>
+</tr>
+<tr class="row-even"><td><p>Speed up GuidUtil::guidToString</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove use of bsl::string::allocator</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

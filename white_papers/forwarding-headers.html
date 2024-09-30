@@ -1,0 +1,1082 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Forwarding Headers in BSL &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/white_papers/forwarding-headers.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Making C++ Software Allocator Aware" href="making_cpp_software_allocator_aware.html" />
+    <link rel="prev" title="White Papers" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">White Papers</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Forwarding Headers in BSL (Jan 08, 2023)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#goals-and-guidelines">Goals and Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#guidance-on-prioritizing-components-for-forwarding-headers">Guidance on Prioritizing Components for Forwarding Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#entity-types-that-should-be-forwarded">Entity Types That Should Be Forwarded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#entity-types-that-should-not-be-forwarded">Entity Types That Should Not Be Forwarded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changes-to-existing-headers">Changes to Existing Headers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forwarding-header-structure-and-layout">Forwarding Header Structure and Layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-goals">Testing Goals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forwarding-header-test-driver-structure-and-layout">Forwarding Header Test Driver Structure and Layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#client-usage">Client Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#replacing-forward-declarations">Replacing Forward Declarations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#replacing-full-includes-with-forwarding-headers">Replacing Full Includes with Forwarding Headers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#future-considerations">Future Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="making_cpp_software_allocator_aware.html">Making C++ Software Allocator Aware (Dec 1, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unleashing-aa-software.html">Unleashing the Power of Allocator-Aware Software Infrastructure (Mar 20, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="allocator-aware-software.html">Value Proposition: Allocator-Aware (AA) Software (Jan 12, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contracts_ub_and_defensive_programming.html">Contracts, Undefined Behavior, and Defensive Programming (Dec 1, 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defensive-checks-vs-input-validation.html">Defensive Checking Versus Input Validation (Oct 7, 2018)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="embracing_modern_cpp_safely.html">Embracing Modern C++ Safely (Mar 28, 2018)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">White Papers</a> &raquo;</li>
+        
+      <li>Forwarding Headers in BSL</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="making_cpp_software_allocator_aware.html" class="btn btn-neutral float-right" title="Making C++ Software Allocator Aware" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="White Papers" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p><em>January 08, 2023</em></p>
+<div class="section" id="forwarding-headers-in-bsl">
+<h1>Forwarding Headers in BSL<a class="headerlink" href="#forwarding-headers-in-bsl" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>This document provides a specification for rendering a forwarding header – that is,
+a header containing only forward declarations for types in an associated component.
+Forward declarations are often used to reduce compile time in instances where a
+type is used in name only (avoiding the need to <code class="docutils literal notranslate"><span class="pre">#include</span></code> the type’s header).
+However, forward declaring a type from a different unit-of-release is not permitted
+(see <a class="reference internal" href="../knowledge_base/coding_standards.html#rule-4-4-3"><span class="std std-ref">Coding Standards Rule 4.4.3</span></a>
+).</p>
+<p>This document outlines how library authors may create forward-declaration
+headers for their own components, allowing their users to take advantage of
+benefits to compile time of forward declarations, without incurring the
+restrictions that preclude forward declaring types between libraries. This
+document describes the planned content of a forwarding header, and
+the reasoning behind that content.</p>
+<p>In addition, this document will give some guidance on which components might
+benefit from forwarding headers, and the set of initial components for which BDE
+plans to create forward declaration headers. Decisions about which types to
+provide forward declaration headers for do, however, rely on the engineering
+judgement of component owners and their users.</p>
+</div>
+<div class="section" id="goals-and-guidelines">
+<h2>Goals and Guidelines<a class="headerlink" href="#goals-and-guidelines" title="Permalink to this headline">¶</a></h2>
+<p>In order to better insulate both library providers and clients from library changes,
+without requiring clients to always include full headers even when complete class
+definitions are not necessary, BDE wants to provide forwarding headers as an optional
+part of our component definition which contain forward declarations of all of the
+forwardable names in the corresponding component header.</p>
+<p>A few design requirements guided this process:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>This proposal is an addition to the existing BDE coding conventions and component model.</dt><dd><p>Changes to downstream tooling and general assumptions about file meanings
+and contents should be minimized. In order to be properly tested a forwarding header
+must be cyclically dependent with its primary header, so by necessity it is best
+served to be part of the same component.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The forwarding header needs to not force changes to existing or proposed tools and checks.</dt><dd><p>This means a forwarding header name cannot have a form that matches that of a
+subordinate component.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The contents of the forwarding header should be entirely derivable from the contents of the primary header.</dt><dd><p>This will facilitate user understanding as well as any future tooling for the
+generation and validation of forwarding headers.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Forwarding headers should not include any primary headers.</dt><dd><p>Should a forwarding header need to reference names not in the same component it
+should only do so by including the forwarding header for the component that owns
+those names.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Only entity types that are relevant to BDE-style software should be considered for inclusion in BDE-style forwarding headers.</dt><dd><p>This largely precludes any interest in forward declarations for namespace-scope enums or free
+functions. Future revisions of this document may make comments on features not
+used within BDE itself.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="guidance-on-prioritizing-components-for-forwarding-headers">
+<h2>Guidance on Prioritizing Components for Forwarding Headers<a class="headerlink" href="#guidance-on-prioritizing-components-for-forwarding-headers" title="Permalink to this headline">¶</a></h2>
+<p>While theoretically forwarding headers could be created for any component, they
+are particularly relevant to vocabulary types (i.e., types that are regularly
+passed by pointer or reference in function interfaces) with large compile times
+(either because of the complexity of the header itself or its dependencies).</p>
+<p>BDE intends to start with an initial release of forwarding headers for types that
+we believe are extensively forward-declared across the Bloomberg codebase. This
+will likely consist of <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code>, <code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code> and much of the
+<code class="docutils literal notranslate"><span class="pre">bdlt</span></code> package. Additional headers may also be added depending on feedback received.</p>
+</div>
+<div class="section" id="entity-types-that-should-be-forwarded">
+<h2>Entity Types That Should Be Forwarded<a class="headerlink" href="#entity-types-that-should-be-forwarded" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>Non-component-private namespace-scope class and struct names</dt><dd><p>Component-private names should not be used outside a component,
+so there is no valid motivation to forward-declare them.</p>
+<p>Nested names are not definable in incomplete types, so non-namespace-scope
+class names are not relevant.</p>
+<p>It would be possible to limit this to non-utility class names, but there is
+extensive use of <code class="docutils literal notranslate"><span class="pre">typedef</span></code> for utility classes (such as frequently providing a
+short name within a class declaration for <code class="docutils literal notranslate"><span class="pre">bslmf::MovableRefUtil</span></code> such as
+<code class="docutils literal notranslate"><span class="pre">MoveUtil</span></code>) that do not require the named class be complete
+(until the <code class="docutils literal notranslate"><span class="pre">typedef</span></code> is actually used).</p>
+<p>Consistently knowing that if a name is not component-private
+(containing an <code class="docutils literal notranslate"><span class="pre">_</span></code> for standard BDE-style components) and there is a forwarding
+header then that name will be in the forwarding header greatly reduces the need
+to actually open and read the forwarding header and the cognitive load of using
+forwarding headers.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Class templates with no default arguments</dt><dd><p>Class template declarations are a commonly useful thing to have forward declared,
+as that can potentially reduce the need to include large headers with the full
+class definitions.</p>
+<p>Default template arguments, however, can only be declared on one declaration for
+a template, and they lead to both potential ODR violations and little utility if
+they are not themselves in the forwarding header. A common example is the
+default <code class="docutils literal notranslate"><span class="pre">ALLOCATOR</span></code> argument on many standard containers, which make use of the
+container quite cumbersome if it is not there. (No one wants to have to type out
+<code class="docutils literal notranslate"><span class="pre">bsl::vector&lt;int,bsl::allocator&gt;</span></code>.) It is possible, though, that a future iteration
+of this document will provide a format to write the defaults in the primary header
+but have the preproccessor only materialize those lines in the forwarding header.</p>
+<p>Simpler templates with no default arguments have no dependencies and are easy to
+add additional declarations for either before or after the primary declaration.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Type aliases (with <code class="docutils literal notranslate"><span class="pre">typedef</span></code> or <code class="docutils literal notranslate"><span class="pre">using</span></code> ) for entities that are forwardable</dt><dd><p>Both <code class="docutils literal notranslate"><span class="pre">typedef</span></code> and <code class="docutils literal notranslate"><span class="pre">using</span></code> based type aliases can be redeclared any number of times,
+so duplicating the declarations in a forwarding header
+is trivial. Aliases such as these are used extensively within BDE to provide historical
+names for types that have been moved to a different component or had their names changed.</p>
+<p>Forward declarations of these aliases will significantly aid in performing renames
+in this fashion as it avoids needing to manually update all places where a name might be
+forward declared. Considering the amount of effort that went into previous migrations
+this is a strong motivator.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="entity-types-that-should-not-be-forwarded">
+<h2>Entity Types That Should Not Be Forwarded<a class="headerlink" href="#entity-types-that-should-not-be-forwarded" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Component private class names</dt><dd><p>Since these should not be directly used outside of the component that declares
+them there is no merit in providing forward declarations for them.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Class templates with default parameters</dt><dd><p>Default parameters for a class template can only be specified once in a
+translation unit. This means that the forwarding header would have to either
+declare the template with no default parameters or declare the default parameters
+and have them removed from the primary header (since the two headers intrinsically
+need to be able to coexist). Not providing defaults is aggressively user-hostile
+(especially for cases where the default is used for SFINAE with defaulted
+parameters, or for parameters like container allocator types or comparison functions,
+where non-default values are generally only chosen by expert users).
+Providing defaults requires making the forwarding header in some way authoritative,
+and could conceivably be done with bespoke conditional compilation between the
+primary header and the forwarding header, but at this stage we are forgoing
+developing such a solution.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Template specializations</dt><dd><p>These are not needed either, as any use of the primary template will need to
+include the primary header, and thus would pull in the associated specializations.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Free functions and operators</dt><dd><p>For now we are choosing not to forward any free functions. They are generally
+used only minimally with the BDE codebase, and those that do exist are
+predominantly useless when their associated types are not complete.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Global scope enums</dt><dd><p>These do not exist within the BDE coding style. Were we to have any of them
+we would likely not forward declare them as they are either not redeclarable.
+C++11 <code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">class</span></code> types could be forward declared, but for this stage we are
+postponing any action on that as they are unused within the BDE codebase
+(and functionally unusable while we still support C++03).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Global constants</dt><dd><p>These are similarly not used within the BDE coding style. Should we have a
+need to consider them we are open to doing so.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Macros of any sort</dt><dd><p>Macros not being redeclarable makes forwarding them infeasible.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="changes-to-existing-headers">
+<h2>Changes to Existing Headers<a class="headerlink" href="#changes-to-existing-headers" title="Permalink to this headline">¶</a></h2>
+<p>Two changes to existing files in a component should be made:</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>Include the forwarding header in the primary header.</dt><dd><p>The <strong>first</strong> non-comment line within the include guards of the primary (<code class="docutils literal notranslate"><span class="pre">.h</span></code>)
+header of the component shall be an inclusion of the forwarding header.</p>
+<p>While it is not strictly necessary to do this, as the various implementation
+files associated with a component can validate that the forwarding header is
+reasonably well formed, this is still the safest approach to being sure that
+there is not a drift between available names and observed behavior when a
+forwarding header is included or not included - the case where a component’s
+forwarding header is not included when using a component is simply not possible.
+Changing this decision would require thorough testing of component behavior
+both when a forwarding header has been included and when it has not.</p>
+<p>This inclusion causes the primary <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> file to validate that the forwarding
+header compiles on its own when included as the first non-vacuous statement
+in a file (and thus has no dependencies).</p>
+<table class="docutils align-default" id="id1" style="width: 100%">
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.h</span></code></span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ... Documentation</span>
+
+<span class="hll">
+</span>
+<span class="c1">// ... Rest of includes</span>
+</pre></div>
+</div>
+</div>
+</td>
+<td><div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ... Documentation</span>
+
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span><span class="cp"></span>
+</span>
+<span class="c1">// ... Rest of includes</span>
+</pre></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>Also include the forwarding header in the test driver.</dt><dd><p>The <strong>second</strong> non-vacuous statement of the test driver should be an include
+of the forwarding header (the first non-vacuous statement being an include of
+the primary header).</p>
+<p>This verifies that the reverse include order - primary header then forwarding
+header - compiles with no issues and does not break a component.</p>
+<table class="docutils align-default" id="id4" style="width: 100%">
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.t.cpp</span></code> (first line truncated to fit on page)</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// abc_component.t.cpp                    ... -*-C++-*-</span>
+<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="linenos">3</span>
+</span><span class="linenos">4</span>
+<span class="linenos">5</span><span class="c1">// ... Rest of includes</span>
+</pre></div>
+</div>
+</div>
+</td>
+<td><div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// abc_component.t.cpp                    ... -*-C++-*-</span>
+<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="linenos">3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span><span class="cp"></span>
+</span><span class="linenos">4</span>
+<span class="linenos">5</span><span class="c1">// ... Rest of includes</span>
+</pre></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="forwarding-header-structure-and-layout">
+<h2>Forwarding Header Structure and Layout<a class="headerlink" href="#forwarding-header-structure-and-layout" title="Permalink to this headline">¶</a></h2>
+<p>Every component <code class="docutils literal notranslate"><span class="pre">abc_component</span></code> may optionally provide a forwarding header with the
+extension <code class="docutils literal notranslate"><span class="pre">.fwd.h</span></code> named <code class="docutils literal notranslate"><span class="pre">abc_component.fwd.h</span></code>.</p>
+<p>The code for the following example can be found at
+<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_allocator.fwd.h">bslma_allocator.fwd.h</a></p>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.h</span></code></span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// bslma_allocator.fwd.h                                              -*-C++-*-</span>
+<span class="cp">#ifndef FWD_INCLUDED_BSLMA_ALLOCATOR</span>
+<span class="cp">#define FWD_INCLUDED_BSLMA_ALLOCATOR</span>
+
+<span class="c1">//@PURPOSE: Provide forward declarations for memory-allocation mechanisms.</span>
+<span class="c1">//</span>
+<span class="c1">//@CLASSES:</span>
+<span class="c1">//  bslma::Allocator: protocol class for memory allocation and deallocation</span>
+<span class="c1">//</span>
+<span class="c1">//@SEE_ALSO: bslma_allocator</span>
+<span class="c1">//</span>
+<span class="c1">//@DESCRIPTION: This header provides declarations for those top-level names in</span>
+<span class="c1">// this component that are intended to be usable in name only.  See below for</span>
+<span class="c1">// the declared names and see &#39;bslma_allocator.h&#39; for documentation on those</span>
+<span class="c1">// names.</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+
+<span class="cp">#endif</span>
+
+<span class="c1">// ----------------------------------------------------------------------------</span>
+<span class="c1">// Copyright 2023 Bloomberg Finance L.P.</span>
+<span class="c1">//</span>
+<span class="c1">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">// you may not use this file except in compliance with the License.</span>
+<span class="c1">// You may obtain a copy of the License at</span>
+<span class="c1">//</span>
+<span class="c1">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">//</span>
+<span class="c1">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">// See the License for the specific language governing permissions and</span>
+<span class="c1">// limitations under the License.</span>
+<span class="c1">// ----------------------------- END-OF-FILE ----------------------------------</span>
+</pre></div>
+</div>
+</div>
+<p>Note that a BDE forwarding header will meet MOST of the requirements of a primary
+component header:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Include guards</dt><dd><p>The include guards for this header need to not conflict with both the primary
+component header and with a theoretical _fwd subordinate component. To facilitate
+this we instead prefix the include guard name for the component with <code class="docutils literal notranslate"><span class="pre">FWD_</span></code></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Documentation</dt><dd><p>Each forwarding header will then contain a boilerplate piece of documentation
+describing the purpose of the header, mostly indicating the purpose of the header
+and pointing to the primary header for all actual documentation.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Declarations</dt><dd><p>The actual forward declarations will then be placed in the appropriate namespace.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="testing-goals">
+<h2>Testing Goals<a class="headerlink" href="#testing-goals" title="Permalink to this headline">¶</a></h2>
+<p>The following salient aspects of a forwarding header need to be tested to verify
+that the header will work correctly, and many (but not all) of these are
+accomplished without any need to build and run a distinct test driver file</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>The forwarding header must compile properly when it is the <strong>first</strong> part of a translation unit (as must be true for all headers).</dt><dd><p>This is checked by including the forwarding header as the <strong>first</strong>
+non-vacuous statement in the primary header, so the primary <code class="docutils literal notranslate"><span class="pre">.cpp</span></code>
+file will include the forwarding header as its first non-vacuous content.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The forwarding header must work properly when included BEFORE the primary header within a translation unit.</dt><dd><p>This check is also accomplished by always including the forwarding header
+at the start of the primary header when it exists, along with hopefully
+validating that the forwarding header include guards work correctly
+(which is done by bde_verify).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The forwarding header must work properly when included AFTER the primary header.</dt><dd><p>This is again primarily checked by the primary header including the forwarding
+header combined with having working include guards in the forwarding header.
+This is doubly checked by the primary test driver including the forwarding header
+after the primary header, thus increasing the chance of catching invalid include
+guards on the forwarding header.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>The forwarding header should declare all names from the primary header that should be forwarded.</dt><dd><p>A test driver for the forwarding header, <code class="docutils literal notranslate"><span class="pre">abc_component.fwd.t.cpp</span></code>, will be
+deployed to validate this.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>All names forwarded by the forwarding header should be complete when the primary header is included.</dt><dd><p>A test driver for the forwarding header, <code class="docutils literal notranslate"><span class="pre">abc_component.fwd.t.cpp</span></code>, will be
+deployed to validate this.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="forwarding-header-test-driver-structure-and-layout">
+<h2>Forwarding Header Test Driver Structure and Layout<a class="headerlink" href="#forwarding-header-test-driver-structure-and-layout" title="Permalink to this headline">¶</a></h2>
+<p>The forwarding header test driver will be a somewhat standard BDE test driver with the following changes (
+The code for this example can be found at
+<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_allocator.fwd.t.cpp">bslma_allocator.fwd.t.cpp</a>
+)</p>
+<p>Only the forwarding header and basic test support headers
+(<code class="docutils literal notranslate"><span class="pre">bslim_testutil.h</span></code>, stdio, and cstdlib) will be included before the test driver code.</p>
+<div class="literal-block-wrapper docutils container" id="id8">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> include files</span><a class="headerlink" href="#id8" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// bslma_allocator.fwd.t.cpp                                          -*-C++-*-</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslim_testutil.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_ostream.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstdlib.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstring.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">atoi</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>A local support template, <code class="docutils literal notranslate"><span class="pre">isIncomplete</span></code>, will be defined in an anonymous namespace:</p>
+<div class="literal-block-wrapper docutils container" id="id9">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> isIncomplete</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
+<span class="c1">//               STANDARD FORWARDING HEADER TESTING UTILITIES</span>
+<span class="c1">// ----------------------------------------------------------------------------</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)]);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...);</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Return &#39;true&#39; when invoked with literal &#39;0&#39; argument if &#39;t_TYPE&#39; is</span>
+<span class="w">    </span><span class="c1">// incomplete, &#39;false&#39; if &#39;t_TYPE&#39; is complete.</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)])</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close unnamed namespace</span>
+</pre></div>
+</div>
+</div>
+<p>A special function <code class="docutils literal notranslate"><span class="pre">testTypeCompleteness</span></code> will be forward-declared before <code class="docutils literal notranslate"><span class="pre">main</span></code></p>
+<div class="literal-block-wrapper docutils container" id="id10">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> testTypeCompleteness</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
+<span class="c1">//                         NAME COMPLETION DECLARATION</span>
+<span class="c1">// ----------------------------------------------------------------------------</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Verify that the names declared in this forwarding header are complete</span>
+<span class="w">    </span><span class="c1">// when the primary header is included.  Note that the definition of this</span>
+<span class="w">    </span><span class="c1">// function is at the end of this file after &#39;main&#39; and the inclusion of the</span>
+<span class="w">    </span><span class="c1">// primary header.</span>
+</pre></div>
+</div>
+</div>
+<p>A standard BDE test drive <code class="docutils literal notranslate"><span class="pre">main</span></code> will be defined, with one test case that
+verifies that all names that should be forwarded are defined and incomplete</p>
+<div class="literal-block-wrapper docutils container" id="id11">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> single test case</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// --------------------------------------------------------------------</span>
+<span class="w">  </span><span class="c1">// FORWARD DECLARATIONS</span>
+<span class="w">  </span><span class="c1">//</span>
+<span class="w">  </span><span class="c1">// Concerns:</span>
+<span class="w">  </span><span class="c1">//: 1 Each type that should be available has been declared by having</span>
+<span class="w">  </span><span class="c1">//:   included the forwarding header for this component.</span>
+<span class="w">  </span><span class="c1">//:</span>
+<span class="w">  </span><span class="c1">//: 2 The types are incomplete.</span>
+<span class="w">  </span><span class="c1">//:</span>
+<span class="w">  </span><span class="c1">//: 3 The types are completed by including the primary header.</span>
+<span class="w">  </span><span class="c1">//</span>
+<span class="w">  </span><span class="c1">// Plan:</span>
+<span class="w">  </span><span class="c1">//: 1 Verify that each expected name is declared and is incomplete</span>
+<span class="w">  </span><span class="c1">//:   using &#39;isIncomplete&#39;.</span>
+<span class="w">  </span><span class="c1">//:</span>
+<span class="w">  </span><span class="c1">//: 2 Invoke &#39;testTypeCompleteness&#39;, defined below after the inclusion of</span>
+<span class="w">  </span><span class="c1">//:   the primary header, to verify that the forward names are completed</span>
+<span class="w">  </span><span class="c1">//:   by including the primary header.</span>
+<span class="w">  </span><span class="c1">// --------------------------------------------------------------------</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">FORWARD DECLARATIONS&quot;</span><span class="w"></span>
+<span class="w">                      </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">====================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">testTypeCompleteness</span><span class="p">();</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>Finally, after <code class="docutils literal notranslate"><span class="pre">main</span></code> (and most importantly, after the test case where the names
+being forwarded are verified to be incomplete) the primary header will be
+included and the <code class="docutils literal notranslate"><span class="pre">testTypeCompleteness</span></code> function will be defined to verify that the
+names needed are made complete by the primary header:</p>
+<div class="literal-block-wrapper docutils container" id="id12">
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> definition of testTypeCompleteness</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Verify that the primary header can be included *after* the forwarding</span>
+<span class="c1">// header.</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">()</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="o">!</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>While we cannot verify that ALL appropriate names are forward declared, this approach
+does verify that those which we know should be forwarded are forwarded correctly by
+the forwarding header and then defined by the primary header.</p>
+<p>These checks could also be done as a <code class="docutils literal notranslate"><span class="pre">static_assert</span></code> when available, or using <code class="docutils literal notranslate"><span class="pre">BSLMF_ASSERT</span></code>,
+but we want to minimize the code dependencies of this pattern in order to make it viable
+at every level in the BDE codebase.</p>
+</div>
+<div class="section" id="client-usage">
+<h2>Client Usage<a class="headerlink" href="#client-usage" title="Permalink to this headline">¶</a></h2>
+<p>For clients of a library providing bde-style forwarding headers there are a few
+important things to consider.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Once a forwarding header is available, will it always be available and contain at least the same set of declarations?</dt><dd><p>As with all changes to BDE, the intention when adding any forwarding
+header is that it will always be available and declarations added
+thereto will not be subsequently removed without good reason.
+We suspect this will be true for any responsible library provider.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>When should I use a forwarding header?</dt><dd><p>Below are two primary use cases for when to use forwarding headers that
+every developer should be aware of and consider as an option.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="section" id="replacing-forward-declarations">
+<h3>Replacing Forward Declarations<a class="headerlink" href="#replacing-forward-declarations" title="Permalink to this headline">¶</a></h3>
+<p>The most frequent expected use for forwarding headers, is to replace already existing
+cross-package forward declarations (which are not permitted per the
+<a class="reference internal" href="../knowledge_base/coding_standards.html#rule-4-4-3"><span class="std std-ref">Coding Standards Rule 4.4.3</span></a>
+) with an include of the corresponding
+forwarding header instead. For example, consider the following change:</p>
+<table class="docutils align-default" id="id13" style="width: 100%">
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_header.h</span></code></span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id14">
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id14" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_header.h</span>
+
+<span class="cp">#ifndef INCLUDED_MY_HEADER</span>
+<span class="cp">#define INCLUDED_MY_HEADER</span>
+
+<span class="c1">// ... Documentation</span>
+
+<span class="c1">// ... Some includes</span>
+<span class="hll">
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="hll"><span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+</span>
+<span class="c1">// ... The rest of my header</span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</td>
+<td><div class="literal-block-wrapper docutils container" id="id15">
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_header.h</span>
+
+<span class="cp">#ifndef INCLUDED_MY_HEADER</span>
+<span class="cp">#define INCLUDED_MY_HEADER</span>
+
+<span class="c1">// ... Documentation</span>
+
+<span class="c1">// ... Some includes</span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="hll">
+</span>
+<span class="c1">// ... The rest of my header</span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This would enable the providers of <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> to freely update that
+declaration to something which might not be compatible, such as changing
+it to a struct or a typedef, without any impact on the owners of <code class="docutils literal notranslate"><span class="pre">my_header</span></code>.</p>
+</div>
+<div class="section" id="replacing-full-includes-with-forwarding-headers">
+<h3>Replacing Full Includes with Forwarding Headers<a class="headerlink" href="#replacing-full-includes-with-forwarding-headers" title="Permalink to this headline">¶</a></h3>
+<p>The other potential beneficiary of a forwarding header is the library client
+who wants to minimize the overhead of their header on their own clients by
+only including the needed level of dependency on a component that provides a
+forwarding header.</p>
+<p>Consider again a library which only uses the name of <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> in
+its header and does not depend on its definition. This component imposes
+on all clients the full include of <code class="docutils literal notranslate"><span class="pre">bslma_allocator.h</span></code>, and more so imposes
+a dependency on the physical structure of that header and not only on the
+names it provides.</p>
+<p>This same code can instead be modified to only utilize the forwarding header
+in its own header:</p>
+<table class="docutils align-default" id="id16" style="width: 100%">
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.h</span></code></span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id17">
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id17" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
+
+<span class="cp">#ifndef INCLUDED_MY_UTIL</span>
+<span class="cp">#define INCLUDED_MY_UTIL</span>
+
+<span class="c1">// ... Documentation</span>
+
+<span class="c1">// ... Some includes</span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="c1">// Do stuff using the specified &#39;allocator&#39;</span>
+<span class="w">   </span><span class="c1">// to provide memory.</span>
+
+<span class="p">};</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</td>
+<td><div class="literal-block-wrapper docutils container" id="id18">
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id18" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
+
+<span class="cp">#ifndef INCLUDED_MY_HEADER</span>
+<span class="cp">#define INCLUDED_MY_UTIL</span>
+
+<span class="c1">// ... Documentation</span>
+
+<span class="c1">// ... Some includes</span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="c1">// Do stuff using the specified &#39;allocator&#39;</span>
+<span class="w">   </span><span class="c1">// to provide memory.</span>
+
+<span class="p">};</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In addition, the implementation file can be modified add the inclusion of the
+component’s primary header:</p>
+<table class="docutils align-default" id="id19" style="width: 100%">
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.cpp</span></code></span><a class="headerlink" href="#id19" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id20">
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id20" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.cpp</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span><span class="cp"></span>
+
+<span class="hll">
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ... Make actual use of &#39;allocator&#39;.</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+</pre></div>
+</div>
+</div>
+</td>
+<td><div class="literal-block-wrapper docutils container" id="id21">
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id21" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span><span class="cp"></span>
+
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ... Make actual use of &#39;allocator&#39;.</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
+</pre></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This reduces the coupling between the component depended upon (<code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code>)
+and clients of <code class="docutils literal notranslate"><span class="pre">my_util</span></code>, without any risk of additional maintenance burdens.</p>
+</div>
+</div>
+<div class="section" id="future-considerations">
+<h2>Future Considerations<a class="headerlink" href="#future-considerations" title="Permalink to this headline">¶</a></h2>
+<p>Here are examples of further work we may wish to consider in the future:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Automate forwarding header generation.</dt><dd><p>If the demand for forwarding headers is sufficient, we may wish to create
+tooling to generate, validate, and maintain these headers so that developers
+do not have to manually update them on each change.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Create forwarding headers for entire packages or package groups.</dt><dd><p>A related feature that is often requested is to provide forwarding headers
+for entire packages or package groups. This is generally only useful with
+forwarding headers, as otherwise you create a single header that brings in
+far too many dependencies without any concrete benefit.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Automate resulting changes to client code.</dt><dd><p>Another potential piece of followup work would be to look at tooling to
+assist with the creation of pull requests
+to replace existing external forward declarations by inclusions of
+the corresponding forwarding headers.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

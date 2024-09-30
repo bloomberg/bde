@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.9.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.9.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.8.0 Release" href="bde_4.8.0.html" />
+    <link rel="prev" title="BDE 4.10.0 Release" href="bde_4.10.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.13.0.html">BDE 4.13.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.12.0.html">BDE 4.12.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.11.0.html">BDE 4.11.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.10.0.html">BDE 4.10.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.9.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-9-0-release-highlights">BDE 4.9.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#support-for-range-based-for-loops-added-to-bdld-datum">Support for Range Based For-Loops Added to <code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#balxml-decoderoptions-has-new-option-validateroottag"><code class="docutils literal notranslate"><span class="pre">balxml::DecoderOptions</span></code>: Has New Option: <code class="docutils literal notranslate"><span class="pre">ValidateRootTag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#baljsn-json-decoder-now-supports-strict-json-validation"><code class="docutils literal notranslate"><span class="pre">baljsn</span></code> JSON Decoder Now Supports “Strict” JSON Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.8.0.html">BDE 4.8.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.7.0.html">BDE 4.7.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.5.0.html">BDE 4.5.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.3.0.html">BDE 4.3.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.2.0.html">BDE 4.2.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.1.0.html">BDE 4.1.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0.0.html">BDE 4.0.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.127.0.html">BDE 3.127.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_3.126.0.html">BDE 3.126.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.9.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.8.0.html" class="btn btn-neutral float-right" title="BDE 4.8.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_4.10.0.html" class="btn btn-neutral float-left" title="BDE 4.10.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-9-0-release">
+<span id="bde4-9-0-top"></span><h1>BDE 4.9.0 Release<a class="headerlink" href="#bde-4-9-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-9-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.9.0 production release was
+completed on <strong>Friday, May 31, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-9-0-release-highlights">
+<h2>BDE 4.9.0 Release Highlights<a class="headerlink" href="#bde-4-9-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="support-for-range-based-for-loops-added-to-bdld-datum">
+<h3>Support for Range Based For-Loops Added to <code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code><a class="headerlink" href="#support-for-range-based-for-loops-added-to-bdld-datum" title="Permalink to this headline">¶</a></h3>
+<p>Support has been added for range-based-for loops for loops over containers of
+types <code class="docutils literal notranslate"><span class="pre">bdlb::DatumMapRef</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlb::DatumIntMapRef</span></code>, and <code class="docutils literal notranslate"><span class="pre">bdlb::DatumArrayRef</span></code>.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Processing an array with range based for-loop</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">processArray</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bdldd</span><span class="o">::</span><span class="n">Datum</span><span class="o">&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"></span>
+<span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">     </span><span class="n">BSLS_ASSERT</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">isArray</span><span class="p">());</span><span class="w"></span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Datum</span><span class="w"> </span><span class="n">element</span><span class="o">:</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">arrayRef</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">         </span><span class="c1">// process element</span>
+<span class="w">     </span><span class="p">}</span><span class="w"></span>
+<span class="w"> </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="balxml-decoderoptions-has-new-option-validateroottag">
+<h3><code class="docutils literal notranslate"><span class="pre">balxml::DecoderOptions</span></code>: Has New Option: <code class="docutils literal notranslate"><span class="pre">ValidateRootTag</span></code><a class="headerlink" href="#balxml-decoderoptions-has-new-option-validateroottag" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes, two XML documents have compatible structures that differ only in
+their top-most (root) tag name.  For example, the “HealthInfo” document:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;HealthInfo&gt;</span>
+    <span class="nt">&lt;name&gt;</span>Bob<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;homeAddress&gt;</span>
+        ...
+    <span class="nt">&lt;/homeAddress&gt;</span>
+    <span class="nt">&lt;age&gt;</span>21<span class="nt">&lt;/age&gt;</span>
+<span class="nt">&lt;/HealthInfo&gt;</span>
+</pre></div>
+</div>
+<p>may have the same layout as a document that describes “Employee” information.
+By default, <code class="docutils literal notranslate"><span class="pre">balxml::Decoder</span></code> ignores the top-level and will load the content
+of the above document to an <code class="docutils literal notranslate"><span class="pre">Employee</span></code> class object.</p>
+<p>In this release, the <code class="docutils literal notranslate"><span class="pre">balxml::DecoderOptions</span></code> class, passed to
+<code class="docutils literal notranslate"><span class="pre">balxml::Decoder</span></code> on construction, has an additional option, <code class="docutils literal notranslate"><span class="pre">ValidateRootTag</span></code>
+(<code class="docutils literal notranslate"><span class="pre">false</span></code> by default).  If set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, a successful <code class="docutils literal notranslate"><span class="pre">decode</span></code> performs an
+addition check: The top-level node in XML document being decoded must have the
+same name as the class name (if available) of the object being set from the
+document.  For example, if we are trying to load an <code class="docutils literal notranslate"><span class="pre">Employee</span></code> object:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">balxml</span><span class="o">::</span><span class="n">DecoderOptions</span><span class="w"> </span><span class="n">decoderOptions</span><span class="p">;</span><span class="w"></span>
+<span class="n">decoderOptions</span><span class="p">.</span><span class="n">setValidateRootTag</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w">  </span><span class="c1">// NEW OPTION</span>
+
+<span class="n">balxml</span><span class="o">::</span><span class="n">Decoder</span><span class="w"> </span><span class="nf">decoder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">decoderOptions</span><span class="p">,</span><span class="w"> </span><span class="cm">/* ... */</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">Empolyee</span><span class="w"> </span><span class="n">employee</span><span class="p">;</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decoder</span><span class="p">.</span><span class="n">decode</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">employee</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>the <code class="docutils literal notranslate"><span class="pre">decode</span></code> operation <em>fails</em> if the document has a top-level tag other than
+<code class="docutils literal notranslate"><span class="pre">Employee</span></code>.</p>
+</div>
+<div class="section" id="baljsn-json-decoder-now-supports-strict-json-validation">
+<h3><code class="docutils literal notranslate"><span class="pre">baljsn</span></code> JSON Decoder Now Supports “Strict” JSON Validation<a class="headerlink" href="#baljsn-json-decoder-now-supports-strict-json-validation" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">baljsn::Decoder</span></code> class allows (by default) several variances to the JSON
+grammar that are found convenient by most users.  These exceptions to the
+rules are described by several of the attributes of the
+<code class="docutils literal notranslate"><span class="pre">baljsn::DecoderOptions</span></code> class (several added recently):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Attribute</span>                       <span class="n">Default</span> <span class="n">Strict</span>
+<span class="o">-------------------------------</span> <span class="o">-------</span> <span class="o">------</span>
+<span class="n">validateInputIsUtf8</span>             <span class="n">false</span>   <span class="n">true</span>
+<span class="n">allowConsecutiveSeparators</span>      <span class="n">true</span>    <span class="n">false</span>
+<span class="n">allowFormFeedAsWhitespace</span>       <span class="n">true</span>    <span class="n">false</span>
+<span class="n">allowUnescapedControlCharacters</span> <span class="n">true</span>    <span class="n">false</span>
+</pre></div>
+</div>
+<p>If stricter behavior is needed, users can flip one or more of these
+attributes to enforce stricter conformance to the JSON standard.  To
+facilitate setting all strictness options  in a single operation, this
+release introduces <code class="docutils literal notranslate"><span class="pre">baljsn::DecoderOptionsUtil</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">baljsn::DecoderOptionsUtil::setMode</span></code> function currently supports two
+modes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">e_DEFAULT</span><span class="w">           </span><span class="c1">// Set all attributes (strict and others) to defaults.</span>
+<span class="n">e_STRICT_20240423</span><span class="w">   </span><span class="c1">// Set the &quot;strict&quot; attributes as shown above.</span>
+</pre></div>
+</div>
+<p>Notice that the “strict” mode name features a date.  Doing so allows us to
+refine the definition of “strictness”, should the need arise, by adding new
+modes (named with later dates) without triggering any behavior changes to
+users of the mode named above.  Users can opt-in to the later strictness
+rules when/if they choose.</p>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bdljsn_numberutil:  improve usage example</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reintroduce changes to balxml::Decoder to error on incorrect root tag</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove dependencies on old bdlat specializations (parent ticket)</p></td>
+</tr>
+<tr class="row-odd"><td><p>dependers-of-changes fails to select the test driver for the header that was modified</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix clang warning in bdlb_variant.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>Support range-based-for for ‘bdld::Datum’</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlf_bind.h: improve commenting</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please include &lt;cstdint&gt; in &lt;bsl_cstdint.h&gt;</p></td>
+</tr>
+<tr class="row-even"><td><p>Support const-qualifier overloads in ‘bsls_protocoltest’</p></td>
+</tr>
+<tr class="row-odd"><td><p>Provide ‘balst::StackTraceTestAllocator::numAllocations’ similar to ‘bslma::TestAllocator’</p></td>
+</tr>
+<tr class="row-even"><td><p>Address UB in balber_berutil</p></td>
+</tr>
+<tr class="row-odd"><td><p>Update MetricRegistry to avoid singleton lifetime issues</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::shared_ptr c++20 array forms fail to compile</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please remove noexcept from bsl_span.h that aren’t reqd by the standard</p></td>
+</tr>
+<tr class="row-even"><td><p>Create bdld::Datumutil with typedPrint for bdld::Datum</p></td>
+</tr>
+<tr class="row-odd"><td><p>BdeToolchain64 duplicates -fno-strict-aliasing for Linux</p></td>
+</tr>
+<tr class="row-even"><td><p>PR 4715 - balb_controlmanager private members are now private</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove <cite>length()</cite> declaration from <cite>Datum*MapRef</cite></p></td>
+</tr>
+<tr class="row-even"><td><p>bslh_hash long double test failures</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsl::list: add ‘size_type’ return to remove* methods</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlb_nullablevalue.t.cpp fails on clang 15 cpp20</p></td>
+</tr>
+<tr class="row-odd"><td><p>Inconsistency of Request Validation Via BEG Between Dev and Prod</p></td>
+</tr>
+<tr class="row-even"><td><p>ball::UserFields::append() is not implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsls_nameof: cope with std::pmr::string</p></td>
+</tr>
+<tr class="row-even"><td><p>Signed integer overflow in ball_rule.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>balber SAFE assert during DatetimeTz decoding</p></td>
+</tr>
+<tr class="row-even"><td><p>Please provide baljsn::DecoderOptionsUtil</p></td>
+</tr>
+<tr class="row-odd"><td><p>PARENT: improve bdlm documentaion</p></td>
+</tr>
+<tr class="row-even"><td><p>improve package level documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>improve MetricDescriptor documentation</p></td>
+</tr>
+<tr class="row-even"><td><p>improve Metric documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>balber_berdecoder.t.cpp: formatting, consistency, brevity</p></td>
+</tr>
+<tr class="row-even"><td><p>Please test erroneously specified date/time lengths in balber_berutil</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please test balber_berdecoder’s ability to reject overlong date/times</p></td>
+</tr>
+<tr class="row-even"><td><p>Improve bsl::ranges gcc-11 documentation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add support for Linux on ARM</p></td>
+</tr>
+<tr class="row-even"><td><p>Regression in balxml_encoderoptions.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

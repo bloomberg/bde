@@ -123,6 +123,11 @@ p {
     text-decoration: overline;
 }
 
+.bolditalic {
+    font-weight: bold;
+    font-style: italic;
+}
+
 .blink {
     text-decoration: blink;
 }
