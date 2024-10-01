@@ -9,8 +9,43 @@
 #include <string.h>
 
 using namespace BloombergLP;
-using namespace bsl;
 
+//=============================================================================
+//                             TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// 'basic_format_string` is a standard-compliant implementation of
+// 'std::basic_format_string'.
+//
+//-----------------------------------------------------------------------------
+// CLASS 'bsl::basic_format_string'
+//
+// CREATORS
+// [ 3] basic_format_string();
+// [ 3] ~basic_format_string();
+// [ 7] basic_format_string(const basic_format_string &);
+// [12] TBD
+//
+// MANIPULATORS
+// [ 6] operator==(const basic_format_string &);
+// [ 9] operator=(const basic_format_string &);
+//
+// ACCESSORS
+// [ 4] TBD
+//
+// FREE FUNCTIONS
+// [ 8] swap(basic_format_string &, basic_format_string &);
+// [11] TBD
+// [11] TBD
+//
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] TESTING PRIMARY MANIPULATORS: Not Applicable
+// [ 5] TESTING OUTPUT:               Not Applicable
+// [10] STREAMING FUNCTIONALITY:      Not Applicable
+// [13] USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -75,9 +110,49 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 
+
+
+// ============================================================================
+//                     GLOBAL HELPER CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
+
+
+
+
+
+// ============================================================================
+//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+
+
+
+// ============================================================================
+//                    GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&              \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+  template <class t_ARG>
+  void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
+                            const t_ARG&                 arg)
+  {
+    ASSERT(fmtstr.get() == "{:}");
+  }
+#else
+  template <class t_ARG>
+  void myFormatLikeFunction(bslfmt::format_string        fmtstr,
+                            const t_ARG&                 arg)
+  {
+    ASSERT(fmtstr.get() == "{:}");
+  }
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
+
+
 int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
@@ -87,14 +162,263 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Construct an instance and verify it holds no value.
+        //:
+        //: 2 Construct an instance with a single value and verify contents.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Example: Own format function
+/// - - - - - - - - - - - - - -
+//
+// This usage example reflects how `bslfmt::format` typically uses this type.
+//
+// Suppose we have a function that takes a format string and requires that the
+// string be constant evaluated under C++20:
+//
+//..
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&              \
+//     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+//   template <class t_ARG>
+//   void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
+//                             const t_ARG&                 arg)
+//   {
+//     assert(fmtstr.get() == "{:}");
+//   }
+// #else
+//   template <class t_ARG>
+//   void myFormatLikeFunction(bslfmt::format_string        fmtstr,
+//                             const t_ARG&                 arg)
+//   {
+//     assert(fmtstr.get() == "{:}");
+//   }
+// #endif
+//..
+//
+// We can then invoke our function:
+//
+//..
+        int value = 5;
+        myFormatLikeFunction("{:}", value);
+//..
+//
+
+      } break;
+      case 12: {
+        // --------------------------------------------
+        // TESTING TBD - WORK IN PROGRESS
+        //
+        // Testing:
+        // --------------------------------------------
+        if (verbose)
+            printf("\nCONSTRUCTION FROM ARG STORE"
+                   "\n= =========================\n");
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING FREE FUNCTIONS - WORK IN PROGRESS
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+        if (verbose)
+            printf("\nFREE FUNCTIONS"
+                   "\n==============\n");
+
+      } break;
+      case 10: {
+        // -----------------------------------------------
+        // TESTING STREAMING FUNCTIONALITY: Not Applicable
+        //
+        // Testing:
+        //   STREAMING FUNCTIONALITY: Not Applicable
+        // -----------------------------------------------
+        if (verbose)
+            printf("\nSTREAMING FUNCTIONALITY: Not Applicable"
+                   "\n=======================================\n");
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING ASSIGNMENT OPERATOR
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   operator=(const basic_format_args &);
+        //   operator=(basic_format_args &&);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING ASSIGNMENT OPERATOR"
+                   "\n===========================\n");
+
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   swap(formatter &, formatter &)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING SWAP"
+                   "\n============\n");
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING COPY/MOVE CONSTRUCTOR
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   formatter(const formatter &);
+        //   formatter(formatter &&);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING COPY CONSTRUCTOR"
+                   "\n========================\n");
+
+      } break;
+      case 6: {
+        // --------------------------------------------
+        // TESTING EQUALITY OPERATOR: Not Applicable
+        //
+        // Testing:
+        //   EQUALITY OPERATOR: Not Applicable
+        // --------------------------------------------
+        if (verbose)
+            printf("\nEQUALITY OPERATOR: Not Applicable"
+                   "\n= ===============================\n");
+
+      } break;
+      case 5: {
+        // --------------------------------------------
+        // TESTING OUTPUT: Not Applicable
+        //
+        // Testing:
+        //   OUTPUT: Not Applicable
+        // --------------------------------------------
+        if (verbose)
+            printf("\nOUTPUT: Not Applicable"
+                   "\n======================\n");
+      } break;
+      case 4: {
+        // --------------------------------------------
+        // TESTING BASIC ACCESSORS
+        // 
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   TBD
+        // --------------------------------------------
+        if (verbose)
+            printf("\nTESTING BASIC ACCESSORS"
+                   "\n=======================\n");
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING (PRIMITIVE) GENERATORS
+        //
+        // Concerns:
+        //: 1 We can default construct a `bslfmt::basic_format_arg` type.
+        //:
+        //: 2 We can construct a `bslfmt::basic_format_arg` type containing a
+        //:   value.
+        //
+        // Plan:
+        //: 1 Construct a default `bslfmt::basic_format_arg` type. (C-1)
+        //:
+        //: 2 Construct a non-default `bslfmt::basic_format_arg` type. This
+        //:   will need to be performed indirectly as the constructors are
+        //:   private (C-2)
+        //
+        // Testing:
+        //   basic_format_args();
+        //   ~basic_format_args()
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
+                            "\n==============================\n");
+      } break;
+      case 2: {
+        // --------------------------------------------
+        // TESTING PRIMARY MANIPULATORS: Not Applicable
+        //
+        // Testing:
+        //   PRIMARY MANIPULATORS: Not Applicable
+        // --------------------------------------------
+        if (verbose)
+            printf("\nPRIMARY MANIPULATORS: Not Applicable"
+                   "\n====================================\n");
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //
+        // Concerns:
+        //: 1 That basic functionality appears to work as advertised before
+        //:   before beginning testing in earnest:
+        //:   - default and copy constructors
+        //:   - assignment operator
+        //:   - primary manipulators, basic accessors
+        //:   - 'operator==', 'operator!='
+        //
+        // Plan:
+        //: 1 Test all public methods mentioned in concerns.  (C-1)
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        //bslfmt::format_string<int>  dummy1("Testing {}");
-        //bslfmt::wformat_string<int> dummy2(L"Testing {}");
-        ASSERT(true);  // placeholder
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+        bslfmt::format_string<int> fmtstr("{}");
+        ASSERT(fmtstr.get() == "{}");
+
+        bslfmt::wformat_string<int> wfmtstr(L"{}");
+        ASSERT(wfmtstr.get() == L"{}");
+#else
+        bslfmt::format_string fmtstr("{}");
+        ASSERT(fmtstr.get() == "{}");
+
+        bslfmt::wformat_string wfmtstr(L"{}");
+        ASSERT(wfmtstr.get() == L"{}");
+#endif
+
+
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

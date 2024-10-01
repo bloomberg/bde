@@ -19,7 +19,7 @@ using namespace BloombergLP;
 // 'std::format_error'.
 //
 //-----------------------------------------------------------------------------
-// CLASS 'bsl::basic_format_args'
+// CLASS 'bsl::format_error'
 //
 // CREATORS
 // [ 3] format_error();
@@ -32,7 +32,7 @@ using namespace BloombergLP;
 // [ 9] operator=(const format_error &);
 //
 // ACCESSORS
-// [ 4] get(size_t);
+// [ 4] TBD
 //
 // FREE FUNCTIONS
 // [ 8] swap(format_error &, format_error &);
@@ -302,21 +302,11 @@ int main(int argc, char **argv)
         // TESTING BASIC ACCESSORS
         // 
         // Concerns:
-        //: 1 `get()` outside the range of contained values
-        //:    will return a default-constructed `basic_format_arg`.
-        //:
-        //: 1 `get()` inside the range of contained values
-        //:    will return the contained `basic_format_arg`.
         //
         // Plan:
-        //: 1 Construct a default 'bslfmt::basic_format_arg' and verify the
-        //:   result of calling `get()`. (C-1)
-        //:
-        //: 2 Construct a non-default 'bslfmt::basic_format_arg' and verify
-        //:   the result of calling `operator BoolType()`. (C-2)
         //
         // Testing:
-        //   operator get();
+        //   TBD
         // --------------------------------------------
         if (verbose)
             printf("\nTESTING BASIC ACCESSORS"

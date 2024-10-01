@@ -3,6 +3,78 @@
 #ifndef INCLUDED_BSLFMT_FORMATSTRING
 #define INCLUDED_BSLFMT_FORMATSTRING
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a string_view wrapper for formatting library usage
+//
+//@CLASSES:
+//  bslfmt::basic_format_string: formatting library string_view wrapper
+//
+//@DESCRIPTION: This component provides an implementation of the C++20 Standard
+// Library's `basic_format_string`, providing wrapper around string_view for
+// format specification strings.
+//
+// Using this rather than string_view directly serves three main purposes:
+//
+// * We ensure that the interface to `format` and `vformat` are consistent with
+//   the standard library, which takes a `format_string` rather than a
+//   `string_view`.
+// * Under C++20 we can enforce that the source string used for construction is
+//   a compile-time constant.
+// * Under C++17 and earlier, by limiting construction to a `const t_CHAR*` we
+//   can limit the number of scenarios which would fail to compile under C++20
+//   but succeed under earlier versions.
+// * It is possible to perform compile-time checking of the format string when
+//   compiled under C++20, in the same way as `std::format_string` (not yet
+//   implemented).
+//
+// Suppression of the argument deduction that would normally result in a
+// compile-time error requires that we use intermediate template aliases for
+// `format_string` and `wformat_string`. As this is not possible under C++03,
+// usage of this type necessarily differs under C++03. This is acceptable as
+// this type is typically only used internally within the `bslfmt::format`
+// family of functions.
+//
+///Usage
+///-----
+// In this section we show the intended use of this component.
+//
+///Example: Own format function
+/// - - - - - - - - - - - - - -
+//
+// This usage example reflects how `bslfmt::format` typically uses this type.
+//
+// Suppose we have a function that takes a format string and requires that the
+// string be constant evaluated under C++20:
+//
+//..
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&              \
+//     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+//   template <class t_ARG>
+//   void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
+//                             const t_ARG&                 arg)
+//   {
+//     assert(fmtstr.get() == "{:}");
+//   }
+// #else
+//   template <class t_ARG>
+//   void myFormatLikeFunction(bslfmt::format_string        fmtstr,
+//                             const t_ARG&                 arg)
+//   {
+//     assert(fmtstr.get() == "{:}");
+//   }
+// #endif
+//..
+//
+// We can then invoke our function:
+//
+//..
+//   int value = 5;
+//   myFormatLikeFunction("{:}", value);
+//..
+//
+
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
@@ -17,15 +89,6 @@
 
 #include <stdexcept>
 
-//#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-//// Include version that can be compiled with C++03
-//// Generated on Tue Jun 18 12:03:43 2024
-//// Command line: sim_cpp11_features.pl bslfmt_formatstring.h
-//# define COMPILING_BSLFMT_FORMATSTRING_H
-//# include <bslfmt_formatstring_cpp03.h>
-//# undef COMPILING_BSLFMT_FORMATSTRING_H
-//#else
-
 namespace BloombergLP {
 namespace bslfmt {
 
@@ -35,18 +98,20 @@ template <class t_CHAR>
 struct Format_FormatString_Test_Updater;
 
 
-
                 // --------------------------------------------
                 // class basic_format_string<t_CHAR, t_ARGS...>
                 // --------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
 
+/// Type that wraps a `basic_string_view` for use by formatting function. The
+/// constructor performs additional compile-time checks of the format string
+/// provided (not yet implemented).
 template <class t_CHAR, class... t_ARGS>
 class basic_format_string {
   private:
     // DATA
-    bsl::basic_string_view<t_CHAR> d_formatString;
+    bsl::basic_string_view<t_CHAR> d_formatString;  // The wrapped string
 
     // FRIENDS
     template <class t_INNER_CHAR>
@@ -54,13 +119,20 @@ class basic_format_string {
 
   public:
     // CREATORS
+
+    /// Construct an instance of this type from a specified `str`. This
+    /// function only takes part in overload resolution if `str` is convertible
+    /// to a `basic_string_view`. Construction is ill-formed if `str` is not a
+    /// compile-time constant.
     template <class t_STR,
               class = typename bsl::enable_if<bsl::is_convertible<
                   t_STR,
                   bsl::basic_string_view<t_CHAR> >::value>::type>
-    consteval basic_format_string(t_STR&& s);
+    consteval basic_format_string(t_STR&& str);
 
     // ACCESSORS
+
+    /// Return the wrapped `basic_string_view` contained by this instance.
     BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
 };
 
@@ -79,9 +151,13 @@ class basic_format_string {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s);
 
-     // ACCESSORS
+    /// Construct an instance of this type from a specified `str`.
+    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *str);
+
+    // ACCESSORS
+
+    /// Return the wrapped `basic_string_view` contained by this instance.
     BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
 };
 
@@ -99,9 +175,13 @@ class basic_format_string {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *s);
+
+    /// Construct an instance of this type from a specified `str`.
+    BSLS_KEYWORD_CONSTEXPR_CPP14 basic_format_string(const t_CHAR *str);
 
     // ACCESSORS
+
+    /// Return the wrapped `basic_string_view` contained by this instance.
     BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR> get();
 };
 
@@ -122,6 +202,7 @@ using wformat_string =
 
 #else // C++03
 
+// Template aliases are not supported in C++03
 typedef basic_format_string<char>    format_string;
 typedef basic_format_string<wchar_t> wformat_string;
 
@@ -132,14 +213,21 @@ typedef basic_format_string<wchar_t> wformat_string;
                // ----------------------------------------------
 
 
+/// This is a component-private type which enables test drivers to work around
+/// the compile-time restrictions in `basic_format_string` construction.
 template <class t_CHAR>
 struct Format_FormatString_Test_Updater
 {
+    /// Update the string contained in the specified `out` to the specified
+    /// `value`.
     template <class t_FORMATSTRING>
-    static void update(t_FORMATSTRING *out, const t_CHAR *v);
+    static void update(t_FORMATSTRING *out, const t_CHAR *value);
 
+    /// Update the string contained in the specified `out` to the specified
+    /// `value`.
     template <class t_FORMATSTRING>
-    static void update(t_FORMATSTRING *out, bsl::basic_string_view<t_CHAR> v);
+    static void update(t_FORMATSTRING                 *out,
+                       bsl::basic_string_view<t_CHAR>  value);
 };
 
 // ============================================================================
@@ -156,9 +244,9 @@ struct Format_FormatString_Test_Updater
 template <class t_CHAR, class... t_ARGS>
 template <class t_STR, class>
 consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
-                                                                     t_STR&& s)
+                                                                   t_STR&& str)
 {
-    d_formatString = std::forward<t_STR>(s);
+    d_formatString = std::forward<t_STR>(str);
 }
 
 // ACCESSORS
@@ -174,7 +262,7 @@ basic_format_string<t_CHAR, t_ARGS...>::get()
 
 template <class t_CHAR, class... t_ARGS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
-basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *s)
+basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *str)
 {
     d_formatString = s;
 }
@@ -190,7 +278,7 @@ basic_format_string<t_CHAR, t_ARGS...>::get()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP14
-basic_format_string<t_CHAR>::basic_format_string(const t_CHAR *s)
+basic_format_string<t_CHAR>::basic_format_string(const t_CHAR *str)
 {
     d_formatString = s;
 }
@@ -214,18 +302,18 @@ template <class t_CHAR>
 template <class t_FORMATSTRING>
 void Format_FormatString_Test_Updater<t_CHAR>::update(
                                            t_FORMATSTRING *out,
-                                           const t_CHAR   *v)
+                                           const t_CHAR   *value)
 {
-    out->d_formatString = v;
+    out->d_formatString = value;
 }
 
 template <class t_CHAR>
 template <class t_FORMATSTRING>
 void Format_FormatString_Test_Updater<t_CHAR>::update(
-                                           t_FORMATSTRING                 *out,
-                                           bsl::basic_string_view<t_CHAR>  v)
+                                         t_FORMATSTRING                 *out,
+                                         bsl::basic_string_view<t_CHAR>  value)
 {
-    out->d_formatString = v;
+    out->d_formatString = value;
 }
 
 
