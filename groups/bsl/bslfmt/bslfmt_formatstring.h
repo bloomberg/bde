@@ -49,18 +49,18 @@ BSLS_IDENT("$Id: $")
 // string be constant evaluated under C++20:
 //
 //..
-// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&              \
 //     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 //   template <class t_ARG>
 //   void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
-//                             const t_ARG&)
+//                             const t_ARG&                 arg)
 //   {
 //     assert(fmtstr.get() == "{:}");
 //   }
 // #else
 //   template <class t_ARG>
 //   void myFormatLikeFunction(bslfmt::format_string        fmtstr,
-//                             const t_ARG&)
+//                             const t_ARG&                 arg)
 //   {
 //     assert(fmtstr.get() == "{:}");
 //   }
@@ -251,7 +251,6 @@ consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
 
 // ACCESSORS
 template <class t_CHAR, class... t_ARGS>
-inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR, t_ARGS...>::get()
 {
@@ -265,11 +264,10 @@ template <class t_CHAR, class... t_ARGS>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *str)
 {
-    d_formatString = str;
+    d_formatString = s;
 }
 
 template <class t_CHAR, class... t_ARGS>
-inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR, t_ARGS...>::get()
 {
@@ -282,11 +280,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP14
 basic_format_string<t_CHAR>::basic_format_string(const t_CHAR *str)
 {
-    d_formatString = str;
+    d_formatString = s;
 }
 
 template <class t_CHAR>
-inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR>::get()
 {
