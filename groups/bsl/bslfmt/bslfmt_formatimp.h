@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //   component header that defines 'T' itself.  This avoids issues due to
 //   users forgetting to include the header for the formatter.
 // - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
-//   template arguments for the format context and parse context
+// template arguments for the format context and parse context
 //   parameters. This is essential as the parameter type passed in will
 //   depend upon underlying implementation.
 // - The `parse` function should be constexpr in C++20, but this is not
