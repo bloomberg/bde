@@ -3,6 +3,97 @@
 #ifndef INCLUDED_BSLFMT_FORMATIMP
 #define INCLUDED_BSLFMT_FORMATIMP
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a standard compliant `format` implementation
+//
+//@CLASSES:
+//  bslfmt::format_to_n_result:         result type for format_to_n.
+//
+//@SEE_ALSO: ISO C++ Standard, <format>
+//
+//@DESCRIPTION: This component will provide, in the `bslfmt` namespace,
+// compliant implementations of the following free functions exposed by the
+// standard <format> header. These are available for C++03 and later.
+//
+// * format
+// * format_to
+// * format_to_n
+// * formatted_size
+// * vformat
+// * vformat_to
+//
+// Note 1: The overloads taking a `locale` parameter are *not* provided.
+// Note 2: Compile-time format string checking is *not* performed.
+//
+///User-provided formatters
+///------------------------
+//
+// User-provided formatters are supported by the BSL implementation, just as
+// they are by the standard library implementation. However, in order for them
+// to be compatible with both implementations, there are specific requirements,
+// notably:
+//
+// - If you will define a formatter for your type 'T', do so in the same
+//   component header that defines 'T' itself.  This avoids issues due to
+//   users forgetting to include the header for the formatter.
+// - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
+// template arguments for the format context and parse context
+//   parameters. This is essential as the parameter type passed in will
+//   depend upon underlying implementation.
+// - The `parse` function should be constexpr in C++20, but this is not
+//   required (and may not be possible) for earlier C++ standards.
+//
+// An example of a user defined formatter is as follows:
+//
+// ```
+// namespace bsl {
+//
+// template <class t_CHAR> struct formatter<UserDefinedType, t_CHAR> {
+//     template <class t_PARSE_CONTEXT>
+//     BSLS_KEYWORD_CONSTEXPR_CPP20
+//     t_PARSE_CONTEXT::iterator parse(t_PARSE_CONTEXT& pc)
+//     {
+//         // implementation goes here
+//     }
+//
+//     template <class t_FORMAT_CONTEXT>
+//     t_FORMAT_CONTEXT::iterator format(UserDefinedType   s,
+//                                       t_FORMAT_CONTEXT& ctx) const
+//     {
+//         // implementation goes here
+//     }
+// };
+//
+// }  // close namespace bsl
+// ```
+//
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
+///Example 1: Simple integer formatting
+/// - - - - - - - - - - - - - - - - - -
+//
+//..
+// #include <bslfmt_format.h>
+// #include <bsl_iostring.h>
+//
+// bsl::string doFormat(int value)
+// {
+//     bsl::string res = bslfmt::format("{}", value);
+//     return res;
+// }
+//
+// int main()
+// {
+//     bsl::cout << doFormat(99) << bsl::endl;
+//     return 0;
+// }
+//..
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>
@@ -74,6 +165,9 @@ namespace bslfmt {
    // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
    // ----------------------------------------------------------------------
 
+/// This component-private type provides a stateful output iterator whose
+/// purpose is to count the numver of characters written for use by the
+/// `formatted_size` free funcions.
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
 class Format_TruncatingIterator {
   private:
@@ -147,13 +241,16 @@ struct format_to_n_result {
            // -----------------------------------------------------
 
 
-
+/// Component-private type acting as the visitor in a call to
+/// `visit_format_arg`.
 template <class t_OUT, class t_CHAR>
 struct Format_FormatVisitor {
   private:
     // DATA
-    basic_format_parse_context<t_CHAR>  *d_parseContext_p;
-    basic_format_context<t_OUT, t_CHAR> *d_formatContext_p;
+    basic_format_parse_context<t_CHAR>  *d_parseContext_p;  // context for
+                                                            // format string.
+    basic_format_context<t_OUT, t_CHAR> *d_formatContext_p; // context for
+                                                            // output iterator.
 
     // PRIVATE TYPES
     typedef
@@ -163,13 +260,23 @@ struct Format_FormatVisitor {
   public:
     // CREATORS
 
+    /// Create an instance of this type referencing the specified `pc` and the
+    /// specified `fc` for format strings and output iterators respectively.
     Format_FormatVisitor(basic_format_parse_context<t_CHAR>&  pc,
                          basic_format_context<t_OUT, t_CHAR>& fc);
 
     // MANIPULATORS
 
+    /// Throw a `format_error` exception to indicate this overload should never
+    /// get called.
     void operator()(bsl::monostate) const;
 
+    /// Write a string representation of the specified `x` to the output
+    /// iterator in `d_format_context_p`, formatted according to the parse
+    /// string referenced by `d_formatContext_p`. This is done by constructing
+    /// an appropriate `formatter` of a type corresponding to the argument type
+    /// of the specified `x`, then call `parse` and `format` on that
+    /// constructed `formatter`.
     void operator()(bool x) const;
     void operator()(t_CHAR x) const;
     void operator()(unsigned x) const;
@@ -182,6 +289,11 @@ struct Format_FormatVisitor {
     void operator()(const void *x) const;
     void operator()(int x) const;
     void operator()(bsl::basic_string_view<t_CHAR> sv) const;
+
+    /// Write a string representation of type referenced by the specified `h`
+    /// to the output iterator in `d_format_context_p`, formatted according to
+    /// the parse string referenced by `d_formatContext_p`. This is done by
+    /// delegating to the `handle::format` function.
     void operator()(const handle& h) const;
 };
 
@@ -189,11 +301,17 @@ struct Format_FormatVisitor {
                        // class Format_FormatImp<t_CHAR>
                        // ------------------------------
 
+/// This component-private namespace struct provides access to formatting
+/// implementation functions to which the `bslfmt::format` family of free
+/// functions can delegate.
 template <class t_CHAR>
 struct Format_FormatImp {
   private:
     // PRIVATE CLASS METHODS
 
+    /// Format the specified `args` according to the format string specified by
+    /// `fmtstr` and write the result to the output iterator specified by
+    /// `out`. Return an iterator one past the end of the output range.
     template <class t_OUT>
     static t_OUT processImp(
          t_OUT&                                                         out,
@@ -203,12 +321,23 @@ struct Format_FormatImp {
   public:
     // CLASS METHODS
 
+    /// Format the specified `args` according to the format string specified by
+    /// `fmtstr` and write the result to the output iterator specified by
+    /// `out`. Return an iterator one past the end of the output range. This
+    /// function participates in overload resolution if `out` is of
+    /// `Format_OutputIteratorRef` type.
     static Format_OutputIteratorRef<t_CHAR> process(
           Format_OutputIteratorRef<t_CHAR> out,
           bsl::basic_string_view<t_CHAR>   fmtstr,
           const basic_format_args<
               basic_format_context<Format_OutputIteratorRef<t_CHAR>, t_CHAR> >&
               args);
+
+    /// Format the specified `args` according to the format string specified by
+    /// `fmtstr` and write the result to the output iterator specified by
+    /// `out`. Return an iterator one past the end of the output range. This
+    /// function participates in overload resolution if `out` is not of
+    /// `Format_OutputIteratorRef` type.
     template <class t_OUT, class t_CONTEXT>
     static t_OUT process(t_OUT                               out,
                          bsl::basic_string_view<t_CHAR>      fmtstr,
@@ -221,39 +350,78 @@ struct Format_FormatImp {
 
 // FREE FUNCTIONS
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the output
+/// iterator given by the specified `out` parameter. In the event of an error
+/// the exception `format_error` is thrown. Behavior is undefined if `out` is
+/// not a valid output iterator.
 template <class t_OUT>
 inline
 t_OUT vformat_to(t_OUT out, bsl::string_view fmtstr, format_args args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the output
+/// iterator given by the specified `out` parameter. In the event of an error
+/// the exception `format_error` is thrown. Behavior is undefined if `out` is
+/// not a valid output iterator.
 template <class t_OUT>
 inline
 t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 inline
 void vformat_to(bsl::string *out, bsl::string_view fmtstr, format_args args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 inline
 void vformat_to(bsl::wstring      *out,
                 bsl::wstring_view  fmtstr,
                 wformat_args       args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr` and return the result. In the event of an error the
+/// exception `format_error` is thrown.
 inline
 bsl::string vformat(bsl::string_view fmt, format_args args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr` and return the result. In the event of an error the
+/// exception `format_error` is thrown.
 inline
 bsl::wstring vformat(bsl::wstring_view fmt, wformat_args args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, using the specified `allocator` to supply memory (if
+/// required), and return the result. In the event of an error the exception
+/// `format_error` is thrown.
 inline
 bsl::string vformat(bsl::allocator<char> alloc,
                     bsl::string_view     fmt,
                     format_args          args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, using the specified `allocator` to supply memory (if
+/// required), and return the result. In the event of an error the exception
+/// `format_error` is thrown.
 inline
 bsl::wstring vformat(bsl::allocator<wchar_t> alloc,
                      bsl::wstring_view       fmt,
                      wformat_args            args);
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the output
+/// iterator given by the specified `out` parameter. In the event of an error
+/// the exception `format_error` is thrown. Behavior is undefined if `out` does
+/// not point to a valid output parameter.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
@@ -262,6 +430,11 @@ format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
           const t_ARGS&...               args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the output
+/// iterator given by the specified `out` parameter. In the event of an error
+/// the exception `format_error` is thrown. Behavior is undefined if `out` does
+/// not point to a valid output parameter.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
@@ -270,55 +443,107 @@ format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
           const t_ARGS&...                args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 template <class... t_ARGS>
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
                const t_ARGS&...                args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 template <class... t_ARGS>
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
                const t_ARGS&...                 args);
 
-
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr` and return the result as a `bsl::string`. In the event
+/// of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
                    const t_ARGS&...               args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr` and return the result as a `bsl::string`. In the event
+/// of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
                     const t_ARGS&...                args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, using the specified `alloc` to supply memory (if
+/// required), and return the result. In the event of an error the exception
+/// `format_error` is thrown.
 template <class... t_ARGS>
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
                    const t_ARGS&...               args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, using the specified `alloc` to supply memory (if
+/// required), and return the result. In the event of an error the exception
+/// `format_error` is thrown.
 template <class... t_ARGS>
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
                     const t_ARGS&...                args);
 
+/// Calculate the length of the resulting string if the specified `args` were
+/// to be formatted according to the specification given by the specified
+/// `fmtstr`, and return the result.
 template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
                            const t_ARGS&...               args);
 
+/// Calculate the length of the resulting string if the specified `args` were
+/// to be formatted according to the specification given by the specified
+/// `fmtstr`, and return the result.
 template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
                            const t_ARGS&...                args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// result of this operation into the string addressed by the specified `out`
+/// parameter. Return the number of characters that would have been written to
+/// `out` were such writing not truncated. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::string                    *out,
                       ptrdiff_t                       n,
                       BSLFMT_FORMAT_STRING_PARAMETER  fmtstr,
                       const t_ARGS&...                args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// result of this operation into the string addressed by the specified `out`
+/// parameter. Return the number of characters that would have been written to
+/// `out` were such writing not truncated. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid `bsl::string` object.
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::wstring                    *out,
                       ptrdiff_t                        n,
                       BSLFMT_FORMAT_WSTRING_PARAMETER  fmtstr,
                       const t_ARGS&...                 args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// result of this operation into the output iterator referenced by the
+/// specified `out` parameter. Return a `format_to_n_result` object whose
+/// `size` member holds the number of characters that would have been written
+/// to `out` were such writing not truncated, and whose `out` member holds an
+/// iterator one past the end of the output range. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
@@ -328,6 +553,15 @@ format_to_n(t_OUT                                                 out,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtstr,
             const t_ARGS&...                                      args);
 
+/// Format the specified `args` according to the specification given by the
+/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// result of this operation into the output iterator referenced by the
+/// specified `out` parameter. Return a `format_to_n_result` object whose
+/// `size` member holds the number of characters that would have been written
+/// to `out` were such writing not truncated, and whose `out` member holds an
+/// iterator one past the end of the output range. In the event of an error the
+/// exception `format_error` is thrown. Behavior is undefined if `out` does not
+/// point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
