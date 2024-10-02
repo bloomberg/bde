@@ -291,16 +291,16 @@ void SkipList_PoolManager::replenish(Pool *pool)
 
     BSLS_ASSERT(0 == pool->d_freeList);
 
-    int objectSize = pool->d_objectSize;
-    int numObjects = pool->d_numObjectsToAllocate;
+    BSLS_ASSERT(0 < pool->d_objectSize);
+    BSLS_ASSERT(0 < pool->d_numObjectsToAllocate);
 
-    BSLS_ASSERT(0 < objectSize);
-    BSLS_ASSERT(0 < numObjects);
+    size_t objectSize = pool->d_objectSize;
+    size_t numObjects = pool->d_numObjectsToAllocate;
 
     char *start = static_cast<char *>(d_blockList.allocate(
                                                      numObjects * objectSize));
 
-    char *end = start + (numObjects - 1) * objectSize;
+    char *end = start + (numObjects - 1U) * objectSize;
     Node *last = toNode(end);
     for (char *p = start; p < end; p += objectSize) {
         Node *n = toNode(p);
