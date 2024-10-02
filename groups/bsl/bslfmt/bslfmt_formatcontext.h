@@ -252,6 +252,9 @@ class Format_OutputIteratorRef {
                  // class basic_format_context<t_OUT, t_CHAR>
                  // -----------------------------------------
 
+/// A format context for use by `formatter::format()` partial specialization.
+/// It provides access to the output iterator for writing the formatted value
+/// and access to all formatting arguments.
 template <class t_OUT, class t_CHAR>
 class basic_format_context {
   private:
