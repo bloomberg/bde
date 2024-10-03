@@ -544,8 +544,8 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
 
 // CREATORS
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-inline
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                            bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
 {

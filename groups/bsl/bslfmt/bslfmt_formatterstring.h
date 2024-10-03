@@ -472,7 +472,7 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
 
     // Only do an analysis of the string if there is a possibility of
     // truncation or padding.
-    if ((maxDisplayWidth < sv.size() * 2) ||
+    if ((maxDisplayWidth < static_cast<int>(sv.size()) * 2) ||
         (finalWidth.valueType() != FSNVAlue::e_DEFAULT)) {
         findPrecisionLimitedString(&charactersOfInputUsed,
                                    &displayWidthUsedByInputString,
