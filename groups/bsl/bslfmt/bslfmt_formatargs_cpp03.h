@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Sep 25 18:54:27 2024
+// Generated on Thu Oct  3 17:43:11 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -1332,6 +1332,7 @@ class Format_FormatArgs_ImpUtil {
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 0
 template <class t_CONTEXT>
+inline
 Format_FormatArgStore<t_CONTEXT, BSLS_COMPILERFEATURES_FILLT(10)
                                  >::Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  0u>& args)
@@ -1342,6 +1343,7 @@ Format_FormatArgStore<t_CONTEXT, BSLS_COMPILERFEATURES_FILLT(10)
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 1
 template <class t_CONTEXT, class t_ARGS_01>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  BSLS_COMPILERFEATURES_FILLT( 9)
                                  >::Format_FormatArgStore(
@@ -1354,6 +1356,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 2
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  BSLS_COMPILERFEATURES_FILLT( 8)
@@ -1368,6 +1371,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1384,6 +1388,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
                            class t_ARGS_04>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1402,6 +1407,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_03,
                            class t_ARGS_04,
                            class t_ARGS_05>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1422,6 +1428,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_04,
                            class t_ARGS_05,
                            class t_ARGS_06>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1444,6 +1451,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_05,
                            class t_ARGS_06,
                            class t_ARGS_07>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1468,6 +1476,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_06,
                            class t_ARGS_07,
                            class t_ARGS_08>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1494,6 +1503,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_07,
                            class t_ARGS_08,
                            class t_ARGS_09>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1522,6 +1532,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_08,
                            class t_ARGS_09,
                            class t_ARGS_10>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1545,6 +1556,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 // forwarding in some compilers.
 
 template <class t_CONTEXT, class... t_ARGS>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
@@ -1563,6 +1575,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 
 // CREATORS
 template <class t_CONTEXT>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
     : d_size(0) {}
 
@@ -1577,6 +1590,7 @@ basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
 #endif
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 0
 template <class t_CONTEXT>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT>& store)
     BSLS_KEYWORD_NOEXCEPT
@@ -1589,6 +1603,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 1
 template <class t_CONTEXT>
 template <class t_ARGS_01>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01>& store)
     BSLS_KEYWORD_NOEXCEPT
@@ -1602,6 +1617,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02>& store)
@@ -1617,6 +1633,7 @@ template <class t_CONTEXT>
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1634,6 +1651,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1653,6 +1671,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1674,6 +1693,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1697,6 +1717,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1722,6 +1743,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1749,6 +1771,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1778,6 +1801,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02,
@@ -1801,6 +1825,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 // forwarding in some compilers.
 template <class t_CONTEXT>
 template <class... t_ARGS>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT
@@ -1813,6 +1838,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 
 // ACCESSORS
 template <class t_CONTEXT>
+inline
 basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
                                         size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
@@ -1822,6 +1848,7 @@ basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
 
 // PRIVATE ACCESSORS
 template <class t_CONTEXT>
+inline
 size_t basic_format_args<t_CONTEXT>::size() const
 {
     return d_size;
@@ -1846,6 +1873,7 @@ size_t basic_format_args<t_CONTEXT>::size() const
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 0
 template <class t_CONTEXT>
+inline
 Format_FormatArgStore<t_CONTEXT>
 Format_FormatArgs_ImpUtil::makeFormatArgs()
 {
@@ -1858,6 +1886,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs()
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 1
 template <class t_CONTEXT, class t_ARGS_01>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01>
 Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01)
 {
@@ -1872,6 +1901,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01)
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 2
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02>
 Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
@@ -1892,6 +1922,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
 template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03>
@@ -1918,6 +1949,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_02,
                            class t_ARGS_03,
                            class t_ARGS_04>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1950,6 +1982,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_03,
                            class t_ARGS_04,
                            class t_ARGS_05>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -1988,6 +2021,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_04,
                            class t_ARGS_05,
                            class t_ARGS_06>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -2032,6 +2066,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_05,
                            class t_ARGS_06,
                            class t_ARGS_07>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -2082,6 +2117,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_06,
                            class t_ARGS_07,
                            class t_ARGS_08>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -2138,6 +2174,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_07,
                            class t_ARGS_08,
                            class t_ARGS_09>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -2200,6 +2237,7 @@ template <class t_CONTEXT, class t_ARGS_01,
                            class t_ARGS_08,
                            class t_ARGS_09,
                            class t_ARGS_10>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                  t_ARGS_02,
                                  t_ARGS_03,
@@ -2261,6 +2299,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
 // forwarding in some compilers.
 
 template <class t_CONTEXT, class... t_ARGS>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>
 Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
@@ -2275,6 +2314,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 #endif
 
 template <class t_CONTEXT>
+inline
 size_t Format_FormatArgs_ImpUtil::formatArgsSize(
                                       const basic_format_args<t_CONTEXT>& args)
 {
@@ -2299,6 +2339,7 @@ size_t Format_FormatArgs_ImpUtil::formatArgsSize(
 #endif
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+inline
 Format_FormatArgStore<format_context> make_format_args(
                                                            )
 {
@@ -2309,6 +2350,7 @@ Format_FormatArgStore<format_context> make_format_args(
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
 template <class t_ARGS_01>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01> make_format_args(
                                                         t_ARGS_01& fmt_args_01)
 {
@@ -2320,6 +2362,7 @@ Format_FormatArgStore<format_context, t_ARGS_01> make_format_args(
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02> make_format_args(
                                                         t_ARGS_01& fmt_args_01,
@@ -2335,6 +2378,7 @@ Format_FormatArgStore<format_context, t_ARGS_01,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03> make_format_args(
@@ -2354,6 +2398,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2377,6 +2422,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2404,6 +2450,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2435,6 +2482,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2470,6 +2518,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2509,6 +2558,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2552,6 +2602,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 Format_FormatArgStore<format_context, t_ARGS_01,
                                       t_ARGS_02,
                                       t_ARGS_03,
@@ -2589,6 +2640,7 @@ Format_FormatArgStore<format_context, t_ARGS_01,
 
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 0
+inline
 Format_FormatArgStore<wformat_context> make_wformat_args(
                                                            )
 {
@@ -2599,6 +2651,7 @@ Format_FormatArgStore<wformat_context> make_wformat_args(
 
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 1
 template <class t_ARGS_01>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01> make_wformat_args(
                                                         t_ARGS_01& fmt_args_01)
 {
@@ -2610,6 +2663,7 @@ Format_FormatArgStore<wformat_context, t_ARGS_01> make_wformat_args(
 #if BSLFMT_FORMATARGS_VARIADIC_LIMIT_H >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02> make_wformat_args(
                                                         t_ARGS_01& fmt_args_01,
@@ -2625,6 +2679,7 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03> make_wformat_args(
@@ -2644,6 +2699,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2667,6 +2723,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2694,6 +2751,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2725,6 +2783,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2760,6 +2819,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2799,6 +2859,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2842,6 +2903,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2882,6 +2944,7 @@ Format_FormatArgStore<wformat_context, t_ARGS_01,
 // forwarding in some compilers.
 
 template <class... t_ARGS>
+inline
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
@@ -2890,6 +2953,7 @@ Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
 }
 
 template <class... t_ARGS>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {

@@ -135,14 +135,14 @@ void aSsErT(bool condition, const char *message, int line)
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
   template <class t_ARG>
   void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
-                            const t_ARG&                 arg)
+                            const t_ARG&)
   {
     ASSERT(fmtstr.get() == "{:}");
   }
 #else
   template <class t_ARG>
   void myFormatLikeFunction(bslfmt::format_string        fmtstr,
-                            const t_ARG&                 arg)
+                            const t_ARG&)
   {
     ASSERT(fmtstr.get() == "{:}");
   }
@@ -190,18 +190,18 @@ int main(int argc, char **argv)
 // string be constant evaluated under C++20:
 //
 //..
-// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&              \
+// #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&
 //     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 //   template <class t_ARG>
 //   void myFormatLikeFunction(bslfmt::format_string<t_ARG> fmtstr,
-//                             const t_ARG&                 arg)
+//                             const t_ARG&)
 //   {
 //     assert(fmtstr.get() == "{:}");
 //   }
 // #else
 //   template <class t_ARG>
 //   void myFormatLikeFunction(bslfmt::format_string        fmtstr,
-//                             const t_ARG&                 arg)
+//                             const t_ARG&)
 //   {
 //     assert(fmtstr.get() == "{:}");
 //   }

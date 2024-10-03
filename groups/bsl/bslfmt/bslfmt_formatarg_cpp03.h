@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Sep 20 17:03:39 2024
+// Generated on Thu Oct  3 17:49:29 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -629,6 +629,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
 // PRIVATE CLASS METHODS
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
+inline
 void
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
                                    basic_format_parse_context<t_CHAR>&   pc,
@@ -643,6 +644,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format_impl(
 // PRIVATE CREATORS
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                                      const t_TYPE& value) BSLS_KEYWORD_NOEXCEPT
 : d_value_p(BSLS_UTIL_ADDRESSOF(value))
@@ -653,6 +655,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
 // CREATORS
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
                            bslmf::MovableRef<handle> rhs) BSLS_KEYWORD_NOEXCEPT
 {
@@ -665,6 +668,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::handle(
 
 // ACCESSORS
 template <class t_OUT, class t_CHAR>
+inline
 void basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format(
                                  basic_format_parse_context<t_CHAR>&  pc,
                                  basic_format_context<t_OUT, t_CHAR>& fc) const
@@ -684,6 +688,7 @@ void basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format(
     // at the end of bslstl_variant.h
 template <class t_OUT, class t_CHAR>
 template <class t_VISITOR>
+inline
 decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
                                                                  t_VISITOR&& v)
 {
@@ -727,6 +732,7 @@ decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
 #else
 template <class t_OUT, class t_CHAR>
 template <class t_VISITOR>
+inline
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(t_VISITOR& v)
 {
@@ -771,6 +777,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(t_VISITOR& v)
 
 // PRIVATE CREATORS
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                               bool value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -778,6 +785,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                          char_type value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -786,6 +794,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_same<t_TYPE, char>::value &&
@@ -799,6 +808,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
            t_TYPE value,
            typename bsl::enable_if<bsl::is_integral<t_TYPE>::value &&
@@ -830,6 +840,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
               const t_TYPE& value,
               typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
@@ -840,6 +851,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                              float value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -847,6 +859,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                             double value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -854,6 +867,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                        long double value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -862,6 +876,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
        bsl::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
@@ -872,6 +887,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
        std::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
@@ -882,6 +898,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS, class t_ALLOC>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
   bsl::basic_string<char_type, t_TRAITS, t_ALLOC>& value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
@@ -890,6 +907,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS, class t_ALLOC>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                   const bsl::basic_string<char_type, t_TRAITS, t_ALLOC>& value)
     BSLS_KEYWORD_NOEXCEPT
@@ -899,6 +917,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS, class t_ALLOC>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
   std::basic_string<char_type, t_TRAITS, t_ALLOC>& value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<bsl::basic_string_view<char_type> >(value))
@@ -907,6 +926,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 template <class t_OUT, class t_CHAR>
 template <class t_TRAITS, class t_ALLOC>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                   const std::basic_string<char_type, t_TRAITS, t_ALLOC>& value)
     BSLS_KEYWORD_NOEXCEPT
@@ -915,6 +935,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                         char_type *value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<const char_type *>(value))
@@ -922,6 +943,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                   const char_type *value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -929,6 +951,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                              void *value) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<const void *>(value))
@@ -936,6 +959,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                        const void *value) BSLS_KEYWORD_NOEXCEPT
 : d_value(value)
@@ -944,6 +968,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                           std::nullptr_t) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<const void *>(nullptr))
@@ -953,6 +978,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 // CREATORS
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg()
     BSLS_KEYWORD_NOEXCEPT
 {
@@ -960,6 +986,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg()
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                  bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
 {
@@ -970,6 +997,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 
 // ACCESSORS
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
     const BSLS_KEYWORD_NOEXCEPT
 {
@@ -995,30 +1023,33 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
 #endif
 #if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
 template <class t_CONTEXT>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out)
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  0u> tmp = {
         {}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
 
 #if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
 template <class t_CONTEXT, class t_FMTARGS_01>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  1u> *out,
        t_FMTARGS_01& fmt_args_01)
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  1u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
 
 #if BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  2u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1027,7 +1058,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
     bsl::array<basic_format_arg<t_CONTEXT>,  2u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
 
@@ -1035,6 +1066,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
 template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  3u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1045,7 +1077,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
          basic_format_arg<t_CONTEXT>(fmt_args_03)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
 
@@ -1054,6 +1086,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_02,
                            class t_FMTARGS_03,
                            class t_FMTARGS_04>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  4u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1066,7 +1099,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_02),
          basic_format_arg<t_CONTEXT>(fmt_args_03),
          basic_format_arg<t_CONTEXT>(fmt_args_04)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
 
@@ -1076,6 +1109,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_03,
                            class t_FMTARGS_04,
                            class t_FMTARGS_05>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  5u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1090,7 +1124,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_03),
          basic_format_arg<t_CONTEXT>(fmt_args_04),
          basic_format_arg<t_CONTEXT>(fmt_args_05)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
 
@@ -1101,6 +1135,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_04,
                            class t_FMTARGS_05,
                            class t_FMTARGS_06>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  6u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1117,7 +1152,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_04),
          basic_format_arg<t_CONTEXT>(fmt_args_05),
          basic_format_arg<t_CONTEXT>(fmt_args_06)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
 
@@ -1129,6 +1164,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_05,
                            class t_FMTARGS_06,
                            class t_FMTARGS_07>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  7u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1147,7 +1183,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_05),
          basic_format_arg<t_CONTEXT>(fmt_args_06),
          basic_format_arg<t_CONTEXT>(fmt_args_07)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
 
@@ -1160,6 +1196,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_06,
                            class t_FMTARGS_07,
                            class t_FMTARGS_08>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  8u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1180,7 +1217,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_06),
          basic_format_arg<t_CONTEXT>(fmt_args_07),
          basic_format_arg<t_CONTEXT>(fmt_args_08)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
 
@@ -1194,6 +1231,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_07,
                            class t_FMTARGS_08,
                            class t_FMTARGS_09>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  9u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1216,7 +1254,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_07),
          basic_format_arg<t_CONTEXT>(fmt_args_08),
          basic_format_arg<t_CONTEXT>(fmt_args_09)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
 
@@ -1231,6 +1269,7 @@ template <class t_CONTEXT, class t_FMTARGS_01,
                            class t_FMTARGS_08,
                            class t_FMTARGS_09,
                            class t_FMTARGS_10>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, 10u> *out,
        t_FMTARGS_01& fmt_args_01,
@@ -1255,7 +1294,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_08),
          basic_format_arg<t_CONTEXT>(fmt_args_09),
          basic_format_arg<t_CONTEXT>(fmt_args_10)}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
 
@@ -1263,13 +1302,14 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class t_CONTEXT, class... t_FMTARGS>
+inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
        t_FMTARGS&...                                                  fmt_args)
 {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args)...}};
-    out->swap(tmp);
+    *out = bslmf::MovableRefUtil::move(tmp);
 }
 // }}} END GENERATED CODE
 #endif
@@ -1285,6 +1325,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
     // This check is a proxy for BSL_VARIANT_FULL_IMPLEMENTATION which is unset
     // at the end of bslstl_variant.h
 template <class t_VISITOR, class t_CONTEXT>
+inline
 decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
                                 basic_format_arg<t_CONTEXT> arg)
 {
@@ -1292,6 +1333,7 @@ decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
 }
 #else
 template <class t_VISITOR, class t_CONTEXT>
+inline
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 {
