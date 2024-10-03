@@ -40,6 +40,7 @@ BSLS_IDENT("$Id: $")
 #include <string>     // for 'std::char_traits'
 
 #include <stdio.h>    // for 'snprintf'
+#include <ctype.h>    // for 'toupper'
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -163,11 +164,6 @@ struct Formatter_CharUtils {
 
 template <>
 struct Formatter_CharUtils<char> {
-
-    // CLASS DATA
-    static const char *const s_toUpper_p;  //
-
-  public:
     // CLASS METHODS
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
@@ -198,7 +194,7 @@ struct Formatter_CharUtils<char> {
     static void toUpper(char *begin, const char *end)
     {
         for (; begin != end; (void)++begin) {
-            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+            *begin = static_cast<char>(std::toupper(*begin));
         }
     }
 };
@@ -206,11 +202,6 @@ struct Formatter_CharUtils<char> {
 
 template <>
 struct Formatter_CharUtils<wchar_t> {
-
-    // CLASS DATA
-    static const char *const s_toUpper_p;  //
-
-  public:
     // CLASS METHODS
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
@@ -251,7 +242,7 @@ struct Formatter_CharUtils<wchar_t> {
     static void toUpper(char *begin, const char *end)
     {
         for (; begin != end; (void)++begin) {
-            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+            *begin = static_cast<char>(std::toupper(*begin));
         }
     }
 };

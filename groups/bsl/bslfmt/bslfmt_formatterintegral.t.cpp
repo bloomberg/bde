@@ -1,7 +1,7 @@
 // bslstl_formatterintegral.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterintegral.h>
 
-#include <bslfmt_formatimp.h>         // Testing only (`bsl::format`)
+#include <bslfmt_formatargs.h>
 #include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
@@ -9,7 +9,6 @@
 #include <bslstl_string.h>
 
 #include <stdio.h>
-#include <string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -77,6 +76,68 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+namespace {
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
+/// as expected for the specified `format`.  The specified `line` is used to
+/// identify the function call location.
+template <class t_CHAR, class t_TYPE>
+void testParse(int           line,
+               const t_CHAR *format)
+{
+    bsl::string message;
+
+    bool rv =
+          bslfmt::Formatter_TestUtil<t_CHAR>::template testParseFormat<t_TYPE>(
+              &message,
+              false,
+              format);
+    ASSERTV(line, format, message.c_str(), rv);
+
+    message.clear();
+    rv = bslfmt::Formatter_TestUtil<t_CHAR>::template testParseVFormat<t_TYPE>(
+                                                                      &message,
+                                                                      false,
+                                                                      format);
+    ASSERTV(line, format, message.c_str(), rv);
+}
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::format` function
+/// produces the specified `expected` result for the specified `format` and
+/// `value`.  The specified `line` is used to identify the function call
+/// location.
+template <class t_CHAR, class t_TYPE>
+void testFormat(int           line,
+                const t_CHAR *expected,
+                const t_CHAR *format,
+                t_TYPE        value)
+{
+    bsl::string message;
+
+    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateFormat(&message,
+                                                                     expected,
+                                                                     false,
+                                                                     format,
+                                                                     value,
+                                                                     0,
+                                                                     0);
+    ASSERTV(line, format, message.c_str(), rv);
+
+    message.clear();
+    rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(&message,
+                                                                 expected,
+                                                                 false,
+                                                                 format,
+                                                                 value,
+                                                                 0,
+                                                                 0);
+    ASSERTV(line, format, message.c_str(), rv);
+}
+}  // close unnamed namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -162,36 +223,39 @@ int main(int argc, char **argv)
             const char *d_expected_p;  // format
             int         d_value;       // value to be formatted
         } POSITIVE_CHAR_DATA[] = {
-            //LINE  FORMAT                        EXPECTED          VALUE
-            //----  ----------------------------  ---------------   -----
-            { L_,   "{0:}, {0:+}, {0:-}, {0: }",  "5, +5, 5,  5",   5    },
-            { L_,   "{:#05x}",                    "0x00c",          12   },
-            { L_,   "{:#05X}",                    "0X00C",          12   },
-            { L_,   "{:*<6}",                     "5*****",         5    },
-            { L_,   "{:*>6}",                     "*****5",         5    },
-            { L_,   "{:*^6}",                     "**5***",         5    },
-            { L_,   "{:*^+6}",                    "**+5**",         5    },
-            { L_,   "{:#0x}",                     "0x5",            5    },
-            { L_,   "{:#01x}",                    "0x5",            5    },
-            { L_,   "{:#02x}",                    "0x5",            5    },
-            { L_,   "{:#03x}",                    "0x5",            5    },
-            { L_,   "{:#04x}",                    "0x05",           5    },
-            { L_,   "{:#04X}",                    "0X05",           5    },
-            { L_,   "{:#b}",                      "0b101",          5    },
-            { L_,   "{:#05b}",                    "0b101",          5    },
-            { L_,   "{:#06b}",                    "0b0101",         5    },
-            { L_,   "{:#06B}",                    "0B1100",         12   },
-            { L_,   "{:#d}",                      "5",              5    },
-            { L_,   "{:#d}",                      "12",             12   },
-            { L_,   "{:#o}",                      "05",             5    },
-            { L_,   "{:#o}",                      "014",            12   },
-            { L_,   "{:b}",                       "1100",           12   },
-            { L_,   "{:B}",                       "1100",           12   },
-            { L_,   "{:d}",                       "12",             12   },
-            { L_,   "{:o}",                       "14",             12   },
-            { L_,   "{:x}",                       "c",              12   },
-            { L_,   "{:X}",                       "C",              12   },
-            { L_,   "{:#<5x}",                    "5####",          5    },
+            //LINE  FORMAT        EXPECTED      VALUE
+            //----  -----------   ---------     -----
+            { L_,   "{0:}",       "5",          5    },
+            { L_,   "{0:+}",      "+5",         5    },
+            { L_,   "{0:-}",      "5",          5    },
+            { L_,   "{0: }",      " 5",         5    },
+            { L_,   "{:#05x}",    "0x00c",      12   },
+            { L_,   "{:#05X}",    "0X00C",      12   },
+            { L_,   "{:*<6}",     "5*****",     5    },
+            { L_,   "{:*>6}",     "*****5",     5    },
+            { L_,   "{:*^6}",     "**5***",     5    },
+            { L_,   "{:*^+6}",    "**+5**",     5    },
+            { L_,   "{:#0x}",     "0x5",        5    },
+            { L_,   "{:#01x}",    "0x5",        5    },
+            { L_,   "{:#02x}",    "0x5",        5    },
+            { L_,   "{:#03x}",    "0x5",        5    },
+            { L_,   "{:#04x}",    "0x05",       5    },
+            { L_,   "{:#04X}",    "0X05",       5    },
+            { L_,   "{:#b}",      "0b101",      5    },
+            { L_,   "{:#05b}",    "0b101",      5    },
+            { L_,   "{:#06b}",    "0b0101",     5    },
+            { L_,   "{:#06B}",    "0B1100",     12   },
+            { L_,   "{:#d}",      "5",          5    },
+            { L_,   "{:#d}",      "12",         12   },
+            { L_,   "{:#o}",      "05",         5    },
+            { L_,   "{:#o}",      "014",        12   },
+            { L_,   "{:b}",       "1100",       12   },
+            { L_,   "{:B}",       "1100",       12   },
+            { L_,   "{:d}",       "12",         12   },
+            { L_,   "{:o}",       "14",         12   },
+            { L_,   "{:x}",       "c",          12   },
+            { L_,   "{:X}",       "C",          12   },
+            { L_,   "{:#<5x}",    "5####",      5    },
         };
 
         enum {
@@ -205,35 +269,38 @@ int main(int argc, char **argv)
             const char *d_expected_p;  // format
             int         d_value;       // value to be formatted
         } NEGATIVE_CHAR_DATA[] = {
-            //LINE  FORMAT                        EXPECTED           VALUE
-            //----  ----------------------------  -----------------  -----
-            { L_,   "{0:}, {0:+}, {0:-}, {0: }",  "-5, -5, -5, -5",  -5    },
-            { L_,   "{:#05x}",                    "-0x0c",           -12   },
-            { L_,   "{:#05X}",                    "-0X0C",           -12   },
-            { L_,   "{:*<6}",                     "-5****",          -5    },
-            { L_,   "{:*>6}",                     "****-5",          -5    },
-            { L_,   "{:*^6}",                     "**-5**",          -5    },
-            { L_,   "{:*^+6}",                    "**-5**",          -5    },
-            { L_,   "{:#0x}",                     "-0x5",            -5    },
-            { L_,   "{:#01x}",                    "-0x5",            -5    },
-            { L_,   "{:#02x}",                    "-0x5",            -5    },
-            { L_,   "{:#03x}",                    "-0x5",            -5    },
-            { L_,   "{:#04x}",                    "-0x5",            -5    },
-            { L_,   "{:#05X}",                    "-0X05",           -5    },
-            { L_,   "{:#b}",                      "-0b101",          -5    },
-            { L_,   "{:#05b}",                    "-0b101",          -5    },
-            { L_,   "{:#07b}",                    "-0b0101",         -5    },
-            { L_,   "{:#08B}",                    "-0B01100",        -12   },
-            { L_,   "{:#d}",                      "-5",              -5    },
-            { L_,   "{:#d}",                      "-12",             -12   },
-            { L_,   "{:#o}",                      "-05",             -5    },
-            { L_,   "{:#o}",                      "-014",            -12   },
-            { L_,   "{:b}",                       "-1100",           -12   },
-            { L_,   "{:B}",                       "-1100",           -12   },
-            { L_,   "{:d}",                       "-12",             -12   },
-            { L_,   "{:o}",                       "-14",             -12   },
-            { L_,   "{:x}",                       "-c",              -12   },
-            { L_,   "{:X}",                       "-C",              -12   },
+            //LINE  FORMAT         EXPECTED        VALUE
+            //----  -----------    ------------    -----
+            { L_,   "{0:}",        "-5",           -5    },
+            { L_,   "{0:+}",       "-5",           -5    },
+            { L_,   "{0:-}",       "-5",           -5    },
+            { L_,   "{0: }",       "-5",           -5    },
+            { L_,   "{:#05x}",     "-0x0c",        -12   },
+            { L_,   "{:#05X}",     "-0X0C",        -12   },
+            { L_,   "{:*<6}",      "-5****",       -5    },
+            { L_,   "{:*>6}",      "****-5",       -5    },
+            { L_,   "{:*^6}",      "**-5**",       -5    },
+            { L_,   "{:*^+6}",     "**-5**",       -5    },
+            { L_,   "{:#0x}",      "-0x5",         -5    },
+            { L_,   "{:#01x}",     "-0x5",         -5    },
+            { L_,   "{:#02x}",     "-0x5",         -5    },
+            { L_,   "{:#03x}",     "-0x5",         -5    },
+            { L_,   "{:#04x}",     "-0x5",         -5    },
+            { L_,   "{:#05X}",     "-0X05",        -5    },
+            { L_,   "{:#b}",       "-0b101",       -5    },
+            { L_,   "{:#05b}",     "-0b101",       -5    },
+            { L_,   "{:#07b}",     "-0b0101",      -5    },
+            { L_,   "{:#08B}",     "-0B01100",     -12   },
+            { L_,   "{:#d}",       "-5",           -5    },
+            { L_,   "{:#d}",       "-12",          -12   },
+            { L_,   "{:#o}",       "-05",          -5    },
+            { L_,   "{:#o}",       "-014",         -12   },
+            { L_,   "{:b}",        "-1100",        -12   },
+            { L_,   "{:B}",        "-1100",        -12   },
+            { L_,   "{:d}",        "-12",          -12   },
+            { L_,   "{:o}",        "-14",          -12   },
+            { L_,   "{:x}",        "-c",           -12   },
+            { L_,   "{:X}",        "-C",           -12   },
         };
 
         enum {
@@ -247,35 +314,38 @@ int main(int argc, char **argv)
             const wchar_t *d_expected_p;  // format
             int            d_value;       // value to be formatted
         } POSITIVE_WCHAR_DATA[] = {
-            //LINE  FORMAT                         EXPECTED           VALUE
-            //----  ----------------------------   ----------------   -----
-            { L_,   L"{0:}, {0:+}, {0:-}, {0: }",  L"5, +5, 5,  5",   5    },
-            { L_,   L"{:#05x}",                    L"0x00c",          12   },
-            { L_,   L"{:#05X}",                    L"0X00C",          12   },
-            { L_,   L"{:*<6}",                     L"5*****",         5    },
-            { L_,   L"{:*>6}",                     L"*****5",         5    },
-            { L_,   L"{:*^6}",                     L"**5***",         5    },
-            { L_,   L"{:*^+6}",                    L"**+5**",         5    },
-            { L_,   L"{:#0x}",                     L"0x5",            5    },
-            { L_,   L"{:#01x}",                    L"0x5",            5    },
-            { L_,   L"{:#02x}",                    L"0x5",            5    },
-            { L_,   L"{:#03x}",                    L"0x5",            5    },
-            { L_,   L"{:#04x}",                    L"0x05",           5    },
-            { L_,   L"{:#04X}",                    L"0X05",           5    },
-            { L_,   L"{:#b}",                      L"0b101",          5    },
-            { L_,   L"{:#05b}",                    L"0b101",          5    },
-            { L_,   L"{:#06b}",                    L"0b0101",         5    },
-            { L_,   L"{:#06B}",                    L"0B1100",         12   },
-            { L_,   L"{:#d}",                      L"5",              5    },
-            { L_,   L"{:#d}",                      L"12",             12   },
-            { L_,   L"{:#o}",                      L"05",             5    },
-            { L_,   L"{:#o}",                      L"014",            12   },
-            { L_,   L"{:b}",                       L"1100",           12   },
-            { L_,   L"{:B}",                       L"1100",           12   },
-            { L_,   L"{:d}",                       L"12",             12   },
-            { L_,   L"{:o}",                       L"14",             12   },
-            { L_,   L"{:x}",                       L"c",              12   },
-            { L_,   L"{:X}",                       L"C",              12   },
+            //LINE  FORMAT         EXPECTED       VALUE
+            //----  -----------    -----------    -----
+            { L_,   L"{0:}",       L"5",          5    },
+            { L_,   L"{0:+}",      L"+5",         5    },
+            { L_,   L"{0:-}",      L"5",          5    },
+            { L_,   L"{0: }",      L" 5",         5    },
+            { L_,   L"{:#05x}",    L"0x00c",      12   },
+            { L_,   L"{:#05X}",    L"0X00C",      12   },
+            { L_,   L"{:*<6}",     L"5*****",     5    },
+            { L_,   L"{:*>6}",     L"*****5",     5    },
+            { L_,   L"{:*^6}",     L"**5***",     5    },
+            { L_,   L"{:*^+6}",    L"**+5**",     5    },
+            { L_,   L"{:#0x}",     L"0x5",        5    },
+            { L_,   L"{:#01x}",    L"0x5",        5    },
+            { L_,   L"{:#02x}",    L"0x5",        5    },
+            { L_,   L"{:#03x}",    L"0x5",        5    },
+            { L_,   L"{:#04x}",    L"0x05",       5    },
+            { L_,   L"{:#04X}",    L"0X05",       5    },
+            { L_,   L"{:#b}",      L"0b101",      5    },
+            { L_,   L"{:#05b}",    L"0b101",      5    },
+            { L_,   L"{:#06b}",    L"0b0101",     5    },
+            { L_,   L"{:#06B}",    L"0B1100",     12   },
+            { L_,   L"{:#d}",      L"5",          5    },
+            { L_,   L"{:#d}",      L"12",         12   },
+            { L_,   L"{:#o}",      L"05",         5    },
+            { L_,   L"{:#o}",      L"014",        12   },
+            { L_,   L"{:b}",       L"1100",       12   },
+            { L_,   L"{:B}",       L"1100",       12   },
+            { L_,   L"{:d}",       L"12",         12   },
+            { L_,   L"{:o}",       L"14",         12   },
+            { L_,   L"{:x}",       L"c",          12   },
+            { L_,   L"{:X}",       L"C",          12   },
         };
 
         enum {
@@ -289,35 +359,38 @@ int main(int argc, char **argv)
             const wchar_t *d_expected_p;  // format
             int            d_value;       // value to be formatted
         } NEGATIVE_WCHAR_DATA[] = {
-            //LINE  FORMAT                         EXPECTED            VALUE
-            //----  -----------------------------  ------------------  -----
-            { L_,   L"{0:}, {0:+}, {0:-}, {0: }",  L"-5, -5, -5, -5",  -5    },
-            { L_,   L"{:#05x}",                    L"-0x0c",           -12   },
-            { L_,   L"{:#05X}",                    L"-0X0C",           -12   },
-            { L_,   L"{:*<6}",                     L"-5****",          -5    },
-            { L_,   L"{:*>6}",                     L"****-5",          -5    },
-            { L_,   L"{:*^6}",                     L"**-5**",          -5    },
-            { L_,   L"{:*^+6}",                    L"**-5**",          -5    },
-            { L_,   L"{:#0x}",                     L"-0x5",            -5    },
-            { L_,   L"{:#01x}",                    L"-0x5",            -5    },
-            { L_,   L"{:#02x}",                    L"-0x5",            -5    },
-            { L_,   L"{:#03x}",                    L"-0x5",            -5    },
-            { L_,   L"{:#04x}",                    L"-0x5",            -5    },
-            { L_,   L"{:#05X}",                    L"-0X05",           -5    },
-            { L_,   L"{:#b}",                      L"-0b101",          -5    },
-            { L_,   L"{:#05b}",                    L"-0b101",          -5    },
-            { L_,   L"{:#07b}",                    L"-0b0101",         -5    },
-            { L_,   L"{:#08B}",                    L"-0B01100",        -12   },
-            { L_,   L"{:#d}",                      L"-5",              -5    },
-            { L_,   L"{:#d}",                      L"-12",             -12   },
-            { L_,   L"{:#o}",                      L"-05",             -5    },
-            { L_,   L"{:#o}",                      L"-014",            -12   },
-            { L_,   L"{:b}",                       L"-1100",           -12   },
-            { L_,   L"{:B}",                       L"-1100",           -12   },
-            { L_,   L"{:d}",                       L"-12",             -12   },
-            { L_,   L"{:o}",                       L"-14",             -12   },
-            { L_,   L"{:x}",                       L"-c",              -12   },
-            { L_,   L"{:X}",                       L"-C",              -12   },
+            //LINE  FORMAT          EXPECTED         VALUE
+            //----  -----------     ------------     -----
+            { L_,   L"{0:}",        L"-5",           -5    },
+            { L_,   L"{0:+}",       L"-5",           -5    },
+            { L_,   L"{0:-}",       L"-5",           -5    },
+            { L_,   L"{0: }",       L"-5",           -5    },
+            { L_,   L"{:#05x}",     L"-0x0c",        -12   },
+            { L_,   L"{:#05X}",     L"-0X0C",        -12   },
+            { L_,   L"{:*<6}",      L"-5****",       -5    },
+            { L_,   L"{:*>6}",      L"****-5",       -5    },
+            { L_,   L"{:*^6}",      L"**-5**",       -5    },
+            { L_,   L"{:*^+6}",     L"**-5**",       -5    },
+            { L_,   L"{:#0x}",      L"-0x5",         -5    },
+            { L_,   L"{:#01x}",     L"-0x5",         -5    },
+            { L_,   L"{:#02x}",     L"-0x5",         -5    },
+            { L_,   L"{:#03x}",     L"-0x5",         -5    },
+            { L_,   L"{:#04x}",     L"-0x5",         -5    },
+            { L_,   L"{:#05X}",     L"-0X05",        -5    },
+            { L_,   L"{:#b}",       L"-0b101",       -5    },
+            { L_,   L"{:#05b}",     L"-0b101",       -5    },
+            { L_,   L"{:#07b}",     L"-0b0101",      -5    },
+            { L_,   L"{:#08B}",     L"-0B01100",     -12   },
+            { L_,   L"{:#d}",       L"-5",           -5    },
+            { L_,   L"{:#d}",       L"-12",          -12   },
+            { L_,   L"{:#o}",       L"-05",          -5    },
+            { L_,   L"{:#o}",       L"-014",         -12   },
+            { L_,   L"{:b}",        L"-1100",        -12   },
+            { L_,   L"{:B}",        L"-1100",        -12   },
+            { L_,   L"{:d}",        L"-12",          -12   },
+            { L_,   L"{:o}",        L"-14",          -12   },
+            { L_,   L"{:x}",        L"-c",           -12   },
+            { L_,   L"{:X}",        L"-C",           -12   },
         };
 
         enum {
@@ -326,57 +399,44 @@ int main(int argc, char **argv)
         };
 
         for (int i = 0; i < NUM_POSITIVE_CHAR_DATA; ++i) {
-            const int            LINE     = POSITIVE_CHAR_DATA[i].d_line;
-            const char          *FORMAT   = POSITIVE_CHAR_DATA[i].d_format_p;
-            const bsl::string    EXPECTED = POSITIVE_CHAR_DATA[i].d_expected_p;
-            const int            VALUE    = POSITIVE_CHAR_DATA[i].d_value;
-            const long           L_VALUE  = static_cast<long>(VALUE);
-            const long long      LL_VALUE = static_cast<long long>(VALUE);
-            const unsigned long  UL_VALUE  = static_cast<unsigned long>(VALUE);
+            const int           LINE     = POSITIVE_CHAR_DATA[i].d_line;
+            const char         *FORMAT   = POSITIVE_CHAR_DATA[i].d_format_p;
+            const char         *EXPECTED = POSITIVE_CHAR_DATA[i].d_expected_p;
+            const int           VALUE    = POSITIVE_CHAR_DATA[i].d_value;
+            const long          L_VALUE  = static_cast<long>(VALUE);
+            const long long     LL_VALUE = static_cast<long long>(VALUE);
+            const long          U_VALUE  = static_cast<unsigned>(VALUE);
+            const unsigned long UL_VALUE = static_cast<unsigned long>(VALUE);
 
-            const unsigned long long ULL_VALUE  =
+            const unsigned long long ULL_VALUE =
                                         static_cast<unsigned long long>(VALUE);
 
-            bsl::string result = bslfmt::format(FORMAT, VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testParse<char,                    int>(LINE, FORMAT);
+            testParse<char,           unsigned int>(LINE, FORMAT);
+            testParse<char,               long int>(LINE, FORMAT);
+            testParse<char,      unsigned long int>(LINE, FORMAT);
+            testParse<char,          long long int>(LINE, FORMAT);
+            testParse<char, unsigned long long int>(LINE, FORMAT);
 
-            result = bslfmt::format(FORMAT, L_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, LL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, UL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, ULL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,   U_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_CHAR_DATA; ++i) {
-            const int          LINE     = NEGATIVE_CHAR_DATA[i].d_line;
-            const char        *FORMAT   = NEGATIVE_CHAR_DATA[i].d_format_p;
-            const bsl::string  EXPECTED = NEGATIVE_CHAR_DATA[i].d_expected_p;
-            const int          VALUE    = NEGATIVE_CHAR_DATA[i].d_value;
-            const long         L_VALUE  = static_cast<long>(VALUE);
-            const long long    LL_VALUE = static_cast<long long>(VALUE);
+            const int        LINE     = NEGATIVE_CHAR_DATA[i].d_line;
+            const char      *FORMAT   = NEGATIVE_CHAR_DATA[i].d_format_p;
+            const char      *EXPECTED = NEGATIVE_CHAR_DATA[i].d_expected_p;
+            const int        VALUE    = NEGATIVE_CHAR_DATA[i].d_value;
+            const long       L_VALUE  = static_cast<long>(VALUE);
+            const long long  LL_VALUE = static_cast<long long>(VALUE);
 
-            bsl::string result = bslfmt::format(FORMAT, VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, L_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, LL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
         }
 
         if (verbose) printf("\tTesting wstrings.\n");
@@ -384,7 +444,7 @@ int main(int argc, char **argv)
         for (int i = 0; i < NUM_POSITIVE_WCHAR_DATA; ++i) {
             const int            LINE     = POSITIVE_WCHAR_DATA[i].d_line;
             const wchar_t       *FORMAT   = POSITIVE_WCHAR_DATA[i].d_format_p;
-            const bsl::wstring   EXPECTED =
+            const wchar_t       *EXPECTED =
                                            POSITIVE_WCHAR_DATA[i].d_expected_p;
             const int            VALUE    = POSITIVE_WCHAR_DATA[i].d_value;
             const long           L_VALUE  = static_cast<long>(VALUE);
@@ -394,59 +454,57 @@ int main(int argc, char **argv)
             const unsigned long long ULL_VALUE  =
                                         static_cast<unsigned long long>(VALUE);
 
-            bsl::wstring result = bslfmt::format(FORMAT, VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testParse<wchar_t,                    int>(LINE, FORMAT);
+            testParse<wchar_t,           unsigned int>(LINE, FORMAT);
+            testParse<wchar_t,               long int>(LINE, FORMAT);
+            testParse<wchar_t,      unsigned long int>(LINE, FORMAT);
+            testParse<wchar_t,          long long int>(LINE, FORMAT);
+            testParse<wchar_t, unsigned long long int>(LINE, FORMAT);
 
-            result = bslfmt::format(FORMAT, L_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, LL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, UL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, ULL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_WCHAR_DATA; ++i) {
-            const int           LINE     = NEGATIVE_WCHAR_DATA[i].d_line;
-            const wchar_t      *FORMAT   = NEGATIVE_WCHAR_DATA[i].d_format_p;
-            const bsl::wstring  EXPECTED = NEGATIVE_WCHAR_DATA[i].d_expected_p;
-            const int           VALUE    = NEGATIVE_WCHAR_DATA[i].d_value;
-            const long          L_VALUE  = static_cast<long>(VALUE);
-            const long long     LL_VALUE = static_cast<long long>(VALUE);
+            const int        LINE     = NEGATIVE_WCHAR_DATA[i].d_line;
+            const wchar_t   *FORMAT   = NEGATIVE_WCHAR_DATA[i].d_format_p;
+            const wchar_t   *EXPECTED = NEGATIVE_WCHAR_DATA[i].d_expected_p;
+            const int        VALUE    = NEGATIVE_WCHAR_DATA[i].d_value;
+            const long       L_VALUE  = static_cast<long>(VALUE);
+            const long long  LL_VALUE = static_cast<long long>(VALUE);
 
-            bsl::wstring result = bslfmt::format(FORMAT, VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, L_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
-
-            result = bslfmt::format(FORMAT, LL_VALUE);
-            ASSERTV(LINE, EXPECTED.c_str(), result.c_str(),
-                    EXPECTED == result);
+            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\tTesting locale prohibition.\n");
         {
             try {
-                bslfmt::format("{:L}", 5);
-                ASSERTV("No exception was thrown", false);
+                bsl::string message;
+                bool        rv =
+                       bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
+                           &message,
+                           false,
+                           "{:}");
+
+                ASSERTV(message.c_str(), rv);
+
+                rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
+                                                                      &message,
+                                                                      false,
+                                                                      "{:L}");
+                ASSERTV(message.c_str(), !rv);
             }
             catch(const bsl::format_error& err) {
                 ASSERTV(err.what(),
-                        bsl::string("Formatting L specifier not supported") ==
-                            bsl::string(err.what()));
+                        "Exception should have been caught by the "
+                        "`Formatter_TestUtil`",
+                        false);
             }
         }
 #endif

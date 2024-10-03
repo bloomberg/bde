@@ -31,7 +31,7 @@ using namespace BloombergLP;
 // test a successful parse individually in isolation. As a result test 10
 // ('parse') will focus on parsing failures while parsing successes will be
 // tested in test 11 ('format').
-// 
+//
 // It should meet the requirements specified in [format.string.std].
 //
 //-----------------------------------------------------------------------------
@@ -1852,7 +1852,7 @@ int main(int argc, char **argv)
       case 2: {
         // --------------------------------------------
         // TESTING PRIMARY MANIPULATORS: Not Applicable
-        // 
+        //
         // Testing:
         //   PRIMARY MANIPULATORS: Not Applicable
         // --------------------------------------------

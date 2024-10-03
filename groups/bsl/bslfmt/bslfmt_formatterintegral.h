@@ -103,11 +103,6 @@ struct Formatter_IntegerBase {
                     bsl::format_error("Formatting L specifier not supported"));
         }
 
-        if (parseContext.begin() != parseContext.end() &&
-            *parseContext.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
-
         return parseContext.begin();
     }
 
@@ -128,6 +123,7 @@ struct Formatter_IntegerBase {
         FSS::postprocess(&final_spec, formatContext);
 
         char       valueBuf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
+        char      *valueBegin        = valueBuf;
         int        valueBase         = 10;
         const int  MAX_PREFIX_LENGTH = 10;
         char       prefixBuf[MAX_PREFIX_LENGTH];
@@ -163,7 +159,6 @@ struct Formatter_IntegerBase {
 
             *prefixEnd = '-';
             ++prefixEnd;
-            value = -value;
         }
 
         // Adding alternate form prefix.
@@ -223,10 +218,10 @@ struct Formatter_IntegerBase {
 
         // Converting value.
 
-        char *result = NFUtil::toChars(valueBuf,
-                                       valueBuf + sizeof(valueBuf),
-                                       value,
-                                       valueBase);
+        char *valueEnd = NFUtil::toChars(valueBegin,
+                                         valueBegin + sizeof(valueBuf),
+                                         value,
+                                         valueBase);
 
         if (FSS::e_INTEGRAL_HEX_UC == final_spec.formatType()) {
             // Unfortunately, `NumericFormatterUtil::toChars` uses only
@@ -234,11 +229,19 @@ struct Formatter_IntegerBase {
             // have to additionally modify the resulting string for uppercase
             // hexadecimal format.
 
-            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(valueBuf,
-                                                                      result);
+            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(
+                                                                    valueBegin,
+                                                                    valueEnd);
         }
 
-        int commonLength = static_cast<int>((result - valueBuf) +
+        if (value < 0) {
+            // We want to omit minus sign added by
+            // `NumericFormatterUtil::toChars` since we  already added it
+            // manually.
+            ++valueBegin;
+        }
+
+        int commonLength = static_cast<int>((valueEnd - valueBegin) +
                                               (prefixEnd - prefixBuf));
 
         // Filling the remaining space.
@@ -311,8 +314,8 @@ struct Formatter_IntegerBase {
 
         outIterator =
               BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
-                  valueBuf,
-                  result,
+                  valueBegin,
+                  valueEnd,
                   outIterator);
 
         for (int i = 0; i < rightPadFillerCopiesNum; ++i) {
