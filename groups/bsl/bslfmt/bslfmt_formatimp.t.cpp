@@ -88,26 +88,6 @@ void check(const std::string&, const char *) {
     ASSERT(false);
 }
 
-//
-//template <class... t_ARGS>
-//bool doTestWithOracle(string_view              result,
-//                      format_string<t_ARGS...> fmtstr,
-//                      t_ARGS&&...              args)
-//{
-//#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-//    typedef string RT;
-//
-//    RT res_our   = bslfmt::format(fmtstr.get(), args...);
-//    RT res_alias = bsl::format(fmtstr, args...);
-//    RT res_std   = std::format(fmtstr, args...);
-//
-//    return (result == res_our &&
-//            result == res_alias &&
-//            result == res_std);
-//#else
-//    return (result == bslfmt::format(fmtstr.get(), args...));
-//#endif
-//}
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
@@ -145,13 +125,6 @@ bool doTestWithOracle(string_view              result,
 }
 #  define DOTESTWITHORACLE(...) doTestWithOracle(__VA_ARGS__);
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-//template <class... t_ARGS>
-//bool doTestWithOracle(string_view              result,
-//                      bsl::format_string<t_ARGS...> fmtstr,
-//                      t_ARGS&&...              args)
-//{
-//    return (result == bslfmt::format(fmtstr.get(), args...));
-//}
 #  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
 #else
 #  define DOTESTWITHORACLE(RESULT, ...) (RESULT == bslfmt::format(__VA_ARGS__));
@@ -303,20 +276,22 @@ int main(int argc, char **argv)
         const int         sum = x + y;
         (void)sum;
 
-        //bslfmt::format_string<int> test("{}");
+        bslfmt::format_string<int> test("{}");
 
-        //check(bslfmt::format(L"{}", x), L"1");
+        check(bslfmt::format(L"{}", x), L"1");
 
         check(bslfmt::format("{}", y),
               "2");
 
-#if 0
+#if 1
 
         check(bslfmt::format("{}: {} + {} = {}", intro, x, y, sum),
               "Here is a simple equation: 1 + 2 = 3");
         check(bslfmt::format(L"{}", L"Hello World"),
               L"Hello World");
-        //std::formatter<bsl::string, char> dummy;
+
+        std::formatter<bsl::string, char> dummy;
+
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
                     intro,
@@ -329,8 +304,7 @@ int main(int argc, char **argv)
                                       "{}: {} + {} = {}",
                        bslfmt::make_format_args(intro, x, y, sum)),
               "Here is a simple equation: 1 + 2 = 3");
-        //ASSERT(!bslfmt::bslfmt_format_IsStdAliasingEnabled<
-        //       bslfmt::formatter<NonFormattableType> >::value);
+
         FormattableType ft;
         ft.x = 37;
         check(bslfmt::format("The value of {1} is {0}", ft.x, ft),

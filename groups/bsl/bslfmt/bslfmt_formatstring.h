@@ -251,6 +251,7 @@ consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
 
 // ACCESSORS
 template <class t_CHAR, class... t_ARGS>
+inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR, t_ARGS...>::get()
 {
@@ -268,6 +269,7 @@ basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(const t_CHAR *str)
 }
 
 template <class t_CHAR, class... t_ARGS>
+inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR, t_ARGS...>::get()
 {
@@ -284,6 +286,7 @@ basic_format_string<t_CHAR>::basic_format_string(const t_CHAR *str)
 }
 
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR bsl::basic_string_view<t_CHAR>
 basic_format_string<t_CHAR>::get()
 {

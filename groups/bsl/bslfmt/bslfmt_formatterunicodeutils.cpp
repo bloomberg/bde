@@ -141,32 +141,43 @@ bool isByteOrderMarker(const void *bytes, size_t maxBytes)
     // maximum length of the specified `maxBytes` contains a UTF Byte Order
     // Marker, and return the result.
 {
+    if (maxBytes < 2)
+        return false;                                                 // RETURN
+
     const unsigned char *data = static_cast<const unsigned char *>(bytes);
 
-    if (maxBytes < 2)
-        return false;
+    const unsigned char data0 = data[0];
+
+    // Early exit for the common (ascii) case
+    if (data0 != 0x00 && data0 < 0xef)
+        return false;                                                 // RETURN
+
+    const unsigned char data1 = data[1];
 
     // UTF-16 BE
-    if (0xfe == data[0] && 0xff == data[1])
+    if (0xfe == data0 && 0xff == data1)
         return true;                                                  // RETURN
 
     // UTF-16 LE or UTF-32 LE
-    if (0xff == data[0] && 0xfe == data[1])
+    if (0xff == data0 && 0xfe == data1)
         return true;                                                  // RETURN
 
     if (maxBytes < 3)
-        return false;
+        return false;                                                 // RETURN
+
+    const unsigned char data2 = data[2];
 
     // UTF-8
-    if (0xef == data[0] && 0xbb == data[1] && 0xbf == data[2])
+    if (0xef == data0 && 0xbb == data1 && 0xbf == data2)
         return true;                                                  // RETURN
 
     if (maxBytes < 4)
-        return false;
+        return false;                                                 // RETURN
+
+    const unsigned char data3 = data[3];
 
     // UTF-32 BE (UTF-32 LE is FF FE 00 00 which is detected above)
-    if (0x00 == data[0] && 0x00 == data[1] && 0xfe == data[2] &&
-        0xff == data[3])
+    if (0x00 == data0 && 0x00 == data1 && 0xfe == data2 && 0xff == data3)
         return true;                                                  // RETURN
 
     return false;
@@ -186,11 +197,32 @@ struct Formatter_UnicodeData_EndCompare
     }
 };
 
+static inline
 bslfmt::Formatter_UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
                                                    unsigned long int codepoint)
     // Find and return the Unicode Grapheme Break category for the specified
     // `codepoint` if one exists, otherwise return `e_UNASSIGNED`.
 {
+    // Early exit for the common (ascii) case
+    if (codepoint <= 0xff) {
+        if (codepoint <= 0x09)
+            return bslfmt::Formatter_UnicodeData::e_CONTROL;          // RETURN
+        if (codepoint == 0x0a)
+            return bslfmt::Formatter_UnicodeData::e_LF;               // RETURN
+        if (codepoint == 0x0b || codepoint == 0x0c)
+            return bslfmt::Formatter_UnicodeData::e_CONTROL;          // RETURN
+        if (codepoint == 0x0d)
+            return bslfmt::Formatter_UnicodeData::e_CR;               // RETURN
+        if (codepoint >= 0x0e && codepoint <= 0x1f)
+            return bslfmt::Formatter_UnicodeData::e_CONTROL;          // RETURN
+        if (codepoint >= 0x7f && codepoint <= 0x9f)
+            return bslfmt::Formatter_UnicodeData::e_CONTROL;          // RETURN
+        if (codepoint == 0xad)
+            return bslfmt::Formatter_UnicodeData::e_CONTROL;          // RETURN
+
+        return bslfmt::Formatter_UnicodeData::e_UNASSIGNED;           // RETURN
+    }
+
     const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *first =
                   bslfmt::Formatter_UnicodeData::s_graphemeBreakCategoryRanges;
     const bslfmt::Formatter_UnicodeData::GraphemeBreakCategoryRange *last =
@@ -217,10 +249,16 @@ bslfmt::Formatter_UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
     return found->d_category;
 }
 
+static inline
 bool getExtendedPictogramValue(unsigned long int codepoint)
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
                    bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges;
+
+    // Early exit for the common (ascii) case:
+    if (codepoint < first->d_start)
+        return 1;                                                     // RETURN
+
     const bslfmt::Formatter_UnicodeData::BooleanRange *last =
                bslfmt::Formatter_UnicodeData::s_extendedPictographicRanges +
                bslfmt::Formatter_UnicodeData::s_extendedPictographicRangeCount;
@@ -245,6 +283,7 @@ bool getExtendedPictogramValue(unsigned long int codepoint)
     return true;
 }
 
+static inline
 int getCodepointWidth(unsigned long int codepoint)
     // Determine the width of the specified `codepoint` per the rules in the
     // C++ standard in [format.string.std]. Note that this width may differ
@@ -252,6 +291,11 @@ int getCodepointWidth(unsigned long int codepoint)
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
                        bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
+
+    // Early exit for the common (ascii) case:
+    if (codepoint < first->d_start)
+        return 1;                                                     // RETURN
+
     const bslfmt::Formatter_UnicodeData::BooleanRange *last =
                    bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges +
                    bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRangeCount;
@@ -284,6 +328,7 @@ int getCodepointWidth(unsigned long int codepoint)
 /// `CodePointExtractionResult` providing a decode status and, if the
 /// decode is valid, a count of the source bytes used and the decoded
 /// Unicode code point value. Byte Order Markers are not supported.
+static inline
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
 extractUtf8(const void *bytes, size_t maxBytes)
 {
@@ -464,6 +509,7 @@ extractUtf8(const void *bytes, size_t maxBytes)
 /// memory. Behaviour is undefined if `16 != sizeof(wchar_t)`. Endianness
 /// is assumed to be the same as for the `wchar_t` type and Byte Order
 /// Markers are not supported.
+static inline
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
 extractUtf16(const void *bytes, size_t maxBytes)
 {
@@ -552,6 +598,7 @@ extractUtf16(const void *bytes, size_t maxBytes)
 /// memory. Behaviour is undefined if `32 != sizeof(wchar_t)`. Endianness
 /// is assumed to be the same as for the `wchar_t` type and Byte Order
 /// Markers are not supported.
+static inline
 bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult
 extractUtf32(const void *bytes, size_t maxBytes)
 {
@@ -672,6 +719,7 @@ Formatter_UnicodeData_StartCompare_GB11_LH_Regex::
 namespace BloombergLP {
 namespace bslfmt {
 
+inline
 Formatter_UnicodeUtils::CodePointExtractionResult
 Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
                                          const void   *bytes,

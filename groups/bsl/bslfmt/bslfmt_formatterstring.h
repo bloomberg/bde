@@ -454,9 +454,6 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
 
     FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
-    int    displayWidthUsedByInputString = 0;
-    size_t charactersOfInputUsed         = 0;
-
     int maxDisplayWidth = 0;
     switch (finalPrecision.valueType()) {
       case FSNVAlue::e_DEFAULT: {
@@ -469,10 +466,19 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
         BSLS_THROW(bsl::format_error("Invalid precision specifier"));
       } break;
     }
-    findPrecisionLimitedString(&charactersOfInputUsed,
-                               &displayWidthUsedByInputString,
-                               sv,
-                               maxDisplayWidth);
+
+    int    displayWidthUsedByInputString = std::numeric_limits<int>::min();
+    size_t charactersOfInputUsed         = sv.size();
+
+    // Only do an analysis of the string if there is a possibility of
+    // truncation or padding.
+    if ((maxDisplayWidth < sv.size() * 2) ||
+        (finalWidth.valueType() != FSNVAlue::e_DEFAULT)) {
+        findPrecisionLimitedString(&charactersOfInputUsed,
+                                   &displayWidthUsedByInputString,
+                                   sv,
+                                   maxDisplayWidth);
+    }
 
     int totalPadDisplayWidth = 0;
 

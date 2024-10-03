@@ -88,41 +88,20 @@ void check(const std::string&, const char *) {
     ASSERT(false);
 }
 
-//
-//template <class... t_ARGS>
-//bool doTestWithOracle(string_view              result,
-//                      format_string<t_ARGS...> fmtstr,
-//                      t_ARGS&&...              args)
-//{
-//#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-//    typedef string RT;
-//
-//    RT res_our   = bslfmt::format(fmtstr.get(), args...);
-//    RT res_alias = bsl::format(fmtstr, args...);
-//    RT res_std   = std::format(fmtstr, args...);
-//
-//    return (result == res_our &&
-//            result == res_alias &&
-//            result == res_std);
-//#else
-//    return (result == bslfmt::format(fmtstr.get(), args...));
-//#endif
-//}
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-#define BSLFMT_FORMAT_STRING_PARAMETER                                        \
-    bslfmt::format_string<bsl::decay_t<t_ARGS>...>
-#define BSLFMT_FORMAT_WSTRING_PARAMETER                                       \
-    bslfmt::wformat_string<bsl::decay_t<t_ARGS>...>
-#else
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+      defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#    define BSLFMT_FORMAT_STRING_PARAMETER                                    \
+       bslfmt::format_string<bsl::decay_t<t_ARGS>...>
+#    define BSLFMT_FORMAT_WSTRING_PARAMETER                                   \
+       bslfmt::wformat_string<bsl::decay_t<t_ARGS>...>
+#  else
 // We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
 // have to use non-template versions instead.
-#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
-#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#    define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
+#    define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#  endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class... t_ARGS>
 bool doTestWithOracle(string_view              result,
@@ -175,119 +154,11 @@ struct FormattableType {
 };
 
 namespace bsl {
-#if 0
-template <>
-struct formatter<FormattableType, char> {
-    std::formatter<int, char> d_formatter;
 
-    BSL_FORMAT_CONSTEXPR bslfmt::bslfmt_FormatUtil_Alias_FormatParseContext::iterator parse(
-                                      bslfmt::bslfmt_FormatUtil_Alias_FormatParseContext& pc)
-    {
-        return d_formatter.parse(pc);
-    }
-
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 bslfmt::bslfmt_FormatUtil_Alias_BasicFormatContext<t_OUT, char>& fc) const
-    {
-        const char name[] = "FormattableType";
-        t_OUT out = fc.out();
-        out = std::copy(name, name + strlen(name), out);
-        *out++ = '{';
-        fc.advance_to(out);
-        out = d_formatter.format(value.x, fc);
-        *out++ = '}';
-        return out;
-    }
-};
-#endif 
-#if 0
-template <>
-struct formatter<FormattableType, char> {
-    bsl::formatter<int, char> d_formatter;
-
-    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
-                                                      format_parse_context& pc)
-    {
-        return d_formatter.parse(pc);
-    }
-
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 basic_format_context<t_OUT, char>& fc) const
-    {
-        const char name[] = "FormattableType";
-        t_OUT      out    = fc.out();
-        out               = std::copy(name, name + strlen(name), out);
-        *out++            = '{';
-        fc.advance_to(out);
-        out    = d_formatter.format(value.x, fc);
-        *out++ = '}';
-        return out;
-    }
-};
-#endif
-
-#if 0
-template <>
-struct formatter<FormattableType, char> {
-    bsl::formatter<int, char> d_formatter_bsl;
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    std::formatter<int, char> d_formatter_std;
-#endif
-
-    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
-                                                      bslfmt::format_parse_context& pc)
-    {
-        return d_formatter_bsl.parse(pc);
-    }
-
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 bslfmt::basic_format_context<t_OUT, char>& fc) const
-    {
-        const char name[] = "FormattableType";
-        t_OUT out = fc.out();
-        out = std::copy(name, name + strlen(name), out);
-        *out++ = '{';
-        fc.advance_to(out);
-        out    = d_formatter_bsl.format(value.x, fc);
-        *out++ = '}';
-        return out;
-    }
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    BSLS_KEYWORD_CONSTEXPR_CPP20 format_parse_context::iterator parse(
-                                                      std::format_parse_context& pc)
-    {
-        return d_formatter_std.parse(pc);
-    }
-
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 std::basic_format_context<t_OUT, char>& fc) const
-    {
-        const char name[] = "FormattableType";
-        t_OUT      out    = fc.out();
-        out               = std::copy(name, name + strlen(name), out);
-        *out++            = '{';
-        fc.advance_to(out);
-        out    = d_formatter_std.format(value.x, fc);
-        *out++ = '}';
-        return out;
-    }
-#endif
-};
-#endif
-
-#if 1
 template <class t_CHAR>
 struct formatter<FormattableType, t_CHAR> {
   private:
     bsl::formatter<int, t_CHAR> d_formatter_bsl;
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    std::formatter<int, t_CHAR> d_formatter_std;
-#endif
 
   private:
     // PRIVATE CLASS TYPES
@@ -297,20 +168,18 @@ struct formatter<FormattableType, t_CHAR> {
     FSS d_spec;
 
   public:
-
-
-        typename bslfmt::basic_format_parse_context<t_CHAR>::iterator
-        BSLS_KEYWORD_CONSTEXPR_CPP20
-        parse(bslfmt::basic_format_parse_context<t_CHAR>& pc)
+    template <class t_PARSE_CONTEXT>
+    typename t_PARSE_CONTEXT::iterator BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
+                                                           t_PARSE_CONTEXT& pc)
     {
         FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
 
         return d_formatter_bsl.parse(pc);
     }
 
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 bslfmt::basic_format_context<t_OUT, t_CHAR>& fc) const
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const FormattableType& value,
+                                               t_FORMAT_CONTEXT&      fc) const
     {
         FSS final_spec(d_spec);
 
@@ -322,249 +191,37 @@ struct formatter<FormattableType, t_CHAR> {
 
         FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
-        const char name[] = "FormattableType";
-        t_OUT out = fc.out();
+        const char                          name[] = "FormattableType";
+        typename t_FORMAT_CONTEXT::iterator out    = fc.out();
+
         out  = std::copy(name, name + strlen(name), out);
         *out = '{';
         ++out;
         fc.advance_to(out);
-        out    = d_formatter_bsl.format(value.x, fc);
-        *out   = '}';
+        out  = d_formatter_bsl.format(value.x, fc);
+        *out = '}';
         ++out;
         return out;
     }
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-        typename std::basic_format_parse_context<t_CHAR>::iterator
-        BSLS_KEYWORD_CONSTEXPR_CPP20
-        parse(std::basic_format_parse_context<t_CHAR>& pc)
-    {
-        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
-
-        return d_formatter_std.parse(pc);
-    }
-
-    template <class t_OUT>
-    t_OUT format(const FormattableType&             value,
-                 std::basic_format_context<t_OUT, t_CHAR>& fc) const
-    {
-        FSS final_spec(d_spec);
-
-        FSS::postprocess(&final_spec, fc);
-
-        typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
-
-        FSNVAlue finalWidth(final_spec.postprocessedWidth());
-
-        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
-
-        const char name[] = "FormattableType";
-        t_OUT      out    = fc.out();
-        out               = std::copy(name, name + strlen(name), out);
-        *out              = '{';
-        ++out;
-        fc.advance_to(out);
-        out    = d_formatter_std.format(value.x, fc);
-        *out   = '}';
-        ++out;
-        return out;
-    }
-#endif
 };
-#endif
+
+
 }  // close namespace bsl
-
-#if 0
-#include <iostream>
-#include <Windows.h>
-#include <io.h>
-#include <fcntl.h>
-#include <locale>
-
-void dummy()
-{
-    SetConsoleOutputCP(65001);
-
-    const char8_t * random = u8"\U0001F600";
-
-    const char8_t *ufills[] = {u8"",
-                              u8"*<",
-                              u8"*>",
-                              u8"*^",
-                              u8"\U0001F600<",
-                              u8"\U0001F600>",
-                              u8"\U0001F600^"};
-    const char *afills[] = {"",
-                              "*<",
-                              "*>",
-                              "*^",
-                              "\\U0001F600<",
-                              "\\U0001F600>",
-                              "\\U0001F600^"};
-    const char *cafills[] =
-        {"", "*<", "*>", "*^", "\\xF0\\x9F\\x98\\x80<", "\\xF0\\x9F\\x98\\x80>", "\\xF0\\x9F\\x98\\x80^"};
-
-    const char8_t *uwidths[] = {u8"", u8"5"};
-    const char *awidths[] = {"", "5"};
-
-    const char8_t *uprecisions[] =
-                                {u8"", u8".0", u8".3"};
-    const char *aprecisions[] =
-                                {"", ".0", ".8"};
-
-    const char8_t *uinputs[] = {
-        u8"",
-        u8"x",
-        u8"abcdefghijklm",
-        u8"\u006e\u0303p\u006e\u0303q\u006e\u0303r"
-        u8"\u006e\u0303s\u006e\u0303t"};
-
-    const char *ainputs[] = {
-        "",
-        "x",
-        "abcdefghijklm",
-        "\\u006e\\u0303p\\u006e\\u0303q\\u006e\\u0303r"
-        "\\u006e\\u0303s\\u006e\\u0303t"};
-
-    int lines = 0;
-
-    std::string aprev = "unknown";
-
-    for (int at = 0; at < 3; at++) {
-    
-    for (int f = 0; f < sizeof(ufills) / sizeof(char8_t *); f++) {
-            for (int w = 0; w < sizeof(uwidths) / sizeof(char8_t *); w++) {
-                for (int p = 0; p < sizeof(uprecisions) / sizeof(char8_t *);
-                     p++) {
-                    //for (int i = 0;
-                    // i < sizeof(uinputs) / sizeof(char8_t *); i++) {
-                    int         i    = 0;
-
-                    std::string afmt = "{";
-                    if (at == 2)
-                        afmt += "0";
-                    afmt += ":";
-
-                    afmt += (const char *)afills[f];
-
-                    if (at == 0 && awidths[w] != "") {
-                        afmt += (const char *)awidths[w];
-                    }
-                    if (at == 1 && awidths[w] != "") {
-                        afmt += "{}";
-                    }
-                    if (at == 2 && awidths[w] != "") {
-                        afmt += "{1}";
-                    }
-
-                    if (at == 0 && aprecisions[p] != "") {
-                        afmt += (const char *)aprecisions[p];
-                    }
-                    if (at == 1 && aprecisions[p] != "") {
-                        afmt += ".{}";
-                    }
-                    if (at == 2 && aprecisions[p] != "") {
-                        afmt += ".{1}";
-                    }
-                    
-                    afmt += "}";
-
-                    std::string cafmt = "{";
-                    if (at == 2)
-                        cafmt += "0";
-                    cafmt += ":";
-
-                    cafmt += (const char *)cafills[f];
-
-                    if (at == 0 && awidths[w] != "") {
-                        cafmt += (const char *)awidths[w];
-                    }
-                    if (at == 1 && awidths[w] != "") {
-                        cafmt += "{}";
-                    }
-                    if (at == 2 && awidths[w] != "") {
-                        cafmt += "{1}";
-                    }
-
-                    if (at == 0 && aprecisions[p] != "") {
-                        cafmt += (const char *)aprecisions[p];
-                    }
-                    if (at == 1 && aprecisions[p] != "") {
-                        cafmt += ".{}";
-                    }
-                    if (at == 2 && aprecisions[p] != "") {
-                        cafmt += ".{1}";
-                    }
-
-                    cafmt += "}";
-
-
-
-                    std::string::size_type pos;
-                    bool                   unicode = false;
-
-                    if (f > 3)
-                        unicode = true;
-                    if (afmt != aprev) {
-                        std::string qafmt = std::format("\"{}\"", afmt);
-                        std::string cqafmt = std::format(" \"{}\"", cafmt);
-                        std::string wqafmt = std::format("L\"{}\"", afmt);
-                        if (lines < 99999 && unicode)
-                            std::cout
-                                << std::format("        TPS(char,    "
-                                               "{:32}, oracle_uni);\n",
-                                               cqafmt)
-                                << std::format("        TPS(wchar_t, "
-                                               "{:32}, oracle_uni);",
-                                               wqafmt)
-                                << std::endl;
-                    }
-
-                    aprev = afmt;
-                    //for (int j = 0; j < result.size(); j++) {
-                    //    std::cout << j << ":
-                    //    " << (int)result[j] << std::endl;
-                    //}
-                    if (unicode)
-                        lines++;
-                        //}
-                }
-            }
-        }
-    }
-
-    std::cout << (const char *)u8"hello world"
-              << (const char *)u8"\U0001F600<";
-
-    std::cout << std::format("{:s}", (const char *)u8"\U0001F600<");
-
-    std::cout << "\nlines=" << lines << std::endl;
-}
-#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-         //dummy();
-         //return 0;
-
-    int        aaa     = sizeof(char);
-    int        bbb     = sizeof(wchar_t);
-
-    (void) aaa;
-    (void) bbb;
-
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
+    const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
       case 1: {
+
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
@@ -586,13 +243,21 @@ int main(int argc, char **argv)
             const bsl::string v2("Test 2");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-            // const char8_t *fmt = u8"{0:\U0001F600<6}";
-            // //const char8_t *fmt = u8"{:\U0000006e\U00000303<6}";
+#if !defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE >= 14
+             const char8_t *fmt = u8"{0:\U0001F600<4}";
 
-            // std::string rv1 = std::vformat((const char *)fmt,
-            //                                 std::make_format_args(1));
-            // std::string rv2 = std::vformat((const char *)u8"{:\U0001F600<6}",
-            //                     std::make_format_args((int)1));
+             int intValue = 42;
+
+             std::string rv1 = std::vformat((const char *)fmt,
+                                             std::make_format_args(intValue));
+
+             // We cannot do this test yet without integer formattters.
+             //bsl::string rv2 = bslfmt::vformat((const char *)fmt,
+             //                               bslfmt::make_format_args(intValue));
+
+             //ASSERT(rv1 == rv2);
+             ASSERT(rv1 == (const char *)u8"42\U0001F600\U0001F600");
+#endif
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY

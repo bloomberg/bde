@@ -192,6 +192,7 @@ struct Format_ParseContext_Test_Querier {
 
 // CREATORS
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 basic_format_parse_context<t_CHAR>::basic_format_parse_context(
                       bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT
@@ -205,6 +206,7 @@ basic_format_parse_context<t_CHAR>::basic_format_parse_context(
 }
 
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 basic_format_parse_context<t_CHAR>::basic_format_parse_context(
                   bsl::basic_string_view<t_CHAR> fmt,
@@ -220,6 +222,7 @@ basic_format_parse_context<t_CHAR>::basic_format_parse_context(
 
 // MANIPULATORS
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void basic_format_parse_context<t_CHAR>::advance_to(const_iterator it)
 {
@@ -233,6 +236,7 @@ void basic_format_parse_context<t_CHAR>::advance_to(const_iterator it)
 }
 
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 size_t basic_format_parse_context<t_CHAR>::next_arg_id()
 {
@@ -250,6 +254,7 @@ size_t basic_format_parse_context<t_CHAR>::next_arg_id()
 }
 
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void basic_format_parse_context<t_CHAR>::check_arg_id(size_t id)
 {
@@ -266,6 +271,7 @@ void basic_format_parse_context<t_CHAR>::check_arg_id(size_t id)
 
 // ACCESSORS
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 typename basic_format_parse_context<t_CHAR>::const_iterator
 basic_format_parse_context<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
@@ -274,6 +280,7 @@ basic_format_parse_context<t_CHAR>::begin() const BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class t_CHAR>
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 typename basic_format_parse_context<t_CHAR>::const_iterator
 basic_format_parse_context<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT

@@ -308,6 +308,7 @@ class Format_FormatArgs_ImpUtil {
 
 // PRIVATE CREATORS
 template <class t_CONTEXT, class... t_ARGS>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
@@ -325,12 +326,14 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 
 // CREATORS
 template <class t_CONTEXT>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
     : d_size(0) {}
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT>
 template <class... t_ARGS>
+inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT                                           // IMPLICIT
@@ -342,6 +345,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
 
 // ACCESSORS
 template <class t_CONTEXT>
+inline
 basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
                                         size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
@@ -351,6 +355,7 @@ basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
 
 // PRIVATE ACCESSORS
 template <class t_CONTEXT>
+inline
 size_t basic_format_args<t_CONTEXT>::size() const
 {
     return d_size;
@@ -366,6 +371,7 @@ size_t basic_format_args<t_CONTEXT>::size() const
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class t_CONTEXT, class... t_ARGS>
+inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>
 Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
@@ -379,6 +385,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 #endif
 
 template <class t_CONTEXT>
+inline
 size_t Format_FormatArgs_ImpUtil::formatArgsSize(
                                       const basic_format_args<t_CONTEXT>& args)
 {
@@ -395,6 +402,7 @@ size_t Format_FormatArgs_ImpUtil::formatArgsSize(
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 template <class... t_ARGS>
+inline
 Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
@@ -403,6 +411,7 @@ Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
 }
 
 template <class... t_ARGS>
+inline
 Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {

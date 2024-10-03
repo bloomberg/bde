@@ -341,6 +341,7 @@ class Format_FormatContextFactory {
 
 // CREATORS
 template <class t_CHAR, class t_ITER>
+inline
 Format_OutputIteratorImpl<t_CHAR, t_ITER>::Format_OutputIteratorImpl(
                                                                   t_ITER& iter)
 : d_iter(iter)
@@ -369,6 +370,7 @@ void Format_OutputIteratorImpl<t_CHAR, t_ITER>::put(t_CHAR character)
 
 // CREATORS
 template <class t_CHAR>
+inline
 Format_OutputIteratorRef<t_CHAR>::Format_OutputIteratorRef(
                                        Format_OutputIteratorBase<t_CHAR> *base)
 : d_base_p(base)
@@ -377,18 +379,21 @@ Format_OutputIteratorRef<t_CHAR>::Format_OutputIteratorRef(
 
 // MANIPULATORS
 template <class t_CHAR>
+inline
 Format_OutputIteratorRef<t_CHAR>& Format_OutputIteratorRef<t_CHAR>::operator*()
 {
     return *this;
 }
 
 template <class t_CHAR>
+inline
 void Format_OutputIteratorRef<t_CHAR>::operator=(t_CHAR x)
 {
     d_base_p->put(x);
 }
 
 template <class t_CHAR>
+inline
 Format_OutputIteratorRef<t_CHAR>&
 Format_OutputIteratorRef<t_CHAR>::operator++()
 {
@@ -396,6 +401,7 @@ Format_OutputIteratorRef<t_CHAR>::operator++()
 }
 
 template <class t_CHAR>
+inline
 Format_OutputIteratorRef<t_CHAR> Format_OutputIteratorRef<t_CHAR>::operator++(
                                                                            int)
 {
@@ -409,6 +415,7 @@ Format_OutputIteratorRef<t_CHAR> Format_OutputIteratorRef<t_CHAR>::operator++(
 // PRIVATE CREATORS
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_context<t_OUT, t_CHAR>::basic_format_context(
                            t_OUT                                          out,
                            const basic_format_args<basic_format_context>& args)
@@ -420,6 +427,7 @@ basic_format_context<t_OUT, t_CHAR>::basic_format_context(
 // MANIPULATORS
 
 template <class t_OUT, class t_CHAR>
+inline
 typename basic_format_context<t_OUT, t_CHAR>::iterator
 basic_format_context<t_OUT, t_CHAR>::out()
 {
@@ -427,6 +435,7 @@ basic_format_context<t_OUT, t_CHAR>::out()
 }
 
 template <class t_OUT, class t_CHAR>
+inline
 void basic_format_context<t_OUT, t_CHAR>::advance_to(iterator it)
 {
     d_out = BloombergLP::bslmf::MovableRefUtil::move(it);
@@ -435,6 +444,7 @@ void basic_format_context<t_OUT, t_CHAR>::advance_to(iterator it)
 // ACCESSORS
 
 template <class t_OUT, class t_CHAR>
+inline
 typename basic_format_context<t_OUT, t_CHAR>::Arg
 basic_format_context<t_OUT, t_CHAR>::arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
 {
@@ -450,6 +460,7 @@ basic_format_context<t_OUT, t_CHAR>::arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
 // CLASS METHODS
 
 template <class t_OUT, class t_CHAR>
+inline
 basic_format_context<t_OUT, t_CHAR> Format_FormatContextFactory::construct(
            t_OUT                                                          out,
            const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
