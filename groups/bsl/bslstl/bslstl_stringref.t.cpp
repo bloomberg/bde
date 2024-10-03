@@ -6652,21 +6652,16 @@ int main(int argc, char *argv[])
                                  "\n=======================================\n";
 
         BloombergLP::comparisons::testAccessorsComparisons<char>();
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned char>();
-        BloombergLP::comparisons::testAccessorsComparisons<signed char>();
-
-        // The size of `wchar_t`, and whether it is signed, varies by platform,
-        // like `char`, and some platforms seem to support only one of
-        // `signed wchar_t` or `unsigned wchar_t`, depending which is the
-        // opposite signedness of `wchar_t`.
-
         BloombergLP::comparisons::testAccessorsComparisons<wchar_t>();
 
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned short>();
-        BloombergLP::comparisons::testAccessorsComparisons<short>();
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        BloombergLP::comparisons::testAccessorsComparisons<char16_t>();
+        BloombergLP::comparisons::testAccessorsComparisons<char32_t>();
+#endif
 
-        BloombergLP::comparisons::testAccessorsComparisons<unsigned int>();
-        BloombergLP::comparisons::testAccessorsComparisons<int>();
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+        BloombergLP::comparisons::testAccessorsComparisons<char8_t>();
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
