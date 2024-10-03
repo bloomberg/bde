@@ -6,9 +6,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a ormatter customization for string types
+//@PURPOSE: Provide a string formatter for use by bsl::format
 //
 //@CLASSES:
+//  bsl::formatter: partial specialization for string types.
 //
 //@DESCRIPTION: This component provides a partial specialization for the
 // `bsl::formatter` type covering the case for string formatting. This type
@@ -471,7 +472,7 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
 
     // Only do an analysis of the string if there is a possibility of
     // truncation or padding.
-    if ((maxDisplayWidth < static_cast<int>(sv.size()) * 2) ||
+    if ((maxDisplayWidth < sv.size() * 2) ||
         (finalWidth.valueType() != FSNVAlue::e_DEFAULT)) {
         findPrecisionLimitedString(&charactersOfInputUsed,
                                    &displayWidthUsedByInputString,

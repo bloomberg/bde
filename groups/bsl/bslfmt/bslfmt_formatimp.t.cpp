@@ -263,17 +263,11 @@ int main(int argc, char **argv)
                    "\n==============\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-        std::formatter<int, char> dummy1;
-        (void) dummy1;
-
-        std::formatter<bsl::string, char> dummy2;
-        (void) dummy2;
-
-        bslfmt::format_string<int> dummy3("{}");
-        (void) dummy3;
+        std::formatter<int, char>              dummy1;
+        (void)dummy1;
 #endif
-        bsl::formatter<bsl::string_view, char> dummy4;
-        (void)dummy4;
+        bsl::formatter<bsl::string_view, char> dummy2;
+        (void)dummy2;
 
 
         const bsl::string intro = "Here is a simple equation";
@@ -281,6 +275,8 @@ int main(int argc, char **argv)
         const int          y   = 2;
         const int         sum = x + y;
         (void)sum;
+
+        bslfmt::format_string<int> test("{}");
 
         check(bslfmt::format(L"{}", x), L"1");
 
@@ -294,7 +290,7 @@ int main(int argc, char **argv)
         check(bslfmt::format(L"{}", L"Hello World"),
               L"Hello World");
 
-        
+        std::formatter<bsl::string, char> dummy;
 
         DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
                     "{}: {} + {} = {}",
