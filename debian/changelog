@@ -1,5 +1,34 @@
-bsl-internal (4.14.0.0) unstable; urgency=low
+bsl-internal (4.15.0.0) unstable; urgency=low
 
+  * 9ab65afc1 Bumped version to 4.15.0.0
+  * a6a35c965 Integer overflow in allocator call (#4980)
+  * 62dc695f8 Merge pull request #4987 from rkhlebnikov/fix-xt-cpp-compilation
+  * 98140dc34 fix typo in bsls_alignment test, 00 to 99 (#4982)
+  * f3c1db0ee remade branch due to bad rebase (#4979)
+  * 15fedcd23 Compile out invalid enum test cases when building ubsan (#4974)
+  * d9e55a59b Fix signed/unsigned compare warning in bdljsn_json.t (#4978)
+  * 916bc35b4 DRQS 171943720: Remove REVIEWs & hexfloat support. (#4909)
+  * 3251c97cb Fix numAllocations test error in balst_stacktracetestallocator. (#4975)
+  * b6a36a4da Avoid double-copy in operator[] (#4939)
+  * 2627a9d97 Fix bslmt package namespace closing placement (#4971)
+  * 4f8cc08aa DRQS 176589017: Fix "catch-by-value" clauses (or suppress warning) (#4935)
+  * 85370bb9e Merge pull request #4967 from afeher/drqs-176546971-stacktracetestallocator-add-allocation-limit-2
+  * 7c958bdd8 Add allocation-limit to StackTraceTestAllocator. (#4963)
+  * b012cb519 Add allocation-limit to StackTraceTestAllocator. (#4952)
+  * e2ee37b79 Fix MacOS clang C++20 (#4947)
+  * e190aadb6 Remove obsolete platform restrictions. (#4944)
+  * f4d1b6ea8 bdlbb_blobstreambuf: fix ubsan (#4956)
+  * 01fbfc1b0 bdlsb_overflowmemoutstreambuf: fix ubsan (#4954)
+  * 75a114390 Bdlc packedintarray ubsan drqs 176630428 (#4955)
+  * 04d8378e4 correct two warnings, add consistency checks (#4934)
+  * 7449d6eec bdlt_datetime.h bdexStreamIn: initialize tmp = 0 silence -Wmaybe-unin… (#4927)
+  * 39620ea06 Merge pull request #4948 from afeher/drqs-176630437-datumbinaryref-ubsan
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 3 Oct 2024 10:25:58 +0000
+
+bsl-internal (4.14.0.0) git; urgency=low
+
+  * 7534a6c92 Changelog for version 4.14.0.0
   * e7fb56e4b 'bdlb::Tokenizer' postfix increment operator has been removed (#4938)
   * bdfe0738f bdlde_crc32c ubsan fixes with elided memcpys (#4940)
   * 445a8ac42 Bumped version to 4.14.0.0
@@ -22,7 +51,7 @@ bsl-internal (4.14.0.0) unstable; urgency=low
   * 1d0919602 bslh_siphashalgorithm: eliminated ubsan from non-aligned Uint64 loads (#4897)
   * 1ee96d9bf Merge pull request #4864 from afeher/drqs-176224752-new-allocator-style-for-datum
 
- -- Denis Sokolov <dsokolov7@bloomberg.net>  Thu, 12 Sep 2024 10:12:58 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 12 Sep 2024 14:23:56 +0000
 
 bsl-internal (4.13.1.0) git; urgency=low
 
