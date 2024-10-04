@@ -3,6 +3,20 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERUNICODEDATA
 #define INCLUDED_BSLFMT_FORMATTERUNICODEDATA
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Private unicode data tables for use by `bsl::format`
+//
+//@CLASSES:
+//  Formatter_UnicodeData: Namespace struct for generated unicode data tables.
+//
+//@DESCRIPTION: This component is a namespace struct to provide access to
+// script-generated tables of unicode character data as required by
+// `bslfmt::format` and associated utilities.
+//
+// This component is for use within `bslfmt` only.
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>
