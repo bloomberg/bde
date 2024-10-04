@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct  3 17:49:29 2024
+// Generated on Fri Oct  4 12:23:28 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -1027,9 +1027,13 @@ inline
 void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  0u> *out)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  0u> tmp = {
         {}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 0
 
@@ -1040,9 +1044,13 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>,  1u> *out,
        t_FMTARGS_01& fmt_args_01)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  1u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 1
 
@@ -1055,10 +1063,15 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_01& fmt_args_01,
        t_FMTARGS_02& fmt_args_02)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  2u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 2
 
@@ -1073,11 +1086,17 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_02& fmt_args_02,
        t_FMTARGS_03& fmt_args_03)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  3u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
          basic_format_arg<t_CONTEXT>(fmt_args_03)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 3
 
@@ -1094,12 +1113,19 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_03& fmt_args_03,
        t_FMTARGS_04& fmt_args_04)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  4u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
          basic_format_arg<t_CONTEXT>(fmt_args_03),
          basic_format_arg<t_CONTEXT>(fmt_args_04)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 4
 
@@ -1118,6 +1144,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_04& fmt_args_04,
        t_FMTARGS_05& fmt_args_05)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  5u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1125,6 +1152,13 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_04),
          basic_format_arg<t_CONTEXT>(fmt_args_05)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 5
 
@@ -1145,6 +1179,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_05& fmt_args_05,
        t_FMTARGS_06& fmt_args_06)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  6u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1153,6 +1188,14 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_05),
          basic_format_arg<t_CONTEXT>(fmt_args_06)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05),
+              basic_format_arg<t_CONTEXT>(fmt_args_06)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 6
 
@@ -1175,6 +1218,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_06& fmt_args_06,
        t_FMTARGS_07& fmt_args_07)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  7u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1184,6 +1228,15 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_06),
          basic_format_arg<t_CONTEXT>(fmt_args_07)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05),
+              basic_format_arg<t_CONTEXT>(fmt_args_06),
+              basic_format_arg<t_CONTEXT>(fmt_args_07)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 7
 
@@ -1208,6 +1261,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_07& fmt_args_07,
        t_FMTARGS_08& fmt_args_08)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  8u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1218,6 +1272,16 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_07),
          basic_format_arg<t_CONTEXT>(fmt_args_08)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05),
+              basic_format_arg<t_CONTEXT>(fmt_args_06),
+              basic_format_arg<t_CONTEXT>(fmt_args_07),
+              basic_format_arg<t_CONTEXT>(fmt_args_08)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 8
 
@@ -1244,6 +1308,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_08& fmt_args_08,
        t_FMTARGS_09& fmt_args_09)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>,  9u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1255,6 +1320,17 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_08),
          basic_format_arg<t_CONTEXT>(fmt_args_09)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05),
+              basic_format_arg<t_CONTEXT>(fmt_args_06),
+              basic_format_arg<t_CONTEXT>(fmt_args_07),
+              basic_format_arg<t_CONTEXT>(fmt_args_08),
+              basic_format_arg<t_CONTEXT>(fmt_args_09)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 9
 
@@ -1283,6 +1359,7 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        t_FMTARGS_09& fmt_args_09,
        t_FMTARGS_10& fmt_args_10)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>, 10u> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args_01),
          basic_format_arg<t_CONTEXT>(fmt_args_02),
@@ -1295,6 +1372,18 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
          basic_format_arg<t_CONTEXT>(fmt_args_09),
          basic_format_arg<t_CONTEXT>(fmt_args_10)}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args_01),
+              basic_format_arg<t_CONTEXT>(fmt_args_02),
+              basic_format_arg<t_CONTEXT>(fmt_args_03),
+              basic_format_arg<t_CONTEXT>(fmt_args_04),
+              basic_format_arg<t_CONTEXT>(fmt_args_05),
+              basic_format_arg<t_CONTEXT>(fmt_args_06),
+              basic_format_arg<t_CONTEXT>(fmt_args_07),
+              basic_format_arg<t_CONTEXT>(fmt_args_08),
+              basic_format_arg<t_CONTEXT>(fmt_args_09),
+              basic_format_arg<t_CONTEXT>(fmt_args_10)} };
+#endif
 }
 #endif  // BSLFMT_FORMATARG_VARIADIC_LIMIT_B >= 10
 
@@ -1307,9 +1396,13 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
        t_FMTARGS&...                                                  fmt_args)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args)...}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args)...} };
+#endif
 }
 // }}} END GENERATED CODE
 #endif

@@ -909,10 +909,14 @@ void Format_FormatArg_ImpUtil::makeFormatArgArray(
        bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> *out,
        t_FMTARGS&...                                                  fmt_args)
 {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     // Use the form of braced initialization that is valid in C++03
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_FMTARGS)> tmp = {
         {basic_format_arg<t_CONTEXT>(fmt_args)...}};
     *out = bslmf::MovableRefUtil::move(tmp);
+#else
+    *out = { {basic_format_arg<t_CONTEXT>(fmt_args)...} };
+#endif
 }
 #endif
 
