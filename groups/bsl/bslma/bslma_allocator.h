@@ -151,7 +151,9 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
-//     void increaseSize(); // Increase the capacity by at least one element.
+//
+//     /// Increase the capacity by at least one element.
+//     void increaseSize();
 //
 //   public:
 //     // CREATORS
@@ -410,15 +412,15 @@ class Allocator : public bsl::memory_resource {
     // PROTECTED MANIPULATORS
 
     /// Return a newly allocated block of memory of (at least) the specified
-    /// positive `bytes` and having at least the specified `alignment`.
-    /// Unless overriden in a derived class, the return value is
-    /// `this->allocate(bytes)`.  If this allocator cannot return the
-    /// requested number of bytes or cannot satisfy the alignment request,
-    /// then it will throw a `std::bad_alloc` exception in an
-    /// exception-enabled build, or else will abort the program in a
-    /// non-exception build.  The behavior is undefined unless '0 <=
-    /// bytes'.  Unless overriden in a derived class, the behavior is
-    /// undefined if `alignment > bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.
+    /// positive `bytes` and having at least the specified `alignment`.  Unless
+    /// overriden in a derived class, the return value is
+    /// `this->allocate(bytes)`.  If this allocator cannot return the requested
+    /// number of bytes or cannot satisfy the alignment request, then it will
+    /// throw a `std::bad_alloc` exception in an exception-enabled build, or
+    /// else will abort the program in a non-exception build.  The behavior is
+    /// undefined unless '0 <= bytes'.  Unless overriden in a derived class,
+    /// the behavior is undefined if `alignment >
+    /// bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.
     void* do_allocate(std::size_t bytes,
                       std::size_t alignment) BSLS_KEYWORD_OVERRIDE;
 
@@ -435,8 +437,8 @@ class Allocator : public bsl::memory_resource {
     // PROTECTED ACCESSORS
 
     /// Return `true` if this allocator is equal to the specified `other`
-    /// allocator, meaning (at least) that a memory block allocated by one
-    /// can be deallocated by the other; otherwise return `false`.  Unless
+    /// allocator, meaning (at least) that a memory block allocated by one can
+    /// be deallocated by the other; otherwise return `false`.  Unless
     /// overriden, this method returns `this == &other`.
     bool do_is_equal(const memory_resource& other) const
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
@@ -444,27 +446,27 @@ class Allocator : public bsl::memory_resource {
   public:
     // PUBLIC TYPES
 
-    /// Alias for an unsigned integral type capable of representing the
-    /// number of bytes in this platform's virtual address space.
+    /// Alias for an unsigned integral type capable of representing the number
+    /// of bytes in this platform's virtual address space.
     typedef std::size_t size_type;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // CLASS METHODS
 
-    /// **DEPRECATED**: Use `bsls::BslExceptionUtil::throwBadAlloc` instead.
-    ///
     /// Throw `std::bad_alloc` if exceptions are enabled or abort the
     /// program otherwise.  Derived classes and helper functions will
     /// typically call this function when they are unable to satisfy an
     /// allocation request.  This function never returns.
+    ///
+    /// @DEPRECATED: Use `bsls::BslExceptionUtil::throwBadAlloc` instead.
     static void throwBadAlloc();
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
 
     /// Destroy this allocator.  Note that the behavior of destroying an
-    /// allocator while memory is allocated from it is not specified;
-    /// unless you *know* that it is valid to do so, don't!
+    /// allocator while memory is allocated from it is not specified; unless
+    /// you *know* that it is valid to do so, don't!
     ~Allocator() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
@@ -654,7 +656,7 @@ void Allocator::deleteObjectRaw(bsl::nullptr_t)
 
 }  // close package namespace
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // ============================================================================
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
@@ -665,7 +667,7 @@ typedef bslma::Allocator bslma_Allocator;
 #ifndef bdema_Allocator
 #define bdema_Allocator bslma::Allocator
 #endif
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
+#endif
 
 }  // close enterprise namespace
 

@@ -100,8 +100,7 @@ namespace balb {
                     // ==============================
 
 /// This simply constrained (value-semantic) attribute class characterizes
-/// configuration parameters for a file cleaner.  See the {Attributes}
-/// section under @DESCRIPTION in the component-level documentation for
+/// configuration parameters for a file cleaner.  See the [](#Attributes) for
 /// information on the class attributes.  Note that the class invariants are
 /// identically the constraints on the individual attributes.
 ///
@@ -135,37 +134,36 @@ class FileCleanerConfiguration {
     // CREATORS
 
     /// Create a file cleaner configuration object having default values for
-    /// all attributes.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
+    /// all attributes.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.
     explicit FileCleanerConfiguration(bslma::Allocator *basicAllocator = 0);
 
     /// Create a file cleaner configuration object having the specified
-    /// `filePattern`, `maxAge`, and `minNumber` attribute values.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
+    /// `filePattern`, `maxAge`, and `minNumber` attribute values.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.
     FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
                              int                        minNumber,
                              bslma::Allocator          *basicAllocator = 0);
 
-    /// Create a file cleaner configuration object having the in-core value
-    /// of the specified `original` object.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// Create a file cleaner configuration object having the in-core value of
+    /// the specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     FileCleanerConfiguration(
                           const FileCleanerConfiguration&  original,
                           bslma::Allocator                *basicAllocator = 0);
 
+    /// Destroy this object.
     //! ~FileCleanerConfiguration() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
-    /// Assign to this file cleaner configuration object the in-core value
-    /// of the specified `rhs` object, and return a reference providing
-    /// modifiable access to this object.
+    /// Assign to this file cleaner configuration object the in-core value of
+    /// the specified `rhs` object, and return a reference providing modifiable
+    /// access to this object.
     FileCleanerConfiguration& operator=(const FileCleanerConfiguration& rhs);
 
     /// Set the file pattern attribute of this object to the specified
@@ -176,8 +174,8 @@ class FileCleanerConfiguration {
     /// `maxAge`.
     void setMaxFileAge(const bsls::TimeInterval& maxAge);
 
-    /// Set the minimum number of files to keep attribute of this object to
-    /// the specified `minNumber`.
+    /// Set the minimum number of files to keep attribute of this object to the
+    /// specified `minNumber`.
     void setMinNumFiles(int minNumber);
 
     // ACCESSORS
@@ -208,10 +206,10 @@ class FileCleanerConfiguration {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same (in-core) value, and `false` otherwise.  Two attribute objects
-/// have the same in-core value if each respective attribute has the same
-/// in-core value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same (in-core) value, and `false` otherwise.  Two attribute objects have
+/// the same in-core value if each respective attribute has the same in-core
+/// value.
 bool operator==(const FileCleanerConfiguration& lhs,
                 const FileCleanerConfiguration& rhs);
 
@@ -222,9 +220,8 @@ bool operator==(const FileCleanerConfiguration& lhs,
 bool operator!=(const FileCleanerConfiguration& lhs,
                 const FileCleanerConfiguration& rhs);
 
-/// Write a reasonable representation of the specified `configuration`
-/// object to the specified output `stream`, and return a reference to
-/// `stream`.
+/// Write a reasonable representation of the specified `configuration` object
+/// to the specified output `stream`, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const FileCleanerConfiguration& configuration);
 

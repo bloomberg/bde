@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, `bdljsn::WriteOptions`, that is used to
-// specify options for writing a JSON document (see {`bdljsn_jsonutil`}).
+// specify options for writing a JSON document (see `bdljsn_jsonutil`).
 //
 ///Attributes
 ///----------
@@ -82,11 +82,10 @@ namespace bdljsn {
                              // class WriteOptions
                              // ==================
 
-/// This simply constrained (value-semantic) attribute class specifies
-/// options for writing a JSON document.  See the {Attributes} section under
-/// {DESCRIPTION} in the component-level documentation for information on
-/// the class attributes.  Note that the class invariants are identically
-/// the constraints on the individual attributes.
+/// This simply constrained (value-semantic) attribute class specifies options
+/// for writing a JSON document.  See the [](#Attributes) for information on
+/// the class attributes.  Note that the class invariants are identically the
+/// constraints on the individual attributes.
 class WriteOptions {
 
     // INSTANCE DATA
@@ -144,13 +143,13 @@ class WriteOptions {
     /// construction) and return a non-`const` reference to this object.
     WriteOptions& reset();
 
-    /// Set the `initialIndentLevel` attribute of this object to the
-    /// specified `value` and return a non-`const` reference to this object.
-    /// The behavior is undefined unless `0 <= value`.
+    /// Set the `initialIndentLevel` attribute of this object to the specified
+    /// `value` and return a non-`const` reference to this object.  The
+    /// behavior is undefined unless `0 <= value`.
     WriteOptions& setInitialIndentLevel(int value);
 
-    /// Set the `sortMembers` attribute of this object to the specified
-    /// `value` and return a non-`const` reference to this object.
+    /// Set the `sortMembers` attribute of this object to the specified `value`
+    /// and return a non-`const` reference to this object.
     WriteOptions& setSortMembers(bool value);
 
     /// Set the `spacesPerLevel` attribute of this object to the specified
@@ -158,8 +157,8 @@ class WriteOptions {
     /// behavior is undefined unless `0 <= value`.
     WriteOptions& setSpacesPerLevel(int value);
 
-    /// Set the `style` attribute of this object to the specified `value`.
-    /// and return a non-`const` reference to this object.
+    /// Set the `style` attribute of this object to the specified `value` and
+    /// return a non-`const` reference to this object.
     WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
 
     // ACCESSORS
@@ -197,16 +196,15 @@ class WriteOptions {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const WriteOptions& lhs, const WriteOptions& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 inline
 bool operator!=(const WriteOptions& lhs, const WriteOptions& rhs);
 

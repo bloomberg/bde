@@ -7,9 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a polymorphic adaptor for STL-style allocators
 //
-//@CLASSES: AllocatorAdaptor<ALLOC>
-//
-//@SEE_ALSO:
+//@CLASSES:
+//  bslma::AllocatorAdaptor<ALLOC>: polymorphic adaptor for STL allocators
 //
 //@DESCRIPTION: Within the BDE libraries, the prefered way to handle memory
 // allocation is through a pointer to the polymorphic base class,
@@ -25,6 +24,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // Let's start with a simple class, `my::FilePath`, which allocates storage
 // using a `bslma::Allocator`:
 // ```
@@ -209,15 +212,15 @@ class AllocatorAdaptor_Imp : public Allocator {
 
     // MANIPULATORS
 
-    /// Return a maximally-aligned block of memory no smaller than `size`
-    /// bytes allocated from the STL-style allocator that was supplied to
-    /// this object's constructor.  Any exceptions thrown by the underlying
+    /// Return a maximally-aligned block of memory no smaller than `size` bytes
+    /// allocated from the STL-style allocator that was supplied to this
+    /// object's constructor.  Any exceptions thrown by the underlying
     /// STL-style allocator are propagated out from this member.
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
 
     /// Return the memory block at the specified `address` back to the
-    /// STL-allocator.  If `address` is null, this funciton has no effect.
-    /// The behavior is undefined unless `address` was allocated using this
+    /// STL-allocator.  If `address` is null, this funciton has no effect.  The
+    /// behavior is undefined unless `address` was allocated using this
     /// allocator object and has not already been deallocated.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
 
@@ -233,20 +236,19 @@ class AllocatorAdaptor_Imp : public Allocator {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 /// Polymorphic wrapper around an STL-style allocator.  Note that
-/// `AllocatorAdaptor<A>::Type` is the same type regardless of whether or
-/// not the compiler supports alias templates.  It should be used,
-/// therefore, whenever the exact type of the adaptor is important.
+/// `AllocatorAdaptor<A>::Type` is the same type regardless of whether or not
+/// the compiler supports alias templates.  It should be used, therefore,
+/// whenever the exact type of the adaptor is important.
 template <class STL_ALLOC>
 using AllocatorAdaptor =
     AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>;
 #else
-/// Polymorphic wrapper around an object of the specified `STL_ALLOC`
-/// STL-style allocator template parameter.  A pointer to an object of this
-/// class can thus be used with any component that uses BDE-style memory
-/// allocation.  Note that `AllocatorAdaptor<A>::Type` is the same type
-/// regardless of whether or not the compiler supports alias templates.  It
-/// should be used, therefore, whenever the exact type of the adaptor is
-/// important.
+/// Polymorphic wrapper around an object of the specified `STL_ALLOC` STL-style
+/// allocator template parameter.  A pointer to an object of this class can
+/// thus be used with any component that uses BDE-style memory allocation.
+/// Note that `AllocatorAdaptor<A>::Type` is the same type regardless of
+/// whether or not the compiler supports alias templates.  It should be used,
+/// therefore, whenever the exact type of the adaptor is important.
 template <class STL_ALLOC>
 class AllocatorAdaptor : public
   AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>
@@ -263,12 +265,12 @@ public:
     /// STL-style allocator.
     AllocatorAdaptor(); // = default
 
-    /// Constructs a polymorphic wrapper around a copy of the specified
-    /// 'stla' STL-style allocator.
+    /// Constructs a polymorphic wrapper around a copy of the specified 'stla'
+    /// STL-style allocator.
     AllocatorAdaptor(const STL_ALLOC& stla);
 
-    //! AllocatorAdaptor(const AllocatorAdaptor&);
-    //! ~AllocatorAdaptor();
+    //! AllocatorAdaptor(const AllocatorAdaptor&) = default;
+    //! ~AllocatorAdaptor() = default;
 };
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 

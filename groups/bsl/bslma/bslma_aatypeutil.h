@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Constructing a New Member Using an Existing Member's Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,8 +57,8 @@ BSLS_IDENT("$Id: $")
 //     int               value()     const { return d_value; }
 // };
 //
+// /// Another **legacy-AA** class.
 // class Curly {
-//     // Another **legacy-AA** class.
 //
 //     // DATA
 //     bslma::Allocator *d_allocator_p;
@@ -84,13 +85,13 @@ BSLS_IDENT("$Id: $")
 // exists.  Because the `Larry` member holds an allocator, there is no need for
 // a separate allocator data member:
 // ```
+// /// Holds a `Larry` object and possibly a `Curly` object.
 // class LarryMaybeCurly {
-//     // Holds a 'Larry' object and possibly a 'Curly' object.
 //
 //     // DATA
-//     bool                      d_hasCurly; // True if 'd_curly' is populated
+//     bool                      d_hasCurly; // True if `d_curly` is populated
 //     Larry                     d_larry;
-//     bsls::ObjectBuffer<Curly> d_curly;    // Maybe holds a 'Curly' object
+//     bsls::ObjectBuffer<Curly> d_curly;    // Maybe holds a `Curly` object
 // ```
 // Next we complete the public interface, which includes a constructor that
 // sets the value of the `Larry` object, a manipulator for setting the value of
@@ -104,17 +105,19 @@ BSLS_IDENT("$Id: $")
 //     typedef bsl::allocator<char> allocator_type;
 //
 //     // CREATORS
+//
+//     /// Create an object having a `Larry` member with the specified `v`
+//     /// value and having no `Curly` member.  Optionally specify an
+//     /// allocator `a` to supply memory.
 //     explicit LarryMaybeCurly(int                   v,
 //                              const allocator_type& a = allocator_type());
-//         // Create an object having a 'Larry' member with the specified 'v'
-//         // value and having no 'Curly' member.  Optionally specify an
-//         // allocator 'a' to supply memory.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Initialize the `Curly` member to the specified `v` value.
 //     void setCurly(int v);
-//         // initialize the 'Curly' member to the specified 'v' value.
 //
 //     // ACCESSORS
 //     bool         hasCurly() const { return d_hasCurly; }

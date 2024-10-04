@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, `bdljsn::ReadOptions`, that is used to
-// specify options for reading a JSON document (see {`bdljsn_jsonutil`}).
+// specify options for reading a JSON document (see `bdljsn_jsonutil`).
 //
 ///Attributes
 ///----------
@@ -76,11 +76,10 @@ namespace bdljsn {
                              // class ReadOptions
                              // =================
 
-/// This simply constrained (value-semantic) attribute class specifies
-/// options for reading a JSON document.  See the {Attributes} section under
-/// {DESCRIPTION} in the component-level documentation for information on
-/// the class attributes.  Note that the class invariants are identically
-/// the constraints on the individual attributes.
+/// This simply constrained (value-semantic) attribute class specifies options
+/// for reading a JSON document.  See the [](#Attributes) for information on
+/// the class attributes.  Note that the class invariants are identically the
+/// constraints on the individual attributes.
 class ReadOptions {
 
     // INSTANCE DATA
@@ -99,8 +98,8 @@ class ReadOptions {
   public:
     // CREATORS
 
-    /// Create an object of type `ReadOptions` having the (default)
-    /// attribute values:
+    /// Create an object of type `ReadOptions` having the (default) attribute
+    /// values:
     /// ```
     /// setAllowTrailingText() == false
     /// maxNestedDepth()       == 64
@@ -143,18 +142,17 @@ class ReadOptions {
 
                                   // Aspects
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.  Also note that the format is not fully
-    /// specified, and can change without notice.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.  Also note that
+    /// the format is not fully specified, and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
@@ -162,16 +160,16 @@ class ReadOptions {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const ReadOptions& lhs, const ReadOptions& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes do not
-/// have the same value.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes do not have the
+/// same value.
 inline
 bool operator!=(const ReadOptions& lhs, const ReadOptions& rhs);
 

@@ -40,13 +40,12 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the function signature:
 // ```
+// /// Load to the specified `value` the `int` value represented by the
+// /// specified `inputText`.  Return 0 on success, and a non-zero value
+// /// otherwise with no effect on `*value` and the specified `error` is set.
 // int extractIntegerToken(int              *value,
 //                         bdljsn::Error    *error,
 //                         bsl::string_view  inputText)
-//     // Load to the specified 'value' the 'int' value represented by the
-//     // specified 'inputText'.  Return 0 on success, and a non-zero value
-//     // otherwise with no effect on '*value' and the specified 'error' is
-//     // set.
 // {
 //     BSLS_ASSERT(value);
 //     BSLS_ASSERT(error);
@@ -104,12 +103,10 @@ namespace bdljsn {
                                 // class Error
                                 // ===========
 
-/// This unconstrained (value-semantic) attribute class specifies a
-/// description of an error in processing a (JSON) document.  See the
-/// {Attributes} section under {DESCRIPTION} in the component-level
-/// documentation for information on the class attributes.  Note that the
-/// class invariants are identically the constraints on the individual
-/// attributes.
+/// This unconstrained (value-semantic) attribute class specifies a description
+/// of an error in processing a (JSON) document.  See the [](#Attributes) for
+/// information on the class attributes.  Note that the class invariants are
+/// identically the constraints on the individual attributes.
 class Error {
 
     // DATA
@@ -127,39 +124,39 @@ class Error {
     // CREATORS
 
     /// Create an `Error` object having the default value (see
-    /// {Attributes}).  Optionally specify a `basicAllocator` used to supply
+    /// [](#Attributes)).  Optionally specify a `basicAllocator` used to supply
     /// memory.  If `basicAllocator` is 0, the currently installed default
     /// allocator is used.
     Error();
     explicit Error(bslma::Allocator *basicAllocator);
 
-    /// Create an `Error` object having the specified `location` and
-    /// `message`.  Optionally specify a `basicAllocator` used to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.
+    /// Create an `Error` object having the specified `location` and `message`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Error(const Location&          location,
           const bsl::string_view&  message,
           bslma::Allocator        *basicAllocator = 0);
 
-    /// Create an `Error` object having the value of the specified
-    /// `original` object.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
+    /// Create an `Error` object having the value of the specified `original`
+    /// object.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     Error(const Error& original, bslma::Allocator *basicAllocator = 0);
 
-    /// Create a `Error` object having the same value and the same allocator
-    /// as the specified `original` object.  The value of `original` becomes
+    /// Create a `Error` object having the same value and the same allocator as
+    /// the specified `original` object.  The value of `original` becomes
     /// unspecified but valid, and its allocator remains unchanged.
     Error(bslmf::MovableRef<Error> original) BSLS_KEYWORD_NOEXCEPT;
 
     /// Create a `Error` object having the same value as the specified
-    /// `original` object, and using the specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.  The allocator of `original` remains
-    /// unchanged.  If `original` and the newly created object have the same
-    /// allocator then the value of `original` becomes unspecified but
-    /// valid, and no exceptions will be thrown; otherwise `original` is
-    /// unchanged and an exception may be thrown.
+    /// `original` object, and using the specified `basicAllocator` to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The allocator of `original` remains unchanged.  If
+    /// `original` and the newly created object have the same allocator then
+    /// the value of `original` becomes unspecified but valid, and no
+    /// exceptions will be thrown; otherwise `original` is unchanged and an
+    /// exception may be thrown.
     Error(bslmf::MovableRef<Error>  original,
           bslma::Allocator         *basicAllocator);
 
@@ -173,19 +170,18 @@ class Error {
     Error& operator=(const Error& rhs);
 
     /// Assign to this object the value of the specified `rhs` object, and
-    /// return a non-`const` reference to this object.  The allocators of
-    /// this object and `rhs` both remain unchanged.  If `rhs` and this
-    /// object have the same allocator then the value of `rhs` becomes
-    /// unspecified but valid, and no exceptions will be thrown; otherwise
-    /// `rhs` is unchanged (and an exception may be thrown).
+    /// return a non-`const` reference to this object.  The allocators of this
+    /// object and `rhs` both remain unchanged.  If `rhs` and this object have
+    /// the same allocator then the value of `rhs` becomes unspecified but
+    /// valid, and no exceptions will be thrown; otherwise `rhs` is unchanged
+    /// (and an exception may be thrown).
     Error& operator=(bslmf::MovableRef<Error> rhs);
 
     /// Reset this object to the default value (i.e., its value upon default
     /// construction).
     Error& reset();
 
-    /// Set the `location` attribute of this object to the specified
-    /// `value`.
+    /// Set the `location` attribute of this object to the specified `value`.
     Error& setLocation(const Location& value);
 
     /// Set the `message` attribute of this object to the specified `value`.
@@ -209,23 +205,23 @@ class Error {
 
                                   // Aspects
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     bslma::Allocator *allocator() const;
 
     /// Write the value of this object to the specified output `stream` in a
-    /// human-readable format, and return a non-`const` reference to
-    /// `stream`.  Optionally specify an initial indentation `level`, whose
-    /// absolute value is incremented recursively for nested objects.  If
-    /// `level` is specified, optionally specify `spacesPerLevel`, whose
-    /// absolute value indicates the number of spaces per indentation level
-    /// for this and all of its nested objects.  If `level` is negative,
-    /// suppress indentation of the first line.  If `spacesPerLevel` is
-    /// negative, format the entire output on one line, suppressing all but
-    /// the initial indentation (as governed by `level`).  If `stream` is
-    /// not valid on entry, this operation has no effect.  Note that the
-    /// format is not fully specified, and can change without notice.
+    /// human-readable format, and return a non-`const` reference to `stream`.
+    /// Optionally specify an initial indentation `level`, whose absolute value
+    /// is incremented recursively for nested objects.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, whose absolute value
+    /// indicates the number of spaces per indentation level for this and all
+    /// of its nested objects.  If `level` is negative, suppress indentation of
+    /// the first line.  If `spacesPerLevel` is negative, format the entire
+    /// output on one line, suppressing all but the initial indentation (as
+    /// governed by `level`).  If `stream` is not valid on entry, this
+    /// operation has no effect.  Note that the format is not fully specified,
+    /// and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -233,31 +229,29 @@ class Error {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 bool operator==(const Error& lhs, const Error& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 bool operator!=(const Error& lhs, const Error& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a non-`const` reference to
-/// `stream`.  If `stream` is not valid on entry, this operation has no
-/// effect.  Note that this human-readable format is not fully specified and
-/// can change without notice.  Also note that this method has the same
-/// behavior as `object.print(stream, 0, -1)`, but with the attribute names
-/// elided.
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a non-`const` reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note that
+/// this human-readable format is not fully specified and can change without
+/// notice.  Also note that this method has the same behavior as
+/// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const Error& object);
 
 // FREE FUNCTIONS
 
 /// Pass the specified `object` to the specified `hashAlgorithm`.  This
-/// function integrates with the `bslh` modular hashing system and
-/// effectively provides a `bsl::hash` specialization for `ErroError`.
+/// function integrates with the `bslh` modular hashing system and effectively
+/// provides a `bsl::hash` specialization for `ErroError`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlgorithm, const Error& object);
 

@@ -152,9 +152,8 @@ BSLS_IDENT("$Id: $")
 // Finally, we convert the `jsonCompatibleString` back to its original content:
 // ```
 // bsl::string fromJsonString;
-// const int   rcDecode = bdljsn::StringUtil::readString(
-//                                                      &fromJsonString,
-//                                                      jsonCompatibleString);
+// const int   rcDecode = bdljsn::StringUtil::readString(&fromJsonString,
+//                                                       jsonCompatibleString);
 // assert(0       == rcDecode);
 // assert(initial == fromJsonString);
 //
@@ -182,8 +181,8 @@ namespace bdljsn {
                              // =================
 
 /// This class provides utility functions for converting arbitrary UTF-8
-/// sequences into JSON strings and visa versa.  See {JSON Strings} in
-/// {DESCRIPTION} for details of these transformations.
+/// sequences into JSON strings and visa versa.  See [](#JSON Strings) for
+/// details of these transformations.
 struct StringUtil {
 
   public:
@@ -195,21 +194,21 @@ struct StringUtil {
 
     // CLASS METHODS
 
-    /// Load to the specified `value` the UTF-8 codepoint sequence
-    /// equivalent to the specified (JSON) `string` (see {JSON Strings}).
-    /// Return 0 on success and a non-zero value otherwise.  Optionally
-    /// specify `flags` to request variances from certain rules of JSON
-    /// decoding (see {Strictness}).
+    /// Load to the specified `value` the UTF-8 codepoint sequence equivalent
+    /// to the specified (JSON) `string` (see [](#JSON Strings)).  Return 0 on
+    /// success and a non-zero value otherwise.  Optionally specify `flags` to
+    /// request variances from certain rules of JSON decoding (see
+    /// [](#Strictness)).
     static int readString(bsl::string             *value,
                           const bsl::string_view&  string,
                           int                      flags = e_NONE);
 
-    /// Load to the specified `value` the UTF-8 codepoint sequence
-    /// equivalent to the specified `string`, that is JSON-compliant absent
-    /// the leading and trailing double quote characters (see {JSON
-    /// Strings}).  Return 0 on success and a non-zero value otherwise.
-    /// Optionally specify `flags` to request variances from certain rules
-    /// of JSON decoding (see {Strictness}).
+    /// Load to the specified `value` the UTF-8 codepoint sequence equivalent
+    /// to the specified `string`, that is JSON-compliant absent the leading
+    /// and trailing double quote characters (see [](#JSON Strings)).  Return 0
+    /// on success and a non-zero value otherwise.  Optionally specify `flags`
+    /// to request variances from certain rules of JSON decoding (see
+    /// [](#Strictness)).
     static int readUnquotedString(bsl::string             *value,
                                   const bsl::string_view&  string,
                                   int                      flags = e_NONE);
@@ -217,9 +216,9 @@ struct StringUtil {
     /// Write to the specified `stream` a JSON-compliant string that is
     /// equivalent to the specified `string`, an arbitrary UTF-8 codepoint
     /// sequence.  Return 0 on success and a non-zero value otherwise.  The
-    /// operation fails if `string` is not a sequence of UTF-8 codepoints or
-    /// if there is an error writing to `stream`.  See {Conventions:
-    /// Arbitrary UTF-8 to JSON String} for further details.
+    /// operation fails if `string` is not a sequence of UTF-8 codepoints or if
+    /// there is an error writing to `stream`.  See
+    /// [](#Guarantees: Arbitrary UTF-8 to JSON String) for further details.
     static int writeString(bsl::ostream&           stream,
                            const bsl::string_view& string);
 };

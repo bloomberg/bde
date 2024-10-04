@@ -1799,6 +1799,7 @@ class basic_string
     /// a reference providing modifiable access to this string.
     basic_string& operator=(const basic_string& rhs);
 
+#ifndef DOXYGEN_SKIP
     /// Assign to this string the value of the specified `rhs` string,
     /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
     /// type has trait `propagate_on_container_move_assignment`, and return
@@ -1811,6 +1812,7 @@ class basic_string
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
             AllocatorTraits::propagate_on_container_move_assignment::value ||
             AllocatorTraits::is_always_equal::value);
+#endif
 
     /// Assign to this string the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this string.

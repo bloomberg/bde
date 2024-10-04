@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 // (value-semantic) attribute class, `bdljsn::Location`, that is used to
 // describe a location in a (JSON) document.  Location is expressed by the
 // `offset` (attrbute) in bytes from the start of the document.  See
-// {`jsonutil`} for utilities that may provide `bdljsn::Location` values when
-// reporting error states.
+// `bdljson_jsonutil` for utilities that may provide `bdljsn::Location` values
+// when reporting error states.
 //
 ///Attributes
 ///----------
@@ -116,11 +116,10 @@ namespace bdljsn {
                                // class Location
                                // ==============
 
-/// This unconstrained (value-semantic) attribute class specifies a location
-/// in a (JSON) document.  See the {Attributes} section under {DESCRIPTION}
-/// in the component-level documentation for information on the class
-/// attributes.  Note that the class invariants are identically the
-/// constraints on the individual attributes.
+/// This unconstrained (value-semantic) attribute class specifies a location in
+/// a (JSON) document.  See the [](#Attributes) for information on the class
+/// attributes.  Note that the class invariants are identically the constraints
+/// on the individual attributes.
 class Location {
 
     // DATA
@@ -175,17 +174,16 @@ class Location {
 
                                   // Aspects
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -193,33 +191,31 @@ class Location {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const Location& lhs, const Location& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 inline
 bool operator!=(const Location& lhs, const Location& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a non-`const` reference to
-/// `stream`.  If `stream` is not valid on entry, this operation has no
-/// effect.  Note that this human-readable format is not fully specified and
-/// can change without notice.  Also note that this method has the same
-/// behavior as `object.print(stream, 0, -1)`, but with the attribute names
-/// elided.
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a non-`const` reference to `stream`.
+/// If `stream` is not valid on entry, this operation has no effect.  Note that
+/// this human-readable format is not fully specified and can change without
+/// notice.  Also note that this method has the same behavior as
+/// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream& stream, const Location& object);
 
 // FREE FUNCTIONS
 
 /// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `Location`.
+/// integrates with the `bslh` modular hashing system and effectively provides
+/// a `bsl::hash` specialization for `Location`.
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Location& object);
 
