@@ -193,6 +193,11 @@ class Format_FormatArgStore {
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
         BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
+        BSLS_KEYWORD_NOEXCEPT;
 };
 
 #endif
@@ -315,6 +320,15 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 {
 }
 
+template <class t_CONTEXT, class... t_ARGS>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+
 #endif
 
 
@@ -379,7 +393,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
     Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
                                                                   &arg_array,
                                                                   fmt_args...);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 
 #endif

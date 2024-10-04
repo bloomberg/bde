@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Oct  3 17:43:11 2024
+// Generated on Fri Oct  4 12:23:14 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -125,6 +125,11 @@ class Format_FormatArgStore<t_CONTEXT> {
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  0u>& args)
         BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  0u> > args)
+        BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 0
 
@@ -143,6 +148,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01> {
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  1u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  1u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 1
@@ -164,6 +174,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  2u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  2u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 2
@@ -187,6 +202,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  3u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  3u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 3
@@ -212,6 +232,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  4u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  4u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 4
@@ -239,6 +264,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  5u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  5u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 5
@@ -268,6 +298,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  6u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  6u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 6
@@ -299,6 +334,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  7u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  7u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 7
@@ -332,6 +372,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  8u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  8u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 8
@@ -367,6 +412,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>,  9u>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  9u> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 9
@@ -405,6 +455,11 @@ class Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, 10u>& args)
         BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, 10u> > args)
+        BSLS_KEYWORD_NOEXCEPT;
 };
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_A >= 10
 
@@ -425,6 +480,11 @@ class Format_FormatArgStore {
 
     explicit Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
+        BSLS_KEYWORD_NOEXCEPT;
+
+    explicit Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
         BSLS_KEYWORD_NOEXCEPT;
 };
 
@@ -1551,6 +1611,239 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 10
 
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 0
+template <class t_CONTEXT>
+inline
+Format_FormatArgStore<t_CONTEXT, BSLS_COMPILERFEATURES_FILLT(10)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  0u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 0
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 1
+template <class t_CONTEXT, class t_ARGS_01>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 BSLS_COMPILERFEATURES_FILLT( 9)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  1u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 1
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 2
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 BSLS_COMPILERFEATURES_FILLT( 8)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  2u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 2
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 3
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 BSLS_COMPILERFEATURES_FILLT( 7)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  3u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 3
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 4
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 BSLS_COMPILERFEATURES_FILLT( 6)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  4u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 4
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 5
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 BSLS_COMPILERFEATURES_FILLT( 5)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  5u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 5
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 6
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 BSLS_COMPILERFEATURES_FILLT( 4)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  6u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 6
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 7
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 BSLS_COMPILERFEATURES_FILLT( 3)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  7u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 7
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 8
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08,
+                                 BSLS_COMPILERFEATURES_FILLT( 2)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  8u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 8
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 9
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08,
+                           class t_ARGS_09>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08,
+                                 t_ARGS_09,
+                                 BSLS_COMPILERFEATURES_FILLT( 1)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>,  9u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 9
+
+#if BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 10
+template <class t_CONTEXT, class t_ARGS_01,
+                           class t_ARGS_02,
+                           class t_ARGS_03,
+                           class t_ARGS_04,
+                           class t_ARGS_05,
+                           class t_ARGS_06,
+                           class t_ARGS_07,
+                           class t_ARGS_08,
+                           class t_ARGS_09,
+                           class t_ARGS_10>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
+                                 t_ARGS_02,
+                                 t_ARGS_03,
+                                 t_ARGS_04,
+                                 t_ARGS_05,
+                                 t_ARGS_06,
+                                 t_ARGS_07,
+                                 t_ARGS_08,
+                                 t_ARGS_09,
+                                 t_ARGS_10,
+                                 BSLS_COMPILERFEATURES_FILLT( 0)
+                                 >::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, 10u> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
+{
+}
+#endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_E >= 10
+
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -1560,6 +1853,15 @@ inline
 Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
+{
+}
+
+template <class t_CONTEXT, class... t_ARGS>
+inline
+Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
+         bslmf::MovableRef<
+             bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
+    BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
 {
 }
 
@@ -1880,7 +2182,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs()
     bsl::array<basic_format_arg<t_CONTEXT>,  0u> arg_array;
     Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT>(
                                                                   &arg_array);
-    return Format_FormatArgStore<t_CONTEXT>(arg_array);
+    return Format_FormatArgStore<t_CONTEXT>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 0
 
@@ -1894,7 +2197,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01)
     Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01>(
                                                                   &arg_array,
                                                                   fmt_args_01);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01>(arg_array);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS_01>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 1
 
@@ -1914,7 +2218,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                                   fmt_args_01,
                                                                   fmt_args_02);
     return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
-                                            t_ARGS_02>(arg_array);
+                                            t_ARGS_02>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 2
 
@@ -1940,7 +2245,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                                   fmt_args_03);
     return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                             t_ARGS_02,
-                                            t_ARGS_03>(arg_array);
+                                            t_ARGS_03>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 3
 
@@ -1972,7 +2278,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
     return Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                             t_ARGS_02,
                                             t_ARGS_03,
-                                            t_ARGS_04>(arg_array);
+                                            t_ARGS_04>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 4
 
@@ -2010,7 +2317,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_02,
                                             t_ARGS_03,
                                             t_ARGS_04,
-                                            t_ARGS_05>(arg_array);
+                                            t_ARGS_05>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 5
 
@@ -2054,7 +2362,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_03,
                                             t_ARGS_04,
                                             t_ARGS_05,
-                                            t_ARGS_06>(arg_array);
+                                            t_ARGS_06>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 6
 
@@ -2104,7 +2413,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_04,
                                             t_ARGS_05,
                                             t_ARGS_06,
-                                            t_ARGS_07>(arg_array);
+                                            t_ARGS_07>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 7
 
@@ -2160,7 +2470,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_05,
                                             t_ARGS_06,
                                             t_ARGS_07,
-                                            t_ARGS_08>(arg_array);
+                                            t_ARGS_08>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 8
 
@@ -2222,7 +2533,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_06,
                                             t_ARGS_07,
                                             t_ARGS_08,
-                                            t_ARGS_09>(arg_array);
+                                            t_ARGS_09>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 9
 
@@ -2290,7 +2602,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                             t_ARGS_07,
                                             t_ARGS_08,
                                             t_ARGS_09,
-                                            t_ARGS_10>(arg_array);
+                                            t_ARGS_10>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_G >= 10
 
@@ -2307,7 +2620,8 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
     Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
                                                                   &arg_array,
                                                                   fmt_args...);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(arg_array);
+    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(
+                                       bslmf::MovableRefUtil::move(arg_array));
 }
 
 // }}} END GENERATED CODE
