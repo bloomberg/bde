@@ -3,6 +3,17 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERPOINTER
 #define INCLUDED_BSLFMT_FORMATTERPOINTER
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a formatter customization for pointer types
+//
+//@CLASSES:
+//
+//@DESCRIPTION: This component provides partial specializations of
+// `bsl::formatter` catering for pointer types.
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

@@ -6,10 +6,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a string formatter for use by bsl::format
+//@PURPOSE: Provide a ormatter customization for string types
 //
 //@CLASSES:
-//  bsl::formatter: partial specialization for string types.
 //
 //@DESCRIPTION: This component provides a partial specialization for the
 // `bsl::formatter` type covering the case for string formatting. This type

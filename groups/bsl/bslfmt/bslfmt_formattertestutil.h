@@ -6,21 +6,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide invoker adaptors for 'bsl::function'
+//@PURPOSE: Provide utilities for testing custom formatters
 //
 //@CLASSES:
-//  FormatSpecification_Splitter: Utility to tokenize format specifications.
-//  FormatSpecification_Splitter_Base: Base for FormatSpecification_Splitter.
+//  Formatter_MockParseContext: Parsing context for use in formatter tests
+//  Formatter_MockFormatContext: Format context for use in formatter tests
+//  Formatter_TestUtil: Formatter test utilities
 //
-//@SEE_ALSO: bslfmt_format.h
-//
-//@DESCRIPTION: This component provides a mechanism to perform a first-pass
-// split of a formatting string into its component parts in a way that is
-// compatible with [format.string] and [time.format] in the Standard. No
-// validation is performed by this component and further type-specific
-// processing will be required prior to use.
+//@DESCRIPTION: This component provides a utility to facilitate testing of
+// `bsl::formatter` partial specializations where, due to hierarchical reasons,
+// the testing cannot be performed using `bslfmt::format`.
 // 
-// This component is for private use only.
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 

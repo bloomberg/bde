@@ -3,6 +3,17 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERFLOATING
 #define INCLUDED_BSLFMT_FORMATTERFLOATING
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a formatter customization for floating point types
+//
+//@CLASSES:
+//
+//@DESCRIPTION: This component provides partial specializations of
+// `bsl::formatter` catering for floating point types.
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

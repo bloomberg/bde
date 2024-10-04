@@ -3,6 +3,20 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERUNICODEUTILS
 #define INCLUDED_BSLFMT_FORMATTERUNICODEUTILS
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Private unicode utilities for use by `bsl::format`
+//
+//@CLASSES:
+//  Formatter_UnicodeUtils: Namespace struct for generated unicode data tables.
+//
+//@DESCRIPTION: This component is a namespace struct to provide utility
+// functions that extract unicode codepoints and associated data from byte
+// arrays.
+//
+// This component is for use within `bslfmt` only.
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

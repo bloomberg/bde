@@ -3,6 +3,17 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERBOOL
 #define INCLUDED_BSLFMT_FORMATTERBOOL
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a formatter customization for boolean types
+//
+//@CLASSES:
+//
+//@DESCRIPTION: This component provides partial specializations of
+// `bsl::formatter` catering for boolean types.
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

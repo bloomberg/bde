@@ -6,21 +6,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide invoker adaptors for 'bsl::function'
+//@PURPOSE: Private utility for use within BSL `format` standard spec parsers
 //
 //@CLASSES:
-//  FormatSpecification_Splitter: Utility to tokenize format specifications.
-//  FormatSpecification_Splitter_Base: Base for FormatSpecification_Splitter.
+//  FormatterSpecificationStandard: Utility to parse a standard format spec
 //
-//@SEE_ALSO: bslfmt_format.h
+//@DESCRIPTION: This component provides a mechanism to parse a formatting
+// string that is a "standard formatting specification" as defined by
+// [format.string.std].
 //
-//@DESCRIPTION: This component provides a mechanism to perform a first-pass
-// split of a formatting string into its component parts in a way that is
-// compatible with [format.string] and [time.format] in the Standard. No
-// validation is performed by this component and further type-specific
-// processing will be required prior to use.
-// 
-// This component is for private use only.
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 

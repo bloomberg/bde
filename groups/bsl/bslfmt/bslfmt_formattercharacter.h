@@ -3,6 +3,17 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERCHARACTER
 #define INCLUDED_BSLFMT_FORMATTERCHARACTER
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a formatter customization for character types
+//
+//@CLASSES:
+//
+//@DESCRIPTION: This component provides partial specializations of
+// `bsl::formatter` catering for character types.
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

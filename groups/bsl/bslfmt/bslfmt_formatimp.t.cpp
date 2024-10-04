@@ -282,8 +282,6 @@ int main(int argc, char **argv)
         const int         sum = x + y;
         (void)sum;
 
-        
-
         check(bslfmt::format(L"{}", x), L"1");
 
         check(bslfmt::format("{}", y),

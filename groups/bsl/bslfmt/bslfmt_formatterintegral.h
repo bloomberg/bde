@@ -3,6 +3,17 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERINTEGRAL
 #define INCLUDED_BSLFMT_FORMATTERINTEGRAL
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a formatter customization for integer types
+//
+//@CLASSES:
+//
+//@DESCRIPTION: This component provides partial specializations of
+// `bsl::formatter` catering for integer types.
+//
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>

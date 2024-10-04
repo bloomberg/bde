@@ -3,6 +3,64 @@
 #ifndef INCLUDED_BSLFMT_FORMATTERBASE
 #define INCLUDED_BSLFMT_FORMATTERBASE
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a base template for formatter specializations
+//
+//@CLASSES:
+//  bsl::formatter: standard-compliant formatter base template.
+//
+//@DESCRIPTION: This component provides an base template of the C++20 Standard
+// Library's `formatter`, which provides a customization point for use defined
+// types seeking to use the formatting library.
+//
+// It also provides a mechanism, when the standard library `<format>` header is
+// available, to enable those partial specializations to be forwarded to the
+// `std` namespace to enable use of `std::format` as well as `bsl::format`
+//
+///User-provided formatters
+///------------------------
+//
+// User-provided formatters are supported by the BSL implementation, just as
+// they are by the standard library implementation. However, in order for them
+// to be compatible with both implementations, there are specific requirements,
+// notably:
+//
+// - If you will define a formatter for your type 'T', do so in the same
+//   component header that defines 'T' itself.  This avoids issues due to
+//   users forgetting to include the header for the formatter.
+// - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
+//   template arguments for the format context and parse context
+//   parameters. This is essential as the parameter type passed in will
+//   depend upon underlying implementation.
+// - The `parse` function should be constexpr in C++20, but this is not
+//   required (and may not be possible) for earlier C++ standards.
+//
+// An example of a user defined formatter is as follows:
+//
+// ```
+// namespace bsl {
+//
+// template <class t_CHAR> struct formatter<UserDefinedType, t_CHAR> {
+//     template <class t_PARSE_CONTEXT>
+//     BSLS_KEYWORD_CONSTEXPR_CPP20
+//     t_PARSE_CONTEXT::iterator parse(t_PARSE_CONTEXT& pc)
+//     {
+//         // implementation goes here
+//     }
+//
+//     template <class t_FORMAT_CONTEXT>
+//     t_FORMAT_CONTEXT::iterator format(UserDefinedType   s,
+//                                       t_FORMAT_CONTEXT& ctx) const
+//     {
+//         // implementation goes here
+//     }
+// };
+//
+// }  // close namespace bsl
+// ```
+
 #include <bslscm_version.h>
 
 #include <bslalg_numericformatterutil.h>
