@@ -9,35 +9,111 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has TBD components having TBD levels of physical
+ The 'bslfmt' package currently has 23 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bslfmt_tbd
+  9. bslfmt_format
 
-  1. bslfmt_tbd
+  8. bslfmt_formatimp
+
+  7. bslfmt_formatterstring
+
+  6. bslfmt_formatterbool
+     bslfmt_formatterspecificationstandard
+
+  5. bslfmt_formatargs
+     bslfmt_formatterfloating
+     bslfmt_formatterintegral
+     bslfmt_formatterpointer
+     bslfmt_formatterspecificationsplitter
+     bslfmt_formattertestutil
+
+  4. bslfmt_formatarg
+     bslfmt_formatcontext
+     bslfmt_formattercharacter
+     bslfmt_formatterunicodeutils
+
+  3. bslfmt_formatparsecontext
+     bslfmt_formatterbase
+     bslfmt_formatterunicodedata
+
+  2. bslfmt_formaterror
+     bslfmt_formatstring
+
+  1. bslfmt_formatarg_cpp03                                           !PRIVATE!
+     bslfmt_formatargs_cpp03                                          !PRIVATE!
+     bslfmt_formatimp_cpp03                                           !PRIVATE!
 ..
 
 /Component Synopsis
 /------------------
-: 'bslfmt_tbd':
-:      Provide a location for testing 'bsl' standard library headers.
+: 'bslfmt_format':
+:      Provide a standard compliant `format` implementation
 :
-: 'bslfmt_tbd':
-:      Provide a guard for saving the state of a stream object.
+: 'bslfmt_formatarg':
+:      Provide a proxy for an argument for use by bsl::format
 :
-: 'bslfmt_tbd':
-:      Provide a view of a buffer of fuzz data bytes.
+: 'bslfmt_formatarg_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatarg.h
 :
-: 'bslfmt_tbd':
-:      Provide fuzz test utilities for basic types.
+: 'bslfmt_formatargs':
+:      Provide a container of arguments for use by bsl::format
 :
-: 'bslfmt_tbd':
-:      Provide facilities for debugging BDE with gtest.
+: 'bslfmt_formatargs_cpp03':                                          !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatargs.h
 :
-: 'bslfmt_tbd':
-:      Provide a mechanism to implement standard 'print' methods.
+: 'bslfmt_formatcontext':
+:      Provides access to formatting state.
 :
-: 'bslfmt_tbd':
-:      Provide test utilities for components above 'bsl'.
+: 'bslfmt_formaterror':
+:      Provide an exception type for format library errors
+:
+: 'bslfmt_formatimp':
+:      Provide a standard compliant `format` implementation
+:
+: 'bslfmt_formatimp_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatimp.h
+:
+: 'bslfmt_formatparsecontext':
+:      Provides access to formatting parsing string and parsing state.
+:
+: 'bslfmt_formatstring':
+:      Provide a string_view wrapper for formatting library usage
+:
+: 'bslfmt_formatterbase':
+:      Provide a base template for formatter specializations
+:
+: 'bslfmt_formatterbool':
+:      Provide a formatter customization for boolean types
+:
+: 'bslfmt_formattercharacter':
+:      Provide a formatter customization for character types
+:
+: 'bslfmt_formatterfloating':
+:      Provide a formatter customization for floating point types
+:
+: 'bslfmt_formatterintegral':
+:      Provide a formatter customization for integer types
+:
+: 'bslfmt_formatterpointer':
+:      Provide a formatter customization for pointer types
+:
+: 'bslfmt_formatterspecificationsplitter':
+:      Private utility for use within BSL `format` spec parsers
+:
+: 'bslfmt_formatterspecificationstandard':
+:      Private utility for use within BSL `format` standard spec parsers
+:
+: 'bslfmt_formatterstring':
+:      Provide a ormatter customization for string types
+:
+: 'bslfmt_formattertestutil':
+:      Provide utilities for testing custom formatters
+:
+: 'bslfmt_formatterunicodedata':
+:      Private unicode data tables for use by `bsl::format`
+:
+: 'bslfmt_formatterunicodeutils':
+:      Private unicode utilities for use by `bsl::format`
