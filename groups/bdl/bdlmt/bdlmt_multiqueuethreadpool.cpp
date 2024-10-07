@@ -201,14 +201,14 @@ void MultiQueueThreadPool_Queue::executeFront()
         functors.reserve(count);
 
         for (bsl::size_t i = 0; i < count; ++i) {
-            functors.emplace_back(d_list.front());
+            functors.emplace_back(bslmf::MovableRefUtil::move(d_list.front()));
             d_list.pop_front();
         }
 
         d_processor = bslmt::ThreadUtil::self();
     }
 
-    // Note that the appropriate 'd_runState' is a bit ambigoues at this point.
+    // Note that the appropriate 'd_runState' is a bit ambiguous at this point.
     // Since there is nothing scheduled in the thread pool, the state should
     // arguably be 'e_NOT_SCHEDULED'.  However, allowing work to be scheduled
     // during the execution of the 'functors' would be a bug.  Instead of
@@ -319,12 +319,12 @@ int MultiQueueThreadPool_Queue::initiatePause()
     return 0;
 }
 
-int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
+int MultiQueueThreadPool_Queue::pushBack(bslmf::MovableRef<Job> functor)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
     if (e_ENQUEUING_ENABLED == d_enqueueState) {
-        d_list.push_back(functor);
+        d_list.push_back(bslmf::MovableRefUtil::move(functor));
 
         // Note that the following should match what is in 'pushFront'.
 
@@ -333,7 +333,7 @@ int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
 
             ++d_multiQueueThreadPool_p->d_numActiveQueues;
 
-            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+            const int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
             BSLS_ASSERT_OPT(0 == status);  (void)status;
@@ -345,12 +345,12 @@ int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
     return 1;
 }
 
-int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
+int MultiQueueThreadPool_Queue::pushFront(bslmf::MovableRef<Job> functor)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
     if (e_ENQUEUING_ENABLED == d_enqueueState) {
-        d_list.push_front(functor);
+        d_list.push_front(bslmf::MovableRefUtil::move(functor));
 
         // Note that the following should match what is in 'pushBack'.
 
@@ -360,7 +360,7 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
 
             ++d_multiQueueThreadPool_p->d_numActiveQueues;
 
-            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+            const int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
             BSLS_ASSERT_OPT(0 == status);  (void)status;

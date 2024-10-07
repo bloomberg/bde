@@ -355,6 +355,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_condition.h>
@@ -516,11 +517,11 @@ class MultiQueueThreadPool_Queue {
 
     /// Enqueue the specified `functor` at the end of this queue.  Return 0
     /// on success, and a non-zero value if enqueuing is disabled.
-    int pushBack(const Job& functor);
+    int pushBack(bslmf::MovableRef<Job> functor);
 
     /// Add the specified `functor` at the front of this queue.  Return 0 on
     /// success, and a non-zero value if enqueuing is disabled.
-    int pushFront(const Job& functor);
+    int pushFront(bslmf::MovableRef<Job> functor);
 
     /// Reset this queue to its initial state.  The behavior is undefined
     /// unless this queue's lock is in an unlocked state.  After this method
@@ -719,7 +720,8 @@ class MultiQueueThreadPool {
     /// bound.  Note that the position of `functor` relative to any
     /// currently queued jobs is unspecified unless the queue is currently
     /// paused.
-    int addJobAtFront(int id, const Job& functor);
+    int addJobAtFront(int id, const Job&             functor);
+    int addJobAtFront(int id, bslmf::MovableRef<Job> functor);
 
     /// Create a queue with unlimited capacity and a default number of
     /// initial elements.  Return a non-zero queue ID.  The queue ID can be
@@ -781,7 +783,8 @@ class MultiQueueThreadPool {
     /// Enqueue the specified `functor` to the queue specified by `id`.
     /// Return 0 if enqueued successfully, and a non-zero value if queuing
     /// is disabled.  The behavior is undefined unless `functor` is bound.
-    int enqueueJob(int id, const Job& functor);
+    int enqueueJob(int id, const Job&             functor);
+    int enqueueJob(int id, bslmf::MovableRef<Job> functor);
 
     /// Enable enqueuing to the queue associated with the specified `id`.
     /// Return 0 on success, and a non-zero value otherwise.  It is an error
@@ -973,6 +976,14 @@ int MultiQueueThreadPool::findIfUsable(int                          id,
 inline
 int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 {
+    Job temp(bsl::allocator_arg, d_allocator_p, functor);
+
+    return addJobAtFront(id, bslmf::MovableRefUtil::move(temp));
+}
+
+inline
+int MultiQueueThreadPool::addJobAtFront(int id, bslmf::MovableRef<Job> functor)
+{
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
     MultiQueueThreadPool_Queue *queue;
@@ -981,7 +992,7 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
         return 1;                                                     // RETURN
     }
 
-    if (0 == queue->pushFront(functor)) {
+    if (0 == queue->pushFront(bslmf::MovableRefUtil::move(functor))) {
         ++d_numEnqueued;
         return 0;                                                     // RETURN
     }
@@ -992,6 +1003,14 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
+    Job temp(bsl::allocator_arg, d_allocator_p, functor);
+
+    return enqueueJob(id, bslmf::MovableRefUtil::move(temp));
+}
+
+inline
+int MultiQueueThreadPool::enqueueJob(int id, bslmf::MovableRef<Job> functor)
+{
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
     MultiQueueThreadPool_Queue *queue;
@@ -1000,7 +1019,7 @@ int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
         return 1;                                                     // RETURN
     }
 
-    if (0 == queue->pushBack(functor)) {
+    if (0 == queue->pushBack(bslmf::MovableRefUtil::move(functor))) {
         ++d_numEnqueued;
         return 0;                                                     // RETURN
     }
