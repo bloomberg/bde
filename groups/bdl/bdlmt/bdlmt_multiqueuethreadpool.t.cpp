@@ -1792,6 +1792,10 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
+            // On C++11 onwards we could simply call `detector` `job` and
+            // `move` that into the queue, but unfortunately that is too much
+            // for Solaris Studio C++03, so we have to spell out every move
+            // individually.
             CopyAndMoveDetector detector;
             Obj::Job job(bslmf::MovableRefUtil::move(detector));
             mX.enqueueJob(queueId, bslmf::MovableRefUtil::move(job));
@@ -1831,6 +1835,10 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
+            // On C++11 onwards we could simply call `detector` `job` and
+            // `move` that into the queue, but unfortunately that is too much
+            // for Solaris Studio C++03, so we have to spell out every move
+            // individually.
             CopyAndMoveDetector detector;
             Obj::Job job(bslmf::MovableRefUtil::move(detector));
             mX.addJobAtFront(queueId, bslmf::MovableRefUtil::move(job));
