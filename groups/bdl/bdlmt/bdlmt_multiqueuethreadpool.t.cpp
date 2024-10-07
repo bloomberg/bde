@@ -556,9 +556,12 @@ struct CopyAndMoveDetector {
             ASSERTV(d_copied, d_called, !d_copied && !d_called);
         }
         else if (d_copied) {
+// In C++03 we get an extra copy that is not eliminated and not called either
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             // This is the root object, we only allow that to be copied
             ASSERTV(d_moved, d_called, !d_moved&& !d_called);
             ASSERTV(s_calls, 1 == s_calls);
+#endif
         }
         else {
             // An job must be copied, moved, or called
@@ -1816,12 +1819,18 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
-            CopyAndMoveDetector job;
+            const CopyAndMoveDetector job;
             mX.enqueueJob(queueId, job);
             mX.drain();
 
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             ASSERTV(CopyAndMoveDetector::s_copies,
                     1 == CopyAndMoveDetector::s_copies);
+#else
+            // In C++03 we get an extra, uneliminated temporary
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    2 == CopyAndMoveDetector::s_copies);
+#endif
             ASSERTV(CopyAndMoveDetector::s_moves,
                     0 == CopyAndMoveDetector::s_moves);
         }
@@ -1859,12 +1868,19 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
-            CopyAndMoveDetector job;
+            const CopyAndMoveDetector job;
             mX.addJobAtFront(queueId, job);
             mX.drain();
 
+
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             ASSERTV(CopyAndMoveDetector::s_copies,
                     1 == CopyAndMoveDetector::s_copies);
+#else
+            // In C++03 we get an extra, uneliminated temporary
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    2 == CopyAndMoveDetector::s_copies);
+#endif
             ASSERTV(CopyAndMoveDetector::s_moves,
                     0 == CopyAndMoveDetector::s_moves);
         }
