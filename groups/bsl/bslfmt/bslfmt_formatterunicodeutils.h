@@ -163,11 +163,6 @@ struct Formatter_CharUtils {
 
 template <>
 struct Formatter_CharUtils<char> {
-
-    // CLASS DATA
-    static const char *const s_toUpper_p;  // uppercase character conversion
-                                           // table
-
     // CLASS METHODS
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
@@ -198,7 +193,9 @@ struct Formatter_CharUtils<char> {
     static void toUpper(char *begin, const char *end)
     {
         for (; begin != end; (void)++begin) {
-            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+            if (*begin >= 'a' && *begin <= 'z') {
+                *begin = static_cast<char>(*begin + 'A' - 'a');
+            }
         }
     }
 };
@@ -206,11 +203,6 @@ struct Formatter_CharUtils<char> {
 
 template <>
 struct Formatter_CharUtils<wchar_t> {
-
-    // CLASS DATA
-    static const char *const s_toUpper_p;  // uppercase character conversion
-                                           // table
-
     // CLASS METHODS
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
@@ -251,7 +243,9 @@ struct Formatter_CharUtils<wchar_t> {
     static void toUpper(char *begin, const char *end)
     {
         for (; begin != end; (void)++begin) {
-            *begin = s_toUpper_p[static_cast<unsigned char>(*begin)];
+            if (*begin >= 'a' && *begin <= 'z') {
+                *begin = static_cast<char>(*begin + 'A' - 'a');
+            }
         }
     }
 };

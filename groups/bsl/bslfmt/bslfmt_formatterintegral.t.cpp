@@ -155,15 +155,16 @@ void testRuntimeFormat(int           line,
                        t_TYPE        value)
 {
     bsl::string message;
-    int         arg1 = 0;
+    int         dummyArg = 0;
 
-    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(&message,
-                                                                 expected,
-                                                                 false,
-                                                                 format,
-                                                                 value,
-                                                                 arg1,
-                                                                 arg1);
+    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     expected,
+                                                                     true,
+                                                                     format,
+                                                                     value,
+                                                                     dummyArg,
+                                                                     dummyArg);
     ASSERTV(line, format, message.c_str(), rv);
 }
 }  // close unnamed namespace
@@ -254,10 +255,14 @@ int main(int argc, char **argv)
         } POSITIVE_CHAR_DATA[] = {
             //LINE  FORMAT        EXPECTED      VALUE
             //----  -----------   ---------     -----
-            { L_,   "{0:}",       "5",          5    },
-            { L_,   "{0:+}",      "+5",         5    },
-            { L_,   "{0:-}",      "5",          5    },
-            { L_,   "{0: }",      " 5",         5    },
+            { L_,   "{0:}",       "0",          0    },
+            { L_,   "{0:+}",      "+0",         0    },
+            { L_,   "{0:-}",      "0",          0    },
+            { L_,   "{0: }",      " 0",         0    },
+            { L_,   "{:}",        "5",          5    },
+            { L_,   "{:+}",       "+5",         5    },
+            { L_,   "{:-}",       "5",          5    },
+            { L_,   "{: }",       " 5",         5    },
             { L_,   "{:#05x}",    "0x00c",      12   },
             { L_,   "{:#05X}",    "0X00C",      12   },
             { L_,   "{:*<6}",     "5*****",     5    },
@@ -536,7 +541,7 @@ int main(int argc, char **argv)
             bool rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "5",
-                                                                    false,
+                                                                    true,
                                                                     "{:}",
                                                                     VALUE,
                                                                     DUMMY_ARG,
@@ -546,7 +551,7 @@ int main(int argc, char **argv)
             rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
                                                                     &message,
                                                                     L"5",
-                                                                    false,
+                                                                    true,
                                                                     L"{:}",
                                                                     VALUE,
                                                                     DUMMY_ARG,
@@ -557,7 +562,7 @@ int main(int argc, char **argv)
             rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "12",
-                                                                    false,
+                                                                    true,
                                                                     "{:}",
                                                                     ULL_VALUE,
                                                                     DUMMY_ARG,
@@ -567,7 +572,7 @@ int main(int argc, char **argv)
             rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
                                                                     &message,
                                                                     L"12",
-                                                                    false,
+                                                                    true,
                                                                     L"{:}",
                                                                     ULL_VALUE,
                                                                     DUMMY_ARG,

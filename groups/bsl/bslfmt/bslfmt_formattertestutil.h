@@ -338,9 +338,9 @@ struct Formatter_TestUtil_Impl {
 
     template <class t_TYPE>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 bool testParseFormat(
-                bsl::string                                      *message,
-                bool                                              alsoTestOracle,
-                BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P  fmt);
+              bsl::string                                      *message,
+              bool                                              alsoTestOracle,
+              BSLFMT_FORMATTER_TEST_UTIL_BASIC_FORMAT_STRING_P  fmt);
 
     template <class t_TYPE>
     static bool testParseVFormat(

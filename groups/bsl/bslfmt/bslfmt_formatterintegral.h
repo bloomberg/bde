@@ -131,19 +131,15 @@ struct Formatter_IntegerBase {
 
         // Adding sign.
 
-        if (value > 0) {
+        if (value >= 0) {
             switch (final_spec.sign()) {
               case FSS::e_SIGN_POSITIVE: {
-                if (value > 0) {
-                    *prefixEnd = '+';
-                    ++prefixEnd;
-                }
+                *prefixEnd = '+';
+                ++prefixEnd;
               } break;
               case FSS::e_SIGN_SPACE: {
-                if (value > 0) {
-                    *prefixEnd = ' ';
-                    ++prefixEnd;
-                }
+                *prefixEnd = ' ';
+                ++prefixEnd;
               } break;
               default: {
                 // Suppress compiler warning.
@@ -152,7 +148,7 @@ struct Formatter_IntegerBase {
               }
             }
         }
-        else if (value < 0) {
+        else {
             // As we might have an alternate form that requires special prefix,
             // we add the minus sign ourselves without relying on
             // `NumericFormatterUtil::toChars` negative value conversion.
@@ -223,6 +219,14 @@ struct Formatter_IntegerBase {
                                          value,
                                          valueBase);
 
+
+        if (value < 0) {
+            // We want to omit minus sign added by
+            // `NumericFormatterUtil::toChars` since we  already added it
+            // manually.
+            ++valueBegin;
+        }
+
         if (FSS::e_INTEGRAL_HEX_UC == final_spec.formatType()) {
             // Unfortunately, `NumericFormatterUtil::toChars` uses only
             // lowercase characters to represent hexadecimal numbers.  So we
@@ -232,13 +236,6 @@ struct Formatter_IntegerBase {
             BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(
                                                                     valueBegin,
                                                                     valueEnd);
-        }
-
-        if (value < 0) {
-            // We want to omit minus sign added by
-            // `NumericFormatterUtil::toChars` since we  already added it
-            // manually.
-            ++valueBegin;
         }
 
         int commonLength = static_cast<int>((valueEnd - valueBegin) +
