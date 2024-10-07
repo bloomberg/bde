@@ -616,7 +616,7 @@ struct CopyAndMoveDetector {
         ASSERT(!bslmf::MovableRefUtil::access(other).d_moved);
         ASSERT(!bslmf::MovableRefUtil::access(other).d_called);
 
-        d_ident = other.d_ident;
+        d_ident = bslmf::MovableRefUtil::access(other).d_ident;
         bslmf::MovableRefUtil::access(other).d_moved = true;
         d_moved = false;
         ++s_moves;
@@ -652,11 +652,11 @@ struct CopyAndMoveDetector {
     }
 };
 
-bsls::AtomicInt                           CopyAndMoveDetector::s_copies    = 0;
-bsls::AtomicInt                           CopyAndMoveDetector::s_moves     = 0;
-bsls::AtomicInt                           CopyAndMoveDetector::s_calls     = 0;
+bsls::AtomicInt                           CopyAndMoveDetector::s_copies(0);
+bsls::AtomicInt                           CopyAndMoveDetector::s_moves(0);
+bsls::AtomicInt                           CopyAndMoveDetector::s_calls(0);
 bsls::AtomicPointer<const CopyAndMoveDetector>
-                                          CopyAndMoveDetector::s_rootIdent = 0;
+                                          CopyAndMoveDetector::s_rootIdent(0);
 
 // ============================================================================
 //      CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
