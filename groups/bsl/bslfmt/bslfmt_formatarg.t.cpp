@@ -1514,7 +1514,8 @@ int main(int argc, char **argv)
         }
 
         {
-            FA a1 = makeTestArg<char>(FormattableType(42));
+            FormattableType ft(42);
+            FA a1 = makeTestArg<char>(ft);
             FA a2(a1);
 
             ASSERT(a1);
@@ -1525,7 +1526,8 @@ int main(int argc, char **argv)
         }
 
         {
-            WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
+            FormattableType ft(42);
+            WFA a1 = makeTestArg<wchar_t>(ft);
             WFA a2(a1);
 
             ASSERT(a1);
@@ -1574,7 +1576,8 @@ int main(int argc, char **argv)
         }
 
         {
-            FA a1 = makeTestArg<char>(FormattableType(42));
+            FormattableType ft(42);
+            FA a1 = makeTestArg<char>(ft);
             FA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
@@ -1585,7 +1588,8 @@ int main(int argc, char **argv)
         }
 
         {
-            WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
+            FormattableType ft(42);
+            WFA a1 = makeTestArg<wchar_t>(ft);
             WFA a2(MoveUtil::move(a1));
 
             ASSERT(a1);

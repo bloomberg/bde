@@ -719,7 +719,6 @@ Formatter_UnicodeData_StartCompare_GB11_LH_Regex::
 namespace BloombergLP {
 namespace bslfmt {
 
-inline
 Formatter_UnicodeUtils::CodePointExtractionResult
 Formatter_UnicodeUtils::extractCodePoint(UtfEncoding  encoding,
                                          const void   *bytes,
