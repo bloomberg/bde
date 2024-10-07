@@ -1785,7 +1785,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting `enqueueJob` with move.\n";
         {
-            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
             mX.start();
 
@@ -1804,7 +1804,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting `enqueueJob` with copy.\n";
         {
-            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
             mX.start();
 
@@ -1823,7 +1823,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting `addJobAtFront` with move.\n";
         {
-            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
             mX.start();
 
@@ -1842,7 +1842,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting `addJobAtFront` with copy.\n";
         {
-            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
             mX.start();
 
