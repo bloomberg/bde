@@ -62,7 +62,7 @@ namespace bslfmt {
 template <class t_CHAR>
 class basic_format_parse_context;
 
-class Format_ParseContext_Test_Querier;
+struct Format_ParseContext_Test_Querier;
 
 // TYPEDEFS
 
@@ -159,12 +159,12 @@ class basic_format_parse_context {
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
 
     // FRIENDS
-    friend class Format_ParseContext_Test_Querier;
+    friend struct Format_ParseContext_Test_Querier;
 };
 
-               // --------------------------------------
-               // class Format_ParseContext_Test_Querier
-               // --------------------------------------
+               // ---------------------------------------
+               // struct Format_ParseContext_Test_Querier
+               // ---------------------------------------
 
 /// This component-private type enables the indexing mode of a
 /// `basic_parse_context` type to be inspected for the purposes of unit

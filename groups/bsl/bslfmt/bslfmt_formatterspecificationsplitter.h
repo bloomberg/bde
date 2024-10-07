@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // compatible with [format.string] and [time.format] in the Standard. No
 // validation is performed by this component and further type-specific
 // processing will be required prior to use.
-// 
+//
 // This component is for private use only.
 
 #include <bslscm_version.h>
@@ -56,9 +56,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                   // -----------------------------------------
-                   // class FormatterSpecification_NumericValue
-                   // -----------------------------------------
+                   // ------------------------------------------
+                   // struct FormatterSpecification_NumericValue
+                   // ------------------------------------------
 
 struct FormatterSpecification_NumericValue {
   public:
@@ -103,9 +103,9 @@ struct FormatterSpecification_NumericValue {
     BSLS_KEYWORD_CONSTEXPR_CPP20 ValueType valueType() const;
 };
 
-                 // ------------------------------------------------
-                 // class FormatterSpecification_NumericValueVisitor
-                 // ------------------------------------------------
+                 // -------------------------------------------------
+                 // struct FormatterSpecification_NumericValueVisitor
+                 // -------------------------------------------------
 
 
 struct FormatterSpecification_NumericValueVisitor {
@@ -273,7 +273,7 @@ class FormatterSpecification_Splitter
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(FormatterSpecification_Splitter *outSpec,
                             const t_FORMAT_CONTEXT&          context);
-    
+
     // CREATORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecification_Splitter();
 
@@ -302,9 +302,9 @@ class FormatterSpecification_Splitter
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                 // -----------------------------------------
-                 // class FormatterSpecification_NumericValue
-                 // -----------------------------------------
+                 // ------------------------------------------
+                 // struct FormatterSpecification_NumericValue
+                 // ------------------------------------------
 
 // CREATORS
 
@@ -462,9 +462,9 @@ void FormatterSpecification_NumericValue::finalize(
     }
 }
 
-              // ------------------------------------------------
-              // class FormatterSpecification_NumericValueVisitor
-              // ------------------------------------------------
+              // -------------------------------------------------
+              // struct FormatterSpecification_NumericValueVisitor
+              // -------------------------------------------------
 
 inline
 FormatterSpecification_NumericValueVisitor::

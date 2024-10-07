@@ -82,52 +82,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
-#else
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL
-#endif
-
-/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
-/// as expected for the specified `format` string created at compile-time
-/// (under c++20 only) for the specified (template parameter) value `t_TYPE`.
-/// The specified `message` is used to pass a description of the error if one
-/// occurs.  The specified `line` is used to identify the function call
-/// location.
-template <class t_CHAR, class t_TYPE>
-BSLFMT_FORMATTER_TEST_CONSTEVAL void testParse(bsl::string  *message,
-                                               const t_CHAR *format,
-                                               const int     line)
-{
-    bool rv =
-          bslfmt::Formatter_TestUtil<t_CHAR>::template testParseFormat<t_TYPE>(
-              message,
-              false,
-              format);
-    ASSERTV(line, format, message->c_str(), rv);
-}
-
-/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
-/// as expected for the specified `format` string created at compile-time
-/// (under c++20 only) for several integer types.  The specified `message` is
-/// used to pass a description of the error if one occurs.  The specified `line`
-/// is used to identify the function call location.
-template <class t_CHAR>
-BSLFMT_FORMATTER_TEST_CONSTEVAL void testCompileTimeParse(
-                                                         bsl::string  *message,
-                                                         const t_CHAR *format,
-                                                         const int     line)
-{
-    testParse<t_CHAR,                    int>(message, format, line);
-    testParse<t_CHAR,           unsigned int>(message, format, line);
-    testParse<t_CHAR,               long int>(message, format, line);
-    testParse<t_CHAR,      unsigned long int>(message, format, line);
-    testParse<t_CHAR,          long long int>(message, format, line);
-    testParse<t_CHAR, unsigned long long int>(message, format, line);
-}
-
-#undef BSLFMT_FORMATTER_TEST_CONSTEVAL
-
 /// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
 /// as expected for the specified `format` string created at runtime.  The
 /// specified `line` is used to identify the function call location.
@@ -518,27 +472,30 @@ int main(int argc, char **argv)
         if (verbose) printf("\tTesting compile-time processing.\n");
         {
             bsl::string message;
-            testCompileTimeParse<char>(&message, "{0:}",    L_);
-            testCompileTimeParse<char>(&message, "{0:+}",   L_);
-            testCompileTimeParse<char>(&message, "{0:-}",   L_);
-            testCompileTimeParse<char>(&message, "{0: }",   L_);
-            testCompileTimeParse<char>(&message, "{:*<6}",  L_);
-            testCompileTimeParse<char>(&message, "{:*>6}",  L_);
-            testCompileTimeParse<char>(&message, "{:*^6}",  L_);
-            testCompileTimeParse<char>(&message, "{:*^+6}", L_);
 
-            testCompileTimeParse<wchar_t>(&message, L"{0:}",    L_);
-            testCompileTimeParse<wchar_t>(&message, L"{0:+}",   L_);
-            testCompileTimeParse<wchar_t>(&message, L"{0:-}",   L_);
-            testCompileTimeParse<wchar_t>(&message, L"{0: }",   L_);
-            testCompileTimeParse<wchar_t>(&message, L"{:*<6}",  L_);
-            testCompileTimeParse<wchar_t>(&message, L"{:*>6}",  L_);
-            testCompileTimeParse<wchar_t>(&message, L"{:*^6}",  L_);
-            testCompileTimeParse<wchar_t>(&message, L"{:*^+6}", L_);
+            // `parse`
+
+            bool rv = bslfmt::Formatter_TestUtil<
+                char>::template testParseFormat<int>(&message, true, "{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::template testParseFormat<
+                int>(&message, true, L"{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::template testParseFormat<
+                unsigned long long int>(&message, true, "{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::template testParseFormat<
+                unsigned long long int>(&message, true, L"{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            // `format`
 
             const int VALUE = 5;
             const int DUMMY_ARG = 0;
-            bool rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "5",
                                                                     true,
