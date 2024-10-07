@@ -1,6 +1,8 @@
 // bslstl_formatterstring.t.cpp                                       -*-C++-*-
 #include <bslfmt_formatterstring.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_algorithm.h>
@@ -311,11 +313,11 @@ static const bool k_ORACLE_SUPPORT_UNICODE = false;
 static const bool k_ORACLE_SUPPORT_UNICODE = true;
 #endif
 
-static const int k_FILLCHAR_EMPTY   = 0;
-static const int k_FILLCHAR_ASCII   = 1;
-static const int k_FILLCHAR_UNICODE = 2;
-static const int k_FILLCHAR_DOUBLE  = 3;
-static const int k_FILLCHAR_COUNT   = 4;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_EMPTY   = 0;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_ASCII   = 1;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_UNICODE = 2;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_DOUBLE  = 3;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_COUNT   = 4;
 
 static const char    *FILLERS_C[] = {UTF8_LITERAL(""),
                                      UTF8_LITERAL("*"),
@@ -335,12 +337,12 @@ static const char    *FILL_C[] = {UTF8_LITERAL(""),
                                   UTF8_LITERAL("^")};
 static const wchar_t *FILL_W[] = {L"", L">", L"<", L"^"};
 
-static const int k_VALUE_NONE            = 0;
-static const int k_VALUE_ASCII           = 1;
-static const int k_VALUE_UNICODE         = 2;
-static const int k_VALUE_DOUBLE          = 3;
-static const int k_VALUE_UNICODE_COMPLEX = 4;
-static const int k_VALUE_COUNT           = 5;
+BSLA_MAYBE_UNUSED static const int k_VALUE_NONE            = 0;
+BSLA_MAYBE_UNUSED static const int k_VALUE_ASCII           = 1;
+BSLA_MAYBE_UNUSED static const int k_VALUE_UNICODE         = 2;
+BSLA_MAYBE_UNUSED static const int k_VALUE_DOUBLE          = 3;
+BSLA_MAYBE_UNUSED static const int k_VALUE_UNICODE_COMPLEX = 4;
+BSLA_MAYBE_UNUSED static const int k_VALUE_COUNT           = 5;
 
 static const char    *VALUE_C[] = {UTF8_LITERAL(""),
                                    UTF8_LITERAL("a"),
@@ -353,10 +355,10 @@ static const wchar_t *VALUE_W[] = {L"",
                                    L"\U0001F600",
                                    L"\U0000006e\U00000303"};
 
-static const int k_ARG_VALUE         = 0;
-static const int k_ARG_NESTED_NON_ID = 1;
-static const int k_ARG_NESTED_ARG_ID = 2;
-static const int k_ARG_COUNT         = 2;
+BSLA_MAYBE_UNUSED static const int k_ARG_VALUE         = 0;
+BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_NON_ID = 1;
+BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_ARG_ID = 2;
+BSLA_MAYBE_UNUSED static const int k_ARG_COUNT         = 2;
 
 
 

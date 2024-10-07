@@ -86,7 +86,7 @@ struct FormatterSpecification_NumericValue {
     template <class t_CHAR>
     friend class FormatterSpecification_Splitter;
 
-    friend class FormatterSpecification_NumericValueVisitor;
+    friend struct FormatterSpecification_NumericValueVisitor;
 
   public:
     // CREATORS

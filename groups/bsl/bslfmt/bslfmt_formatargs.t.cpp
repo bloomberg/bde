@@ -189,7 +189,7 @@ class basic_format_parse_context {
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                   bsl::basic_string_view<t_CHAR> fmt,
-                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT
+                  size_t) BSLS_KEYWORD_NOEXCEPT
     : d_begin(fmt.begin())
     , d_end(fmt.end())
     {
