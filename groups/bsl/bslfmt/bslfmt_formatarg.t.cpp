@@ -1299,6 +1299,8 @@ int main(int argc, char **argv)
             ASSERT(checkFormattableTypeValue(a2, 42));
         }
 
+#if !defined(BSLS_PLATFORM_CMP_SUN)
+
         {
             FA a1;
             FA a2 = MoveUtil::move(a1);
@@ -1360,6 +1362,8 @@ int main(int argc, char **argv)
             ASSERT(checkFormattableTypeValue(a1, 42));
             ASSERT(checkFormattableTypeValue(a2, 42));
         }
+
+#endif // BSLS_PLATFORM_CMP_SUN
 
       } break;
       case 8: {

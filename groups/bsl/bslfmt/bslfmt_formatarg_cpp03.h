@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Oct  4 12:23:28 2024
+// Generated on Mon Oct  7 12:08:12 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -1444,7 +1444,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 #endif // ! defined(INCLUDED_BSLFMT_FORMATARG_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
