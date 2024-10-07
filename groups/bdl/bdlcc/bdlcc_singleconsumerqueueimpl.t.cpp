@@ -10,6 +10,7 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmt_barrier.h>
 #include <bslmt_condition.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
@@ -104,6 +105,7 @@ using namespace bsl;
 // [11] CONCERN: template requirements
 // [12] CONCERN: ordering guarantee
 // [13] CONCERN: concurrent allocations
+// [14] DRQS 176476958: `disable` during `pop` creates invalid state
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -528,6 +530,80 @@ void ConcurrencyDetectionAllocator::deallocate(void *address)
     d_allocator_p->deallocate(address);
 }
 
+                             // ===============
+                             // class TestMutex
+                             // ===============
+
+static bslmt::Barrier     s_TestMutex_barrier(2);
+static bsls::AtomicInt    s_TestMutex_count(0);
+static bsl::vector<bool> *s_TestMutex_script_p = 0;
+
+/// This `class` implements a lightweight, portable wrapper of a `bslmt::Mutex`
+/// to test support for intra-process synchronization.  The behavior is
+/// undefined if the `lock` method of this class is invoked more than once
+/// on the same mutex object in the same thread without an intervening call
+/// to `unLock`.
+class TestMutex : public bslmt::Mutex
+{
+    // NOT IMPLEMENTED
+    TestMutex(const TestMutex&);
+    TestMutex& operator=(const TestMutex&);
+
+  public:
+    // CREATORS
+
+    /// Create a mutex object in the unlocked state.  This method does not
+    /// return normally unless there are sufficient system resources to
+    /// construct the object.
+    TestMutex();
+
+    /// Destroy this mutex object.  The behavior is undefined if the mutex
+    /// is in a locked state.
+    ~TestMutex();
+
+    // MANIPULATORS
+
+    /// Acquire a lock on this mutex object.  If this object is currently
+    /// locked by a different thread, then suspend execution of the current
+    /// thread until a lock can be acquired.  The count of invocations of this
+    /// method is kept is `s_TestMutex_count`.  If, prior to updating the count,
+    /// `(*s_TestMutex_script_p)[s_TestMutex_count]`, invoke
+    /// `s_TestMutex_barrier.wait()` twice before locking the mutex and once
+    /// afterwards.
+    void lock();
+};
+
+                             // ---------------
+                             // class TestMutex
+                             // ---------------
+
+// CREATORS
+
+TestMutex::TestMutex()
+{
+}
+
+TestMutex::~TestMutex()
+{
+}
+
+// MANIPULATORS
+
+void TestMutex::lock()
+{
+    bool doWait = (*s_TestMutex_script_p)[++s_TestMutex_count - 1];
+    if (doWait) {
+        s_TestMutex_barrier.wait();
+        s_TestMutex_barrier.wait();
+    }
+
+    bslmt::Mutex::lock();
+
+    if (doWait) {
+        s_TestMutex_barrier.wait();
+    }
+}
+
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -542,6 +618,11 @@ typedef bdlcc::SingleConsumerQueueImpl<bsl::string,
                                        bslmt::Mutex,
                                        bslmt::Condition>       AllocObj;
 
+typedef bdlcc::SingleConsumerQueueImpl<int,
+                                       bsls::AtomicOperations,
+                                       TestMutex,
+                                       bslmt::Condition>       TestMutexObj;
+
 const int e_SUCCESS  = Obj::e_SUCCESS;
 const int e_EMPTY    = Obj::e_EMPTY;
 const int e_DISABLED = Obj::e_DISABLED;
@@ -551,6 +632,19 @@ const int e_DISABLED = Obj::e_DISABLED;
 // ----------------------------------------------------------------------------
 
 static bsls::AtomicInt s_continue;
+
+extern "C" void *popFrontVerifyDisabled(void *arg)
+{
+    TestMutexObj& mX = *static_cast<TestMutexObj *>(arg);
+
+    int value;
+
+    int rv = mX.popFront(&value);
+
+    ASSERT(TestMutexObj::e_DISABLED == rv);
+
+    return 0;
+}
 
 extern "C" void *deferredDisablePopFront(void *arg)
 {
@@ -902,6 +996,70 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 14: {
+        // --------------------------------------------------------------------
+        // DRQS 176476958: `disablePopFront` races with `popFront`
+        //
+        // Concerns:
+        // 1. An invocation of `disablePopFront` concurrent with `popFront`
+        //    does not result in an invalid state.
+        //
+        // Plan:
+        // 1. On an empty queue using a `TestMutex`, force pop disablement to
+        //    occur during the pop operation resulting in the disabled return
+        //    value.  Retry these steps and verify the disabled return value
+        //    is returned.
+        //
+        // Testing:
+        //   DRQS 176476958: `disablePopFront` races with `popFront`
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+              << "DRQS 176476958: `disablePopFront` races with `popFront`"
+              << endl
+              << "======================================================="
+              << endl;
+        }
+
+        bsl::vector<bool> script;
+        {
+            script.push_back(true);   // popFront
+            script.push_back(false);  // disablePopFront read
+            script.push_back(false);  // disablePopFront empty
+        }
+        s_TestMutex_script_p = &script;
+        TestMutexObj mX;
+
+        bslmt::ThreadUtil::Handle handle;
+
+        {
+            s_TestMutex_count = 0;
+
+            bslmt::ThreadUtil::create(&handle, popFrontVerifyDisabled, &mX);
+
+            s_TestMutex_barrier.wait();
+            mX.disablePopFront();
+            s_TestMutex_barrier.wait();
+            s_TestMutex_barrier.wait();
+            mX.enablePopFront();
+
+            bslmt::ThreadUtil::join(handle);
+        }
+        {
+            s_TestMutex_count = 0;
+
+            bslmt::ThreadUtil::create(&handle, popFrontVerifyDisabled, &mX);
+
+            s_TestMutex_barrier.wait();
+            mX.disablePopFront();
+            s_TestMutex_barrier.wait();
+            s_TestMutex_barrier.wait();
+            mX.enablePopFront();
+
+            bslmt::ThreadUtil::join(handle);
+        }
+      } break;
       case 13: {
         // ---------------------------------------------------------
         // Concurrent Allocation Test

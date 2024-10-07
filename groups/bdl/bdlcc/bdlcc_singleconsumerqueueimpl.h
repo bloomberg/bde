@@ -965,6 +965,9 @@ int SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
                 while (e_READABLE != nodeState && e_RECLAIM != nodeState) {
                     if (generation !=
                               ATOMIC_OP::getUintAcquire(&d_popFrontDisabled)) {
+                        ATOMIC_OP::testAndSwapIntAcqRel(&nextRead->d_state,
+                                                        e_WRITABLE_AND_BLOCKED,
+                                                        e_WRITABLE);
                         return e_DISABLED;                            // RETURN
                     }
                     d_readCondition.wait(&d_readMutex);
