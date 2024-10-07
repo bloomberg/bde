@@ -46,6 +46,7 @@
 
   2. bdlf_memfn
      bdlf_noop
+     bdlf_overloaded
      bdlf_placeholder
 
   1. bdlf_noop_cpp03                                                  !PRIVATE!
@@ -64,6 +65,9 @@
 :
 : 'bdlf_noop_cpp03':                                                  !PRIVATE!
 :      Provide C++03 implementation for bdlf_noop.h
+:
+: 'bdlf_overloaded':
+:      Provide class for creating an overload set.
 :
 : 'bdlf_placeholder':
 :      Provide a parameterized placeholder and specialized placeholders.

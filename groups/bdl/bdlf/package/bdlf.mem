@@ -2,4 +2,5 @@ bdlf_bind
 bdlf_memfn
 bdlf_noop
 bdlf_noop_cpp03
+bdlf_overloaded
 bdlf_placeholder
