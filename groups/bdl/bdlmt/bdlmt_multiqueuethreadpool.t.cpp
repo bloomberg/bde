@@ -589,9 +589,9 @@ struct CopyAndMoveDetector {
     , d_copied(false)
     , d_called(false)
     {
-        ASSERT(!other.d_moved);
-        ASSERT(!other.d_copied);
-        ASSERT(!other.d_called);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_moved);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_copied);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_called);
 
         bslmf::MovableRefUtil::access(other).d_moved = true;
         ++s_moves;
@@ -613,8 +613,8 @@ struct CopyAndMoveDetector {
 
     CopyAndMoveDetector&operator=(bslmf::MovableRef<CopyAndMoveDetector> other)
     {
-        ASSERT(!other.d_moved);
-        ASSERT(!other.d_called);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_moved);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_called);
 
         d_ident = other.d_ident;
         bslmf::MovableRefUtil::access(other).d_moved = true;
@@ -1792,7 +1792,8 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
-            CopyAndMoveDetector job;
+            CopyAndMoveDetector detector;
+            Obj::Job job(bslmf::MovableRefUtil::move(detector));
             mX.enqueueJob(queueId, bslmf::MovableRefUtil::move(job));
             mX.drain();
 
@@ -1830,7 +1831,8 @@ int main(int argc, char *argv[]) {
             const int queueId = mX.createQueue();
 
             CopyAndMoveDetector::resetCounters();
-            CopyAndMoveDetector job;
+            CopyAndMoveDetector detector;
+            Obj::Job job(bslmf::MovableRefUtil::move(detector));
             mX.addJobAtFront(queueId, bslmf::MovableRefUtil::move(job));
             mX.drain();
 
