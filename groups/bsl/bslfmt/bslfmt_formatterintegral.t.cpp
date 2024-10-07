@@ -82,27 +82,65 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+#else
+#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+#endif
+
 /// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
-/// as expected for the specified `format`.  The specified `line` is used to
-/// identify the function call location.
+/// as expected for the specified `format` string created at compile-time
+/// (under c++20 only) for the specified (template parameter) value `t_TYPE`.
+/// The specified `message` is used to pass a description of the error if one
+/// occurs.  The specified `line` is used to identify the function call
+/// location.
 template <class t_CHAR, class t_TYPE>
-void testParse(int           line,
-               const t_CHAR *format)
+BSLFMT_FORMATTER_TEST_CONSTEVAL void testParse(bsl::string  *message,
+                                               const t_CHAR *format,
+                                               const int     line)
+{
+    bool rv =
+          bslfmt::Formatter_TestUtil<t_CHAR>::template testParseFormat<t_TYPE>(
+              message,
+              false,
+              format);
+    ASSERTV(line, format, message->c_str(), rv);
+}
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
+/// as expected for the specified `format` string created at compile-time
+/// (under c++20 only) for several integer types.  The specified `message` is
+/// used to pass a description of the error if one occurs.  The specified `line`
+/// is used to identify the function call location.
+template <class t_CHAR>
+BSLFMT_FORMATTER_TEST_CONSTEVAL void testCompileTimeParse(
+                                                         bsl::string  *message,
+                                                         const t_CHAR *format,
+                                                         const int     line)
+{
+    testParse<t_CHAR,                    int>(message, format, line);
+    testParse<t_CHAR,           unsigned int>(message, format, line);
+    testParse<t_CHAR,               long int>(message, format, line);
+    testParse<t_CHAR,      unsigned long int>(message, format, line);
+    testParse<t_CHAR,          long long int>(message, format, line);
+    testParse<t_CHAR, unsigned long long int>(message, format, line);
+}
+
+#undef BSLFMT_FORMATTER_TEST_CONSTEVAL
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::parse` function works
+/// as expected for the specified `format` string created at runtime.  The
+/// specified `line` is used to identify the function call location.
+template <class t_CHAR, class t_TYPE>
+void testRuntimeParse(int line, const t_CHAR *format)
 {
     bsl::string message;
 
     bool rv =
-          bslfmt::Formatter_TestUtil<t_CHAR>::template testParseFormat<t_TYPE>(
-              &message,
-              false,
-              format);
-    ASSERTV(line, format, message.c_str(), rv);
-
-    message.clear();
-    rv = bslfmt::Formatter_TestUtil<t_CHAR>::template testParseVFormat<t_TYPE>(
-                                                                      &message,
-                                                                      false,
-                                                                      format);
+         bslfmt::Formatter_TestUtil<t_CHAR>::template testParseVFormat<t_TYPE>(
+             &message,
+             false,
+             format);
     ASSERTV(line, format, message.c_str(), rv);
 }
 
@@ -111,30 +149,21 @@ void testParse(int           line,
 /// `value`.  The specified `line` is used to identify the function call
 /// location.
 template <class t_CHAR, class t_TYPE>
-void testFormat(int           line,
-                const t_CHAR *expected,
-                const t_CHAR *format,
-                t_TYPE        value)
+void testRuntimeFormat(int           line,
+                       const t_CHAR *expected,
+                       const t_CHAR *format,
+                       t_TYPE        value)
 {
     bsl::string message;
+    int         arg1 = 0;
 
-    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateFormat(&message,
-                                                                     expected,
-                                                                     false,
-                                                                     format,
-                                                                     value,
-                                                                     0,
-                                                                     0);
-    ASSERTV(line, format, message.c_str(), rv);
-
-    message.clear();
-    rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(&message,
+    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(&message,
                                                                  expected,
                                                                  false,
                                                                  format,
                                                                  value,
-                                                                 0,
-                                                                 0);
+                                                                 arg1,
+                                                                 arg1);
     ASSERTV(line, format, message.c_str(), rv);
 }
 }  // close unnamed namespace
@@ -411,19 +440,19 @@ int main(int argc, char **argv)
             const unsigned long long ULL_VALUE =
                                         static_cast<unsigned long long>(VALUE);
 
-            testParse<char,                    int>(LINE, FORMAT);
-            testParse<char,           unsigned int>(LINE, FORMAT);
-            testParse<char,               long int>(LINE, FORMAT);
-            testParse<char,      unsigned long int>(LINE, FORMAT);
-            testParse<char,          long long int>(LINE, FORMAT);
-            testParse<char, unsigned long long int>(LINE, FORMAT);
+            testRuntimeParse<char,                    int>(LINE, FORMAT);
+            testRuntimeParse<char,           unsigned int>(LINE, FORMAT);
+            testRuntimeParse<char,               long int>(LINE, FORMAT);
+            testRuntimeParse<char,      unsigned long int>(LINE, FORMAT);
+            testRuntimeParse<char,          long long int>(LINE, FORMAT);
+            testRuntimeParse<char, unsigned long long int>(LINE, FORMAT);
 
-            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,   U_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,   U_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_CHAR_DATA; ++i) {
@@ -434,9 +463,9 @@ int main(int argc, char **argv)
             const long       L_VALUE  = static_cast<long>(VALUE);
             const long long  LL_VALUE = static_cast<long long>(VALUE);
 
-            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
         }
 
         if (verbose) printf("\tTesting wstrings.\n");
@@ -454,18 +483,18 @@ int main(int argc, char **argv)
             const unsigned long long ULL_VALUE  =
                                         static_cast<unsigned long long>(VALUE);
 
-            testParse<wchar_t,                    int>(LINE, FORMAT);
-            testParse<wchar_t,           unsigned int>(LINE, FORMAT);
-            testParse<wchar_t,               long int>(LINE, FORMAT);
-            testParse<wchar_t,      unsigned long int>(LINE, FORMAT);
-            testParse<wchar_t,          long long int>(LINE, FORMAT);
-            testParse<wchar_t, unsigned long long int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t,                    int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t,           unsigned int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t,               long int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t,      unsigned long int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t,          long long int>(LINE, FORMAT);
+            testRuntimeParse<wchar_t, unsigned long long int>(LINE, FORMAT);
 
-            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_WCHAR_DATA; ++i) {
@@ -476,10 +505,76 @@ int main(int argc, char **argv)
             const long       L_VALUE  = static_cast<long>(VALUE);
             const long long  LL_VALUE = static_cast<long long>(VALUE);
 
-            testFormat(LINE, EXPECTED, FORMAT,     VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
-            testFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
         }
+
+        if (verbose) printf("\tTesting compile-time processing.\n");
+        {
+            bsl::string message;
+            testCompileTimeParse<char>(&message, "{0:}",    L_);
+            testCompileTimeParse<char>(&message, "{0:+}",   L_);
+            testCompileTimeParse<char>(&message, "{0:-}",   L_);
+            testCompileTimeParse<char>(&message, "{0: }",   L_);
+            testCompileTimeParse<char>(&message, "{:*<6}",  L_);
+            testCompileTimeParse<char>(&message, "{:*>6}",  L_);
+            testCompileTimeParse<char>(&message, "{:*^6}",  L_);
+            testCompileTimeParse<char>(&message, "{:*^+6}", L_);
+
+            testCompileTimeParse<wchar_t>(&message, L"{0:}",    L_);
+            testCompileTimeParse<wchar_t>(&message, L"{0:+}",   L_);
+            testCompileTimeParse<wchar_t>(&message, L"{0:-}",   L_);
+            testCompileTimeParse<wchar_t>(&message, L"{0: }",   L_);
+            testCompileTimeParse<wchar_t>(&message, L"{:*<6}",  L_);
+            testCompileTimeParse<wchar_t>(&message, L"{:*>6}",  L_);
+            testCompileTimeParse<wchar_t>(&message, L"{:*^6}",  L_);
+            testCompileTimeParse<wchar_t>(&message, L"{:*^+6}", L_);
+
+            const int VALUE = 5;
+            const int DUMMY_ARG = 0;
+            bool rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "5",
+                                                                    false,
+                                                                    "{:}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"5",
+                                                                    false,
+                                                                    L"{:}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            const unsigned long long int ULL_VALUE = 12;
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "12",
+                                                                    false,
+                                                                    "{:}",
+                                                                    ULL_VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"12",
+                                                                    false,
+                                                                    L"{:}",
+                                                                    ULL_VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+        }
+
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\tTesting locale prohibition.\n");
