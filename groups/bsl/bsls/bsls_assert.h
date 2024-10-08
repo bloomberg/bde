@@ -368,7 +368,6 @@ BSLS_IDENT("$Id: $")
 // and optionally checks for (defends against) a negative `width` argument:
 // ```
 // // our_square.h
-// // ...
 //
 // inline
 // void Square::setWidth(int width)
@@ -381,7 +380,7 @@ BSLS_IDENT("$Id: $")
 // Now consider a client that uses this `setWidth` method:
 // ```
 // // my_client.cpp
-// // ...
+//
 // void f()
 // {
 //     Square s;
@@ -403,7 +402,6 @@ BSLS_IDENT("$Id: $")
 // template, parameterized by element `TYPE`:
 // ```
 // // our_list.h
-// // ...
 //
 // template <class TYPE>
 // void List<TYPE>::reserveCapacity(int numElements)
@@ -605,17 +603,18 @@ BSLS_IDENT("$Id: $")
 // `y` coordinates in the range `[-1000 .. 1000]`:
 // ```
 // my_kpoint.h
-// ...
 //
-//  class Kpoint {
-//      short int d_x;
-//      short int d_y;
-//    public:
-//      Kpoint(short int x, short int y);
-//          // ...
-//          // The behavior is undefined unless '-1000 <= x <= 1000' and
-//          // '-1000 <= y <= 1000'.
-//      // ...
+// class Kpoint {
+//     short int d_x;
+//     short int d_y;
+//   public:
+//
+//     /// ...
+//     /// The behavior is undefined unless `-1000 <= x <= 1000` and
+//     /// `-1000 <= y <= 1000`.
+//     Kpoint(short int x, short int y);
+//
+//     // ...
 //  };
 //
 // ...
@@ -643,16 +642,16 @@ BSLS_IDENT("$Id: $")
 // my_hashtable.h
 // ...
 //
+//  /// ...
 //  class HashTable {
-//      // ...
 //    public:
 //      // ...
 //
+//      /// Adjust the size of the underlying hash table to be approximately
+//      /// the current number of elements divided by the specified
+//      /// `loadFactor`.  The behavior is undefined unless
+//      /// `0 < loadFactor`.
 //      void resize(double loadFactor);
-//          // Adjust the size of the underlying hash table to be approximately
-//          // the current number of elements divided by the specified
-//          // 'loadFactor'.  The behavior is undefined unless
-//          // '0 < loadFactor'.
 //  };
 // ```
 // Since the relative runtime cost of validating the input argument is quite
@@ -680,8 +679,8 @@ BSLS_IDENT("$Id: $")
 // my_tradingsystem.h
 // ...
 //
+//  /// ...
 //  class TradingSystem {
-//      // ...
 //    public:
 //      // ...
 // ```
@@ -689,11 +688,11 @@ BSLS_IDENT("$Id: $")
 // as a scaling factor, an integer that must be a multiple of 100 or the
 // behavior is undefined (and might actually execute a trade):
 // ```
+//     /// Execute the current trade using the specified `scalingFactor`.
+//     /// The behavior is undefined unless `0 <= scalingFactor` and `100`
+//     /// evenly divides `scalingFactor`.
 //     void executeTrade(int scalingFactor);
-//         // Execute the current trade using the specified 'scalingFactor'.
-//         // The behavior is undefined unless '0 <= scalingFactor' and '100'
-//         // evenly divides 'scalingFactor'.
-//     // ...
+//
 // };
 // ```
 // Because the cost of the two checks is likely not even measurable compared to
@@ -821,13 +820,13 @@ BSLS_IDENT("$Id: $")
 // ```
 // static bool globalEnableOurPrintingFlag = true;
 //
+// /// Print the expression `comment`, `file` name, and `line` number from
+// /// the specified `violation` to `stdout` as a comma-separated list,
+// /// replacing null string-argument values with empty strings (unless
+// /// printing has been disabled by the `globalEnableOurPrintingFlag`
+// /// variable), then unconditionally abort.
 // static
 // void ourFailureHandler(const bsls::AssertViolation& violation)
-//     // Print the expression 'comment', 'file' name, and 'line' number from
-//     // the specified 'violation' to 'stdout' as a comma-separated list,
-//     // replacing null string-argument values with empty strings (unless
-//     // printing has been disabled by the 'globalEnableOurPrintingFlag'
-//     // variable), then unconditionally abort.
 // {
 //     const char *comment = violation.comment();
 //     if (!comment) {
@@ -879,8 +878,8 @@ BSLS_IDENT("$Id: $")
 // the simple factorial function below, which validates, in "debug mode" (or
 // "safe mode"), that its input is non-negative:
 // ```
+// /// Return `n!`.  The behavior is undefined unless `0 <= n`.
 // double fact(int n)
-//     // Return 'n!'.  The behavior is undefined unless '0 <= n'.
 // {
 //     BSLS_ASSERT(0 <= n);
 //
@@ -1021,52 +1020,55 @@ BSLS_IDENT("$Id: $")
 // elided; the methods of particular interest here are `begin` and `insert`:
 // ```
 //
-//   class List {
-//       List_Link *d_head_p;
-//     public:
-//       // CREATORS
-//       List() : d_head_p(0) { }
-//       List(const List&) { /* ... */ }
-//       ~List() { /* ... */ }
+// class List {
+//     List_Link *d_head_p;
+//   public:
+//     // CREATORS
+//     List() : d_head_p(0) { }
+//     List(const List&) { /* ... */ }
+//     ~List() { /* ... */ }
 //
-//       // MANIPULATORS
-//       List& operator=(const List&) { /* ... */ return *this; }
+//     // MANIPULATORS
+//     List& operator=(const List&) { /* ... */ return *this; }
 //
-//       //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
-//       //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
-//       //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//       ListIter begin()
-//           // Return an iterator referring to the beginning of this list.
-//       {
-//           return ListIter(&d_head_p, this);
-//       }
-//       //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//     //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+//     //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
+//     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //
-//       //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
-//       //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
-//       //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//       void insert(const ListIter& position, int data)
-//           // Insert the specified 'data' value into this list at the
-//           // specified 'position'.
-//       {
-//   #ifdef BDE_BUILD_TARGET_SAFE_2
-//           BSLS_ASSERT_SAFE(this == position.d_parent_p);  // "safe 2 mode"
-//   #endif
-//           *position.d_current_p = new List_Link(*position.d_current_p, data);
-//       }
-//       //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//     /// Return an iterator referring to the beginning of this list.
+//     ListIter begin()
+//     {
+//         return ListIter(&d_head_p, this);
+//     }
+//     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //
-//       // ACCESSORS
-//       void print()
-//           // Output the contents of this list to 'stdout'.
-//       {
-//           printf( "[" );
-//           for (List_Link *p = d_head_p; p; p = p->d_next_p) {
-//               printf( " %d", p->d_data );
-//           }
-//           printf(" ]\n");
-//       }
-//   };
+//     //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+//     //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
+//     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//
+//     /// Insert the specified `data` value into this list at the specified
+//     /// `position`.
+//     void insert(const ListIter& position, int data)
+//     {
+// #ifdef BDE_BUILD_TARGET_SAFE_2
+//         BSLS_ASSERT_SAFE(this == position.d_parent_p);  // "safe 2 mode"
+// #endif
+//         *position.d_current_p = new List_Link(*position.d_current_p, data);
+//     }
+//     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//
+//     // ACCESSORS
+//
+//     /// Output the contents of this list to `stdout`.
+//     void print()
+//     {
+//         printf( "[" );
+//         for (List_Link *p = d_head_p; p; p = p->d_next_p) {
+//             printf( " %d", p->d_data );
+//         }
+//         printf(" ]\n");
+//     }
+// };
 // ```
 // Outside of "safe 2 mode", it is possible to pass an iterator object obtained
 // from the `begin` method of one `List` object into the `insert` method of
@@ -1135,9 +1137,9 @@ BSLS_IDENT("$Id: $")
 // An elided class `MyDate`, which is based on a serial-date implementation, is
 // provided for reference:
 // ```
+// /// This class implements a value-semantic "date" type representing
+// /// valid date values in the range `[ 0001Jan01 .. 9999Dec31 ]`.
 // class MyDate {
-//     // This class implements a value-semantic "date" type representing
-//     // valid date values in the range '[ 0001Jan01 .. 9999Dec31 ]'.
 //
 //     // DATA
 //     int d_serialDate;  // sequential representation within a valid range
@@ -1148,19 +1150,20 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      // CREATORS
+//
+//      /// Create a `MyDate` object having the value `0001Jan01`.
 //      MyDate();
-//          // Create a 'MyDate' object having the value '0001Jan01'.
 //
 //      // ...
 //
+//      /// Create a `MyDate` object having the same value as the specified
+//      /// `original` object.
 //      MyDate(const MyDate& original);
-//          // Create a 'MyDate' object having the same value as the specified
-//          // 'original' object.
 //
 // #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+//      /// Destroy this object.  Note that in some build modes the
+//      /// destructor generated by the compiler is trivial.
 //      ~MyDate();
-//          // Destroy this object.  Note that in some build modes the
-//          // destructor generated by the compiler is trivial.
 // #endif
 //
 //     // ...
@@ -1205,9 +1208,9 @@ BSLS_IDENT("$Id: $")
 // code that is more fine-grained, modular, and hierarchically reusable:
 // ```
 // struct MyDateImpUtil {
+//     /// Return `true` if the specified `d_date` represents a valid date
+//     /// value, and `false` otherwise.
 //     static bool isValidSerialDate(int d_date);
-//         // Return 'true' if the specified 'd_date' represents a valid date
-//         // value, and 'false' otherwise.
 // };
 //
 // inline
@@ -1249,10 +1252,10 @@ BSLS_IDENT("$Id: $")
 //      // ACCESSORS
 //      // ...
 //
+//      /// Write the value of this object to the specified output `stream`
+//      /// in some human-readable format, and return a reference to
+//      /// `stream`.  Optionally specify ...
 //      std::ostream& print(std::ostream& stream, ...) const;
-//          // Write the value of this object to the specified output 'stream'
-//          // in some human-readable format, and return a reference to
-//          // 'stream'.  Optionally specify ...
 //
 //      // ...
 //
@@ -1358,18 +1361,18 @@ BSLS_IDENT("$Id: $")
 // class ComplexObject {
 //     // ...
 // #if defined(BSLS_ASSERT_SAFE_IS_USED)
+//     /// Return `true` if the current state of this object fits within the
+//     /// complex requirements of being sufficiently purple, false otherwise.
 //     bool isPurplish() const;
-//         // Return 'true' if the current state of this object fits within
-//         // the complex requirements of being sufficiently purple, false
-//         // otherwise.
 // #endif
 //     // ...
-// public:
+//   public:
 //     // MANIPULATORS
-//  void doSomethingPurpley();
-//         // Do something purpley.  The behavior is undefined unless this
-//         // object is currently purplish (contact customer support to know
-//         // the current threshholds for purplishness).
+//
+//     /// Do something purpley.  The behavior is undefined unless this object
+//     /// is currently purplish (contact customer support to know the current
+//     /// threshholds for purplishness).
+//     void doSomethingPurpley();
 // };
 //
 // #if defined(BSLS_ASSERT_SAFE_IS_USED)
@@ -1414,9 +1417,10 @@ BSLS_IDENT("$Id: $")
 // Suppose we have a function that wishes to swap the values of its input:
 // ```
 // struct MySwapper {
+//
+//     /// Exchange the values of the specified `lhs` and `rhs`.
 //     template <class T>
 //     static void swap(T& lhs, T& rhs)
-//         // Exchange the values of the specified 'lhs' and 'rhs'.
 //     {
 //         T tmp = lhs;
 //         lhs = rhs;
@@ -1432,9 +1436,10 @@ BSLS_IDENT("$Id: $")
 // `BSLS_ASSERT_SAFE_IS_ACTIVE` is defined, like this:
 // ```
 // struct MySwapper {
+//
+//     /// Exchange the values of the specified `lhs` and `rhs`.
 //     template <class T>
 //     static void swap(T& lhs, T& rhs)
-//         // Exchange the values of the specified 'lhs' and 'rhs'.
 //     {
 // #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 //         T origLhs(lhs);
