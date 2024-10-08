@@ -513,7 +513,7 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERT_IS_USED`
 // * `BSLS_ASSERT_OPT_IS_USED`
 //
-// Note that any of the `IS_ACTIVE`, `IS_REVIEW", and `IS_ASSUMED' macros being
+// Note that any of the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros being
 // defined will imply that the corresponding `IS_USED` macro is also defined.
 //
 // Which of these macros to use to conditionally compile supporting code is
