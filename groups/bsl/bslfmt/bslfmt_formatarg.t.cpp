@@ -1299,11 +1299,10 @@ int main(int argc, char **argv)
             ASSERT(checkFormattableTypeValue(a2, 42));
         }
 
-#if !defined(BSLS_PLATFORM_CMP_SUN)
-
         {
             FA a1;
-            FA a2 = MoveUtil::move(a1);
+            FA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1311,7 +1310,8 @@ int main(int argc, char **argv)
 
         {
             WFA a1;
-            WFA a2 = MoveUtil::move(a1);
+            WFA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(!a1);
             ASSERT(!a2);
@@ -1319,7 +1319,8 @@ int main(int argc, char **argv)
 
         {
             FA a1 = makeTestArg<char>((int)99);
-            FA a2 = MoveUtil::move(a1);
+            FA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1330,7 +1331,8 @@ int main(int argc, char **argv)
 
         {
             WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2 = MoveUtil::move(a1);
+            WFA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1342,7 +1344,8 @@ int main(int argc, char **argv)
         {
             FormattableType ft(42);
             FA a1 = makeTestArg<char>(ft);
-            FA a2 = MoveUtil::move(a1);
+            FA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1354,7 +1357,8 @@ int main(int argc, char **argv)
         {
             FormattableType ft(42);
             WFA a1 = makeTestArg<wchar_t>(ft);
-            WFA a2 = MoveUtil::move(a1);
+            WFA a2;
+            a2 = MoveUtil::move(a1);
 
             ASSERT(a1);
             ASSERT(a2);
@@ -1362,8 +1366,6 @@ int main(int argc, char **argv)
             ASSERT(checkFormattableTypeValue(a1, 42));
             ASSERT(checkFormattableTypeValue(a2, 42));
         }
-
-#endif // BSLS_PLATFORM_CMP_SUN
 
       } break;
       case 8: {
@@ -1514,8 +1516,7 @@ int main(int argc, char **argv)
         }
 
         {
-            FormattableType ft(42);
-            FA a1 = makeTestArg<char>(ft);
+            FA a1 = makeTestArg<char>(FormattableType(42));
             FA a2(a1);
 
             ASSERT(a1);
@@ -1526,8 +1527,7 @@ int main(int argc, char **argv)
         }
 
         {
-            FormattableType ft(42);
-            WFA a1 = makeTestArg<wchar_t>(ft);
+            WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
             WFA a2(a1);
 
             ASSERT(a1);
@@ -1576,8 +1576,7 @@ int main(int argc, char **argv)
         }
 
         {
-            FormattableType ft(42);
-            FA a1 = makeTestArg<char>(ft);
+            FA a1 = makeTestArg<char>(FormattableType(42));
             FA a2(MoveUtil::move(a1));
 
             ASSERT(a1);
@@ -1588,8 +1587,7 @@ int main(int argc, char **argv)
         }
 
         {
-            FormattableType ft(42);
-            WFA a1 = makeTestArg<wchar_t>(ft);
+            WFA a1 = makeTestArg<wchar_t>(FormattableType(42));
             WFA a2(MoveUtil::move(a1));
 
             ASSERT(a1);

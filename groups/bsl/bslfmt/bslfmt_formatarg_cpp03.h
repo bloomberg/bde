@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Oct  7 12:08:12 2024
+// Generated on Tue Oct  8 09:32:39 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatarg.h
 
 #ifdef COMPILING_BSLFMT_FORMATARG_H
@@ -280,7 +280,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     // HIDDEN FRIENDS
 
     /// Exchange the values of the specified 'lhs' and 'rhs'.
-    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)        
+    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
     {
         lhs.d_value.swap(rhs.d_value);
     }
@@ -306,6 +306,15 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     operator BoolType() const BSLS_KEYWORD_NOEXCEPT;
 
     // MANIPULATORS
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    /// Move-assign a `basic_format_arg` from the specified `rhs`. This is
+    /// required to support use on C++03, but must
+    /// *not* be specified for C++11 and later as it will result in the
+    /// implicit deletion of other defaulted special member functions.
+    basic_format_arg &operator=(
+                bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT;
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
@@ -1005,6 +1014,19 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator BoolType()
                              !bsl::holds_alternative<bsl::monostate>(d_value));
 }
 
+// MANIPULATORS
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template <class t_OUT, class t_CHAR>
+inline
+basic_format_arg<basic_format_context<t_OUT, t_CHAR> > &
+basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator=(
+                 bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    d_value = bslmf::MovableRefUtil::move(
+                                 bslmf::MovableRefUtil::access(rhs).d_value);
+    return *this;
+}
+#endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
                       // ------------------------------
                       // class Format_FormatArg_ImpUtil
