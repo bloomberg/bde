@@ -919,7 +919,7 @@ Formatter_UnicodeUtils::extractGraphemeCluster(UtfEncoding  encoding,
 // The class Formatter_UnicodeData_StartCompare_GB11_LH_Regex and the function
 // Formatter_UnicodeUtils::extractGraphemeCluster were adapted for bde use from
 // Microsoft MSVC library code, 2024
-//  'https://github.com/microsoft/STL/blob/main/stl/inc/format'
+//  'https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/format'
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception

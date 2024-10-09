@@ -412,7 +412,7 @@ if __name__ == "__main__":
 
 # -----------------------------------------------------------------------------
 #  Adapted for bde use from Microsoft MSVC library code, 2024
-#  'https://github.com/microsoft/STL/blob/main/tools/unicode_properties_parse/unicode_properties_data_gen.py'
+#  'https://github.com/microsoft/STL/blob/vs-2022-17.11/tools/unicode_properties_parse/unicode_properties_data_gen.py'
 # 
 #  # Copyright (c) Microsoft Corporation.
 #  # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
