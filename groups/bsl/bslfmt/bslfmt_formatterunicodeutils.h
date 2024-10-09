@@ -139,9 +139,21 @@ struct Formatter_UnicodeUtils {
                                                         const void  *bytes,
                                                         size_t       maxBytes);
 
-
+    /// Based on the value of the initial byte of a unicode code point in UTF-8
+    /// representation, calculate and return the number of bytes used in that
+    /// representation. The value of the first byte is specified by
+    /// `firstChar`. If `firstChar` does not contain a valid value for the
+    /// first byte of a UTF-8 codepoint representation return -1;
     static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
                                                          const char firstChar);
+
+    /// Based on the value of the initial byte of a unicode code point in
+    /// UTF-16 (where `sizeof(wchar_t)==2`) or UTF-32 (where
+    /// `sizeof(wchar_t)==4`) representation, calculate and return the number
+    /// of bytes used in that representation. The value of the first byte is
+    /// specified by `firstChar`. If `firstChar` does not contain a valid value
+    /// for the first byte of a UTF-16 or UTF-32 (depending on
+    /// `sizeof(wchar_t)`) codepoint representation return -1;
     static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
                                                       const wchar_t firstChar);
 };
