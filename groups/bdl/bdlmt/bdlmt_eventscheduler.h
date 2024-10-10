@@ -640,6 +640,8 @@ class EventScheduler {
                                                 // should use for the event
                                                 // timeline
 
+    bsls::AtomicInt64     d_cachedNow;          // cached total microseconds
+
     EventQueue            d_eventQueue;         // events
 
     RecurringEventQueue   d_recurringQueue;     // recurring events
@@ -759,7 +761,7 @@ class EventScheduler {
     /// construction (see {Supported Clock Types} in the component
     /// documentation).  Also note that this method may update the value of
     /// `now` with the current system time if necessary.
-    bsls::Types::Int64 chooseNextEvent(bsls::Types::Int64 *now);
+    bsls::Types::Int64 chooseNextEvent(bsls::AtomicInt64 *now);
 
     /// While d_running is true, execute events in the event and recurring
     /// event queues at their scheduled times.  Note that this method
@@ -1964,13 +1966,16 @@ void EventScheduler::scheduleEventRaw(
     else {
         using namespace bsl::chrono;
 
-        microseconds stime =
-                     duration_cast<microseconds>(epochTime.time_since_epoch());
+        bsls::Types::Int64 startTime = (bsls::Types::Int64)
+             duration_cast<microseconds>(epochTime.time_since_epoch()).count();
+        if (startTime < d_cachedNow) {
+            startTime = d_cachedNow;
+        }
 
         bool newTop;
         d_eventQueue.addRawR(
                 (EventQueue::Pair **)event,
-                (bsls::Types::Int64)stime.count(),
+                startTime,
                 EventData(
                     callback,
                     bdlf::BindUtil::bind(timeUntilTrigger<t_CLOCK, t_DURATION>,

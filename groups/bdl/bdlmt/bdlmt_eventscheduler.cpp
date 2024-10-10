@@ -176,7 +176,7 @@ bsls::Types::Int64 EventScheduler::returnZeroInt(int)
 }
 
 // PRIVATE MANIPULATORS
-bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
+bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::AtomicInt64 *now)
 {
     BSLS_ASSERT(0 != d_currentRecurringEvent || 0 != d_currentEvent);
 
@@ -219,7 +219,7 @@ void EventScheduler::dispatchEvents()
     // set the dispatcher thread id
     d_dispatcherThreadId.storeRelease(bslmt::ThreadUtil::selfIdAsUint64());
 
-    bsls::Types::Int64 now = d_currentTimeFunctor().totalMicroseconds();
+    d_cachedNow = d_currentTimeFunctor().totalMicroseconds();
 
     while (1) {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -255,9 +255,9 @@ void EventScheduler::dispatchEvents()
             continue;
         }
 
-        bsls::Types::Int64 t = chooseNextEvent(&now);
+        bsls::Types::Int64 t = chooseNextEvent(&d_cachedNow);
 
-        if (t > now) {
+        if (t > d_cachedNow) {
             releaseCurrentEvents();
             bsls::TimeInterval w;
             w.addMicroseconds(t);
@@ -285,7 +285,7 @@ void EventScheduler::dispatchEvents()
             else {
                 int ret = d_recurringQueue.updateR(
                                       d_currentRecurringEvent,
-                                      now + nowOffset);
+                                      d_cachedNow + nowOffset);
                 (void) ret;
                 d_recurringQueue.releaseReferenceRaw(d_currentRecurringEvent);
                 d_currentRecurringEvent = 0;
@@ -304,7 +304,7 @@ void EventScheduler::dispatchEvents()
             else {
                 int ret = d_eventQueue.updateR(
                                 d_currentEvent,
-                                now + nowOffset);
+                                d_cachedNow + nowOffset);
                 (void) ret;
                 d_eventQueue.releaseReferenceRaw(d_currentEvent);
                 d_currentEvent = 0;
@@ -316,6 +316,8 @@ void EventScheduler::dispatchEvents()
 void EventScheduler::initialize(bdlm::MetricsRegistry   *metricsRegistry,
                                 const bsl::string_view&  eventSchedulerName)
 {
+    d_cachedNow = d_currentTimeFunctor().totalMicroseconds();
+
     bdlm::MetricsRegistry *registry = metricsRegistry
                                    ? metricsRegistry
                                    : &bdlm::MetricsRegistry::defaultInstance();
@@ -359,8 +361,13 @@ EventScheduler::scheduleEvent(EventHandle               *event,
 {
     bool newTop;
 
+    bsls::Types::Int64 startTime = epochTime.totalMicroseconds();
+    if (startTime < d_cachedNow) {
+        startTime = d_cachedNow;
+    }
+
     d_eventQueue.addR(&event->d_handle,
-                      epochTime.totalMicroseconds(),
+                      startTime,
                       eventData,
                       &newTop);
 
@@ -375,7 +382,12 @@ void EventScheduler::scheduleEvent(const bsls::TimeInterval&   epochTime,
 {
     bool newTop;
 
-    d_eventQueue.addR(epochTime.totalMicroseconds(),
+    bsls::Types::Int64 startTime = epochTime.totalMicroseconds();
+    if (startTime < d_cachedNow) {
+        startTime = d_cachedNow;
+    }
+
+    d_eventQueue.addR(startTime,
                       eventData,
                       &newTop);
 
@@ -996,8 +1008,13 @@ int EventScheduler::rescheduleEvent(const Event               *handle,
         h->data().d_nowOffset = returnZero;
     }
 
+    bsls::Types::Int64 startTime = newEpochTime.totalMicroseconds();
+    if (startTime < d_cachedNow) {
+        startTime = d_cachedNow;
+    }
+
     int ret = d_eventQueue.updateR(h,
-                                   newEpochTime.totalMicroseconds(),
+                                   startTime,
                                    &isNewTop);
 
     if (0 == ret && isNewTop) {
@@ -1025,8 +1042,13 @@ int EventScheduler::rescheduleEventAndWait(
             h->data().d_nowOffset = returnZero;
         }
 
+        bsls::Types::Int64 startTime = newEpochTime.totalMicroseconds();
+        if (startTime < d_cachedNow) {
+            startTime = d_cachedNow;
+        }
+
         ret = d_eventQueue.updateR(h,
-                                   newEpochTime.totalMicroseconds(),
+                                   startTime,
                                    &isNewTop);
 
         if (0 == ret) {
@@ -1061,8 +1083,13 @@ void EventScheduler::scheduleEventRaw(Event                        **event,
 {
     bool newTop;
 
+    bsls::Types::Int64 startTime = epochTime.totalMicroseconds();
+    if (startTime < d_cachedNow) {
+        startTime = d_cachedNow;
+    }
+
     d_eventQueue.addRawR((EventQueue::Pair **)event,
-                         epochTime.totalMicroseconds(),
+                         startTime,
                          EventData(callback, returnZero),
                          &newTop);
 

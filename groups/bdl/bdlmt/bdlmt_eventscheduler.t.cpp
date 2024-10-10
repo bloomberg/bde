@@ -131,6 +131,7 @@ using namespace bsl;
 // [27] bool isInDispatcherThread() const;
 // [ 9] bool isStarted() const;
 // [23] bsls::TimeInterval now() const;
+// [34] bsls::TimeInterval nextPendingEventTime() const;
 // [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -2953,6 +2954,168 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING `nextPendingEventTime`
+        //
+        // Concerns:
+        // 1. Submitted events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 2. Recheduled events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 3. Cancelling an event updates the `nextPendingEventTime`.
+        //
+        // 4. Submitted recurring events have the expected time, including for
+        //    recurring events in the past and at the default
+        //    `bsls::TimeInterval` value.
+        //
+        // 5. Cancelling a recurring event updates the `nextPendingEventTime`.
+        //
+        // Plan:
+        // 1. Construct an event scheduler but do not start the scheduler.
+        //    Submit one event using the default `bsls::TimeInterval` value, a
+        //    time in the past, or a time in the future, and directly verify
+        //    the value returned by `nextPendingEventTime`.  Rechedule the
+        //    event using the default `bsls::TimeInterval` value, a time in the
+        //    past, or a time in the future, and directly verify the value
+        //    returned by `nextPendingEventTime`.  Cancel the event and
+        //    directly verify the value returned by `nextPendingEventTime`.
+        //    (C-1..3)
+        //
+        // 2. Construct an event scheduler but do not start the scheduler.
+        //    Submit one recurring event using the default `bsls::TimeInterval`
+        //    value, a time in the past, or a time in the future, and directly
+        //    verify the value returned by `nextPendingEventTime`. Cancel the
+        //    recurring event and directly verify the value returned by
+        //    `nextPendingEventTime`.  (C-4,5)
+        //
+        // Testing:
+        //   bsls::TimeInterval nextPendingEventTime() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING `nextPendingEventTime`" << endl
+                          << "==============================" << endl;
+
+        const bsls::TimeInterval NOW_RAW = u::now();
+
+        bsls::TimeInterval NOW = NOW_RAW;
+        NOW.addNanoseconds(-NOW.nanoseconds());
+
+        const bsls::TimeInterval T1       = bsls::TimeInterval();
+        const bsls::TimeInterval T2       = NOW - bsls::TimeInterval(5);
+        const bsls::TimeInterval T3       = NOW + bsls::TimeInterval(5);
+        const bsls::TimeInterval INTERVAL = bsls::TimeInterval(1);
+        const bsls::TimeInterval NONE     =
+                                bsls::TimeInterval(INT64_MAX / 1000000,
+                                                   INT64_MAX % 1000000 * 1000);
+
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            EventHandle handle;
+
+            x.scheduleEvent(&handle, T1, noop);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T2);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            EventHandle handle;
+
+            x.scheduleEvent(&handle, T2, noop);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T3);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            EventHandle handle;
+
+            x.scheduleEvent(&handle, T3, noop);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T1);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            RecurringEventHandle handle;
+
+            x.scheduleRecurringEvent(&handle, INTERVAL, noop, T1);
+
+            ASSERTV(NOW + INTERVAL <= x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            RecurringEventHandle handle;
+
+            x.scheduleRecurringEvent(&handle, INTERVAL, noop, T2);
+
+            ASSERT(T2 == x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            RecurringEventHandle handle;
+
+            x.scheduleRecurringEvent(&handle, INTERVAL, noop, T3);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // TESTING THREAD NAME

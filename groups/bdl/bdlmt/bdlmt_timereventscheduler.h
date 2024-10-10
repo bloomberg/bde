@@ -529,6 +529,10 @@ class TimerEventScheduler {
                                             // microseconds from epoch of next
                                             // cached event
 
+    bsls::AtomicInt64 d_cachedNowMicroseconds;
+                                            // microseconds from epoch of
+                                            // most recent "now"
+
     bdlm::MetricsRegistryRegistrationHandle
                       d_startLagHandle;     // start lag handle
 
