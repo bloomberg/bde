@@ -8,12 +8,12 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
+#include <bslma_default.h>
+
 #include <bslmt_latch.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
-
-#include <bslma_default.h>
 
 #include <bsls_assert.h>
 #include <bsls_log.h>

@@ -347,10 +347,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslmt_lockguard.h>
-#include <bdlmt_threadpool.h>
-
 #include <bdlcc_objectpool.h>
+
+#include <bdlmt_threadpool.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -359,6 +358,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_condition.h>
+#include <bslmt_latch.h>
+#include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_mutexassert.h>
 #include <bslmt_readerwritermutex.h>
@@ -371,8 +372,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_deque.h>
 #include <bsl_functional.h>
 #include <bsl_map.h>
-
-#include <bslmt_latch.h>
 
 namespace BloombergLP {
 namespace bdlmt {

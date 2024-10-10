@@ -2,6 +2,8 @@
 
 #include <bdlmt_multiqueuethreadpool.h>
 
+#include <bdlf_bind.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
@@ -24,6 +26,7 @@
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_rawdeleterproctor.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_systemtime.h>
@@ -31,10 +34,10 @@
 #include <bsls_timeutil.h>  // For CachePerformance
 #include <bsls_types.h>     // For `BloombergLP::bsls::Types::Int64`
 
-#include <bdlf_bind.h>
-
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cmath.h>   // `sqrt`
+#include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
@@ -47,8 +50,6 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-#include <bsl_cmath.h>   // `sqrt`
-#include <bsl_cstdlib.h>
 
 using bsl::cout;
 using bsl::cerr;
