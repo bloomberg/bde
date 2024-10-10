@@ -12,15 +12,21 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for floating point types.
-//
 
 #include <bslscm_version.h>
+
+#include <bsla_annotations.h>
 
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarithmetic.h>
 #include <bslmf_issame.h>
+
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterspecificationstandard.h>
+#include <bslfmt_formatterunicodeutils.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
@@ -29,10 +35,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
-
-#include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
-#include <bslfmt_formatterunicodeutils.h>
+#include <bslstl_vector.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -44,34 +47,841 @@ namespace bslfmt {
 
 template <class t_VALUE, class t_CHAR>
 struct Formatter_FloatingBase {
+  private:
+    // PRIVATE CLASS TYPES
+
+    /// A type alias for the `FormatterSpecificationStandard<t_CHAR>`.
+    typedef FormatterSpecificationStandard<t_CHAR> FSS;
+
+    // DATA
+    FSS d_spec;  // Parsed specification.
+
+    /// A constant representing the case when a position is not found in a
+    /// string-search.
+    static const size_t k_NO_POS = (size_t)(-1);
+
+  private:
+    // PRIVATE CLASS METHODS
+
+    /// Convert the default format textual representation of a floating point
+    /// number to its alternative format in the specified `buf` of size
+    /// `numberLength` by adding a decimal point if necessary and return the
+    /// new size of the buffer.  The behavior is undefined unless the buffer
+    /// contains a floating point value in its default format, and it is large
+    /// enough to store the new (dot) character added.
+    static size_t applyDefaultAlternate(char* buf, size_t numberLength);
+
+    /// Convert the fixed format textual representation of a floating point
+    /// number to its alternative format in the specified `buf` of size
+    /// `numberLength` and return the new size of the buffer.  The behavior is
+    /// undefined unless the buffer contains a floating point value in its
+    /// fixed format, and it is large enough to store the new (dot) character
+    /// added.
+    static size_t applyFixedAlternate(char *buf, size_t numberLength);
+
+    /// Convert the general format textual representation of a floating point
+    /// number to its alternative format in the specified `buf` of size
+    /// `numberLength`, using the specified `precision` to add back removed
+    /// trailing zeros and return the new size of the buffer.  The behavior is
+    /// undefined unless the buffer contains a floating point value in its
+    /// general format, and it is large enough to store the new characters
+    /// added.  The behavior is also undefined unless `precision >= 0`.
+    static
+    size_t applyGeneralAlternate(char   *buf,
+                                 size_t  numberLength,
+                                 int     precision);
+
+    /// In case there is a decimal point in the scientific or hexadecimal
+    /// format textual representation of a number in the specified `buf` filled
+    /// up to the specified `numberLength` do nothing and return
+    /// `numberLength`. In case there is no decimal point in the `buf` insert
+    /// one right before the specified `expChar` position and return
+    /// `numberLength + 1`.  If no `expChar` is present in `buf` (assume that
+    /// the value is not numeric but NaN or infinity) do nothing and return
+    /// `numberLength`.  The behavior is undefined unless `expChar` is 'e' when
+    /// `buf` contains a number in scientific format, or 'p' when it is a
+    /// number in hexfloat format.  The behavior is also undefined unless the
+    /// buffer is long enough to contain the additional (dot) character.
+    static
+    size_t applyScientificAlternate(char    expChar,
+                                    char   *buf,
+                                    size_t  numberLength);
+
+    // PRIVATE MANIPULATORS
+
+    /// Write the specified `numberBuffer` of size `numberLength` aligned with
+    /// fills according to the specified `finalSpec` to the output iterator of
+    /// the `formatContext` and return an iterator one-past the last written.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator alignAndCopy(
+                                           const char        *numberBuffer,
+                                           size_t             numberLength,
+                                           t_FORMAT_CONTEXT&  formatContext,
+                                           const FSS&         finalSpec) const;
+
+    /// Create the fixed string representation of the specified `value`,
+    /// customized in accordance with the requested format in the specified
+    /// `finalSpec`, and write the result to the output iterator that the
+    /// `formatContext` points to.  The behavior is undefined unless the
+    /// requested format is fixed or uppercase fixed.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatFixedImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
+
+    /// Create the minimal-round-tripping string representation of the
+    /// specified `value`, customized in accordance with the requested format
+    /// in the specified `finalSpec`, and write the result to the output
+    /// iterator that the `formatContext` points to.  The behavior is undefined
+    /// unless the requested format type is default and no precision is
+    /// specified.  Notice that when a precision is specified the format used
+    /// changes to generic format (not "default").
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatDefaultImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
+
+    /// Create the general string representation of the specified `value`,
+    /// customized in accordance with the requested format in the specified
+    /// `finalSpec`, and write the result to the output iterator that the
+    /// `formatContext` points to.  The behavior is undefined unless the
+    /// requested format is general or uppercase general.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatGeneralImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
+
+    /// Create the minimal-round-tripping hexfloat string representation of the
+    /// specified `value`, customized in accordance with the requested format
+    /// in the specified `finalSpec`, and write the result to the output
+    /// iterator that the `formatContext` points to.  The behavior is undefined
+    /// unless the requested format is hexfloat or uppercase hexfloat and no
+    /// precision is specified.  Notice that there is a separate implementation
+    /// for hexfloats with a specified precision.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatHexImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
+
+    /// Create the hexfloat string representation of the specified `value`,
+    /// customized in accordance with the requested format in the specified
+    /// `finalSpec`, and write the result to the output iterator that the
+    /// `formatContext` points to.  The behavior is undefined unless the
+    /// requested format is hexfloat or uppercase hexfloat and the required
+    /// precision is explicitly specified.  Notice that there is a separate
+    /// implementation for hexfloats without a specified precision.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatHexPrecImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
+
+    /// Create the scientific string representation of the specified `value`,
+    /// customized in accordance with the requested format in the specified
+    /// `finalSpec`, and write the result to the output iterator that the
+    /// `formatContext` points to.  The behavior is undefined unless the
+    /// requested format is scientific or uppercase scientific.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator formatScientificImpl(
+                                            t_VALUE           value,
+                                            t_FORMAT_CONTEXT& formatContext,
+                                            const FSS&        finalSpec) const;
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
 
     // MANIPULATORS
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                           t_PARSE_CONTEXT& pc)
-    {
-        if (pc.begin() != pc.end() && *pc.begin() != '}') {
-            BSLS_THROW(bsl::format_error("not implemented"));
-        }
-        return pc.begin();
-    }
 
+    /// Create string representation of the specified `value`, customized in
+    /// accordance with the requested format and the specified `formatContext`,
+    /// and write the result to the output iterator that the `formatContext`
+    /// points to.
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(t_VALUE           x,
-                                               t_FORMAT_CONTEXT& fc) const
-    {
-        typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
-        char  buf[NFUtil::ToCharsMaxLength<double>::k_VALUE];
-        char *result = NFUtil::toChars(buf, buf + sizeof(buf), (double)x);
-        return BloombergLP::bslfmt::Formatter_CharUtils<
-            t_CHAR>::outputFromChar(buf, result, fc.out());
-    }
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        t_VALUE           value,
+                                        t_FORMAT_CONTEXT& formatContext) const;
+
+    /// Parse the specified `parseContext`, store the resulting parsed
+    /// specification and return an iterator, pointing to the beginning of the
+    /// format string.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
+    parse(t_PARSE_CONTEXT& parseContext);
 };
 
-}  // close namespace bslfmt
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+// PRIVATE CLASS METHODS
+template <class t_VALUE, class t_CHAR>
+size_t
+Formatter_FloatingBase<t_VALUE, t_CHAR>::applyDefaultAlternate(
+                                                          char   *buf,
+                                                          size_t  numberLength)
+{
+    // Note that this method has to work with 3 substantially
+    // different-looking formats: scientific, fixed, and the special values
+    // (NaN, infinity).
+
+    {
+        const char lastChar = buf[numberLength - 1];
+        if ('f' == lastChar || 'n' == lastChar) {
+            // infinity or NaN, nothing to do
+            return numberLength;
+        }
+    }
+
+    size_t dotPos = k_NO_POS;
+    for (size_t i = 0; i < numberLength; ++i) {
+        if ('.' == buf[i]) {
+            dotPos = i;
+            break;                                                     // BREAK
+        }
+    }
+
+    if (dotPos == k_NO_POS) {
+        // When here, we need to insert the decimal point before the 'e'
+        // if present, or at the end if we printed fixed-form.
+
+        size_t ePos = k_NO_POS;
+        for (size_t i = 0; i < numberLength; ++i) {
+            if ('e' == buf[i]) {
+                dotPos = i;
+                break;                                                 // BREAK
+            }
+        }
+
+        if (k_NO_POS == ePos) {
+            buf[numberLength] = '.';
+        }
+        else {
+            // Scientific form, we need to move the exponent part
+            memmove(buf + ePos + 1, buf + ePos, numberLength - ePos);
+            buf[ePos++] = '.';
+        }
+        ++numberLength;
+    }
+
+    return numberLength;
+}
+
+template <class t_VALUE, class t_CHAR>
+size_t
+Formatter_FloatingBase<t_VALUE, t_CHAR>::applyFixedAlternate(
+                                                          char   *buf,
+                                                          size_t  numberLength)
+{
+    // Place in a decimal point if none is present
+
+    for (size_t i = 0; i < numberLength; ++i) {
+        if ('.' == buf[i]) {
+            // Has a decimal point, nothing to do
+            return numberLength;                                      // RETURN
+        }
+    }
+
+    // When here, we need to insert the decimal point at the end
+    buf[numberLength] = '.';
+
+    return ++numberLength;
+}
+
+template <class t_VALUE, class t_CHAR>
+size_t
+Formatter_FloatingBase<t_VALUE, t_CHAR>::applyGeneralAlternate(
+                                                          char   *buf,
+                                                          size_t  numberLength,
+                                                          int     precision)
+{
+    // This method adds a decimal point if it is not present and re-adds the
+    // removed trailing zeros up to the specified `precision` as required
+    // for the alternate format of the generic ('g' and 'G') formats.  Note
+    // that this method has to work with 3 substantially different-looking
+    // formats: scientific, fixed, and the special value (NaN, infinity).
+
+    {
+        const char lastChar = buf[numberLength - 1];
+        if ('f' == lastChar || 'n' == lastChar) {
+            // infinity or NaN, nothing to do
+            return numberLength;
+        }
+    }
+
+    size_t dotPos = k_NO_POS;
+    for (size_t i = 0; i < numberLength; ++i) {
+        if ('.' == buf[i]) {
+            dotPos = i;
+            break;                                                     // BREAK
+        }
+    }
+    size_t ePos = k_NO_POS;
+    for (size_t i = 0; i < numberLength; ++i) {
+        if ('e' == buf[i]) {
+            ePos = i;
+            break;                                                     // BREAK
+        }
+    }
+
+    if (dotPos == k_NO_POS) {
+        // When here, we need to insert the decimal point before the 'e'
+        // if present, or at the end if we printed fixed-form.
+
+        if (k_NO_POS == ePos) {
+            buf[numberLength] = '.';
+        }
+        else {
+            // Scientific form, we need to move the exponent part
+            memmove(buf + ePos + 1, buf + ePos, numberLength - ePos);
+            buf[ePos++] = '.';
+        }
+        ++numberLength;
+    }
+
+    // Alternate form also has to "put back" all removed trailing zeros
+    // up to the specified precision.
+    const ptrdiff_t digits = (k_NO_POS == ePos)
+                            ? numberLength - 1
+                            : ePos - 1;
+    if (precision > digits) {
+        const size_t numZeros = precision - digits;
+
+        // We need to put in some zeros
+        if (k_NO_POS == ePos) {
+            // Fixed format, zeros just go to the end
+            memset(buf + numberLength, '0', numZeros);
+        }
+        else {
+            // Scientific form, we need to move the exponent part
+            memmove(buf + ePos + numZeros,
+                    buf + ePos,
+                    numberLength - ePos);
+            memset(buf + ePos, '0', numZeros);
+            ePos += numZeros;
+        }
+        numberLength += numZeros;
+    }
+
+    return numberLength;
+}
+
+template <class t_VALUE, class t_CHAR>
+size_t
+Formatter_FloatingBase<t_VALUE, t_CHAR>::applyScientificAlternate(
+                                                          char    expChar,
+                                                          char   *buf,
+                                                          size_t  numberLength)
+{
+    {
+        const char lastChar = buf[numberLength - 1];
+        if ('f' == lastChar || 'n' == lastChar) {
+            // infinity or NaN, nothing to do
+            return numberLength;                                      // RETURN
+        }
+    }
+
+    for (size_t i = 0; i < numberLength; ++i) {
+        if ('.' == buf[i]) {
+            return numberLength;                                      // RETURN
+        }
+    }
+
+    // When here, we need to insert the decimal point before the exponent
+    // character.
+
+    size_t expPos = k_NO_POS;
+    for (size_t i = 0; i < numberLength; ++i) {
+        if (expChar == buf[i]) {
+            expPos = i;
+            break;                                                     // BREAK
+        }
+    }
+
+    if (k_NO_POS == expPos) {
+        // This must not happen as we have a number in scientific format
+        BSLS_THROW(bsl::format_error("Internal error, exponent not found"));
+    }
+
+    // Scientific form, we need to move the exponent part
+    memmove(buf + expPos + 1, buf + expPos, numberLength - expPos);
+    buf[expPos] = '.';
+
+    return ++numberLength; // We added a '.'
+}
+
+
+// PRIVATE MANIPULATORS
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::alignAndCopy(
+                                            const char        *numberBuffer,
+                                            size_t             numberLength,
+                                            t_FORMAT_CONTEXT&  formatContext,
+                                            const FSS&         finalSpec) const
+{
+    typedef FormatterSpecification_NumericValue FSNVAlue;
+
+    FSNVAlue finalWidth(finalSpec.postprocessedWidth());
+
+    ptrdiff_t leftPadFillerCopiesNum  = 0;
+    ptrdiff_t rightPadFillerCopiesNum = 0;
+    ptrdiff_t zeroPadFillerCopiesNum  = 0;
+
+    const char addSignChar = *numberBuffer == '-'
+                           ? '-'
+                           : FSS::e_SIGN_POSITIVE == finalSpec.sign()
+                           ? '+'
+                           : FSS::e_SIGN_SPACE == finalSpec.sign()
+                           ? ' '
+                           : '\0';
+    const bool hasSignChar = (addSignChar != 0);
+
+    if ('-' == addSignChar) {
+        // We are going to add the sign "by hand"
+        ++numberBuffer;
+        --numberLength;
+    }
+
+    // Check if we have a non-numerical value of "inf" or "nan", in which case
+    // we must no use zero padding.
+    const char lastChar = numberBuffer[numberLength - 1];
+    const bool specialValue = 'f' == lastChar || 'n' == lastChar;
+
+    if (numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
+        // We need to fill the remaining space.
+
+        const ptrdiff_t totalPadDisplayWidth =
+                             finalWidth.value() - (numberLength + hasSignChar);
+
+        if (!specialValue && FSS::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+            finalSpec.zeroPaddingFlag()) {
+            // Space will be filled with zeros.
+
+            zeroPadFillerCopiesNum = totalPadDisplayWidth;
+        }
+        else {
+            // Alignment with appropriate symbol is required.
+
+            switch (d_spec.alignment()) {
+              case FSS::e_ALIGN_LEFT: {
+                leftPadFillerCopiesNum  = 0;
+                rightPadFillerCopiesNum = totalPadDisplayWidth;
+              } break;
+              case FSS::e_ALIGN_MIDDLE: {
+                leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
+                rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
+              } break;
+              case FSS::e_ALIGN_DEFAULT:
+              case FSS::e_ALIGN_RIGHT: {
+                leftPadFillerCopiesNum  = totalPadDisplayWidth;
+                rightPadFillerCopiesNum = 0;
+              } break;
+              default: {
+                BSLS_THROW(bsl::format_error("Invalid alignment"));
+              } break;
+            }
+        }
+    }
+
+    // Assembling the final string.
+
+    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
+
+    for (ptrdiff_t i = 0; i < leftPadFillerCopiesNum; ++i) {
+        outIterator = bsl::copy(
+                            finalSpec.filler(),
+                            finalSpec.filler() + finalSpec.fillerCharacters(),
+                            outIterator);
+    }
+
+    if (addSignChar) {
+        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                             t_CHAR>::outputFromChar(addSignChar, outIterator);
+    }
+
+    for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
+        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                                    t_CHAR>::outputFromChar('0', outIterator);
+    }
+
+    outIterator =
+            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
+                                                   numberBuffer,
+                                                   numberBuffer + numberLength,
+                                                   outIterator);
+
+    for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
+        outIterator = bsl::copy(
+                             finalSpec.filler(),
+                             finalSpec.filler() + finalSpec.fillerCharacters(),
+                             outIterator);
+    }
+
+    return outIterator;
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatFixedImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be decimal format
+    BSLS_ASSERT(FSS::e_FLOATING_DECIMAL    == finalSpec.formatType() ||
+                FSS::e_FLOATING_DECIMAL_UC == finalSpec.formatType());
+
+    // Determine the precision
+    typedef FormatterSpecification_NumericValue FSNVAlue;
+    const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
+    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+                        ? 6
+                        : specPrec.value();
+
+    // Converting to string
+    const size_t k_STACK_BUF_LEN =   // Max useful precision 17 - dflt 6 => 11
+              NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_FIXED>::k_VALUE + 11;
+    char sbuf[k_STACK_BUF_LEN];
+    bsl::vector<char> dbuf;
+    const size_t reqdBufLen =
+        NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_FIXED,
+                                                         precision);
+    char   *buf = sbuf;
+    size_t  bufLen = k_STACK_BUF_LEN;
+    if (reqdBufLen > k_STACK_BUF_LEN) {
+        bufLen = reqdBufLen;
+        dbuf.resize(bufLen);
+        buf = &dbuf[0];
+    }
+    char *end = NFUtil::toChars(buf,
+                                buf + bufLen,
+                                value,
+                                NFUtil::e_FIXED,
+                                precision);
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyFixedAlternate(buf, numberLength);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatDefaultImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be default format
+    BSLS_ASSERT(FSS::e_FLOATING_DEFAULT == finalSpec.formatType());
+
+    /// Must not have precision
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
+                               FormatterSpecification_NumericValue::e_DEFAULT);
+
+    // Converting to string
+    char buf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
+    char *end = NFUtil::toChars(buf,
+                                buf + sizeof(buf),
+                                value);
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyDefaultAlternate(buf, numberLength);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatGeneralImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be general format
+    BSLS_ASSERT(FSS::e_FLOATING_GENERAL    == finalSpec.formatType() ||
+                FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType());
+
+    // Determine the precision
+    typedef FormatterSpecification_NumericValue FSNVAlue;
+    const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
+    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+                        ? 6
+                        : specPrec.value();
+
+    // Converting to string
+    const size_t k_STACK_BUF_LEN =       // max useful prec 17 - deflt 6 => 11
+            NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_GENERAL>::k_VALUE + 11;
+    char sbuf[k_STACK_BUF_LEN];
+    bsl::vector<char> dbuf;
+    const size_t reqdBufLen =
+            NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_GENERAL,
+                                                             precision);
+    char   *buf = sbuf;
+    size_t  bufLen = k_STACK_BUF_LEN;
+    if (reqdBufLen > k_STACK_BUF_LEN) {
+        bufLen = reqdBufLen;
+        dbuf.resize(bufLen);
+        buf = &dbuf[0];
+    }
+    char *end = NFUtil::toChars(buf,
+                                buf + bufLen,
+                                value,
+                                NFUtil::e_GENERAL,
+                                precision);
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyGeneralAlternate(buf, numberLength, precision);
+    }
+
+    if (FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType()) {
+        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be hexfloat format
+    BSLS_ASSERT(FSS::e_FLOATING_HEXEXP    == finalSpec.formatType() ||
+                FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType());
+
+    /// Must not have precision
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
+                               FormatterSpecification_NumericValue::e_DEFAULT);
+
+    // Converting to string
+    char buf[NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_HEX>::k_VALUE];
+    char *end = NFUtil::toChars(buf,
+                                buf + sizeof(buf),
+                                value,
+                                NFUtil::e_HEX);
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyScientificAlternate('p', buf, numberLength);
+    }
+
+    if (FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType()) {
+        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be hexfloat format
+    BSLS_ASSERT(FSS::e_FLOATING_HEXEXP    == finalSpec.formatType() ||
+                FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType());
+
+    /// Must have precision
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() !=
+                               FormatterSpecification_NumericValue::e_DEFAULT);
+
+    // Converting to string
+    const size_t k_STACK_BUF_LEN =
+                     NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_HEX>::k_VALUE;
+    char sbuf[k_STACK_BUF_LEN];
+    bsl::vector<char> dbuf;
+    const size_t reqdBufLen =
+        NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(
+                                   NFUtil::e_HEX,
+                                   finalSpec.postprocessedPrecision().value());
+    char   *buf = sbuf;
+    size_t  bufLen = k_STACK_BUF_LEN;
+    if (reqdBufLen > k_STACK_BUF_LEN) {
+        bufLen = reqdBufLen;
+        dbuf.resize(bufLen);
+        buf = &dbuf[0];
+    }
+    char *end = NFUtil::toChars(buf,
+                                buf + bufLen,
+                                value,
+                                NFUtil::e_HEX,
+                                finalSpec.postprocessedPrecision().value());
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyScientificAlternate('p', buf, numberLength);
+    }
+
+    if (FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType()) {
+        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
+                                             t_VALUE           value,
+                                             t_FORMAT_CONTEXT& formatContext,
+                                             const FSS&        finalSpec) const
+{
+    typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
+
+    /// Must be scientific format
+    BSLS_ASSERT(FSS::e_FLOATING_DECEXP    == finalSpec.formatType() ||
+                FSS::e_FLOATING_DECEXP_UC == finalSpec.formatType());
+
+    // Determine the precision
+    typedef FormatterSpecification_NumericValue FSNVAlue;
+    const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
+    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+                        ? 6
+                        : specPrec.value();
+
+    // Converting to string
+    const size_t k_STACK_BUF_LEN =       // max useful prec 17 - deflt 6 => 11
+         NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_SCIENTIFIC>::k_VALUE + 11;
+    char sbuf[k_STACK_BUF_LEN];
+    bsl::vector<char> dbuf;
+    const size_t reqdBufLen =
+        NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_SCIENTIFIC,
+                                                         precision);
+    char   *buf = sbuf;
+    size_t  bufLen = k_STACK_BUF_LEN;
+    if (reqdBufLen > k_STACK_BUF_LEN) {
+        bufLen = reqdBufLen;
+        dbuf.resize(bufLen);
+        buf = &dbuf[0];
+    }
+    char *end = NFUtil::toChars(buf,
+                                buf + bufLen,
+                                value,
+                                NFUtil::e_SCIENTIFIC,
+                                precision);
+
+    size_t numberLength = static_cast<size_t>(end - buf);
+
+    if (finalSpec.alternativeFlag()) {
+        numberLength = applyScientificAlternate('e', buf, numberLength);
+    }
+
+    if (FSS::e_FLOATING_DECEXP_UC == finalSpec.formatType()) {
+        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+    }
+
+    return alignAndCopy(buf, numberLength, formatContext, finalSpec);
+}
+
+// MANIPULATORS
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::format(
+                                         t_VALUE           value,
+                                         t_FORMAT_CONTEXT& formatContext) const
+{
+    typedef FormatterSpecification_NumericValue FSNVAlue;
+
+    FSS finalSpec(d_spec);
+    FSS::postprocess(&finalSpec, formatContext);
+
+    const bool isDefaultPrecision =
+         FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().valueType();
+
+    switch (finalSpec.formatType()) {
+      case FSS::e_FLOATING_DEFAULT: {
+        if (isDefaultPrecision) {
+            return formatDefaultImpl(value, formatContext, finalSpec);
+        }
+        else {
+            return formatGeneralImpl(value, formatContext, finalSpec);
+        }
+      } break;
+
+      case FSS::e_FLOATING_HEXEXP: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_HEXEXP_UC: {
+        if (isDefaultPrecision) {
+            return formatHexImpl(value, formatContext, finalSpec);
+        }
+        else {
+            return formatHexPrecImpl(value, formatContext, finalSpec);
+        }
+      } break;
+
+      case FSS::e_FLOATING_DECEXP: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_DECEXP_UC: {
+        return formatScientificImpl(value, formatContext, finalSpec);
+      } break;
+
+      case FSS::e_FLOATING_DECIMAL: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_DECIMAL_UC: {
+        return formatFixedImpl(value, formatContext, finalSpec);
+      } break;
+
+      case FSS::e_FLOATING_GENERAL: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_GENERAL_UC: {
+        return formatGeneralImpl(value, formatContext, finalSpec);
+      } break;
+
+      default: {
+        BSLS_THROW(bsl::format_error("Unknown format"));
+      }
+    }
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_PARSE_CONTEXT>
+BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
+Formatter_FloatingBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
+{
+    FSS::parse(&d_spec, &parseContext, FSS::e_CATEGORY_FLOATING);
+
+    if (d_spec.localeSpecificFlag()) {
+        BSLS_THROW(bsl::format_error(
+                          "Formatting with the L specifier is not supported"));
+    }
+
+    return parseContext.begin();
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -88,12 +898,32 @@ struct formatter<double, t_CHAR>
 };
 
 template <class t_CHAR>
-struct formatter<long double, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<long double, t_CHAR> {
+struct formatter<long double, t_CHAR> {
+    // TRAITS
+    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
+
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                 t_PARSE_CONTEXT& parseContext)
+    {
+        (void)parseContext;
+        BSLS_THROW(bsl::format_error(
+                           "Formatting `long double` is not implemented yet"));
+    }
+
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                         long double       value,
+                                         t_FORMAT_CONTEXT& formatContext) const
+    {
+        (void)value;
+        (void)formatContext;
+        BSLS_THROW(bsl::format_error(
+                           "Formatting `long double` is not implemented yet"));
+    }
 };
 
-
-}
+}  // close namespace bsl
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE
 
