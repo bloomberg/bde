@@ -719,11 +719,11 @@ class MultiQueueThreadPool {
 
     /// Add the specified `functor` at the front of the queue specified by
     /// `id`.  Return 0 if added successfully, and a non-zero value if
-    /// queuing is disabled.  The behavior is undefined unless `functor` is
-    /// bound.  Note that the position of `functor` relative to any
-    /// currently queued jobs is unspecified unless the queue is currently
-    /// paused.  If passed by movable reference, the value of `functor`
-    /// becomes unspecified but valid, and its allocator remains unchanged.
+    /// queuing is disabled.  If passed by movable reference, the value of
+    /// `functor` becomes unspecified but valid, and its allocator remains
+    /// unchanged.  The behavior is undefined unless `functor` is bound.  Note
+    /// that the position of `functor` relative to any currently queued jobs is
+    /// unspecified unless the queue is currently paused.
     int addJobAtFront(int id, const Job&             functor);
     int addJobAtFront(int id, bslmf::MovableRef<Job> functor);
 
@@ -786,9 +786,9 @@ class MultiQueueThreadPool {
 
     /// Enqueue the specified `functor` to the queue specified by `id`.
     /// Return 0 if enqueued successfully, and a non-zero value if queuing
-    /// is disabled.  The behavior is undefined unless `functor` is bound.  If
-    /// passed by movable reference, the value of `functor` becomes unspecified
-    /// but valid, and its allocator remains unchanged.
+    /// is disabled.  If passed by movable reference, the value of `functor`
+    /// becomes unspecified but valid, and its allocator remains unchanged.
+    /// The behavior is undefined unless `functor` is bound.
     int enqueueJob(int id, const Job&             functor);
     int enqueueJob(int id, bslmf::MovableRef<Job> functor);
 
