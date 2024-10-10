@@ -2,6 +2,7 @@
 #include <bslfmt_formatterspecificationstandard.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
 
@@ -84,8 +85,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
+// Due to a member initialization bug for types returned from consteval
+// functions in clang 15, we do the testing on a non-consteval basis for clang
+// 15 and earlier.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20) &&                 \
+    (!defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION >=        \
+                                              (16 * 10000))
 #define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+
 #else
 #define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif
