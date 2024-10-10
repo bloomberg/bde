@@ -516,11 +516,15 @@ class MultiQueueThreadPool_Queue {
     int initiatePause();
 
     /// Enqueue the specified `functor` at the end of this queue.  Return 0
-    /// on success, and a non-zero value if enqueuing is disabled.
+    /// on success, and a non-zero value if enqueuing is disabled.  The value
+    /// of `functor` becomes unspecified but valid, and its allocator remains
+    /// unchanged.
     int pushBack(bslmf::MovableRef<Job> functor);
 
     /// Add the specified `functor` at the front of this queue.  Return 0 on
-    /// success, and a non-zero value if enqueuing is disabled.
+    /// success, and a non-zero value if enqueuing is disabled.  The value of
+    /// `functor` becomes unspecified but valid, and its allocator remains
+    /// unchanged.
     int pushFront(bslmf::MovableRef<Job> functor);
 
     /// Reset this queue to its initial state.  The behavior is undefined
@@ -719,7 +723,8 @@ class MultiQueueThreadPool {
     /// queuing is disabled.  The behavior is undefined unless `functor` is
     /// bound.  Note that the position of `functor` relative to any
     /// currently queued jobs is unspecified unless the queue is currently
-    /// paused.
+    /// paused.  If passed by movable reference, the value of `functor`
+    /// becomes unspecified but valid, and its allocator remains unchanged.
     int addJobAtFront(int id, const Job&             functor);
     int addJobAtFront(int id, bslmf::MovableRef<Job> functor);
 
@@ -782,7 +787,9 @@ class MultiQueueThreadPool {
 
     /// Enqueue the specified `functor` to the queue specified by `id`.
     /// Return 0 if enqueued successfully, and a non-zero value if queuing
-    /// is disabled.  The behavior is undefined unless `functor` is bound.
+    /// is disabled.  The behavior is undefined unless `functor` is bound.  If
+    /// passed by movable reference, the value of `functor` becomes unspecified
+    /// but valid, and its allocator remains unchanged.
     int enqueueJob(int id, const Job&             functor);
     int enqueueJob(int id, bslmf::MovableRef<Job> functor);
 
