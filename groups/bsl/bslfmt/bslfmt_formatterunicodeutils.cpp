@@ -1,4 +1,4 @@
-// bslstl_formatterunicodeutils.cpp                                   -*-C++-*-
+// bslfmt_formatterunicodeutils.cpp                                   -*-C++-*-
 
 #include <bslfmt_formatterunicodeutils.h>
 

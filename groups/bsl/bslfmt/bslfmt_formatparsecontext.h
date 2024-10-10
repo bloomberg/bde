@@ -169,7 +169,7 @@ class basic_format_parse_context {
 /// This component-private type enables the indexing mode of a
 /// `basic_parse_context` type to be inspected for the purposes of unit
 /// testing.
-class Format_ParseContext_Test_Querier {
+struct Format_ParseContext_Test_Querier {
   public:
     // TYPES
     enum IndexingMode { e_UNKNOWN, e_MANUAL, e_AUTOMATIC };
