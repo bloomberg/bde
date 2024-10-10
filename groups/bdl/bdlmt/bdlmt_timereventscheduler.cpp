@@ -124,6 +124,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
 
             int newLengthClock = 0, newLengthEvent = 0;
             bsls::TimeInterval now = scheduler->d_currentTimeFunctor();
+            scheduler->d_cachedNowMicroseconds = now.totalMicroseconds();
 
             // minTimeClock will be set only if newLengthClock > 0, similar
             // with minTimeEvent
@@ -383,6 +384,8 @@ void TimerEventScheduler::initialize(
                                     bdlm::MetricsRegistry   *metricsRegistry,
                                     const bsl::string_view&  eventSchedulerName)
 {
+    d_cachedNowMicroseconds = d_currentTimeFunctor().totalMicroseconds();
+
     bdlm::MetricsRegistry *registry = metricsRegistry
                                    ? metricsRegistry
                                    : &bdlm::MetricsRegistry::defaultInstance();
@@ -445,6 +448,8 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(
             0,
@@ -475,6 +480,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -503,6 +510,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(
             0,
@@ -535,6 +544,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -562,6 +573,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(
             0,
@@ -593,6 +606,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -621,6 +636,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     initialize(
             0,
@@ -682,6 +699,8 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -719,6 +738,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -754,6 +775,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -793,6 +816,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -828,6 +853,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -867,6 +894,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(bsls::SystemClockType::e_REALTIME)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -902,6 +931,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -941,6 +972,8 @@ TimerEventScheduler::TimerEventScheduler(
 , d_numClocks(0)
 , d_clockType(clockType)
 , d_eventSchedulerName(eventSchedulerName, basicAllocator)
+, d_cachedClockMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
+, d_cachedEventMicroseconds(bsl::numeric_limits<bsls::Types::Int64>::max())
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -1035,7 +1068,13 @@ TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&    time,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
-        handle = d_eventTimeQueue.add(time, callback, key, &isNewTop);
+
+        bsls::TimeInterval startTime = time;
+        if (startTime.totalMicroseconds() < d_cachedNowMicroseconds) {
+            startTime.setTotalMicroseconds(d_cachedNowMicroseconds);
+        }
+
+        handle = d_eventTimeQueue.add(startTime, callback, key, &isNewTop);
 
         if (-1 == handle) {
             return e_INVALID_HANDLE;                                  // RETURN
@@ -1060,7 +1099,13 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
-        status = d_eventTimeQueue.update(handle, key, newTime, &isNewTop);
+
+        bsls::TimeInterval startTime = newTime;
+        if (startTime.totalMicroseconds() < d_cachedNowMicroseconds) {
+            startTime.setTotalMicroseconds(d_cachedNowMicroseconds);
+        }
+
+        status = d_eventTimeQueue.update(handle, key, startTime, &isNewTop);
         if (isNewTop) {
             d_condition.signal();
         }
@@ -1087,6 +1132,15 @@ int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
         // it was in the event queue, therefore it is not in the
         // pendingEventItems.
 
+        if (d_pendingEventItems.empty()) {
+            d_cachedEventMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
+
+            bsls::TimeInterval time;
+            if (0 == d_eventTimeQueue.minTime(&time)) {
+                d_cachedEventMicroseconds = time.totalMicroseconds();
+            }
+        }
         return 0;                                                     // RETURN
     }
 
@@ -1117,6 +1171,15 @@ int TimerEventScheduler::cancelEvent(TimerEventScheduler::Handle handle,
         }
         // Else it is not found in the pending items, nor in the event queue.
 
+        if (!d_pendingEventItems.empty()) {
+            d_cachedEventMicroseconds =
+                        d_pendingEventItems.front().time().totalMicroseconds();
+        }
+        else {
+            d_cachedEventMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
+        }
+
         return -1;                                                    // RETURN
     }
 
@@ -1136,6 +1199,8 @@ void TimerEventScheduler::cancelAllEvents(bool wait)
 
     d_eventTimeQueue.removeAll(&buffer);
     d_numEvents -= static_cast<int>(buffer.size());
+
+    d_cachedEventMicroseconds = bsl::numeric_limits<bsls::Types::Int64>::max();
 
     // wait for a cycle if needed
 
@@ -1193,6 +1258,16 @@ int TimerEventScheduler::cancelClock(Handle handle, bool wait)
     if (d_clockTimeQueue.remove(p->d_handle)) {
         p->d_isCancelled = true;
 
+        if (!d_running.loadRelaxed()) {
+            d_cachedClockMicroseconds =
+                                bsl::numeric_limits<bsls::Types::Int64>::max();
+
+            bsls::TimeInterval time;
+            if (0 == d_clockTimeQueue.minTime(&time)) {
+                d_cachedClockMicroseconds = time.totalMicroseconds();
+            }
+        }
+
         if (wait) {
             yieldToDispatcher();
         }
@@ -1222,6 +1297,8 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
             removeFailed = true;
         }
     }
+
+    d_cachedClockMicroseconds = bsl::numeric_limits<bsls::Types::Int64>::max();
 
     // if 'removeFailed', then we know there was/were clock(s) pending.
 

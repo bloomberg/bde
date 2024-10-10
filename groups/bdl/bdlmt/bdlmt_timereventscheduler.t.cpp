@@ -149,16 +149,17 @@ using bsl::ptrdiff_t;
 //
 // ACCESSORS
 // [25] bsls::SystemClockType::Enum clockType();
-// [27] bsls::TimeInterval now();
+// [26] bsls::TimeInterval now();
+// [27] bsls::TimeInterval nextPendingEventTime() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [28] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
+// [29] DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
 // [ 7] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
-// [26] CLOCK-REPLACEMENT BREATHING TEST
-// [30] USAGE EXAMPLE
-// [29] CONCERN: THREAD NAMES
+// [28] CLOCK-REPLACEMENT BREATHING TEST
+// [31] USAGE EXAMPLE
+// [30] CONCERN: THREAD NAMES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -3195,7 +3196,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
         //
@@ -3220,7 +3221,7 @@ int main(int argc, char *argv[])
         My_Server server(bsls::TimeInterval(10), &ta);
 
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING THREAD NAME
         //
@@ -3360,7 +3361,7 @@ int main(int argc, char *argv[])
             testThreadName(x, specifiedName);
         }
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
         //
@@ -3400,82 +3401,7 @@ int main(int argc, char *argv[])
 
         ASSERT(scheduler.now() == t2);
       } break;
-      case 27: {
-        // --------------------------------------------------------------------
-        // TESTING NOW ACCESSOR
-        //
-        // Concern:
-        //   That the `now` accessor correctly returns the current time
-        //   according to the clock the object was constructed with, or a test
-        //   time source.
-        //
-        // Plan:
-        //   Create objects with all values of `clockType`, and verify that the
-        //   value returned by the `now` accessor is as expected.  Then create
-        //   a test time source and verify that the value returned by the `now`
-        //   accessor matches that of the test time source.
-        //
-        // Testing:
-        //   bsls::TimeInterval now() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING NOW ACCESSOR\n"
-                             "====================\n";
-
-        const bsls::SystemClockType::Enum realTime =
-                                            bsls::SystemClockType::e_REALTIME;
-        const bsls::SystemClockType::Enum monotonic =
-                                            bsls::SystemClockType::e_MONOTONIC;
-
-        ASSERT(realTime != monotonic);
-
-        bslma::TestAllocator ta(veryVeryVerbose);
-
-        if (verbose) cout << "Realtime clock\n";
-        {
-            Obj x(realTime, &ta);    const Obj& X = x;
-
-            ASSERT(realTime == X.clockType());
-
-            bsls::TimeInterval xnow = X.now();
-            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
-            ASSERT(xnow <= cnow);
-
-            cnow = bsls::SystemTime::now(X.clockType());
-            xnow = X.now();
-            ASSERT(cnow <= xnow);
-        }
-
-        if (verbose) cout << "Monotonic clock\n";
-        {
-            Obj x(monotonic, &ta);    const Obj& X = x;
-
-            ASSERT(monotonic == X.clockType());
-
-            bsls::TimeInterval xnow = X.now();
-            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
-            ASSERT(xnow <= cnow);
-
-            cnow = bsls::SystemTime::now(X.clockType());
-            xnow = X.now();
-            ASSERT(cnow <= xnow);
-        }
-
-        if (verbose) cout << "Test time source\n";
-        {
-            Obj x(&ta);    const Obj& X = x;
-
-            bdlmt::TimerEventSchedulerTestTimeSource timeSource(&x);
-
-            ASSERT(X.now() == timeSource.now());
-
-            timeSource.advanceTime(bsls::TimeInterval(
-                                              bdlt::TimeUnitRatio::k_S_PER_D));
-            ASSERT(X.now() == timeSource.now());
-        }
-
-      } break;
-      case 26: {
+      case 28: {
         // --------------------------------------------------------------------
         // CLOCK-REPLACEMENT BREATHING TEST:
         //   Exercise the basic functionality of the clock-replacement
@@ -3570,6 +3496,231 @@ int main(int argc, char *argv[])
 
         // Stop the scheduler and finish the test
         scheduler.stop();
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING `nextPendingEventTime`
+        //
+        // Concerns:
+        // 1. Submitted events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 2. Recheduled events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 3. Cancelling an event updates the `nextPendingEventTime`.
+        //
+        // 4. Submitted recurring events have the expected time, including for
+        //    recurring events in the past and at the default
+        //    `bsls::TimeInterval` value.
+        //
+        // 5. Cancelling a recurring event updates the `nextPendingEventTime`.
+        //
+        // Plan:
+        // 1. Construct an event scheduler but do not start the scheduler.
+        //    Submit one event using the default `bsls::TimeInterval` value, a
+        //    time in the past, or a time in the future, and directly verify
+        //    the value returned by `nextPendingEventTime`.  Rechedule the
+        //    event using the default `bsls::TimeInterval` value, a time in the
+        //    past, or a time in the future, and directly verify the value
+        //    returned by `nextPendingEventTime`.  Cancel the event and
+        //    directly verify the value returned by `nextPendingEventTime`.
+        //    (C-1..3)
+        //
+        // 2. Construct an event scheduler but do not start the scheduler.
+        //    Submit one recurring event using the default `bsls::TimeInterval`
+        //    value, a time in the past, or a time in the future, and directly
+        //    verify the value returned by `nextPendingEventTime`. Cancel the
+        //    recurring event and directly verify the value returned by
+        //    `nextPendingEventTime`.  (C-4,5)
+        //
+        // Testing:
+        //   bsls::TimeInterval nextPendingEventTime() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING `nextPendingEventTime`" << endl
+                          << "==============================" << endl;
+
+        const bsls::TimeInterval NOW_RAW = bsls::SystemTime::nowRealtimeClock();
+
+        bsls::TimeInterval NOW = NOW_RAW;
+        NOW.addNanoseconds(-NOW.nanoseconds());
+
+        const bsls::TimeInterval T1       = bsls::TimeInterval();
+        const bsls::TimeInterval T2       = NOW - bsls::TimeInterval(5);
+        const bsls::TimeInterval T3       = NOW + bsls::TimeInterval(5);
+        const bsls::TimeInterval INTERVAL = bsls::TimeInterval(1);
+        const bsls::TimeInterval NONE     =
+                                bsls::TimeInterval(INT64_MAX / 1000000,
+                                                   INT64_MAX % 1000000 * 1000);
+
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.scheduleEvent(T1, noop);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T2);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.scheduleEvent(T2, noop);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T3);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.scheduleEvent(T3, noop);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.rescheduleEvent(handle, T1);
+
+            ASSERT(NOW <= x.nextPendingEventTime());
+
+            x.cancelEvent(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.startClock(INTERVAL, noop, T1);
+
+            ASSERTV(NOW + INTERVAL <= x.nextPendingEventTime());
+
+            x.cancelClock(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.startClock(INTERVAL, noop, T2);
+
+            ASSERT(T2 == x.nextPendingEventTime());
+
+            x.cancelClock(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+        {
+            Obj x;
+
+            ASSERT(NONE == x.nextPendingEventTime());
+
+            Obj::Handle handle = x.startClock(INTERVAL, noop, T3);
+
+            ASSERT(T3 == x.nextPendingEventTime());
+
+            x.cancelClock(handle);
+
+            ASSERT(NONE == x.nextPendingEventTime());
+        }
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING NOW ACCESSOR
+        //
+        // Concern:
+        //   That the `now` accessor correctly returns the current time
+        //   according to the clock the object was constructed with, or a test
+        //   time source.
+        //
+        // Plan:
+        //   Create objects with all values of `clockType`, and verify that the
+        //   value returned by the `now` accessor is as expected.  Then create
+        //   a test time source and verify that the value returned by the `now`
+        //   accessor matches that of the test time source.
+        //
+        // Testing:
+        //   bsls::TimeInterval now() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING NOW ACCESSOR\n"
+                             "====================\n";
+
+        const bsls::SystemClockType::Enum realTime =
+                                            bsls::SystemClockType::e_REALTIME;
+        const bsls::SystemClockType::Enum monotonic =
+                                            bsls::SystemClockType::e_MONOTONIC;
+
+        ASSERT(realTime != monotonic);
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) cout << "Realtime clock\n";
+        {
+            Obj x(realTime, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Monotonic clock\n";
+        {
+            Obj x(monotonic, &ta);    const Obj& X = x;
+
+            ASSERT(monotonic == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Test time source\n";
+        {
+            Obj x(&ta);    const Obj& X = x;
+
+            bdlmt::TimerEventSchedulerTestTimeSource timeSource(&x);
+
+            ASSERT(X.now() == timeSource.now());
+
+            timeSource.advanceTime(bsls::TimeInterval(
+                                              bdlt::TimeUnitRatio::k_S_PER_D));
+            ASSERT(X.now() == timeSource.now());
+        }
+
       } break;
       case 25: {
         // --------------------------------------------------------------------
