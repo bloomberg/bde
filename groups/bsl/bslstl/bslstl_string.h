@@ -1687,12 +1687,12 @@ class basic_string
                  size_type           numChars,
                  const ALLOCATOR&    basicAllocator = ALLOCATOR());
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
     /// Create a string having the same value as the specified
     /// null-terminated `characterString` (of length
     /// `CHAR_TRAITS::length(characterString)`).  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
     /// specified, a default-constructed allocator is used.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
     template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
 #endif
     basic_string(const CHAR_TYPE  *characterString,
@@ -1709,11 +1709,11 @@ class basic_string
                  size_type         numChars,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
     /// Create a string of the specified `numChars` length whose every
     /// position contains the specified `character`.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
     /// specified, a default-constructed allocator is used.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
     template <class = bsl::enable_if_t<bsl::IsStdAllocator<ALLOCATOR>::value>>
 #endif
     basic_string(size_type        numChars,
@@ -1799,7 +1799,6 @@ class basic_string
     /// a reference providing modifiable access to this string.
     basic_string& operator=(const basic_string& rhs);
 
-#ifndef DOXYGEN_SKIP
     /// Assign to this string the value of the specified `rhs` string,
     /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
     /// type has trait `propagate_on_container_move_assignment`, and return
@@ -1808,10 +1807,13 @@ class basic_string
     /// `get_allocator() == rhs.get_allocator()` (after accounting for the
     /// aforementioned trait).  `rhs` is left in a valid but unspecified
     /// state.
+#ifndef DOXYGEN_SKIP
     basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
             AllocatorTraits::propagate_on_container_move_assignment::value ||
             AllocatorTraits::is_always_equal::value);
+#else
+    basic_string& operator=(BloombergLP::bslmf::MovableRef<basic_string> rhs);
 #endif
 
     /// Assign to this string the value of the specified `rhs` object, and

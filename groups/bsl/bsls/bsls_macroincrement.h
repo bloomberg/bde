@@ -56,19 +56,22 @@ BSLS_IDENT("$Id: $")
 // cout << "__LINE__, __FILE__: " << __LINE__ << ", " __FILE__ << "\n";
 // ```
 
+/// Return the preprocessor number that is the successor to `MACRO_VALUE`.  The
+/// behavior is undefined unless `MACRO_VALUE` is an integer literal, or a
+/// macro that ultimately expands to an integer literal.
 #define BSLS_MACROINCREMENT(MACRO_VALUE) \
     BSLS_MACROINCREMENT_IMPL(MACRO_VALUE)
 
-// The 'BSLS_MACROINCREMENT_IMPL' macro is an implementation detail that forces
-// the token-pasting to occur in a separate round of macro expansion, so that
-// the computed macro will, in turn, expand to the desired literal.
-
+/// The `BSLS_MACROINCREMENT_IMPL` macro is an implementation detail that
+/// forces the token-pasting to occur in a separate round of macro expansion,
+/// so that the computed macro will, in turn, expand to the desired literal.
 #define BSLS_MACROINCREMENT_IMPL(MACRO_VALUE) \
     BSLS_MACROINCREMENTED_VALUE##MACRO_VALUE
 
 #define BSLS_MACROINCREMENTED_VALUE0 1
 #define BSLS_MACROINCREMENTED_VALUE1 2
 #define BSLS_MACROINCREMENTED_VALUE2 3
+#ifndef DOXYGEN_SKIP
 #define BSLS_MACROINCREMENTED_VALUE3 4
 #define BSLS_MACROINCREMENTED_VALUE4 5
 #define BSLS_MACROINCREMENTED_VALUE5 6
@@ -20065,6 +20068,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_MACROINCREMENTED_VALUE19996 19997
 #define BSLS_MACROINCREMENTED_VALUE19997 19998
 #define BSLS_MACROINCREMENTED_VALUE19998 19999
+#endif  // DOXYGEN_SKIP
 #define BSLS_MACROINCREMENTED_VALUE19999 20000
 
 #endif
