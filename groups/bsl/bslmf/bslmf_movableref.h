@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //    of type `T` or to an lvalue of type `T` that has been explicitly "moved"
 //    by the caller.
 // 2. In contexts where the type `T` is deduced `T&&` indicates a "forwarding
-//    reference.  The argument can be either an rvalue or an lvalue and the
+//    reference".  The argument can be either an rvalue or an lvalue and the
 //    called function can preserve the value category (rvalue or lvalue) when
 //    forwarding the reference to another function.
 //
@@ -181,8 +181,8 @@ BSLS_IDENT("$Id: $")
 // we implement methods we are interested in directly in the class declaration
 // and omit the rest:
 // ```
+// /// This class provides a view on a C-string.
 // class StringView {
-//     // This class provides a view on a C-string.
 //
 //     // DATA
 //     const char *d_string_p;  // pointer to the data
@@ -202,10 +202,10 @@ BSLS_IDENT("$Id: $")
 // to set its value to 0.  These are both operations that support the same
 // syntax across language standards:
 // ```
+//     /// Create a `StringView` object that refers to the same c-string
+//     /// as the specified `original` object, and reset `original` to not
+//     /// refer to any string.
 //     StringView(bslmf::MovableRef<StringView> original)
-//     // Create a 'StringView' object that refers to the same c-string
-//     // as the specified 'original' object, and reset 'original' to not
-//     // refer to any string.
 //     : d_string_p(bslmf::MovableRefUtil::access(original).d_string_p)
 //     {
 //         StringView& reference = original;
@@ -219,8 +219,8 @@ BSLS_IDENT("$Id: $")
 // Now, we define a second class, `Employee`, that contains both non-trivial
 // `StringView` and a trivial integer field:
 // ```
+// /// This class represents an employee card.
 // class Employee {
-//     // This class represents an employee card.
 //
 //     // DATA
 //     StringView d_name;  // employee name
@@ -230,15 +230,15 @@ BSLS_IDENT("$Id: $")
 //     // CREATORS
 //     ...
 // ```
-// Here we define the move constructor for 'Employee".  Note that for the data
+// Here we define the move constructor for `Employee`.  Note that for the data
 // members of `original`, `d_id` is a fundamental type and we simply can access
 // the value as a `const &`, but `d_name` is a `StringView`, so that we must
 // use `MovableRefUtil::move` to move it in a language-standard neutral way:
 // ```
+//     /// Create an `Employee` object that has the same value as the
+//     /// specified `original` object, and reset `original` to the default
+//     /// state.
 //     Employee(bslmf::MovableRef<Employee> original)
-//         // Create an 'Employee' object that has the same value as the
-//         // specified 'original' object, and reset 'original' to the default
-//         // state.
 //     : d_name(bslmf::MovableRefUtil::move(
 //                            bslmf::MovableRefUtil::access(original).d_name))
 //     , d_id(bslmf::MovableRefUtil::access(original).d_id)
@@ -290,67 +290,67 @@ BSLS_IDENT("$Id: $")
 //         // Swap the specified pointers 'a' and 'b'.
 //
 //   public:
+//
+//     /// Create an empty Vector.
 //     Vector();
-//         // Create an empty Vector.
 //
+//     /// Create a Vector by transferring the content of the specified
+//     /// `other`.
 //     Vector(bslmf::MovableRef<Vector> other);                    // IMPLICIT
-//         // Create a Vector by transferring the content of the specified
-//         // 'other'.
 //
+//     /// Create a Vector by copying the content of the specified `other`.
 //     Vector(const Vector& other);
-//         // Create a Vector by copying the content of the specified 'other'.
 //
+//     /// Assign a Vector by copying the content of the specified `other`
+//     /// and return a reference to this object.  Note that `other` is
+//     /// passed by value to have the copy or move already be done, or
+//     /// even elided.  Within the body of the assignment operator the
+//     /// content of `this` and `other` are simply swapped.
 //     Vector& operator= (Vector other);
-//         // Assign a Vector by copying the content of the specified 'other'
-//         // and return a reference to this object.  Note that 'other' is
-//         // passed by value to have the copy or move already be done, or
-//         // even elided.  Within the body of the assignment operator the
-//         // content of 'this' and 'other' are simply swapped.
 //
+//     /// Destroy the Vector's elements and release any allocated memory.
 //     ~Vector();
-//         // Destroy the Vector's elements and release any allocated memory.
 //
+//     /// Return a reference to the object at the specified `index`.
 //     t_TYPE&       operator[](int index)    { return this->d_begin[index]; }
-//         // Return a reference to the object at the specified 'index'.
 //
+//     /// Return a reference to the object at the specified `index`.
 //     const t_TYPE& operator[](int index) const
 //                                            { return this->d_begin[index]; }
-//         // Return a reference to the object at the specified 'index'.
 //
+//     /// Return a pointer to the first element.
 //     t_TYPE     *begin()       { return this->d_begin; }
-//         // Return a pointer to the first element.
 //
+//     /// Return a pointer to the first element.
 //     const t_TYPE *begin() const { return this->d_begin; }
-//         // Return a pointer to the first element.
 //
+//     /// Return the capacity of the Vector.
 //     int capacity() const { return int(this->d_endBuffer - this->d_begin); }
-//         // Return the capacity of the Vector.
 //
+//     /// Return `true` if the Vector is empty and `false` otherwise.
 //     bool empty() const { return this->d_begin == this->d_end; }
-//         // Return 'true' if the Vector is empty and 'false' otherwise.
 //
+//     /// Return a pointer to the end of the range.
 //     t_TYPE     *end()       { return this->d_end; }
-//         // Return a pointer to the end of the range.
 //
+//     /// Return a pointer to the end of the range.
 //     const t_TYPE *end() const { return this->d_end; }
-//         // Return a pointer to the end of the range.
 //
+//     /// Append a copy of the specified `value` to the Vector.
 //     void push_back(const t_TYPE& value);
-//         // Append a copy of the specified 'value' to the Vector.
 //
+//     /// Append an object moving the specified `value` to the new location.
 //     void push_back(bslmf::MovableRef<t_TYPE> value);
-//         // Append an object moving the specified 'value' to the new
-//         // location.
 //
+//     /// Reserve enough capacity to fit at least as many elements as
+//     /// specified by `newCapacity`.
 //     void reserve(int newCapacity);
-//         // Reserve enough capacity to fit at least as many elements as
-//         // specified by 'newCapacity'.
 //
+//     /// Return the size of the object.
 //     int size() const { return int(this->d_end - this->d_begin); }
-//         // Return the size of the object.
 //
+//     /// Swap the content of the Vector with the specified `other`.
 //     void swap(Vector& other);
-//         // Swap the content of the Vector with the specified 'other'.
 // };
 // ```
 // The class stores pointers to the begin and the end of the elements as well

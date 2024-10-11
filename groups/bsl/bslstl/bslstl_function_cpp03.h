@@ -1138,7 +1138,7 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
 /// type is considered convertible to the return type of the `PROTOTYPE`.
 /// In C++03, `FUNC` is considered Lvalue-Callable with the argument and
 /// return types of the `PROTOTYPE` if it is not an integral type.  This
-/// `struct` template requires 'PROTOTYPE" to be an unqualified function
+/// `struct` template requires `PROTOTYPE` to be an unqualified function
 /// type.
 template <class PROTOTYPE, class FUNC>
 struct Function_IsInvocableWithPrototype;

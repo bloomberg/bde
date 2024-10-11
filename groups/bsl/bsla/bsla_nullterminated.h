@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide macros for use with `NULL`-terminated variadic functions.
 //
 //@MACROS:
-//  BSLA_NULLTERMINATED:            warn if last argument is not `NULL`
+//  BSLA_NULLTERMINATED():          warn if last argument is not `NULL`
 //  BSLA_NULLTERMINATEDAT(ARG_IDX): warn if argument at `ARG_IDX` is not `NULL`
 //  BSLA_NULLTERMINATED_IS_ACTIVE:   defined if `BSLA_NULLTERMINATED` is active
 //  BSLA_NULLTERMINATEDAT_IS_ACTIVE: defined if `BSLA_NULLTERMINATEDAT`  active
@@ -23,28 +23,29 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: `BSLA_NULLTERMINATED`:
-//:     This annotation on a variadic macro indicates that a warning should be
-//:     issued unless the last argument to the function is explicitly `NULL`.
-//:
-//: `BSLA_NULLTERMINATEDAT(ARG_IDX)`:
-//:     This annotation on a variadic function indicates that a warning should
-//:     be issued unless the argument at `ARG_IDX` is `NULL`, where `ARG_IDX`
-//:     is the number of arguments from the last, the last argument having
-//:     `ARG_IDX == 0`.  Thus, `BSLA_NULLTERMINATED` is equivalent to
-//:     `BSLA_NULLTERMINATEDAT(0)`.
-//:
-//: `BSLA_NULLTERMINATED_IS_ACTIVE`:
-//:     The macro `BSLA_NULLTERMINATED_IS_ACTIVE` is defined if
-//:     `BSLA_NULLTERMINATED` expands to something with the desired effect;
-//:     otherwise `BSLA_NULLTERMINATED_IS_ACTIVE` is not defined and
-//:     `BSLA_NULLTERMINATED` expands to nothing.
-//:
-//: `BSLA_NULLTERMINATEDAT_IS_ACTIVE`:
-//:     The macro `BSLA_NULLTERMINATEDAT_IS_ACTIVE` is defined if
-//:     `BSLA_NULLTERMINATEDAT` expands to something with the desired effect;
-//:     otherwise `BSLA_NULLTERMINATEDAT_IS_ACTIVE` is not defined and
-//:     `BSLA_NULLTERMINATEDAT` expands to nothing.
+//
+// - `BSLA_NULLTERMINATED()`
+//   > This annotation on a variadic macro indicates that a warning should be
+//   > issued unless the last argument to the function is explicitly `NULL`.
+//
+// - `BSLA_NULLTERMINATEDAT(ARG_IDX)`:
+//   > This annotation on a variadic function indicates that a warning should
+//   > be issued unless the argument at `ARG_IDX` is `NULL`, where `ARG_IDX`
+//   > is the number of arguments from the last, the last argument having
+//   > `ARG_IDX == 0`.  Thus, `BSLA_NULLTERMINATED` is equivalent to
+//   > `BSLA_NULLTERMINATEDAT(0)`.
+//
+// - `BSLA_NULLTERMINATED_IS_ACTIVE`:
+//   > The macro `BSLA_NULLTERMINATED_IS_ACTIVE` is defined if
+//   > `BSLA_NULLTERMINATED` expands to something with the desired effect;
+//   > otherwise `BSLA_NULLTERMINATED_IS_ACTIVE` is not defined and
+//   > `BSLA_NULLTERMINATED` expands to nothing.
+//
+// - `BSLA_NULLTERMINATEDAT_IS_ACTIVE`:
+//   > The macro `BSLA_NULLTERMINATEDAT_IS_ACTIVE` is defined if
+//   > `BSLA_NULLTERMINATEDAT` expands to something with the desired effect;
+//   > otherwise `BSLA_NULLTERMINATEDAT_IS_ACTIVE` is not defined and
+//   > `BSLA_NULLTERMINATEDAT` expands to nothing.
 //
 ///Usage
 ///-----
@@ -59,14 +60,14 @@ BSLS_IDENT("$Id: $")
 // First, we declare and define the function, annotated with
 // `BSLA_NULL_TERMINATED`:
 // ```
+// /// The specified `outputBuffer` is a buffer where the output of this
+// /// function is placed.  The specified `...` is a `NULL`-terminated list
+// /// of `const char *` strings, which are to be copied into
+// /// `outputBuffer`, concatenated together and separated by spaces.  The
+// /// behavior is undefined unless the `...` is a `NULL`-terminated list
+// /// of `const char *` arguments.
 // void catStrings(char *outputBuffer, ...) BSLA_NULLTERMINATED;
 // void catStrings(char *outputBuffer, ...)
-//     // The specified 'outputBuffer' is a buffer where the output of this
-//     // function is placed.  The specified '...' is a 'NULL'-terminated list
-//     // of 'const char *' strings, which are to be copied into
-//     // 'outputBuffer', concatenated together and separated by spaces.  The
-//     // behavior is undefined unless the '...' is a 'NULL'-terminated list
-//     // of 'const char *' arguments.
 // {
 //     *outputBuffer = 0;
 //
@@ -90,7 +91,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Now you see it.
 // ```
-// Now, we call `catStrings" again and forget to add the terminating `NULL':
+// Now, we call `catStrings` again and forget to add the terminating `NULL':
 // ```
 //     catStrings(buf, "Now", "you", "don't.");
 //     printf("%s\n", buf);
@@ -119,17 +120,17 @@ BSLS_IDENT("$Id: $")
 // First, we declare and define the function, annotated with
 // `BSLA_NULL_TERMINATEDAT(1)`:
 // ```
+// /// The specified `outputBuffer` is a buffer where output is to be
+// /// placed.  All but the last 2 of the specified `...` arguments are
+// /// `const char *` strings to be concatenated together into
+// /// `outputBuffer`, separated by spaces.  The second-to-last argument is
+// /// to be `NULL`, and the last argument is an `int` interpreted as a
+// /// boolean to determine whether the buffer is to end with a verdict of
+// /// "guilty" or "not guilty".  The behavior is undefined unless the
+// /// types of all the arguments are correct and the second to last
+// /// argument is `NULL`.
 // void catVerdict(char *outputBuffer, ...) BSLA_NULLTERMINATEDAT(1);
 // void catVerdict(char *outputBuffer, ...)
-//     // The specified 'outputBuffer' is a buffer where output is to be
-//     // placed.  All but the last 2 of the specified '...' arguments are
-//     // 'const char *' strings to be concatenated together into
-//     // 'outputBuffer', separated by spaces.  The second-to-last argument is
-//     // to be 'NULL', and the last argument is an 'int' interpreted as a
-//     // boolean to determine whether the buffer is to end with a verdict of
-//     // "guilty" or "not guilty".  The behavior is undefined unless the
-//     // types of all the arguments are correct and the second to last
-//     // argument is 'NULL'.
 // {
 //     *outputBuffer = 0;
 //

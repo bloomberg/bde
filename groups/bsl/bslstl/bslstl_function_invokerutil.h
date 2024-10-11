@@ -200,7 +200,7 @@ struct Function_InvokerUtil {
     /// of type explicitly convertible to the return type of the
     /// `PROTOTYPE`.  If the return type of the `PROTOTYPE` is `void`, then
     /// any type is considered explicitly convertible to the return type of
-    /// the `PROTOTYPE`.  This `struct` template requires 'PROTOTYPE" to be
+    /// the `PROTOTYPE`.  This `struct` template requires `PROTOTYPE` to be
     /// an unqualified function type.
     ///
     /// Note that `IsFuncInvocable` is qualitatively different than

@@ -408,7 +408,7 @@ BSLS_IDENT("$Id: $")
 //
 // Also note that setting that trait is the only way to create a "dynamic" type
 // that implements just one of the `bdlat` type categories -- an unusual
-// configuration, but one that is allowed by the 'bdlat" type category
+// configuration, but one that is allowed by the `bdlat` type category
 // framework.
 //
 // Finally note that the `bdlat_TypeCategoryDeclareDynamic` trait is the *only*
