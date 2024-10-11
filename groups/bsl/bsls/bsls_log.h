@@ -36,18 +36,18 @@ BSLS_IDENT("$Id: $")
 // This section provides documentation for the macros defined in this component.
 // ```
 // BSLS_LOG(severity, ...)
-//    If the specified 'severity' is at least as severe as
-//    'Log::severityThreshold', write a message having 'severity' to the
+//    If the specified `severity` is at least as severe as
+//    `Log::severityThreshold`, write a message having `severity` to the
 //    currently installed log message handler, which contains a formatted
-//    string that would result from applying the 'printf'-style formatting
-//    rules to the specified '...', using the first parameter as the format
+//    string that would result from applying the `printf`-style formatting
+//    rules to the specified `...`, using the first parameter as the format
 //    string and any further parameters as the expected substitutions.  If
-//    'severity' is less severe than 'severityThreshold' then this macro has
+//    `severity` is less severe than `severityThreshold` then this macro has
 //    no effect.  The file name and line number of the point of expansion of
 //    the macro are automatically used as the file name and line number for
 //    the log message.  The behavior is undefined unless the first parameter
-//    of '...' is a valid 'printf'-style format string, and all substitutions
-//    needed by the format string are in the subsequent elements of '...'.
+//    of `...` is a valid `printf`-style format string, and all substitutions
+//    needed by the format string are in the subsequent elements of `...`.
 //
 // BSLS_LOG_FATAL(...)
 // BSLS_LOG_ERROR(...)
@@ -55,18 +55,18 @@ BSLS_IDENT("$Id: $")
 // BSLS_LOG_INFO(...)
 // BSLS_LOG_DEBUG(...)
 // BSLS_LOG_TRACE(...)
-//    Instantiate the 'BSLS_LOG' macro with the severity appropriate for
+//    Instantiate the `BSLS_LOG` macro with the severity appropriate for
 //    the macros name.  Note that this is syntactic sugar, to avoid the
 //    complete text "bsls::LogSeverity::e_" being needed each time a message
-//    is logged with 'BSLS_LOG'.
+//    is logged with `BSLS_LOG`.
 //
 // BSLS_LOG_SIMPLE(severity, msg)
-//    If the specified 'severity' is at least as severe as
-//    'Log::severityThreshold', write a message having 'severity' and the
-//    specified 'msg' to the currently installed log message handler, with the
+//    If the specified `severity` is at least as severe as
+//    `Log::severityThreshold`, write a message having `severity` and the
+//    specified `msg` to the currently installed log message handler, with the
 //    file name and line number of the point of expansion of the macro
 //    automatically used as the file name and line number of the log.  If
-//    'severity' is less severe than 'severityThreshold' then this macro has
+//    `severity` is less severe than `severityThreshold` then this macro has
 //    no effect.
 // ```
 //
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 // Both of the macros automatically use the file name and line number of the
 // point that the macro was invoked.  The `static` methods
 // `bsls::Log::logFormattedMessage` and `bsls::Log::logMessage` provide the
-// same functionality as `BSLS_LOG` and 'BSLS_LOG_SIMPLE, respectively, except
+// same functionality as `BSLS_LOG` and `BSLS_LOG_SIMPLE`, respectively, except
 // that these two methods allow a file name and line number to be passed in as
 // parameters.  This is described in table form as follows:
 // ```
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 // Clients can configure the severity threshold, at or above which a log
 // message will be published, using `setSeverityThreshold`.  For example:
 // ```
-// // Messages having 'e_WARN' or higher severity will be output to the log.
+// // Messages having `e_WARN` or higher severity will be output to the log.
 //
 // bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_WARN);
 // ```
@@ -173,9 +173,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // // myapp.cpp
 //
+// /// Return the sum of the specified `a` and the specified `b`.  The
+// /// behavior is undefined unless `a` and `b` are not negative.
 // unsigned int add(int a, int b)
-//     // Return the sum of the specified 'a' and the specified 'b'.  The
-//     // behavior is undefined unless 'a' and 'b' are not negative.
 // {
 // ```
 //
