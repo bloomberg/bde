@@ -184,6 +184,7 @@ static const DefaultDataRow DEFAULT_DATA[] = {
 
 #define NEG Obj::e_NEGATIVE_ONLY
 #define ALS Obj::e_ALWAYS
+#define SPC Obj::e_POSITIVE_AS_SPACE
 
 //LINE PRS  STYLE SIGN INF NAN SNAN PNT EXP
 //---- ---  ----- ---- --- --- ---- --- ---
@@ -194,6 +195,7 @@ static const DefaultDataRow DEFAULT_DATA[] = {
 // `precision`
 { L_, 1,       FXD, ALS, "",    "",    "",     '.', 'e'},
 { L_, INT_MAX, FXD, ALS, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, FXD, SPC, "",    "",    "",     '.', 'e'},
 
 // `style`
 { L_, 1,       NAT, NEG, "",    "",    "",     '.', 'e'},
@@ -274,9 +276,8 @@ int main(int argc, char* argv[])
         //  Reserved for bdex streaming test.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING BDEX STREAMING" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "\nTESTING BDEX STREAMING"
+                             "\n======================\n";
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -359,12 +360,11 @@ int main(int argc, char* argv[])
         //   operator=(const bdldfp::DecimalFormatConfig& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING COPY-ASSIGNMENT OPERATOR" << endl
-                          << "================================" << endl;
+        if (verbose) cout << "\nTESTING COPY-ASSIGNMENT OPERATOR"
+                             "\n================================\n";
 
         if (verbose) cout <<
-                 "\nAssign the address of the operator to a variable." << endl;
+                        "\nAssign the address of the operator to a variable\n";
         {
             typedef Obj& (Obj::*operatorPtr)(const Obj&);
 
@@ -375,13 +375,12 @@ int main(int argc, char* argv[])
             (void)operatorAssignment;  // quash potential compiler warning
         }
 
-        if (verbose) cout << "\nUse table of distinct object values." << endl;
+        if (verbose) cout << "Use table of distinct object values\n";
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        if (verbose) cout <<
-                         "\nCopy-assign every value into every value." << endl;
+        if (verbose) cout << "Copy-assign every value into every value\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1 = DATA[ti].d_line;
@@ -453,7 +452,7 @@ int main(int argc, char* argv[])
                 LOOP2_ASSERT(LINE1, LINE2, ZZ == Z);
             }
 
-            if (verbose) cout << "Testing self-assignment" << endl;
+            if (verbose) cout << "Testing self-assignment\n";
 
             {
                 Obj mX;
@@ -500,9 +499,8 @@ int main(int argc, char* argv[])
         //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING SWAP MEMBER AND FREE FUNCTIONS" << endl
-                          << "======================================" << endl;
+        if (verbose) cout << "\nTESTING SWAP MEMBER AND FREE FUNCTIONS"
+                             "\n======================================\n";
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -547,17 +545,15 @@ int main(int argc, char* argv[])
         //   bdldfp::DecimalFormatConfig(const bdldfp::DecimalFormatConfig& o);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING COPY CONSTRUCTOR" << endl
-                          << "========================" << endl;
+        if (verbose) cout << "\nTESTING COPY CONSTRUCTOR"
+                             "\n========================\n";
 
-        if (verbose) cout << "\nUse table of distinct object values." << endl;
+        if (verbose) cout << "\nUse table of distinct object values\n";
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        if (verbose) cout <<
-                        "\nCopy construct an object from every value." << endl;
+        if (verbose) cout << "Copy construct an object from every value\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE = DATA[ti].d_line;
@@ -680,12 +676,11 @@ int main(int argc, char* argv[])
         //   bool operator!=(const bdldfp::DecimalFormatConfig& lhs, rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING EQUALITY-COMPARISON OPERATORS" << endl
-                          << "=====================================" << endl;
+        if (verbose) cout << "\nTESTING EQUALITY-COMPARISON OPERATORS"
+                             "\n=====================================\n";
 
         if (verbose) cout <<
-                "\nAssign the address of each operator to a variable." << endl;
+                       "\nAssign the address of each operator to a variable\n";
         {
             using namespace bdldfp;
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
@@ -700,8 +695,8 @@ int main(int argc, char* argv[])
         }
 
         if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, `Ai` and `Bi`."
-                                                                       << endl;
+             "Define appropriate individual attribute values, `Ai` and `Bi`\n";
+
         // ---------------
         // Attribute Types
         // ---------------
@@ -772,7 +767,7 @@ int main(int argc, char* argv[])
         const T8 B8 = 'E';
 
         if (verbose) cout <<
-            "\nCreate a table of distinct, but similar object values." << endl;
+                     "Create a table of distinct, but similar object values\n";
 
         static const struct {
             int         d_line;          // source line number
@@ -806,7 +801,7 @@ int main(int argc, char* argv[])
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-        if (verbose) cout << "\nCompare every value with every value." << endl;
+        if (verbose) cout << "\nCompare every value with every value\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1 = DATA[ti].d_line;
@@ -901,9 +896,8 @@ int main(int argc, char* argv[])
         //   Reserved for `print` and `operator<<` testing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING PRINT AND OUTPUT OPERATOR" << endl
-                          << "=================================" << endl;
+        if (verbose) cout << "\nTESTING PRINT AND OUTPUT OPERATOR"
+                             "\n=================================\n";
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -945,9 +939,8 @@ int main(int argc, char* argv[])
         //   char        exponent() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING ACCESSORS" << endl
-                          << "=================" << endl;
+        if (verbose) cout << "\nTESTING ACCESSORS"
+                             "\n=================\n";
 
         //----------------
         // Attribute Types
@@ -964,7 +957,7 @@ int main(int argc, char* argv[])
         typedef bool        T9;   // `showpoint`
         typedef int         T10;  // `expwidth`
 
-        if (verbose) cout << "\nEstablish suitable attribute values." << endl;
+        if (verbose) cout << "\nEstablish suitable attribute values\n";
 
           // -----------------------------------------------------
           // `D` values: These are the default-constructed values.
@@ -996,12 +989,12 @@ int main(int argc, char* argv[])
         const bool        A9  = false;              // `showpoint`
         const int         A10 = 4;                  // `expwidth`
 
-        if (verbose) cout << "\nCreate an object." << endl;
+        if (verbose) cout << "Create an object\n";
 
         Obj mX;  const Obj& X = mX;
 
         if (verbose) cout <<
-                "\nVerify all basic accessors report expected values." << endl;
+                         "Verify all basic accessors report expected values\n";
         {
             const T1& precision = X.precision();
             LOOP2_ASSERT(D1, precision, D1 == precision);
@@ -1035,7 +1028,7 @@ int main(int argc, char* argv[])
         }
 
         if (verbose) cout <<
-            "\nApply primary manipulators and verify expected values." << endl;
+                   "\nApply primary manipulators and verify expected values\n";
 
         if (veryVerbose) { T_ Q(percision) }
         {
@@ -1172,11 +1165,10 @@ int main(int argc, char* argv[])
         //   setExpWidth(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING MANIPULATORS" << endl
-                          << "====================" << endl;
+        if (verbose) cout << "\nTESTING MANIPULATORS"
+                             "\n====================\n";
 
-        if (verbose) cout << "\nEstablish suitable attribute values." << endl;
+        if (verbose) cout << "\nEstablish suitable attribute values.\n";
 
         // `D` values: These are the default-constructed values.
         const int         D1  = 0;                     // `precision`
@@ -1217,7 +1209,7 @@ int main(int argc, char* argv[])
         Obj mX(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10);  const Obj& X = mX;
 
         if (verbose) cout <<
-               "Verify that each attribute is independently settable." << endl;
+                     "Verify that each attribute is independently settable.\n";
 
         // -----------
         // `precision`
@@ -1629,7 +1621,7 @@ int main(int argc, char* argv[])
             ASSERT(D10 == X.expWidth());
         }
 
-        if (verbose) cout << "Corroborate attribute independence." << endl;
+        if (verbose) cout << "Corroborate attribute independence\n";
         {
             // ---------------------------------------
             // Set all attributes to their `A` values.
@@ -1791,37 +1783,37 @@ int main(int argc, char* argv[])
             ASSERT(B10 == X.expWidth());
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
+        if (verbose) cout << "\nNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
             Obj obj;
 
-            if (veryVerbose) cout << "\tPrecision" << endl;
+            if (veryVerbose) cout << "\tPrecision\n";
             {
                 ASSERT_FAIL(obj.setPrecision(-1));
                 ASSERT_PASS(obj.setPrecision(0));
             }
 
-            if (veryVerbose) cout << "\tInfinity" << endl;
+            if (veryVerbose) cout << "\tInfinity\n";
             {
                 ASSERT_FAIL(obj.setInfinity(0));
                 ASSERT_PASS(obj.setInfinity("lots"));
             }
 
-            if (veryVerbose) cout << "\tNan" << endl;
+            if (veryVerbose) cout << "\tNan\n";
             {
                 ASSERT_FAIL(obj.setNan(0));
                 ASSERT_PASS(obj.setNan("nut"));
             }
 
-            if (veryVerbose) cout << "\tSNan" << endl;
+            if (veryVerbose) cout << "\tSNan\n";
             {
                 ASSERT_FAIL(obj.setSNan(0));
                 ASSERT_PASS(obj.setSNan("nuts"));
             }
 
-            if (veryVerbose) cout << "\tExpWidth" << endl;
+            if (veryVerbose) cout << "\tExpWidth\n";
             {
                 ASSERT_FAIL(obj.setExpWidth(-1));
                 ASSERT_FAIL(obj.setExpWidth(0));
@@ -1832,7 +1824,7 @@ int main(int argc, char* argv[])
                 ASSERT_FAIL(obj.setExpWidth(5));
             }
 
-            if (veryVerbose) cout << "\tConstructor" << endl;
+            if (veryVerbose) cout << "\tConstructor\n";
             {
                 ASSERT_PASS(Obj(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
                 ASSERT_FAIL(Obj(-1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
@@ -1863,11 +1855,10 @@ int main(int argc, char* argv[])
         //   ~bdldfp::DecimalFormatConfig();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING CREATORS" << endl
-                          << "================" << endl;
+        if (verbose) cout << "\nTESTING CREATORS"
+                             "\n================\n";
 
-        if (verbose) cout << "\nEstablish suitable attribute values." << endl;
+        if (verbose) cout << "\nEstablish suitable attribute values.\n";
 
         // `D` values: These are the default-constructed values.
 
@@ -1882,12 +1873,12 @@ int main(int argc, char* argv[])
         const bool        D9  = false;                 // `showpoint`
         const int         D10 = 2;                     // `expwidth`
 
-        if (verbose) cout <<
-                     "Create an object using the default constructor." << endl;
+        if (verbose)
+                   cout << "Create an object using the default constructor.\n";
 
         Obj mX;  const Obj& X = mX;
 
-        if (verbose) cout << "Verify the object's attribute values." << endl;
+        if (verbose) cout << "Verify the object's attribute values.\n";
 
                   // -------------------------------------
                   // Verify the object's attribute values.
@@ -1922,9 +1913,8 @@ int main(int argc, char* argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                             "\n==============\n";
 
         const int         PRECISION = 0;
         const Obj::Style  STYLE     = Obj::e_NATURAL;

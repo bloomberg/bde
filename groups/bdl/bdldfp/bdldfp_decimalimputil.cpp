@@ -423,7 +423,9 @@ int formatImpl(char                      *buffer,
     int         exponent;
     int         cls = DecimalImpUtil::decompose(&sign, &s, &exponent, value);
 
-    char  signSymbol('+');
+    char  signSymbol(cfg.sign() == DecimalFormatConfig::e_POSITIVE_AS_SPACE
+                   ? ' '
+                   : '+');
     int   signLength(0);
 
     if (-1 == sign || cfg.sign() != DecimalFormatConfig::e_NEGATIVE_ONLY) {

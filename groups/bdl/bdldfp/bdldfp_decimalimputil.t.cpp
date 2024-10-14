@@ -8261,10 +8261,12 @@ void TestDriver::testCase18()
                             Config::e_FIXED,    \
                             Config::SIGN)
 
-            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
-            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),      "123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY),     "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),            "+123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),            "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_POSITIVE_AS_SPACE), " 123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_POSITIVE_AS_SPACE), "-123" },
 #undef CONFIG
             //-------------------------------------------------------------
             // Test `infinity` attribute
@@ -8332,6 +8334,20 @@ void TestDriver::testCase18()
 
             {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
             {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+02"   },
+            {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
+#undef CONFIG
+            // Repeat with another sign configuration (positive as space)
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_POSITIVE_AS_SPACE, \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+            {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
+            {  L_,    DEC( 123.0),    CONFIG('e'),     " 1.23e+02"   },
             {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
 #undef CONFIG
             //-------------------------------------------------------------
@@ -8719,10 +8735,12 @@ void TestDriver::testCase18()
                             Config::e_FIXED,    \
                             Config::SIGN)
 
-            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
-            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),      "123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY),     "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),            "+123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),            "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_POSITIVE_AS_SPACE), " 123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_POSITIVE_AS_SPACE), "-123" },
 #undef CONFIG
             //-------------------------------------------------------------
             // Test `infinity` attribute
@@ -8790,6 +8808,20 @@ void TestDriver::testCase18()
 
             {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
             {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+02"   },
+            {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
+#undef CONFIG
+            // Repeat with positive-as-space sign setting
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_POSITIVE_AS_SPACE, \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+            {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
+            {  L_,    DEC( 123.0),    CONFIG('e'),     " 1.23e+02"   },
             {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
 #undef CONFIG
 
@@ -9210,10 +9242,12 @@ void TestDriver::testCase18()
                             Config::e_FIXED,    \
                             Config::SIGN)
 
-            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
-            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
-            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),      "123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY),     "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),            "+123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),            "-123" },
+            {  L_,    DEC( 123.0),    CONFIG(e_POSITIVE_AS_SPACE), " 123" },
+            {  L_,    DEC(-123.0),    CONFIG(e_POSITIVE_AS_SPACE), "-123" },
 #undef CONFIG
                 //-------------------------------------------------------------
                 // Test `infinity` attribute
@@ -9281,6 +9315,20 @@ void TestDriver::testCase18()
 
             {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
             {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+02"   },
+            {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
+#undef CONFIG
+            // Repeat with positive-as-space sign setting
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_POSITIVE_AS_SPACE, \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+            {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+02"   },
+            {  L_,    DEC( 123.0),    CONFIG('e'),     " 1.23e+02"   },
             {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+02"   },
 #undef CONFIG
             //-------------------------------------------------------------
@@ -15261,7 +15309,7 @@ void TestDriver::testCase2()
     //    on BID architectures, but causes no significant slowdown.
     //
     // 3. The conversion of each 3-digit declet into a 10-bit binary-encoded
-    //    declet does not intefere each other.
+    //    declet does not interfere each other.
     //
     // 4. The combination field is correctly computed given the leading digit
     //    of the mantissa and the exponent.
@@ -15277,7 +15325,7 @@ void TestDriver::testCase2()
     //    (C-5)
     //
     // 2. Test each overload of each `makeDecimalRawXX` by representing the
-    //    mantissa in a string format and parsing in each intergral type.
+    //    mantissa in a string format and parsing in each integral type.
     //    (C-1..4, 6)
     //
     // 3. Test a mantissa of each length in base 10.  (C-1..4, 6)

@@ -51,7 +51,8 @@ BSLS_IDENT("$Id$")
 // * `sign`: control how the sign is output.  If a decimal value has its sign
 //   bit set, a `-` is always written.  Otherwise, if `sign` is
 //   `e_NEGATIVE_ONLY`, no sign is written.  If it is `e_ALWAYS`, a `+` is
-//   written.
+//   written.  If it is `e_POSITIVE_AS_SPACE` a space character is written in
+//   case the value is positive, while a negative sign for negative values.
 // * `infinity`: specify a string to output infinity value.
 // * `nan`: specify a string to output NaN value.
 // * `snan`: specify a string to output signaling NaN value.
@@ -80,8 +81,9 @@ class DecimalFormatConfig {
   public:
     // TYPES
     enum Sign {
-        e_NEGATIVE_ONLY,  // no sign output when sign bit is not set
-        e_ALWAYS          // output '+' when sign bit is not set
+        e_NEGATIVE_ONLY,     // no sign output if sign bit isn't set, else '-'
+        e_ALWAYS,            // output '+' when sign bit is not set, else '-'
+        e_POSITIVE_AS_SPACE  // output ' ' when sign bit is not set, else '-'
     };
 
     enum Style {
