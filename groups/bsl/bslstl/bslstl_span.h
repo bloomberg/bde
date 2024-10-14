@@ -310,6 +310,9 @@ class span {
     static const size_type extent = EXTENT;
 // BDE_VERIFY pragma: pop
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(span, bsl::is_trivially_copyable);
+
     // CREATORS
 
     /// Construct an empty `span` object.  The behavior is undefined unless
@@ -318,8 +321,7 @@ class span {
 
     /// Create a span that refers to the same data as the specified
     /// `original` object.
-    BSLS_KEYWORD_CONSTEXPR_CPP14 span(const span& original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    //! BSLS_KEYWORD_CONSTEXPR_CPP14 span(const span&) noexcept = default;
 
     /// Construct a span that refers to the specified `count` consecutive
     /// objects starting from the specified `ptr`.  The behavior is
@@ -550,8 +552,7 @@ class span {
 
     /// Assign to this span the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this span.
-    BSLS_KEYWORD_CONSTEXPR_CPP14
-    span& operator=(const span&) BSLS_KEYWORD_NOEXCEPT;
+    //! constexpr span& operator=(const span&) noexcept = default;
 
     /// Exchange the value of this span with the value of the specified
     /// `other` object.
@@ -584,6 +585,9 @@ class span<TYPE, dynamic_extent> {
     static const size_type extent = dynamic_extent;
 // BDE_VERIFY pragma: pop
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(span, bsl::is_trivially_copyable);
+
     // CREATORS
 
     /// Construct an empty `span` object.
@@ -591,8 +595,7 @@ class span<TYPE, dynamic_extent> {
 
     /// Create a span that refers to the same data as the specified
     /// `original` object.
-    BSLS_KEYWORD_CONSTEXPR_CPP14 span(const span& original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    //! BSLS_KEYWORD_CONSTEXPR_CPP14 span(const span&) noexcept = default;
 
     /// Construct a span that refers to the specified `count` consecutive
     /// objects starting from the specified `ptr`.
@@ -844,13 +847,7 @@ class span<TYPE, dynamic_extent> {
 
     /// Assign to this span the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this span.
-    BSLS_KEYWORD_CONSTEXPR_CPP14
-    span& operator=(const span& rhs) BSLS_KEYWORD_NOEXCEPT
-    {
-        d_data_p = rhs.d_data_p;
-        d_size = rhs.d_size;
-        return *this;
-    }
+    //! constexpr span& operator=(const span&) noexcept = default;
 
     /// Exchange the value of this span with the value of the specified
     /// `other` object.
@@ -960,13 +957,6 @@ bsl::span<TYPE, EXTENT>::span() BSLS_KEYWORD_NOEXCEPT
 : d_data_p(NULL)
 {
     BSLMF_ASSERT(EXTENT == 0);
-}
-
-template <class TYPE, size_t EXTENT>
-BSLS_KEYWORD_CONSTEXPR_CPP14 inline
-bsl::span<TYPE, EXTENT>::span(const span &original) BSLS_KEYWORD_NOEXCEPT
-: d_data_p(original.d_data_p)
-{
 }
 
 template <class TYPE, size_t EXTENT>
@@ -1190,15 +1180,6 @@ bsl::span<TYPE, EXTENT>::rend() const BSLS_KEYWORD_NOEXCEPT
 // MANIPULATORS
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
-bsl::span<TYPE, EXTENT>&
-bsl::span<TYPE, EXTENT>::operator=(const span &rhs) BSLS_KEYWORD_NOEXCEPT
-{
-    d_data_p = rhs.d_data_p;
-    return *this;
-}
-
-template <class TYPE, size_t EXTENT>
-BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 void bsl::span<TYPE, EXTENT>::swap(span &other) BSLS_KEYWORD_NOEXCEPT
 {
     pointer p = d_data_p;
@@ -1216,15 +1197,6 @@ BSLS_KEYWORD_CONSTEXPR_CPP14 inline
 bsl::span<TYPE, bsl::dynamic_extent>::span() BSLS_KEYWORD_NOEXCEPT
 : d_data_p(NULL)
 , d_size(0)
-{
-}
-
-template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR_CPP14 inline
-bsl::span<TYPE, bsl::dynamic_extent>::span(const span& original)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: d_data_p(original.d_data_p)
-, d_size(original.d_size)
 {
 }
 

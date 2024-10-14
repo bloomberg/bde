@@ -9,6 +9,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_isbitwisecopyable.h>
+#include <bslmf_istriviallycopyable.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -7396,9 +7397,34 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TYPE TRAITS"
                             "\n===================\n");
 
-        ASSERT((bsl::is_trivially_copyable<bsl::string_view>::value));
-        ASSERT((bslmf::IsBitwiseCopyable<bsl::string_view>::value));
-        ASSERT((bslmf::IsBitwiseMoveable<bsl::string_view>::value));
+        ASSERT((bsl::is_trivially_copyable<     bsl::string_view>::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::string_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<       bsl::string_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<       bsl::string_view>::value));
+
+        ASSERT((bsl::is_trivially_copyable<     bsl::wstring_view>::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::wstring_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<       bsl::wstring_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<       bsl::wstring_view>::value));
+
+#if defined (BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        ASSERT((bsl::is_trivially_copyable<     bsl::u8string_view>::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::u8string_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<       bsl::u8string_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<       bsl::u8string_view>::value));
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        ASSERT((bsl::is_trivially_copyable<     bsl::u16string_view>::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::u16string_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<       bsl::u16string_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<       bsl::u16string_view>::value));
+
+        ASSERT((bsl::is_trivially_copyable<     bsl::u32string_view>::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::u32string_view>::value));
+        ASSERT((bslmf::IsBitwiseCopyable<       bsl::u32string_view>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<       bsl::u32string_view>::value));
+#endif
 
       } break;
       case 23: {

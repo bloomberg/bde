@@ -134,6 +134,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(true)
 #endif
 
+using namespace BloombergLP;
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -319,6 +321,27 @@ void TestBasicConstructors()
         ASSERT(&arr[5] == psD2b.data());
         ASSERT(5       == psD2b.size());
     }
+
+    // constexpr copy constructor and assignment
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+    {
+        constexpr static int val1 = 5;
+
+        constexpr bsl::span<const int, 1> psS(&val1, 1);
+        constexpr bsl::span<const int>    psD(&val1, 1);
+        constexpr bsl::span<const int, 1> psS1(psS);
+        constexpr bsl::span<const int>    psD1(psD);
+
+        static_assert(1     == psS1.size());
+        static_assert(&val1 == psS1.data());
+        static_assert(5     == psS1[0]);
+
+        static_assert(1     == psD1.size());
+        static_assert(&val1 == psD1.data());
+        static_assert(5     == psD1[0]);
+    }
+#endif
+
 }
 
 
@@ -1464,6 +1487,16 @@ int main(int argc, char *argv[])
         ASSERT(7 == ss0[2]);
 
         ASSERT(bsl::dynamic_extent == size_t(-1));
+
+        ASSERT((bsl::is_trivially_copyable<bsl::span<int>    >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::span<int, 6> >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::span<bsl::string>    >::value));
+        ASSERT((bsl::is_trivially_copyable<bsl::span<bsl::string, 6> >::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::span<int> >::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::span<int, 6> >::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::span<bsl::string> >::value));
+        ASSERT((bslmf::IsTriviallyCopyableCheck<bsl::span<bsl::string, 6> >::value));
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
