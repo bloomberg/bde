@@ -1414,9 +1414,8 @@ void TestDriver::testCase31()
     //   USAGE EXAMPLE
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING USAGE EXAMPLE" << endl
-                      << "=====================" << endl;
+    if (verbose) cout << "\nTESTING USAGE EXAMPLE"
+                         "\n=====================\n";
 
 ///Usage
 ///-----
@@ -1427,7 +1426,7 @@ void TestDriver::testCase31()
 // A common requirement for decimal floating point types is to be able to
 // create a value from independent "coefficient" and "exponent" values, where
 // the resulting decimal has the value `coefficient * 10 ^ exponent`.  In the
-// following example we use such a `coffecicient` and `exponent` to create
+// following example we use such a `coefficient` and `exponent` to create
 // `Decimal32`, `Decimal64`, and `Decimal128` values.
 //
 // First we define values representing the `coefficient` and `exponent` (note
@@ -1523,11 +1522,10 @@ void TestDriver::testCase30()
     //   ValueType128 sameQuantum(ValueType128, ValueType128);
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTESTING `sameQuantum` METHOD"
-                           << "\n============================"
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING `sameQuantum` METHOD"
+                         "\n============================\n";
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType32\n";
     {
         typedef Util::ValueType32 Obj;
 
@@ -1572,7 +1570,7 @@ void TestDriver::testCase30()
 #undef DEC
     }
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType64\n";
     {
         typedef Util::ValueType64 Obj;
 
@@ -1616,7 +1614,7 @@ void TestDriver::testCase30()
 #undef DEC
     }
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType128\n";
     {
         typedef Util::ValueType128 Obj;
 
@@ -1690,12 +1688,10 @@ void TestDriver::testCase29()
     //   int          quantizeEqual(ValueType128 *, ValueType128, int);
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTESTING `quantize` METHOD"
-                           << "\n========================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING `quantize` METHOD"
+                         "\n=========================\n";
 
-
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType32\n";
     {
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
 
@@ -1816,7 +1812,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -1863,7 +1859,7 @@ void TestDriver::testCase29()
                     LOOP_ASSERT(LINE, Util::sameQuantum(X_N, E));
                 }
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -1884,7 +1880,7 @@ void TestDriver::testCase29()
 #undef DEC
     }
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType64\n";
     {
 #define DEC(X) Util::parse64(X)
 
@@ -2018,7 +2014,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -2065,7 +2061,7 @@ void TestDriver::testCase29()
                     LOOP_ASSERT(LINE, Util::sameQuantum(X_N, E));
                 }
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -2086,7 +2082,7 @@ void TestDriver::testCase29()
 #undef DEC
     }
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType128\n";
     {
 #define DEC(X) Util::parse128(X)
 
@@ -2216,7 +2212,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -2263,7 +2259,7 @@ void TestDriver::testCase29()
                 ASSERT(-1 == Util::quantizeEqual(X_P, INF_P, 0));
                 ASSERT(-1 == Util::quantizeEqual(X_P, INF_N, 0));
 
-                if (veryVerbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing\n";
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -2287,17 +2283,16 @@ void TestDriver::testCase29()
 
 void TestDriver::testCase28()
 {
-    if (verbose) bsl::cout << "\nTESTING `fma` METHOD"
-                           << "\n===================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING `fma` METHOD"
+                         "\n====================\n";
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType32\n";
     testFma<Util::ValueType32>();
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType64\n";
     testFma<Util::ValueType64>();
 
-    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    if (veryVeryVerbose) cout << "\tValueType128\n";
     testFma<Util::ValueType128>();
 }
 
@@ -2388,11 +2383,10 @@ void TestDriver::testCase27()
     //   ValueType64   fabs      (ValueType64);
     //   ValueType128  fabs      (ValueType128);
     // ------------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING MATH METHODS"
-                           << "\n===================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING MATH METHODS"
+                         "\n====================\n";
 
-    if (veryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    if (veryVerbose) cout << "\tValueType32\n";
     {
         typedef Util::ValueType32 Obj;
 
@@ -2409,7 +2403,7 @@ void TestDriver::testCase27()
         const Obj MAX_P   = Util::max32();
         const Obj MAX_N   = Util::negate(MAX_P);
 
-        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; };
+        if (veryVerbose) cout << "\t\tcopySign()\n";
         {
             const Obj DEC_P  = DEC(+1234567.0);
             const Obj DEC_N  = DEC(-1234567.0);
@@ -2510,7 +2504,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
+        if (veryVeryVerbose) cout << "\t\texp()\n";
         {
             struct {
                 int d_line;
@@ -2551,7 +2545,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog()\n";
         {
             struct {
                 int d_line;
@@ -2589,7 +2583,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlogB()\n";
         {
             struct {
                 int d_line;
@@ -2630,7 +2624,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog10()\n";
         {
             struct {
                 int d_line;
@@ -2669,7 +2663,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfmod()\n";
         {
             struct {
                 int d_line;
@@ -2716,7 +2710,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tremainder()\n";
         {
             struct {
                 int d_line;
@@ -2765,7 +2759,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlrint()\n";
         {
             const long int NaN = ~(-1ul >> 1);
 
@@ -2810,7 +2804,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tllrint()\n";
         {
             const long long int NaN = ~(-1ull >> 1);
 
@@ -2855,7 +2849,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnextafter()\n";
         {
             struct {
                 int d_line;
@@ -2902,7 +2896,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnexttoward()\n";
         {
             struct {
                 int                d_line;
@@ -2940,7 +2934,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tpow()\n";
         {
             struct {
                 int d_line;
@@ -2986,7 +2980,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlround()\n";
         {
             const long int NaN = ~(-1ul >> 1);
 
@@ -3029,7 +3023,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround(x, p)\n";
         {
             struct {
                 int          d_line;
@@ -3149,7 +3143,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround(x, p)\n";
         {
             struct {
                 int          d_line;
@@ -3259,7 +3253,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tsqrt()\n";
         {
             struct {
                 int d_line;
@@ -3298,7 +3292,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tceil()\n";
         {
             const Obj DECIMAL  = DEC(1234567.0);
                   Obj RESULT   = Util::ceil(DEC(0.5));
@@ -3321,7 +3315,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfloor()\n";
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -3342,7 +3336,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::floor(sNAN_P),  NAN_P));
             LOOP_ASSERT(L_, EDOM == errno);
         }
-        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\ttrunc()\n";
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -3364,7 +3358,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround()\n";
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -3386,7 +3380,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfabs()\n";
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);
@@ -3408,7 +3402,7 @@ void TestDriver::testCase27()
 #undef DEC
     }
 
-    if (veryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    if (veryVerbose) cout << "\tValueType64\n";
     {
         typedef Util::ValueType64 Obj;
 
@@ -3425,7 +3419,7 @@ void TestDriver::testCase27()
         const Obj MAX_P   =              Util::max64();
         const Obj MAX_N   = Util::negate(MAX_P);
 
-        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
+        if (veryVerbose) bsl::cout << "\t\tcopySign()\n";
         {
             const Obj DEC_P  = DEC(+1234567.0);
             const Obj DEC_N  = DEC(-1234567.0);
@@ -3526,7 +3520,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\texp()\n";
         {
             const Obj DEC_X1 = DEC( 12.000046);
             const Obj DEC_X2 = DEC(-11.000046);
@@ -3570,7 +3564,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog()\n";
         {
             const Obj DEC_X = DEC(12.000046);
             const Obj RES_1 = DEC( 2.484910483113986);
@@ -3612,7 +3606,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlogB()\n";
         {
             struct {
                 int d_line;
@@ -3652,7 +3646,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog10()\n";
         {
             const Obj DEC_X = DEC(12.000046);
             const Obj RES_1 = DEC(1.079182910839948);
@@ -3694,7 +3688,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfmod()\n";
         {
             const Obj DEC_X   = DEC( 5.0000002);
             const Obj DEC_Y   = DEC( 3.0000001);
@@ -3747,7 +3741,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tremainder()\n";
         {
             const Obj DEC_X   = DEC( 5.0000003);
             const Obj DEC_Y   = DEC( 3.0000001);
@@ -3799,7 +3793,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlrint()\n";
         {
             const long int NaN = ~(-1ul >> 1);
 
@@ -3845,7 +3839,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tllrint()\n";
         {
             const long long int NaN = ~(-1ull >> 1);
 
@@ -3891,7 +3885,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnextafter()\n";
         {
             struct {
                 int d_line;
@@ -3934,7 +3928,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnexttoward()\n";
         {
             struct {
                 int                d_line;
@@ -3972,7 +3966,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose)  { T_ T_ bsl::cout << "pow()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tpow()\n";
         {
             const Obj SQRT_2 = DEC(1.414213562373095);
             const Obj DEC_Y  = DEC(0.333333333333333);
@@ -4021,7 +4015,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlround()\n";
         {
             const long int NaN = ~(-1ul >> 1);
 
@@ -4065,7 +4059,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround(x, p)\n";
         {
             struct {
                 int          d_line;
@@ -4175,7 +4169,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tsqrt()\n";
         {
             const Obj SQRT_2 = DEC(1.414213562373095);
             const Obj DEC_1  = DEC(8.999999999999996);
@@ -4219,7 +4213,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tceil()\n";
         {
             Obj RESULT   = Util::ceil(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -4241,7 +4235,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfloor()\n";
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -4263,7 +4257,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\ttrunc()\n";
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -4285,7 +4279,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround()\n";
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -4307,7 +4301,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfabs()\n";
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);
@@ -4329,7 +4323,7 @@ void TestDriver::testCase27()
 #undef DEC
     }
 
-    if (veryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    if (veryVerbose) cout << "\tValueType128\n";
     {
         typedef Util::ValueType128 Obj;
 
@@ -4345,7 +4339,7 @@ void TestDriver::testCase27()
         const Obj MAX_P   =              Util::max128();
         const Obj MAX_N   = Util::negate(MAX_P);
 
-        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tcopySign()\n";
         {
             const Obj DEC_P  = DEC(+1234567890123456789012345678901234.0);
             const Obj DEC_N  = DEC(-1234567890123456789012345678901234.0);
@@ -4446,7 +4440,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\texp()\n";
         {
             const Obj DEC_X1 = DEC( 12.000000000000046);
             const Obj DEC_X2 = DEC(-11.000000000000046);
@@ -4490,7 +4484,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog()\n";
         {
             const Obj DEC_X = DEC(12.000000000000046);
             const Obj RES_1 = DEC(2.484906649788004143563042813164865);
@@ -4532,7 +4526,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlogB()\n";
         {
             struct {
                 int d_line;
@@ -4572,7 +4566,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlog10()\n";
         {
             const Obj DEC_X = DEC(12.000000000000046);
             const Obj RES_1 = DEC(1.079181246047626492518019655166250);
@@ -4614,7 +4608,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfmod()\n";
         {
             const Obj DEC_X   = DEC( 5.0000000000000002);
             const Obj DEC_Y   = DEC( 3.0000000000000001);
@@ -4667,7 +4661,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tremainder()\n";
         {
             const Obj DEC_X   = DEC( 5.0000000000000003);
             const Obj DEC_Y   = DEC( 3.0000000000000001);
@@ -4719,7 +4713,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlrint()\n";
         {
             const long int NaN = ~(-1ul >> 1);
             const Obj      DEC_X = DEC(-9223372036854775809.0);
@@ -4768,7 +4762,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tllrint()\n";
         {
             const long long int NaN = ~(-1ull >> 1);
             const Obj           DEC_X = DEC(-9223372036854775808.0);
@@ -4816,7 +4810,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnextafter()\n";
         {
             const Obj DEC_1 = DEC( 1.000000000000000000000000000000001);
             const Obj DEC_9 = DEC( 9.999999999999999999999999999999999e-1);
@@ -4862,7 +4856,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tnexttoward()\n";
         {
             struct {
                 int d_line;
@@ -4900,7 +4894,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tpow()\n";
         {
             const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
             const Obj DEC_Y1 = DEC(2.9999999999999999);
@@ -4952,7 +4946,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tlround()\n";
         {
             const long int NaN = ~(-1ul >> 1);
             const Obj      DEC_X = DEC(2.4999999999999999);
@@ -4997,7 +4991,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tsqrt()\n";
         {
             const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
             const Obj DEC_1  = DEC(8.999999999999999999999999999999996);
@@ -5043,7 +5037,7 @@ void TestDriver::testCase27()
 
         const Obj DECIMAL = DEC(1234567890123456789012345678901234.0);
 
-        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tceil()\n";
         {
             Obj RESULT   = Util::ceil(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -5065,7 +5059,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfloor()\n";
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -5087,7 +5081,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\ttrunc()\n";
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -5109,7 +5103,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tround()\n";
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -5131,7 +5125,7 @@ void TestDriver::testCase27()
             LOOP_ASSERT(L_, EDOM == errno);
         }
 
-        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
+        if (veryVerbose) cout << "\t\tfabs()\n";
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);
@@ -5185,11 +5179,10 @@ void TestDriver::testCase26()
     //   static ValueType64 normalize(ValueType64 original);
     //   static ValueType128 normalize(ValueType128 original);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING `normalize`"
-                           << "\n=================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING `normalize`"
+                         "\n===================\n";
 
-    if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+    if (verbose) cout << "ValueType32\n";
     {
         typedef Util::ValueType32 Type;
 
@@ -5317,7 +5310,7 @@ void TestDriver::testCase26()
         }
     }
 
-    if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+    if (verbose) cout << "ValueType64\n";
     {
         typedef Util::ValueType64 Type;
 
@@ -5445,7 +5438,7 @@ void TestDriver::testCase26()
         }
     }
 
-    if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+    if (verbose) cout << "ValueType128\n";
     {
         typedef Util::ValueType128 Type;
 
@@ -5627,13 +5620,12 @@ void TestDriver::testCase25()
     //   static int classify(ValueType64  x);
     //   static int classify(ValueType128 x);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING `classify`"
-                           << "\n=================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING `classify`"
+                         "\n==================\n";
 
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
     {
-        if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+        if (verbose) cout << "ValueType32\n";
 
         typedef Util::ValueType32 Type;
 
@@ -5714,7 +5706,7 @@ void TestDriver::testCase25()
 #undef DEC
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
     {
-        if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+        if (verbose) cout << "ValueType64\n";
 
         typedef Util::ValueType64 Type;
 
@@ -5795,7 +5787,7 @@ void TestDriver::testCase25()
 #undef DEC
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
     {
-        if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+        if (verbose) cout << "ValueType128\n";
 
         typedef Util::ValueType128 Type;
 
@@ -5911,13 +5903,12 @@ void TestDriver::testCase24()
     //   int decompose(int *, bsls::Types::Uint64 *, int *, ValueType64);
     //   int decompose(int *, Uint128 *, int *, ValueType128);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING DECOMPOSE METHODS"
-                           << "\n========================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING DECOMPOSE METHODS"
+                         "\n=========================\n";
 
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
     {
-        if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+        if (verbose) cout << "ValueType32\n";
 
         typedef Util::ValueType32 Type;
 
@@ -5985,7 +5976,7 @@ void TestDriver::testCase24()
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        if (verbose) cout << "\tTesting behavior." << endl;
+        if (verbose) cout << "\tTesting behavior\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int           LINE        = DATA[ti].d_line;
@@ -6025,7 +6016,7 @@ void TestDriver::testCase24()
             }
         }
 
-        if (verbose) cout << "\tNegative Testing." << endl;
+        if (verbose) cout << "\tNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
@@ -6061,7 +6052,7 @@ void TestDriver::testCase24()
 #undef DEC
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
     {
-        if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+        if (verbose) cout << "ValueType64\n";
 
         typedef Util::ValueType64 Type;
 
@@ -6129,7 +6120,7 @@ void TestDriver::testCase24()
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        if (verbose) cout << "\tTesting behavior." << endl;
+        if (verbose) cout << "\tTesting behavior\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                 LINE        = DATA[ti].d_line;
@@ -6170,7 +6161,7 @@ void TestDriver::testCase24()
             }
         }
 
-        if (verbose) cout << "\tNegative Testing." << endl;
+        if (verbose) cout << "\tNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
@@ -6206,7 +6197,7 @@ void TestDriver::testCase24()
 #undef DEC
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
     {
-        if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+        if (verbose) cout << "ValueType128\n";
 
         typedef Util::ValueType128 Type;
 
@@ -6301,7 +6292,7 @@ void TestDriver::testCase24()
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        if (verbose) cout << "\tTesting behavior." << endl;
+        if (verbose) cout << "\tTesting behavior\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                 LINE          = DATA[ti].d_line;
@@ -6357,7 +6348,7 @@ void TestDriver::testCase24()
             }
         }
 
-        if (verbose) cout << "\tNegative Testing." << endl;
+        if (verbose) cout << "\tNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
@@ -6436,11 +6427,10 @@ void TestDriver::testCase23()
     //   ValueType128 quietNaN128();
     //   ValueType128 signalingNaN128();
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING BOUNDARY VALUES FUNCTIONS"
-                           << "\n================================="
-                           << bsl::endl;
+    if (verbose) cout << "\nTESTING BOUNDARY VALUES FUNCTIONS"
+                         "\n=================================\n";
 
-    if (verbose) bsl::cout << "ValueType32" << bsl::endl;
+    if (verbose) cout << "ValueType32\n";
     {
         typedef Util::ValueType32 Type;
 
@@ -6484,7 +6474,7 @@ void TestDriver::testCase23()
         ASSERT(QNAN_MASK == (value.d_raw & QNAN_MASK));
     }
 
-    if (verbose) bsl::cout << "ValueType64" << bsl::endl;
+    if (verbose) cout << "ValueType64\n";
     {
         typedef Util::ValueType64 Type;
 
@@ -6541,7 +6531,7 @@ void TestDriver::testCase23()
         ASSERT(QNAN_MASK == (raw & QNAN_MASK));
     }
 
-    if (verbose) bsl::cout << "ValueType128" << bsl::endl;
+    if (verbose) cout << "ValueType128\n";
     {
         typedef Util::ValueType128 Type;
 
@@ -6652,9 +6642,8 @@ void TestDriver::testCase22()
     //   convertFromBID(ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING CONVERSION FROM BINARY INTEGRAL" << endl
-                      << "=======================================" << endl;
+    if (verbose) cout << "\nTESTING CONVERSION FROM BINARY INTEGRAL"
+                         "\n=======================================\n";
 
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to BID.
@@ -6698,13 +6687,13 @@ void TestDriver::testCase22()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertFromBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertFromBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -6787,13 +6776,13 @@ void TestDriver::testCase22()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertFromBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertFromBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -6876,13 +6865,13 @@ void TestDriver::testCase22()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertFromBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertFromBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -6961,9 +6950,8 @@ void TestDriver::testCase21()
     //   convertToBID(ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING CONVERSION TO BINARY INTEGRAL" << endl
-                      << "=====================================" << endl;
+    if (verbose) cout << "\nTESTING CONVERSION TO BINARY INTEGRAL"
+                         "\n=====================================\n";
 
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to BID.
@@ -7007,13 +6995,13 @@ void TestDriver::testCase21()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertToBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertToBID, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -7098,13 +7086,13 @@ void TestDriver::testCase21()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertToBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertToBID, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
@@ -7187,13 +7175,13 @@ void TestDriver::testCase21()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertToBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertToBID, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
@@ -7272,9 +7260,8 @@ void TestDriver::testCase20()
     //   convertDPDtoBID(ValueType64)
     //   convertDPDtoBID(ValueType128)
     // ------------------------------------------------------------------------
-    if (verbose) cout << endl
-                      << "TESTING CONVERSION FROM DENSELY PACKED" << endl
-                      << "======================================" << endl;
+    if (verbose) cout << "\nTESTING CONVERSION FROM DENSELY PACKED"
+                         "\n======================================\n";
 
 
     // Test that with any of a set of exponents, we can convert 32-bit
@@ -7314,13 +7301,13 @@ void TestDriver::testCase20()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertDPDtoBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertDPDtoBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -7403,13 +7390,13 @@ void TestDriver::testCase20()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertDPDtoBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertDPDtoBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -7492,13 +7479,13 @@ void TestDriver::testCase20()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                          cout << "convertDPDtoBID, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                              << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                          cout << "convertDPDtoBID, exponent num: "
-                                << t_e << ", "
-                                << exponents[t_e] << endl;
+                              << t_e << ", "
+                              << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -7577,9 +7564,8 @@ void TestDriver::testCase19()
     //   convertBIDtoDPD(ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING CONVERSION TO DENSELY PACKED" << endl
-                      << "====================================" << endl;
+    if (verbose) cout << "\nTESTING CONVERSION TO DENSELY PACKED"
+                         "\n====================================\n";
 
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to DPD.
@@ -7617,13 +7603,13 @@ void TestDriver::testCase19()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertBIDtoDPD, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertBIDtoDPD, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int t_mantissa = mantissas[t_m];
                           int   exponent = exponents[t_e];
@@ -7707,13 +7693,13 @@ void TestDriver::testCase19()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertBIDtoDPD, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertBIDtoDPD, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
@@ -7811,13 +7797,13 @@ void TestDriver::testCase19()
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
                            cout << "convertBIDtoDPD, mantissa num: "
-                                << t_m << ", " << mantissas[t_m] << endl;
+                                << t_m << ", " << mantissas[t_m] << '\n';
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
                            cout << "convertBIDtoDPD, exponent num: "
                                 << t_e << ", "
-                                << exponents[t_e] << endl;
+                                << exponents[t_e] << '\n';
 
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
@@ -7997,13 +7983,11 @@ void TestDriver::testCase18()
 #define S(PRECISION) Config(PRECISION, Config::e_SCIENTIFIC)
 #define N(PRECISION) Config(PRECISION, Config::e_NATURAL)
 
-    if (verbose) cout << endl
-                      << "TEST FORMAT METHODS" << endl
-                      << "===================" << endl;
+    if (verbose) cout << "\nTEST FORMAT METHODS"
+                         "\n===================\n";
 
-    if (verbose) cout << endl
-                      << "Test ValueType32" << endl
-                      << "----------------" << endl;
+    if (verbose) cout << "\nTest ValueType32"
+                         "\n----------------\n";
 
 #define DEC(X) Util::parse32(#X)
     //-----------------------------------------------------------------
@@ -8075,7 +8059,7 @@ void TestDriver::testCase18()
     }
 
     {
-        if (verbose) cout << "Loop-based test" << endl;
+        if (verbose) cout << "Loop-based test\n";
 
         typedef Util::ValueType32 Type;
 
@@ -8133,7 +8117,7 @@ void TestDriver::testCase18()
         }
     }
     {
-        if (verbose) cout << "Table-driven test" << endl;
+        if (verbose) cout << "Table-driven test\n";
 
         typedef Util::ValueType32 Type;
 
@@ -8464,11 +8448,11 @@ void TestDriver::testCase18()
                 }
             }
         }
-        if (veryVerbose) cout << "\nNegative Testing." << endl;
+        if (veryVerbose) cout << "\nNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
+            if (veryVerbose) cout << "\t'buffer == NULL'\n";
             {
                 const int    k_SIZE = 1000;
                 char         BUFFER[k_SIZE];
@@ -8482,9 +8466,8 @@ void TestDriver::testCase18()
     }
 #undef DEC
 
-    if (verbose) cout << endl
-                      << "Test ValueType64" << endl
-                      << "----------------" << endl;
+    if (verbose) cout << "\nTest ValueType64"
+                         "\n----------------\n";
 #define DEC(X) Util::parse64(#X)
     //-----------------------------------------------------------------
     // C-2,3
@@ -8558,7 +8541,7 @@ void TestDriver::testCase18()
         }
     }
     {
-        if (verbose) cout << "Loop-based test" << endl;
+        if (verbose) cout << "Loop-based test\n";
 
         typedef Util::ValueType64 Type;
 
@@ -8627,7 +8610,7 @@ void TestDriver::testCase18()
         }
     }
     {
-        if (verbose) cout << "Table-driven test" << endl;
+        if (verbose) cout << "Table-driven test\n";
 
         typedef Util::ValueType64 Type;
 
@@ -8941,12 +8924,12 @@ void TestDriver::testCase18()
             }
         }
 
-        if (veryVerbose) cout << "\nNegative Testing." << endl;
+        if (veryVerbose) cout << "\nNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
 
-            if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
+            if (veryVerbose) cout << "\t'buffer == NULL'\n";
             {
                 const int    k_SIZE = 1000;
                 char         BUFFER[k_SIZE];
@@ -8959,9 +8942,8 @@ void TestDriver::testCase18()
         }
     }
 #undef DEC
-    if (verbose) cout << endl
-                      << "Test ValueType128" << endl
-                      << "-----------------" << endl;
+    if (verbose) cout << "\nTest ValueType128"
+                         "\n-----------------\n";
 
 #define DEC(X) Util::parse128(#X)
     //-----------------------------------------------------------------
@@ -9036,7 +9018,7 @@ void TestDriver::testCase18()
         }
     }
     {
-        if (verbose) cout << "Loop-based test" << endl;
+        if (verbose) cout << "Loop-based test\n";
 
         typedef Util::ValueType128 Type;
 
@@ -9125,7 +9107,7 @@ void TestDriver::testCase18()
         }
     }
     {
-        if (verbose) cout << "Table-driven test" << endl;
+        if (verbose) cout << "Table-driven test\n";
 
         typedef Util::ValueType128 Type;
 
@@ -9446,11 +9428,11 @@ void TestDriver::testCase18()
             }
         }
 
-        if (veryVerbose) cout << "\nNegative Testing." << endl;
+        if (veryVerbose) cout << "\nNegative Testing\n";
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
+            if (veryVerbose) cout << "\t'buffer == NULL'\n";
             {
                 const int    k_SIZE = 1000;
                 char         BUFFER[k_SIZE];
@@ -9526,9 +9508,8 @@ void TestDriver::testCase17()
     //   scaleB(ValueType128, int)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING `scaleB`" << endl
-                      << "================" << endl;
+    if (verbose) cout << "\nTESTING `scaleB`"
+                         "\n================\n";
 
     {
 #define DEC(X) Util::parse32(#X)
@@ -9911,9 +9892,8 @@ void TestDriver::testCase16()
     //   greaterEqual(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING COMPARISON FUNCTIONS" << endl
-                      << "============================" << endl;
+    if (verbose) cout << "\nTESTING COMPARISON FUNCTIONS"
+                         "\n============================\n";
 
     Util::ValueType32 snan32  = Util::parse32("sNaN");
     Util::ValueType32  nan32  = Util::parse32( "NaN");
@@ -9962,8 +9942,7 @@ void TestDriver::testCase16()
         const char *const lhsValue = tests[i].number;
         const int         lhsOrder = tests[i].order;
 
-        if (veryVerbose) cout << endl
-                              << "lhsValue = " << lhsValue << endl;
+        if (veryVerbose) cout << "\nlhsValue = " << lhsValue << '\n';
 
         Util::ValueType32  lhs32  = Util::parse32( lhsValue);
         Util::ValueType64  lhs64  = Util::parse64( lhsValue);
@@ -10009,8 +9988,7 @@ void TestDriver::testCase16()
         for (int j = 0; j < numTests; ++j) {
             const char *const rhsValue = tests[j].number;
             const int         rhsOrder = tests[j].order;
-            if (veryVerbose) cout << endl
-                                  << "rhsValue = " << rhsValue << endl;
+            if (veryVerbose) cout << "\nrhsValue = " << rhsValue << '\n';
 
             Util::ValueType32  rhs32  = Util::parse32( rhsValue);
             Util::ValueType64  rhs64  = Util::parse64( rhsValue);
@@ -10102,9 +10080,8 @@ void TestDriver::testCase15()
     //   binaryToDecimal128(double)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING `binaryToDecimalXX`" << endl
-                      << "===========================" << endl;
+    if (verbose) cout << "\nTESTING `binaryToDecimalXX`"
+                         "\n===========================\n";
 
     // `binaryToDecimal32(float)`
 
@@ -10491,16 +10468,14 @@ void TestDriver::testCase14()
     //   uint64ToDecimal128(unsigned long long int)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING `[u]intXXToDecimalXX`" << endl
-                      << "=============================" << endl;
+    if (verbose) cout << "\nTESTING `[u]intXXToDecimalXX`"
+                         "\n=============================\n";
 
     for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
         const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
 
-        if (veryVerbose) cout << endl
-                              << "Testing mantissa index: " << mi
-                              << ", MANTISSA: " << MANTISSA << endl;
+        if (veryVerbose) cout << "\nTesting mantissa index: " << mi
+                              << ", MANTISSA: " << MANTISSA << '\n';
 
         char TEST_STRING[100];
         sprintf(TEST_STRING, "%lld", MANTISSA);
@@ -10621,22 +10596,18 @@ void TestDriver::testCase13()
     //   makeDecimal64(unsigned long long int, int)
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << bsl::endl
-                           << "TESTING `makeDecimal64`" << bsl::endl
-                           << "=======================" << bsl::endl;
+    if (verbose) cout << "\nTESTING `makeDecimal64`"
+                         "\n=======================\n";
     {
         for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
-            if (veryVerbose) cout << endl
-                                  << "Testing mantissa index: "
-                                  << mi << endl;
+            if (veryVerbose) cout << "\nTesting mantissa index: " << mi <<'\n';
             for (int ei = 0; ei < NUM_TEST_EXPONENTS; ++ei) {
                 const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
                 const int EXPONENT = TEST_EXPONENTS[ei];
 
-            if (veryVerbose) cout << endl
-                                  << "Testing exponent index: " << ei
+            if (veryVerbose) cout << "\nTesting exponent index: " << ei
                                   << ", MANTISSA: " << MANTISSA
-                                  << ", EXPONENT: " << EXPONENT << endl;
+                                  << ", EXPONENT: " << EXPONENT << '\n';
 
                 char TEST_STRING[100];
                 sprintf(TEST_STRING, "%llde%d", MANTISSA, EXPONENT);
@@ -10744,10 +10715,8 @@ void TestDriver::testCase12()
     //   makeInfinity64(bool)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "INFINITY CREATION `makeInfinity64(bool)`" << endl
-                      << "========================================"
-                      << endl;
+    if (verbose) cout << "\nINFINITY CREATION `makeInfinity64(bool)`"
+                         "\n========================================\n";
 
     Util::ValueType64 ninf = Util::parse64("-inf");
     Util::ValueType64 pinf = Util::parse64("+inf");
@@ -10803,10 +10772,8 @@ void TestDriver::testCase11()
     //   parse128(const char *);
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "PARSING `parse32`, `parse64`, AND `parse128`"
-              << endl << "============================================"
-              << endl;
+    if (verbose) cout << "\nPARSING `parse32`, `parse64`, AND `parse128`"
+                         "\n============================================\n";
 
     // Testing `parse32 (const char *)`
 
@@ -11436,9 +11403,8 @@ void TestDriver::testCase10()
     //   convertToDecimal128(const ValueType64&)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "CROSS CONVERSION `convertToDecimalXX`" << endl
-                      << "=====================================" << endl;
+    if (verbose) cout << "\nCROSS CONVERSION `convertToDecimalXX`"
+                         "\n=====================================\n";
 
     // Testing `convertToDecimal32( const ValueType64&)`
 
@@ -11841,9 +11807,8 @@ void TestDriver::testCase9()
     //   negate(ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION `negate`" << endl
-                      << "============================" << endl;
+    if (verbose) cout << "\nARITHMETIC FUNCTION `negate`"
+                         "\n============================\n";
 
     Util::ValueType32 nZero32 = Util::parse32("-0");
     Util::ValueType32 pZero32 = Util::parse32("+0");
@@ -11979,9 +11944,8 @@ void TestDriver::testCase8()
     //   divide(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION `divide`" << endl
-                      << "============================" << endl;
+    if (verbose) cout << "\nARITHMETIC FUNCTION `divide`"
+                         "\n============================\n";
 
     Util::ValueType32     lhs32;
     Util::ValueType32     rhs32;
@@ -12024,18 +11988,17 @@ void TestDriver::testCase8()
         long long int resMantissa = testCases[ i ].resMantissa;
                   int resExponent = testCases[ i ].resExponent;
 
-        if (veryVerbose) cout << endl
-                              << "Test 'divide(ValueType32,"
-                              << "  ValueType32)', " << endl
+        if (veryVerbose) cout << "\nTest 'divide(ValueType32,"
+                                 "  ValueType32)', " << '\n'
                               << "     'divide(ValueType64,"
-                              << "  ValueType64)' and" << endl
+                                 "  ValueType64)' and" << '\n'
                               << "     'divide(ValueType128,"
-                              << " ValueType128)' on" << endl
+                                 " ValueType128)' on" << '\n'
                               << lhsMantissa << "e" << lhsExponent
                               << " / "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
-                              << resMantissa << "e" << resExponent << endl;
+                              << resMantissa << "e" << resExponent << '\n';
 
         Util::ValueType32 identity32 = Util::parse32("1");
 
@@ -12277,9 +12240,8 @@ void TestDriver::testCase7()
     //   multiply(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION `multiply`" << endl
-                      << "==============================" << endl;
+    if (verbose) cout << "\nARITHMETIC FUNCTION `multiply`"
+                         "\n==============================\n";
 
     Util::ValueType32     lhs32;
     Util::ValueType32     rhs32;
@@ -12324,18 +12286,17 @@ void TestDriver::testCase7()
         long long int resMantissa = testCases[ i ].resMantissa;
                   int resExponent = testCases[ i ].resExponent;
 
-        if (veryVerbose) cout << endl
-                              << "Test 'multiply(ValueType32,"
-                              << " ValueType32)'," << endl
+        if (veryVerbose) cout << "\nTest 'multiply(ValueType32,"
+                                 " ValueType32)'," << '\n'
                               << "'multiply(ValueType64,"
-                              << " ValueType64)'" << endl
+                                 " ValueType64)'" << '\n'
                               << "and 'multiply(ValueType128,"
-                              << " ValueType128)' on" << endl
+                                 " ValueType128)' on" << '\n'
                               << lhsMantissa << "e" << lhsExponent
                               << " * "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
-                              << resMantissa << "e" << resExponent << endl;
+                              << resMantissa << "e" << resExponent << '\n';
 
         Util::ValueType32 identity32 = Util::parse32("1");
 
@@ -12600,9 +12561,8 @@ void TestDriver::testCase6()
     //   subtract(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION `subtract`" << endl
-                      << "==============================" << endl;
+    if (verbose) cout << "\nARITHMETIC FUNCTION `subtract`"
+                         "\n==============================\n";
 
     Util::ValueType32     lhs32;
     Util::ValueType32     rhs32;
@@ -12645,18 +12605,17 @@ void TestDriver::testCase6()
         long long int resMantissa = testCases[ i ].resMantissa;
                   int resExponent = testCases[ i ].resExponent;
 
-        if (veryVerbose) cout << endl
-                              << "Test 'subtract(ValueType32,"
-                              << " ValueType32)'," << endl
+        if (veryVerbose) cout << "\nTest 'subtract(ValueType32,"
+                                 " ValueType32)'," << '\n'
                               << "'subtract(ValueType64,"
-                              << " ValueType64)'" << endl
+                                 " ValueType64)'" << '\n'
                               << "and 'subtract(ValueType128,"
-                              << " ValueType128)' on" << endl
+                                 " ValueType128)' on" << '\n'
                               << lhsMantissa << "e" << lhsExponent
                               << " - "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
-                              << resMantissa << "e" << resExponent << endl;
+                              << resMantissa << "e" << resExponent << '\n';
 
         Util::ValueType32 negativeZero32 = Util::parse32("-0");
 
@@ -12878,9 +12837,8 @@ void TestDriver::testCase5()
     //   add(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION `add`" << endl
-                      << "=========================" << endl;
+    if (verbose) cout << "\nARITHMETIC FUNCTION `add`"
+                         "\n=========================\n";
 
     Util::ValueType32     lhs32;
     Util::ValueType32     rhs32;
@@ -12923,18 +12881,17 @@ void TestDriver::testCase5()
         long long int resMantissa = testCases[ i ].resMantissa;
                   int resExponent = testCases[ i ].resExponent;
 
-        if (veryVerbose) cout << endl
-                              << "Test 'add(ValueType32,"
-                              << " ValueType32)'," << endl
+        if (veryVerbose) cout << "\nTest 'add(ValueType32,"
+                                 " ValueType32)'," << '\n'
                               << "'add(ValueType64,"
-                              << " ValueType64)'" << endl
+                                 " ValueType64)'" << '\n'
                               << "and 'add(ValueType128,"
-                              << " ValueType128)' on" << endl
+                                 " ValueType128)' on" << '\n'
                               << lhsMantissa << "e" << lhsExponent
                               << " + "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
-                              << resMantissa << "e" << resExponent << endl;
+                              << resMantissa << "e" << resExponent << '\n';
 
         Util::ValueType32 negativeZero32 = Util::parse32("-0");
 
@@ -13199,9 +13156,8 @@ void TestDriver::testCase4()
     //   TEST `notEqual` FOR `NaN` CORRECTNESS
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "INEQUALITY COMPARISON `Util::notEqual`" << endl
-                      << "======================================" << endl;
+    if (verbose) cout << "\nINEQUALITY COMPARISON `Util::notEqual`"
+                         "\n======================================\n";
 
     // Basic value comparison testing
 
@@ -14303,9 +14259,8 @@ void TestDriver::testCase3()
     // --------------------------------------------------------------------
 
 
-    if (verbose) cout << endl
-                      << "EQUALITY COMPARISON `Util::equal`" << endl
-                      << "=================================" << endl;
+    if (verbose) cout << "\nEQUALITY COMPARISON `Util::equal`"
+                         "\n=================================\n";
 
     // Basic value comparison testing
 
@@ -15346,9 +15301,9 @@ void TestDriver::testCase2()
     //   makeDecimalRaw128(                   int, int)
     // ------------------------------------------------------------------------
 
-    if (verbose) cout << endl
-                      << "TESTING `makeDecimalRaw`" << endl
-                      << "========================" << endl;
+    if (verbose) cout << "\nTESTING `makeDecimalRaw`"
+                         "\n========================\n";
+
     // Test that with any of a set of exponents, we can create values with
     // mantissas from 1 to 16 digit for 32-bit Decimal values
     {
@@ -15379,11 +15334,11 @@ void TestDriver::testCase2()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose) cout << "makeDecimalRaw32, mantissa num: "
-                                  << t_m << ", " << mantissas[t_m] << endl;
+                                  << t_m << ", " << mantissas[t_m] << '\n';
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose) cout << "makeDecimalRaw32, exponent num: "
                                       << t_e << ", "
-                                      << exponents[t_e] << endl;
+                                      << exponents[t_e] << '\n';
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
 
@@ -15435,11 +15390,11 @@ void TestDriver::testCase2()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose) cout << "makeDecimalRaw64, mantissa num: "
-                                  << t_m << ", " << mantissas[t_m] << endl;
+                                  << t_m << ", " << mantissas[t_m] << '\n';
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose) cout << "makeDecimalRaw64, exponent num: "
                                       << t_e << ", "
-                                      << exponents[t_e] << endl;
+                                      << exponents[t_e] << '\n';
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
 
@@ -15644,11 +15599,11 @@ void TestDriver::testCase2()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose) cout << "makeDecimalRaw128, mantissa num: "
-                                  << t_m << ", " << mantissas[t_m] << endl;
+                                  << t_m << ", " << mantissas[t_m] << '\n';
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose) cout << "makeDecimalRaw128, exponent num:"
                                       << " " << t_e << ", "
-                                      << exponents[t_e] << endl;
+                                      << exponents[t_e] << '\n';
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
 
@@ -15900,8 +15855,8 @@ void TestDriver::testCase1()
     //   BREATHING TEST
     //   checkLiteral(double)
     // ------------------------------------------------------------------------
-    if (verbose) cout << endl << "BREATHING TEST"
-                      << endl << "==============" << endl;
+    if (verbose) cout << "\nBREATHING TEST"
+                         "\n==============\n";
 
     // `checkLiteral` is called in this test case, to silence bde_verify.
     // This is not tested in its own test, because it is not a public
