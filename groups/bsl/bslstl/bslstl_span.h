@@ -525,6 +525,11 @@ class span {
         return d_data_p[index];
     }
 
+    /// Return a reference to the element at the specified `index`.  Throws
+    /// an `out_of_range` exception if `index >= size()`.
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    reference at(size_type index) const;
+
     //                      ITERATOR OPERATIONS
 
 
@@ -820,6 +825,11 @@ class span<TYPE, dynamic_extent> {
     /// behavior is undefined unless `index < size()`.
     BSLS_KEYWORD_CONSTEXPR_CPP14
     reference operator[](size_type index) const;
+
+    /// Return a reference to the element at the specified `index`.  Throws
+    /// an `out_of_range` exception if `index >= size()`.
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    reference at(size_type index) const;
 
     //                      ITERATOR OPERATIONS
 
@@ -1142,6 +1152,19 @@ bsl::span<TYPE, EXTENT>::subspan(size_type offset, size_type count) const
 
     BSLS_ASSERT(offset <= size() - count);
     return ReturnType(data() + offset, count);
+}
+
+template <class TYPE, size_t EXTENT>
+BSLS_KEYWORD_CONSTEXPR_CPP14 inline
+typename bsl::span<TYPE, EXTENT>::reference
+bsl::span<TYPE, EXTENT>::at(size_type index) const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(index >= size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                           "span<T, static_extent>::at(index): invalid index");
+    }
+    return d_data_p[index];
 }
 
 //                          ITERATOR OPERATIONS
@@ -1489,6 +1512,19 @@ typename bsl::span<TYPE, bsl::dynamic_extent>::reference
 bsl::span<TYPE, bsl::dynamic_extent>::operator[](size_type index) const
 {
     BSLS_ASSERT(index < size());
+    return d_data_p[index];
+}
+
+template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR_CPP14 inline
+typename bsl::span<TYPE, bsl::dynamic_extent>::reference
+bsl::span<TYPE, bsl::dynamic_extent>::at(size_type index) const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(index >= size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                          "span<T, dynamic_extent>::at(index): invalid index");
+    }
     return d_data_p[index];
 }
 

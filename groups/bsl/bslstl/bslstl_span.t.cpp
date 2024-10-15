@@ -40,6 +40,7 @@
 // [ 4] reference front();
 // [ 4] reference back();
 // [ 4] reference operator[](size_type);
+// [ 4] reference at[](size_type);
 // [ 4] bool empty() noexcept;
 // [ 4] size_type extent;
 // [ 4] size_type size() noexcept;
@@ -132,6 +133,14 @@ void aSsErT(bool condition, const char *message, int line)
 #else
 #define ASSERT_NOEXCEPT(...)       BSLS_ASSERT(true)
 #define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(true)
+#endif
+
+// We want to test `span::at` only if we're using our own implementation or we
+// have a C++26 compliant standard library.
+// are using our own implementation.
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) ||              \
+     defined(BSLS_LIBRARYFEATURES_HAS_CPP26_BASELINE_LIBRARY)
+    #define TEST_BSL_SPAN_AT                                                  1
 #endif
 
 using namespace BloombergLP;
@@ -495,6 +504,23 @@ void TestContainerConstructors()
     }
 }
 
+#ifdef TEST_BSL_SPAN_AT
+/// Return `true` if accessing the `idx`th element of the span `s` throws an
+/// `out_of_range` exception
+template <class TYPE, size_t EXTENT>
+bool doesAtThrow(bsl::span<TYPE, EXTENT> s, size_t idx)
+{
+    try {
+        (void) s.at(idx);
+    }
+    catch (const std::out_of_range&) {
+        return true;
+    }
+    return false;
+}
+#endif
+
+
 /// Test the accessors of bsl::span.
 void TestAccessors()
 {
@@ -616,6 +642,36 @@ void TestAccessors()
     ASSERT(7 == dSpan[7]);
     ASSERT(6 == cdSpan[1]);
 
+#ifdef TEST_BSL_SPAN_AT
+    // at()
+    ASSERT(7 == sSpan.at(7));
+    ASSERT(6 == csSpan.at(1));
+    ASSERT(7 == dSpan.at(7));
+    ASSERT(6 == cdSpan.at(1));
+
+    ASSERT(!doesAtThrow(sSpan,   0));
+    ASSERT(!doesAtThrow(sSpan,   9));
+    ASSERT( doesAtThrow(sSpan,  10));
+    ASSERT( doesAtThrow(sSpan, 100));
+
+    ASSERT(!doesAtThrow(csSpan,   0));
+    ASSERT(!doesAtThrow(csSpan,   3));
+    ASSERT( doesAtThrow(csSpan,   4));
+    ASSERT( doesAtThrow(csSpan, 100));
+
+    ASSERT(!doesAtThrow(dSpan,   0));
+    ASSERT(!doesAtThrow(dSpan,   9));
+    ASSERT( doesAtThrow(dSpan,  10));
+    ASSERT( doesAtThrow(dSpan, 100));
+
+    ASSERT(!doesAtThrow(cdSpan,   0));
+    ASSERT(!doesAtThrow(cdSpan,   3));
+    ASSERT( doesAtThrow(cdSpan,   4));
+    ASSERT( doesAtThrow(cdSpan, 100));
+
+    ASSERT( doesAtThrow(zsSpan,   0));
+    ASSERT( doesAtThrow(zdSpan,   0));
+#endif
 }
 
 /// Test the various ways of making a smaller span from an original
@@ -1379,6 +1435,7 @@ int main(int argc, char *argv[])
         //   reference front();
         //   reference back();
         //   reference operator[](size_type);
+        //   reference at(size_type);
         //   bool empty() noexcept;
         //   size_type extent;
         //   size_type size() noexcept;
