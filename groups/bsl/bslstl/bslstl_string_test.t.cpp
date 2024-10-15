@@ -2402,6 +2402,23 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
     }
 }
 
+// A brute-force search to see if the specified 'pattern' exists in the 
+// specified 'corpus'
+template <class TYPE, class TRAITS>
+bool containsOracle(bsl::basic_string_view<TYPE, TRAITS> pattern,
+                    bsl::basic_string_view<TYPE, TRAITS> corpus)
+{
+    if (pattern.empty()) return true;
+    if (corpus.empty())  return false;
+    if (pattern.size() > corpus.size()) return false;
+    // For each substring of the correct length, is it equal to the pattern?
+    for (size_t i = 0; i <= corpus.size() - pattern.size(); ++i) {
+    	if (pattern == corpus.substr(i, pattern.size()))
+    	    return true;
+    	}
+    return false;    
+}
+
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
 {
@@ -2460,6 +2477,9 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
     //   bool ends_with(basic_string_view characterString) const;
     //   bool ends_with(CHAR_TYPE character) const;
     //   bool ends_with(const CHAR_TYPE *characterString) const;
+    //   bool contains(basic_string_view characterString) const;
+    //   bool contains(CHAR_TYPE character) const;
+    //   bool contains(const CHAR_TYPE *characterString) const;
     // ------------------------------------------------------------------------
 
     typedef bsl::basic_string_view<TYPE> StringView;
@@ -2524,6 +2544,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                                    STR_INDEX + STR_LENGTH)
                                                || (0 == STR_LENGTH);
 
+                        const bool EXP_C_RESULT =
+                                containsOracle(StringView(Str), StringView(X));
                         // Objects for search.
 
                         const StringView  SV(Str.data(), Str.length());
@@ -2543,6 +2565,11 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                         ASSERTV(ty, X, Str, EXP_E_RESULT,
                                 EXP_E_RESULT == X.ends_with(C_STR));
 
+                        ASSERTV(ty, X, Str, EXP_C_RESULT,
+                                EXP_C_RESULT == X.contains(SV));
+                        ASSERTV(ty, X, Str, EXP_C_RESULT,
+                                EXP_C_RESULT == X.contains(C_STR));
+
                         ASSERT(dam.isTotalSame());
                     }
 
@@ -2554,6 +2581,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                                  OBJ_INDEX  == STR_INDEX;
                         const bool E_CH_RESULT = OBJ_LENGTH != 0 &&
                                        OBJ_INDEX + OBJ_LENGTH - 1 == STR_INDEX;
+                        const bool C_CH_RESULT = OBJ_LENGTH != 0 && 
+                                  bsl::find(X.begin(), X.end(), CH) != X.end();
 
                         Tam dam(defaultAllocator_p);
 
@@ -2561,6 +2590,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                 S_CH_RESULT == X.starts_with(CH));
                         ASSERTV(ty, X, CH, E_CH_RESULT,
                                 E_CH_RESULT == X.ends_with(CH));
+                        ASSERTV(ty, X, CH, C_CH_RESULT,
+                                C_CH_RESULT == X.contains(CH));
 
                         ASSERT(dam.isTotalSame());
                     }
@@ -2587,75 +2618,79 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
 
                 bool        d_endsWith;    // expected result of the
                                            // `ends_with`
+
+                bool        d_contains;    // expected result of the `contains`
             } DATA[] = {
-                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
-                //----  -------- -------- ----------- ---------
-                { L_,   "",      "0",     false,      false    },
-                { L_,   "",      "00",    false,      false    },
-                { L_,   "",      "0A",    false,      false    },
-                { L_,   "",      "A0",    false,      false    },
-                { L_,   "",      "000",   false,      false    },
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH CONTAINS
+                //----  -------- -------- ----------- --------- --------
+                { L_,   "",      "0",     false,      false,    false   },
+                { L_,   "",      "00",    false,      false,    false   },
+                { L_,   "",      "0A",    false,      false,    false   },
+                { L_,   "",      "A0",    false,      false,    false   },
+                { L_,   "",      "000",   false,      false,    false   },
 
-                { L_,   "0",     "",      true,       true     },
-                { L_,   "0",     "0",     true,       true     },
-                { L_,   "0",     "A",     false,      false    },
-                { L_,   "0",     "00",    false,      false    },
-                { L_,   "0",     "0A",    false,      false    },
-                { L_,   "0",     "A0",    false,      false    },
-                { L_,   "0",     "000",   false,      false    },
-                { L_,   "A",     "0",     false,      false    },
-                { L_,   "A",     "A",     true,       true     },
-                { L_,   "A",     "00",    false,      false    },
-                { L_,   "A",     "0A",    false,      false    },
-                { L_,   "A",     "A0",    false,      false    },
-                { L_,   "A",     "000",   false,      false    },
+                { L_,   "0",     "",      true,       true,     true    },
+                { L_,   "0",     "0",     true,       true,     true    },
+                { L_,   "0",     "A",     false,      false,    false   },
+                { L_,   "0",     "00",    false,      false,    false   },
+                { L_,   "0",     "0A",    false,      false,    false   },
+                { L_,   "0",     "A0",    false,      false,    false   },
+                { L_,   "0",     "000",   false,      false,    false   },
+                { L_,   "A",     "0",     false,      false,    false   },
+                { L_,   "A",     "A",     true,       true,     true    },
+                { L_,   "A",     "00",    false,      false,    false   },
+                { L_,   "A",     "0A",    false,      false,    false   },
+                { L_,   "A",     "A0",    false,      false,    false   },
+                { L_,   "A",     "000",   false,      false,    false   },
 
-                { L_,   "00",    "",      true,       true     },
-                { L_,   "00",    "0",     true,       true     },
-                { L_,   "00",    "A",     false,      false    },
-                { L_,   "00",    "00",    true,       true     },
-                { L_,   "00",    "0A",    false,      false    },
-                { L_,   "00",    "A0",    false,      false    },
-                { L_,   "00",    "000",   false,      false    },
-                { L_,   "00",    "00A",   false,      false    },
-                { L_,   "00",    "0A0",   false,      false    },
-                { L_,   "00",    "A00",   false,      false    },
-                { L_,   "00",    "0000",  false,      false    },
+                { L_,   "00",    "",      true,       true,     true    },
+                { L_,   "00",    "0",     true,       true,     true    },
+                { L_,   "00",    "A",     false,      false,    false   },
+                { L_,   "00",    "00",    true,       true,     true    },
+                { L_,   "00",    "0A",    false,      false,    false   },
+                { L_,   "00",    "A0",    false,      false,    false   },
+                { L_,   "00",    "000",   false,      false,    false   },
+                { L_,   "00",    "00A",   false,      false,    false   },
+                { L_,   "00",    "0A0",   false,      false,    false   },
+                { L_,   "00",    "A00",   false,      false,    false   },
+                { L_,   "00",    "0000",  false,      false,    false   },
 
-                { L_,   "0A",    "",      true,       true     },
-                { L_,   "0A",    "0",     true,       false    },
-                { L_,   "0A",    "A",     false,      true     },
-                { L_,   "0A",    "00",    false,      false    },
-                { L_,   "0A",    "0A",    true,       true     },
-                { L_,   "0A",    "A0",    false,      false    },
-                { L_,   "0A",    "000",   false,      false    },
-                { L_,   "0A",    "00A",   false,      false    },
-                { L_,   "0A",    "0A0",   false,      false    },
-                { L_,   "0A",    "A00",   false,      false    },
-                { L_,   "0A",    "0000",  false,      false    },
+                { L_,   "0A",    "",      true,       true,     true    },
+                { L_,   "0A",    "0",     true,       false,    true    },
+                { L_,   "0A",    "A",     false,      true,     true    },
+                { L_,   "0A",    "00",    false,      false,    false   },
+                { L_,   "0A",    "0A",    true,       true,     true    },
+                { L_,   "0A",    "A0",    false,      false,    false   },
+                { L_,   "0A",    "000",   false,      false,    false   },
+                { L_,   "0A",    "00A",   false,      false,    false   },
+                { L_,   "0A",    "0A0",   false,      false,    false   },
+                { L_,   "0A",    "A00",   false,      false,    false   },
+                { L_,   "0A",    "0000",  false,      false,    false   },
 
-                { L_,   "A0",    "",      true,       true     },
-                { L_,   "A0",    "0",     false,      true     },
-                { L_,   "A0",    "A",     true,       false    },
-                { L_,   "A0",    "00",    false,      false    },
-                { L_,   "A0",    "0A",    false,      false    },
-                { L_,   "A0",    "A0",    true,       true     },
-                { L_,   "A0",    "000",   false,      false    },
-                { L_,   "A0",    "00A",   false,      false    },
-                { L_,   "A0",    "0A0",   false,      false    },
-                { L_,   "A0",    "A00",   false,      false    },
-                { L_,   "A0",    "0000",  false,      false    },
+                { L_,   "A0",    "",      true,       true,     true    },
+                { L_,   "A0",    "0",     false,      true,     true    },
+                { L_,   "A0",    "A",     true,       false,    true    },
+                { L_,   "A0",    "00",    false,      false,    false   },
+                { L_,   "A0",    "0A",    false,      false,    false   },
+                { L_,   "A0",    "A0",    true,       true,     true    },
+                { L_,   "A0",    "000",   false,      false,    false   },
+                { L_,   "A0",    "00A",   false,      false,    false   },
+                { L_,   "A0",    "0A0",   false,      false,    false   },
+                { L_,   "A0",    "A00",   false,      false,    false   },
+                { L_,   "A0",    "0000",  false,      false,    false   },
 
-                { L_,   "000",   "",      true,       true     },
-                { L_,   "000",   "0",     true,       true     },
-                { L_,   "000",   "00",    true,       true     },
-                { L_,   "000",   "0A",    false,      false    },
-                { L_,   "000",   "A0",    false,      false    },
-                { L_,   "000",   "000",   true,       true     },
-                { L_,   "000",   "00A",   false,      false    },
-                { L_,   "000",   "0A0",   false,      false    },
-                { L_,   "000",   "A00",   false,      false    },
-                { L_,   "000",   "0000",  false,      false    },
+                { L_,   "000",   "",      true,       true,     true    },
+                { L_,   "000",   "0",     true,       true,     true    },
+                { L_,   "000",   "00",    true,       true,     true    },
+                { L_,   "000",   "0A",    false,      false,    false   },
+                { L_,   "000",   "A0",    false,      false,    false   },
+                { L_,   "000",   "000",   true,       true,     true    },
+                { L_,   "000",   "00A",   false,      false,    false   },
+                { L_,   "000",   "0A0",   false,      false,    false   },
+                { L_,   "000",   "A00",   false,      false,    false   },
+                { L_,   "000",   "0000",  false,      false,    false   },
+                { L_,   "A0A",   "0",     false,      false,    true    },
+                { L_,   "A0A",   "A",     true,       true,     true    },
             };
 
             const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2668,6 +2703,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
                 const bool    EXP_S_RES    = DATA[i].d_startsWith;
                 const bool    EXP_E_RES    = DATA[i].d_endsWith;
+                const bool    EXP_C_RES    = DATA[i].d_contains;
 
                 if (veryVerbose) {
                     T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
@@ -2689,6 +2725,16 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 const bool EXP_A_E = 0 == OBJ_SPEC_LEN
                                    ? false
                                    : 'A' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
+                const bool EXP_0_C = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : std::find(OBJ_SPEC, 
+                                               OBJ_SPEC + OBJ_SPEC_LEN,
+                                               '0') != OBJ_SPEC + OBJ_SPEC_LEN;
+                const bool EXP_A_C = 0 == OBJ_SPEC_LEN
+                                   ? false
+                                   : std::find(OBJ_SPEC,
+                                               OBJ_SPEC + OBJ_SPEC_LEN,
+                                               'A') != OBJ_SPEC + OBJ_SPEC_LEN;
 
                 // Populating strings.
 
@@ -2723,6 +2769,9 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 ASSERTV(LINE, OBJ_SPEC, EXP_0_E,
                         EXP_0_E == X.ends_with(TYPE(0)));
                 ASSERTV(LINE, OBJ_SPEC, EXP_A_E, EXP_A_E == X.ends_with('A'));
+                ASSERTV(LINE, OBJ_SPEC, EXP_0_C,
+                        EXP_0_C == X.contains(TYPE(0)));
+                ASSERTV(LINE, OBJ_SPEC, EXP_A_C, EXP_A_C == X.contains('A'));
 
                 // Testing `string_view` overload.
 
@@ -2730,6 +2779,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                         EXP_S_RES == X.starts_with(SV));
                 ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
                         EXP_E_RES == X.ends_with(SV));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_C_RES,
+                        EXP_C_RES == X.contains(SV));
 
                 ASSERT(dam.isTotalSame());
             }
@@ -2748,33 +2799,36 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
 
                 bool        d_endsWith;    // expected result of the
                                            // `ends_with`
+
+                bool        d_contains;    // expected result of the
+                                           // `contains`
             } DATA[] = {
-                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
-                //----  -------- -------- ----------- ---------
-                { L_,   "0",     "",      true,       true     },
-                { L_,   "0",     "A",     false,      false    },
-                { L_,   "0",     "AA",    false,      false    },
-                { L_,   "0",     "AAA",   false,      false    },
+                //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH CONTAINS
+                //----  -------- -------- ----------- --------- --------
+                { L_,   "0",     "",      true,       true,     true     },
+                { L_,   "0",     "A",     false,      false,    false    },
+                { L_,   "0",     "AA",    false,      false,    false    },
+                { L_,   "0",     "AAA",   false,      false,    false    },
 
-                { L_,   "00",    "",      true,       true     },
-                { L_,   "00",    "A",     false,      false    },
-                { L_,   "00",    "AA",    false,      false    },
-                { L_,   "00",    "AAA",   false,      false    },
+                { L_,   "00",    "",      true,       true,     true     },
+                { L_,   "00",    "A",     false,      false,    false    },
+                { L_,   "00",    "AA",    false,      false,    false    },
+                { L_,   "00",    "AAA",   false,      false,    false    },
 
-                { L_,   "0A",    "",      true,       true     },
-                { L_,   "0A",    "A",     false,      true     },
-                { L_,   "0A",    "AA",    false,      false    },
-                { L_,   "0A",    "AAA",   false,      false    },
+                { L_,   "0A",    "",      true,       true,     true     },
+                { L_,   "0A",    "A",     false,      true,     true     },
+                { L_,   "0A",    "AA",    false,      false,    false    },
+                { L_,   "0A",    "AAA",   false,      false,    false    },
 
-                { L_,   "A0",    "",      true,       true     },
-                { L_,   "A0",    "A",     true,       false    },
-                { L_,   "A0",    "AA",    false,      false    },
-                { L_,   "A0",    "AAA",   false,      false    },
+                { L_,   "A0",    "",      true,       true,     true     },
+                { L_,   "A0",    "A",     true,       false,    true     },
+                { L_,   "A0",    "AA",    false,      false,    false    },
+                { L_,   "A0",    "AAA",   false,      false,    false    },
 
-                { L_,   "000",   "",      true,       true     },
-                { L_,   "000",   "A",     false,      false    },
-                { L_,   "000",   "AA",    false,      false    },
-                { L_,   "000",   "AAA",   false,      false    },
+                { L_,   "000",   "",      true,       true,     true     },
+                { L_,   "000",   "A",     false,      false,    false    },
+                { L_,   "000",   "AA",    false,      false,    false    },
+                { L_,   "000",   "AAA",   false,      false,    false    },
             };
 
             const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2787,6 +2841,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 const size_t  STR_SPEC_LEN = strlen(STR_SPEC);
                 const bool    EXP_S_RES    = DATA[i].d_startsWith;
                 const bool    EXP_E_RES    = DATA[i].d_endsWith;
+                const bool    EXP_C_RES    = DATA[i].d_contains;
 
                 if (veryVerbose) {
                     T_ T_ P_(ty) P_(LINE) P_(OBJ_SPEC) P(STR_SPEC);
@@ -2823,6 +2878,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                         EXP_S_RES == X.starts_with(C_STR));
                 ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_E_RES,
                         EXP_E_RES == X.ends_with(C_STR));
+                ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_C_RES,
+                        EXP_C_RES == X.contains(C_STR));
 
                 ASSERT(dam.isTotalSame());
             }

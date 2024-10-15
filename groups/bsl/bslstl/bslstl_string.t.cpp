@@ -296,6 +296,9 @@ using bsls::nameOfType;
 // [41] bool ends_with(basic_string_view characterString) const;
 // [41] bool ends_with(CHAR_TYPE character) const;
 // [41] bool ends_with(const CHAR_TYPE *characterString) const;
+// [41] bool contains(basic_string_view characterString) const;
+// [41] bool contains(CHAR_TYPE character) const;
+// [41] bool contains(const CHAR_TYPE *characterString) const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const string<C,CT,A>&, const string<C,CT,A>&);

@@ -724,6 +724,22 @@ class basic_string_view {
                 const CHAR_TYPE *other,
                 size_type        otherNumChars) const;
 
+    /// Return `true` if this view contains with the specified `subview`, and
+    /// `false` otherwise.  See {Lexicographical Comparisons}.
+    BSLS_KEYWORD_CONSTEXPR_CPP17
+    bool contains(basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if this view contains with the specified `character`,
+    /// and `false` otherwise.
+    BSLS_KEYWORD_CONSTEXPR
+    bool contains(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if this view contains with the specified
+    /// `characterString`, and `false` otherwise.
+    BSLS_KEYWORD_CONSTEXPR_CPP17
+    bool contains(const CHAR_TYPE* characterString)
+                                                   const BSLS_KEYWORD_NOEXCEPT;
+
     /// Return `true` if this view starts with the specified `subview`, and
     /// `false` otherwise.  See {Lexicographical Comparisons}.
     BSLS_KEYWORD_CONSTEXPR_CPP17
@@ -1903,6 +1919,34 @@ int basic_string_view<CHAR_TYPE, CHAR_TRAITS>::compare(
                              lhsNumChars,
                              other,
                              otherNumChars);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP17
+bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::contains(
+                         basic_string_view subview) const BSLS_KEYWORD_NOEXCEPT
+{
+    return npos != find(subview);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR
+bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::contains(
+                               CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT
+{
+    return npos != find(character);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP17
+bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::contains(
+                  const CHAR_TYPE* characterString) const BSLS_KEYWORD_NOEXCEPT
+{
+    BSLS_ASSERT_SAFE(characterString);
+    return npos != find(characterString);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS>

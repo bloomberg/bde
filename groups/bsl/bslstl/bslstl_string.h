@@ -2890,6 +2890,20 @@ class basic_string
     size_type find_last_not_of(CHAR_TYPE character,
                                size_type position = npos) const;
 
+    /// Return `true` if this view contains with the specified `subview`, and
+    /// `false` otherwise.  See {Lexicographical Comparisons}.
+    bool contains(basic_string_view<CHAR_TYPE, CHAR_TRAITS> subview)
+                                                   const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if this view contains with the specified `character`,
+    /// and `false` otherwise.
+    bool contains(CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return `true` if this view contains with the specified
+    /// `characterString`, and `false` otherwise.
+    bool contains(const CHAR_TYPE* characterString)
+                                                   const BSLS_KEYWORD_NOEXCEPT;
+
     /// Return `true` if the length of this string is equal to or greater
     /// than the length of the specified `characterString` and the first
     /// `characterString.length()` characters of this string are equal to
@@ -7126,6 +7140,33 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
 {
     return find_last_not_of(&character, position, size_type(1));
 }
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
+                             basic_string_view<CHAR_TYPE, CHAR_TRAITS> subview)
+                                                    const BSLS_KEYWORD_NOEXCEPT
+{
+    return npos != find(subview);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
+                               CHAR_TYPE character) const BSLS_KEYWORD_NOEXCEPT
+{
+    return npos != find(character);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
+                  const CHAR_TYPE* characterString) const BSLS_KEYWORD_NOEXCEPT
+{
+    BSLS_ASSERT_SAFE(characterString);
+    return npos != find(characterString);
+}
+
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE bool
