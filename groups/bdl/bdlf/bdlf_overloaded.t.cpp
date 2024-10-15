@@ -301,11 +301,13 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)            verbose;  // unused variable warning
     (void)        veryVerbose;  // unused variable warning
     (void)    veryVeryVerbose;  // unused variable warning
     (void)veryVeryVeryVerbose;  // unused variable warning
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    ASSERT(true);  // silence 'unused function' warning on C++11
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
