@@ -79,7 +79,16 @@ typedef signed bid__int64 BID_SINT64;
   // even for just 8 byte alignment.  We get 4 byte alignment for class types
   // out of the box.
   #define BID_ALIGN(n) __declspec(align(n))
-  #define BID_UINT128_ALIGN BID_ALIGN(16)
+  #if defined(_MSC_VER) && _MSC_VER < 2000
+    // Microsoft does not support 16-bytes alignment properly when optimized.
+    // We are setting only 8 byes until a new ABI comes out, in which case we
+    // will start to get crashes again when placing BID_UINT128 into a vector.
+    // See {DRQS 177003425 <GO>}.  If you change the value please change it on
+    // ABI-level only, meaning the low 2 digits should be 00.
+    #define BID_UINT128_ALIGN BID_ALIGN(8)
+  #else
+    #define BID_UINT128_ALIGN BID_ALIGN(16)
+  #endif
 #elif defined __clang__ || defined __GNUC__
 // Bloomberg LP:  The following alignment syntax is not supported by all other
 // (for example, Sun CC, IBM xlc), restricting it to gcc & clang.
