@@ -308,7 +308,7 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 
         typedef typename ALLOCATOR::size_type size_type;
 
-        // ```.
+        // ...
 // ```
 // Then, we define the `at` method, which is required to throw an
 // `out_of_range` exception.

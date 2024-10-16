@@ -109,7 +109,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         bslma::Allocator *getAllocator() const { return d_allocator; }
 
-        // ```.
+        // ...
     };
 
     } // close namespace my

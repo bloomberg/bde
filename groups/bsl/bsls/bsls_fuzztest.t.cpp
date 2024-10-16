@@ -313,7 +313,7 @@ void triggerAssertionInDifferentComponent()
             #ifndef BDE_ACTIVATE_FUZZ_TESTING                          // ADDED
             BSLS_PRECONDITIONS_END_IMP();                              // ADDED
             #endif                                                     // ADDED
-            // ```.
+            // ...
         }
     };
 // ```

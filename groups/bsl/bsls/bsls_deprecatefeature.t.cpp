@@ -144,12 +144,12 @@ class Date {
         BSLS_DEPRECATE_FEATURE("bde", "bdec_queue", "Use bsl::queue instead")
 //
 
-    /// ```.
+    /// ...
     class BDEC_QUEUE_DEPRECATE bdec_Queue {
     };
 //
 
-    /// ```.
+    /// ...
     class BDEC_QUEUE_DEPRECATE bdec_QueueIterator {
     };
 // ```
