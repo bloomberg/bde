@@ -1271,6 +1271,11 @@ void TestDriver::testCase7()
         const Obj S_NAN      = d128_limits::signaling_NaN();
         HashType  S_NAN_HASH = hasher(S_NAN);
 
+        // If you get a crash on one of the lines below in MSVC optimized code
+        // go to 'bid_functions.h' of the inteldfp library, search for
+        // `BID_UINT128_ALIGN` and change the value `_MSC_VER` is compared to,
+        // because it means that the issue of over-aligned types has not been
+        // fixed in the new ABI either.
         testData.push_back(TestDataPair(ZERO_P       , hasher(ZERO_P       )));
         testData.push_back(TestDataPair(MIN_P        , hasher(MIN_P        )));
         testData.push_back(TestDataPair(MAX_P        , hasher(MAX_P        )));
