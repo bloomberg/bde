@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
 //  };
 //
 //  struct MyNonTriviallyCopyableType {
-//      // ```.
+//      // ...
 //  };
 // ```
 // Then, since user-defined types cannot be automatically evaluated by
