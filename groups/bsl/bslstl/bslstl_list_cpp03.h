@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:09 2024
+// Generated on Wed Oct 16 12:44:09 2024
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -137,11 +137,11 @@ class List_Iterator {
     /// vice-versa.
     List_Iterator(const NcIter& other);                             // IMPLICIT
 
-    // Compiler-generated copy constructor, destructor, and copy-assignment
-    // operator:
-    //: o List_Iterator(const List_Iterator&); // Maybe defaulted (see above).
-    //: o ~List_Iterator() = default;
-    //: o List_Iterator& operator=(const List_Iterator&) = default;
+    /// Compiler-generated copy constructor, destructor, and copy-assignment
+    /// operator:
+    //! List_Iterator(const List_Iterator&); // Maybe defaulted (see above).
+    //! ~List_Iterator() = default;
+    //! List_Iterator& operator=(const List_Iterator&) = default;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
     /// Default compiler-generated destructor.
@@ -209,16 +209,16 @@ template <class T1, class T2>
 bool operator==(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return `true` if the specified `lhs` and `rhs` iterators do not have the
+/// same value, and `false` otherwise.  Two iterators do not have the same
+/// value unless both refer to the same element of the same list or unless
+/// both are the `end()` iterator of the same list.  The behavior is
+/// undefined unless both `lhs` and `rhs` refer to the same list.  Note that
+/// the different types `T1` and `T2` are to facilitate comparisons between
+/// `const` and non-`const` iterators and there will be a compilation error
+/// if `T1` and `T2` differ in any way other than `const`-ness.
 template <class T1, class T2>
 bool operator!=(List_Iterator<T1> lhs, List_Iterator<T2> rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do not have the
-    // same value, and 'false' otherwise.  Two iterators do not have the same
-    // value unless both refer to the same element of the same list or unless
-    // both are the 'end()' iterator of the same list.  The behavior is
-    // undefined unless both 'lhs' and 'rhs' refer to the same list.  Note that
-    // the different types 'T1' and 'T2' are to facilitate comparisons between
-    // 'const' and non-'const' iterators and there will be a compilation error
-    // if 'T1' and 'T2' differ in any way other than 'const'-ness.
 #endif
 
                          // ===========================
@@ -288,14 +288,14 @@ class List_AllocAndSizeWrapper : public allocator_traits<ALLOCATOR>::
 
     // MANIPULATORS
 
-    /// Return a reference providing modifiable access to the `size` field
-    /// of this object.
+    /// Return a reference providing modifiable access to the `size` field of
+    /// this object.
     size_type& size();
 
     // ACCESSORS
 
-    /// Return a reference providing non-modifiable access to the `size`
-    /// field of this object.
+    /// Return a reference providing non-modifiable access to the `size` field
+    /// of this object.
     const size_type& size() const;
 };
 
@@ -341,15 +341,14 @@ class List_NodeProctor {
   public:
     // CREATORS
 
-    /// Create a node proctor object that will use the specified list
-    /// `listPtr` to free the specified `nodePtr`.  The behavior is
-    /// undefined unless `nodePtr` was allocated by the allocator of
-    /// `*listPtr`.
+    /// Create a node proctor object that will use the specified list `listPtr`
+    /// to free the specified `nodePtr`.  The behavior is undefined unless
+    /// `nodePtr` was allocated by the allocator of `*listPtr`.
     List_NodeProctor(list<VALUE, ALLOCATOR> *listPtr, NodePtr nodePtr);
 
     /// Destroy this node proctor, and free the node it contains unless the
-    /// `release` method has been called before.  Note that the `d_value`
-    /// field of the node is not destroyed.
+    /// `release` method has been called before.  Note that the `d_value` field
+    /// of the node is not destroyed.
     ~List_NodeProctor();
 
     // MANIPULATORS
@@ -387,8 +386,8 @@ class list {
     /// Alias for the utility associated with movable references.
     typedef BloombergLP::bslmf::MovableRefUtil    MoveUtil;
 
-    /// Alias for the wrapper containing the (usually stateless) allocator
-    /// and number of elements stored in this container.
+    /// Alias for the wrapper containing the (usually stateless) allocator and
+    /// number of elements stored in this container.
     typedef List_AllocAndSizeWrapper<VALUE, ALLOCATOR>
                                                   AllocAndSizeWrapper;
 
@@ -428,48 +427,48 @@ class list {
 
     // PRIVATE MANIPULATORS
 
-    /// Return a reference providing modifiable access to the allocator used
-    /// to allocate nodes.
+    /// Return a reference providing modifiable access to the allocator used to
+    /// allocate nodes.
     NodeAlloc& allocatorImp();
 
     /// Return a pointer to a node allocated from the container's allocator.
-    /// Before returning, the node's pointers are zeroed, but the
-    /// constructor of the `value_type` is not called.
+    /// Before returning, the node's pointers are zeroed, but the constructor
+    /// of the `value_type` is not called.
     NodePtr allocateNode();
 
-    /// Create the sentinel node of this list.  The sentinel node does not
-    /// hold a value.  When first created, its forward and backward pointers
-    /// point to itself, creating a circular linked list.  This function
-    /// also sets this list's size to 0.
+    /// Create the sentinel node of this list.  The sentinel node does not hold
+    /// a value.  When first created, its forward and backward pointers point
+    /// to itself, creating a circular linked list.  This function also sets
+    /// this list's size to 0.
     void createSentinel();
 
     /// Destroy the value part of the specified `node` and free the node's
-    /// memory.  Do not do any pointer fix-up of the node or its neighbors,
-    /// and do not update `sizeRef`.  The behavior is undefined unless
-    /// `node` was allocated using the allocator of this list.
+    /// memory.  Do not do any pointer fix-up of the node or its neighbors, and
+    /// do not update `sizeRef`.  The behavior is undefined unless `node` was
+    /// allocated using the allocator of this list.
     void deleteNode(NodePtr node);
 
-    /// Erase all elements and deallocate the sentinel node, leaving this
-    /// list in an invalid but destructible state (i.e., with `size == -1`).
+    /// Erase all elements and deallocate the sentinel node, leaving this list
+    /// in an invalid but destructible state (i.e., with `size == -1`).
     void destroyAll();
 
     /// Zero out the pointers and deallocate the node pointed to by the
     /// specified `node`.  The behavior is undefined unless `node` was
-    /// allocated using the allocator of this list.  Note that `node`s
-    /// destructor is not called, and, importantly, the value field of
-    /// `node` is not destroyed.
+    /// allocated using the allocator of this list.  Note that node's
+    /// destructor is not called, and, importantly, the value field of `node`
+    /// is not destroyed.
     void freeNode(NodePtr node);
 
-    /// Insert the specified `node` prior to the specified `position` in
-    /// this list.  The behavior is undefined unless `node` was allocated
-    /// using the allocator of this list and `position` is in the range
+    /// Insert the specified `node` prior to the specified `position` in this
+    /// list.  The behavior is undefined unless `node` was allocated using the
+    /// allocator of this list and `position` is in the range
     /// `[begin() .. end()]`.
     iterator insertNode(const_iterator position, NodePtr node);
 
     /// Modify the forward pointer of the specified `prev` to point to the
-    /// specified `next` and the backward pointer of `next` to point to
-    /// `prev`.  The behavior is undefined unless `prev` and `next` point to
-    /// nodes created with `allocateNode`.
+    /// specified `next` and the backward pointer of `next` to point to `prev`.
+    /// The behavior is undefined unless `prev` and `next` point to nodes
+    /// created with `allocateNode`.
     void linkNodes(NodePtr prev, NodePtr next);
 
     /// Given a specified pair of nodes `node1` and `finish` specifying the
@@ -664,20 +663,20 @@ class list {
          const typename type_identity<ALLOCATOR>::type& basicAllocator);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create a list and append each `value_type` object in the specified
+    /// `values` initializer list.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// (the default), then `basicAllocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  This method requires that the
+    /// (template parameter) `VALUE` be `copy-insertable` into this list
+    /// (see {Requirements on `VALUE`}).
     list(std::initializer_list<value_type> values,
          const ALLOCATOR&                  basicAllocator = ALLOCATOR());
                                                                     // IMPLICIT
-        // Create a list and append each 'value_type' object in the specified
-        // 'values' initializer list.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // (the default), then 'basicAllocator', if supplied, shall be
-        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  This method requires that the
-        // (template parameter) 'VALUE' be 'copy-insertable' into this list
-        // (see {Requirements on 'VALUE'}).
 #endif
 
     /// Destroy this list by calling the destructor for each element and
@@ -700,22 +699,22 @@ class list {
     /// be copy-inserted or erased.
     list& operator=(const list& rhs);
 
+    /// Assign to this object the value of the specified `rhs` object,
+    /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
+    /// type has trait `propagate_on_container_move_assignment`, and return
+    /// a reference providing modifiable access to this object.  The
+    /// contents of `rhs` are moved (in constant time) to this list if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this list are
+    /// either destroyed or move-assigned to and each additional element in
+    /// `rhs` is move-inserted into this list.  `rhs` is left in a valid but
+    /// unspecified state, and if an exception is thrown, `*this` is left in
+    /// a valid but unspecified state.  This method requires that the
+    /// (template parameter) type `VALUE` be `move-assignable` and
+    /// `move-insertable` into this list (see {Requirements on `VALUE`}).
     list& operator=(BloombergLP::bslmf::MovableRef<list> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                           AllocTraits::is_always_equal::value);
-        // Assign to this object the value of the specified 'rhs' object,
-        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_move_assignment', and return
-        // a reference providing modifiable access to this object.  The
-        // contents of 'rhs' are moved (in constant time) to this list if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this list are
-        // either destroyed or move-assigned to and each additional element in
-        // 'rhs' is move-inserted into this list.  'rhs' is left in a valid but
-        // unspecified state, and if an exception is thrown, '*this' is left in
-        // a valid but unspecified state.  This method requires that the
-        // (template parameter) type 'VALUE' be 'move-assignable' and
-        // 'move-insertable' into this list (see {Requirements on 'VALUE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this list, in order, the sequence of values in the
@@ -1539,20 +1538,19 @@ class list {
     /// Reverse the order of the elements in this list.
     void reverse() BSLS_KEYWORD_NOEXCEPT;
 
-    /// Sort this list in non-decreasing order according to the order
-    /// provided by `operator<`.  `operator<` must provide a strict weak
-    /// ordering over `value_type` (see {Comparators and Strict Weak
-    /// Ordering}).  The sort is stable, meaning that if
-    /// `!(a < b) && !(b < a)`, then the ordering of elements `a` and `b` in
-    /// the sequence is preserved.
+    /// Sort this list in non-decreasing order according to the order provided
+    /// by `operator<`.  `operator<` must provide a strict weak ordering over
+    /// `value_type` (see [](#Comparators and Strict Weak Ordering)).  The sort is
+    /// stable, meaning that if `!(a < b) && !(b < a)`, then the ordering of
+    /// elements `a` and `b` in the sequence is preserved.
     void sort();
 
-    /// Sort this list in non-decreasing order according to the order
-    /// provided by the specified `comparator` predicate.  `comparator` must
-    /// define a strict weak ordering over `value_type` (see {Comparators
-    /// and Strict Weak Ordering}).  The sort is stable, meaning that if
-    /// `!comparator(a, b) && !comparator(b, a)`, then the ordering of
-    /// elements `a` and `b` in the sequence is preserved.
+    /// Sort this list in non-decreasing order according to the order provided
+    /// by the specified `comparator` predicate.  `comparator` must define a
+    /// strict weak ordering over `value_type` (see
+    /// [](#Comparators and Strict Weak Ordering)).  The sort is stable,
+    /// meaning that if `!comparator(a, b) && !comparator(b, a)`, then the
+    /// ordering of elements `a` and `b` in the sequence is preserved.
     template <class COMPARE>
     void sort(COMPARE comparator);
 
@@ -1612,22 +1610,21 @@ class list {
 
                               // *** misc ***
 
+    /// Exchange the value of this object with that of the specified `other`
+    /// object; also exchange the allocator of this object with that of `other`
+    /// if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either allocator
+    /// otherwise.  This method provides the no-throw exception-safety
+    /// guarantee.  This operation has `O[1]` complexity if either this object
+    /// was created with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+    /// complexity, where `n` and `m` are the number of elements in this object
+    /// and `other`, respectively.  Note that this method`s support for
+    /// swapping objects created with different allocators when `ALLOCATOR`
+    /// does not have the `propagate_on_container_swap` trait is a departure
+    /// from the C++ Standard.
     void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                           AllocTraits::is_always_equal::value);
-        // Exchange the value of this object with that of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee.  This operation has 'O[1]' complexity if
-        // either this object was created with the same allocator as 'other' or
-        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
-        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-        // elements in this object and 'other', respectively.  Note that this
-        // method's support for swapping objects created with different
-        // allocators when 'ALLOCATOR' does not have the
-        // 'propagate_on_container_swap' trait is a departure from the
-        // C++ Standard.
 
     // ACCESSORS
 
@@ -1637,8 +1634,7 @@ class list {
 
     /// Return an iterator providing non-modifiable access to the first
     /// `value_type` object in the ordered sequence of `value_type` objects
-    /// maintained by this list, or the `end` iterator if this list is
-    /// empty.
+    /// maintained by this list, or the `end` iterator if this list is empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
 
     const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
@@ -1649,9 +1645,9 @@ class list {
 
     const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return a reverse iterator providing non-modifiable access to the
-    /// last element in this list, and the past-the-end reverse iterator if
-    /// this list is empty.
+    /// Return a reverse iterator providing non-modifiable access to the last
+    /// element in this list, and the past-the-end reverse iterator if this
+    /// list is empty.
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
 
     const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
@@ -1665,11 +1661,10 @@ class list {
     /// Return `true` if this list has no elements, and `false` otherwise.
     bool empty() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return an upper bound on the largest number of elements that this
-    /// list could possibly hold.  Note that the return value of this
-    /// function does not guarantee that this list can successfully grow
-    /// that large, or even close to that large without running out of
-    /// resources.
+    /// Return an upper bound on the largest number of elements that this list
+    /// could possibly hold.  Note that the return value of this function does
+    /// not guarantee that this list can successfully grow that large, or even
+    /// close to that large without running out of resources.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
 
     /// Return the number of elements in this list.
@@ -1677,20 +1672,19 @@ class list {
 
                            // *** element access ***
 
-    /// Return a reference providing non-modifiable access to the last
-    /// element of this list.  The behavior is undefined unless this list
-    /// contains at least one element.
+    /// Return a reference providing non-modifiable access to the last element
+    /// of this list.  The behavior is undefined unless this list contains at
+    /// least one element.
     const_reference back() const;
 
-    /// Return a reference providing non-modifiable access to the first
-    /// element of this list.  The behavior is undefined unless this list
-    /// contains at least one element.
+    /// Return a reference providing non-modifiable access to the first element
+    /// of this list.  The behavior is undefined unless this list contains at
+    /// least one element.
     const_reference front() const;
 
                                 // *** misc ***
 
-    /// Return a copy of the allocator used for memory allocation by this
-    /// list.
+    /// Return a copy of the allocator used for memory allocation by this list.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
 };
 
@@ -1781,17 +1775,17 @@ bool operator==(const list<VALUE, ALLOCATOR>& lhs,
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `list` objects `lhs` and `rhs`
+/// do not have the same value if they do not have the same number of
+/// elements, or some element in the ordered sequence of elements of `lhs`
+/// does not have the same value as the corresponding element in the ordered
+/// sequence of elements of `rhs`.  This method requires that the
+/// (template parameter) type `VALUE` be `equality-comparable` (see
+/// {Requirements on `VALUE`}).
 template <class VALUE, class ALLOCATOR>
 bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'list' objects 'lhs' and 'rhs'
-    // do not have the same value if they do not have the same number of
-    // elements, or some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.  This method requires that the
-    // (template parameter) type 'VALUE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE'}).
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
@@ -1807,53 +1801,51 @@ BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE> operator<=>(
 
 #else
 
+/// Return `true` if the value of the specified `lhs` list is lexicographically
+/// less than that of the specified `rhs` list, and `false` otherwise.  Given
+/// iterators `i` and `j` over the respective sequences `[lhs.begin() ..
+/// lhs.end())` and `[rhs.begin() .. rhs.end())`, the value of list `lhs` is
+/// lexicographically less than that of list `rhs` if `true == *i < *j` for the
+/// first pair of corresponding iterator positions where `*i < *j` and `*j <
+/// *i` are not both `false`.  If no such corresponding iterator position
+/// exists, the value of `lhs` is lexicographically less than that of `rhs` if
+/// `lhs.size() < rhs.size()`.  This method requires that `operator<`, inducing
+/// a total order, be defined for `value_type`.
 template <class VALUE, class ALLOCATOR>
 bool operator< (const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' list is
-    // lexicographically less than that of the specified 'rhs' list, and
-    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
-    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
-    // the value of list 'lhs' is lexicographically less than that of list
-    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
-    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
-    // such corresponding iterator position exists, the value of 'lhs' is
-    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.
 
+/// Return `true` if the value of the specified `lhs` list is lexicographically
+/// greater than that of the specified `rhs` list, and `false` otherwise.  The
+/// value of list `lhs` is lexicographically greater than that of list `rhs` if
+/// `rhs` is lexicographically less than `lhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `rhs < lhs`.
 template <class VALUE, class ALLOCATOR>
 bool operator> (const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' list is
-    // lexicographically greater than that of the specified 'rhs' list, and
-    // 'false' otherwise.  The value of list 'lhs' is lexicographically greater
-    // than that of list 'rhs' if 'rhs' is lexicographically less than 'lhs'
-    // (see 'operator<').  This method requires that 'operator<', inducing a
-    // total order, be defined for 'value_type'.  Note that this operator
-    // returns 'rhs < lhs'.
 
+/// Return `true` if the value of the specified `lhs` list is lexicographically
+/// less than or equal to that of the specified `rhs` list, and `false`
+/// otherwise.  The value of list `lhs` is lexicographically less than or equal
+/// to that of list `rhs` if `rhs` is not lexicographically less than `lhs`
+/// (see `operator<`).  This method requires that `operator<`, inducing a total
+/// order, be defined for `value_type`.  Note that this operator returns `!(rhs
+/// < lhs)`.
 template <class VALUE, class ALLOCATOR>
 bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' list is
-    // lexicographically less than or equal to that of the specified 'rhs'
-    // list, and 'false' otherwise.  The value of list 'lhs' is
-    // lexicographically less than or equal to that of list 'rhs' if 'rhs' is
-    // not lexicographically less than 'lhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the value of the specified `lhs` list is lexicographically
+/// greater than or equal to that of the specified `rhs` list, and `false`
+/// otherwise.  The value of list `lhs` is lexicographically greater than or
+/// equal to that of list `rhs` if `lhs` is not lexicographically less than
+/// `rhs` (see `operator<`).  This method requires that `operator<`, inducing a
+/// total order, be defined for `value_type`.  Note that this operator returns
+/// `!(lhs < rhs)`.
 template <class VALUE, class ALLOCATOR>
 bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' list is
-    // lexicographically greater than or equal to that of the specified 'rhs'
-    // list, and 'false' otherwise.  The value of list 'lhs' is
-    // lexicographically greater than or equal to that of list 'rhs' if 'lhs'
-    // is not lexicographically less than 'rhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
@@ -1871,23 +1863,22 @@ template <class VALUE, class ALLOCATOR, class PREDICATE>
 typename list<VALUE, ALLOCATOR>::size_type
 erase_if(list<VALUE, ALLOCATOR>& l, PREDICATE predicate);
 
+/// Exchange the value of the specified `a` object with that of the specified
+/// `b` object; also exchange the allocator of `a` with that of `b` if the
+/// (template parameter) type `ALLOCATOR` has the `propagate_on_container_swap`
+/// trait, and do not modify either allocator otherwise.  This function
+/// provides the no-throw exception-safety guarantee.  This operation has
+/// `O[1]` complexity if either `a` was created with the same allocator as `b`
+/// or `ALLOCATOR` has the `propagate_on_container_swap` trait; otherwise, it
+/// has `O[n + m]` complexity, where `n` and `m` are the number of elements in
+/// `a` and `b`, respectively.  Note that this function`s support for swapping
+/// objects created with different allocators when `ALLOCATOR` does not have
+/// the `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                                                    a.swap(b)));
-    // Exchange the value of the specified 'a' object with that of the
-    // specified 'b' object; also exchange the allocator of 'a' with that of
-    // 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
-    // created with the same allocator as 'b' or 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
-    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
-    // respectively.  Note that this function's support for swapping objects
-    // created with different allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
 // ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
@@ -2186,11 +2177,11 @@ list<VALUE, ALLOCATOR>::mergeImp(NodePtr node1,
 
     // Having the two sublists be contiguous parts of the same list has the
     // following advantages:
-    //: 1 When we reach the end of a sublist, there is no "finalization" step
-    //:   where the end of the remaining sublist must be spliced onto the
-    //:   merged list.
-    //: 2 No cleanup needed if an exception is thrown; the size and validity of
-    //:   the resulting list needs no adjustment.
+    // 1. When we reach the end of a sublist, there is no "finalization" step
+    //    where the end of the remaining sublist must be spliced onto the
+    //    merged list.
+    // 2. No cleanup needed if an exception is thrown; the size and validity of
+    //    the resulting list needs no adjustment.
 
     while (node1 != node2 && node2 != finish) {
         // Loop invariants:

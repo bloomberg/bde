@@ -389,11 +389,11 @@ struct variant_alternative<t_INDEX, variant<t_HEAD, t_TAIL...> >
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+/// `variant_alternative_t` is an alias to the return type of the
+/// `variant_alternative` metafunction.
 template <size_t t_INDEX, class t_TYPE>
 using variant_alternative_t =
     typename variant_alternative<t_INDEX, t_TYPE>::type;
-// 'variant_alternative_t' is an alias to the return type of the
-// 'variant_alternative' metafunction.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // FREE FUNCTIONS
@@ -496,15 +496,15 @@ typename add_pointer<const t_TYPE>::type get_if(
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
 // See 'bslstl_variant.cpp' for implementation notes regarding 'bsl::get'.
+
+/// This component-private metafunction computes the return types for
+/// `bsl::get<t_INDEX>` and `bsl::get_if<t_INDEX>` with an argument of type
+/// `t_ARG` or `t_ARG*`, respectively, where `t_VARIANT` is `t_ARG` with
+/// cvref-qualifiers stripped, and shall be a specialization of `bsl::variant`.
+/// `t_VALID` shall be `true` if and only if `t_INDEX` is a valid index for
+/// `t_VARIANT`.  If `t_VALID` is `false`, no member typedefs are provided.
 template <bool t_VALID, size_t t_INDEX, class t_ARG, class t_VARIANT>
 struct Variant_GetIndexReturnTypeImpl {
-    // This component-private metafunction computes the return types for
-    // 'bsl::get<t_INDEX>' and 'bsl::get_if<t_INDEX>' with an argument of type
-    // 't_ARG' or 't_ARG*', respectively, where 't_VARIANT' is 't_ARG' with
-    // cvref-qualifiers stripped, and shall be a specialization of
-    // 'bsl::variant'.  't_VALID' shall be 'true' if and only if 't_INDEX' is a
-    // valid index for 't_VARIANT'.  If 't_VALID' is 'false', no member
-    // typedefs are provided.
 };
 
 template <size_t t_INDEX, class t_VARIANT>
@@ -538,17 +538,17 @@ struct Variant_GetIndexReturnTypeImpl<
         type;
 };
 
+/// This component-private metafunction computes the return types for
+/// `bsl::get<t_INDEX>` and `bsl::get_if<t_INDEX>` with an argument of type
+/// `t_ARG` or `t_ARG*` respectively.  If `t_ARG` is not a (possibly
+/// cvref-qualified) `bsl::variant`, no definition is provided.  If `t_INDEX`
+/// is not a valid index for `t_ARG`, the member typedefs `type` and `pointer`
+/// are not provided.
 template <size_t t_INDEX,
           class  t_ARG,
           class  t_VARIANT = typename BloombergLP::bslmf::MovableRefUtil::
               Decay<t_ARG>::type>
 struct Variant_GetIndexReturnType;
-    // This component-private metafunction computes the return types for
-    // 'bsl::get<t_INDEX>' and 'bsl::get_if<t_INDEX>' with an argument of type
-    // 't_ARG' or 't_ARG*' respectively.  If 't_ARG' is not a (possibly
-    // cvref-qualified) 'bsl::variant', no definition is provided.  If
-    // 't_INDEX' is not a valid index for 't_ARG', the member typedefs 'type'
-    // and 'pointer' are not provided.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <size_t t_INDEX, class t_ARG, class t_HEAD, class... t_TAIL>
@@ -561,25 +561,30 @@ struct Variant_GetIndexReturnType<t_INDEX,
                                  bsl::variant<t_HEAD, t_TAIL...> > {
 };
 
+/// This component-private metafunction is defined only when `t_HEAD` is a
+/// specialization of `bsl::variant` and `t_TAIL` is empty, in which case it
+/// provides member typedefs corresponding to `t_TYPE`.  Naming these member
+/// typedefs results in a substitution failure when this metafunction is not
+/// defined.
 template <class t_TYPE, class t_HEAD, class... t_TAIL>
 struct Variant_GetTypeReturnType;
-    // This component-private metafunction is defined only when 't_HEAD' is a
-    // specialization of 'bsl::variant' and 't_TAIL' is empty, in which case it
-    // provides member typedefs corresponding to 't_TYPE'.  Naming these member
-    // typedefs results in a substitution failure when this metafunction is not
-    // defined.
 
+/// This partial specialization provides member typedefs that are used to
+/// declare the `get` and `get_if` function templates in C++03 as non-variadic
+/// function templates that are constrained to accept only references or
+/// pointers to `bsl::variant`.
 template <class t_TYPE, class t_HEAD, class... t_TAIL>
 struct Variant_GetTypeReturnType<t_TYPE, bsl::variant<t_HEAD, t_TAIL...> > {
-    // This partial specialization provides member typedefs that are used to
-    // declare the 'get' and 'get_if' function templates in C++03 as
-    // non-variadic function templates that are constrained to accept only
-    // references or pointers to 'bsl::variant'.
     typedef t_TYPE                             type;
     typedef typename add_pointer<t_TYPE>::type pointer;
 };
 #endif
 
+/// Return a reference to the alternative object at index (template parameter)
+/// `t_INDEX` in the specified `obj`.  If `t_INDEX` is not the index of the
+/// currently active alternative, throw an exception of type
+/// `bad_variant_access`.  `t_INDEX` shall be a valid index for the variant
+/// type of `obj`.  Note that `t_VARIANT` may be const-qualified.
 template <size_t t_INDEX, class t_VARIANT>
 typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::type
 get(t_VARIANT&                                obj);
@@ -588,12 +593,12 @@ typename Variant_GetIndexReturnType<
     t_INDEX,
     BloombergLP::bslmf::MovableRef<t_VARIANT> >::type
 get(BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
-    // Return a reference to the alternative object at index (template
-    // parameter) 't_INDEX' in the specified 'obj'.  If 't_INDEX' is not the
-    // index of the currently active alternative, throw an exception of type
-    // 'bad_variant_access'.  't_INDEX' shall be a valid index for the variant
-    // type of 'obj'.  Note that 't_VARIANT' may be const-qualified.
 
+/// Return a reference to the alternative object with type (template parameter)
+/// `t_TYPE` in the specified `obj`.  If `t_TYPE` is not the type of the
+/// currently active alternative, throw an exception of type
+/// `bad_variant_access`.  `t_TYPE` shall appear exactly once in the variant`s
+/// list of alternatives.
 template <class t_TYPE, class t_VARIANT>
 typename Variant_GetTypeReturnType<t_TYPE&, t_VARIANT>::type get(
                                 t_VARIANT&                                obj);
@@ -604,32 +609,27 @@ template <class t_TYPE, class t_VARIANT>
 typename Variant_GetTypeReturnType<BloombergLP::bslmf::MovableRef<t_TYPE>,
                                    t_VARIANT>::type get(
                                 BloombergLP::bslmf::MovableRef<t_VARIANT> obj);
-    // Return a reference to the alternative object with type (template
-    // parameter) 't_TYPE' in the specified 'obj'.  If 't_TYPE' is not the type
-    // of the currently active alternative, throw an exception of type
-    // 'bad_variant_access'.  't_TYPE' shall appear exactly once in the
-    // variant's list of alternatives.
 
+// Return a pointer to the alternative object with index (template parameter)
+// `t_INDEX` in the specified `obj`, or a null pointer if `obj` itself is a
+// null pointer or if `t_INDEX` is not the index of the currently active
+// alternative.  `t_INDEX` shall be a valid alternative index.  Note that
+// `t_VARIANT` may be const-qualified.
 template <size_t t_INDEX, class t_VARIANT>
 typename Variant_GetIndexReturnType<t_INDEX, t_VARIANT>::pointer
 get_if(t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
-    // Return a pointer to the alternative object with index (template
-    // parameter) 't_INDEX' in the specified 'obj', or a null pointer if 'obj'
-    // itself is a null pointer or if 't_INDEX' is not the index of the
-    // currently active alternative.  't_INDEX' shall be a valid alternative
-    // index.  Note that 't_VARIANT' may be const-qualified.
 
+/// Return a pointer to the alternative object with type (template parameter)
+/// `t_TYPE` in the specified `obj`, or a null pointer if `obj` itself is a
+/// null pointer or if `t_TYPE` is not the type of the currently active
+/// alternative.  `t_TYPE` shall appear exactly once in the variant`s list of
+/// alternatives.
 template <class t_TYPE, class t_VARIANT>
 typename Variant_GetTypeReturnType<t_TYPE, t_VARIANT>::pointer get_if(
                                          t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
 template <class t_TYPE, class t_VARIANT>
 typename Variant_GetTypeReturnType<const t_TYPE, t_VARIANT>::pointer get_if(
                                    const t_VARIANT *obj) BSLS_KEYWORD_NOEXCEPT;
-    // Return a pointer to the alternative object with type (template
-    // parameter) 't_TYPE' in the specified 'obj', or a null pointer if 'obj'
-    // itself is a null pointer or if 't_TYPE' is not the type of the currently
-    // active alternative.  't_TYPE' shall appear exactly once in the variant's
-    // list of alternatives.
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 // FREE OPERATORS
 
@@ -792,18 +792,18 @@ template <class t_LHS, class t_RHS>
 struct Variant_IsAssignable : std::is_assignable<t_LHS, t_RHS> {
 };
 #else
+/// This component-private metafunction derives from
+/// `std::is_constructible<t_TO, t_FROM>` in C++11 and later, and
+/// `bsl::true_type` in C++03.
 template <class t_TO, class t_FROM>
 struct Variant_IsConstructible : bsl::true_type {
-    // This component-private metafunction derives from
-    // 'std::is_constructible<t_TO, t_FROM>' in C++11 and later, and
-    // 'bsl::true_type' in C++03.
 };
 
+// This component-private metafunction derives from
+// `std::is_assignable<t_LHS, t_RHS>` in C++11 and later, and
+// `bsl::true_type` in C++03.
 template <class t_LHS, class t_RHS>
 struct Variant_IsAssignable : bsl::true_type {
-    // This component-private metafunction derives from
-    // 'std::is_assignable<t_LHS, t_RHS>' in C++11 and later, and
-    // 'bsl::true_type' in C++03.
 };
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
@@ -1109,44 +1109,47 @@ struct Variant_ImpUtil {
 #else
     // Lack of perfect forwarding in C++03 means overload set must be
     // different.
+
+    /// Invoke the specified `visitor` on the active alternative of the
+    /// specified `variant`, implicitly converting the return type to the
+    /// explicitly specified (template parameter) `t_RET`.  The behavior is
+    /// undefined if `variant` does not hold a value.  This function does
+    /// not require friend access to `Variant` and has been added to
+    /// `Variant_ImpUtil` for the purposes of avoiding free functions.
     template <class t_RET, class t_VISITOR, class t_VARIANT>
     static t_RET visit(t_VISITOR& visitor, t_VARIANT& variant);
     template <class t_RET, class t_VISITOR, class t_VARIANT>
     static t_RET visit(t_VISITOR& visitor, const t_VARIANT& variant);
-        // Invoke the specified 'visitor' on the active alternative of the
-        // specified 'variant', implicitly converting the return type to the
-        // explicitly specified (template parameter) 't_RET'.  The behavior is
-        // undefined if 'variant' does not hold a value.  This function does
-        // not require friend access to 'Variant' and has been added to
-        // 'Variant_ImpUtil' for the purposes of avoiding free functions.
 
+    /// Invoke the specified `visitor` on a `bslmf::MovableRef` referring to
+    /// the active alternative of the specified `variant`, implicitly
+    /// converting the return type to the explicitly specified (template
+    /// parameter) `t_RET`.  The behavior is undefined if `variant` does not
+    /// hold a value.  This function does not require friend access to
+    /// `Variant` and has been added to `Variant_ImpUtil` for the purposes
+    /// of avoiding free functions.
     template <class t_RET, class t_VISITOR, class t_VARIANT>
     static t_RET moveVisit(t_VISITOR& visitor, t_VARIANT& variant);
-        // Invoke the specified 'visitor' on a 'bslmf::MovableRef' referring to
-        // the active alternative of the specified 'variant', implicitly
-        // converting the return type to the explicitly specified (template
-        // parameter) 't_RET'.  The behavior is undefined if 'variant' does not
-        // hold a value.  This function does not require friend access to
-        // 'Variant' and has been added to 'Variant_ImpUtil' for the purposes
-        // of avoiding free functions.
 
+    /// Invoke the specified `visitor` with a
+    /// `bsl::in_place_index_t<t_INDEX>` tag (where `t_INDEX` is the index
+    /// of the first alternative that has the same type as the active
+    /// alternative of the specified `variant`) and the active alternative
+    /// of `variant`, implicitly converting the return type to the
+    /// explicitly specified (template parameter) `t_RET`.  The behavior is
+    /// undefined if `variant` does not hold a value.  This function does
+    /// not require friend access to `Variant` and has been added to
+    /// `Variant_ImpUtil` for the purposes of avoiding free functions.
     template <class t_RET, class t_VISITOR, class t_VARIANT>
     static t_RET visitId(t_VISITOR& visitor, t_VARIANT& variant);
     template <class t_RET, class t_VISITOR, class t_VARIANT>
     static t_RET visitId(t_VISITOR& visitor, const t_VARIANT& variant);
-        // Invoke the specified 'visitor' with a
-        // 'bsl::in_place_index_t<t_INDEX>' tag (where 't_INDEX' is the index
-        // of the first alternative that has the same type as the active
-        // alternative of the specified 'variant') and the active alternative
-        // of 'variant', implicitly converting the return type to the
-        // explicitly specified (template parameter) 't_RET'.  The behavior is
-        // undefined if 'variant' does not hold a value.  This function does
-        // not require friend access to 'Variant' and has been added to
-        // 'Variant_ImpUtil' for the purposes of avoiding free functions.
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
 #ifndef BSL_VARIANT_FULL_IMPLEMENTATION
+    // Implementation notes
+    // --------------------
     // In C++03, the internal visitation dispatch must call a type-based (not
     // index-based) getter.  This internal type-based getter will always be
     // passed the type of the currently active alternative, so there is no need
@@ -1156,28 +1159,28 @@ struct Variant_ImpUtil {
     // problem, we implement an unsafe type-based getter that is used only for
     // internal visitation.
 
+    /// Return a reference to type (template parameter) 't_RET' to the
+    /// alternative at (template parameter) 't_INDEX' in the specified
+    /// 'variant', regardless of whether that is the active alternative.
+    /// The behavior is undefined unless the active alternative of 'variant'
+    /// has the same type as the alternative with index 't_INDEX'.  Note
+    /// that the return type must be explicitly specified.
     template <class t_RET, size_t t_INDEX, class t_VARIANT>
     static t_RET& unsafeGet(t_VARIANT& variant);
     template <class t_RET, size_t t_INDEX, class t_VARIANT>
     static t_RET& unsafeGet(const t_VARIANT& variant);
-        // Return a reference to type (template parameter) 't_RET' to the
-        // alternative at (template parameter) 't_INDEX' in the specified
-        // 'variant', regardless of whether that is the active alternative.
-        // The behavior is undefined unless the active alternative of 'variant'
-        // has the same type as the alternative with index 't_INDEX'.  Note
-        // that the return type must be explicitly specified.
 
+    /// Return a reference to const-qualified (template parameter) `t_TYPE`
+    /// to the first alternative of the specified `obj` that has type
+    /// `t_TYPE`, regardless of whether that is the active alternative.  The
+    /// behavior is undefined unless the active alternative of `variant` is
+    /// of type `t_TYPE`.  This function does not require friend access to
+    /// `Variant` and has been added to `Variant_ImpUtil` for the purposes
+    /// of avoiding free functions.
     template <class t_TYPE, class t_VARIANT>
     static t_TYPE& unsafeGet(t_VARIANT& obj);
     template <class t_TYPE, class t_VARIANT>
     static const t_TYPE& unsafeGet(const t_VARIANT& obj);
-        // Return a reference to const-qualified (template parameter) 't_TYPE'
-        // to the first alternative of the specified 'obj' that has type
-        // 't_TYPE', regardless of whether that is the active alternative.  The
-        // behavior is undefined unless the active alternative of 'variant' is
-        // of type 't_TYPE'.  This function does not require friend access to
-        // 'Variant' and has been added to 'Variant_ImpUtil' for the purposes
-        // of avoiding free functions.
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
@@ -1410,23 +1413,23 @@ struct Variant_ConvertIndex
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+/// This component-private metafunction computes `t_INDEX + i`, where `i` is
+/// the zero-based index of the first occurrence of (template parameter)
+/// `t_TYPE` in (template parameters) `t_HEAD, t_TAIL...`, or
+/// `bsl::variant_npos` if not found.  An alternative is considered to match
+/// `t_TYPE` if the two types are the same modulo cv-qualification.  This
+/// metafunction is used to implement `Variant_ConvertIndex`.
 template <size_t t_INDEX,
           class t_TYPE,
           class t_HEAD = BSLSTL_VARIANT_NOT_A_TYPE,
           class... t_TAIL>
 struct Variant_ConvertToIndexImpl;
-    // This component-private metafunction computes 't_INDEX + i', where 'i' is
-    // the zero-based index of the first occurrence of (template parameter)
-    // 't_TYPE' in (template parameters) 't_HEAD, t_TAIL...', or
-    // 'bsl::variant_npos' if not found.  An alternative is considered to match
-    // 't_TYPE' if the two types are the same modulo cv-qualification.  This
-    // metafunction is used to implement 'Variant_ConvertIndex'.
 
+/// Specialization for the case when t_ARGS is empty, i.e. the type wasn't
+/// found in the given list of template type arguments.
 template <size_t t_INDEX, class t_TYPE>
 struct Variant_ConvertToIndexImpl<t_INDEX, t_TYPE, BSLSTL_VARIANT_NOT_A_TYPE>
 : bsl::integral_constant<size_t, bsl::variant_npos> {
-    // Specialization for the case when t_ARGS is empty, i.e. the type wasn't
-    // found in the given list of template type arguments.
 };
 template <size_t t_INDEX, class t_TYPE, class t_HEAD, class... t_TAIL>
 struct Variant_ConvertToIndexImpl<t_INDEX, t_TYPE, t_HEAD, t_TAIL...>
@@ -1437,19 +1440,19 @@ struct Variant_ConvertToIndexImpl<t_INDEX, t_TYPE, t_HEAD, t_TAIL...>
       Variant_ConvertToIndexImpl<t_INDEX + 1, t_TYPE, t_TAIL...> >::type {
 };
 
+/// This component-private metafunction computes the zero-based index of the
+/// first occurrence of (template parameter) `t_TYPE` in the list of
+/// alternatives of (template parameter) `t_VARIANT`, or `bsl::variant_npos`
+/// if not found.  An alternative is considered to match `t_TYPE` if the two
+/// types are the same modulo cv-qualification.  The primary template (used
+/// when `t_VARIANT` is not a `bsl::variant`) is not defined.  This
+/// metafunction is used to determine the alternative to be constructed or
+/// assigned to from a given argument type when the alternative type is not
+/// explicitly specified.  Note that in C++11 and later,
+/// `Variant_ConvertIndex` allows implicit conversions, but this behavior
+/// cannot be implemented in C++03.
 template <class t_TYPE, class t_VARIANT>
 struct Variant_ConvertIndex;
-    // This component-private metafunction computes the zero-based index of the
-    // first occurrence of (template parameter) 't_TYPE' in the list of
-    // alternatives of (template parameter) 't_VARIANT', or 'bsl::variant_npos'
-    // if not found.  An alternative is considered to match 't_TYPE' if the two
-    // types are the same modulo cv-qualification.  The primary template (used
-    // when 't_VARIANT' is not a 'bsl::variant') is not defined.  This
-    // metafunction is used to determine the alternative to be constructed or
-    // assigned to from a given argument type when the alternative type is not
-    // explicitly specified.  Note that in C++11 and later,
-    // 'Variant_ConvertIndex' allows implicit conversions, but this behavior
-    // cannot be implemented in C++03.
 
 template <class t_TYPE, class t_HEAD, class... t_TAIL>
 struct Variant_ConvertIndex<t_TYPE, bsl::variant<t_HEAD, t_TAIL...> >
@@ -1569,18 +1572,18 @@ struct Variant_AssignsFromType
 };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+/// This component-private constexpr variable template is `true` if
+/// `t_VARIANT` is a specialization of `bsl::variant`, and `t_STD_VARIANT`
+/// is the `std::variant` type (possibly with added cvref-qualification)
+/// that has the same sequence of alternatives, and each alternative of
+/// `t_VARIANT` is constructible from the corresponding alternative of
+/// `t_STD_VARIANT` (with cv-qualification and value category matching that
+/// of `t_STD_VARIANT`).  Note that we use `bsl::conjunction_v` for its
+/// short-circuiting properties: if `t_STD_VARIANT` isn`t a `std::variant`
+/// (for example, if it`s a `bsl::variant`) we avoid recursing into the
+/// constraints of `bsl::variant`.
 template <class t_VARIANT, class t_STD_VARIANT>
 constexpr bool variant_constructsFromStd =
-    // This component-private constexpr variable template is 'true' if
-    // 't_VARIANT' is a specialization of 'bsl::variant', and 't_STD_VARIANT'
-    // is the 'std::variant' type (possibly with added cvref-qualification)
-    // that has the same sequence of alternatives, and each alternative of
-    // 't_VARIANT' is constructible from the corresponding alternative of
-    // 't_STD_VARIANT' (with cv-qualification and value category matching that
-    // of 't_STD_VARIANT').  Note that we use 'bsl::conjunction_v' for its
-    // short-circuiting properties: if 't_STD_VARIANT' isn't a 'std::variant'
-    // (for example, if it's a 'bsl::variant') we avoid recursing into the
-    // constraints of 'bsl::variant'.
   bsl::conjunction_v<
       bsl::is_same<typename Variant_CorrespondingStdVariant<t_VARIANT>::type,
                    bsl::remove_cvref_t<t_STD_VARIANT>>,
@@ -1892,24 +1895,24 @@ BSLS_KEYWORD_CONSTEXPR typename Variant_VTableId<
 
 template <class t_RET, class t_VISITOR, class t_VARIANT, class t_ALT_TYPE>
 struct Variant_Function {
+    /// This component-private function invokes the specified `visitor` on
+    /// the contained value of the specified `variant`, implicitly
+    /// converting the return type to (template parameter) `t_RET`.  The
+    /// behavior is undefined if (template parameter) `t_ALT_TYPE` is not
+    /// the type of the active alternative.
     static t_RET functionImpl(t_VISITOR& visitor, t_VARIANT& variant)
-        // This component-private function invokes the specified 'visitor' on
-        // the contained value of the specified 'variant', implicitly
-        // converting the return type to (template parameter) 't_RET'.  The
-        // behavior is undefined if (template parameter) 't_ALT_TYPE' is not
-        // the type of the active alternative.
     {
         typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
         return visitor(ImpUtil::unsafeGet<t_ALT_TYPE>(variant));
     }
 };
 
+/// This partial specialization is used when `t_RET` is `void`.  The visitor
+/// is invoked and its return value, if any, is ignored.  This partial
+/// specialization is necessary because a `void`-returning function cannot
+/// contain a `return` statement with a non-`void` operand.
 template <class t_VISITOR, class t_VARIANT, class t_ALT_TYPE>
 struct Variant_Function<void, t_VISITOR, t_VARIANT, t_ALT_TYPE> {
-    // This partial specialization is used when 't_RET' is 'void'.  The visitor
-    // is invoked and its return value, if any, is ignored.  This partial
-    // specialization is necessary because a 'void'-returning function cannot
-    // contain a 'return' statement with a non-'void' operand.
 
     static void functionImpl(t_VISITOR& visitor, t_VARIANT& variant)
     {
@@ -1920,13 +1923,13 @@ struct Variant_Function<void, t_VISITOR, t_VARIANT, t_ALT_TYPE> {
 
 template <class t_RET, class t_VISITOR, class t_VARIANT, class t_ALT_TYPE>
 struct Variant_MoveFunction {
+    /// This component-private function invokes the specified `visitor` with
+    /// a `bslmf::MovableRef` referring to the active alternative object of
+    /// the specified `variant`, implicitly converting the return type to
+    /// (template parameter) `t_RET`.  The behavior is undefined unless
+    /// `variant` has an active alternative of type (template parameter)
+    /// `t_ALT_TYPE`.
     static t_RET functionImpl(t_VISITOR& visitor, t_VARIANT& variant)
-        // This component-private function invokes the specified 'visitor' with
-        // a 'bslmf::MovableRef' referring to the active alternative object of
-        // the specified 'variant', implicitly converting the return type to
-        // (template parameter) 't_RET'.  The behavior is undefined unless
-        // 'variant' has an active alternative of type (template parameter)
-        // 't_ALT_TYPE'.
     {
         typedef BloombergLP::bslmf::MovableRefUtil   MoveUtil;
         typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
@@ -1936,12 +1939,12 @@ struct Variant_MoveFunction {
     }
 };
 
+/// This partial specialization is used when `t_RET` is `void`.  The visitor
+/// is invoked and its return value, if any, is ignored.  This partial
+/// specialization is necessary because a `void`-returning function cannot
+/// contain a `return` statement with a non-`void` operand.
 template <class t_VISITOR, class t_VARIANT, class t_ALT_TYPE>
 struct Variant_MoveFunction<void, t_VISITOR, t_VARIANT, t_ALT_TYPE> {
-    // This partial specialization is used when 't_RET' is 'void'.  The visitor
-    // is invoked and its return value, if any, is ignored.  This partial
-    // specialization is necessary because a 'void'-returning function cannot
-    // contain a 'return' statement with a non-'void' operand.
 
     static void functionImpl(t_VISITOR& visitor, t_VARIANT& variant)
     {
@@ -1954,16 +1957,16 @@ struct Variant_MoveFunction<void, t_VISITOR, t_VARIANT, t_ALT_TYPE> {
 
 template <class t_RET, class t_VISITOR, class t_VARIANT, class t_ALT_TYPE>
 struct Variant_FunctionId {
+    /// This component-private function invokes the specified `visitor` with
+    /// a `bsl::in_place_index_t` tag representing the index of the first
+    /// occurrence of (template parameter) `t_ALT_TYPE` in the specified
+    /// `variant` and the active alternative object of `variant`, implicitly
+    /// converting the return type to (template parameter) `t_RET`.  The
+    /// behavior is undefined unless `variant` has an active alternative of
+    /// type `t_ALT_TYPE`.  Note that the index passed to the visitor might
+    /// not be the index of the active alternative, if that alternative
+    /// occurs multiple times in `t_VARIANT`.
     static t_RET functionImpl(t_VISITOR& visitor, t_VARIANT& variant)
-        // This component-private function invokes the specified 'visitor' with
-        // a 'bsl::in_place_index_t' tag representing the index of the first
-        // occurrence of (template parameter) 't_ALT_TYPE' in the specified
-        // 'variant' and the active alternative object of 'variant', implicitly
-        // converting the return type to (template parameter) 't_RET'.  The
-        // behavior is undefined unless 'variant' has an active alternative of
-        // type 't_ALT_TYPE'.  Note that the index passed to the visitor might
-        // not be the index of the active alternative, if that alternative
-        // occurs multiple times in 't_VARIANT'.
     {
         typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
         static const size_t t_INDEX = BSLSTL_VARIANT_INDEX_OF(
@@ -1974,29 +1977,28 @@ struct Variant_FunctionId {
     }
 };
 
+/// This component-private struct computes arrays in which element `i` is a
+/// pointer to one of the `functionImpl` functions defined above, invoking
+/// an lvalue of type (template parameter) `t_VISITOR` with alternative `i`
+/// of (template parameter) `t_VARIANT` and implicitly converting the return
+/// type to `t_RET`.  The primary template (used when `t_VARIANT` is not a
+/// `bsl::variant`) is not defined.  Note that the `t_UNUSED` template
+/// parameter is required due to limitations of `sim_cpp11_features.pl`.
 template <class t_RET, class t_VISITOR, class t_VARIANT, class... t_UNUSED>
 struct Variant_VTable;
-    // This component-private struct computes arrays in which element 'i' is a
-    // pointer to one of the 'functionImpl' functions defined above, invoking
-    // an lvalue of type (template parameter) 't_VISITOR' with alternative 'i'
-    // of (template parameter) 't_VARIANT' and implicitly converting the return
-    // type to 't_RET'.  The primary template (used when 't_VARIANT' is not a
-    // 'bsl::variant') is not defined.  Note that the 't_UNUSED' template
-    // parameter is required due to limitations of 'sim_cpp11_features.pl'.
 
+/// This partial specialization is used when the `bsl::variant` is not `const`.
 template <class t_RET, class t_VISITOR, class t_HEAD, class... t_TAIL>
 struct Variant_VTable<t_RET, t_VISITOR, bsl::variant<t_HEAD, t_TAIL...> > {
-    // This partial specialization is used when the 'bsl::variant' is not
-    // 'const'.
 
     typedef t_RET (*FuncPtr)(t_VISITOR&, bsl::variant<t_HEAD, t_TAIL...>&);
 
     typedef bsl::variant<t_HEAD, t_TAIL...> Variant;
 
+    /// Return a pointer to the first element of an array of function pointers
+    /// that invoke the visitor with an lvalue referring to the corresponding
+    /// alternative.
     static const FuncPtr *map()
-        // Return a pointer to the first element of an array of function
-        // pointers that invoke the visitor with an lvalue referring to the
-        // corresponding alternative.
     {
         static const FuncPtr s_mapArray[] = {
             &(Variant_Function<t_RET, t_VISITOR, Variant, t_HEAD>::
@@ -2006,10 +2008,10 @@ struct Variant_VTable<t_RET, t_VISITOR, bsl::variant<t_HEAD, t_TAIL...> > {
         return s_mapArray;
     }
 
+    /// Return a pointer to the first element of an array of function pointers
+    /// that invoke the visitor with a `bslmf::MovableRef` referring to the
+    /// corresponding alternative.
     static const FuncPtr *moveMap()
-        // Return a pointer to the first element of an array of function
-        // pointers that invoke the visitor with a 'bslmf::MovableRef'
-        // referring to the corresponding alternative.
     {
         static const FuncPtr s_mapArray[] = {
             &(Variant_MoveFunction<t_RET, t_VISITOR, Variant, t_HEAD>::
@@ -2019,12 +2021,11 @@ struct Variant_VTable<t_RET, t_VISITOR, bsl::variant<t_HEAD, t_TAIL...> > {
         return s_mapArray;
     }
 
+    /// Return a pointer to the first element of an array of function pointers
+    /// where element `i` invokes the visitor with a tag representing the index
+    /// of the first alternative whose type is the same as that of alternative
+    /// `i`, and an lvalue referring to alternative `i`.
     static const FuncPtr *mapId()
-        // Return a pointer to the first element of an array of function
-        // pointers where element 'i' invokes the visitor with a tag
-        // representing the index of the first alternative whose type is the
-        // same as that of alternative 'i', and an lvalue referring to
-        // alternative 'i'.
     {
         static const FuncPtr s_mapArray[] = {
             &(Variant_FunctionId<t_RET, t_VISITOR, Variant, t_HEAD>::
@@ -2035,21 +2036,21 @@ struct Variant_VTable<t_RET, t_VISITOR, bsl::variant<t_HEAD, t_TAIL...> > {
     }
 };
 
+/// This partial specialization is used when the 'bsl::variant' is 'const'.
 template <class t_RET, class t_VISITOR, class t_HEAD, class... t_TAIL>
 struct Variant_VTable<t_RET,
                       t_VISITOR,
                       const bsl::variant<t_HEAD, t_TAIL...> > {
-    // This partial specialization is used when the 'bsl::variant' is 'const'.
 
     typedef t_RET (*FuncPtr)(t_VISITOR&,
                              const bsl::variant<t_HEAD, t_TAIL...>&);
 
     typedef const bsl::variant<t_HEAD, t_TAIL...> Variant;
 
+    /// Return a pointer to the first element of an array of function pointers
+    /// that invoke the visitor with an lvalue referring to the corresponding
+    /// alternative.
     static const FuncPtr *map()
-        // Return a pointer to the first element of an array of function
-        // pointers that invoke the visitor with an lvalue referring to the
-        // corresponding alternative.
     {
         static const FuncPtr s_mapArray[] = {
             &(Variant_Function<t_RET, t_VISITOR, Variant, t_HEAD>::
@@ -2059,12 +2060,11 @@ struct Variant_VTable<t_RET,
         return s_mapArray;
     }
 
+    /// Return a pointer to the first element of an array of function pointers
+    /// where element `i` invokes the visitor with a tag representing the index
+    /// of the first alternative whose type is the same as that of alternative
+    /// `i`, and an lvalue referring to alternative `i`.
     static const FuncPtr *mapId()
-        // Return a pointer to the first element of an array of function
-        // pointers where element 'i' invokes the visitor with a tag
-        // representing the index of the first alternative whose type is the
-        // same as that of alternative 'i', and an lvalue referring to
-        // alternative 'i'.
     {
         static const FuncPtr s_mapArray[] = {
             &(Variant_FunctionId<t_RET, t_VISITOR, Variant, t_HEAD>::
@@ -2149,8 +2149,8 @@ visit(t_VISITOR&& visitor, t_VARIANT&& variant)
 /// result to the explicitly specified (template parameter) `t_RET`.  If
 /// `variant` does not hold a value, throw an exception of type
 /// `bsl::bad_variant_access`.  This function is provided in all language
-/// versions for compatibility with the C++03 version (see below), but in
-/// new code in C++11 and later, `bsl::visit` should be used instead of this
+/// versions for compatibility with the C++03 version (see below), but in new
+/// code in C++11 and later, `bsl::visit` should be used instead of this
 /// function.
 template <class t_RET, class t_VISITOR, class t_VARIANT>
 t_RET visitR(t_VISITOR& visitor, t_VARIANT&& variant)
@@ -2159,22 +2159,21 @@ t_RET visitR(t_VISITOR& visitor, t_VARIANT&& variant)
 }
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
+/// Return the result of invoking the specified `visitor` with the currently
+/// active alternative of the specified `variant`, implicitly converting the
+/// result to the explicitly specified (template parameter) `t_RET`.  If
+/// `variant` does not hold a value, throw an exception of type
+/// `bsl::bad_variant_access`.  Unlike `visit`, which deduces its return type,
+/// this function does not require the visitor to yield the exact same type for
+/// each alternative, but only requires each such type to be implicitly
+/// convertible to `t_RET`.  Implementation note: Due to limitations of the
+/// type deduction facility in C++03, this function can not share the same name
+/// as the deduced type `visit` because it is not possible to discern between
+/// invocation of non deduced return type `visit` where the return type
+/// parameter is explicitly specified and invocation of deduced return type
+/// `visit` where the visitor type parameter is explicitly specified.
 template <class t_RET, class t_VISITOR, class t_VARIANT>
 t_RET visitR(t_VISITOR& visitor, t_VARIANT& variant)
-    // Return the result of invoking the specified 'visitor' with the currently
-    // active alternative of the specified 'variant', implicitly converting the
-    // result to the explicitly specified (template parameter) 't_RET'.  If
-    // 'variant' does not hold a value, throw an exception of type
-    // 'bsl::bad_variant_access'.  Unlike 'visit', which deduces its return
-    // type, this function does not require the visitor to yield the exact same
-    // type for each alternative, but only requires each such type to be
-    // implicitly convertible to 't_RET'.  Implementation note: Due to
-    // limitations of the type deduction facility in C++03, this function can
-    // not share the same name as the deduced type 'visit' because it is not
-    // possible to discern between invocation of non deduced return type
-    // 'visit' where the return type parameter is explicitly specified and
-    // invocation of deduced return type 'visit' where the visitor type
-    // parameter is explicitly specified.
 {
     typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
 
@@ -2184,23 +2183,23 @@ t_RET visitR(t_VISITOR& visitor, t_VARIANT& variant)
     return ImpUtil::visit<t_RET>(visitor, variant);
 }
 
+/// Return the result of invoking the specified `visitor` with a
+/// `bslmf::MovableRef` referring to the currently active alternative of the
+/// specified `variant`, implicitly converting the result to the explicitly
+/// specified (template parameter) `t_RET`.  If `variant` does not hold a
+/// value, throw an exception of type `bsl::bad_variant_access`.  Unlike
+/// `visit`, which deduces its return type, this function does not require the
+/// visitor to yield the exact same type for each alternative, but only
+/// requires each such type to be implicitly convertible to `t_RET`.
+/// Implementation note: Due to limitations of the type deduction facility in
+/// C++03, this function can not share the same name as the deduced type
+/// `visit` because it is not possible to discern between invocation of non
+/// deduced return type `visit` where the return type parameter is explicitly
+/// specified and invocation of deduced return type `visit` where the visitor
+/// type parameter is explicitly specified.
 template <class t_RET, class t_VISITOR, class t_VARIANT>
 t_RET visitR(t_VISITOR&                                visitor,
              BloombergLP::bslmf::MovableRef<t_VARIANT> variant)
-    // Return the result of invoking the specified 'visitor' with a
-    // 'bslmf::MovableRef' referring to the currently active alternative of the
-    // specified 'variant', implicitly converting the result to the explicitly
-    // specified (template parameter) 't_RET'.  If 'variant' does not hold a
-    // value, throw an exception of type 'bsl::bad_variant_access'.  Unlike
-    // 'visit', which deduces its return type, this function does not require
-    // the visitor to yield the exact same type for each alternative, but only
-    // requires each such type to be implicitly convertible to 't_RET'.
-    // Implementation note: Due to limitations of the type deduction facility
-    // in C++03, this function can not share the same name as the deduced type
-    // 'visit' because it is not possible to discern between invocation of non
-    // deduced return type 'visit' where the return type parameter is
-    // explicitly specified and invocation of deduced return type 'visit' where
-    // the visitor type parameter is explicitly specified.
 {
     typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
 
@@ -2211,16 +2210,16 @@ t_RET visitR(t_VISITOR&                                visitor,
     return ImpUtil::moveVisit<t_RET>(visitor, lvalue);
 }
 
+/// Return the result of invoking the specified `visitor` with the currently
+/// active alternative of the specified `variant`.  If `variant` does not hold
+/// a value, throw an exception of type `bsl::bad_variant_access`.  For each
+/// alternative, invocation of the visitor with that alternative shall be of
+/// the same type and value category.
 template <class t_VISITOR, class t_VARIANT>
 typename bsl::invoke_result<
     t_VISITOR&,
     typename bsl::variant_alternative<0, t_VARIANT>::type&>::type
 visit(t_VISITOR& visitor, t_VARIANT& variant)
-    // Return the result of invoking the specified 'visitor' with the currently
-    // active alternative of the specified 'variant'.  If 'variant' does not
-    // hold a value, throw an exception of type 'bsl::bad_variant_access'.  For
-    // each alternative, invocation of the visitor with that alternative shall
-    // be of the same type and value category.
 {
     typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
 
@@ -2238,18 +2237,18 @@ visit(t_VISITOR& visitor, t_VARIANT& variant)
     return ImpUtil::visit<Ret>(visitor, variant);
 }
 
+/// Return the result of invoking the specified `visitor` with a
+/// `bslmf::MovableRef` referring to the currently active alternative of the
+/// specified `variant`.  If `variant` does not hold a value, throw an
+/// exception of type `bsl::bad_variant_access`.  For each alternative,
+/// invocation of the visitor with that alternative shall be of the same type
+/// and value category.
 template <class t_VISITOR, class t_VARIANT>
 typename bsl::invoke_result<
     t_VISITOR&,
     BloombergLP::bslmf::MovableRef<
         typename bsl::variant_alternative<0, t_VARIANT>::type> >::type
 visit(t_VISITOR& visitor, BloombergLP::bslmf::MovableRef<t_VARIANT> variant)
-    // Return the result of invoking the specified 'visitor' with a
-    // 'bslmf::MovableRef' referring to the currently active alternative of the
-    // specified 'variant'.  If 'variant' does not hold a value, throw an
-    // exception of type 'bsl::bad_variant_access'.  For each alternative,
-    // invocation of the visitor with that alternative shall be of the same
-    // type and value category.
 {
     typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
 
@@ -2282,9 +2281,9 @@ namespace bslstl {
                           // ========================
 
 /// This component-private trivial tag type is used to distinguish between
-/// arguments passed by a user, and an `enable_if` argument.  It is not
-/// default constructible so the following construction never invokes a
-/// constrained single parameter constructor:
+/// arguments passed by a user, and an `enable_if` argument.  It is not default
+/// constructible so the following construction never invokes a constrained
+/// single parameter constructor:
 /// ```
 ///  struct SomeType
 ///  {
@@ -2303,11 +2302,10 @@ struct Variant_NoSuchType {
 };
 
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
-/// This component-private class manages an object of type (template
-/// parameter) `t_TYPE` that is stored in a `variant` object.  Note that
-/// `t_TYPE` may be const-qualified, in which case the internally stored
-/// object is not `const`, but the interface of this class prevents
-/// modification thereof.
+/// This component-private class manages an object of type (template parameter)
+/// `t_TYPE` that is stored in a `variant` object.  Note that `t_TYPE` may be
+/// const-qualified, in which case the internally stored object is not `const`,
+/// but the interface of this class prevents modification thereof.
 template <class t_TYPE>
 class Variant_DataImp {
 
@@ -2333,20 +2331,21 @@ class Variant_DataImp {
     template <class... t_ARGS>
     Variant_DataImp(t_ARGS&&... args);
 
+    /// Return a reference to the stored `t_TYPE` object.  The behavior is
+    /// undefined unless this object contains a `t_TYPE` object (i.e., this
+    /// object is currently managing the active alternative of a `bsl::variant`
+    /// object).
     BSLS_KEYWORD_CONSTEXPR_CPP14 t_TYPE& value() &;
     BSLS_KEYWORD_CONSTEXPR_CPP14 t_TYPE&& value() &&;
-    // Return a reference to the stored 't_TYPE' object.  The behavior is
-    // undefined unless this object contains a 't_TYPE' object (i.e., this
-    // object is currently managing the active alternative of a 'bsl::variant'
-    // object).
 
     // ACCESSORS
+
+    /// Return a const reference to the stored `t_TYPE` object.  The behavior
+    /// is undefined unless this object contains a `t_TYPE` object (i.e., this
+    /// object is currently managing the active alternative of a `bsl::variant`
+    /// object).
     BSLS_KEYWORD_CONSTEXPR_CPP14 const t_TYPE& value() const&;
     BSLS_KEYWORD_CONSTEXPR_CPP14 const t_TYPE&& value() const&&;
-    // Return a const reference to the stored 't_TYPE' object.  The behavior is
-    // undefined unless this object contains a 't_TYPE' object (i.e., this
-    // object is currently managing the active alternative of a 'bsl::variant'
-    // object).
 };
 
 /// This component-private union can hold a `Variant_DataImp` object for any
@@ -2366,8 +2365,9 @@ union Variant_Union<t_HEAD, t_TAIL...> {
     Variant_Union<t_TAIL...> d_tail;
 
     // CREATORS
+
+    /// Create a `Variant_Union` object having no active alternative.
     Variant_Union() = default;
-    // Create a 'Variant_Union' object having no active alternative.
 
     /// Create a `Variant_Union` object holding an object of type `t_HEAD`
     /// direct-initialized from the specified `args`.
@@ -2391,13 +2391,12 @@ union Variant_Union<t_HEAD, t_TAIL...> {
     }
 };
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
+/// This component-private class manages an object of type (template parameter)
+/// `t_TYPE` that is stored in a `variant` object.  Note that `t_TYPE` may be
+/// const-qualified, in which case the internally stored object is not `const`,
+/// but the interface of this class prevents modification thereof.
 template <class t_TYPE>
 class Variant_DataImp {
-    // This component-private class manages an object of type (template
-    // parameter) 't_TYPE' that is stored in a 'variant' object.  Note that
-    // 't_TYPE' may be const-qualified, in which case the internally stored
-    // object is not 'const', but the interface of this class prevents
-    // modification thereof.
 
   private:
     // PRIVATE TYPES
@@ -2408,48 +2407,51 @@ class Variant_DataImp {
 
   public:
     // CREATORS
-    //! Variant_DataImp() = default;
-        // Create a 'Variant_DataImp' object that holds an empty buffer.
 
-    // MANIPULATORS
+    /// Create a `Variant_DataImp` object that holds an empty buffer.
+    //! Variant_DataImp() = default;
+
+    // MANIPULATOR
+
+    /// Return a reference to the stored `t_TYPE` object.  The behavior is
+    /// undefined unless the enclosing union contains a `t_TYPE` object (i.e.,
+    /// the enclosing `bsl::variant` has an active alternative of type
+    /// `t_TYPE`).
     t_TYPE& value();
-        // Return a reference to the stored 't_TYPE' object.  The behavior is
-        // undefined unless the enclosing union contains a 't_TYPE' object
-        // (i.e., the enclosing 'bsl::variant' has an active alternative of
-        // type 't_TYPE').
 
     // ACCESSORS
+
+    /// Return a const reference to the stored `t_TYPE` object.  The behavior
+    /// is undefined unless the enclosing union contains a `t_TYPE` object
+    /// (i.e., the enclosing `bsl::variant` has an active alternative of type
+    /// `t_TYPE`).
     const t_TYPE& value() const;
-        // Return a const reference to the stored 't_TYPE' object.  The
-        // behavior is undefined unless the enclosing union contains a 't_TYPE'
-        // object (i.e., the enclosing 'bsl::variant' has an active alternative
-        // of type 't_TYPE').
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+/// This component-private union can hold a `Variant_DataImp` object for any
+/// alternative in (template parameters) `t_HEAD, t_TAIL0, t_TAIL...`.  Note
+/// that the declaration and definition of the primary template must be kept
+/// separate in order for `sim_cpp11_features.pl` to work properly.  The
+/// purpose of the `t_TAIL0` template parameter is explained below.
 template <class t_HEAD = void, class... t_TAIL0 = void, class... t_TAIL>
 union Variant_Union;
-    // This component-private union can hold a 'Variant_DataImp' object for any
-    // alternative in (template parameters) 't_HEAD, t_TAIL0, t_TAIL...'.  Note
-    // that the declaration and definition of the primary template must be kept
-    // separate in order for 'sim_cpp11_features.pl' to work properly.  The
-    // purpose of the 't_TAIL0' template parameter is explained below.
 
+/// This specialization is used when the type list is empty.
 template <>
 union Variant_Union<void, void> {
-    // This specialization is used when the type list is empty.
 };
 
 template <>
 union Variant_Union<BloombergLP::bsls::CompilerFeaturesNilT> {
 };
 
+/// The implementation of this template uses template recursion because C++
+/// does not support member packs.  The `t_TAIL0` template parameter is
+/// needed in order to avoid an empty template argument list in the type of
+/// the `d_tail` member, which causes an issue with the IBM compiler.
 template <class t_HEAD, class t_TAIL0, class... t_TAIL>
 union Variant_Union<t_HEAD, t_TAIL0, t_TAIL...> {
-    // The implementation of this template uses template recursion because C++
-    // does not support member packs.  The 't_TAIL0' template parameter is
-    // needed in order to avoid an empty template argument list in the type of
-    // the 'd_tail' member, which causes an issue with the IBM compiler.
 
     // PUBLIC DATA
     Variant_DataImp<t_HEAD>           d_head;
@@ -2473,9 +2475,10 @@ class Variant_CopyConstructVisitor {
 
   public:
     // CREATORS
+
+    /// Create a `Variant_CopyConstructVisitor` object that, when invoked, will
+    /// copy-construct an alternative in the specified `variant`.
     explicit Variant_CopyConstructVisitor(t_VARIANT_BASE *variant)
-    // Create a 'Variant_CopyConstructVisitor' object that, when invoked,
-    // will copy-construct an alternative in the specified 'variant'.
     : d_variant_p(variant)
     {
         BSLS_ASSERT_SAFE(d_variant_p);
@@ -2574,10 +2577,10 @@ class Variant_CopyAssignVisitor {
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
         bsl::get<t_INDEX>(*d_variant_p) = value;
 #else
-        // When invoking this visitor in C++03, 't_INDEX' may not be the index
+        // When invoking this visitor in C++03, `t_INDEX` may not be the index
         // of the active alternative, but it will be an index of an alternative
-        // of same type.  However, because 't_TYPE' is deduced, it may be
-        // missing cv-qualifications.  't_ALT_TYPE' will give the correct
+        // of same type.  However, because `t_TYPE` is deduced, it may be
+        // missing cv-qualifications.  `t_ALT_TYPE` will give the correct
         // cv-qualification.
         typedef typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type
                                                      Alt_Type;
@@ -2712,11 +2715,11 @@ struct Variant_DestructorVisitor {
         bool operator()(bsl::in_place_index_t<t_INDEX>,                       \
                         t_TYPE&                  value) const                 \
         {                                                                     \
-            /* When invoking this visitor in C++03, 't_INDEX' may not be   */ \
+            /* When invoking this visitor in C++03, `t_INDEX` may not be   */ \
             /* the index of the active alternative, but it will be an      */ \
             /* index of an alternative of same type.  However, because     */ \
-            /* 't_TYPE' is deduced, it may have incorrect                  */ \
-            /* cv-qualifications.  't_ALT_TYPE' will give the correct      */ \
+            /* `t_TYPE` is deduced, it may have incorrect                  */ \
+            /* cv-qualifications.  `t_ALT_TYPE` will give the correct      */ \
             /* cv-qualification.                                           */ \
             typedef                                                           \
                 typename bsl::variant_alternative<t_INDEX, t_VARIANT>::type   \
@@ -3042,35 +3045,38 @@ struct Variant_Base
 
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
+    /// Create a `Variant_Base` object holding the 0th alternative, which is
+    /// value-initialized.  If this `Variant_Base` is allocator-aware, the
+    /// currently installed default constructor is used to supply memory.
     Variant_Base();
-        // Create a 'Variant_Base' object holding the 0th alternative, which is
-        // value-initialized.  If this 'Variant_Base' is allocator-aware, the
-        // currently installed default constructor is used to supply memory.
 
+    /// Create a `Variant_Base` object holding the same alternative (if any) as
+    /// the specified `original` object.  If this `Variant_Base` is
+    /// allocator-aware, the currently installed default allocator is used to
+    /// supply memory.  If the `original` object is not valueless by
+    /// exception, the contained value is copy-constructed from the contained
+    /// value of `original`.  All alternatives shall be copy constructible.
     Variant_Base(const Variant& original);
-        // Create a 'Variant_Base' object holding the same alternative (if any)
-        // as the specified 'original' object.  If this 'Variant_Base' is
-        // allocator-aware, the currently installed default allocator is used
-        // to supply memory.  If the 'original' object is not valueless by
-        // exception', the contained value is copy-constructed from the
-        // contained value of 'original'.  All alternatives shall be copy
-        // constructible.
 
+    /// Create a `Variant_Base` object holding the same alternative (if any)
+    /// held by the specified `original`.  If this `Variant_Base` is
+    /// allocator-aware, the allocator of `original` is used to supply memory.
+    /// If the `original` object is not valueless by exception, the contained
+    /// value is move-constructed from the contained value of `original`.  All
+    /// alternatives shall be move constructible.
     Variant_Base(BloombergLP::bslmf::MovableRef<Variant> original);
-        // Create a 'Variant_Base' object holding the same alternative (if any)
-        // held by the specified 'original'.  If this 'Variant_Base' is
-        // allocator-aware, the allocator of 'original' is used to supply
-        // memory.  If the 'original' object is not valueless by exception, the
-        // contained value is move-constructed from the contained value of
-        // 'original'.  All alternatives shall be move constructible.
 
+    /// Create a `Variant_Base` object holding the alternative with index
+    /// (template parameter) `t_INDEX`, which is value-initialized.  If this
+    /// `Variant_Base` is allocator-aware, the currently installed default
+    /// constructor is used to supply memory.
     template <size_t t_INDEX>
     explicit Variant_Base(bsl::in_place_index_t<t_INDEX>);
-        // Create a 'Variant_Base' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is value-initialized.  If this
-        // 'Variant_Base' is allocator-aware, the currently installed default
-        // constructor is used to supply memory.
 
+    /// Create a `Variant_Base` object holding the alternative with index
+    /// (template parameter) `t_INDEX`, which is direct-initialized from the
+    /// specified `arg`.  If this `Variant_Base` is allocator-aware, the
+    /// currently installed default constructor is used to supply memory.
     template <size_t t_INDEX, class t_ARG_01>
     explicit Variant_Base(bsl::in_place_index_t<t_INDEX>,
                           const t_ARG_01&                arg_01);
@@ -3204,39 +3210,40 @@ struct Variant_Base
                           const t_ARG_08& arg_08,
                           const t_ARG_09& arg_09,
                           const t_ARG_10& arg_10);
-        // Create a 'Variant_Base' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is direct-initialized from the
-        // specified 'arg'.  If this 'Variant_Base' is allocator-aware, the
-        // currently installed default constructor is used to supply memory.
 
     // allocator-extended constructors
-    Variant_Base(bsl::allocator_arg_t, allocator_type allocator);
-        // Create a 'Variant_Base' object holding the 0th alternative, which is
-        // value-initialized.  If this 'Variant_Base' is allocator-aware, the
-        // specified 'allocator' is used to supply memory.
 
+    /// Create a `Variant_Base` object holding the 0th alternative, which is
+    /// value-initialized.  If this `Variant_Base` is allocator-aware, the
+    /// specified `allocator` is used to supply memory.
+    Variant_Base(bsl::allocator_arg_t, allocator_type allocator);
+
+    /// Create a `Variant_Base` object holding the same alternative (if any)
+    /// held by the specified `original` object.  If this `Variant_Base` is
+    /// allocator-aware, the specified `allocator` is used to supply memory.
+    /// If the `original` object is not valueless by exception, the
+    /// contained value is copy/move constructed from the contained value of
+    /// `original`.  All alternatives shall be copy/move constructible.
     Variant_Base(bsl::allocator_arg_t,
                  allocator_type       allocator,
                  const Variant&       original);
     Variant_Base(bsl::allocator_arg_t,
                  allocator_type                          allocator,
                  BloombergLP::bslmf::MovableRef<Variant> original);
-        // Create a 'Variant_Base' object holding the same alternative (if any)
-        // held by the specified 'original' object.  If this 'Variant_Base' is
-        // allocator-aware, the specified 'allocator' is used to supply memory.
-        // If the 'original' object is not valueless by exception, the
-        // contained value is copy/move constructed from the contained value of
-        // 'original'.  All alternatives shall be copy/move constructible.
 
+    /// Create a `Variant_Base` object holding the alternative with index
+    /// (template parameter) `t_INDEX`, which is value-initialized.  If this
+    /// `Variant_Base` is allocator-aware, the specified `allocator` is used to
+    /// supply memory.
     template <size_t t_INDEX>
     explicit Variant_Base(bsl::allocator_arg_t,
                           allocator_type                 allocator,
                           bsl::in_place_index_t<t_INDEX>);
-        // Create a 'Variant_Base' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is value-initialized.  If this
-        // 'Variant_Base' is allocator-aware, the specified 'allocator' is used
-        // to supply memory.
 
+    /// Create a `Variant_Base` object holding the alternative with index
+    /// (template parameter) `t_INDEX`, direct-initialized from `arg`.  If this
+    /// `Variant_Base` is allocator-aware, the specified `allocator` is used to
+    /// supply memory.
     template <size_t t_INDEX, class t_ARG_01>
     explicit Variant_Base(bsl::allocator_arg_t,
                           allocator_type                 allocator,
@@ -3390,10 +3397,6 @@ struct Variant_Base
                           const t_ARG_08& arg_08,
                           const t_ARG_09& arg_09,
                           const t_ARG_10& arg_10);
-        // Create a 'Variant_Base' object holding the alternative with index
-        // (template parameter) 't_INDEX', direct-initialized from 'arg'.  If
-        // this 'Variant_Base' is allocator-aware, the specified 'allocator' is
-        // used to supply memory.
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
@@ -3416,18 +3419,29 @@ struct Variant_Base
     template <size_t t_INDEX, class... t_ARGS>
     void baseEmplace(t_ARGS&&...);
 #else   //  BSL_VARIANT_FULL_IMPLEMENTATION
+    /// Create the alternative with index (template parameter) `t_INDEX` in
+    /// place, which is value-initialized.  If this `Variant_Base` object
+    /// already holds a value, that contained value is destroyed before the new
+    /// object is created.  If the alternative is allocator-aware, it uses the
+    /// allocator specified upon the construction of this `Variant_Base` object
+    /// to supply memory; passing an allocator argument to this method results
+    /// in two allocators being passed to the alternative constructor,
+    /// resulting in a likely compilation error.  Note that if the constructor
+    /// of the alternative exits via an exception, this object is left in the
+    /// valueless by exception state.
     template <size_t t_INDEX>
     void baseEmplace();
-        // Create the alternative with index (template parameter) 't_INDEX' in
-        // place, which is value-initialized.  If this 'Variant_Base' object
-        // already holds a value, that contained value is destroyed before the
-        // new object is created.  If the alternative is allocator-aware, it
-        // uses the allocator specified upon the construction of this
-        // 'Variant_Base' object to supply memory; passing an allocator
-        // argument to this method results in two allocators being passed to
-        // the alternative constructor, resulting in a likely compilation
-        // error.  Note that if the constructor of the alternative exits via an
-        // exception, this object is left in the valueless by exception state.
+
+    /// Create the alternative with index (template parameter) `t_INDEX` in
+    /// place, direct-initialized from the specified `arg`.  If this
+    /// `Variant_Base` object already holds a value, that contained value is
+    /// destroyed before the new object is created.  If the alternative is
+    /// allocator-aware, it uses the allocator specified upon the construction
+    /// of this `Variant_Base` object to supply memory; passing an allocator
+    /// argument to this method results in two allocators being passed to the
+    /// alternative constructor, resulting in a likely compilation error.  Note
+    /// that if the constructor of the alternative exits via an exception, this
+    /// object is left in the valueless by exception state.
     template <size_t t_INDEX, class t_ARG_01>
     void baseEmplace(const t_ARG_01& arg_01);
 
@@ -3550,17 +3564,6 @@ struct Variant_Base
                      const t_ARG_08& arg_08,
                      const t_ARG_09& arg_09,
                      const t_ARG_10& arg_10);
-        // Create the alternative with index (template parameter) 't_INDEX' in
-        // place, direct-initialized from the specified 'arg'.  If this
-        // 'Variant_Base' object already holds a value, that contained value is
-        // destroyed before the new object is created.  If the alternative is
-        // allocator-aware, it uses the allocator specified upon the
-        // construction of this 'Variant_Base' object to supply memory; passing
-        // an allocator argument to this method results in two allocators being
-        // passed to the alternative constructor, resulting in a likely
-        // compilation error.  Note that if the constructor of the alternative
-        // exits via an exception, this object is left in the valueless by
-        // exception state.
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
     /// If the specified `rhs` holds the same alternative type as this
@@ -3839,6 +3842,15 @@ class variant
         // cannot be matched to the declaration when an 'enable_if' is used.
     }
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, direct-initialized from the specified `il` and
+    /// `args`.  If this `variant` is allocator-aware, the currently installed
+    /// default allocator is used to supply memory.  This constructor
+    /// participates in overload resolution only if `t_INDEX` is a valid
+    /// alternative index and the designated alternative is constructible from
+    /// `il` and `args`.  For simplicity of implementation, this method differs
+    /// from the standard in the following way:
+    /// * `constexpr` is not implemented
     template <size_t t_INDEX,
               class INIT_LIST_TYPE,
               class... t_ARGS,
@@ -3850,16 +3862,6 @@ class variant
     explicit variant(bsl::in_place_index_t<t_INDEX>,
                      std::initializer_list<INIT_LIST_TYPE> il,
                      t_ARGS&&...                           args)
-    // Create a 'variant' object holding the alternative with index
-    // (template parameter) 't_INDEX', direct-initialized from the specified
-    // 'il' and 'args'.  If this 'variant' is allocator-aware, the
-    // currently installed default allocator is used to supply memory.
-    // This constructor participates in overload resolution only if 't_INDEX'
-    // is a valid alternative index and the designated alternative is
-    // constructible from 'il' and 'args'.  For simplicity of
-    // implementation, this method differs from the standard in the
-    // following way:
-    //: o 'constexpr' is not implemented
     : Variant_Base(bsl::in_place_index_t<t_INDEX>(),
                    il,
                    std::forward<t_ARGS>(args)...)
@@ -3870,16 +3872,38 @@ class variant
     }
 
     // allocator-extended constructors
+
+    /// Create a `variant` object holding the 0th alternative, which is
+    /// value-initialized.  If this `variant` is allocator-aware, the specified
+    /// `allocator` is used to supply memory.  This constructor participates in
+    /// overload resolution only if the 0th alternative is default
+    /// constructible.
     template <class FIRST = t_HEAD,
               class       = typename bsl::enable_if_t<
                   std::is_default_constructible<FIRST>::value> >
     variant(bsl::allocator_arg_t, allocator_type allocator)
-    // Create a 'variant' object holding the 0th alternative, which is
-    // value-initialized.  If this 'variant' is allocator-aware, the
-    // specified 'allocator' is used to supply memory.  This constructor
-    // participates in overload resolution only if the 0th alternative is
-    // default constructible.
     : Variant_Base(bsl::allocator_arg_t(), allocator)
+    {
+        // This constructor template must be defined inline inside the class
+        // definition, as Microsoft Visual C++ does not recognize the
+        // definition as matching this signature when placed out-of-line.
+    }
+
+    /// Create a `variant` object holding the same alternative (if any) as the
+    /// specified `original` object.  If this `variant` is allocator-aware, the
+    /// specified `allocator` is used to supply memory.  If the `original`
+    /// object is not valueless by exception`, the contained value is
+    /// copy-constructed from the contained value of `original`.  This
+    /// constructor is deleted unless all alternatives are copy constructible.
+    template <
+        class FIRST = t_HEAD,
+        class       = typename bsl::enable_if_t<
+            BloombergLP::bslstl::
+                Variant_IsCopyConstructibleAll<FIRST, t_TAIL...>::value> >
+    variant(bsl::allocator_arg_t,
+            allocator_type allocator,
+            const variant& original)
+    : Variant_Base(bsl::allocator_arg_t(), allocator, original)
     {
         // This constructor template must be defined inline inside the class
         // definition, as Microsoft Visual C++ does not recognize the
@@ -3893,27 +3917,6 @@ class variant
     /// move-constructed from the contained value of `original`.  This
     /// constructor participates in overload resolution only if all
     /// alternatives are move constructible.
-    template <
-        class FIRST = t_HEAD,
-        class       = typename bsl::enable_if_t<
-            BloombergLP::bslstl::
-                Variant_IsCopyConstructibleAll<FIRST, t_TAIL...>::value> >
-    variant(bsl::allocator_arg_t,
-            allocator_type allocator,
-            const variant& original)
-    // Create a 'variant' object holding the same alternative (if any) as
-    // the specified 'original' object.  If this 'variant' is
-    // allocator-aware, the specified 'allocator' is used to supply memory.
-    // If the 'original' object is not valueless by exception', the
-    // contained value is copy-constructed from the contained value of
-    // 'original'.  This constructor is deleted unless all alternatives are
-    // copy constructible.
-    : Variant_Base(bsl::allocator_arg_t(), allocator, original)
-    {
-        // This constructor template must be defined inline inside the class
-        // definition, as Microsoft Visual C++ does not recognize the
-        // definition as matching this signature when placed out-of-line.
-    }
     template <
         class FIRST = t_HEAD,
         class       = typename bsl::enable_if_t<
@@ -4000,6 +4003,12 @@ class variant
         // definition as matching this signature when placed out-of-line.
     }
 
+    /// Create a `variant` object holding a contained value of type (template
+    /// parameter) `t_TYPE`, direct-initialized from the specified `il` and
+    /// `args`.  If this `variant` is allocator-aware, the specified `allocator
+    /// `is used to supply memory.  This constructor participates in overload
+    /// resolutionly if `t_TYPE` designates a unique alternative and is
+    /// constructible from `il` and `args`.
     template <class t_TYPE,
               class INIT_LIST_TYPE,
               class... t_ARGS,
@@ -4013,12 +4022,6 @@ class variant
                      bsl::in_place_type_t<t_TYPE>,
                      std::initializer_list<INIT_LIST_TYPE> il,
                      t_ARGS&&...                           args)
-    // Create a 'variant' object holding a contained value of type
-    // (template parameter) 't_TYPE', direct-initialized from the specified
-    // 'il' and 'args'.  If this 'variant' is allocator-aware, the
-    // specified 'allocator 'is used to supply memory.  This constructor
-    // participates in overload resolutionly if 't_TYPE' designates a unique
-    // alternative and is constructible from 'il' and 'args'.
     : Variant_Base(
           bsl::allocator_arg_t{},
           allocator,
@@ -4031,6 +4034,12 @@ class variant
         // definition as matching this signature when placed out-of-line.
     }
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, direct-initialized from the specified `args`.  If
+    /// this `variant` is allocator-aware, the specified `allocator` is used to
+    /// supply memory.  This constructor participates in overload resolution
+    /// only if `t_INDEX` is a valid alternative index and the designated
+    /// alternative is constructible from `args`.
     template <size_t   t_INDEX,
               class... t_ARGS,
               class = typename bsl::enable_if_t<
@@ -4041,12 +4050,6 @@ class variant
                      allocator_type allocator,
                      bsl::in_place_index_t<t_INDEX>,
                      t_ARGS&&... args)
-    // Create a 'variant' object holding the alternative with index
-    // (template parameter) 't_INDEX', direct-initialized from the specified
-    // 'args'.  If this 'variant' is allocator-aware, the specified
-    // 'allocator' is used to supply memory.  This constructor participates
-    // in overload resolution only if 't_INDEX' is a valid alternative index
-    // and the designated alternative is constructible from 'args'.
     : Variant_Base(bsl::allocator_arg_t{},
                    allocator,
                    bsl::in_place_index_t<t_INDEX>(),
@@ -4057,6 +4060,12 @@ class variant
         // definition as matching this signature when placed out-of-line.
     }
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, direct-initialized from the specified `il` and
+    /// `args`.  If this `variant` is allocator-aware, the specified
+    /// `allocator` is used to supply memory.  This constructor participates in
+    /// overload resolution only if `t_INDEX` is a valid alternative index and
+    /// the designated alternative is constructible from `il` and `args`.
     template <size_t t_INDEX,
               class INIT_LIST_TYPE,
               class... t_ARGS,
@@ -4070,13 +4079,6 @@ class variant
                      bsl::in_place_index_t<t_INDEX>,
                      std::initializer_list<INIT_LIST_TYPE> il,
                      t_ARGS&&...                           args)
-    // Create a 'variant' object holding the alternative with index
-    // (template parameter) 't_INDEX', direct-initialized from the specified
-    // 'il' and 'args'.  If this 'variant' is allocator-aware, the
-    // specified 'allocator' is used to supply memory.  This constructor
-    // participates in overload resolution only if 't_INDEX' is a valid
-    // alternative index and the designated alternative is constructible
-    // from 'il' and 'args'.
     : Variant_Base(bsl::allocator_arg_t{},
                    allocator,
                    bsl::in_place_index_t<t_INDEX>(),
@@ -4090,51 +4092,55 @@ class variant
 
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
+    /// Create a `variant` object holding the 0th alternative, which is
+    /// value-initialized.  If this `variant` is allocator-aware, the
+    /// currently installed default allocator is used to supply memory.
     variant();
-        // Create a 'variant' object holding the 0th alternative, which is
-        // value-initialized.  If this 'variant' is allocator-aware, the
-        // currently installed default allocator is used to supply memory.
 
+    // Create a `variant` object holding the same alternative (if any) as the
+    // specified `original` object.  If this `variant` is allocator-aware, the
+    // currently installed default allocator is used to supply memory.  If the
+    // `original` object is not valueless by exception, the contained value is
+    // copy-constructed from the contained value of `original`.  All
+    // alternatives shall be copy constructible.
     variant(const variant& original);
-        // Create a 'variant' object holding the same alternative (if any) as
-        // the specified 'original' object.  If this 'variant' is
-        // allocator-aware, the currently installed default allocator is used
-        // to supply memory.  If the 'original' object is not valueless by
-        // exception', the contained value is copy-constructed from the
-        // contained value of 'original'.  All alternatives shall be copy
-        // constructible.
 
+    /// Create a `variant` object holding the same alternative (if any) held by
+    /// the specified `original`.  If this `variant` is allocator-aware, the
+    /// allocator of `original` is used to supply memory.  If `original` is not
+    /// valueless by exception, the contained value is move-constructed from
+    /// the contained value of `original`.  All alternatives shall be move
+    /// constructible.
     variant(BloombergLP::bslmf::MovableRef<variant> original);
-        // Create a 'variant' object holding the same alternative (if any) held
-        // by the specified 'original'.  If this 'variant' is allocator-aware,
-        // the allocator of 'original' is used to supply memory.  If 'original'
-        // is not valueless by exception, the contained value is
-        // move-constructed from the contained value of 'original'.  All
-        // alternatives shall be move constructible.
 
+    /// Create a `variant` object whose contained value is copy or move
+    /// constructed from the specified `value`.  If (template parameter)
+    /// `t_TYPE` is `bslmf::MovableRef<T>`, then the selected alternative is
+    /// the one whose type is the same as `T` (modulo cv-qualification);
+    /// otherwise, the selected alternative is the one that is the same as
+    /// `t_TYPE` (modulo cv-qualification).  This constructor participates
+    /// in overload resolution only if there is a unique such alternative.
+    /// If this `variant` is allocator-aware, the current installed default
+    /// allocator is used to supply memory.
     template <class t_TYPE>
     variant(const t_TYPE&                                              value,
             BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM(variant, t_TYPE));
-        // Create a 'variant' object whose contained value is copy or move
-        // constructed from the specified 'value'.  If (template parameter)
-        // 't_TYPE' is 'bslmf::MovableRef<T>', then the selected alternative is
-        // the one whose type is the same as 'T' (modulo cv-qualification);
-        // otherwise, the selected alternative is the one that is the same as
-        // 't_TYPE' (modulo cv-qualification).  This constructor participates
-        // in overload resolution only if there is a unique such alternative.
-        // If this 'variant' is allocator-aware, the current installed default
-        // allocator is used to supply memory.
 
+    /// Create a `variant` object holding a contained value of type (template
+    /// parameter) `t_TYPE`, which is value-initialized.  If this `variant` is
+    /// allocator-aware, the currently installed default allocator is used to
+    /// supply memory.  This constructor participates in overload resolutionly
+    /// if `t_TYPE` designates a unique alternative.
     template <class t_TYPE>
     explicit variant(bsl::in_place_type_t<t_TYPE>,
                      BSLSTL_VARIANT_DECLARE_IF_HAS_UNIQUE_TYPE(t_TYPE));
-        // Create a 'variant' object holding a contained value of type
-        // (template parameter) 't_TYPE', which is value-initialized.  If this
-        // 'variant' is allocator-aware, the currently installed default
-        // allocator is used to supply memory.  This constructor participates
-        // in overload resolutionly if 't_TYPE' designates a unique
-        // alternative.
 
+    /// Create a `variant` object holding a contained value of type (template
+    /// parameter) `t_TYPE`, which is direct-initialized from the specified
+    /// `arg`.  If this `variant` is allocator-aware, the currently installed
+    /// default allocator is used to supply memory.  This constructor
+    /// participates in overload resolution only if `t_TYPE` designates a
+    /// unique alternative.
     template <class t_TYPE, class t_ARG_01>
     explicit variant(bsl::in_place_type_t<t_TYPE>,
                      const t_ARG_01&                                   arg_01,
@@ -4278,21 +4284,19 @@ class variant
                      const t_ARG_09& arg_09,
                      const t_ARG_10& arg_10,
                      BSLSTL_VARIANT_DECLARE_IF_HAS_UNIQUE_TYPE(t_TYPE));
-        // Create a 'variant' object holding a contained value of type
-        // (template parameter) 't_TYPE', which is direct-initialized from the
-        // specified 'arg'.  If this 'variant' is allocator-aware, the
-        // currently installed default allocator is used to supply memory.
-        // This constructor participates in overload resolution only if
-        // 't_TYPE' designates a unique alternative.
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, which is value-initialized.  If this `variant` is
+    /// allocator-aware, the currently installed default allocator is used to
+    /// supply memory.  `t_INDEX` shall be a valid alternative index.
     template <size_t t_INDEX>
     explicit variant(bsl::in_place_index_t<t_INDEX>);
-        // Create a 'variant' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is value-initialized.  If this
-        // 'variant' is allocator-aware, the currently installed default
-        // allocator is used to supply memory.  't_INDEX' shall be a valid
-        // alternative index.
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, which is direct-initialized from the specified
+    /// `arg`.  If this `variant` is allocator-aware, the currently installed
+    /// default allocator is used to supply memory.  `t_INDEX` shall be a valid
+    /// alternative index.
     template <size_t t_INDEX, class t_ARG_01>
     explicit variant(bsl::in_place_index_t<t_INDEX>, const t_ARG_01& arg_01);
 
@@ -4425,61 +4429,62 @@ class variant
                      const t_ARG_08& arg_08,
                      const t_ARG_09& arg_09,
                      const t_ARG_10& arg_10);
-        // Create a 'variant' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is direct-initialized from the
-        // specified 'arg'.  If this 'variant' is allocator-aware, the
-        // currently installed default allocator is used to supply memory.
-        // 't_INDEX' shall be a valid alternative index.
 
     // allocator-extended constructors
-    variant(bsl::allocator_arg_t, allocator_type allocator);
-        // Create a 'variant' object holding the 0th alternative, which is
-        // value-initialized.  If this 'variant' is allocator-aware, the
-        // specified 'allocator' is used to supply memory.
 
+    /// Create a `variant` object holding the 0th alternative, which is
+    /// value-initialized.  If this `variant` is allocator-aware, the
+    /// specified `allocator` is used to supply memory.
+    variant(bsl::allocator_arg_t, allocator_type allocator);
+
+    /// Create a `variant` object holding the same alternative as the
+    /// specified `original` object.  If this `variant` is allocator-aware,
+    /// the specified `allocator` is used to supply memory.  If the
+    /// `original` object is not valueless by exception, the contained value
+    /// is copy/move constructed from the contained value of `original`.
+    /// All alternatives shall be copy/move constructible.
     variant(bsl::allocator_arg_t,
             allocator_type       allocator,
             const variant&       original);
     variant(bsl::allocator_arg_t,
             allocator_type                          allocator,
             BloombergLP::bslmf::MovableRef<variant> original);
-        // Create a 'variant' object holding the same alternative as the
-        // specified 'original' object.  If this 'variant' is allocator-aware,
-        // the specified 'allocator' is used to supply memory.  If the
-        // 'original' object is not valueless by exception, the contained value
-        // is copy/move constructed from the contained value of 'original'.
-        // All alternatives shall be copy/move constructible.
 
+    /// Create a `variant` object whose contained value is copy or move
+    /// constructed from the specified `value`.  If (template parameter)
+    /// `t_TYPE` is `bslmf::MovableRef<T>`, then the selected alternative is
+    /// the one whose type is the same as `T` (modulo cv-qualification);
+    /// otherwise, the selected alternative is the one that is the same as
+    /// `t_TYPE` (modulo cv-qualification).  This constructor participates in
+    /// overload resolution only if there is a unique such alternative.  If
+    /// this `variant` is allocator-aware, the specified `allocator` is used to
+    /// supply memory.
     template <class t_TYPE>
     variant(
           bsl::allocator_arg_t,
           allocator_type                                             allocator,
           const t_TYPE&                                              value,
           BSLSTL_VARIANT_DECLARE_IF_CONSTRUCTS_FROM(variant, t_TYPE));
-        // Create a 'variant' object whose contained value is copy or move
-        // constructed from the specified 'value'.  If (template parameter)
-        // 't_TYPE' is 'bslmf::MovableRef<T>', then the selected alternative is
-        // the one whose type is the same as 'T' (modulo cv-qualification);
-        // otherwise, the selected alternative is the one that is the same as
-        // 't_TYPE' (modulo cv-qualification).  This constructor participates
-        // in overload resolution only if there is a unique such alternative.
-        // If this 'variant' is allocator-aware, the specified 'allocator' is
-        // used to supply memory.
 
+    /// Create a `variant` object holding a contained value of type
+    /// (template parameter) `t_TYPE`, which is value-initialized.  If this
+    /// `variant` is allocator-aware, the currently installed default
+    /// allocator is used to supply memory.  If this `variant` is
+    /// allocator-aware, the specified `allocator` is used to supply memory.
+    /// This constructor participates in overload resolution only if
+    /// `t_TYPE` designates a unique alternative.
     template <class t_TYPE>
     explicit variant(
                    bsl::allocator_arg_t,
                    allocator_type                                    allocator,
                    bsl::in_place_type_t<t_TYPE>,
                    BSLSTL_VARIANT_DECLARE_IF_HAS_UNIQUE_TYPE(t_TYPE));
-        // Create a 'variant' object holding a contained value of type
-        // (template parameter) 't_TYPE', which is value-initialized.  If this
-        // 'variant' is allocator-aware, the currently installed default
-        // allocator is used to supply memory.  If this 'variant' is
-        // allocator-aware, the specified 'allocator' is used to supply memory.
-        // This constructor participates in overload resolution only if
-        // 't_TYPE' designates a unique alternative.
 
+    /// Create a `variant` object holding a contained value of type (template
+    /// parameter) `t_TYPE`, which is direct-initialized from the specified
+    /// `arg`.  If this `variant` is allocator-aware, the specified `allocator`
+    /// is used to supply memory.  This constructor participates in overload
+    /// resolution only if `t_TYPE` designates a unique alternative.
     template <class t_TYPE, class t_ARG_01>
     explicit variant(
                    bsl::allocator_arg_t,
@@ -4646,22 +4651,21 @@ class variant
                      const t_ARG_09& arg_09,
                      const t_ARG_10& arg_10,
                      BSLSTL_VARIANT_DECLARE_IF_HAS_UNIQUE_TYPE(t_TYPE));
-        // Create a 'variant' object holding a contained value of type
-        // (template parameter) 't_TYPE', which is direct-initialized from the
-        // specified 'arg'.  If this 'variant' is allocator-aware, the
-        // specified 'allocator' is used to supply memory.  This constructor
-        // participates in overload resolution only if 't_TYPE' designates a
-        // unique alternative.
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, which is value-initialized.  If this `variant` is
+    /// allocator-aware, the specified `allocator` is used to supply memory.
+    /// `t_INDEX` shall be a valid alternative index.
     template <size_t t_INDEX>
     explicit variant(bsl::allocator_arg_t,
                      allocator_type                 allocator,
                      bsl::in_place_index_t<t_INDEX>);
-        // Create a 'variant' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is value-initialized.  If this
-        // 'variant' is allocator-aware, the specified 'allocator' is used to
-        // supply memory.  't_INDEX' shall be a valid alternative index.
 
+    /// Create a `variant` object holding the alternative with index (template
+    /// parameter) `t_INDEX`, which is direct-initialized from the specified
+    /// `arg`.  If this `variant` is allocator-aware, the specified `allocator`
+    /// is used to supply memory.  `t_INDEX` shall be a valid alternative
+    /// index.
     template <size_t t_INDEX, class t_ARG_01>
     explicit variant(bsl::allocator_arg_t,
                      allocator_type                 allocator,
@@ -4815,21 +4819,16 @@ class variant
                      const t_ARG_08& arg_08,
                      const t_ARG_09& arg_09,
                      const t_ARG_10& arg_10);
-        // Create a 'variant' object holding the alternative with index
-        // (template parameter) 't_INDEX', which is direct-initialized from the
-        // specified 'arg'.  If this 'variant' is allocator-aware, the
-        // specified 'allocator' is used to supply memory.  't_INDEX' shall be
-        // a valid alternative index.
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
     // 20.7.3.2, destructor
+    /// Destroy this object.  The contained value (if any) is destroyed.
+    /// For simplicity of implementation, this method differs from the
+    /// standard in the following ways:
+    /// * conditional triviality is not implemented
+    /// * 'constexpr' is not implemented
     //! ~variant() = default;
-        // Destroy this object.  The contained value (if any) is destroyed.
-        // For simplicity of implementation, this method differs from the
-        // standard in the following ways:
-        //: o conditional triviality is not implemented
-        //: o 'constexpr' is not implemented
 
     // MANIPULATORS
     // 20.7.3.4, modifiers
@@ -4972,23 +4971,34 @@ class variant
 
 #else   //  BSL_VARIANT_FULL_IMPLEMENTATION
 
+    /// Create an object of alternative (template parameter) `t_TYPE` in
+    /// place, which is value-initialized; any previously contained value is
+    /// destroyed first.  Return a reference to the newly created `t_TYPE`
+    /// object.  If `t_TYPE` is allocator-aware, it uses the allocator
+    /// specified upon the construction of this `variant` object to supply
+    /// memory; passing an allocator argument to this method results in two
+    /// allocators being passed to the alternative constructor, resulting in
+    /// a likely compilation error.  Note that if the constructor of
+    /// `t_TYPE` exits via an exception, this object is left in a valueless
+    /// by exception state.  This function participates in overload
+    /// resolution only if `t_TYPE` is a unique alternative.
     template <class t_TYPE>
     typename bsl::enable_if<
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, variant>::value,
         t_TYPE&>::type
     emplace();
-        // Create an object of alternative (template parameter) 't_TYPE' in
-        // place, which is value-initialized; any previously contained value is
-        // destroyed first.  Return a reference to the newly created 't_TYPE'
-        // object.  If 't_TYPE' is allocator-aware, it uses the allocator
-        // specified upon the construction of this 'variant' object to supply
-        // memory; passing an allocator argument to this method results in two
-        // allocators being passed to the alternative constructor, resulting in
-        // a likely compilation error.  Note that if the constructor of
-        // 't_TYPE' exits via an exception, this object is left in a valueless
-        // by exception state.  This function participates in overload
-        // resolution only if 't_TYPE' is a unique alternative.
 
+    /// Create an object of alternative (template parameter) `t_TYPE` in
+    /// place, which is direct-initialized from `arg`; any previously
+    /// contained value is destroyed first.  Return a reference to the newly
+    /// created `t_TYPE` object.  If `t_TYPE` is allocator-aware, it uses
+    /// the allocator specified upon the construction of this `variant`
+    /// object to supply memory; passing an allocator argument to this
+    /// method results in two allocators being passed to the alternative
+    /// constructor, resulting in a likely compilation error.  Note that if
+    /// the constructor of `t_TYPE` exits via an exception, this object is
+    /// left in a valueless by exception state.  This function participates
+    /// in overload resolution only if `t_TYPE` is a unique alternative.
     template <class t_TYPE, class t_ARG_01>
     typename bsl::enable_if<
         BloombergLP::bslstl::Variant_HasUniqueType<t_TYPE, variant>::value,
@@ -5141,33 +5151,33 @@ class variant
             const t_ARG_08& arg_08,
             const t_ARG_09& arg_09,
             const t_ARG_10& arg_10);
-        // Create an object of alternative (template parameter) 't_TYPE' in
-        // place, which is direct-initialized from 'arg'; any previously
-        // contained value is destroyed first.  Return a reference to the newly
-        // created 't_TYPE' object.  If 't_TYPE' is allocator-aware, it uses
-        // the allocator specified upon the construction of this 'variant'
-        // object to supply memory; passing an allocator argument to this
-        // method results in two allocators being passed to the alternative
-        // constructor, resulting in a likely compilation error.  Note that if
-        // the constructor of 't_TYPE' exits via an exception, this object is
-        // left in a valueless by exception state.  This function participates
-        // in overload resolution only if 't_TYPE' is a unique alternative.
 
+    /// Create the alternative with index (template parameter) `t_INDEX` in
+    /// place, which is value-initialized; any previously contained value is
+    /// destroyed first.  Return a reference to the newly created contained
+    /// value.  If the alternative is allocator-aware, it uses the allocator
+    /// specified upon the construction of this `variant` object to supply
+    /// memory; passing an allocator argument to this method results in two
+    /// allocators being passed to the alternative constructor, resulting in
+    /// a likely compilation error.  Note that if the alternative
+    /// constructor exits via an exception, this object is left in the
+    /// valueless by exception state.  `t_INDEX` shall be a valid
+    /// alternative index.
     template <size_t t_INDEX>
     typename variant_alternative<t_INDEX, variant<t_HEAD, t_TAIL...> >::type&
     emplace();
-        // Create the alternative with index (template parameter) 't_INDEX' in
-        // place, which is value-initialized; any previously contained value is
-        // destroyed first.  Return a reference to the newly created contained
-        // value.  If the alternative is allocator-aware, it uses the allocator
-        // specified upon the construction of this 'variant' object to supply
-        // memory; passing an allocator argument to this method results in two
-        // allocators being passed to the alternative constructor, resulting in
-        // a likely compilation error.  Note that if the alternative
-        // constructor exits via an exception, this object is left in the
-        // valueless by exception state.  't_INDEX' shall be a valid
-        // alternative index.
 
+    /// Create the alternative with index (template parameter) `t_INDEX` in
+    /// place, direct-initialized from the specified `arg`; any previously
+    /// contained value is destroyed first.  Return a reference to the newly
+    /// created contained value.  If the alternative is allocator-aware, it
+    /// uses the allocator specified upon the construction of this `variant`
+    /// object to supply memory; passing an allocator argument to this
+    /// method results in two allocators being passed to the alternative
+    /// constructor, resulting in a likely compilation error.  Note that if
+    /// the alternative constructor exits via an exception, this object is
+    /// left in the valueless by exception state.  `t_INDEX` shall be a
+    /// valid alternative index.
     template <size_t t_INDEX, class t_ARG_01>
     typename variant_alternative<t_INDEX, variant<t_HEAD, t_TAIL...> >::type&
     emplace(const t_ARG_01& arg_01);
@@ -5300,59 +5310,48 @@ class variant
             const t_ARG_08& arg_08,
             const t_ARG_09& arg_09,
             const t_ARG_10& arg_10);
-        // Create the alternative with index (template parameter) 't_INDEX' in
-        // place, direct-initialized from the specified 'arg'; any previously
-        // contained value is destroyed first.  Return a reference to the newly
-        // created contained value.  If the alternative is allocator-aware, it
-        // uses the allocator specified upon the construction of this 'variant'
-        // object to supply memory; passing an allocator argument to this
-        // method results in two allocators being passed to the alternative
-        // constructor, resulting in a likely compilation error.  Note that if
-        // the alternative constructor exits via an exception, this object is
-        // left in the valueless by exception state.  't_INDEX' shall be a
-        // valid alternative index.
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
 
     // MANIPULATORS
     // 20.7.3.3, assignment
 #ifdef BSL_VARIANT_FULL_IMPLEMENTATION
+    /// If `rhs` holds the same alternative type as this object, copy assign
+    /// the contained value of `rhs` to the contained value of this object.
+    /// Otherwise, destroy the contained value of this object (if any) and, if
+    /// `rhs` holds a value, copy-construct the corresponding alternative of
+    /// this object from the contained value of `rhs`.  The allocators of this
+    /// object and `rhs` both remain unchanged.  This operator is deleted
+    /// unless all alternatives are copy constructible and copy assignable.  If
+    /// the construction of a new alternative object exits via an exception,
+    /// this `variant` object is left in a valueless by exception state.  This
+    /// is different from the standard, which requires a temporary copy of
+    /// `rhs` to be made if copy construction of the active alternative is not
+    /// `noexcept` (see [variant.assign] for details).  The standard behavior
+    /// causes unnecessary performance degradation in cases where the
+    /// alternative constructor does not throw, yet is not marked `noexcept`;
+    /// this behavior is therefore not implemented in `bsl::variant`.  For
+    /// simplicity of implementation, this method also differs from the
+    /// standard in the following ways:
+    /// * conditional triviality is not implemented
+    /// * `constexpr` is not implemented
+    /// * `noexcept` specification is not implemented
     variant& operator=(const variant& rhs) = default;
-    // If 'rhs' holds the same alternative type as this object, copy assign the
-    // contained value of 'rhs' to the contained value of this object.
-    // Otherwise, destroy the contained value of this object (if any) and, if
-    // 'rhs' holds a value, copy-construct the corresponding alternative of
-    // this object from the contained value of 'rhs'.  The allocators of this
-    // object and 'rhs' both remain unchanged.  This operator is deleted unless
-    // all alternatives are copy constructible and copy assignable.  If the
-    // construction of a new alternative object exits via an exception, this
-    // 'variant' object is left in a valueless by exception state.  This is
-    // different from the standard, which requires a temporary copy of 'rhs' to
-    // be made if copy construction of the active alternative is not 'noexcept'
-    // (see [variant.assign] for details).  The standard behavior causes
-    // unnecessary performance degradation in cases where the alternative
-    // constructor does not throw, yet is not marked 'noexcept'; this behavior
-    // is therefore not implemented in 'bsl::variant'.  For simplicity of
-    // implementation, this method also differs from the standard in the
-    // following ways:
-    //: o conditional triviality is not implemented
-    //: o 'constexpr' is not implemented
-    //: o 'noexcept' specification is not implemented
 
+    /// If `rhs` holds the same alternative type as this object, move assign
+    /// the contained value of `rhs` to the contained value of this object.
+    /// Otherwise, destroy the contained value of this object (if any) and, if
+    /// `rhs` holds a value, move-construct the corresponding alternative of
+    /// this object from the contained value of `rhs`.  The allocators of this
+    /// object and `rhs` both remain unchanged.  If the construction of a new
+    /// alternative object throws an exception, this `variant` object is left
+    /// in a valueless by exception state.  This operator participes in
+    /// overload resolution only if all alternatives are move constructible and
+    /// mvoe assignable.  For simplicity of implementation, this method differs
+    /// from the standard in the following ways:
+    /// * conditional triviality is not implemented
+    /// * `constexpr` is not implemented
+    /// * `noexcept` specification is not implemented
     variant& operator=(variant&& rhs) = default;
-    // If 'rhs' holds the same alternative type as this object, move assign the
-    // contained value of 'rhs' to the contained value of this object.
-    // Otherwise, destroy the contained value of this object (if any) and, if
-    // 'rhs' holds a value, move-construct the corresponding alternative of
-    // this object from the contained value of 'rhs'.  The allocators of this
-    // object and 'rhs' both remain unchanged.  If the construction of a new
-    // alternative object throws an exception, this 'variant' object is left in
-    // a valueless by exception state.  This operator participes in overload
-    // resolution only if all alternatives are move constructible and mvoe
-    // assignable.  For simplicity of implementation, this method differs from
-    // the standard in the following ways:
-    //: o conditional triviality is not implemented
-    //: o 'constexpr' is not implemented
-    //: o 'noexcept' specification is not implemented
 
     /// Assign to this object the specified `value`.  The alternative
     /// corresponding to `value` is the best match among all alternatives
@@ -5402,46 +5401,46 @@ class variant
         return *this;
     }
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
+    /// If 'rhs' holds the same alternative type as this object, copy assign
+    /// the contained value of 'rhs' to the contained value of this object.
+    /// Otherwise, destroy the contained value of this object (if any) and, if
+    /// 'rhs' holds a value, copy-construct the corresponding alternative of
+    /// this object from the contained value of 'rhs'.  The allocators of this
+    /// object and 'rhs' both remain unchanged.  If the construction of a new
+    /// alternative object exits via an exception, this 'variant' object is
+    /// left in a valueless by exception state.  All alternatives shall be copy
+    /// constructible and copy assignable.
     variant& operator=(const variant& rhs);
-        // If 'rhs' holds the same alternative type as this object, copy assign
-        // the contained value of 'rhs' to the contained value of this object.
-        // Otherwise, destroy the contained value of this object (if any) and,
-        // if 'rhs' holds a value, copy-construct the corresponding alternative
-        // of this object from the contained value of 'rhs'.  The allocators of
-        // this object and 'rhs' both remain unchanged.  If the construction of
-        // a new alternative object exits via an exception, this 'variant'
-        // object is left in a valueless by exception state.  All alternatives
-        // shall be copy constructible and copy assignable.
 
+    /// If `rhs` holds the same alternative type as this object, move assign
+    /// the contained value of `rhs` to the contained value of this object.
+    /// Otherwise, destroy the contained value of this object (if any) and, if
+    /// `rhs` holds a value, move-construct the corresponding alternative of
+    /// this object from the contained value of `rhs`.  The allocators of this
+    /// object and `rhs` both remain unchanged.  If the construction of a new
+    /// alternative object throws an exception, this `variant` object is left
+    /// in a valueless by exception state.  All alternatives shall be move
+    /// constructible and move assignable.
     variant& operator=(BloombergLP::bslmf::MovableRef<variant> rhs);
-        // If 'rhs' holds the same alternative type as this object, move assign
-        // the contained value of 'rhs' to the contained value of this object.
-        // Otherwise, destroy the contained value of this object (if any) and,
-        // if 'rhs' holds a value, move-construct the corresponding alternative
-        // of this object from the contained value of 'rhs'.  The allocators of
-        // this object and 'rhs' both remain unchanged.  If the construction of
-        // a new alternative object throws an exception, this 'variant' object
-        // is left in a valueless by exception state.  All alternatives shall
-        // be move constructible and move assignable.
 
+    /// Assign to this object the specified `value`.  If (template parameter)
+    /// `t_TYPE` is `bslmf::MovableRef<T>`, then the alternative corresponding
+    /// to `value` is the one whose type is the same as `T` (modulo
+    /// cv-qualification); otherwise, the selected alternative is the one that
+    /// is the same as `t_TYPE` (modulo cv-qualification).  This operator
+    /// participates in overload resolution only if there is a unique such
+    /// alternative.  If this `variant` object already holds that alternative,
+    /// then the contained value is assigned from `value`; otherwise, any
+    /// contained value is destroyed and the selected alternative is
+    /// direct-initialized from `value`.  The selected alternative shall be
+    /// constructible and assignable from `value`.  If the construction of a
+    /// new alternative object exits via an exception, this `variant` object is
+    /// left in the valueless by exception state.
     template <class t_TYPE>
     typename bsl::enable_if<
         BloombergLP::bslstl::Variant_AssignsFromType<variant, t_TYPE>::value,
         variant&>::type
     operator=(const t_TYPE& value);
-        // Assign to this object the specified 'value'.  If (template
-        // parameter) 't_TYPE' is 'bslmf::MovableRef<T>', then the alternative
-        // corresponding to 'value' is the one whose type is the same as 'T'
-        // (modulo cv-qualification); otherwise, the selected alternative is
-        // the one that is the same as 't_TYPE' (modulo cv-qualification).
-        // This operator participates in overload resolution only if there is a
-        // unique such alternative.  If this 'variant' object already holds
-        // that alternative, then the contained value is assigned from 'value';
-        // otherwise, any contained value is destroyed and the selected
-        // alternative is direct-initialized from 'value'.  The selected
-        // alternative shall be constructible and assignable from 'value'.  If
-        // the construction of a new alternative object exits via an exception,
-        // this 'variant' object is left in the valueless by exception state.
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
     // 20.7.3.6, swap
@@ -5468,11 +5467,11 @@ class variant
                   Variant_UsesBslmaAllocatorAny<t_HEAD, t_TAIL...>::value,
               class = typename bsl::enable_if_t<t_USES_BSLMA_ALLOC> >
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION
+    /// Return a copy of this object's allocator.  At least one alternative of
+    /// this `variant` object shall be allocator-aware; in C++03, due to
+    /// language limitations, this method can be called even if no alternative
+    /// is allocator-aware, but returns a non-allocator type in that case.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT
-    // Return a copy of this object's allocator.  At least one alternative of
-    // this 'variant' object shall be allocator-aware; in C++03, due to
-    // language limitations, this method can be called even if no alternative
-    // is allocator-aware, but returns a non-allocator type in that case.
     {
         // This function template must be defined inline inside the class
         // definition, as Microsoft Visual C++ does not recognize the
@@ -5486,9 +5485,9 @@ class variant
     /// `variant` object, or `bsl::variant_npos` if this object is valueless
     /// by exception.  This method differs from the standard in the
     /// following way:
-    /// * `constexpr` is not implemented This is because no constructors
-    /// are currently constexpr and there is no way to test the constexpr
-    /// property of this function.
+    /// * `constexpr` is not implemented
+    /// This is because no constructors are currently constexpr and there is no
+    /// way to test the constexpr property of this function.
     size_t index() const BSLS_KEYWORD_NOEXCEPT;
 
     /// Return `false` if there is an alternative object currently managed
@@ -5497,9 +5496,9 @@ class variant
     /// object exits via an exception, or if it is copied or assigned from
     /// another `variant` object that is valueless by exception.  This
     /// method differs from the standard in the following way:
-    /// * `constexpr` is not implemented This is because no constructors
-    /// are currently constexpr and there is no way to test the constexpr
-    /// property of this function.
+    /// * `constexpr` is not implemented
+    /// This is because no constructors are currently constexpr and there is no
+    /// way to test the constexpr property of this function.
     bool valueless_by_exception() const BSLS_KEYWORD_NOEXCEPT;
 };
 

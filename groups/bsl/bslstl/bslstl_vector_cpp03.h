@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:12 2024
+// Generated on Wed Oct 16 13:00:08 2024
 // Command line: sim_cpp11_features.pl bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
@@ -39,18 +39,17 @@ class vector_UintPtrConversionIterator;
 
 /// This `struct` provides a namespace for implementing the `swap` member
 /// function of `vector<VALUE_TYPE, ALLOCATOR>`.  `swap` can be implemented
-/// irrespective of the `VALUE_TYPE` or `ALLOCATOR` template parameters,
-/// which is why we implement it in this non-parameterized, non-inlined
-/// utility.
+/// irrespective of the `VALUE_TYPE` or `ALLOCATOR` template parameters, which
+/// is why we implement it in this non-parameterized, non-inlined utility.
 struct Vector_Util {
 
     // CLASS METHODS
 
     /// Return a capacity that is at least the specified `newLength` and at
-    /// least the minimum of twice the specified `capacity` and the
-    /// specified `maxSize`.  The behavior is undefined unless
-    /// `capacity < newLength` and `newLength <= maxSize`.  Note that the
-    /// returned value is always at most `maxSize`.
+    /// least the minimum of twice the specified `capacity` and the specified
+    /// `maxSize`.  The behavior is undefined unless `capacity < newLength` and
+    /// `newLength <= maxSize`.  Note that the returned value is always at most
+    /// `maxSize`.
     static std::size_t computeNewCapacity(std::size_t newLength,
                                           std::size_t capacity,
                                           std::size_t maxSize);
@@ -140,32 +139,33 @@ struct Vector_IsRandomAccessIterator :
                           // class Vector_RangeCheck
                           // =======================
 
+/// This utility class provides a test-support facility to diagnose when a
+/// pair of iterators do *not* form a valid range.  This support is offered
+/// only for random access iterators, and identifies only the case of two
+/// valid iterators into the same range forming a "reverse" range.  Note
+/// that the two functions declared using `enable_if` must be defined inline
+/// in the class definition due to a bug in the Microsoft C++ compiler (see
+/// `bslmf_enableif`).
 struct Vector_RangeCheck {
-    // This utility class provides a test-support facility to diagnose when a
-    // pair of iterators do *not* form a valid range.  This support is offered
-    // only for random access iterators, and identifies only the case of two
-    // valid iterators into the same range forming a "reverse" range.  Note
-    // that the two functions declared using 'enable_if' must be defined inline
-    // in the class definition due to a bug in the Microsoft C++ compiler (see
-    // 'bslmf_enableif').
 
     // CLASS METHODS
+
+    /// Return `false`.  Note that we know of no way to identify an input
+    /// iterator range that is guaranteed to be invalid.
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
             !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR);
-        // Return 'false'.  Note that we know of no way to identify an input
-        // iterator range that is guaranteed to be invalid.
 
+    /// Return `true` if `last < first`, and `false` otherwise.  The
+    /// behavior is undefined unless both `first` and `last` are valid
+    /// iterators that refer to the same range.
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
              Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last);
-        // Return 'true' if 'last < first', and 'false' otherwise.  The
-        // behavior is undefined unless both 'first' and 'last' are valid
-        // iterators that refer to the same range.
 };
 
 #endif
@@ -176,12 +176,11 @@ struct Vector_RangeCheck {
 
 /// This class describes the basic layout for a vector class, to be included
 /// into the `vector` layout *before* the allocator (provided by
-/// `bslalg::ContainerBase`) to take better advantage of cache prefetching.
-/// It is parameterized by `VALUE_TYPE` only, and implements the portion of
+/// `bslalg::ContainerBase`) to take better advantage of cache prefetching.  It
+/// is parameterized by `VALUE_TYPE` only, and implements the portion of
 /// `vector` that does not need to know about its (template parameter) type
 /// `ALLOCATOR` (in order to generate shorter debug strings).  This class
-/// intentionally has *no* creators (other than the compiler-generated
-/// ones).
+/// intentionally has **no** creators (other than the compiler-generated ones).
 template <class VALUE_TYPE>
 class vectorBase {
 
@@ -217,16 +216,15 @@ class vectorBase {
 
     // MANIPULATORS
 
-    /// Adopt all outstanding memory allocations associated with the
-    /// specified `base` object.  The behavior is undefined unless this
-    /// object is in a default-constructed state.
+    /// Adopt all outstanding memory allocations associated with the specified
+    /// `base` object.  The behavior is undefined unless this object is in a
+    /// default-constructed state.
     void adopt(BloombergLP::bslmf::MovableRef<vectorBase> base);
 
                              // *** iterators ***
 
-    /// Return an iterator providing modifiable access to the first element
-    /// in this vector, or the past-the-end iterator if this vector is
-    /// empty.
+    /// Return an iterator providing modifiable access to the first element in
+    /// this vector, or the past-the-end iterator if this vector is empty.
     iterator begin() BSLS_KEYWORD_NOEXCEPT;
 
     /// Return the past-the-end iterator providing modifiable access to this
@@ -234,19 +232,19 @@ class vectorBase {
     iterator end() BSLS_KEYWORD_NOEXCEPT;
 
     /// Return a reverse iterator providing modifiable access to the last
-    /// element in this vector, and the past-the-end reverse iterator if
-    /// this vector is empty.
+    /// element in this vector, and the past-the-end reverse iterator if this
+    /// vector is empty.
     reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return the past-the-end reverse iterator providing modifiable access
-    /// to this vector.
+    /// Return the past-the-end reverse iterator providing modifiable access to
+    /// this vector.
     reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
 
                           // *** element access ***
 
     /// Return a reference providing modifiable access to the element at the
-    /// specified `position` in this vector.  The behavior is undefined
-    /// unless `position < size()`.
+    /// specified `position` in this vector.  The behavior is undefined unless
+    /// `position < size()`.
     reference operator[](size_type position);
 
     /// Return a reference providing modifiable access to the element at the
@@ -254,19 +252,18 @@ class vectorBase {
     /// exception if `position >= size()`.
     reference at(size_type position);
 
-    /// Return a reference providing modifiable access to the first element
-    /// in this vector.  The behavior is undefined unless this vector is not
+    /// Return a reference providing modifiable access to the first element in
+    /// this vector.  The behavior is undefined unless this vector is not
     /// empty.
     reference front();
 
-    /// Return a reference providing modifiable access to the last element
-    /// in this vector.  The behavior is undefined unless this vector is not
+    /// Return a reference providing modifiable access to the last element in
+    /// this vector.  The behavior is undefined unless this vector is not
     /// empty.
     reference back();
 
-    /// Return the address of the modifiable first element in this vector,
-    /// or a valid, but non-dereferenceable pointer value if this vector is
-    /// empty.
+    /// Return the address of the modifiable first element in this vector, or a
+    /// valid, but non-dereferenceable pointer value if this vector is empty.
     VALUE_TYPE *data() BSLS_KEYWORD_NOEXCEPT;
 
     // ACCESSORS
@@ -275,9 +272,8 @@ class vectorBase {
 
     const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return an iterator providing non-modifiable access to the first
-    /// element in this vector, and the past-the-end iterator if this vector
-    /// is empty.
+    /// Return an iterator providing non-modifiable access to the first element
+    /// in this vector, and the past-the-end iterator if this vector is empty.
     const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
 
     const_iterator  end() const BSLS_KEYWORD_NOEXCEPT;
@@ -288,9 +284,9 @@ class vectorBase {
 
     const_reverse_iterator  rbegin() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return a reverse iterator providing non-modifiable access to the
-    /// last element in this vector, and the past-the-end reverse iterator
-    /// if this vector is empty.
+    /// Return a reverse iterator providing non-modifiable access to the last
+    /// element in this vector, and the past-the-end reverse iterator if this
+    /// vector is empty.
     const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
 
     const_reverse_iterator  rend() const BSLS_KEYWORD_NOEXCEPT;
@@ -368,10 +364,10 @@ class vectorBase {
 /// * is `const` *thread-safe*
 /// For terminology see {`bsldoc_glossary`}.
 ///
-/// In addition, the following members offer a full guarantee of rollback:
-/// if an exception is thrown during the invocation of `push_back` or
-/// `insert` with a single element at the end of a pre-existing object, the
-/// object is left in a valid state and its value is unchanged.
+/// In addition, the following members offer a full guarantee of rollback: if
+/// an exception is thrown during the invocation of `push_back` or `insert`
+/// with a single element at the end of a pre-existing object, the object is
+/// left in a valid state and its value is unchanged.
 template <class VALUE_TYPE, class ALLOCATOR = allocator<VALUE_TYPE> >
 class vector : public  vectorBase<VALUE_TYPE>
              , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
@@ -421,8 +417,8 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// base class optimization (EBO) whenever appropriate.
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR> ContainerBase;
 
-    /// This class provides a proctor for deallocating an array of
-    /// `VALUE_TYPE` objects, to be used in the `vector` constructors.
+    /// This class provides a proctor for deallocating an array of `VALUE_TYPE`
+    /// objects, to be used in the `vector` constructors.
     class Proctor {
 
         // DATA
@@ -828,20 +824,20 @@ class vector : public  vectorBase<VALUE_TYPE>
                 const typename type_identity<ALLOCATOR>::type& basicAllocator);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Create a vector and insert (in order) each `VALUE_TYPE` object in
+    /// the specified `values` initializer list.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// specified, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  This method requires that the
+    /// (template parameter) type `VALUE_TYPE` be `copy-insertable` into
+    /// this vector (see {Requirements on `VALUE_TYPE`}).  Note that a
+    /// `bslma::Allocator *` can be supplied for `basicAllocator` if the
+    /// type `ALLOCATOR` is `bsl::allocator` (the default).
     vector(std::initializer_list<VALUE_TYPE> values,
            const ALLOCATOR&                  basicAllocator = ALLOCATOR());
                                                                     // IMPLICIT
-        // Create a vector and insert (in order) each 'VALUE_TYPE' object in
-        // the specified 'values' initializer list.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // specified, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be 'copy-insertable' into
-        // this vector (see {Requirements on 'VALUE_TYPE'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 #endif
 
     /// Destroy this vector.
@@ -859,27 +855,27 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// vector (see {Requirements on `VALUE_TYPE`}).
     vector& operator=(const vector& rhs);
 
+    /// Assign to this object the value of the specified `rhs` object,
+    /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
+    /// type has trait `propagate_on_container_move_assignment`, and return
+    /// a reference providing modifiable access to this object.  The
+    /// contents of `rhs` are moved (in constant time) to this vector if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this vector are
+    /// either destroyed or move-assigned to and each additional element in
+    /// `rhs` is move-inserted into this vector.  `rhs` is left in a valid
+    /// but unspecified state, and if an exception is thrown, `*this` is
+    /// left in a valid but unspecified state.  This method requires that
+    /// the (template parameter) type `VALUE_TYPE` be `move-assignable` and
+    /// `move-insertable` into this vector (see {Requirements on
+    /// `VALUE_TYPE`}).  Note that the `vector` template arguments must be
+    /// explicitly spelled out to work around an MSVC 2022 bug, see DRQS
+    /// 171087946.
     vector& operator=(
             BloombergLP::bslmf::MovableRef<vector<VALUE_TYPE, ALLOCATOR> > rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
               AllocatorTraits::propagate_on_container_move_assignment::value ||
               AllocatorTraits::is_always_equal::value);
-        // Assign to this object the value of the specified 'rhs' object,
-        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_move_assignment', and return
-        // a reference providing modifiable access to this object.  The
-        // contents of 'rhs' are moved (in constant time) to this vector if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this vector are
-        // either destroyed or move-assigned to and each additional element in
-        // 'rhs' is move-inserted into this vector.  'rhs' is left in a valid
-        // but unspecified state, and if an exception is thrown, '*this' is
-        // left in a valid but unspecified state.  This method requires that
-        // the (template parameter) type 'VALUE_TYPE' be 'move-assignable' and
-        // 'move-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).  Note that the 'vector' template arguments must be
-        // explicitly spelled out to work around an MSVC 2022 bug, see DRQS
-        // 171087946.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -2100,27 +2096,26 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// `[first .. cend()]` (both endpoints included).
     iterator erase(const_iterator first, const_iterator last);
 
+    /// Exchange the value of this object with that of the specified `other`
+    /// object; also exchange the allocator of this object with that of `other`
+    /// if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either allocator
+    /// otherwise.  This method provides the no-throw exception-safety
+    /// guarantee.  This operation has `O[1]` complexity if either this object
+    /// was created with the same allocator as `other` or `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+    /// complexity, where `n` and `m` are the number of elements in this object
+    /// and `other`, respectively.  Note that this method`s support for
+    /// swapping objects created with different allocators when `ALLOCATOR`
+    /// does not have the `propagate_on_container_swap` trait is a departure
+    /// from the C++ Standard.
     void swap(vector& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                          AllocatorTraits::propagate_on_container_swap::value ||
                          AllocatorTraits::is_always_equal::value);
-        // Exchange the value of this object with that of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee.  This operation has 'O[1]' complexity if
-        // either this object was created with the same allocator as 'other' or
-        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
-        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-        // elements in this object and 'other', respectively.  Note that this
-        // method's support for swapping objects created with different
-        // allocators when 'ALLOCATOR' does not have the
-        // 'propagate_on_container_swap' trait is a departure from the
-        // C++ Standard.
 
     /// Remove all elements from this vector making its size 0.  Note that
-    /// although this vector is empty after this method returns, it
-    /// preserves the same capacity it had before the method was called.
+    /// although this vector is empty after this method returns, it preserves
+    /// the same capacity it had before the method was called.
     void clear() BSLS_KEYWORD_NOEXCEPT;
 
     // ACCESSORS
@@ -2129,12 +2124,12 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// vector.
     allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// Return a theoretical upper bound on the largest number of elements
-    /// that this vector could possibly hold.  Note that there is no
-    /// guarantee that the vector can successfully grow to the returned
-    /// size, or even close to that size without running out of resources.
-    /// Also note that requests to create a vector longer than this number
-    /// of elements are guaranteed to raise a `std::length_error` exception.
+    /// Return a theoretical upper bound on the largest number of elements that
+    /// this vector could possibly hold.  Note that there is no guarantee that
+    /// the vector can successfully grow to the returned size, or even close to
+    /// that size without running out of resources.  Also note that requests to
+    /// create a vector longer than this number of elements are guaranteed to
+    /// raise a `std::length_error` exception.
     size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
 };
 
@@ -2142,37 +2137,35 @@ class vector : public  vectorBase<VALUE_TYPE>
 
                        // *** relational operators ***
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `vector` objects `lhs` and `rhs` have
-/// the same value if they have the same number of elements, and each
-/// element in the ordered sequence of elements of `lhs` has the same value
-/// as the corresponding element in the ordered sequence of elements of
-/// `rhs`.  This method requires that the (template parameter) type
-/// `VALUE_TYPE` be `equality-comparable` (see {Requirements on
-/// `VALUE_TYPE`}).
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `vector` objects `lhs` and `rhs` have the same
+/// value if they have the same number of elements, and each element in the
+/// ordered sequence of elements of `lhs` has the same value as the
+/// corresponding element in the ordered sequence of elements of `rhs`.  This
+/// method requires that the (template parameter) type `VALUE_TYPE` be
+/// `equality-comparable` (see {Requirements on `VALUE_TYPE`}).
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `vector` objects `lhs` and `rhs` do not
+/// have the same value if they do not have the same number of elements, or
+/// some element in the ordered sequence of elements of `lhs` does not have the
+/// same value as the corresponding element in the ordered sequence of elements
+/// of `rhs`.  This method requires that the (template parameter) type
+/// `VALUE_TYPE` be `equality-comparable` (see {Requirements on `VALUE_TYPE`}).
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
-    // do not have the same value if they do not have the same number of
-    // elements, or some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.  This method requires that the (template
-    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
-    // on 'VALUE_TYPE'}).
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
-/// Perform a lexicographic three-way comparison of the specified `lhs` and
-/// the specified `rhs` vectors by using the comparison operators of
-/// `VALUE_TYPE` on each element; return the result of that comparison.
+/// Perform a lexicographic three-way comparison of the specified `lhs` and the
+/// specified `rhs` vectors by using the comparison operators of `VALUE_TYPE`
+/// on each element; return the result of that comparison.
 template <class VALUE_TYPE, class ALLOCATOR>
 BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
                                      const vector<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -2180,53 +2173,53 @@ BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
 
 #else
 
+/// Return `true` if the value of the specified `lhs` vector is
+/// lexicographically less than that of the specified `rhs` vector, and
+/// `false` otherwise.  Given iterators `i` and `j` over the respective
+/// sequences `[lhs.begin() .. lhs.end())` and `[rhs.begin() .. rhs.end())`,
+/// the value of vector `lhs` is lexicographically less than that of vector
+/// `rhs` if `true == *i < *j` for the first pair of corresponding iterator
+/// positions where `*i < *j` and `*j < *i` are not both `false`.  If no
+/// such corresponding iterator position exists, the value of `lhs` is
+/// lexicographically less than that of `rhs` if `lhs.size() < rhs.size()`.
+/// This method requires that `operator<`, inducing a total order, be
+/// defined for `value_type`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' vector is
-    // lexicographically less than that of the specified 'rhs' vector, and
-    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
-    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
-    // the value of vector 'lhs' is lexicographically less than that of vector
-    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
-    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
-    // such corresponding iterator position exists, the value of 'lhs' is
-    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.
 
+/// Return `true` if the value of the specified `lhs` vector is
+/// lexicographically greater than that of the specified `rhs` vector, and
+/// `false` otherwise.  The value of vector `lhs` is lexicographically
+/// greater than that of vector `rhs` if `rhs` is lexicographically less
+/// than `lhs` (see `operator<`).  This method requires that `operator<`,
+/// inducing a total order, be defined for `value_type`.  Note that this
+/// operator returns `rhs < lhs`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' vector is
-    // lexicographically greater than that of the specified 'rhs' vector, and
-    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
-    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
-    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
-    // inducing a total order, be defined for 'value_type'.  Note that this
-    // operator returns 'rhs < lhs'.
 
+/// Return `true` if the value of the specified `lhs` vector is
+/// lexicographically less than or equal to that of the specified `rhs`
+/// vector, and `false` otherwise.  The value of vector `lhs` is
+/// lexicographically less than or equal to that of vector `rhs` if `rhs` is
+/// not lexicographically less than `lhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(rhs < lhs)`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' vector is
-    // lexicographically less than or equal to that of the specified 'rhs'
-    // vector, and 'false' otherwise.  The value of vector 'lhs' is
-    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
-    // not lexicographically less than 'lhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the value of the specified `lhs` vector is
+/// lexicographically greater than or equal to that of the specified `rhs`
+/// vector, and `false` otherwise.  The value of vector `lhs` is
+/// lexicographically greater than or equal to that of vector `rhs` if `lhs`
+/// is not lexicographically less than `rhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(lhs < rhs)`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' vector is
-    // lexicographically greater than or equal to that of the specified 'rhs'
-    // vector, and 'false' otherwise.  The value of vector 'lhs' is
-    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
-    // is not lexicographically less than 'rhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
@@ -2244,24 +2237,24 @@ template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
 typename vector<VALUE_TYPE, ALLOCATOR>::size_type
 erase_if(vector<VALUE_TYPE, ALLOCATOR>& vec, PREDICATE predicate);
 
+/// Exchange the value of the specified `a` object with that of the
+/// specified `b` object; also exchange the allocator of `a` with that of
+/// `b` if the (template parameter) type `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait, and do not modify either allocator
+/// otherwise.  This function provides the no-throw exception-safety
+/// guarantee.  This operation has `O[1]` complexity if either `a` was
+/// created with the same allocator as `b` or `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+/// complexity, where `n` and `m` are the number of elements in `a` and `b`,
+/// respectively.  Note that this function`s support for swapping objects
+/// created with different allocators when `ALLOCATOR` does not have the
+/// `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                                                    a.swap(b)));
-    // Exchange the value of the specified 'a' object with that of the
-    // specified 'b' object; also exchange the allocator of 'a' with that of
-    // 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
-    // created with the same allocator as 'b' or 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
-    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
-    // respectively.  Note that this function's support for swapping objects
-    // created with different allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
 
                    // =====================================
@@ -2631,15 +2624,14 @@ vector(std::initializer_list<VALUE>, ALLOC *)
                         // class vector_UintPtrConversionIterator
                         // ======================================
 
-/// This class provides a minimal proxy iterator adapter, transforming
-/// pointers to `uintptr_t` values on the fly, for only the operations
-/// needed to implement the member functions and constructors of the
-/// `vector` partial template specialization that take iterator ranges as
-/// arguments.  While it does not provide a standard conforming iterator
-/// itself, if provides exactly sufficient behavior to implement all the
-/// needed members.  `VALUE_TYPE` shall be a pointer type, and `ITERATOR`
-/// shall be a standard conforming iterator that dereferences to a type
-/// implicitly convertible to `VALUE_TYPE`
+/// This class provides a minimal proxy iterator adapter, transforming pointers
+/// to `uintptr_t` values on the fly, for only the operations needed to
+/// implement the member functions and constructors of the `vector` partial
+/// template specialization that take iterator ranges as arguments.  While it
+/// does not provide a standard conforming iterator itself, if provides exactly
+/// sufficient behavior to implement all the needed members.  `VALUE_TYPE`
+/// shall be a pointer type, and `ITERATOR` shall be a standard conforming
+/// iterator that dereferences to a type implicitly convertible to `VALUE_TYPE`
 template <class VALUE_TYPE, class ITERATOR>
 class vector_UintPtrConversionIterator {
 
@@ -2666,14 +2658,14 @@ class vector_UintPtrConversionIterator {
 
     // MANIPULATORS
 
-    /// Increment this iterator to refer to the next element in the
-    /// underlying sequence, and return a reference to this object.
+    /// Increment this iterator to refer to the next element in the underlying
+    /// sequence, and return a reference to this object.
     vector_UintPtrConversionIterator& operator++();
 
     // ACCESSORS
 
-    /// Return the value of the pointer this iterator refers to, converted
-    /// to an unsigned integer.
+    /// Return the value of the pointer this iterator refers to, converted to
+    /// an unsigned integer.
     UintPtr operator*() const;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -2690,14 +2682,15 @@ class vector_UintPtrConversionIterator {
 #else
 
     // FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` iterators do not
+    /// refer to the same element in the same underlying sequence and no
+    /// more than one refers to the past-the-end element of the sequence,
+    /// and `false` otherwise.  The behavior is undefined if `lhs` and `rhs`
+    /// do not iterate over the same sequence.
     friend
     bool operator!=(const vector_UintPtrConversionIterator& lhs,
                     const vector_UintPtrConversionIterator& rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' iterators do not
-        // refer to the same element in the same underlying sequence and no
-        // more than one refers to the past-the-end element of the sequence,
-        // and 'false' otherwise.  The behavior is undefined if 'lhs' and 'rhs'
-        // do not iterate over the same sequence.
     {
         return lhs.d_iter != rhs.d_iter;
     }
@@ -2816,9 +2809,8 @@ class Vector_PushProctor {
 
     // MANIPULATORS
 
-    /// Release from management the object currently managed by this
-    /// proctor.  If no object is currently being managed, this method has
-    /// no effect.
+    /// Release from management the object currently managed by this proctor.
+    /// If no object is currently being managed, this method has no effect.
     void release();
 };
 

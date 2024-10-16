@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:10 2024
+// Generated on Wed Oct 16 12:19:37 2024
 // Command line: sim_cpp11_features.pl bslstl_queue.h
 
 #ifdef COMPILING_BSLSTL_QUEUE_H
@@ -368,7 +368,6 @@ class queue {
 // forwarding in some compilers.
     template <class... Args>
     reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
-
 // }}} END GENERATED CODE
 #endif
 
