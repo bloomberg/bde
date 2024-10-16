@@ -1242,10 +1242,10 @@ void TestDriver::testCase7()
 
     if (verbose) bsl::cout << "\tTesting Decimal128" << bsl::endl;
     {
-        typedef BDEC::Decimal128                     Obj;
-        typedef bsl::numeric_limits<BDEC::Decimal32> d128_limits;
-        typedef bsl::pair<Obj, HashType>             TestDataPair;
-        typedef bsl::vector<TestDataPair>            TestDataVector;
+        typedef BDEC::Decimal128                      Obj;
+        typedef bsl::numeric_limits<BDEC::Decimal128> d128_limits;
+        typedef bsl::pair<Obj, HashType>              TestDataPair;
+        typedef bsl::vector<TestDataPair>             TestDataVector;
 
         TestDataVector       testData(&va);
 
