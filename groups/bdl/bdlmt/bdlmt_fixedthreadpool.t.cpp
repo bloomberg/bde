@@ -6,6 +6,9 @@
 #include <bdlm_metricsadapter.h>
 #include <bdlm_metricsregistry.h>
 
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -71,7 +74,10 @@ using bsl::flush;
 // which are controlled by the test case.
 //
 // In addition to positive test cases (run in the nightly builds), a negative
-// test case -1 can be run manually to measure performance of enqueuing jobs.
+// test case -1 can be run manually to measure performance of enqueuing jobs,
+// and test case -3 can be run to reproduce the lost condition signal issue in
+// the underlying implementation of condition variable (e.g.,
+// https://sourceware.org/bugzilla/show_bug.cgi?id=25847).
 //
 // [ 3] bdlmt::FixedThreadPool(numThreads, maxNumPendingJobs, *bA);
 // [ 3] bdlmt::FixedThreadPool(nT, maxNPJ, mI, *mR, *bA);
@@ -642,6 +648,21 @@ void performanceTest(FILE       *outputFile,
 
     delete s_performanceTestPool_p;
     s_performanceTestPool_p = 0;
+}
+
+void testJobRecordNowMicroseconds(bsls::AtomicInt64 *now)
+{
+    *now = bsls::SystemTime::nowMonotonicClock().totalMicroseconds();
+}
+
+extern "C" void *logActivity(void *)
+{
+    while (1) {
+        bsl::cout << "***  " << bdlt::CurrentTime::local() << bsl::endl;
+        bslmt::ThreadUtil::microSleep(k_DECISECOND * 600 * 5);
+    }
+
+    return 0;
 }
 
 // ============================================================================
@@ -2981,6 +3002,74 @@ int main(int argc, char *argv[])
           }
 
           fclose(f);
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // LOST CONDITION SIGNAL REPRODUCTION
+        //
+        // Concerns:
+        // 1. The underlying implementation has a lost signal bug in condition
+        //    variable (e.g.,
+        //    https://sourceware.org/bugzilla/show_bug.cgi?id=25847).
+        //
+        // Plan:
+        // 1. Create a `bdlmt::FixedThreadPool`.  Repeatedly enqueue a job and
+        //    wait for the pool to empty.  If the output stops having the text
+        //    from the pool threads (that should occur every minute), the issue
+        //    has been reproduced.  An additional thread outputs text every
+        //    five minutes to aid in detection.  Note that this test typically
+        //    requires *days* to reproduce the issue.
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "LOST CONDITION SIGNAL REPRODUCTION" << endl
+                 << "==================================" << endl;
+        }
+
+        bslmt::FastPostSemaphoreImplWorkaroundUtil::
+                                           removePostAlwaysSignalsMitigation();
+
+        bdlmt::FixedThreadPool pool(4, 32);
+        pool.start();
+        while (!pool.isStarted()) {
+            bslmt::ThreadUtil::yield();
+        }
+
+        bslmt::ThreadUtil::Handle logActivityHandle;
+
+        bslmt::ThreadUtil::create(&logActivityHandle,
+                                  logActivity,
+                                  0);
+
+        bdlt::Datetime lastLog = bdlt::CurrentTime::local();
+        bsl::cout << lastLog << bsl::endl;
+
+        bsls::AtomicInt64 stop;
+        stop = 0;
+
+        const Obj::Job job(bdlf::BindUtil::bind(&testJobRecordNowMicroseconds,
+                                                &stop));
+
+        while (1) {
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::yield();
+
+            stop = 0;
+            bdlt::Datetime start = bdlt::CurrentTime::local();
+            pool.enqueueJob(job);
+            while (0 == stop) {
+                bslmt::ThreadUtil::yield();
+            }
+            while (0 != pool.numActiveThreads()) {
+                bslmt::ThreadUtil::yield();
+            }
+
+            if (1 <= (start - lastLog).totalMinutes()) {
+                bsl::cout << start << bsl::endl;
+                lastLog = start;
+            }
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
