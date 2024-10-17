@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:10 2024
+// Generated on Mon Oct 14 11:26:11 2024
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -1399,6 +1399,17 @@ bool operator>=(const multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 
 // FREE FUNCTIONS
 
+/// Erase all the elements in the specified multimap `m` that satisfy the
+/// specified predicate `predicate`.  Return the number of elements erased.
+template <class KEY,
+          class VALUE,
+          class COMPARATOR,
+          class ALLOCATOR,
+          class PREDICATE>
+typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
+erase_if(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>&               m,
+                                                          PREDICATE predicate);
+
 /// Exchange the value and comparator of the specified `a` object with those
 /// of the specified `b` object; also exchange the allocator of `a` with
 /// that of `b` if the (template parameter) type `ALLOCATOR` has the
@@ -2566,6 +2577,20 @@ bool bsl::operator>=(
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
 // FREE FUNCTIONS
+template <class KEY,
+          class VALUE,
+          class COMPARATOR,
+          class ALLOCATOR,
+          class PREDICATE>
+inline
+typename bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
+bsl::erase_if(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>&      m,
+                                                           PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(m, predicate);
+}
+
+
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void bsl::swap(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,

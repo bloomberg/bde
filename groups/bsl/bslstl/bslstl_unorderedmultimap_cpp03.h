@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 18:48:19 2024
+// Generated on Mon Oct 14 10:32:16 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -1309,6 +1309,19 @@ bool operator!=(
 
 // FREE FUNCTIONS
 
+/// Erase all the elements in the specified unordered_multimap `m` that satisfy
+/// the specified predicate `predicate`.  Return the number of elements
+/// erased.
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+erase_if(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&    m,
+                                                          PREDICATE predicate);
+
 /// Exchange the value, hasher, key-equality functor, and `max_load_factor`
 /// of the specified `a` object with those of the specified `b` object; also
 /// exchange the allocator of `a` with that of `b` if the (template
@@ -2230,6 +2243,20 @@ bool bsl::operator!=(
 #endif
 
 // FREE FUNCTIONS
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+inline
+typename bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+bsl::erase_if(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& m,
+                                                           PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(m, predicate);
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,

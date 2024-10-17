@@ -189,7 +189,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [39] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multimap *object, const char *spec, int verbose = 1);
@@ -4008,7 +4008,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4084,6 +4084,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 38: // falls through
+      case 39: // falls through
       case 37: // falls through
       case 36: // falls through
       case 35: // falls through

@@ -441,6 +441,26 @@ static const int V01 = 44;
 static const int V02 = 68;
 static const int V03 = 912;
 
+                       // ================
+                       // struct EqKeyPred
+                       // ================
+
+/// A predicate for testing `erase_if`; it takes a value at construction
+/// and uses it for comparisons later.
+template <class KEY, class VALUE>
+struct EqKeyPred {
+
+    KEY d_key;
+    EqKeyPred(KEY val) : d_key(val) {}
+
+    /// return `true` if the second member of the specified pair `p` is
+    /// equal to the stored value, and `false` otherwise.
+    bool operator() (const bsl::pair<const KEY, VALUE> &p) const
+    {
+        return d_key == p.first;
+    }
+};
+
 //=============================================================================
 //                              TEST SUPPORT
 //-----------------------------------------------------------------------------
@@ -1657,6 +1677,9 @@ class TestDriver {
   public:
     // TEST CASES
 
+    /// Test `std::erase_if`
+    static void testCase41();
+
     /// Test whether `unordered_multimap` is a C++20 range.
     static void testCase40_isRange();
 
@@ -2423,6 +2446,81 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
     return result;
 }
 #endif
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase41()
+{
+    // --------------------------------------------------------------------
+    // TESTING FREE FUNCTION `BSL::ERASE_IF`
+    //
+    // Concerns:
+    // 1. The free function exists, and is callable with a multimap.
+    //
+    // Plan:
+    // 1. Fill a map with known values, then attempt to erase some of
+    //    the values using `bsl::erase_if`.  Verify that the resultant map
+    //    is the right size, contains the correct values, and that the
+    //    value returned from the functions is correct.
+    //
+    // Testing:
+    //   size_t erase_if(map&, PREDICATE);
+    // --------------------------------------------------------------------
+
+    static const struct {
+        int         d_line;       // source line number
+        const char *d_initial_p;  // initial values
+        char        d_element;    // value to remove
+        const char *d_results_p;  // expected result value
+    } DATA[] = {
+        //line  initial              element  results
+        //----  -------------------  -------  -------------------
+        { L_,   "",                  'A',     ""                  },
+        { L_,   "A",                 'A',     ""                  },
+        { L_,   "A",                 'B',     "A"                 },
+        { L_,   "B",                 'A',     "B"                 },
+        { L_,   "AB",                'A',     "B"                 },
+        { L_,   "BA",                'A',     "B"                 },
+        { L_,   "ABA",               'A',     "B"                 },
+        { L_,   "BAB",               'A',     "BB"                },
+        { L_,   "BC",                'D',     "BC"                },
+        { L_,   "ABC",               'C',     "AB"                },
+        { L_,   "CBADEGHIJKL",       'B',     "CADEGHIJKL"        },
+        { L_,   "AAAAAAAAAAA",       'A',     ""                  }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    for (size_t i = 0; i < NUM_DATA; ++i)
+    {
+        typedef bsl::pair<const KEY, VALUE> PAIR;
+        int             LINE = DATA[i].d_line;
+        const char     *initial = DATA[i].d_initial_p;
+        size_t          initialLen = strlen(initial);
+        const char     *results = DATA[i].d_results_p;
+        size_t          resultsLen = strlen(results);
+
+        Obj mX;
+        Obj mRes;
+
+        for (size_t j = 0; j < initialLen; ++j)
+        {
+            mX.insert(PAIR(initial[j], 0));
+        }
+
+        for (size_t j = 0; j < resultsLen; ++j)
+        {
+            mRes.insert(PAIR(results[j], 0));
+        }
+
+        EqKeyPred<KEY, VALUE> pred(DATA[i].d_element);
+        size_t                ret   = bsl::erase_if(mX, pred);
+
+        // Is the modified container correct?
+        ASSERTV(LINE, mX == mRes);
+
+        // Is the return value correct?
+        ASSERTV(LINE, ret == initialLen - resultsLen);
+        }
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase40_isRange()
@@ -7843,6 +7941,18 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING ERASE_IF
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FREE FUNCTION `BSL::ERASE_IF`"
+                            "\n=====================================\n");
+
+        TestDriver<char, size_t>::testCase41();
+        TestDriver<int,  size_t>::testCase41();
+        TestDriver<long, size_t>::testCase41();
+      } break;
       case 40: {
         // --------------------------------------------------------------------
         // CONCERN: `unordered_multimap` IS A C++20 RANGE

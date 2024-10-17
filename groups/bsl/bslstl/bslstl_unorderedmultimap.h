@@ -574,6 +574,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_algorithm.h>
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
 #include <bslstl_hashtable.h>
@@ -1885,6 +1886,19 @@ bool operator!=(
 
 // FREE FUNCTIONS
 
+/// Erase all the elements in the specified unordered_multimap `m` that satisfy
+/// the specified predicate `predicate`.  Return the number of elements
+/// erased.
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+typename unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+erase_if(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&    m,
+                                                          PREDICATE predicate);
+
 /// Exchange the value, hasher, key-equality functor, and `max_load_factor`
 /// of the specified `a` object with those of the specified `b` object; also
 /// exchange the allocator of `a` with that of `b` if the (template
@@ -2706,6 +2720,20 @@ bool bsl::operator!=(
 #endif
 
 // FREE FUNCTIONS
+template <class KEY,
+          class VALUE,
+          class HASH,
+          class EQUAL,
+          class ALLOCATOR,
+          class PREDICATE>
+inline
+typename bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
+bsl::erase_if(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& m,
+                                                           PREDICATE predicate)
+{
+    return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(m, predicate);
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void bsl::swap(bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,

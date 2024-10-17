@@ -196,7 +196,7 @@ using bsls::NameOf;
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
-// [41] USAGE EXAMPLE
+// [42] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multimap *object, const char *s, int verbose);
@@ -5763,7 +5763,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 41: {
+      case 42: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5786,6 +5786,7 @@ int main(int argc, char *argv[])
             usage();
         }
       } break;
+      case 41: // falls through
       case 40: // falls through
       case 39: // falls through
       case 38: // falls through
