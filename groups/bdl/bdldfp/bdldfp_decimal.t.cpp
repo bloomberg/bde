@@ -9,6 +9,9 @@
 
 #include <bdlsb_fixedmemoutstreambuf.h>
 
+#include <bslfmt_formatargs.h>
+#include <bslfmt_formattertestutil.h> // Testing only
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -136,7 +139,8 @@ using bsl::atoi;
 // [ 2] Decimal64 Type
 // [ 3] Decimal128 Type
 // [ 9] REGRESSIONS
-// [10] USAGE EXAMPLE
+// [10] BSLFMT FORMATTERS
+// [11] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -359,6 +363,74 @@ bool nanEqual(DECIMAL lhs, DECIMAL rhs)
     return lhs == rhs || (lhs != lhs && rhs != rhs);
 }
 
+// ============================================================================
+//               HELPER FUNCTIONS FOR BSLFMT FORMATTER TESTING
+// ----------------------------------------------------------------------------
+
+namespace {
+
+/// Check whether the `bslfmt::formatter<t_TYPE, char>::parse` function works
+/// as expected for the specified `format` string created at runtime.  The
+/// specified `line` is used to identify the function call location.
+template <class t_TYPE>
+bool testRuntimeCharParse(int line, const char *format)
+{
+    bsl::string message;
+
+    bool rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<t_TYPE>(
+                                                                      &message,
+                                                                      false,
+                                                                      format);
+    ASSERTV(line, format, message.c_str(), rv);
+
+    return rv;
+}
+
+/// Check whether the `bslfmt::formatter<t_TYPE, wchar_t>::parse` function
+/// works as expected for the specified `format` string created at runtime.
+/// The specified `line` is used to identify the function call location.
+template <class t_TYPE>
+bool testRuntimeWcharParse(int line, const wchar_t *format)
+{
+    bsl::string message;
+
+    bool rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<t_TYPE>(
+                                                                      &message,
+                                                                      false,
+                                                                      format);
+    ASSERTV(line, message.c_str(), rv);
+
+    return rv;
+}
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::format` function
+/// produces the specified `expected` result for the specified `format` and
+/// `value`.  The specified `line` is used to identify the function call
+/// location.
+template <class t_CHAR, class t_TYPE>
+bool testRuntimeFormat(int           line,
+                       const t_CHAR *expected,
+                       const t_CHAR *format,
+                       t_TYPE        value)
+{
+    bsl::string message;
+    int         dummyArg = 0;
+
+    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     expected,
+                                                                     true,
+                                                                     format,
+                                                                     value,
+                                                                     dummyArg,
+                                                                     dummyArg);
+    ASSERTV(line, message.c_str(), rv);
+
+    return rv;
+}
+}  // close unnamed namespace
+
+
 //=============================================================================
 //                      TEST DRIVER NAMESPACE CLASS
 //-----------------------------------------------------------------------------
@@ -368,6 +440,7 @@ bool nanEqual(DECIMAL lhs, DECIMAL rhs)
 /// compile-time performance issues on some platforms.
 struct TestDriver {
 
+    static void testCase11();
     static void testCase10();
     static void testCase9();
     static void testCase8();
@@ -381,7 +454,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase10()
+void TestDriver::testCase11()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
@@ -400,14 +473,11 @@ void TestDriver::testCase10()
     //   USAGE EXAMPLE
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << bsl::endl
-                           << "Testing Usage Example" << bsl::endl
-                           << "=====================" << bsl::endl;
+    if (verbose) cout << "\nTesting Usage Example"
+                         "\n=====================\n";
 
-    if (veryVerbose) bsl::cout << bsl::endl
-                               << "Portable initialization of "
-                               << "non-integer, constant values"
-                               << bsl::endl;
+    if (veryVerbose) cout << "\nPortable initialization of non-integer, "
+                                                           "constant values\n";
     {
         // If your compiler does not support the C Decimal TR, it does not
         // support decimal floating point literals, only binary floating
@@ -432,9 +502,7 @@ void TestDriver::testCase10()
         ASSERT(d128 * 10 == bdldfp::Decimal128(3));
     }
 
-    if (veryVerbose) bsl::cout << bsl::endl
-                               << "Precise calculations with decimal "
-                               << "values" << bsl::endl;
+    if (veryVerbose) cout << "\nPrecise calculations with decimal values\n";
     {
         // ```
         // Suppose we need to add two (decimal) numbers and then tell if
@@ -447,6 +515,558 @@ void TestDriver::testCase10()
         ASSERT(BDLDFP_DECIMAL_DD(0.1) +  BDLDFP_DECIMAL_DD(0.2) ==
                BDLDFP_DECIMAL_DD(0.3));
         // ```
+    }
+}
+
+void TestDriver::testCase10()
+{
+    // ------------------------------------------------------------------------
+    // BSLFMT FORMATTING
+    //
+    // Concerns:
+    //: 1 TBD
+    //
+    // Plan:
+    //: 1 TBD
+    //
+    // Testing:
+    //   BSLFMT FORMATTING
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << "\nBSLFMT FORMATTING"
+                      << "\n=================\n";
+
+    {
+        bsl::formatter<bdldfp::Decimal32, char>    dummy;   (void)dummy;
+        bsl::formatter<bdldfp::Decimal32, wchar_t> wdummy;  (void)wdummy;
+    }
+
+    {
+        bsl::formatter<bdldfp::Decimal64, char>    dummy;   (void)dummy;
+        bsl::formatter<bdldfp::Decimal64, wchar_t> wdummy;  (void)wdummy;
+    }
+
+    {
+        bsl::formatter<bdldfp::Decimal128, char>    dummy;   (void)dummy;
+        bsl::formatter<bdldfp::Decimal128, wchar_t> wdummy;  (void)wdummy;
+    }
+
+    static struct {
+        int                d_line;
+        const char        *d_expected;
+        const char        *d_format;
+        const wchar_t     *d_wexpected;
+        const wchar_t     *d_wformat;
+        bdldfp::Decimal32  d_value;
+    }  DECIMAL32_TESTS[] = {
+#define ROW(expected, format, value)                                         \
+                        { L_, expected, format, L##expected, L##format, value }
+
+        ROW("0",  "{}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("0.", "{:#}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("0",   "{:}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("0",   "{:1}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:2}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:>2}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0 ",  "{:<2}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0  ", "{:<3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ", "{:^3}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("0",   "{:0}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("0",   "{:01}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("00",  "{:02}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:>02}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0 ",  "{:<02}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0  ", "{:<03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ", "{:^03}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("0",   "{:-}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("0",   "{:-1}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:-2}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:>-2}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0 ",  "{:<-2}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0  ", "{:<-3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ", "{:^-3}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("0",   "{:-0}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("0",   "{:-01}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("00",  "{:-02}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",  "{:>-02}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0 ",  "{:<-02}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("0  ", "{:<-03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ", "{:^-03}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW(" 0",   "{: }",   BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",   "{: 1}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",   "{: 2}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("  0",  "{: 3}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("  0",  "{:> 3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ",  "{:< 3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0  ", "{:< 4}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("  0 ", "{:^ 4}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW(" 0",   "{: 0}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",   "{: 01}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0",   "{: 02}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 00",  "{: 03}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("  0",  "{:> 03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0 ",  "{:< 03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" 0  ", "{:< 04}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("  0 ", "{:^ 04}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("+0",   "{:+}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0",   "{:+1}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0",   "{:+2}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" +0",  "{:+3}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" +0",  "{:>+3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0 ",  "{:<+3}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0  ", "{:<+4}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" +0 ", "{:^+4}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("+0",   "{:+0}",   BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0",   "{:+01}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0",   "{:+02}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW("+00",  "{:+03}",  BDLDFP_DECIMAL_DF(0.)),
+        ROW(" +0",  "{:>+03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0 ",  "{:<+03}", BDLDFP_DECIMAL_DF(0.)),
+        ROW("+0  ", "{:<+04}", BDLDFP_DECIMAL_DF(0.)),
+        ROW(" +0 ", "{:^+04}", BDLDFP_DECIMAL_DF(0.)),
+
+        ROW("-1",   "{:}",   BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1",   "{:2}",  BDLDFP_DECIMAL_DF(-1.)),
+        ROW(" -1",  "{:3}",  BDLDFP_DECIMAL_DF(-1.)),
+        ROW(" -1",  "{:>3}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1 ",  "{:<3}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1  ", "{:<4}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW(" -1 ", "{:^4}", BDLDFP_DECIMAL_DF(-1.)),
+
+        ROW("-1",   "{:0}",   BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1",   "{:02}",  BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-01",  "{:03}",  BDLDFP_DECIMAL_DF(-1.)),
+        ROW(" -1",  "{:>03}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1 ",  "{:<03}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW("-1  ", "{:<04}", BDLDFP_DECIMAL_DF(-1.)),
+        ROW(" -1 ", "{:^04}", BDLDFP_DECIMAL_DF(-1.)),
+
+        // Natural style preserves natural precision in the value when no
+        // precision is specified in the format string
+        ROW("0.0",  "{}",   BDLDFP_DECIMAL_DF(0.0)),
+        ROW("0.0",  "{:#}", BDLDFP_DECIMAL_DF(0.0)),
+        ROW("0.00", "{}",   BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.00", "{:#}", BDLDFP_DECIMAL_DF(0.00)),
+
+        ROW("1.23450e-08", "{}", BDLDFP_DECIMAL_DF(1.23450e-8)),
+
+        // Precision in the format string overrides the natural precision
+        ROW("0.00", "{:.2}",  BDLDFP_DECIMAL_DF(0.0)),
+        ROW("0.00", "{:#.2}", BDLDFP_DECIMAL_DF(0.0)),
+        ROW("0.0", "{:.1}",   BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.0", "{:#.1}",  BDLDFP_DECIMAL_DF(0.00)),
+
+        ROW("1.235e-08", "{:.3}", BDLDFP_DECIMAL_DF(1.23450e-8)),
+
+        // Default precision for fixed format is the natural precision
+        ROW("0.00", "{:f}", BDLDFP_DECIMAL_DF(0.00)),
+
+        // When specified, that precision is used for fixed format
+        ROW("0",        "{:.0f}",  BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.",       "{:#.0f}", BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.0",      "{:.1f}",  BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.0",      "{:#.1f}", BDLDFP_DECIMAL_DF(0.00)),
+
+        // Default precision for scientific format is the natural precision
+        // Notice that the precision may show up as part of the exponent!
+        ROW("0e-02",      "{:e}",  BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.e-02",     "{:#e}", BDLDFP_DECIMAL_DF(0.00)),
+        ROW("1.23e+00",   "{:e}",  BDLDFP_DECIMAL_DF(1.23)),
+        ROW("1.2300e+00", "{:e}",  BDLDFP_DECIMAL_DF(1.2300)),
+
+        // When specified, that precision is used for scientific format
+        ROW("0e+00",        "{:.0e}", BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.e+00",       "{:#.0e}", BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.0e+00",      "{:.1e}",  BDLDFP_DECIMAL_DF(0.00)),
+        ROW("0.0e+00",      "{:#.1e}", BDLDFP_DECIMAL_DF(0.00)),
+    };
+    const size_t NUM_DECIMAL32_TESTS =
+                              sizeof DECIMAL32_TESTS / sizeof *DECIMAL32_TESTS;
+
+    if (veryVerbose) puts("\tTesting `Decimal32` to `char`");
+    for (size_t ti = 0; ti < NUM_DECIMAL32_TESTS; ++ti) {
+        const int               LINE     = DECIMAL32_TESTS[ti].d_line;
+        const char * const      EXPECTED = DECIMAL32_TESTS[ti].d_expected;
+        const char * const      FORMAT   = DECIMAL32_TESTS[ti].d_format;
+        const bdldfp::Decimal32 VALUE    = DECIMAL32_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P_(EXPECTED) P_(FORMAT) P(VALUE);
+        }
+
+        testRuntimeCharParse<bdldfp::Decimal32>(LINE, FORMAT);
+        testRuntimeFormat(LINE, EXPECTED, FORMAT, VALUE);
+    }
+
+    if (veryVerbose) puts("\tTesting `Decimal32` to `wchar_t`");
+    for (size_t ti = 0; ti < NUM_DECIMAL32_TESTS; ++ti) {
+        const int               LINE      = DECIMAL32_TESTS[ti].d_line;
+        const wchar_t * const   WEXPECTED = DECIMAL32_TESTS[ti].d_wexpected;
+        const wchar_t * const   WFORMAT   = DECIMAL32_TESTS[ti].d_wformat;
+        const bdldfp::Decimal32 VALUE     = DECIMAL32_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P(VALUE);
+        }
+
+        testRuntimeWcharParse<bdldfp::Decimal32>(LINE, WFORMAT);
+        testRuntimeFormat(LINE, WEXPECTED, WFORMAT, VALUE);
+    }
+
+    static struct {
+        int                d_line;
+        const char        *d_expected;
+        const char        *d_format;
+        const wchar_t     *d_wexpected;
+        const wchar_t     *d_wformat;
+        bdldfp::Decimal64  d_value;
+    }  DECIMAL64_TESTS[] = {
+#define ROW(expected, format, value)                                         \
+                        { L_, expected, format, L##expected, L##format, value }
+
+        ROW("0",  "{}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("0.", "{:#}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("0",   "{:}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("0",   "{:1}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:2}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:>2}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0 ",  "{:<2}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0  ", "{:<3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ", "{:^3}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("0",   "{:0}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("0",   "{:01}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("00",  "{:02}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:>02}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0 ",  "{:<02}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0  ", "{:<03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ", "{:^03}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("0",   "{:-}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("0",   "{:-1}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:-2}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:>-2}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0 ",  "{:<-2}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0  ", "{:<-3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ", "{:^-3}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("0",   "{:-0}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("0",   "{:-01}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("00",  "{:-02}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",  "{:>-02}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0 ",  "{:<-02}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("0  ", "{:<-03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ", "{:^-03}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW(" 0",   "{: }",   BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",   "{: 1}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",   "{: 2}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("  0",  "{: 3}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("  0",  "{:> 3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ",  "{:< 3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0  ", "{:< 4}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("  0 ", "{:^ 4}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW(" 0",   "{: 0}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",   "{: 01}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0",   "{: 02}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 00",  "{: 03}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("  0",  "{:> 03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0 ",  "{:< 03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" 0  ", "{:< 04}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("  0 ", "{:^ 04}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("+0",   "{:+}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0",   "{:+1}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0",   "{:+2}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" +0",  "{:+3}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" +0",  "{:>+3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0 ",  "{:<+3}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0  ", "{:<+4}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" +0 ", "{:^+4}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("+0",   "{:+0}",   BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0",   "{:+01}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0",   "{:+02}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW("+00",  "{:+03}",  BDLDFP_DECIMAL_DD(0.)),
+        ROW(" +0",  "{:>+03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0 ",  "{:<+03}", BDLDFP_DECIMAL_DD(0.)),
+        ROW("+0  ", "{:<+04}", BDLDFP_DECIMAL_DD(0.)),
+        ROW(" +0 ", "{:^+04}", BDLDFP_DECIMAL_DD(0.)),
+
+        ROW("-1",   "{:}",   BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1",   "{:2}",  BDLDFP_DECIMAL_DD(-1.)),
+        ROW(" -1",  "{:3}",  BDLDFP_DECIMAL_DD(-1.)),
+        ROW(" -1",  "{:>3}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1 ",  "{:<3}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1  ", "{:<4}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW(" -1 ", "{:^4}", BDLDFP_DECIMAL_DD(-1.)),
+
+        ROW("-1",   "{:0}",   BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1",   "{:02}",  BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-01",  "{:03}",  BDLDFP_DECIMAL_DD(-1.)),
+        ROW(" -1",  "{:>03}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1 ",  "{:<03}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW("-1  ", "{:<04}", BDLDFP_DECIMAL_DD(-1.)),
+        ROW(" -1 ", "{:^04}", BDLDFP_DECIMAL_DD(-1.)),
+
+        // Natural style preserves natural precision in the value when no
+        // precision is specified in the format string
+        ROW("0.0",  "{}",   BDLDFP_DECIMAL_DD(0.0)),
+        ROW("0.0",  "{:#}", BDLDFP_DECIMAL_DD(0.0)),
+        ROW("0.00", "{}",   BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.00", "{:#}", BDLDFP_DECIMAL_DD(0.00)),
+
+        ROW("1.234567891234560e-08", "{}",
+                                      BDLDFP_DECIMAL_DD(1.234567891234560e-8)),
+
+        // Precision in the format string overrides the natural precision
+        ROW("0.00", "{:.2}",  BDLDFP_DECIMAL_DD(0.0)),
+        ROW("0.00", "{:#.2}", BDLDFP_DECIMAL_DD(0.0)),
+        ROW("0.0",  "{:.1}",  BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.0",  "{:#.1}", BDLDFP_DECIMAL_DD(0.00)),
+
+        ROW("1.234567891235e-08", "{:.12}",
+                                      BDLDFP_DECIMAL_DD(1.234567891234560e-8)),
+
+        // Default precision for fixed format is the natural precision
+        ROW("0.00", "{:f}", BDLDFP_DECIMAL_DD(0.00)),
+
+        // When specified, that precision is used for fixed format
+        ROW("0",        "{:.0f}",  BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.",       "{:#.0f}", BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.0",      "{:.1f}",  BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.0",      "{:#.1f}", BDLDFP_DECIMAL_DD(0.00)),
+
+        // Default precision for scientific format is the natural precision
+        // Notice that the precision may show up as part of the exponent!
+        ROW("0e-02",      "{:e}",  BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.e-02",     "{:#e}", BDLDFP_DECIMAL_DD(0.00)),
+        ROW("1.23e+00",   "{:e}",  BDLDFP_DECIMAL_DD(1.23)),
+        ROW("1.2300e+00", "{:e}",  BDLDFP_DECIMAL_DD(1.2300)),
+
+        // When specified, that precision is used for scientific format
+        ROW("0e+00",        "{:.0e}", BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.e+00",       "{:#.0e}", BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.0e+00",      "{:.1e}",  BDLDFP_DECIMAL_DD(0.00)),
+        ROW("0.0e+00",      "{:#.1e}", BDLDFP_DECIMAL_DD(0.00)),
+    };
+    const size_t NUM_DECIMAL64_TESTS =
+                              sizeof DECIMAL64_TESTS / sizeof *DECIMAL64_TESTS;
+
+    if (veryVerbose) puts("\tTesting `Decimal64` to `char`");
+    for (size_t ti = 0; ti < NUM_DECIMAL64_TESTS; ++ti) {
+        const int               LINE     = DECIMAL64_TESTS[ti].d_line;
+        const char * const      EXPECTED = DECIMAL64_TESTS[ti].d_expected;
+        const char * const      FORMAT   = DECIMAL64_TESTS[ti].d_format;
+        const bdldfp::Decimal64 VALUE    = DECIMAL64_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P_(EXPECTED) P_(FORMAT) P(VALUE);
+        }
+
+        testRuntimeCharParse<bdldfp::Decimal64>(LINE, FORMAT);
+        testRuntimeFormat(LINE, EXPECTED, FORMAT, VALUE);
+    }
+
+    if (veryVerbose) puts("\tTesting `Decimal64` to `wchar_t`");
+    for (size_t ti = 0; ti < NUM_DECIMAL64_TESTS; ++ti) {
+        const int               LINE      = DECIMAL64_TESTS[ti].d_line;
+        const wchar_t * const   WEXPECTED = DECIMAL64_TESTS[ti].d_wexpected;
+        const wchar_t * const   WFORMAT   = DECIMAL64_TESTS[ti].d_wformat;
+        const bdldfp::Decimal64 VALUE     = DECIMAL64_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P(VALUE);
+        }
+
+        testRuntimeWcharParse<bdldfp::Decimal64>(LINE, WFORMAT);
+        testRuntimeFormat(LINE, WEXPECTED, WFORMAT, VALUE);
+    }
+
+    static struct {
+        int                 d_line;
+        const char         *d_expected;
+        const char         *d_format;
+        const wchar_t      *d_wexpected;
+        const wchar_t      *d_wformat;
+        bdldfp::Decimal128  d_value;
+    }  DECIMAL128_TESTS[] = {
+#define ROW(expected, format, value)                                         \
+                        { L_, expected, format, L##expected, L##format, value }
+
+        ROW("0",  "{}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("0.", "{:#}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("0",   "{:}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("0",   "{:1}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:2}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:>2}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0 ",  "{:<2}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0  ", "{:<3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ", "{:^3}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("0",   "{:0}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("0",   "{:01}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("00",  "{:02}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:>02}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0 ",  "{:<02}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0  ", "{:<03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ", "{:^03}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("0",   "{:-}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("0",   "{:-1}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:-2}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:>-2}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0 ",  "{:<-2}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0  ", "{:<-3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ", "{:^-3}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("0",   "{:-0}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("0",   "{:-01}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("00",  "{:-02}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",  "{:>-02}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0 ",  "{:<-02}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("0  ", "{:<-03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ", "{:^-03}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW(" 0",   "{: }",   BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",   "{: 1}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",   "{: 2}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("  0",  "{: 3}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("  0",  "{:> 3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ",  "{:< 3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0  ", "{:< 4}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("  0 ", "{:^ 4}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW(" 0",   "{: 0}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",   "{: 01}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0",   "{: 02}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 00",  "{: 03}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("  0",  "{:> 03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0 ",  "{:< 03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" 0  ", "{:< 04}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("  0 ", "{:^ 04}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("+0",   "{:+}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0",   "{:+1}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0",   "{:+2}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" +0",  "{:+3}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" +0",  "{:>+3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0 ",  "{:<+3}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0  ", "{:<+4}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" +0 ", "{:^+4}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("+0",   "{:+0}",   BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0",   "{:+01}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0",   "{:+02}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW("+00",  "{:+03}",  BDLDFP_DECIMAL_DL(0.)),
+        ROW(" +0",  "{:>+03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0 ",  "{:<+03}", BDLDFP_DECIMAL_DL(0.)),
+        ROW("+0  ", "{:<+04}", BDLDFP_DECIMAL_DL(0.)),
+        ROW(" +0 ", "{:^+04}", BDLDFP_DECIMAL_DL(0.)),
+
+        ROW("-1",   "{:}",   BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1",   "{:2}",  BDLDFP_DECIMAL_DL(-1.)),
+        ROW(" -1",  "{:3}",  BDLDFP_DECIMAL_DL(-1.)),
+        ROW(" -1",  "{:>3}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1 ",  "{:<3}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1  ", "{:<4}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW(" -1 ", "{:^4}", BDLDFP_DECIMAL_DL(-1.)),
+
+        ROW("-1",   "{:0}",   BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1",   "{:02}",  BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-01",  "{:03}",  BDLDFP_DECIMAL_DL(-1.)),
+        ROW(" -1",  "{:>03}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1 ",  "{:<03}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW("-1  ", "{:<04}", BDLDFP_DECIMAL_DL(-1.)),
+        ROW(" -1 ", "{:^04}", BDLDFP_DECIMAL_DL(-1.)),
+
+        // Natural style preserves natural precision in the value when no
+        // precision is specified in the format string
+        ROW("0.0",  "{}",   BDLDFP_DECIMAL_DL(0.0)),
+        ROW("0.0",  "{:#}", BDLDFP_DECIMAL_DL(0.0)),
+        ROW("0.00", "{}",   BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.00", "{:#}", BDLDFP_DECIMAL_DL(0.00)),
+
+        ROW("1.234567891234567891234567891234560e-08", "{}",
+            BDLDFP_DECIMAL_DL(1.234567891234567891234567891234560e-8)),
+
+        // Precision in the format string overrides the natural precision
+        ROW("0.00", "{:.2}",  BDLDFP_DECIMAL_DL(0.0)),
+        ROW("0.00", "{:#.2}", BDLDFP_DECIMAL_DL(0.0)),
+        ROW("0.0",  "{:.1}",  BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.0",  "{:#.1}", BDLDFP_DECIMAL_DL(0.00)),
+
+        ROW("1.234567891234567891234567891234560e-08", "{:.33}",
+            BDLDFP_DECIMAL_DL(1.234567891234567891234567891234560e-8)),
+        ROW("1.23456789123456789123456789123456e-08",  "{:.32}",
+            BDLDFP_DECIMAL_DL(1.234567891234567891234567891234560e-8)),
+        ROW("1.2345678912345678912345678912346e-08",   "{:.31}",
+            BDLDFP_DECIMAL_DL(1.234567891234567891234567891234560e-8)),
+
+        // Default precision for fixed format is the natural precision
+        ROW("0.00", "{:f}", BDLDFP_DECIMAL_DL(0.00)),
+
+        // When specified, that precision is used for fixed format
+        ROW("0",        "{:.0f}",  BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.",       "{:#.0f}", BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.0",      "{:.1f}",  BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.0",      "{:#.1f}", BDLDFP_DECIMAL_DL(0.00)),
+
+        // Default precision for scientific format is the natural precision
+        // Notice that the precision may show up as part of the exponent!
+        ROW("0e-02",      "{:e}",  BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.e-02",     "{:#e}", BDLDFP_DECIMAL_DL(0.00)),
+        ROW("1.23e+00",   "{:e}",  BDLDFP_DECIMAL_DL(1.23)),
+        ROW("1.2300e+00", "{:e}",  BDLDFP_DECIMAL_DL(1.2300)),
+
+        // When specified, that precision is used for scientific format
+        ROW("0e+00",        "{:.0e}", BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.e+00",       "{:#.0e}", BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.0e+00",      "{:.1e}",  BDLDFP_DECIMAL_DL(0.00)),
+        ROW("0.0e+00",      "{:#.1e}", BDLDFP_DECIMAL_DL(0.00)),
+    };
+    const size_t NUM_DECIMAL128_TESTS =
+                            sizeof DECIMAL128_TESTS / sizeof *DECIMAL128_TESTS;
+
+    if (veryVerbose) puts("\tTesting `Decimal128` to `char`");
+    for (size_t ti = 0; ti < NUM_DECIMAL128_TESTS; ++ti) {
+        const int                LINE     = DECIMAL128_TESTS[ti].d_line;
+        const char * const       EXPECTED = DECIMAL128_TESTS[ti].d_expected;
+        const char * const       FORMAT   = DECIMAL128_TESTS[ti].d_format;
+        const bdldfp::Decimal128 VALUE    = DECIMAL128_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P_(EXPECTED) P_(FORMAT) P(VALUE);
+        }
+
+        testRuntimeCharParse<bdldfp::Decimal128>(LINE, FORMAT);
+        testRuntimeFormat(LINE, EXPECTED, FORMAT, VALUE);
+    }
+
+    if (veryVerbose) puts("\tTesting `Decimal128` to `wchar_t`");
+    for (size_t ti = 0; ti < NUM_DECIMAL128_TESTS; ++ti) {
+        const int                LINE      = DECIMAL128_TESTS[ti].d_line;
+        const wchar_t * const    WEXPECTED = DECIMAL128_TESTS[ti].d_wexpected;
+        const wchar_t * const    WFORMAT   = DECIMAL128_TESTS[ti].d_wformat;
+        const bdldfp::Decimal128 VALUE     = DECIMAL128_TESTS[ti].d_value;
+
+        if (veryVeryVerbose) {
+            P_(LINE) P(VALUE);
+        }
+
+        testRuntimeWcharParse<bdldfp::Decimal128>(LINE, WFORMAT);
+        testRuntimeFormat(LINE, WEXPECTED, WFORMAT, VALUE);
     }
 }
 
@@ -8065,6 +8685,9 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 11: {
+        TestDriver::testCase11();
+      } break;
       case 10: {
         TestDriver::testCase10();
       } break;

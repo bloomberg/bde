@@ -581,8 +581,17 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #include <bdldfp_decimalstorage.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bslh_hash.h>
 
+#include <bslfmt_formatparsecontext.h>
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterspecificationsplitter.h>
+#include <bslfmt_formatterspecificationstandard.h>
+
+#include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 
 #include <bslmf_istriviallycopyable.h>
@@ -602,14 +611,11 @@ BSLS_IDENT("$Id$")
 #include <bsl_limits.h>
 #include <bsl_locale.h>
 
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-
+  #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-
-               // Portable decimal floating-point literal support
+             // Portable decimal floating-point literal support
 
 #define BDLDFP_DECIMAL_DF(lit)                                                \
     BloombergLP::bdldfp::Decimal32(BDLDFP_DECIMALIMPUTIL_DF(lit))
@@ -4270,6 +4276,142 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
     const wchar_t *end() const;
 };
 
+             // ============================================
+             // template class FormatterSpecificationDecimal
+             // ============================================
+
+template <class t_CHAR>
+struct FormatterSpecificationDecimal
+: public bslfmt::FormatterSpecification_SplitterEnums {
+
+    // PUBLIC TYPES
+    enum FormatType {
+        // Default value
+        e_TYPE_UNASSIGNED,
+
+        // Decimal floating point types
+        e_DECIMAL_FLOATING_DEFAULT,     // none
+        e_DECIMAL_FLOATING_DECEXP,      // `e`
+        e_DECIMAL_FLOATING_DECEXP_UC,   // `E`
+        e_DECIMAL_FLOATING_DECIMAL,     // `f`
+        e_DECIMAL_FLOATING_DECIMAL_UC,  // `F`
+        e_DECIMAL_FLOATING_GENERAL,     // `g`
+        e_DECIMAL_FLOATING_GENERAL_UC,  // `g`
+    };
+
+  private:
+    // PRIVATE TYPES
+    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
+
+    // DATA
+    ParsingStatus d_parsingStatus;
+    FSS           d_basicSplitter;
+    FormatType    d_formatType;
+    int           d_widthArgId;
+    int           d_precisionArgId;
+
+    // PRIVATE CLASS METHODS
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
+                             FormatterSpecificationDecimal         *outSpec,
+                             const bsl::basic_string_view<t_CHAR>&  typeString);
+
+    // PRIVATE ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureItWasParsed() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureItWasPostprocessed() const;
+
+  public:
+    // CREATORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationDecimal();
+
+    // CLASS METHODS
+    template <class t_PARSE_CONTEXT>
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
+                                       FormatterSpecificationDecimal *outSpec,
+                                       t_PARSE_CONTEXT               *context);
+
+    template <typename t_FORMAT_CONTEXT>
+    static void postprocess(FormatterSpecificationDecimal *outSpec,
+                            const t_FORMAT_CONTEXT&        context);
+
+    // ACCESSORS
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCharacters() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment alignment() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Sign sign() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool alternativeFlag() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool zeroPaddingFlag() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20
+    const bslfmt::FormatterSpecification_NumericValue
+    postprocessedWidth() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20
+    const bslfmt::FormatterSpecification_NumericValue
+    postprocessedPrecision() const;
+
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
+};
+
+              // ============================================
+              // template struct BslFmtFormatter_FloatingBase
+              // ============================================
+
+template <class t_VALUE, class t_CHAR>
+struct BslFmtFormatter_Impl {
+  private:
+    // PRIVATE CLASS TYPES
+
+    /// A type alias for the `FormatterSpecificationDecimal<t_CHAR>`.
+    typedef FormatterSpecificationDecimal<t_CHAR> FSD;
+
+    // DATA
+    FSD d_spec;  // Parsed specification.
+
+    /// A constant representing the case when a position is not found in a
+    /// string-search.
+    static const size_t k_NO_POS = (size_t)(-1);
+
+  private:
+    // PRIVATE CLASS METHODS
+
+    /// Copy the specified `numberBuffer` of size `numberLength` aligned with
+    /// fills according to the specified `finalSpec` to the output iterator of
+    /// the `formatContext` and return an iterator one-past the last written.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator alignAndCopy(
+                                           const char        *numberBuffer,
+                                           size_t             numberLength,
+                                           t_FORMAT_CONTEXT&  formatContext,
+                                           const FSD&         finalSpec) const;
+
+  public:
+    // MANIPULATORS
+
+    /// Create string representation of the specified `value`, customized in
+    /// accordance with the requested format and the specified `formatContext`,
+    /// and copy it to the output that the output iterator of the
+    /// `formatContext` points to.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const t_VALUE&    value,
+                                        t_FORMAT_CONTEXT& formatContext) const;
+
+    /// Parse the specified `parseContext` and return an iterator, pointing to
+    /// the beginning of the format string.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20
+    typename t_PARSE_CONTEXT::iterator
+    parse(t_PARSE_CONTEXT& parseContext);
+};
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -6414,6 +6556,519 @@ STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
     }
     return stream;
 }
+
+             // --------------------------------------------
+             // template class FormatterSpecificationDecimal
+             // --------------------------------------------
+
+// PRIVATE CLASS METHODS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationDecimal<t_CHAR>::parseType(
+                             FormatterSpecificationDecimal         *outSpec,
+                             const bsl::basic_string_view<t_CHAR>&  typeString)
+{
+    // Handle empty string or empty specification.
+    if (typeString.empty()) {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_DEFAULT;
+        return;                                                       // RETURN
+    }
+
+    // Standard format strings only allow a single type character.
+    if (typeString.size() > 1) {
+        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        BSLS_THROW(bsl::format_error(                                  // THROW
+                  "Decimal floating point format types are single-character"));
+    }
+
+    const t_CHAR frontChar = typeString.front();
+
+    // The type character can only be ASCII so we can do a simple cast.
+    const char typeChar = (frontChar >= 0 && frontChar <= 0x7f)
+                        ? static_cast<char>(frontChar)
+                        : static_cast<char>(0);
+
+    switch (typeChar) {
+      case 'e': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_DECEXP;
+      } break;
+      case 'E': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_DECEXP_UC;
+      } break;
+      case 'f': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_DECIMAL;
+      } break;
+      case 'F': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_DECIMAL_UC;
+      } break;
+      case 'g': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_GENERAL;
+      } break;
+      case 'G': {
+        outSpec->d_formatType = e_DECIMAL_FLOATING_GENERAL_UC;
+      } break;
+      default: {
+        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        BSLS_THROW(bsl::format_error(
+                  "Invalid format type for decimal floating points")); // THROW
+      }
+    }
+
+    if (e_TYPE_UNASSIGNED == outSpec->d_formatType)
+        BSLS_THROW(bsl::format_error(                                  // THROW
+                          "Failed to parse decimal floating point format type "
+                                                          "(reason unknown)"));
+
+    return;
+}
+
+// PRIVATE ACCESSORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationDecimal<t_CHAR>::ensureItWasParsed() const
+{
+    if (d_parsingStatus == e_PARSING_UNINITIALIZED) {
+        BSLS_THROW(bsl::format_error(                                  // THROW
+                    "Decimal format specification '.parse()' was not called"));
+    }
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationDecimal<t_CHAR>::ensureItWasPostprocessed() const
+{
+    if (d_parsingStatus != FormatterSpecificationDecimal::e_PARSING_COMPLETE) {
+        BSLS_THROW(bsl::format_error(                                  // THROW
+              "Decimal format specification '.postprocess()' was not called"));
+    }
+}
+
+// CREATORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+FormatterSpecificationDecimal<t_CHAR>::FormatterSpecificationDecimal()
+: d_parsingStatus(FormatterSpecificationDecimal::e_PARSING_UNINITIALIZED)
+, d_basicSplitter()
+, d_formatType(FormatterSpecificationDecimal::e_TYPE_UNASSIGNED)
+, d_widthArgId(-1)
+, d_precisionArgId(-1)
+{
+}
+
+// ACCESSORS
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+const t_CHAR * FormatterSpecificationDecimal<t_CHAR>::filler() const
+{
+    ensureItWasPostprocessed();
+    return d_basicSplitter.filler();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+int FormatterSpecificationDecimal<t_CHAR>::fillerCharacters() const
+{
+    ensureItWasPostprocessed();
+    return d_basicSplitter.fillerCharacters();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+int FormatterSpecificationDecimal<t_CHAR>::fillerCodePointDisplayWidth() const
+{
+    ensureItWasPostprocessed();
+    return d_basicSplitter.fillerCodePointDisplayWidth();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+typename
+FormatterSpecificationDecimal<t_CHAR>::Alignment
+FormatterSpecificationDecimal<t_CHAR>::alignment() const
+{
+    ensureItWasParsed();
+    return d_basicSplitter.alignment();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+typename
+FormatterSpecificationDecimal<t_CHAR>::Sign
+FormatterSpecificationDecimal<t_CHAR>::sign() const
+{
+    ensureItWasParsed();
+    return d_basicSplitter.sign();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool FormatterSpecificationDecimal<t_CHAR>::alternativeFlag() const
+{
+    ensureItWasParsed();
+    return d_basicSplitter.alternativeFlag();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool FormatterSpecificationDecimal<t_CHAR>::zeroPaddingFlag() const
+{
+    ensureItWasParsed();
+    return d_basicSplitter.zeroPaddingFlag();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+const bslfmt::FormatterSpecification_NumericValue
+FormatterSpecificationDecimal<t_CHAR>::postprocessedWidth() const
+{
+    ensureItWasPostprocessed();
+    return d_basicSplitter.postprocessedWidth();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+const bslfmt::FormatterSpecification_NumericValue
+FormatterSpecificationDecimal<t_CHAR>::postprocessedPrecision() const
+{
+    ensureItWasPostprocessed();
+    return d_basicSplitter.postprocessedPrecision();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool FormatterSpecificationDecimal<t_CHAR>::localeSpecificFlag() const
+{
+    ensureItWasParsed();
+    return d_basicSplitter.localeSpecificFlag();
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+typename FormatterSpecificationDecimal<t_CHAR>::FormatType
+FormatterSpecificationDecimal<t_CHAR>::formatType() const
+{
+    ensureItWasParsed();
+    return d_formatType;
+}
+
+// CLASS METHODS
+template <class t_CHAR>
+template <class t_PARSE_CONTEXT>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationDecimal<t_CHAR>::parse(
+                                       FormatterSpecificationDecimal *outSpec,
+                                       t_PARSE_CONTEXT               *context)
+{
+    BSLMF_ASSERT((
+        bsl::is_same<typename bsl::iterator_traits<
+                         typename t_PARSE_CONTEXT::const_iterator>::value_type,
+                     t_CHAR>::value));
+
+    outSpec->d_parsingStatus = e_PARSING_PREPARSED;
+
+    const Sections sect = static_cast<Sections>(
+            e_SECTIONS_FILL_ALIGN     |
+            e_SECTIONS_SIGN_FLAG      |
+            e_SECTIONS_ALTERNATE_FLAG |
+            e_SECTIONS_ZERO_PAD_FLAG  |
+            e_SECTIONS_WIDTH          |
+            e_SECTIONS_PRECISION      |
+            e_SECTIONS_LOCALE_FLAG    |
+            e_SECTIONS_FINAL_SPECIFICATION);
+
+    bslfmt::FormatterSpecification_Splitter<t_CHAR>::parse(
+                                                      &outSpec->d_basicSplitter,
+                                                      context,
+                                                      sect);
+
+    parseType(outSpec, outSpec->d_basicSplitter.finalSpec());
+
+    if (context->begin() == context->end() || *context->begin() == '}') {
+        return;                                                       // RETURN
+    }
+
+    BSLS_THROW(bsl::format_error(                                      // THROW
+                          "Decimal floating point specification parse failure "
+                          "(invalid character)"));
+}
+
+template <class t_CHAR>
+template <typename t_FORMAT_CONTEXT>
+void FormatterSpecificationDecimal<t_CHAR>::postprocess(
+                                        FormatterSpecificationDecimal *outSpec,
+                                        const t_FORMAT_CONTEXT&        context)
+{
+    outSpec->ensureItWasParsed();
+
+    FSS::postprocess(&outSpec->d_basicSplitter, context);
+
+    switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
+      case bslfmt::FormatterSpecification_NumericValue::e_DEFAULT: break;
+
+      case bslfmt::FormatterSpecification_NumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
+            BSLS_THROW(bsl::format_error("Zero or negative width value"));
+                                                                       // THROW
+      } break;
+      default: {
+        BSLS_THROW(bsl::format_error("Failed to find valid width value"));
+                                                                       // THROW
+      }
+    }
+
+    switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
+      case bslfmt::FormatterSpecification_NumericValue::e_DEFAULT: break;
+
+      case bslfmt::FormatterSpecification_NumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
+            BSLS_THROW(bsl::format_error("Negative precision value")); // THROW
+      } break;
+      default: {
+        BSLS_THROW(bsl::format_error("Failed to find valid precision value"));
+                                                                       // THROW
+      }
+    }
+
+    outSpec->d_parsingStatus =
+                             FormatterSpecificationDecimal::e_PARSING_COMPLETE;
+}
+
+        // ---------------------------------------------------
+        // template struct BslFmtFormatter_DecimalFloatingImpl
+        // ---------------------------------------------------
+
+// PRIVATE MANIPULATORS
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
+                                            const char        *numberBuffer,
+                                            size_t             numberLength,
+                                            t_FORMAT_CONTEXT&  formatContext,
+                                            const FSD&         finalSpec) const
+{
+    typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+
+    FSNVAlue finalWidth(finalSpec.postprocessedWidth());
+
+    ptrdiff_t leftPadFillerCopiesNum  = 0;
+    ptrdiff_t rightPadFillerCopiesNum = 0;
+    ptrdiff_t zeroPadFillerCopiesNum  = 0;
+
+    const char signChar = *numberBuffer == '-'
+                           ? *numberBuffer
+                           : *numberBuffer == '+'
+                           ? *numberBuffer
+                           : *numberBuffer == ' '
+                           ? *numberBuffer
+                           : '\0';
+    const bool hasSignChar = (signChar != 0);
+
+    if (hasSignChar) {
+        // We are going to add the sign back "by hand"
+        ++numberBuffer;
+        --numberLength;
+    }
+
+    // Check if we have a non-numerical value of "inf" or "nan", in which case
+    // we must no use zero padding.
+    const char lastChar = numberBuffer[numberLength - 1];
+    const bool specialValue = 'f' == lastChar || 'n' == lastChar
+                           || 'F' == lastChar || 'N' == lastChar;
+
+    if (numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
+        // We need to fill the remaining space.
+
+        const ptrdiff_t totalPadDisplayWidth =
+                             finalWidth.value() - (numberLength + hasSignChar);
+
+        if (!specialValue && FSD::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+            finalSpec.zeroPaddingFlag()) {
+            // Space will be filled with zeros.
+
+            zeroPadFillerCopiesNum = totalPadDisplayWidth;
+        }
+        else {
+            // Alignment with appropriate symbol is required.
+
+            switch (d_spec.alignment()) {
+              case FSD::e_ALIGN_LEFT: {
+                leftPadFillerCopiesNum  = 0;
+                rightPadFillerCopiesNum = totalPadDisplayWidth;
+              } break;
+              case FSD::e_ALIGN_MIDDLE: {
+                leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
+                rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
+              } break;
+              case FSD::e_ALIGN_DEFAULT:
+              case FSD::e_ALIGN_RIGHT: {
+                leftPadFillerCopiesNum  = totalPadDisplayWidth;
+                rightPadFillerCopiesNum = 0;
+              } break;
+              default: {
+                BSLS_THROW(bsl::format_error("Invalid alignment"));
+              } break;
+            }
+        }
+    }
+
+    // Assembling the final string.
+
+    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
+
+    for (ptrdiff_t i = 0; i < leftPadFillerCopiesNum; ++i) {
+        outIterator = bsl::copy(
+                            finalSpec.filler(),
+                            finalSpec.filler() + finalSpec.fillerCharacters(),
+                            outIterator);
+    }
+
+    if (hasSignChar) {
+        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                             t_CHAR>::outputFromChar(signChar, outIterator);
+    }
+
+    for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
+        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                                    t_CHAR>::outputFromChar('0', outIterator);
+    }
+
+    outIterator =
+            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
+                                                   numberBuffer,
+                                                   numberBuffer + numberLength,
+                                                   outIterator);
+
+    for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
+        outIterator = bsl::copy(
+                             finalSpec.filler(),
+                             finalSpec.filler() + finalSpec.fillerCharacters(),
+                             outIterator);
+    }
+
+    return outIterator;
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_PARSE_CONTEXT>
+BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
+BslFmtFormatter_Impl<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
+{
+    FSD::parse(&d_spec, &parseContext);
+
+    if (d_spec.localeSpecificFlag()) {
+        BSLS_THROW(bsl::format_error(                                  // THROW
+                          "Formatting with the L specifier is not supported"));
+    }
+
+    return parseContext.begin();
+}
+
+template <class t_VALUE, class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
+                                         const t_VALUE&    value,
+                                         t_FORMAT_CONTEXT& formatContext) const
+{
+
+    typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+
+    FSD finalSpec(d_spec);
+    FSD::postprocess(&finalSpec, formatContext);
+
+    const bool isDefaultPrecision =
+         FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().valueType();
+    const int precision = isDefaultPrecision
+                        ? -1
+                        : finalSpec.postprocessedPrecision().value();
+
+    DecimalFormatConfig cfg(precision);
+
+    bool upperCase = false;
+
+    switch (finalSpec.formatType()) {
+      case FSD::e_DECIMAL_FLOATING_DECEXP_UC:
+        upperCase = true;
+        BSLA_FALLTHROUGH;
+      case FSD::e_DECIMAL_FLOATING_DECEXP: {
+        cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
+      } break;
+
+      case FSD::e_DECIMAL_FLOATING_DECIMAL_UC:
+        upperCase = true;
+        BSLA_FALLTHROUGH;
+      case FSD::e_DECIMAL_FLOATING_DECIMAL: {
+          cfg.setStyle(DecimalFormatConfig::e_FIXED);
+      } break;
+
+      // These are all the default "natural" format
+      case FSD::e_DECIMAL_FLOATING_GENERAL_UC:
+        upperCase = true;
+        BSLA_FALLTHROUGH;
+      case FSD::e_DECIMAL_FLOATING_DEFAULT: BSLA_FALLTHROUGH;
+      case FSD::e_DECIMAL_FLOATING_GENERAL: break;
+
+      default: {
+        BSLS_THROW(bsl::format_error("Unknown decimal floating point format"));
+      }
+    }
+
+    switch (finalSpec.sign()) {
+      case FSD::e_SIGN_DEFAULT:  BSLA_FALLTHROUGH;
+      case FSD::e_SIGN_NEGATIVE: {
+        cfg.setSign(DecimalFormatConfig::e_NEGATIVE_ONLY);
+      } break;
+      case FSD::e_SIGN_POSITIVE: {
+        cfg.setSign(DecimalFormatConfig::e_ALWAYS);
+      } break;
+      case FSD::e_SIGN_SPACE: {
+        cfg.setSign(DecimalFormatConfig::e_POSITIVE_AS_SPACE);
+      } break;
+    }
+
+    if (finalSpec.alternativeFlag()) {
+        cfg.setShowpoint(DecimalFormatConfig::e_ALWAYS);
+    }
+    if (upperCase) {
+        cfg.setInfinity("INF");
+        cfg.setNan("NAN");
+        cfg.setSNan("NAN");
+        cfg.setExponent('E');
+    }
+    else {
+        cfg.setInfinity("inf");
+        cfg.setNan("nan");
+        cfg.setSNan("nan");
+        cfg.setExponent('e');
+    }
+
+    typedef bsl::numeric_limits<t_VALUE> Limits;
+    const int effectivePrecision = precision > Limits::max_precision
+                                 ? precision
+                                 : Limits::max_precision;
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + effectivePrecision;       // partial part
+        // The size of the buffer sufficient to store max 'DECIMAL' value in
+        // fixed notation with the max precision supported by 'DECIMAL' type,
+        // or the requested precision if it is larger than the maximum.
+
+    bslma::Allocator *allocator = bslma::Default::allocator();
+    char             *buffer    = (char *)allocator->allocate(k_BUFFER_SIZE);
+
+    bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
+
+    const int len = DecimalImpUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           *value.data(),
+                                           cfg);
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+
+    return alignAndCopy(buffer, len, formatContext, finalSpec);
+}
+
 }  // close package namespace
 
 
@@ -8176,6 +8831,33 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal128& object)
 }
 
 }  // close enterprise namespace
+
+// FORMATTER SPECIALIZATIONS
+namespace bsl {
+
+template <class t_CHAR>
+struct formatter<BloombergLP::bdldfp::Decimal32, t_CHAR>
+: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+                                                BloombergLP::bdldfp::Decimal32,
+                                                t_CHAR>
+{ };
+
+template <class t_CHAR>
+struct formatter<BloombergLP::bdldfp::Decimal64, t_CHAR>
+: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+                                                BloombergLP::bdldfp::Decimal64,
+                                                t_CHAR>
+{ };
+
+template <class t_CHAR>
+struct formatter<BloombergLP::bdldfp::Decimal128, t_CHAR>
+: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+                                               BloombergLP::bdldfp::Decimal128,
+                                               t_CHAR>
+{ };
+
+}  // close namespace bsl
+
 
 #endif
 
