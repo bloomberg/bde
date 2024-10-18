@@ -509,9 +509,7 @@ void Formatter_TestUtil_Oracle_Impl<char>::evaluateOracle(
 {
     *result = std::vformat(
           fmtStr,
-          std::make_format_args(BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
-                                BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
-                                BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2)));
+          std::make_format_args(value, arg1, arg2));
 }
 
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>
@@ -524,9 +522,7 @@ void Formatter_TestUtil_Oracle_Impl<wchar_t>::evaluateOracle(
 {
     *result = std::vformat(
          fmtStr,
-         std::make_wformat_args(BSLS_COMPILERFEATURES_FORWARD(t_TYPE, value),
-                                BSLS_COMPILERFEATURES_FORWARD(t_ARG_1, arg1),
-                                BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2)));
+         std::make_wformat_args(value, arg1, arg2));
 }
 #endif
 

@@ -525,14 +525,14 @@ template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtstr.get(),
-                        make_format_args(std::forward<t_ARGS>(args)...));
+                        make_format_args(args...));
 }
 
 template <class... t_ARGS>
 wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtstr.get(),
-                        make_wformat_args(std::forward<t_ARGS>(args)...));
+                        make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -542,7 +542,7 @@ string format(const std::locale&       loc,
 {
     return bsl::vformat(loc,
                         fmtstr.get(),
-                        make_format_args(std::forward<t_ARGS>(args)...));
+                        make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -552,7 +552,7 @@ wstring format(const std::locale&        loc,
 {
     return bsl::vformat(loc,
                         fmtstr.get(),
-                        make_wformat_args(std::forward<t_ARGS>(args)...));
+                        make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -562,7 +562,7 @@ string format(allocator<char>          alloc,
 {
     return bsl::vformat(alloc,
                         fmtstr.get(),
-                        make_format_args(std::forward<t_ARGS>(args)...));
+                        make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -572,7 +572,7 @@ wstring format(allocator<wchar_t>        alloc,
 {
     return bsl::vformat(alloc,
                         fmtstr.get(),
-                        make_wformat_args(std::forward<t_ARGS>(args)...));
+                        make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -584,7 +584,7 @@ string format(allocator<char>          alloc,
     return bsl::vformat(alloc,
                         loc,
                         fmtstr.get(),
-                        make_format_args(std::forward<t_ARGS>(args)...));
+                        make_format_args(args...));
 }
 
 template <class... t_ARGS>

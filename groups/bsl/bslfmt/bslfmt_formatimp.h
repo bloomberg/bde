@@ -978,7 +978,7 @@ format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
           const t_ARGS&...               args)
 {
-    return vformat_to(out, fmtstr.get(), make_format_args(args...));
+    return vformat_to(out, fmtstr.get(), bslfmt::make_format_args(args...));
 }
 
 template <class t_OUT, class... t_ARGS>
@@ -999,7 +999,7 @@ void format_to(bsl::string                    *out,
 {
     vformat_to(bsl::back_inserter(*out),
                fmtstr.get(),
-               make_format_args(args...));
+               bslfmt::make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -1009,14 +1009,14 @@ void format_to(bsl::wstring                    *out,
 {
     vformat_to(bsl::back_inserter(*out),
                fmtstr.get(),
-               make_wformat_args(args...));
+               bslfmt::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtstr, const t_ARGS&...args)
 {
     bsl::string result;
-    vformat_to(&result, fmtstr.get(), make_format_args(args...));
+    vformat_to(&result, fmtstr.get(), bslfmt::make_format_args(args...));
     return result;
 }
 
@@ -1025,7 +1025,7 @@ bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
                     const t_ARGS&...                args)
 {
     bsl::wstring result;
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args...));
+    vformat_to(&result, fmtstr.get(), bslfmt::make_wformat_args(args...));
     return result;
 }
 
@@ -1035,7 +1035,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                    const t_ARGS&...               args)
 {
     bsl::string result(alloc);
-    vformat_to(&result, fmtstr.get(), make_format_args(args...));
+    vformat_to(&result, fmtstr.get(), bslfmt::make_format_args(args...));
     return result;
 }
 
@@ -1045,7 +1045,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     const t_ARGS&...                args)
 {
     bsl::wstring result(alloc);
-    vformat_to(&result, fmtstr.get(), make_wformat_args(args...));
+    vformat_to(&result, fmtstr.get(), bslfmt::make_wformat_args(args...));
     return result;
 }
 

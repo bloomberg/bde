@@ -307,7 +307,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 14
 static const bool k_ORACLE_SUPPORT_UNICODE = false;
 #else
 static const bool k_ORACLE_SUPPORT_UNICODE = true;
