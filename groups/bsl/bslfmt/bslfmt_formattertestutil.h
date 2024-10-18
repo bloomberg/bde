@@ -312,6 +312,13 @@ struct Formatter_TestUtil_Impl {
   public:
     // CLASS METHODS
 
+    /// Convert the specified `string` into its narrow format, if necessary,
+    /// using the default `locale()`, use the question mark (`'?'`) character
+    /// for characters that cannot be represented as narrow, and return the
+    /// resulting narrow string.
+    static bsl::string toNarrow(const bsl::string_view&  string);
+    static bsl::string toNarrow(const bsl::wstring_view& string);
+
     template <class t_TYPE, class t_ARG_1, class t_ARG_2>
     static bool testEvaluateFormat(
                 bsl::string                                    *message,
@@ -613,13 +620,37 @@ bool Formatter_TestUtil_Impl<t_CHAR>::evaluateBslfmt(
         *result = bsl::basic_string<t_CHAR>(mfc.finalString());
     }
     catch (const bsl::format_error& e) {
-        if (message)
-            *message = e.what();
+        if (message) {
+            *message = "Exception bsl::format_error: ";
+            *message += e.what();
+        }
         return false;                                                 // RETURN
     }
 
     return true;
 }
+
+template <class t_CHAR>
+bsl::string
+Formatter_TestUtil_Impl<t_CHAR>::toNarrow(const bsl::string_view& string)
+{
+    return bsl::string(string.data(), string.size());
+}
+
+template <class t_CHAR>
+bsl::string
+Formatter_TestUtil_Impl<t_CHAR>::toNarrow(const bsl::wstring_view& string)
+{
+    bsl::string       rv;
+    const std::locale loc;
+
+    typedef bsl::wstring_view::const_iterator Cit;
+    for (Cit i = string.begin(); i != string.end(); ++i) {
+        rv += std::use_facet<std::ctype<wchar_t> >(loc).narrow(*i, '?');
+    }
+    return rv;
+}
+
 
 template <class t_CHAR>
 template <class t_TYPE, class t_ARG_1, class t_ARG_2>
@@ -665,8 +696,15 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluateVFormat(
         return false;
 
     if (desiredResult != res_bde) {
-        if (message)
-            *message = "bslfmt result does not match";
+        if (message) {
+            *message = "bslfmt result does not match: Format: \"";
+            *message += toNarrow(fmtStr);
+            *message += "\", result: \"";
+            *message += toNarrow(res_bde);
+            *message += "\" != EXPECTED: \"";
+            *message += toNarrow(desiredResult);
+            *message += "\"";
+        }
         return false;
     }
 
@@ -683,14 +721,23 @@ bool Formatter_TestUtil_Impl<t_CHAR>::testEvaluateVFormat(
                                  BSLS_COMPILERFEATURES_FORWARD(t_ARG_2, arg2));
         }
         catch (const std::format_error& e) {
-            if (message)
-                *message = e.what();
+            if (message) {
+                *message = "Exception std::format_error: ";
+                *message += e.what();
+            }
             return false;                                             // RETURN
         }
 
         if (desiredResult != res_std) {
-            if (message)
-                *message = "oracle does not match";
+            if (message) {
+                *message = "oracle result does not match: Format: \"";
+                *message += toNarrow(fmtStr);
+                *message += "\", Oracle: \"";
+                *message += toNarrow(res_std);
+                *message += "\" != EXPECTED: \"";
+                *message += toNarrow(desiredResult);
+                *message += "\"";
+            }
             return false;
         }
     }
