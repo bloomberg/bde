@@ -297,10 +297,16 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
 
 #define STARTPOOL(x) \
     if (0 != x.start()) { \
-        cout << "Thread start() failed.  Thread quota exceeded?" \
-             << bsl::endl; \
-        ASSERT(false); \
-        break; } // things are SNAFU
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.start()) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.start()) { \
+                cout << "Thread start() failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
 
 void noopFunc()
 {
