@@ -604,9 +604,12 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
     if (format.flags() & bsl::ios::fixed) {
         cfg.setStyle(DecimalFormatConfig::e_FIXED);
     }
-
-    if (format.flags() & bsl::ios::scientific) {
+    else if (format.flags() & bsl::ios::scientific) {
         cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
+    }
+    else {
+        // Disable precision for natural format
+        cfg.setPrecision(-1);
     }
 
     if (format.flags() & bsl::ios::showpos) {

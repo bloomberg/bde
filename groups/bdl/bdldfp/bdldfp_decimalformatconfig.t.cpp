@@ -1791,8 +1791,9 @@ int main(int argc, char* argv[])
 
             if (veryVerbose) cout << "\tPrecision\n";
             {
-                ASSERT_FAIL(obj.setPrecision(-1));
+                ASSERT_FAIL(obj.setPrecision(-2));
                 ASSERT_PASS(obj.setPrecision(0));
+                ASSERT_PASS(obj.setPrecision(-1)); // the natural precision
             }
 
             if (veryVerbose) cout << "\tInfinity\n";
@@ -1827,7 +1828,8 @@ int main(int argc, char* argv[])
             if (veryVerbose) cout << "\tConstructor\n";
             {
                 ASSERT_PASS(Obj(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
-                ASSERT_FAIL(Obj(-1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
+                ASSERT_PASS(Obj(-1, D2, D3, D4, D5, D6, D7, D8, D9, D10));
+                ASSERT_FAIL(Obj(-2, D2, D3, D4, D5, D6, D7, D8, D9, D10));
                 ASSERT_FAIL(Obj(D1, D2, D3,  0, D5, D6, D7, D8, D9, D10));
                 ASSERT_FAIL(Obj(D1, D2, D3, D4,  0, D6, D7, D8, D9, D10));
                 ASSERT_FAIL(Obj(D1, D2, D3, D4, D5,  0, D7, D8, D9, D10));

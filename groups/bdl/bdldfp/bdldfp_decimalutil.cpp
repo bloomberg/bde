@@ -317,10 +317,14 @@ int DecimalUtil::format(char                      *buffer,
                         Decimal32                  value,
                         const DecimalFormatConfig& config)
 {
+    DecimalFormatConfig effectiveConfig(config);
+    if (DecimalFormatConfig::e_NATURAL == config.style()) {
+        effectiveConfig.setPrecision(-1);
+    }
     return DecimalImpUtil::format(buffer,
                                   length,
                                   *value.data(),
-                                  config);
+                                  effectiveConfig);
 }
 
 int DecimalUtil::format(char                      *buffer,
@@ -328,10 +332,14 @@ int DecimalUtil::format(char                      *buffer,
                         Decimal64                  value,
                         const DecimalFormatConfig& config)
 {
+    DecimalFormatConfig effectiveConfig(config);
+    if (DecimalFormatConfig::e_NATURAL == config.style()) {
+        effectiveConfig.setPrecision(-1);
+    }
     return DecimalImpUtil::format(buffer,
                                   length,
                                   *value.data(),
-                                  config);
+                                  effectiveConfig);
 }
 
 int DecimalUtil::format(char                      *buffer,
@@ -339,10 +347,14 @@ int DecimalUtil::format(char                      *buffer,
                         Decimal128                 value,
                         const DecimalFormatConfig& config)
 {
+    DecimalFormatConfig effectiveConfig(config);
+    if (DecimalFormatConfig::e_NATURAL == config.style()) {
+        effectiveConfig.setPrecision(-1);
+    }
     return DecimalImpUtil::format(buffer,
                                   length,
                                   *value.data(),
-                                  config);
+                                  effectiveConfig);
 }
 
 Decimal32  DecimalUtil::trunc(Decimal32  x, unsigned int precision)

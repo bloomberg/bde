@@ -681,18 +681,6 @@ struct DecimalUtil {
 
                          // Format functions
 
-    static
-    int format(char                      *buffer,
-               int                        length,
-               Decimal32                  value,
-               const DecimalFormatConfig& cfg = DecimalFormatConfig());
-
-    static
-    int format(char                      *buffer,
-               int                        length,
-               Decimal64                  value,
-               const DecimalFormatConfig& cfg = DecimalFormatConfig());
-
     /// Format the specified `value`, placing the output in the buffer
     /// designated by the specified `buffer` and `length`, and return the
     /// length of the formatted value.  If there is insufficient room in the
@@ -718,6 +706,16 @@ struct DecimalUtil {
     /// `e_NATURAL` then all significand digits of the `value` are output in
     /// the buffer regardless of the value specified in configuration's
     /// `precision` attribute.
+    static
+    int format(char                      *buffer,
+               int                        length,
+               Decimal32                  value,
+               const DecimalFormatConfig& cfg = DecimalFormatConfig());
+    static
+    int format(char                      *buffer,
+               int                        length,
+               Decimal64                  value,
+               const DecimalFormatConfig& cfg = DecimalFormatConfig());
     static
     int format(char                      *buffer,
                int                        length,
