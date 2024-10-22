@@ -2,16 +2,16 @@
   Copyright (c) 2007-2011, Intel Corp.
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without 
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, 
+    * Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of Intel Corporation nor the names of its contributors 
-      may be used to endorse or promote products derived from this software 
+    * Neither the name of Intel Corporation nor the names of its contributors
+      may be used to endorse or promote products derived from this software
       without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -48,7 +48,7 @@
 #if defined (__INTEL_COMPILER)
 #define FENCE __fence
 #else
-#define FENCE 
+#define FENCE
 #endif
 
 /*********************************************************************
@@ -131,7 +131,7 @@ BID_UINT64 M;                                        \
  *      Add/Subtract Macros
  *
  *********************************************************************/
-// add 64-bit value to 128-bit 
+// add 64-bit value to 128-bit
 #define __add_128_64(R128, A128, B64)    \
 {                                        \
 BID_UINT64 R64H;                             \
@@ -141,7 +141,7 @@ BID_UINT64 R64H;                             \
 	  R64H ++;                           \
     (R128).w[1] = R64H;                  \
 }
-// subtract 64-bit value from 128-bit 
+// subtract 64-bit value from 128-bit
 #define __sub_128_64(R128, A128, B64)    \
 {                                        \
 BID_UINT64 R64H;                             \
@@ -151,7 +151,7 @@ BID_UINT64 R64H;                             \
     (R128).w[1] = R64H;                  \
 	(R128).w[0] = (A128).w[0] - (B64);     \
 }
-// add 128-bit value to 128-bit 
+// add 128-bit value to 128-bit
 // assume no carry-out
 #define __add_128_128(R128, A128, B128)  \
 {                                        \
@@ -199,7 +199,7 @@ BID_UINT64 X1, X0=X;                              \
 	S = X1 - Y;                               \
 	CY = ((S>X1) || (X1>X0)) ? 1 : 0;          \
 }
-// increment C128 and check for rounding overflow: 
+// increment C128 and check for rounding overflow:
 // if (C_128) = 10^34 then (C_128) = 10^33 and increment the exponent
 #define INCREMENT(C_128, exp)                                           \
 {                                                                       \
@@ -213,8 +213,8 @@ BID_UINT64 X1, X0=X;                              \
   }                                                                     \
 }
 // decrement C128 and check for rounding underflow, but only at the
-// boundary: if C_128 = 10^33 - 1 and exp > 0 then C_128 = 10^34 - 1 
-// and decrement the exponent 
+// boundary: if C_128 = 10^33 - 1 and exp > 0 then C_128 = 10^34 - 1
+// and decrement the exponent
 #define DECREMENT(C_128, exp)                                           \
 {                                                                       \
   C_128.w[0]--;                                                         \
@@ -344,7 +344,7 @@ BID_UINT64 CXH, CXL, CYH, CYL, PL, PH, PM;  \
                                         \
 	(P) = PH + (PM>>32);                \
 }
-// get full 64x64bit product 
+// get full 64x64bit product
 //
 #define __mul_64x64_to_128_full(P, CX, CY)     \
 {                                         \
@@ -1038,7 +1038,7 @@ get_BID64 (BID_UINT64 sgn, int expon, BID_UINT64 coeff, int rmode,
 
 
 //
-//   No overflow/underflow checking 
+//   No overflow/underflow checking
 //
 __BID_INLINE__ BID_UINT64
 fast_get_BID64 (BID_UINT64 sgn, int expon, BID_UINT64 coeff) {
@@ -1153,7 +1153,7 @@ fast_get_BID64_check_OF (BID_UINT64 sgn, int expon, BID_UINT64 coeff, int rmode,
 
 
 //
-//   No overflow/underflow checking 
+//   No overflow/underflow checking
 //   or checking for coefficients equal to 10^16 (after rounding)
 //
 __BID_INLINE__ BID_UINT64
@@ -1246,7 +1246,7 @@ get_BID64_UF (BID_UINT64 sgn, int expon, BID_UINT64 coeff, BID_UINT64 R, int rmo
   amount = bid_recip_scale[extra_digits];
 
   _C64 = QH >> amount;
-  //__shr_128(C128, Q_high, amount); 
+  //__shr_128(C128, Q_high, amount);
 
 #ifndef IEEE_ROUND_NEAREST_TIES_AWAY
 #ifndef IEEE_ROUND_NEAREST
@@ -1325,7 +1325,7 @@ get_BID64_UF (BID_UINT64 sgn, int expon, BID_UINT64 coeff, BID_UINT64 R, int rmo
 
 
 //
-//   This pack macro doesnot check for coefficients above 2^53 
+//   This pack macro doesnot check for coefficients above 2^53
 //
 __BID_INLINE__ BID_UINT64
 get_BID64_small_mantissa (BID_UINT64 sgn, int expon, BID_UINT64 coeff,
@@ -1821,7 +1821,7 @@ unpack_BID128_value_BLE (BID_UINT64 * psign_x, int *pexponent_x,
       pcoefficient_x->w[BID_HIGH_128W] = x.w[BID_HIGH_128W] & SINFINITY_MASK64;
     }
     *pexponent_x = 0;
-    return 0;	// NaN or Infinity 
+    return 0;	// NaN or Infinity
   }
 
   coeff.w[BID_LOW_128W] = x.w[BID_LOW_128W];
@@ -1887,7 +1887,7 @@ unpack_BID128_value (BID_UINT64 * psign_x, int *pexponent_x,
       pcoefficient_x->w[1] = x.w[1] & SINFINITY_MASK64;
     }
     *pexponent_x = 0;
-    return 0;	// NaN or Infinity 
+    return 0;	// NaN or Infinity
   }
 
   coeff.w[0] = x.w[0];
@@ -1957,7 +1957,7 @@ unpack_BID128 (BID_UINT64 * psign_x, int *pexponent_x,
       pcoefficient_x->w[0] = 0;
     }
     *pexponent_x = 0;
-    return 0;	// NaN or Infinity 
+    return 0;	// NaN or Infinity
   }
 
   coeff.w[0] = px->w[0];
@@ -2178,14 +2178,14 @@ bid_get_BID128 (BID_UINT128 * pres, BID_UINT64 sgn, int expon, BID_UINT128 coeff
 
 
 //
-//  Macro used for conversions from string 
-//        (no additional arguments given for rounding mode, status flags) 
+//  Macro used for conversions from string
+//        (no additional arguments given for rounding mode, status flags)
 //
 __BID_INLINE__ BID_UINT128 *
 bid_get_BID128_string (BID_UINT128 * pres, BID_UINT64 sgn, int expon, BID_UINT128 coeff) {
   BID_UINT128 D2, D8;
   BID_UINT64 tmp;
-  unsigned rmode = 0, status;
+  unsigned rmode = 0, status = 0;
 
   // coeff==10^34?
   if (coeff.w[1] == 0x0001ed09bead87c0ull
@@ -2301,7 +2301,7 @@ unpack_BID32 (BID_UINT32 * psign_x, int *pexponent_x,
 }
 
 //
-//   General pack macro for BID32 
+//   General pack macro for BID32
 //
 __BID_INLINE__ BID_UINT32
 get_BID32 (BID_UINT32 sgn, int expon, BID_UINT64 coeff, int rmode,
@@ -2473,7 +2473,7 @@ get_BID32 (BID_UINT32 sgn, int expon, BID_UINT64 coeff, int rmode,
 
 
 //
-//   General pack macro for BID32 
+//   General pack macro for BID32
 //
 __BID_INLINE__ BID_UINT32
 get_BID32_UF (BID_UINT32 sgn, int expon, BID_UINT64 coeff, BID_UINT32 R, int rmode,
@@ -2947,10 +2947,10 @@ enum class_types {
   positiveInfinity
 };
 
-typedef union { 
-  BID_UINT32 ui32; 
-  float f; 
-} BID_UI32FLOAT; 
+typedef union {
+  BID_UINT32 ui32;
+  float f;
+} BID_UI32FLOAT;
 
 typedef union {
   BID_UINT64 ui64;
