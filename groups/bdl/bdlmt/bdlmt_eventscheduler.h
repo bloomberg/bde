@@ -183,6 +183,11 @@ BSLS_IDENT("$Id: $")
 // [](#Example 3: Using the Test Time Source) below for an illustration of how
 // this is done.
 //
+// Also note that `bdlt::EventSchedulerTestTimeSource::advanceTime`
+// synchronizes with the dispatching thread.  Specifically, `advanceTime` does
+// not return until the dispatcher processes all events triggered by the change
+// in current time.
+//
 ///Thread Name for Dispatcher Thread
 ///---------------------------------
 // To facilitate debugging, users can provide a thread name as the `threadName`
