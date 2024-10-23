@@ -71,36 +71,14 @@ BSLS_IDENT("$Id: $")
 // support macros if they are already defined, so that it is possible to define
 // them on the compiler command line to 0 or 1 regardless of platform.
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC) || \
+    defined(BSLS_PLATFORM_CMP_GNU) || \
+    defined(BSLS_PLATFORM_CMP_CLANG)
 #  ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
 #    define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
 #  endif
 #  ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 #    define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
-#  endif
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)
-#  if BSLS_PLATFORM_CMP_VERSION >= 50000
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
-#    endif
-#    ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
-#    endif
-#  endif
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG)
-#  if defined(__APPLE_CC__) && __APPLE_CC__ >= 6000
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
-#    endif
-#    if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-#      ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#        define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION     1
-#      endif
-#    endif
 #  endif
 #endif
 
