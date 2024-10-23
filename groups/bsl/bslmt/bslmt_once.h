@@ -574,7 +574,7 @@ class OnceGuard {
 // macro within a source file supplies a different `doOnceObj` name.
 #define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
     static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                                \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(                    /* NOLINT */\
                                            doOnceObj.isMaybeUninitialized())) \
         for (BloombergLP::bslmt::OnceGuard                        /* NOLINT */\
                                                 bslmt_doOnceGuard(&doOnceObj);\
