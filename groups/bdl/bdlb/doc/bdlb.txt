@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 54 components having 5 levels of physical
+ The 'bdlb' package currently has 55 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -33,6 +33,7 @@
 
   3. bdlb_bitmaskutil
      bdlb_caselessstringviewhash
+     bdlb_doublecompareutil
      bdlb_guidutil
      bdlb_numericparseutil
      bdlb_printmethods
@@ -118,6 +119,9 @@
 :
 : 'bdlb_cstringless':
 :      Provide a standard compatible less-than predicate for C-strings.
+:
+: 'bdlb_doublecompareutil':
+:      Provide "fuzzy" equality/relational operations on `double` values.
 :
 : 'bdlb_float':
 :      Provide floating-point classification types and functions.

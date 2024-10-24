@@ -37,7 +37,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlf' package currently has 5 components having 3 levels of physical
+ The 'bdlf' package currently has 6 components having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -67,7 +67,7 @@
 :      Provide C++03 implementation for bdlf_noop.h
 :
 : 'bdlf_overloaded':
-:      Provide class for creating an overload set.
+:      Provide a type for constructing overload sets.
 :
 : 'bdlf_placeholder':
 :      Provide a parameterized placeholder and specialized placeholders.

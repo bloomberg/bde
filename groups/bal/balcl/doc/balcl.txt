@@ -66,7 +66,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The `balcl` package currently has 8 components having 6 levels of physical
+ The 'balcl' package currently has 8 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
