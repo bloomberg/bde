@@ -12,6 +12,7 @@ bdlb_chartype
 bdlb_cstringequalto
 bdlb_cstringhash
 bdlb_cstringless
+bdlb_doublecompareutil
 bdlb_float
 bdlb_functionoutputiterator
 bdlb_guid
