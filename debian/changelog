@@ -1,5 +1,38 @@
-bsl-internal (4.15.0.0) unstable; urgency=low
+bsl-internal (4.16.0.0) unstable; urgency=low
 
+  * 1b2d839ad Bumped version to 4.16.0.0
+  * 36dbb983e Add bdlb::DoubleCompareUtil from bdeimp_Fuzzy. (#5042)
+  * 0cb390fa5 Adjust windows (#5046)
+  * f5157ca76 Add is_trivially_* traits on mainline Clang (#5044)
+  * af8068205 Suppress clang-analyzer warning (#5045)
+  * 9c03bb3e6 improve doc (#5031)
+  * 3ed463cd2 bsls_buildtarget sanitizer macro update first draft (#5038)
+  * 32fabf2b1 Silence warnings from inteldfp (#5043)
+  * edd0fa690 Better precision support in bdldfp formatting. (#5034)
+  * 9ee9dc045 retry start when bdlmt_threadpool case 4 fails (#5026)
+  * 66d3fb1a7 lost signal reproduction (#5025)
+  * b5f6b187f add 'bsl::erase_if' support to multimaps (#5015)
+  * 31f6d4f40 Merge pull request #5023 from rkhlebnikov/main
+  * e9d4b76ee Merge pull request #5016 from afeher/drqs-176990592-plus-as-space-support-for-bdldfp_decimal-formatter
+  * 374f8fb3f Merge pull request #5021 from afeher/drqs-177003425-fix-decimal128-for-windows
+  * 96efa36e1 Move contracts for cpp03 code. (#5022)
+  * 6b648d151 New Conan profiles (#5010)
+  * f1381510c Add 'contains' to string and string_view (#4964)
+  * 93967e0e6 Sqaush some 'unused' warnings when building c++11 (#5018)
+  * 2a5f81fc8 Implement P2821: span::at() (#5017)
+  * 13efe3785 Ensure that span and string_view are trivially copyable (#4957)
+  * 6da4f5be8 Merge pull request #5002 from afeher/drqs-175968161-threadpool-moving-optimization
+  * 22ea44a02 Drqs 176910578/start lag value for in the past events (#5006)
+  * 0b723e169 Update bsls_assert.h (#5004)
+  * 2f963a4b9 Drqs 176476958/bdlcc singleconsumerqueue disable during pop bug (#4998)
+  * d252584e0 Implement bdlf_overloaded (#4928)
+  * 37d3b2f27 No char_traits<NON_CHAR_TYPE> (#4995)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Oct 2024 18:43:37 -0400
+
+bsl-internal (4.15.0.0) git; urgency=low
+
+  * 7ff62f245 Changelog for version 4.15.0.0
   * 9ab65afc1 Bumped version to 4.15.0.0
   * a6a35c965 Integer overflow in allocator call (#4980)
   * 62dc695f8 Merge pull request #4987 from rkhlebnikov/fix-xt-cpp-compilation
@@ -24,7 +57,7 @@ bsl-internal (4.15.0.0) unstable; urgency=low
   * 7449d6eec bdlt_datetime.h bdexStreamIn: initialize tmp = 0 silence -Wmaybe-unin… (#4927)
   * 39620ea06 Merge pull request #4948 from afeher/drqs-176630437-datumbinaryref-ubsan
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 3 Oct 2024 10:25:58 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 3 Oct 2024 14:38:33 +0000
 
 bsl-internal (4.14.0.0) git; urgency=low
 
