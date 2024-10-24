@@ -329,11 +329,11 @@ void microSleep(int microSeconds, int seconds)
 /// `windowMs` (milliseconds) of the specified `expectedValue`.
 bool withinWindow(const bsls::TimeInterval& value,
                   const bsls::TimeInterval& expectedValue,
-                  int                      windowMs)
+                  bsls::Types::Int64        windowMs)
 {
     bsls::TimeInterval window(0, windowMs * NANOSECS_PER_MILLISEC);
-    bool withinWindow = (expectedValue - window) < value
-                     && (expectedValue + window) > value;
+    bool withinWindow = (expectedValue - window) <= value
+                     && (expectedValue + window) >= value;
 
     if (!withinWindow) {
         P_(windowMs); P_(expectedValue); P(value);

@@ -246,9 +246,9 @@ bool recordLess(const balm::MetricRecord& lhs, const balm::MetricRecord& rhs)
 
 /// Return `true` if the specified `localTime` is within the specified
 /// `windowMs` (milliseconds) of the specified `utcExpectedTime`.
-bool withinWindow(const bdlt::DatetimeTz&   localTime,
-                  const bdlt::Datetime&     utcExpectedTime,
-                  int                      windowMs)
+bool withinWindow(const bdlt::DatetimeTz& localTime,
+                  const bdlt::Datetime&   utcExpectedTime,
+                  bsls::Types::Int64      windowMs)
 {
     bdlt::Datetime gmtTime = localTime.utcDatetime();
     bdlt::Datetime begin   = utcExpectedTime;
@@ -256,7 +256,7 @@ bool withinWindow(const bdlt::DatetimeTz&   localTime,
     begin.addMilliseconds(-windowMs);
     end.addMilliseconds(windowMs);
 
-    bool withinWindow = begin < gmtTime && end > gmtTime;
+    bool withinWindow = begin <= gmtTime && end >= gmtTime;
     if (!withinWindow) {
         P_(localTime); P_(gmtTime); P(utcExpectedTime);
     }
@@ -283,11 +283,11 @@ const balm::Category *firstCategory(const balm::MetricSampleGroup& group)
 /// `windowMs` (milliseconds) of the specified `expectedValue`.
 bool withinWindow(const bsls::TimeInterval& value,
                   const bsls::TimeInterval& expectedValue,
-                  int                      windowMs)
+                  bsls::Types::Int64        windowMs)
 {
     bsls::TimeInterval window(0, windowMs * NANOSECS_PER_MILLISEC);
-    bool withinWindow = (expectedValue - window) < value
-                     && (expectedValue + window) > value;
+    bool withinWindow = (expectedValue - window) <= value
+                     && (expectedValue + window) >= value;
 
     if (!withinWindow) {
         P_(windowMs); P_(expectedValue); P(value);
@@ -983,6 +983,7 @@ void ConcurrencyTest::execute()
     Obj *mX = d_manager_p; const Obj *MX = mX;
     Registry& registry = mX->metricRegistry();
     for (int i = 0; i < 10; ++i) {
+        bdlt::Datetime iterationStartTime = bdlt::CurrentTime::utc();
 
         // Create 2 strings unique for this iteration.
 
@@ -1085,15 +1086,19 @@ void ConcurrencyTest::execute()
                           allCategories.data(),
                           static_cast<int>(allCategories.size()));
 
-        bdlt::Datetime now = bdlt::CurrentTime::utc();
-
         ASSERT(!s1Cb.resetFlag());
         ASSERT(!s2Cb.resetFlag());
         ASSERT(1 <= aCb.invocations());
         ASSERT(1 <= bCb.invocations());
         ASSERT(1 == s1Cb.invocations());
         ASSERT(1 == s2Cb.invocations());
-        ASSERT(withinWindow(sample.timeStamp(), now, 100));
+
+        bdlt::Datetime now = bdlt::CurrentTime::utc();
+        bsls::Types::Int64 milliseconds =
+            1 + (now - iterationStartTime).totalMilliseconds();
+
+        ASSERTV(sample.timeStamp(), now, iterationStartTime, milliseconds,
+                withinWindow(sample.timeStamp(), now, milliseconds));
 
         // Test `publish`.
         mX->publish(allCategories.data(),

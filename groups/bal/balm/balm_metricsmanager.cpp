@@ -618,8 +618,8 @@ void MetricsManager_PublicationHelper::publish(
     SampleCache  sampleCache;          // publisher -> sample (samples point to
                                        // records in the 'recordBuffer')
 
-    bdlt::DatetimeTz   timeStamp(bdlt::CurrentTime::utc(), 0);
     bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bdlt::DatetimeTz   timeStamp(bdlt::EpochUtil::epoch() + now, 0);
 
     // Lock the publication lock *then* lock the other object properties.
 
@@ -1096,8 +1096,9 @@ void MetricsManager::collectSampleImp(MetricSample              *sample,
                                       int                        numCategories,
                                       bool                       resetFlag)
 {
-    bdlt::DatetimeTz   timeStamp(bdlt::CurrentTime::utc(), 0);
+
     bsls::TimeInterval now = bdlt::CurrentTime::now();
+    bdlt::DatetimeTz   timeStamp(bdlt::EpochUtil::epoch() + now, 0);
 
     sample->setTimeStamp(timeStamp);
 
