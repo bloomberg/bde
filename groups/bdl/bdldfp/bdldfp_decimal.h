@@ -591,7 +591,7 @@ BSLS_IDENT("$Id$")
 #include <bslfmt_formatterspecificationsplitter.h>
 #include <bslfmt_formatterspecificationstandard.h>
 
-#include <bslma_deallocatorguard.h>
+#include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
 
 #include <bslmf_istriviallycopyable.h>
@@ -4281,8 +4281,7 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
              // ============================================
 
 template <class t_CHAR>
-struct FormatterSpecificationDecimal
-: public bslfmt::FormatterSpecification_SplitterEnums {
+struct FormatterSpecificationDecimal {
 
     // PUBLIC TYPES
     enum FormatType {
@@ -4304,11 +4303,11 @@ struct FormatterSpecificationDecimal
     typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
 
     // DATA
-    ParsingStatus d_parsingStatus;
-    FSS           d_basicSplitter;
-    FormatType    d_formatType;
-    int           d_widthArgId;
-    int           d_precisionArgId;
+    typename FSS::ParsingStatus d_parsingStatus;
+    FSS                         d_basicSplitter;
+    FormatType                  d_formatType;
+    int                         d_widthArgId;
+    int                         d_precisionArgId;
 
     // PRIVATE CLASS METHODS
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
@@ -4340,9 +4339,9 @@ struct FormatterSpecificationDecimal
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment alignment() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Alignment alignment() const;
 
-    BSLS_KEYWORD_CONSTEXPR_CPP20 Sign sign() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Sign sign() const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool alternativeFlag() const;
 
@@ -6627,7 +6626,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void FormatterSpecificationDecimal<t_CHAR>::ensureItWasParsed() const
 {
-    if (d_parsingStatus == e_PARSING_UNINITIALIZED) {
+    if (d_parsingStatus == FSS::e_PARSING_UNINITIALIZED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
                     "Decimal format specification '.parse()' was not called"));
     }
@@ -6637,7 +6636,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void FormatterSpecificationDecimal<t_CHAR>::ensureItWasPostprocessed() const
 {
-    if (d_parsingStatus != FormatterSpecificationDecimal::e_PARSING_COMPLETE) {
+    if (d_parsingStatus != FSS::e_PARSING_COMPLETE) {
         BSLS_THROW(bsl::format_error(                                  // THROW
               "Decimal format specification '.postprocess()' was not called"));
     }
@@ -6647,9 +6646,9 @@ void FormatterSpecificationDecimal<t_CHAR>::ensureItWasPostprocessed() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationDecimal<t_CHAR>::FormatterSpecificationDecimal()
-: d_parsingStatus(FormatterSpecificationDecimal::e_PARSING_UNINITIALIZED)
+: d_parsingStatus(FSS::e_PARSING_UNINITIALIZED)
 , d_basicSplitter()
-, d_formatType(FormatterSpecificationDecimal::e_TYPE_UNASSIGNED)
+, d_formatType(e_TYPE_UNASSIGNED)
 , d_widthArgId(-1)
 , d_precisionArgId(-1)
 {
@@ -6682,8 +6681,7 @@ int FormatterSpecificationDecimal<t_CHAR>::fillerCodePointDisplayWidth() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename
-FormatterSpecificationDecimal<t_CHAR>::Alignment
+typename FormatterSpecificationDecimal<t_CHAR>::FSS::Alignment
 FormatterSpecificationDecimal<t_CHAR>::alignment() const
 {
     ensureItWasParsed();
@@ -6692,8 +6690,7 @@ FormatterSpecificationDecimal<t_CHAR>::alignment() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename
-FormatterSpecificationDecimal<t_CHAR>::Sign
+typename FormatterSpecificationDecimal<t_CHAR>::FSS::Sign
 FormatterSpecificationDecimal<t_CHAR>::sign() const
 {
     ensureItWasParsed();
@@ -6764,17 +6761,17 @@ void FormatterSpecificationDecimal<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    outSpec->d_parsingStatus = e_PARSING_PREPARSED;
+    outSpec->d_parsingStatus = FSS::e_PARSING_PREPARSED;
 
-    const Sections sect = static_cast<Sections>(
-            e_SECTIONS_FILL_ALIGN     |
-            e_SECTIONS_SIGN_FLAG      |
-            e_SECTIONS_ALTERNATE_FLAG |
-            e_SECTIONS_ZERO_PAD_FLAG  |
-            e_SECTIONS_WIDTH          |
-            e_SECTIONS_PRECISION      |
-            e_SECTIONS_LOCALE_FLAG    |
-            e_SECTIONS_FINAL_SPECIFICATION);
+    const typename FSS::Sections sect = static_cast<typename FSS::Sections>(
+            FSS::e_SECTIONS_FILL_ALIGN     |
+            FSS::e_SECTIONS_SIGN_FLAG      |
+            FSS::e_SECTIONS_ALTERNATE_FLAG |
+            FSS::e_SECTIONS_ZERO_PAD_FLAG  |
+            FSS::e_SECTIONS_WIDTH          |
+            FSS::e_SECTIONS_PRECISION      |
+            FSS::e_SECTIONS_LOCALE_FLAG    |
+            FSS::e_SECTIONS_FINAL_SPECIFICATION);
 
     bslfmt::FormatterSpecification_Splitter<t_CHAR>::parse(
                                                       &outSpec->d_basicSplitter,
@@ -6829,8 +6826,7 @@ void FormatterSpecificationDecimal<t_CHAR>::postprocess(
       }
     }
 
-    outSpec->d_parsingStatus =
-                             FormatterSpecificationDecimal::e_PARSING_COMPLETE;
+    outSpec->d_parsingStatus = FSS::e_PARSING_COMPLETE;
 }
 
         // ---------------------------------------------------
@@ -6848,6 +6844,7 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
                                             const FSD&         finalSpec) const
 {
     typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
 
     FSNVAlue finalWidth(finalSpec.postprocessedWidth());
 
@@ -6882,7 +6879,7 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
         const ptrdiff_t totalPadDisplayWidth =
                              finalWidth.value() - (numberLength + hasSignChar);
 
-        if (!specialValue && FSD::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+        if (!specialValue && FSS::e_ALIGN_DEFAULT == finalSpec.alignment() &&
             finalSpec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
@@ -6892,16 +6889,16 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
             // Alignment with appropriate symbol is required.
 
             switch (d_spec.alignment()) {
-              case FSD::e_ALIGN_LEFT: {
+              case FSS::e_ALIGN_LEFT: {
                 leftPadFillerCopiesNum  = 0;
                 rightPadFillerCopiesNum = totalPadDisplayWidth;
               } break;
-              case FSD::e_ALIGN_MIDDLE: {
+              case FSS::e_ALIGN_MIDDLE: {
                 leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
                 rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
               } break;
-              case FSD::e_ALIGN_DEFAULT:
-              case FSD::e_ALIGN_RIGHT: {
+              case FSS::e_ALIGN_DEFAULT:
+              case FSS::e_ALIGN_RIGHT: {
                 leftPadFillerCopiesNum  = totalPadDisplayWidth;
                 rightPadFillerCopiesNum = 0;
               } break;
@@ -6972,8 +6969,8 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
                                          t_FORMAT_CONTEXT& formatContext) const
 {
 
-    typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
-
+    typedef bslfmt::FormatterSpecification_NumericValue     FSNVAlue;
+    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
     FSD finalSpec(d_spec);
     FSD::postprocess(&finalSpec, formatContext);
 
@@ -7015,14 +7012,14 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
     }
 
     switch (finalSpec.sign()) {
-      case FSD::e_SIGN_DEFAULT:  BSLA_FALLTHROUGH;
-      case FSD::e_SIGN_NEGATIVE: {
+      case FSS::e_SIGN_DEFAULT:  BSLA_FALLTHROUGH;
+      case FSS::e_SIGN_NEGATIVE: {
         cfg.setSign(DecimalFormatConfig::e_NEGATIVE_ONLY);
       } break;
-      case FSD::e_SIGN_POSITIVE: {
+      case FSS::e_SIGN_POSITIVE: {
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
       } break;
-      case FSD::e_SIGN_SPACE: {
+      case FSS::e_SIGN_SPACE: {
         cfg.setSign(DecimalFormatConfig::e_POSITIVE_AS_SPACE);
       } break;
     }
@@ -7047,18 +7044,33 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
     const int effectivePrecision = precision > Limits::max_precision
                                  ? precision
                                  : Limits::max_precision;
-    const int k_BUFFER_SIZE = 1                          // sign
-                            + 1 + Limits::max_exponent10 // integer part
-                            + 1                          // decimal point
-                            + effectivePrecision;       // partial part
+
+    const size_t k_STACK_BUF_LEN = 1                          // sign
+                                 + 1 + Limits::max_exponent10 // integer part
+                                 + 1                          // decimal point
+                                 + Limits::max_precision;     // partial part
+
+    const size_t k_BUFFER_SIZE = 1                            // sign
+                               + 1 + Limits::max_exponent10 // integer part
+                               + 1                          // decimal point
+                               + effectivePrecision;        // partial part
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type,
         // or the requested precision if it is larger than the maximum.
 
-    bslma::Allocator *allocator = bslma::Default::allocator();
-    char             *buffer    = (char *)allocator->allocate(k_BUFFER_SIZE);
+    char  sbuf[k_STACK_BUF_LEN];
+    char *dbuf = 0;
+    char *buffer = sbuf;
 
-    bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
+    bslma::Allocator* allocator = bslma::Default::allocator();
+    if (k_BUFFER_SIZE > k_STACK_BUF_LEN) {
+        dbuf = (char*)allocator->allocate(k_BUFFER_SIZE);
+        buffer = dbuf;
+    }
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(dbuf, allocator);
+    if (0 == dbuf) {
+        proctor.release();
+    }
 
     const int len = DecimalImpUtil::format(buffer,
                                            k_BUFFER_SIZE,

@@ -394,7 +394,7 @@ int formatNatural(char                      *buffer,
     return  formatScientific(buffer, length, value, config);
 }
 
-/// Convert the specified decimal `value` to character string using
+/// Convert the specified decimal `value` to a character string using
 /// `e_SCIENTIFIC` style and the specified `cfg` formatting options but
 /// using the natural precision of `value`.  Load the result into the
 /// specified `buffer`.  If the length of resultant string exceeds the
