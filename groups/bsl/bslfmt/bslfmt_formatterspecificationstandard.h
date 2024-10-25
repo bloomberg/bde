@@ -90,13 +90,7 @@ class FormatterSpecificationStandard_Enums
         e_CHARACTER_ESCAPED,    // `?`
 
         // Boolean types
-        e_BOOLEAN_STRING,     // none or `s`
-        e_BOOLEAN_BINARY,     // `b`
-        e_BOOLEAN_BINARY_UC,  // `B`
-        e_BOOLEAN_DECIMAL,    // `d`
-        e_BOOLEAN_OCTAL,      // `o`
-        e_BOOLEAN_HEX,        // `x`
-        e_BOOLEAN_HEX_UC,     // `X`
+        e_BOOLEAN_STRING,       // none or `s`
 
         // Floating point types
         e_FLOATING_DEFAULT,     // none
@@ -551,25 +545,25 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
       case e_CATEGORY_BOOLEAN: {
         switch (typeChar) {
           case 'b': {
-            outSpec->d_formatType = e_BOOLEAN_BINARY;
+            outSpec->d_formatType = e_INTEGRAL_BINARY;
           } break;
           case 'B': {
-            outSpec->d_formatType = e_BOOLEAN_BINARY_UC;
+            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
           } break;
           case 'd': {
-            outSpec->d_formatType = e_BOOLEAN_DECIMAL;
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
           } break;
           case 'o': {
-            outSpec->d_formatType = e_BOOLEAN_OCTAL;
+            outSpec->d_formatType = e_INTEGRAL_OCTAL;
           } break;
           case 's': {
             outSpec->d_formatType = e_BOOLEAN_STRING;
           } break;
           case 'x': {
-            outSpec->d_formatType = e_BOOLEAN_HEX;
+            outSpec->d_formatType = e_INTEGRAL_HEX;
           } break;
           case 'X': {
-            outSpec->d_formatType = e_BOOLEAN_HEX_UC;
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;

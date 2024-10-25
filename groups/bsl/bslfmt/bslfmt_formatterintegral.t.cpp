@@ -1,7 +1,6 @@
 // bslstl_formatterintegral.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterintegral.h>
 
-#include <bslfmt_formatargs.h>
 #include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
@@ -135,6 +134,32 @@ void testRuntimeFormat(int           line,
                                                                      dummyArg);
     ASSERTV(line, format, message.c_str(), rv);
 }
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::format` function
+/// produces the specified `expected` result for the specified `format`,
+/// `width` and `value`.  The specified `line` is used to identify the function
+/// call location.
+template <class t_CHAR, class t_TYPE>
+void testWidthRuntimeFormat(int           line,
+                            const t_CHAR *expected,
+                            const t_CHAR *format,
+                            int           width,
+                            t_TYPE        value)
+{
+    bsl::string message;
+    int         dummyArg = 0;
+
+    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     expected,
+                                                                     true,
+                                                                     format,
+                                                                     value,
+                                                                     width,
+                                                                     dummyArg);
+    ASSERTV(line, format, message.c_str(), rv);
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -172,8 +197,8 @@ int main(int argc, char **argv)
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with padding
-// and minimum width.
+// Suppose we want to test this formatter's ability to a substring with
+// padding.
 //
 //..
     bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
@@ -249,14 +274,19 @@ int main(int argc, char **argv)
             { L_,   "{:#06B}",    "0B1100",     12   },
             { L_,   "{:#d}",      "5",          5    },
             { L_,   "{:#d}",      "12",         12   },
+            { L_,   "{:#o}",      "0",          0    },
             { L_,   "{:#o}",      "05",         5    },
             { L_,   "{:#o}",      "014",        12   },
             { L_,   "{:b}",       "1100",       12   },
             { L_,   "{:B}",       "1100",       12   },
+            { L_,   "{:c}",       "0",          48   },
+            { L_,   "{:c}",       "A",          65   },
             { L_,   "{:d}",       "12",         12   },
+            { L_,   "{:o}",       "0",          0    },
             { L_,   "{:o}",       "14",         12   },
             { L_,   "{:x}",       "c",          12   },
             { L_,   "{:X}",       "C",          12   },
+            { L_,   "{:6c}",      "     a",     97   },
             { L_,   "{:#<5x}",    "5####",      5    },
         };
 
@@ -340,14 +370,20 @@ int main(int argc, char **argv)
             { L_,   L"{:#06B}",    L"0B1100",     12   },
             { L_,   L"{:#d}",      L"5",          5    },
             { L_,   L"{:#d}",      L"12",         12   },
+            { L_,   L"{:#o}",      L"0",          0    },
             { L_,   L"{:#o}",      L"05",         5    },
             { L_,   L"{:#o}",      L"014",        12   },
             { L_,   L"{:b}",       L"1100",       12   },
             { L_,   L"{:B}",       L"1100",       12   },
+            { L_,   L"{:c}",       L"0",          48   },
+            { L_,   L"{:c}",       L"A",          65   },
             { L_,   L"{:d}",       L"12",         12   },
+            { L_,   L"{:o}",       L"0",          0    },
             { L_,   L"{:o}",       L"14",         12   },
             { L_,   L"{:x}",       L"c",          12   },
             { L_,   L"{:X}",       L"C",          12   },
+            { L_,   L"{:6c}",      L"     a",     97   },
+            { L_,   L"{:#<5x}",    L"5####",      5    },
         };
 
         enum {
@@ -481,6 +517,70 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
+        }
+
+        if (verbose) printf("\tTesting `width` option.\n");
+        {
+            bsl::string  message;
+            int          value    = 5;
+            int          width    = 6;
+
+            // `char`
+
+            const char  *format   = "{:{}}";
+            const char  *expected = "     5";
+
+            testWidthRuntimeFormat(L_, expected, format, width, value);
+
+            format   = "{:{}d}";
+            expected = "     5";
+
+            testWidthRuntimeFormat(L_, expected, format, width, value);
+
+            format   = "{:0{}d}";
+            expected = "000005";
+
+            testWidthRuntimeFormat(L_, expected, format, width, value);
+
+            format   = "{:#{}d}";
+            expected = "     5";
+
+            testWidthRuntimeFormat(L_, expected, format, width, value);
+
+            format   = "{:#<{}d}";
+            expected = "5#####";
+
+            testWidthRuntimeFormat(L_, expected, format, width, value);
+
+            // `wchar_t`
+
+            value = 6;
+            width = 5;
+
+            const wchar_t  *wFormat   = L"{:{}}";
+            const wchar_t  *wExpected = L"    6";
+
+            testWidthRuntimeFormat(L_, wExpected, wFormat, width, value);
+
+            wFormat   = L"{:{}d}";
+            wExpected = L"    6";
+
+            testWidthRuntimeFormat(L_, wExpected, wFormat, width, value);
+
+            wFormat   = L"{:0{}d}";
+            wExpected = L"00006";
+
+            testWidthRuntimeFormat(L_, wExpected, wFormat, width, value);
+
+            wFormat   = L"{:#{}d}";
+            wExpected = L"    6";
+
+            testWidthRuntimeFormat(L_, wExpected, wFormat, width, value);
+
+            wFormat   = L"{:#<{}d}";
+            wExpected = L"6####";
+
+            testWidthRuntimeFormat(L_, wExpected, wFormat, width, value);
         }
 
         if (verbose) printf("\tTesting compile-time processing.\n");
