@@ -10,8 +10,6 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
 
-#include <bslmf_movableref.h>
-
 #include <bslmt_barrier.h>           // for testing only
 #include <bslmt_lockguard.h>         // for testing only
 #include <bslmt_threadattributes.h>  // for testing only
@@ -371,7 +369,7 @@ void ThreadPool::workerThread()
                 }
             }
 
-            functor = bslmf::MovableRefUtil::move(d_queue.front());
+            functor = d_queue.front();
             d_queue.pop_front();
 
             // Although user-enqueued functors cannot be null, 'stop()' and
