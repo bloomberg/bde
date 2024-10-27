@@ -1,5 +1,13 @@
-bsl-internal (4.16.0.0) unstable; urgency=low
+bsl-internal (4.16.1.0) unstable; urgency=low
 
+  * 61e68d155 Bumped version to 4.16.1.0
+  * 2a1788ab7 Revert "Add move for jobs in bdlmt_multiqueuethreadpool." (#5050)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 27 Oct 2024 18:27:18 +0000
+
+bsl-internal (4.16.0.0) git; urgency=low
+
+  * fb73e2dc5 Changelog for version 4.16.0.0
   * 1b2d839ad Bumped version to 4.16.0.0
   * 36dbb983e Add bdlb::DoubleCompareUtil from bdeimp_Fuzzy. (#5042)
   * 0cb390fa5 Adjust windows (#5046)
@@ -28,7 +36,7 @@ bsl-internal (4.16.0.0) unstable; urgency=low
   * d252584e0 Implement bdlf_overloaded (#4928)
   * 37d3b2f27 No char_traits<NON_CHAR_TYPE> (#4995)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Oct 2024 18:43:37 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Oct 2024 18:47:29 -0400
 
 bsl-internal (4.15.0.0) git; urgency=low
 
