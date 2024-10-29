@@ -4,9 +4,9 @@
 // ----------------------------------------------------------------------------
 //                            U_ENABLE_DEPRECATIONS
 //
-// Set 'U_ENABLE_DEPRECATIONS' to 1 get warnings about uses of deprecated
+// Set `U_ENABLE_DEPRECATIONS` to 1 get warnings about uses of deprecated
 // methods.  These warnings are quite voluminous.  Test case 14 will fail
-// unless '0 == U_ENABLE_DEPRECATIONS' to make sure we don't ship with these
+// unless `0 == U_ENABLE_DEPRECATIONS` to make sure we don't ship with these
 // warnings enabled.
 // ----------------------------------------------------------------------------
 
@@ -63,24 +63,24 @@ using bsl::ptrdiff_t;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This decoder is a kind of 'mechanism' that can be customized at
+// This decoder is a kind of `mechanism` that can be customized at
 // construction.  Since there is currently no prevision to change the
 // customization after construction the choice for primary constructor must
 // itself permit full customization:
-//..
+// ```
 //  bdlde::Base64Decoder(int unrecognizedIsErrorFlag);
-//..
+// ```
 // The primary manipulators are those needed to reach every attainable state
 // from the initial state (i.e., that of a newly constructed object).  Clearly
-// 'convert' is one, but 'endConvert' is also needed in order to reach the
-// 'DONE' state.  Hence, the primary manipulators are
-//..
+// `convert` is one, but `endConvert` is also needed in order to reach the
+// `DONE` state.  Hence, the primary manipulators are
+// ```
 //  int convert(char *out, int *numOut, int *ni, begin, end, int maxNumOut);
 //  int endConvert(char *out, int *numOut, int maxNumOut);
-//..
+// ```
 // The basic accessers for the encoder are all the functions that return
 // information about the customization and/or execution state:
-//..
+// ```
 //  bool isAcceptable() const;
 //  bool isDone const;
 //  bool isError() const;
@@ -88,18 +88,18 @@ using bsl::ptrdiff_t;
 //  bool isInitialState() const;
 //  bool isUnrecognizedAnError() const;
 //  int outputLength() const;
-//..
+// ```
 // The following tables characterize the major logical states and illustrates
 // transitions for the primary manipulators (as implemented under the heading
 // "Named STATE Values" in the "GLOBAL TYPEDEFS/CONSTANTS" section below):
-//..
-//  INPUT CLASS       SYM  CHARACTERIZATION ('convert' and 'endConvert')
+// ```
+//  INPUT CLASS       SYM  CHARACTERIZATION (`convert` and `endConvert`)
 //  -----------       ---  ----------------------------------------------------
 //  BASE64 "NUMERIC"  N    [A-Z][a-z][0-9]+/
 //  EQUAL             E    =
 //  SPACE             S    [\x09-\x0D]\x32
 //  UNRECOGNIZED (@)  U    [\x00-08][\x0E-\x31][\x5B-\x5F][\x7B-\xFF]
-//  END-OF-INPUT      $    Signaled by a call to 'endConvert'
+//  END-OF-INPUT      $    Signaled by a call to `endConvert`
 //
 // (@) Note that in Relaxed mode UNRECOGNIZED is treated as if it were SPACE.
 //
@@ -132,16 +132,16 @@ using bsl::ptrdiff_t;
 //                 *SDS:    -     -    SDS    -    DS
 //                  SOE:    -    SDS   SOE    -     -
 //                   ES:    -     -     -     -     -
-//..
+// ```
 // Note that this table represents a simplification of the complete partition.
 // The numeric class N can be further divided into the following sub-classes:
-//..
-//  INPUT SUB CLASS   SYM  CHARACTERIZATION ('convert' and 'endConvert')
+// ```
+//  INPUT SUB CLASS   SYM  CHARACTERIZATION (`convert` and `endConvert`)
 //  ---------------   ---  ----------------------------------------------------
 //  before 2 equals   N2   AQgw
 //  before 1 equal    N1   EIMUYckos048
 //  not before an =   N0   \BCDFGHJKLNOPRSTVWXZabdefhijlmnpqrtuvxyz1235679=
-//..
+// ```
 // Giving way to the following minor substates:
 //
 //  MINOR STATE NAME  SYM  CHARACTERIZATION
@@ -150,9 +150,9 @@ using bsl::ptrdiff_t;
 //  State 2b          S2B  two chars in accumulator can follow with an equal
 //  State 3a          S3A  3 chars in acc (third not '=') cannot follow w/=
 //  State 3b          S3B  3 chars in acc (third not '=') *can* follow w/=
-//..
+// ```
 // The complete logical transition table would then be as follows:
-//..
+// ```
 //              ========================================
 //              =    COMPLETE STATE TRANSITION TABLE   =
 //              ========================================
@@ -173,7 +173,7 @@ using bsl::ptrdiff_t;
 //               SOE:   -    -    -   SDS  SOE   -    -
 //                ES:   -    -    -    -    -    -    -
 //
-//..
+// ```
 // It will turn out that distinguishing between states 2A and 2B and states
 // 3A and 3B is sufficiently complex as to make it impractical to validate
 // prior to case 7; hence, we will use the simplified model in the first 6
@@ -181,20 +181,20 @@ using bsl::ptrdiff_t;
 // tables defining these subclasses have themselves been validated (in case 6).
 //
 // Our first step will be to ensure that each of these states can be reached
-// ('::setState'), that an anticipated state can be verified ('::isState'), and
+// (`::setState`), that an anticipated state can be verified (`::isState`), and
 // that each of the above state transitions is verified.  Next, we will ensure
 // that each internal table is correct.  Then, using Category Partitioning, we
 // enumerate a representative collection of inputs ordered by increasing
 // *depth* that will be sufficient to prove that the logic associated with the
 // state machine is performing as desired.  Finally, in a separate test case,
-// we will verify that the optional output limit for both 'convert' and
-// 'endConvert' is handled properly.
+// we will verify that the optional output limit for both `convert` and
+// `endConvert` is handled properly.
 //
-// Note that because the 'convert' and 'endConvert' methods are parametrized
+// Note that because the `convert` and `endConvert` methods are parametrized
 // based on iterator types, we will want to ensure (at compile time) that their
 // respective implementations do not depend on more than minimal iterator
 // functionality.  We will accomplish this goal by supplying, as template
-// arguments, 'bdeut::InputIterator' for 'convert' and 'bdeut::OutputIterator'
+// arguments, `bdeut::InputIterator` for `convert` and `bdeut::OutputIterator`
 // for both of these template methods.
 //
 // Note also that, unlike the encoder, there is no "obvious" default mode
@@ -226,8 +226,8 @@ using bsl::ptrdiff_t;
 // [ 3] void ::setState(Obj *obj, int state, const char *input);
 // [ 3] bool ::isState(Obj *obj, int state);
 // [ 3] That we can reach each of the major processing states.
-// [ 5] BOOTSTRAP: 'convert' - transitions
-// [ 4] BOOTSTRAP: 'endConvert'- transitions
+// [ 5] BOOTSTRAP: `convert` - transitions
+// [ 4] BOOTSTRAP: `endConvert`- transitions
 // [ 6] That each internal table has no defective entries.
 // [ 8] DFLT convert(char *o, int *no, int *ni, begin, end, int mno = -1);
 // [ 8] DFLT endConvert(char *out, int *numOut, int maxNumOut = -1);
@@ -236,7 +236,7 @@ using bsl::ptrdiff_t;
 // [ 8] That a 1-byte quantum is decoded properly.
 // [ 8] That output length is calculated and stored properly.
 // [ 9] That a specified maximum output length is observed.
-// [ 9] That surplus output beyond 'maxNumOut' is buffered properly.
+// [ 9] That surplus output beyond `maxNumOut` is buffered properly.
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
 // [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
 // [14] 0 == U_ENABLE_DEPRECATIONS
@@ -764,11 +764,11 @@ void setState(Obj *object, int state)
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
     if (!object->isInitialState()) { cout
-     << "You must not call 'setState' from other than 'INITIAL_STATE'!" << endl
-     << "\tNote that '::isState' *will* alter from the initial state." << endl;
+     << "You must not call `setState` from other than `INITIAL_STATE`!" << endl
+     << "\tNote that `::isState` *will* alter from the initial state." << endl;
     }
 
-    ASSERT(object->isInitialState()); // If 'object' is "just created" then
+    ASSERT(object->isInitialState()); // If `object` is "just created" then
                                       // this assertion should be true!
 
     char b[3];
@@ -1192,7 +1192,7 @@ bool isState(Obj *object, int state)
         bool a3 = 0 == object->isMaximal();             ASSERT(a3 || !enabled);
         bool a4 = 0 == object->isInitialState();        ASSERT(a4 || !enabled);
 
-        // The above ensures 'object' is in STATE_ONE, STATE_TWO, STATE_THREE,
+        // The above ensures `object` is in STATE_ONE, STATE_TWO, STATE_THREE,
         // or SAW_ONE_EQUAL.
 
         input = 'A';
@@ -1609,7 +1609,7 @@ bool base64Url(char c)
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -1666,44 +1666,44 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // FUZZ TESTING PERMUTATIONS OF VALID INPUT
         //
         // Concern:
-        //: 1 That the component under test can handle randomly generated base
-        //:   64 input, also with noise inserted into it.
-        //:
-        //: 2 Test that the component ignores all white space inserted into an
-        //:   otherwise valid base 64 input stream, even with error checking
-        //:   enabled.
-        //:
-        //: 3 Test that the component ignores non-whitespace invalid base 64
-        //:   characters inserted into the input when error checking is
-        //:   disabled.
-        //:
-        //: 4 That the presence of non-whitespace invalid base 64 characters
-        //:   causes an error if error checking is enabled.
+        // 1. That the component under test can handle randomly generated base
+        //   64. input, also with noise inserted into it.
+        //
+        // 2. Test that the component ignores all white space inserted into an
+        //    otherwise valid base 64 input stream, even with error checking
+        //    enabled.
+        //
+        // 3. Test that the component ignores non-whitespace invalid base 64
+        //    characters inserted into the input when error checking is
+        //    disabled.
+        //
+        // 4. That the presence of non-whitespace invalid base 64 characters
+        //    causes an error if error checking is enabled.
         //
         // Plan:
-        //: 1 First, use the 'bdlde::Base64Encoder' to translate the fuzz input
-        //:   into a completely valid base 64 sequence.
-        //:
-        //: 2 Use the decoder to translate the base 64 sequence back into a
-        //:   binary sequence, and verify that it matches the fuzz input.
-        //:
-        //: 3 Create a version of the valid base 64 input with random white
-        //:   space inserted it, decode that with error checking enabled, and
-        //:   observe that the result still matches the fuzz input.
-        //:
-        //: 4 Create a version of the valid base 64 input with random bytes
-        //:   that are not white space and not valid base 64 characters
-        //:   inserted into it.
-        //:   o Decode that with error checking disabled, and observe that the
-        //:     inserted characters are ignored and the result matches the fuzz
-        //:     input.
-        //:
-        //:   o Decode that with error checking enabled, and observed that an
-        //:     error status is returned.
-        //:
-        //: 5 Create a version of the valid base 64 input except with an '='
-        //:   character inserted at random places, decode it with error
-        //:   checking enabled, and observe that an invalid status is returned.
+        // 1. First, use the `bdlde::Base64Encoder` to translate the fuzz input
+        //    into a completely valid base 64 sequence.
+        //
+        // 2. Use the decoder to translate the base 64 sequence back into a
+        //    binary sequence, and verify that it matches the fuzz input.
+        //
+        // 3. Create a version of the valid base 64 input with random white
+        //    space inserted it, decode that with error checking enabled, and
+        //    observe that the result still matches the fuzz input.
+        //
+        // 4. Create a version of the valid base 64 input with random bytes
+        //    that are not white space and not valid base 64 characters
+        //    inserted into it.
+        //    - Decode that with error checking disabled, and observe that the
+        //      inserted characters are ignored and the result matches the fuzz
+        //      input.
+        //
+        //    - Decode that with error checking enabled, and observed that an
+        //      error status is returned.
+        //
+        // 5. Create a version of the valid base 64 input except with an '='
+        //    character inserted at random places, decode it with error
+        //    checking enabled, and observe that an invalid status is returned.
         //
         // Testing:
         //   FUZZ TESTING
@@ -1733,7 +1733,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         if (veryVerbose) P(run);
 
         if (veryVerbose) cout <<
-                       "Create 'base64Input', valid base 64 input sequence,\n"
+                       "Create `base64Input`, valid base 64 input sequence,\n"
                                           " and permute it in various ways.\n";
 
         static bsl::vector<char> whitespaceNoise;
@@ -1825,7 +1825,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                                  GARBAGE) == base64Input.end());      // RETURN
             }
 
-            if (veryVerbose) cout << "Decode 'base64Input' back into binary,\n"
+            if (veryVerbose) cout << "Decode `base64Input` back into binary,\n"
                                               "    compare with fuzz input.\n";
 
             {
@@ -1858,8 +1858,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 ASSERT(binaryInput == binaryOutput);
             }
 
-            if (veryVerbose) cout << "Create 'noisyInput', which is\n"
-                                " 'base64Input' with whatever types of noise\n"
+            if (veryVerbose) cout << "Create `noisyInput`, which is\n"
+                                " `base64Input` with whatever types of noise\n"
                                                       " is tolerated added.\n";
 
             bsl::vector<char> noisyInput;
@@ -1903,7 +1903,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 }
             }
 
-            if (veryVerbose) cout << "Decode 'noisyInput', observe output\n"
+            if (veryVerbose) cout << "Decode `noisyInput`, observe output\n"
                                                       " matches fuzz input.\n";
             {
                 bsl::vector<char> binaryOutput;
@@ -1994,38 +1994,38 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // FUZZ TESTING RAW FUZZ INPUT
         //
         // Concern:
-        //: 1 That completely random input fed into 'convert' either returns an
-        //:   error status or successfully converts the input.
-        //:
-        //: 2 If the random input is a valid base 64 sequence, it will be
-        //:   successfully parsed.
+        // 1. That completely random input fed into `convert` either returns an
+        //    error status or successfully converts the input.
+        //
+        // 2. If the random input is a valid base 64 sequence, it will be
+        //    successfully parsed.
         //
         // Plan:
-        //: 1 Calculate 'valid', indicating that the sequence consists of
-        //:   nothing but alphanumerics, white space, '+', or '/'.  This will
-        //:   always be a valid base 64 encodings (there are some encodings
-        //:   with '=' signs in them that are valid sequences, where 'valid'
-        //:   will not be set).
-        //:
-        //: 2 Iterate 4 times through all combinations of the boolean flags
-        //:   'checkErr', which determines whether error checking is enabled,
-        //:   and 'topOff', which determines whether a few extra characters
-        //:   should be added to the input to render the number of significant
-        //:   characters to be a multiple of 4.
-        //:
-        //: 3 Call 'convert' on the fuzz input.  If 'valid' is 'true', it
-        //:   should succeed.
-        //:
-        //: 4 Even though the first call succeeded, it doesn't mean that the
-        //:   decoder is in a state ready for 'endConvert' to succeed if
-        //:   called.  If 'topOff' is 'true', decoder a few more bytes so that
-        //:   the number of significant bytes parsed will be a multiple of 4.
-        //:
-        //: 5 Call 'endConvert', and observe if it succeeded.
-        //:
-        //: 6 If the conversion succeeded, encode the result and see if it
-        //:   matches the fuzz input, reduced to just the significant
-        //:   characters.
+        // 1. Calculate `valid`, indicating that the sequence consists of
+        //    nothing but alphanumerics, white space, '+', or '/'.  This will
+        //    always be a valid base 64 encodings (there are some encodings
+        //    with '=' signs in them that are valid sequences, where `valid`
+        //    will not be set).
+        //
+        // 2. Iterate 4 times through all combinations of the boolean flags
+        //    `checkErr`, which determines whether error checking is enabled,
+        //    and `topOff`, which determines whether a few extra characters
+        //    should be added to the input to render the number of significant
+        //    characters to be a multiple of 4.
+        //
+        // 3. Call `convert` on the fuzz input.  If `valid` is `true`, it
+        //    should succeed.
+        //
+        // 4. Even though the first call succeeded, it doesn't mean that the
+        //    decoder is in a state ready for `endConvert` to succeed if
+        //    called.  If `topOff` is `true`, decoder a few more bytes so that
+        //    the number of significant bytes parsed will be a multiple of 4.
+        //
+        // 5. Call `endConvert`, and observe if it succeeded.
+        //
+        // 6. If the conversion succeeded, encode the result and see if it
+        //    matches the fuzz input, reduced to just the significant
+        //    characters.
         //
         // Testing:
         //   FUZZ TESTING RAW FUZZ INPUT
@@ -2109,7 +2109,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
             out += numOut;
 
             // A base 64 sequence is not correct unless the number of
-            // significant characters is divisible by 4.  So if 'topOff', add
+            // significant characters is divisible by 4.  So if `topOff`, add
             // valid characters until the total consumed is divisible by 4.
             // Note that that won't necessarily make the input valid,
             // especially if an '=' is in the input.
@@ -2194,21 +2194,21 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // FUZZ TESTING MASSAGED FUZZ INPUT
         //
         // Concern:
-        //: 1 That if we massage the fuzz input into a form that's always
-        //:   correct base 64 input, the decoder always successfully decodes
-        //:   it.
+        // 1. That if we massage the fuzz input into a form that's always
+        //    correct base 64 input, the decoder always successfully decodes
+        //    it.
         //
         // Plan:
-        //: 1 Loop through the fuzz input, transforming each byte into a base
-        //:   64 character.
-        //:
-        //: 2 If necessary, add a few bytes to make sure the length of the base
-        //:   64 sequence is a multiple of 4 bytes long.
-        //:
-        //: 3 Decode the sequence, which should work.
-        //:
-        //: 4 Taking the binary output of the decoding, and encode it, and
-        //:   check that the result matches the base 64 sequence we began with.
+        // 1. Loop through the fuzz input, transforming each byte into a base
+        //   64. character.
+        //
+        // 2. If necessary, add a few bytes to make sure the length of the base
+        //   64. sequence is a multiple of 4 bytes long.
+        //
+        // 3. Decode the sequence, which should work.
+        //
+        // 4. Taking the binary output of the decoding, and encode it, and
+        //    check that the result matches the base 64 sequence we began with.
         //
         // Testing:
         //   FUZZ TESTING RAW FUZZ INPUT
@@ -2393,7 +2393,7 @@ DEFINE_TEST_CASE(14)
     // U_ENABLE_DEPRECATIONS IS DISABLED
     //
     // Concern:
-    //: 1 That we don't ship with 'U_ENABLE_DEPRECATIONS' set.
+    // 1. That we don't ship with `U_ENABLE_DEPRECATIONS` set.
     //
     // Testing:
     //   0 == U_ENABLE_DEPRECATIONS
@@ -2418,97 +2418,97 @@ DEFINE_TEST_CASE(13)
     // TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
     //
     // Concerns:
-    //: 1 Decoder can parse unpadded input in unpadded mode.
-    //:
-    //: 2 In unpadded mode, an '=' sign in input is illegal, unless ignore mode
-    //:   is 'e_IGNORE_UNRECOGNIZED'.
-    //:
-    //: 3 White space in the input is always ignored unless ignore mode is
-    //:   'e_IGNORE_NONE'.
-    //:
-    //: 4 If ignore mode is 'e_IGNORE_UNRECOGNIZED', invalid characters in
-    //:   input are ignored, and if padding is not specified, '=' is ignored as
-    //:   an unrecognized character.
-    //:
-    //: 5 If ignore mode is 'e_IGNORE_WHITE', whitespace (and nothing else) is
-    //:   ignored.
-    //:
-    //: 6 If an input sequence will result in successful parsing, parsing it in
-    //:   pieces limited by the pointer pair passed yields the same result as
-    //:   parsing it all in one pass.
-    //:
-    //: 7 If an input sequence will result in successful parsing, parsing it in
-    //:   pieces pieces limited by 'maxNumOut >= 0' yeilds the same result as
-    //:   parsing it all in one pass.
-    //:
-    //: 8 Residual bits: Where 'len' is the length of output:
-    //:   o if 'len % 3 == 1', then if the 4 low-order residual bits are not 0,
-    //:     an error will be reported.
-    //:
-    //:   o if 'len % 3 == 2', then if the 2 low-order residual bits are not 0,
-    //:     an error will be reported.
-    //:
-    //: 9 If 'N' is the number of bytes of valid input (not including '='s),
-    //:   then if 'N % 4 == 1' there will be an error.
+    // 1. Decoder can parse unpadded input in unpadded mode.
+    //
+    // 2. In unpadded mode, an '=' sign in input is illegal, unless ignore mode
+    //    is `e_IGNORE_UNRECOGNIZED`.
+    //
+    // 3. White space in the input is always ignored unless ignore mode is
+    //    `e_IGNORE_NONE`.
+    //
+    // 4. If ignore mode is `e_IGNORE_UNRECOGNIZED`, invalid characters in
+    //    input are ignored, and if padding is not specified, '=' is ignored as
+    //    an unrecognized character.
+    //
+    // 5. If ignore mode is `e_IGNORE_WHITE`, whitespace (and nothing else) is
+    //    ignored.
+    //
+    // 6. If an input sequence will result in successful parsing, parsing it in
+    //    pieces limited by the pointer pair passed yields the same result as
+    //    parsing it all in one pass.
+    //
+    // 7. If an input sequence will result in successful parsing, parsing it in
+    //    pieces pieces limited by `maxNumOut >= 0` yeilds the same result as
+    //    parsing it all in one pass.
+    //
+    // 8. Residual bits: Where `len` is the length of output:
+    //    - if `len % 3 == 1`, then if the 4 low-order residual bits are not 0,
+    //      an error will be reported.
+    //
+    //    - if `len % 3 == 2`, then if the 2 low-order residual bits are not 0,
+    //      an error will be reported.
+    //
+    // 9. If `N` is the number of bytes of valid input (not including '='s),
+    //    then if `N % 4 == 1` there will be an error.
     //
     // Plan:
-    //: 1 Create a table of padded decoder input and expected output, generated
-    //:   by the 'u::RandGen' random number generator and the 'Base64Encoder'
-    //:   in Test Case -1.
-    //:
-    //: 2 Write a series of loops looping through the table.  Within each loop,
-    //:   nest another loop varying 3 boolean variables:
-    //:
-    //:   o PAD (padded)
-    //:
-    //:   o INJECT_WHITESPACE
-    //:
-    //:   o IGNORE (bdlde::Base64IgnoreMode::Enum)
-    //:
-    //:   o URL (encoding is URL)
-    //:
-    //: 3 Within the nested loop, make a copy of the input selected by the
-    //:   outer loop, then conditionally modify it depending on the flags:
-    //:
-    //:   o 'u::removePadding': remove padding from string
-    //:
-    //:   o 'u::convertToUrlInput': convert input string from 'e_BASIC' type
-    //:     to 'e_URL' type.
-    //:
-    //:   o 'u::RandGen::injectWhitespace': insert white space characters at
-    //:     random locations in this string.  This should never affect the
-    //:     outcome.
-    //:
-    //:   o 'u::Randgen::injectGarbage': inject invalid non-whitespace
-    //:     characters into the input.  If the decoder is not configured with
-    //:     the 'e_IGNORE_UNRECOGNIZED' flag, this will result in an error,
-    //:     otherwise these characters will be ignored.
-    //:
-    //: 4 Create a decoder object, with the options configured to include
-    //:   'IGNORE', 'URL', and 'PAD'.
-    //:
-    //: 5 Call 'convert' and 'endConvert' to do the translation, and when
-    //:   success is expected, compare the decoded result with the expected
-    //:   value from the table.
-    //:
-    //: 6 Do a series of these loops testing for different things:
-    //:
-    //:   o Input contains no garbage,  Should always succeed.
-    //:
-    //:   o Input contains garbage, results in error when decoder not
-    //:     configured 'e_IGNORE_UNRECOGNIZED', results in no error otherwise.
-    //:
-    //:   o Input is parsed in random pieces, limit of parsing done by the
-    //:     range passed to input.  Always succeed.
-    //:
-    //:   o Input is parsed in random pieces, limit of parsing done by
-    //:     passing 'maxNumOut != -1'.  Always succeed.
-    //:
-    //:   o Set low order bits of partial final characters, should always be an
-    //:     error.
-    //:
-    //:   o When 'N' is the number of valid characters of input other than '=',
-    //:     have 'N % 4 == 1', which should always be an error.
+    // 1. Create a table of padded decoder input and expected output, generated
+    //    by the `u::RandGen` random number generator and the `Base64Encoder`
+    //    in Test Case -1.
+    //
+    // 2. Write a series of loops looping through the table.  Within each loop,
+    //    nest another loop varying 3 boolean variables:
+    //
+    //    - PAD (padded)
+    //
+    //    - INJECT_WHITESPACE
+    //
+    //    - IGNORE (bdlde::Base64IgnoreMode::Enum)
+    //
+    //    - URL (encoding is URL)
+    //
+    // 3. Within the nested loop, make a copy of the input selected by the
+    //    outer loop, then conditionally modify it depending on the flags:
+    //
+    //    - `u::removePadding`: remove padding from string
+    //
+    //    - `u::convertToUrlInput`: convert input string from `e_BASIC` type
+    //      to `e_URL` type.
+    //
+    //    - `u::RandGen::injectWhitespace`: insert white space characters at
+    //      random locations in this string.  This should never affect the
+    //      outcome.
+    //
+    //    - `u::Randgen::injectGarbage`: inject invalid non-whitespace
+    //      characters into the input.  If the decoder is not configured with
+    //      the `e_IGNORE_UNRECOGNIZED` flag, this will result in an error,
+    //      otherwise these characters will be ignored.
+    //
+    // 4. Create a decoder object, with the options configured to include
+    //    `IGNORE`, `URL`, and `PAD`.
+    //
+    // 5. Call `convert` and `endConvert` to do the translation, and when
+    //    success is expected, compare the decoded result with the expected
+    //    value from the table.
+    //
+    // 6. Do a series of these loops testing for different things:
+    //
+    //    - Input contains no garbage,  Should always succeed.
+    //
+    //    - Input contains garbage, results in error when decoder not
+    //      configured `e_IGNORE_UNRECOGNIZED`, results in no error otherwise.
+    //
+    //    - Input is parsed in random pieces, limit of parsing done by the
+    //      range passed to input.  Always succeed.
+    //
+    //    - Input is parsed in random pieces, limit of parsing done by
+    //      passing `maxNumOut != -1`.  Always succeed.
+    //
+    //    - Set low order bits of partial final characters, should always be an
+    //      error.
+    //
+    //    - When `N` is the number of valid characters of input other than '=',
+    //      have `N % 4 == 1`, which should always be an error.
     //
     // Testing:
     //   TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
@@ -2918,8 +2918,8 @@ DEFINE_TEST_CASE(13)
                 while (numInSoFar < inputLen) {
                     const int mod = 1 + inputLen - numInSoFar;
 
-                    // Take the greatest of three 'rand' calls to decrease the
-                    // frequency of '0 == numInThisTime'.
+                    // Take the greatest of three `rand` calls to decrease the
+                    // frequency of `0 == numInThisTime`.
 
                     int numInThisTime = 0;
                     for (int ii = 0; ii < 3; ++ii) {
@@ -2967,7 +2967,7 @@ DEFINE_TEST_CASE(13)
         ASSERT(done);
     }
 
-    if (verbose) cout << "Parsing in pieces limited by 'maxNumOut'\n";
+    if (verbose) cout << "Parsing in pieces limited by `maxNumOut`\n";
 
     for (int ti = 0; ti < k_NUM_DATA; ++ti) {
         const Data&       data     = DATA[ti];
@@ -3038,8 +3038,8 @@ DEFINE_TEST_CASE(13)
                         const int mod =
                                     1 + static_cast<int>(outLen) - numOutSoFar;
 
-                        // Take the greatest of three 'rand' calls to decrease
-                        // the frequency of '0 == numOutThisTime'.
+                        // Take the greatest of three `rand` calls to decrease
+                        // the frequency of `0 == numOutThisTime`.
 
                         int numOutThisTime = 0;
                         for (int ii = 0; ii < 3; ++ii) {
@@ -3843,21 +3843,21 @@ DEFINE_TEST_CASE(11)
 
 ///Usage Example
 ///-------------
-// The following example shows how to use a 'bdlde::Base64Decoder' object to
-// implement a function, 'streamDecode', that reads text from a
-// 'bsl::istream', decodes that text from base 64 representation, and writes
-// the decoded text to a 'bsl::ostream'.  'streamDecoder' returns 0 on
+// The following example shows how to use a `bdlde::Base64Decoder` object to
+// implement a function, `streamDecode`, that reads text from a
+// `bsl::istream`, decodes that text from base 64 representation, and writes
+// the decoded text to a `bsl::ostream`.  `streamDecoder` returns 0 on
 // success and a negative value if the input data could not be successfully
 // decoded or if there is an I/O error.
-//..
+// ```
 // streamencoder.h                      -*-C++-*-
 //
 // int streamEncoder(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream 'is', convert
+//     // Read the entire contents of the specified input stream `is`, convert
 //     // the input base-64 encoding into plain text, and write the decoded
-//     // text to the specified output stream 'os'.  Return 0 on success, and a
+//     // text to the specified output stream `os`.  Return 0 on success, and a
 //     // negative value otherwise.
-//..
+// ```
         const bsl::string  inStr(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
         bsl::istringstream inStream(inStr);
         bsl::stringstream  outStream;
@@ -3876,7 +3876,7 @@ DEFINE_TEST_CASE(10)
 
         // --------------------------------------------------------------------
         // RESET STATE
-        //   Verify the 'resetState' method.
+        //   Verify the `resetState` method.
         //
         // Concerns:
         //   - That resetState returns the object to its initial state (i.e.,
@@ -3886,7 +3886,7 @@ DEFINE_TEST_CASE(10)
         // Plan:
         //   - Use put the object in each state and verify the expected
         //      state is not/is in the initial state before/after the call to
-        //      'resetState'.
+        //      `resetState`.
         //   - Verify that the initial configuration has not changed.
         //   - Repeat the above with a different configuration.
         //
@@ -3902,9 +3902,9 @@ DEFINE_TEST_CASE(10)
                           << "RESET STATE" << endl
                           << "===========" << endl;
 
-        if (verbose) cout << "\nVerify 'resetState'." << endl;
+        if (verbose) cout << "\nVerify `resetState`." << endl;
 
-        if (verbose) cout << "\tWith 'isUnregnizeAndError' = false." << endl;
+        if (verbose) cout << "\tWith `isUnregnizeAndError` = false." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
                 Obj obj(false);
@@ -3922,7 +3922,7 @@ DEFINE_TEST_CASE(10)
             }
         }
 
-        if (verbose) cout << "\tWith 'isUnregnizeAndError' = true." << endl;
+        if (verbose) cout << "\tWith `isUnregnizeAndError` = true." << endl;
         {
             for (int i = 0; i < NUM_STATES; ++i) {
                 Obj obj(true);
@@ -3947,7 +3947,7 @@ DEFINE_TEST_CASE(9)
 
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
-        //   Complete the padded testing of 'convert' and 'endConvert'.
+        //   Complete the padded testing of `convert` and `endConvert`.
         //
         // Concerns:
         //   - That the return status is correct.
@@ -3963,15 +3963,15 @@ DEFINE_TEST_CASE(9)
         //      first output limit; the second input and output limit will
         //      be chosen ad hoc.
         //      + Not supplying an output limit has the value -1.
-        //      + Not supplying an input (implying 'endConvert') is also valued
-        //         at -1 (hence, an unlimited 'endConvert' will value to -2).
+        //      + Not supplying an input (implying `endConvert`) is also valued
+        //         at -1 (hence, an unlimited `endConvert` will value to -2).
         //
         //  - Treat special cases "ad hoc" following the regular sequences
         //     for each depth category:
         //     + terminal sequence involving = and ==.
-        //     + sequences where 'convert' follows 'convert'
-        //     + sequences where 'convert' must first emit delayed output.
-        //     + sequences where 'endConvert' has a limit with delayed output.
+        //     + sequences where `convert` follows `convert`
+        //     + sequences where `convert` must first emit delayed output.
+        //     + sequences where `endConvert` has a limit with delayed output.
         //
         // Tactics:
         //   - Category Partitioning, Depth-Ordered Enumeration, and Ad Hoc
@@ -3992,9 +3992,9 @@ DEFINE_TEST_CASE(9)
         const int S = SOFT_DONE_STATE;
         const int E = ERROR_STATE;
 
-        const char *const END_INPUT = 0;  // Used to indicate 'endConvert'
+        const char *const END_INPUT = 0;  // Used to indicate `endConvert`
                                           // should be called instead of
-                                          // 'convert'.
+                                          // `convert`.
         const int _ = -1;
 
         const char *N = END_INPUT;        // alias
@@ -4006,7 +4006,7 @@ DEFINE_TEST_CASE(9)
                 int d_lineNum;          // source line number
 
                 const char *d_input1_p; // input characters (null terminated)
-                                        // Note: 0 implies call to 'endConvert'
+                                        // Note: 0 implies call to `endConvert`
                 int d_limit1;           // output limit 1
                 int d_return1;          // status after call to first function
                 int d_state1;           // state after call to first function
@@ -4014,7 +4014,7 @@ DEFINE_TEST_CASE(9)
                 int d_numIn1;           // # bytes read by first function.
 
                 const char *d_input2_p; // input characters (null terminated)
-                                        // Note: 0 implies call to 'endConvert'
+                                        // Note: 0 implies call to `endConvert`
                 int d_limit2;           // output limit 2
                 int d_return2;          // status after call to second function
                 int d_state2;           // state after call to second function
@@ -4051,7 +4051,7 @@ DEFINE_TEST_CASE(9)
 { L_, "A",        0, 0, 1, 0, 1, N,         -1,-1, E, 0, _,""                },
 { L_, "AQ",      -1, 0, 2, 1, 2, N,         -1,-1, E, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert'.
+// *** Testing `convert` following `convert`.
 { L_, "A",        0, 0, 1, 0, 1, "",        -1, 0, 1, 0, 0,""                },
 
 { L_, "A",        0, 0, 1, 0, 1, "",         0, 0, 1, 0, 0,""                },
@@ -4083,7 +4083,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAQ",      0, 2, 3, 0, 3, N,         -1,-1, E, 0, _,""                },
 { L_, "AAAQ",    -1, 0, 4, 3, 4, N,         -1, 0, D, 0, _,"\x00\x00\x10"    },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
 { L_, "AAE=",    -1, 0, S, 2, 4, N,         -1, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",    -1, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
 
@@ -4097,12 +4097,12 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAQ",     0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x10"    },
 { L_, "AAAgQ",   -1, 0, 1, 3, 5, N,         -1,-1, E, 0, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 4.-2
 { L_, "AAE=",     0, 2, S, 0, 4, N,         -1, 0, D, 2, _,"\x00\x01"        },
 { L_, "AQ==",     0, 1, S, 0, 4, N,         -1, 0, D, 1, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 4.-1
 { L_, "AAAg",     0, 3, 4, 0, 4, N,          0, 3, S, 0, _,""                },
 { L_, "AAE=",     0, 2, S, 0, 4, N,          0, 2, S, 0, _,""                },
@@ -4123,7 +4123,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAE=",     0, 2, S, 0, 4, N,          3, 0, D, 2, _,"\x00\x01"        },
 { L_, "AQ==",     0, 1, S, 0, 4, N,          3, 0, D, 1, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 4.-1
 { L_, "AAAg",     0, 3, 4, 0, 4, "",        -1, 0, 4, 3, 0,"\x00\x00\x20"    },
 
@@ -4258,12 +4258,12 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgQ",    0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ",  -1, 0, 2, 4, 6, N,         -1,-1, E, 0, _,"\x00\x00\x20\x01"},
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 5.-2
 { L_, "AAE=",     1, 1, S, 1, 4, N,         -1, 0, D, 1, _,"\x00\x01"        },
 { L_, "AQ==",     1, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 5.-1
 { L_, "AAAg",     1, 2, 4, 1, 4, N,          0, 2, S, 0, _,"\x00"            },
 { L_, "AAE=",     1, 1, S, 1, 4, N,          0, 1, S, 0, _,""                },
@@ -4284,7 +4284,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAE=",     1, 1, S, 1, 4, N,          3, 0, D, 1, _,"\x00\x01"        },
 { L_, "AQ==",     1, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 5.-1
 { L_, "AAAg",     1, 2, 4, 1, 4, "",        -1, 0, 4, 2, 0,"\x00\x00\x20"    },
 
@@ -4424,12 +4424,12 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgAAQ", -1, 0, 3, 5, 7, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x04"        },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 6.-2
 { L_, "AAE=",     2, 0, S, 2, 4, N,         -1, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     2, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 6.-1
 { L_, "AAAg",     2, 1, 4, 2, 4, N,          0, 1, S, 0, _,"\x00\x00"        },
 { L_, "AAE=",     2, 0, S, 2, 4, N,          0, 0, D, 0, _,"\x00\x01"        },
@@ -4450,7 +4450,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAE=",     2, 0, S, 2, 4, N,          3, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     2, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 6.-1
 { L_, "AAAg",     2, 1, 4, 2, 4, "",        -1, 0, 4, 1, 0,"\x00\x00\x20"    },
 
@@ -4594,13 +4594,13 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgAAQ",  0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAQ",-1, 0, 4, 6, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 7.-2
 { L_, "AAAgAAE=",-1, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
 { L_, "AAAgAQ==",-1, 0, S, 4, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20\x01"},
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
 
                                                                         // 7.-1
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          0, 0, D, 0, _,"\x00\x00\x20"    },
@@ -4622,7 +4622,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAE=",     3, 0, S, 2, 4, N,          3, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     3, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 7.-1
 { L_, "AAAg",     3, 0, 4, 3, 4, "",        -1, 0, 4, 0, 0,"\x00\x00\x20"    },
 
@@ -4771,7 +4771,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgAAAQ", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAwQ",-1,0, 1, 6, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 8.-2
 { L_, "AAAgAAE=", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ==", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
@@ -4789,7 +4789,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgAAAQ", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAAAwQ",0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                         // 9.-2
 { L_, "AAAgAAE=", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAQ==", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
@@ -4806,7 +4806,7 @@ DEFINE_TEST_CASE(9)
 { L_, "AAAgAAAQ", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAAAwQ",1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                        // 10.-2
 { L_, "AAAgAAE=", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAQ==", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
@@ -4823,7 +4823,7 @@ DEFINE_TEST_CASE(9)
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                        // 11.-2
 { L_, "AAAgAAE=", 3, 2, S, 3, 8, N,         -1, 0, D, 2, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -4841,7 +4841,7 @@ DEFINE_TEST_CASE(9)
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",3, 3, 4, 3, 8, N,         -1, 0, D, 3, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                        // 12.-2
 { L_, "AAAgAAE=", 4, 1, S, 4, 8, N,         -1, 0, D, 1, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -4858,7 +4858,7 @@ DEFINE_TEST_CASE(9)
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",4, 2, 1, 4, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20\x00"},
 
-// *** Verify '=' and '==' variants.
+// *** Verify `=` and `==` variants.
                                                                        // 13.-2
 { L_, "AAAgAAE=", 5, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -4988,7 +4988,7 @@ DEFINE_TEST_CASE(9)
                 char outputBuffer[OUTPUT_BUFFER_SIZE];
                 memset(outputBuffer, '?', sizeof outputBuffer);
 
-                // **  Prepare to process first 'convert' or 'endConvert'.  **
+                // **  Prepare to process first `convert` or `endConvert`.  **
 
                 int   totalOut = 0;
                 int   totalIn = 0;  (void)totalIn;
@@ -5031,7 +5031,7 @@ DEFINE_TEST_CASE(9)
                 LOOP3_ASSERT(LINE, N_OUT1, nOut1, N_OUT1 == nOut1);
                 LOOP3_ASSERT(LINE, N_IN1, nIn1, N_IN1 == nIn1);
 
-                // **  Prepare to process second 'convert' or 'endConvert'.  **
+                // **  Prepare to process second `convert` or `endConvert`.  **
 
                 b += totalOut;
 
@@ -5170,7 +5170,7 @@ DEFINE_TEST_CASE(9)
 
                     localObj.convert(lb, &localNumOut, &localNumIn, B, M);
 
-                    // Prepare for second call to 'convert'.
+                    // Prepare for second call to `convert`.
                     int localTotalIn = localNumIn;
                     int localTotalOut = localNumOut;
                     lb += localNumOut;
@@ -5193,7 +5193,7 @@ DEFINE_TEST_CASE(9)
                                                                        BB, EE);
                     LOOP4_ASSERT(LINE, index, RES2, res2, RES2 == res2);
 
-                    // Prepare to call 'endConvert'.
+                    // Prepare to call `endConvert`.
                     localTotalIn  += localNumIn;
                     localTotalOut += localNumOut;
                     lb += localNumOut;
@@ -5266,7 +5266,7 @@ DEFINE_TEST_CASE(8)
 {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
-        //   Continue testing 'convert' and 'endConvert' with defaults
+        //   Continue testing `convert` and `endConvert` with defaults
         //   arguments.
         //
         // Concerns:
@@ -5288,7 +5288,7 @@ DEFINE_TEST_CASE(8)
         //      particular, partition the input category into equivalence
         //      classes and (in Relaxed mode) advance a *frontier* containing
         //      representatives from each equivalence class:
-        //..
+        // ```
         //       EQUIV  AN
         //       CLASS ELEM  CHARACTERIZATION OF EQUIVALENCE CLASS
         //       ----- ----  ------------------------------------
@@ -5298,8 +5298,8 @@ DEFINE_TEST_CASE(8)
         //        E    '='   The 65th Base64 character, indicating padding.
         //        S    ' '   Ignorable in both Strict and Relaxed modes.
         //        U    '@'   Ignorable in Relaxed mode only.
-        //        $     -    A call to 'endConvert'.
-        //..
+        //        $     -    A call to `endConvert`.
+        // ```
         //   - At each depth, repeat the exercise in Strict Mode.
         //
         //   - On a second pass, test that each bit position of an encoded
@@ -5897,7 +5897,7 @@ DEFINE_TEST_CASE(8)
                 char outputBuffer[OUTPUT_BUFFER_SIZE];
                 memset(outputBuffer, '?', sizeof outputBuffer);
 
-                // Prepare to invoke 'convert' on initial input.
+                // Prepare to invoke `convert` on initial input.
 
                 char     *b = outputBuffer;
                 int       nOut = -1;
@@ -5940,7 +5940,7 @@ DEFINE_TEST_CASE(8)
 
                 LOOP3_ASSERT(LINE, IN_LEN, totalIn, IN_LEN == totalIn);
 
-                // Prepare to call 'endConvert'.
+                // Prepare to call `endConvert`.
 
                 nOut = -1;
                 const int RES3 = obj.endConvert(b, &nOut);
@@ -5953,7 +5953,7 @@ DEFINE_TEST_CASE(8)
                 const int internalLen = obj.outputLength();
                 LOOP2_ASSERT(LINE, internalLen, OUT_LEN == internalLen);
 
-                // Confirm final state is 'DONE_STATE' or 'ERROR_STATE'.
+                // Confirm final state is `DONE_STATE` or `ERROR_STATE`.
 
                 const int FINAL_STATE = ERROR ? ERROR_STATE : DONE_STATE;
                 LOOP2_ASSERT(LINE, FINAL_STATE, isState(&obj, FINAL_STATE));
@@ -5999,7 +5999,7 @@ DEFINE_TEST_CASE(8)
                 for (int index = 0; index <= LENGTH; ++index) {
                     if (veryVeryVerbose) { T_ T_ T_ T_ P(index) }
 
-                    // Prepare for first call to 'convert'.
+                    // Prepare for first call to `convert`.
 
                     Obj               localObj(MODE);
                     const char *const M = B + index;
@@ -6016,7 +6016,7 @@ DEFINE_TEST_CASE(8)
 
                     localObj.convert(lb, &localNumOut, &localNumIn, B, M);
 
-                    // Prepare for second call to 'convert'.
+                    // Prepare for second call to `convert`.
 
                     int localTotalIn = localNumIn;
                     int localTotalOut = localNumOut;
@@ -6041,7 +6041,7 @@ DEFINE_TEST_CASE(8)
                                                                        BB, EE);
                     LOOP4_ASSERT(LINE, index, RES2, res2, RES2 == res2);
 
-                    // Prepare to call 'endConvert'.
+                    // Prepare to call `endConvert`.
 
                     localTotalIn  += localNumIn;
                     localTotalOut += localNumOut;
@@ -6687,11 +6687,11 @@ DEFINE_TEST_CASE(6)
         // TEST MACHINERY
         //
         // Concern:
-        //: 1 Run the fuzz test routine, but not as a fuzz test, just to do
-        //:   basic debugging.
+        // 1. Run the fuzz test routine, but not as a fuzz test, just to do
+        //    basic debugging.
         //
         // Plan:
-        //: 1 Call the fuzz test routine, just once, with a big garbage string.
+        // 1. Call the fuzz test routine, just once, with a big garbage string.
         //
         // Testing:
         //   int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
@@ -6755,11 +6755,11 @@ DEFINE_TEST_CASE(5)
         (void)veryVeryVeryVerbose;
 
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'convert' - transitions
-        //   Verify 'convert' transitions for all states.
+        // BOOTSTRAP: `convert` - transitions
+        //   Verify `convert` transitions for all states.
         //
         // Concerns:
-        //   - That we reach the correct final state after calling 'convert'.
+        //   - That we reach the correct final state after calling `convert`.
         //   - That convert with empty input does not change state.
         //   - That convert with multiple inputs is identical to multiple
         //      calls with the same input.
@@ -6771,7 +6771,7 @@ DEFINE_TEST_CASE(5)
         //   For inputs of increasing length starting with 0, put the object in
         //   each of the possible states and apply appropriate combinations of
         //   input character classes for the given input length.  After each
-        //   call to 'convert', make sure that the return code, final state,
+        //   call to `convert`, make sure that the return code, final state,
         //   and amount of input consumed are as expected.
         //
         // Tactics:
@@ -6780,14 +6780,14 @@ DEFINE_TEST_CASE(5)
         //   - Table-Based Implementation Technique
         //
         // Testing:
-        //  BOOTSTRAP: 'convert' - transitions
+        //  BOOTSTRAP: `convert` - transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'convert' - transitions" << endl
+                          << "BOOTSTRAP: `convert` - transitions" << endl
                           << "===================================" << endl;
 
-        if (verbose) cout << "\nVerify 'convert' - transitions." << endl;
+        if (verbose) cout << "\nVerify `convert` - transitions." << endl;
         {
             static const struct {
                 int         d_lineNum;     // source line number
@@ -7008,30 +7008,30 @@ DEFINE_TEST_CASE(4)
         (void)veryVeryVeryVerbose;
 
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'endConvert' - transitions
-        //   Verify 'endConvert' transitions for all states.
+        // BOOTSTRAP: `endConvert` - transitions
+        //   Verify `endConvert` transitions for all states.
         //
         // Concerns:
-        //   - Reaching the correct final state after calling 'endConvert'.
+        //   - Reaching the correct final state after calling `endConvert`.
         //
         // Plan:
         //   Put the object in each state and verify the expected state is
-        //   correct after the call to 'endConvert'.
+        //   correct after the call to `endConvert`.
         //
         // Tactics:
         //   - Area Data Selection Method
         //   - Table-Based Implementation Technique
         //
         // Testing:
-        //  BOOTSTRAP: 'endConvert' - transitions
+        //  BOOTSTRAP: `endConvert` - transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'endConvert' - transitions" << endl
+                          << "BOOTSTRAP: `endConvert` - transitions" << endl
                           << "===================================" << endl;
 
 
-        if (verbose) cout << "\nVerify 'endConvert' - transitions." << endl;
+        if (verbose) cout << "\nVerify `endConvert` - transitions." << endl;
         {
             static const struct {
                 int d_lineNum;          // source line number
@@ -7095,20 +7095,20 @@ DEFINE_TEST_CASE(3)
         //
         // Plan:
         //   First make sure that when we are in the initial (i.e., newly
-        //   constructed) state, 'isInitialState()' returns 'true' (so that
-        //   the assertion that 'isInitialState()' does not fail before we have
+        //   constructed) state, `isInitialState()` returns `true` (so that
+        //   the assertion that `isInitialState()` does not fail before we have
         //   had an opportunity to test it explicitly).
         //
         //   Second, using the Brute-Force approach, reach each of the major
         //   states from a newly constructed object as simply as possible
-        //   (i.e., by processing one character at a time) via the '::setState'
+        //   (i.e., by processing one character at a time) via the `::setState`
         //   test helper function.  Then use of all the (as yet untested)
         //   processing accessors to help verify the new state.  Additionally,
         //   call one or more manipulators to change the state (thereby
         //   creating a partial *Distinguishing* *Sequence*) in order to
         //   further verify that the targeted state was reached.
         //
-        //   Third, prove that the '::isState' helper function (implemented
+        //   Third, prove that the `::isState` helper function (implemented
         //   using the above strategy) correctly confirms the indicated state
         //   by showing that, for each state, only the corresponding state
         //   setting returns true.
@@ -7594,7 +7594,7 @@ DEFINE_TEST_CASE(3)
                     const bool SAME = i == j;
                     if (veryVeryVerbose) { T_ T_ T_ P(SAME) }
 
-                    EnabledGuard Guard(SAME); // Enable individual '::isState'
+                    EnabledGuard Guard(SAME); // Enable individual `::isState`
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
@@ -7640,7 +7640,7 @@ DEFINE_TEST_CASE(2)
 
         if (verbose) cout << "\nTry both settings." << endl;
 
-        if (verbose) cout << "\tunrecognizedIsErrorFlag = 'true'" << endl;
+        if (verbose) cout << "\tunrecognizedIsErrorFlag = `true`" << endl;
         {
             Obj obj(true);
             ASSERT(1 == obj.isAcceptable());
@@ -7655,7 +7655,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isPadded());
         }
 
-        if (verbose) cout << "\tunrecognizedIsErrorFlag = 'false'" << endl;
+        if (verbose) cout << "\tunrecognizedIsErrorFlag = `false`" << endl;
         {
             Obj obj(false);
             ASSERT(1 == obj.isAcceptable());
@@ -7702,7 +7702,7 @@ DEFINE_TEST_CASE(2)
             ASSERT(1 == obj.isPadded());
         }
 
-        if (verbose) cout << "Use an 'Options' object\n";
+        if (verbose) cout << "Use an `Options` object\n";
         bool done = false;
         enum { k_TI_ITERATIONS = k_NUM_ALPHA * 2 * k_NUM_IGNORE };
         for (int ti = 0; ti < k_TI_ITERATIONS; ++ti) {
@@ -7779,14 +7779,14 @@ DEFINE_TEST_CASE(1)
             P((int)(char) '\xff');
         }
 
-        if (verbose) cout << "\nTry '::myMin' test helper function." << endl;
+        if (verbose) cout << "\nTry `::myMin` test helper function." << endl;
         {
             ASSERT('a'== myMin('a', 'b'));
             ASSERT(-5 == myMin(3, -5));
             ASSERT(-3 == myMin(-3, 5));
         }
 
-        if (verbose) cout << "\nTry '::printCharN' test helper function."
+        if (verbose) cout << "\nTry `::printCharN` test helper function."
                                                                        << endl;
         {
             bsl::ostringstream out;
@@ -8028,7 +8028,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.

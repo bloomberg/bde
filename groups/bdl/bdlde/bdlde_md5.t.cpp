@@ -23,42 +23,42 @@ using namespace bsl;  // automatically added by script
 // The component under test is a value-semantic scalar class with internal
 // state representing the value.  There is no allocator involved.  We are
 // mostly concerned with the mechanical functioning of the various methods and
-// free operators, and exception neutrality during 'bdex' streaming.
+// free operators, and exception neutrality during `bdex` streaming.
 //
 // The component interface represents a 128-bit MD5 digest as 4 unsigned
-// integers.  The MD5 digest is calculated in the 'update' and 'loadDigest'
+// integers.  The MD5 digest is calculated in the `update` and `loadDigest`
 // functions based on a sequence of data bytes and the data length.  Note that
-// the reason that the 'loadDigest' function is responsible for part of the
+// the reason that the `loadDigest` function is responsible for part of the
 // calculation is specified in the implementation file (bdlde_md5.cpp).  We
 // need to verify that these functions calculates the checksum correctly.
-// Furthermore, we also need to verify that the 'loadDigest' function also
+// Furthermore, we also need to verify that the `loadDigest` function also
 // returns a correct MD5 digest.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructors:
-//   A 'bdlde::Md5' object is created with a default message length of 0 and a
+//   A `bdlde::Md5` object is created with a default message length of 0 and a
 //   digest of d41d8cd98f00b204e9800998ecf8427e.  An object's white-box
 //   state is represented by a buffer of unprocessed bytes, the length of the
 //   message and also the current states.  The black-box state is represented
 //   by a 128-bit digest, which can be modified using the primary manipulator
-//   'update'.  The default constructor, in conjunction with the primary
+//   `update`.  The default constructor, in conjunction with the primary
 //   manipulator, is sufficient to attain any achievable white-box state.
 //
 //    o bdlde::Md5();
 //
 // Primary Manipulators:
-//   The 'update' method comprises the minimal set of manipulators that can
+//   The `update` method comprises the minimal set of manipulators that can
 //   attain any achievable white-box state.
 //
 //    o void update(const void *data, int length);
 //
 // Basic Accessors:
 //   This is the maximal set of accessors that have direct contact with the
-//   black-box representation of the object.  The 'loadDigest' method is an
+//   black-box representation of the object.  The `loadDigest` method is an
 //   obvious member of this set.  It appends the length of the current message
 //   to a copy of the current MD5 object and calculates the digest.  The
-//   'loadDigestAndReset' method is really a manipulator as it resets the
+//   `loadDigestAndReset` method is really a manipulator as it resets the
 //   states within the object.  Therefore, it is not included in the set.
 //
 //    o void loadDigest(Md5Digest *result) const;
@@ -174,13 +174,13 @@ typedef bslx::TestOutStream Out;
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The following snippets of code illustrate a typical use of the 'bdlde::Md5'
+// The following snippets of code illustrate a typical use of the `bdlde::Md5`
 // class.  Each function would typically execute in separate processes or
-// potentially on separate machines.  The 'senderExample' function below
+// potentially on separate machines.  The `senderExample` function below
 // demonstrates how a message sender can write a message and its MD5 digest to
-// a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
-// that implements the 'bslx::OutStream' protocol:
-//..
+// a `bdex` output stream.  Note that `Out` may be a `typedef` of any class
+// that implements the `bslx::OutStream` protocol:
+// ```
 
 /// Write a message and its MD5 digest to the specified `output` stream.
 void senderExample(Out& output)
@@ -188,38 +188,38 @@ void senderExample(Out& output)
     // Prepare a message.
     bsl::string message = "This is a test message.";
 
-    // Generate a digest for 'message'.
+    // Generate a digest for `message`.
     bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 
-    // Write the message to 'output'.
+    // Write the message to `output`.
     output << message;
 
-    // Write the digest to 'output'.
+    // Write the digest to `output`.
     const int VERSION = 1;
     digest.bdexStreamOut(output, VERSION);
 }
-//..
-// The 'receiverExample' function below illustrates how a message receiver can
-// read a message and its MD5 digest from a 'bdex' input stream, then perform a
+// ```
+// The `receiverExample` function below illustrates how a message receiver can
+// read a message and its MD5 digest from a `bdex` input stream, then perform a
 // local MD5 computation to verify that the message was received intact.  Note
-// that 'In' may be a 'typedef' of any class that implements the
-// 'bslx::InStream' protocol:
-//..
+// that `In` may be a `typedef` of any class that implements the
+// `bslx::InStream` protocol:
+// ```
 
 /// Read a message and its MD5 digest from the specified `input` stream,
 /// and verify the integrity of the message.
 void receiverExample(In& input)
 {
-    // Read the message from 'input'.
+    // Read the message from `input`.
     bsl::string message;
     input >> message;
 
-    // Read the digest from 'input'.
+    // Read the digest from `input`.
     bdlde::Md5 digest;
     const int VERSION = 1;
     digest.bdexStreamIn(input, VERSION);
 
-    // Locally compute the digest of the received 'message'.
+    // Locally compute the digest of the received `message`.
     bdlde::Md5 digestLocal;
     digestLocal.update(message.data(), static_cast<int>(message.length()));
 
@@ -258,24 +258,24 @@ void printHex(const char *str)
 #define PH_(X) cout << #X " = "; printHex(X); cout << ", " << flush;
 
 //=============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
+//            GENERATOR FUNCTIONS `g`, `gg` and `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  The given
-// 'spec' contains the data that will be passed to the 'update' method.  The
+// `spec` contains the data that will be passed to the `update` method.  The
 // following escape sequences are recognized by the language:
 //
-//    o '//'    : will be replaced with a '/'.
-//    o '/xx'   : will be replaced with the specified 'xx' hexadecimal value
-//                (each 'x' must be one of '0'..'9' or 'a'..'f').
+//    o `//`    : will be replaced with a '/'.
+//    o `/xx`   : will be replaced with the specified `xx` hexadecimal value
+//                (each `x` must be one of '0'..'9' or 'a'..'f').
 //
 // Any other character following a '/' will be considered an error.  The
-// maximum length supported for the data in an 'update' call is 1024 bytes
+// maximum length supported for the data in an `update` call is 1024 bytes
 // (this is more than sufficient for all test data).
 //
 // LANGUAGE SPECIFICATION
 // ----------------------
-//..
+// ```
 // <SPEC>       ::= <EMPTY> | <DATA>
 //
 // <EMPTY>      ::=
@@ -294,13 +294,13 @@ void printHex(const char *str)
 // Spec String       Description
 // ----------------- ----------------------------------------------------------
 // ""                Has no effect.
-// "/00"             Calls 'update("\x00", 1)'.
-// "abc"             Calls 'update("abc", 3)'.
-// "abc//de~/20"     Calls 'update("abc/de~ ", 8)'.   # ('/20' will become ' ')
-// "abc~de"          Calls 'update("abc~de", 6)'.
-// "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
+// "/00"             Calls `update("\x00", 1)`.
+// "abc"             Calls `update("abc", 3)`.
+// "abc//de~/20"     Calls `update("abc/de~ ", 8)`.   # (`/20` will become ' ')
+// "abc~de"          Calls `update("abc~de", 6)`.
+// "/01/02\xff"      Calls `update("\x01\x02\xff", 3)`.
 // ----------------------------------------------------------------------------
-//..
+// ```
 
 /// Configure the specified `object` according to the specified `spec`
 /// using the primary manipulator function `update` and `reset`.  Optionally
@@ -322,11 +322,11 @@ int ggg(Obj *object, const char *spec, int vF = 1)
 
             ++i;
             if ('/' == spec[i]) {
-                // add '/' to 'update_buffer'
+                // add '/' to `update_buffer`
                 update_buffer[buf_pos++] = '/';
             } else if (('0' <= spec[i] && spec[i] <= '9')
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
-                // build the hexadecimal character, add it to 'update_buffer'
+                // build the hexadecimal character, add it to `update_buffer`
 
                 unsigned char hex = 0;
 
@@ -358,7 +358,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     return i;                                         // RETURN
                 }
 
-                // add 'hex' to 'update_buffer'
+                // add `hex` to `update_buffer`
 
                 update_buffer[buf_pos++] = hex;
             } else {
@@ -375,13 +375,13 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 return i;                                             // RETURN
             }
         } else {
-            // add the current character to 'update_buffer'
+            // add the current character to `update_buffer`
 
             update_buffer[buf_pos++] = spec[i];
         }
     }
 
-    // call 'update' with the remaining data in 'update_buffer'
+    // call `update` with the remaining data in `update_buffer`
 
     if (buf_pos) {
         object->update(update_buffer, buf_pos);
@@ -445,8 +445,8 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Run the usage example functions 'senderExample' and
-        //   'receiverExample'.
+        //   Run the usage example functions `senderExample` and
+        //   `receiverExample`.
         //
         // Testing:
         //   Usage example.
@@ -467,8 +467,8 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset(Md5Digest *result)'
-        //   Test the manipulator 'loadDigestAndReset'.
+        // TESTING `loadDigestAndReset(Md5Digest *result)`
+        //   Test the manipulator `loadDigestAndReset`.
         //
         // Concerns:
         //   We want to verify that, for each unique object value, the
@@ -476,11 +476,11 @@ int main(int argc, char *argv[])
         //   afterwards.
         //
         // Plan:
-        //   For each test vector in DATA, construct an object 'mX' using
-        //   the default constructor.  Then call 'mX.update' using the current
+        //   For each test vector in DATA, construct an object `mX` using
+        //   the default constructor.  Then call `mX.update` using the current
         //   STR and LENGTH.  Ensure that the MD5 value returned by
-        //   'loadDigestAndReset' is the same as the expected MD5 value.  Then
-        //   verify that a subsequent value returned by 'loadDigest' will be
+        //   `loadDigestAndReset` is the same as the expected MD5 value.  Then
+        //   verify that a subsequent value returned by `loadDigest` will be
         //   the same as a default object.
         //
         // Testing:
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'loadDigestAndReset'." << endl;
+        if (verbose) cout << "\nTesting `loadDigestAndReset`." << endl;
         {
             const char *URESULT = DATA[0].d_result;
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -544,17 +544,17 @@ int main(int argc, char *argv[])
 
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
-        //   This will test the 'reset' method.
+        // TESTING `reset`
+        //   This will test the `reset` method.
         //
         // Concerns:
         //   We need to make sure that the resulting object after the call to
-        //   'reset' contains the same value as a default object.
+        //   `reset` contains the same value as a default object.
         //
         // Plan:
         //   Create a set of test data with varying lengths from 0 to 5.  For
-        //   each datum, create a 'bdlde::Md5' object using the fully-tested
-        //   two-argument init constructor.  Then call the 'reset' member
+        //   each datum, create a `bdlde::Md5` object using the fully-tested
+        //   two-argument init constructor.  Then call the `reset` member
         //   function and ensure that the resulting object contains the same
         //   value as an object created using the default constructor.
         //
@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'reset'"
+        if (verbose) cout << "\nTesting `reset`"
                           << "\n===============" << endl;
 
         static const struct {
@@ -613,13 +613,13 @@ int main(int argc, char *argv[])
         //   We need to test the init constructor that takes two arguments.
         //
         // Concerns:
-        //   Since 'update' has already been tested thoroughly in [11], we just
-        //   need to make sure that the values passed to 'update' in the
+        //   Since `update` has already been tested thoroughly in [11], we just
+        //   need to make sure that the values passed to `update` in the
         //   constructor are correct.
         //
         // Plan:
         //   Create a set of test data with various lengths.  For each
-        //   datum, create a 'bdlde::Md5' object using the two-argument
+        //   datum, create a `bdlde::Md5` object using the two-argument
         //   init constructor.  Then verify the Md5 digest stored in the object
         //   is the same as the expected value.
         //
@@ -672,16 +672,16 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'update'
-        //   We need to thoroughly test the 'update' member function.
+        // TESTING `update`
+        //   We need to thoroughly test the `update` member function.
         //
         // Concerns:
         //   There are three things we are concerned about in this test.
         //
-        //   Firstly, we need to test the 'update' function using data that
+        //   Firstly, we need to test the `update` function using data that
         //   exercises all code paths.  The algorithm selects control paths
         //   based on the length of the data, and not the data itself.  The
-        //   control path is selected using 'length % 64'.  So, in order to
+        //   control path is selected using `length % 64`.  So, in order to
         //   exercise all control paths, the test vectors must contain data
         //   with lengths:
         //
@@ -698,8 +698,8 @@ int main(int argc, char *argv[])
         //   Secondly, we need to ensure that there are no MD5 collisions for
         //   any possible combination of 1 or 2 byte data.
         //
-        //   Finally, we need to ensure that multiple calls to 'update' produce
-        //   the same result as calling 'update' once with the original two
+        //   Finally, we need to ensure that multiple calls to `update` produce
+        //   the same result as calling `update` once with the original two
         //   strings concatenated together.
         //
         // Plan:
@@ -709,14 +709,14 @@ int main(int argc, char *argv[])
         //   equal to the expected digest.
         //
         //   For the second part of the test, create an integer array using
-        //   'bsl::vector<char*>'.  Fill the array using the following steps:
-        //      a. Loop through all the possible values for an 'unsigned char'
+        //   `bsl::vector<char*>`.  Fill the array using the following steps:
+        //      a. Loop through all the possible values for an `unsigned char`
         //         (0 .. 255) and add its digest to the array.
         //      b. Then loop through all the possible values for a 16-bit
-        //         'unsigned short' (0 .. 65535) and add its digest to the
+        //         `unsigned short` (0 .. 65535) and add its digest to the
         //         array.
         //      c. Again, loop through all the possible values for a 16-bit
-        //         'unsigned short', but insert a 0-valued byte in between the
+        //         `unsigned short`, but insert a 0-valued byte in between the
         //         2 bytes.  Calculate the digest and add it to the array.
         //      d. Repeat step (c), but insert a 1-valued byte instead of a
         //         0-valued byte.
@@ -724,12 +724,12 @@ int main(int argc, char *argv[])
         //   (except for the 0th array element) are unique.
         //
         //   For the third part of the test, create test vectors containing
-        //   substring 1 ('MSG1') and substring 2 ('MSG2').  For each input
-        //   case, create two 'bdlde::Crc32' objects ('obj' and 'objAccum').
-        //   Call 'obj.update' with 'MSG1' followed by 'MSG2'.  Concatenate
-        //   'MSG1' and 'MSG2' into a single string and call
-        //   'objAccum.update' with the concatenated string.  Finally,
-        //   assert that 'obj' has the same value as 'objAccum'.
+        //   substring 1 (`MSG1`) and substring 2 (`MSG2`).  For each input
+        //   case, create two `bdlde::Crc32` objects (`obj` and `objAccum`).
+        //   Call `obj.update` with `MSG1` followed by `MSG2`.  Concatenate
+        //   `MSG1` and `MSG2` into a single string and call
+        //   `objAccum.update` with the concatenated string.  Finally,
+        //   assert that `obj` has the same value as `objAccum`.
         //
         // Testing:
         //   void update(const void *data, int length);
@@ -852,7 +852,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n3. Multiple 'update' test." << endl;
+        if (verbose) cout << "\n3. Multiple `update` test." << endl;
         {
             static const struct {
                 int         d_lineNum;   // source line number
@@ -926,13 +926,13 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY
-        //   The 'bdex' streaming concerns for this component are absolutely
+        // TESTING `bdex` STREAMING FUNCTIONALITY
+        //   The `bdex` streaming concerns for this component are absolutely
         //   standard.
         //
         // Concerns:
-        //   We need to probe the member functions 'bdexStreamIn' and
-        //   'bdexStreamOut' in the manner of a "breathing test" to verify
+        //   We need to probe the member functions `bdexStreamIn` and
+        //   `bdexStreamOut` in the manner of a "breathing test" to verify
         //   basic functionality, then we need to thoroughly test that
        //   functionality using the available bdex stream functions,
         //   which forward appropriate calls to the member functions.  We also
@@ -940,15 +940,15 @@ int main(int argc, char *argv[])
         //   (valid, empty, invalid, incomplete, and corrupted), appropriately
         //   selecting data sets as described below.  In all cases, we need to
         //   confirm exception neutrality using the specially instrumented
-        //   'bslx::TestInStream' and a pair of standard macros,
-        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which
-        //   configure the 'bslx::TestInStream' object appropriately in a loop.
+        //   `bslx::TestInStream` and a pair of standard macros,
+        //   `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //   `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which
+        //   configure the `bslx::TestInStream` object appropriately in a loop.
         //
         // Plan:
         //   PRELIMINARY MEMBER FUNCTION TEST
-        //     First perform a trivial direct test of the 'bdexStreamOut' and
-        //     'bdexStreamIn' methods.  (The remaining tests will use the
+        //     First perform a trivial direct test of the `bdexStreamOut` and
+        //     `bdexStreamIn` methods.  (The remaining tests will use the
         //     bdex stream functions.)
         //
         //   VALID STREAMS
@@ -977,7 +977,7 @@ int main(int argc, char *argv[])
         //     Use the underlying stream package to simulate an instance of
         //     a typical valid (control) stream and verify that it can be
         //     streamed in successfully.  The component does not define
-        //     'corrupted' data (all digests are valid), so just check for bad
+        //     `corrupted` data (all digests are valid), so just check for bad
         //     version numbers.  After each test, verify that the object is in
         //     some valid state after streaming, and that the input stream has
         //     gone invalid.
@@ -988,7 +988,7 @@ int main(int argc, char *argv[])
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'bdex' Streaming Functionality"
+        if (verbose) cout << "\nTesting `bdex` Streaming Functionality"
                           << "\n======================================"
                           << endl;
 
@@ -1006,10 +1006,10 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         const int VERSION = Obj::maxSupportedBdexVersion(150813);
-        if (verbose) cout << "\nTesting 'bdexStreamOut' and (valid) "
-                          << "'bdexStreamIn' functionality." << endl;
+        if (verbose) cout << "\nTesting `bdexStreamOut` and (valid) "
+                          << "`bdexStreamIn` functionality." << endl;
         {
-            // testing 'bdexStreamOut' and 'bdexStreamIn' directly
+            // testing `bdexStreamOut` and `bdexStreamIn` directly
             const Obj X(VC);
             Out out(20150813);
             out.putVersion(VERSION);
@@ -1153,7 +1153,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // On corrupted data, the component does not define 'corrupted' data
+        // On corrupted data, the component does not define `corrupted` data
         // (all digests are valid), so just check for bad version numbers.
 
         if (verbose) cout << "\tOn corrupted data." << endl;
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tBad version." << endl;
         {
-            const char version = 0;  // too small ('version' must be >= 1)
+            const char version = 0;  // too small (`version` must be >= 1)
 
             Out out(20150813);
             out.putVersion(version);
@@ -1218,9 +1218,9 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`." << endl;
         {
-            // test 'maxSupportedBdexVersion()'
+            // test `maxSupportedBdexVersion()`
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(150813));
@@ -1231,7 +1231,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
-        //   We need to test the assignment operator ('operator=').
+        //   We need to test the assignment operator (`operator=`).
         //
         // Concerns:
         //   Any value must be assignable to an object having any initial value
@@ -1327,26 +1327,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'g'
-        //   This will test the 'g' generator function.
+        // TESTING GENERATOR FUNCTION `g`
+        //   This will test the `g` generator function.
         //
         // Concerns:
-        //   Since 'g' is implemented almost entirely using 'gg', we need only
-        //   to verify that the arguments are properly forwarded and that 'g'
+        //   Since `g` is implemented almost entirely using `gg`, we need only
+        //   to verify that the arguments are properly forwarded and that `g`
         //   returns an object by value.
         //
         // Plan:
         //   For each spec in a short list of specifications, compare the
-        //   object returned (by value) from the generator function, 'g(SPEC)'
-        //   with the value of a newly constructed object 'mX' configured using
-        //   'gg(&mX, SPEC)'.  The test also ensures that 'g' returns a
+        //   object returned (by value) from the generator function, `g(SPEC)`
+        //   with the value of a newly constructed object `mX` configured using
+        //   `gg(&mX, SPEC)`.  The test also ensures that `g` returns a
         //   distinct object by comparing the memory addresses.
         //
         // Testing:
         //   bdlde::Md5 g(const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Generator Function 'g'" << endl
+        if (verbose) cout << "\nTesting Generator Function `g`" << endl
                           << "\n==============================" << endl;
 
         static const struct {
@@ -1368,7 +1368,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nCompare values produced by 'g' and 'gg' "
+        if (verbose) cout << "\nCompare values produced by `g` and `gg` "
                           << "for various inputs." << endl;
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -1419,7 +1419,7 @@ int main(int argc, char *argv[])
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
         //   initialize identically-values objects W and X using tested methods
-        //   (in this case, the 'gg' function).  Then copy construct an object
+        //   (in this case, the `gg` function).  Then copy construct an object
         //   Y from X, and use the equality operator to assert that both X and
         //   Y have the same value as W.
         //
@@ -1474,22 +1474,22 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
-        //   This will test the equality operations ('operator==' and
-        //   'operator!=').
+        //   This will test the equality operations (`operator==` and
+        //   `operator!=`).
         //
         // Concerns:
-        //   We want to make sure that 'operator==' returns false for objects
+        //   We want to make sure that `operator==` returns false for objects
         //   that are very similar but still different, but returns true for
         //   objects that are exactly the same.  Likewise, we want to make sure
-        //   that 'operator!=' returns true for objects that are very similar
+        //   that `operator!=` returns true for objects that are very similar
         //   but still different, but returns false for objects that are
         //   exactly the same.
         //
         // Plan:
         //   Construct a set of specs containing similar but different data
         //   values.  Then loop through the cross product of the test data.
-        //   For each tuple, generate two objects 'U' and 'V' using the
-        //   previously tested 'gg' function.  Use the '==' and '!=' operators
+        //   For each tuple, generate two objects `U` and `V` using the
+        //   previously tested `gg` function.  Use the `==` and `!=` operators
         //   and check their return value for correctness.
         //
         // Testing:
@@ -1575,33 +1575,33 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
-        //   We need to test the '<<' operator.
+        //   We need to test the `<<` operator.
         //
         // Concerns:
         //   We want to make sure that the object is written to the stream
-        //   correctly in the expected format (with '0x' prepended to the hex
+        //   correctly in the expected format (with `0x` prepended to the hex
         //   value).
         //
         // Plan:
-        //   The '<<' operator depends on the 'print' member function.
-        //   So, we need to test 'print' before testing 'operator<<'.
+        //   The `<<` operator depends on the `print` member function.
+        //   So, we need to test `print` before testing `operator<<`.
         //   This test is broken up into two parts:
-        //      1. Testing of 'print'
-        //      2. Testing of 'operator<<'
+        //      1. Testing of `print`
+        //      2. Testing of `operator<<`
         //
         //   Each test vector in DATA contains STR, its LEN, the expected MD5
         //   value and also an expected output FMT.  For each datum, construct
-        //   an independent object 'mX' and call 'update' with STR and LEN.
+        //   an independent object `mX` and call `update` with STR and LEN.
         //   Assert that the object contains the expected MD5 value.  Create an
-        //   'ostringstream' object and use the 'print' function to stream
-        //   'mX'.  Compare the contents of the stream object with the expected
+        //   `ostringstream` object and use the `print` function to stream
+        //   `mX`.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
-        //   To test the '<<' operator, construct an independent object 'obj'
-        //   for each test vector in DATA and then call 'update' with STR and
+        //   To test the `<<` operator, construct an independent object `obj`
+        //   for each test vector in DATA and then call `update` with STR and
         //   LEN.  Assert that the object contains the expected MD5 value.
-        //   Create an 'ostringstream' object and use the '<<' operator to
-        //   stream 'obj'.  Finally, compare the contents of the stream object
+        //   Create an `ostringstream` object and use the `<<` operator to
+        //   stream `obj`.  Finally, compare the contents of the stream object
         //   with the expected FMT value.
         //
         // Testing:
@@ -1653,7 +1653,7 @@ int main(int argc, char *argv[])
         const int SIZE     = 128;
         int i;
 
-        if (verbose) cout << "\n1. Testing 'print'." << endl;
+        if (verbose) cout << "\n1. Testing `print`." << endl;
         for (i = 0; i < NUM_DATA; ++i) {
             const int       LINE    = DATA[i].d_lineNum;
             const char     *STR     = DATA[i].d_str;
@@ -1679,7 +1679,7 @@ int main(int argc, char *argv[])
                         0 == bsl::strncmp(outbuf.str().c_str(), FMT, 32));
         }
 
-        if (verbose) cout << "\n2. Testing 'operator<<'." << endl;
+        if (verbose) cout << "\n2. Testing `operator<<`." << endl;
         for (i = 0; i < NUM_DATA; ++i) {
             const int       LINE   = DATA[i].d_lineNum;
             const char     *STR    = DATA[i].d_str;
@@ -1715,9 +1715,9 @@ int main(int argc, char *argv[])
         //   accessors return the correct values.
         //
         // Plan:
-        //   For each test vector in DATA, construct an object 'mX' using the
-        //   default constructor.  Then call 'mX.update' using the current STR
-        //   and LENGTH.  Ensure that the MD5 digest returned by 'loadDigest'
+        //   For each test vector in DATA, construct an object `mX` using the
+        //   default constructor.  Then call `mX.update` using the current STR
+        //   and LENGTH.  Ensure that the MD5 digest returned by `loadDigest`
         //   is the same as the expected digest.
         //
         // Testing:
@@ -1749,7 +1749,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'loadDigest'." << endl;
+        if (verbose) cout << "\nTesting `loadDigest`." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
@@ -1772,7 +1772,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'loadDigestAndReset'." << endl;
+        if (verbose) cout << "\nTesting `loadDigestAndReset`." << endl;
         {
             const char *URESULT = DATA[0].d_result;
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1803,8 +1803,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTION 'gg'
-        //   This will test the 'gg' generator function.
+        // TESTING PRIMITIVE GENERATOR FUNCTION `gg`
+        //   This will test the `gg` generator function.
         //
         // Concerns:
         //   We want to verify (1) that valid generator syntax produces
@@ -1812,15 +1812,15 @@ int main(int argc, char *argv[])
         //   reported.
         //
         // Plan:
-        //   For each enumerated sequence of 'spec' values, ordered by
-        //   increasing 'spec' length, use the primitive generator function
-        //   'gg' to set the state of a newly created object.  Verify that 'gg'
+        //   For each enumerated sequence of `spec` values, ordered by
+        //   increasing `spec` length, use the primitive generator function
+        //   `gg` to set the state of a newly created object.  Verify that `gg`
         //   returns a valid reference to the modified object and, using basic
         //   accessors, that the value of the object is as expected.  Note that
         //   we are testing the parser only; the primary manipulators are
         //   already assumed to work.
         //
-        //   This test case also tests the 'ggg' function using invalid 'spec'
+        //   This test case also tests the `ggg` function using invalid `spec`
         //   values, to ensure that error messages are caught and reported
         //   correctly.
         //
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
         //   bdlde::Md5& gg(bdlde::Md5 *object, const char *spec);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << endl << "Testing Primitive Generator Function 'gg'"
+            cout << endl << "Testing Primitive Generator Function `gg`"
                  << endl << "========================================="
                  << endl;
 
@@ -1840,7 +1840,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;      // source line number
                 const char *d_spec;         // specification string
                 const char *d_interpreted;  // interpreted string
-                int         d_length;       // length of 'd_interpreted'
+                int         d_length;       // length of `d_interpreted`
                 const char *d_result;
             } DATA[] = {
                 //line  spec     interpreted  length  digest
@@ -1988,9 +1988,9 @@ int main(int argc, char *argv[])
         //   First, verify the default constructor by testing the value of the
         //   resulting object.
         //
-        //   Next, verify that the 'update' member function works by
+        //   Next, verify that the `update` member function works by
         //   constructing a series of independent objects using the default
-        //   constructor and running 'update' using increasing string lengths.
+        //   constructor and running `update` using increasing string lengths.
         //   Verify the MD5 digest in the object using the basic accessor.
         //
         //   Note that the destructor is exercised on each configuration as the
@@ -2016,7 +2016,7 @@ int main(int argc, char *argv[])
             ASSERT(verify(r, result));
         }
 
-        if (verbose) cout << "\nTesting 'update'." << endl;
+        if (verbose) cout << "\nTesting `update`." << endl;
         {
             if (veryVerbose) cout << "\tUsing string with length 0." << endl;
 
@@ -2105,9 +2105,9 @@ int main(int argc, char *argv[])
         //   the following methods and operators:
         //     - default and copy constructors.
         //     - the assignment operator (including aliasing).
-        //     - equality operators: 'operator==' and 'operator!='.
-        //     - primary manipulators: 'update' and 'reset'.
-        //     - basic accessors: 'loadDigest'.
+        //     - equality operators: `operator==` and `operator!=`.
+        //     - primary manipulators: `update` and `reset`.
+        //     - basic accessors: `loadDigest`.
         //
         // Plan:
         //   Create four test objects using the default, initializing, and copy
@@ -2116,17 +2116,17 @@ int main(int argc, char *argv[])
         //   manipulator [5, 6, 7], copy constructor [2, 4], assignment
         //   operator without [9, 9] and with [10] aliasing.  Use the basic
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB' and 'VC' denote
-        //   unique, but otherwise arbitrary, object values, while 'U' denotes
+        //   frequently in verbose mode.  Note that `VA`, `VB` and `VC` denote
+        //   unique, but otherwise arbitrary, object values, while `U` denotes
         //   the valid, but "unknown", default object value.
         //
         //    1. Create an object x1 (init to VA)   { x1:VA                  }
         //    2. Create an object x2 (copy of x1)   { x1:VA x2:VA            }
         //    3. Create an object x3 (default ctor) { x1:VA x2:VA x3:U       }
         //    4. Create an object x4 (copy of x3)   { x1:VA x2:VA x3:U  x4:U }
-        //    5. Set x3 using 'update' (set to VB)  { x1:VA x2:VA x3:VB x4:U }
-        //    6. Change x1 using 'reset'            { x1:U  x2:VA x3:VB x4:U }
-        //    7. Change x1 ('update', set to VC)    { x1:VC x2:VA x3:VB x4:U }
+        //    5. Set x3 using `update` (set to VB)  { x1:VA x2:VA x3:VB x4:U }
+        //    6. Change x1 using `reset`            { x1:U  x2:VA x3:VB x4:U }
+        //    7. Change x1 (`update`, set to VC)    { x1:VC x2:VA x3:VB x4:U }
         //    8. Assign x2 = x1                     { x1:VC x2:VC x3:VB x4:U }
         //    9. Assign x2 = x3                     { x1:VC x2:VB x3:VB x4:U }
         //   10. Assign x1 = x1 (aliasing)          { x1:VC x2:VB x3:VB x4:U }
@@ -2232,7 +2232,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 5. Set x3 using 'update' (set to VB)."
+        if (verbose) cout << "\n 5. Set x3 using `update` (set to VB)."
                              "\t\t{ x1:SA x2:SA x3:SB x4:U }" << endl;
         mX3.update(SB, LB);
         if (verbose) { cout << '\t'; P(X3); }
@@ -2249,7 +2249,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 6. Change x1 using 'reset'."
+        if (verbose) cout << "\n 6. Change x1 using `reset`."
                              "\t\t{ x1:U x2:SA x3:SB x4:U }" << endl;
         mX1.reset();
         if (verbose) { cout << '\t'; P(X1); }
@@ -2266,7 +2266,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 7. Change x1 ('update', set to VC)."
+        if (verbose) cout << "\n 7. Change x1 (`update`, set to VC)."
                              "\t\t{ x1:SC x2:SA x3:SB x4:U }" << endl;
         mX1.update(SC, LC);
         if (verbose) { cout << '\t'; P(X1); }
@@ -2339,19 +2339,19 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns:
-        //   We want to ensure that the performance of the 'update' method is
-        //   close to the performance of the 'openssl' implementation.
+        //   We want to ensure that the performance of the `update` method is
+        //   close to the performance of the `openssl` implementation.
         //   However, due to the fact that 3rd party libraries should not be
         //   linked into the test driver, only a sanity check against the speed
-        //   of 'openssl' will be performed here.  The 'openssl' implementation
+        //   of `openssl` will be performed here.  The `openssl` implementation
         //   speed in this sanity check comes from performance test conducted
         //   separately.
         //
         // Plan:
-        //   Using 'bsls_stopwatch', the run time of the 'update' method will
+        //   Using `bsls_stopwatch`, the run time of the `update` method will
         //   be tallied over 1 million iterations.  This value will be computed
         //   10 times and averaged.  After, it will be printed out for sanity
-        //   check against the run time of the 'openssl' implementation.
+        //   check against the run time of the `openssl` implementation.
         //
         // Testing:
         //   void update(const void *data, int length);  // performance

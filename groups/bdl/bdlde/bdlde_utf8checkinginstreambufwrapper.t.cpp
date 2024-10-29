@@ -2205,58 +2205,58 @@ void brokenGlassTest(const u::Data&     data,
     // ------------------------------------------------------------------------
     // UTF-8 BROKEN GLASS TEST
     //
-    // Use the specified 'data', which is a record from the 'u::DATA' table
+    // Use the specified `data`, which is a record from the `u::DATA` table
     // above of incorrect UTF-8 strings and what type of UTF-8 error occurs in
-    // the string.  The specified 'validStr' is to preceed the incorrect UTF-8
-    // sequence in the 'streambuf'.  If the specified 'seekFirst' is 'true',
-    // seek past the 'validStr' part of the 'streambuf' before beginning input.
-    // If the specified 'appendValid' is 'true' append valid UTF-8 after the
-    // incorrect UTF-8.  Note that if 'appendValid' is 'true' and the expected
-    // error is of type 'end of input truncation', we change the expected error
-    // to 'non continuation offset'.
+    // the string.  The specified `validStr` is to preceed the incorrect UTF-8
+    // sequence in the `streambuf`.  If the specified `seekFirst` is `true`,
+    // seek past the `validStr` part of the `streambuf` before beginning input.
+    // If the specified `appendValid` is `true` append valid UTF-8 after the
+    // incorrect UTF-8.  Note that if `appendValid` is `true` and the expected
+    // error is of type `end of input truncation`, we change the expected error
+    // to `non continuation offset`.
     //
     // Concern:
-    //: 1 That the object under test correctly detects and diagnoses UTF-8
-    //:   errors.
-    //:
-    //: 2 After reaching a UTF-8 error,
-    //:   o The 'errorStatus()' accessor returns the 'enum' properly identifies
-    //:     the nature of the UTF-8 error.
-    //:
-    //:   o The 'pubseekoff(0, bsl::ios_base::cur)' accessor correctly
-    //:     identifies the offset of the beginning of the incorrect UTF-8
-    //:     sequence.
+    // 1. That the object under test correctly detects and diagnoses UTF-8
+    //    errors.
+    //
+    // 2. After reaching a UTF-8 error,
+    //    - The `errorStatus()` accessor returns the `enum` properly identifies
+    //      the nature of the UTF-8 error.
+    //
+    //    - The `pubseekoff(0, bsl::ios_base::cur)` accessor correctly
+    //      identifies the offset of the beginning of the incorrect UTF-8
+    //      sequence.
     //
     // Plan:
-    //: 1 Create a random valid UTF-8 string containing 0 to 3 code points.
-    //:
-    //: 2 Append an incorrect UTF-8 sequence to it.
-    //:
-    //: 3 Create a wrapped 'streambuf' around that string.
-    //:
-    //: 4 Read the string until input is exhausted in 3 ways:
-    //:   o in one large 'sgetn' call
-    //:
-    //:   o in multiple 'sgetn' calls, a few bytes at a time
-    //:
-    //:   o with calls to 'sbumpc'
-    //:
-    //: 5 Observe that:
-    //:   o all of the valid utf8 prior to the incorrect UTF-8 sequence is read
-    //:
-    //:   o 'errorStatus()' correctly identifies the nature of the UTF-8 error
-    //:
-    //:   o 'pubseekoff(0, bsl::ios_base::cur)' correctly identifies the offset
-    //:     in the streambuf where the UTF-8 error occurs.
-    //:
-    //: 6 Repeat all of the above, with valid UTF-8 appended after the invalid
-    //:   code point.  If the expected error code was
-    //:   'end of input truncation', substitute 'non continuation offset'.
-    //:
-    //: 7 Repeat all the above, seeking first past the valid UTF-8 before the
-    //:   bad UTF-8 begins, and beginning reading from there.  Of particular
-    //:   interest in that case is whether 'pubseekoff(0, bsl::ios_base::cur)'
-    //:   gives the correct offset.
+    // 1. Create a random valid UTF-8 string containing 0 to 3 code points.
+    //
+    // 2. Append an incorrect UTF-8 sequence to it.
+    //
+    // 3. Create a wrapped `streambuf` around that string.
+    //
+    // 4. Read the string until input is exhausted in 3 ways:
+    //    - in one large `sgetn` call
+    //
+    //    - in multiple `sgetn` calls, a few bytes at a time
+    //
+    //    - with calls to `sbumpc`
+    //
+    // 5. Observe that:
+    //    - all of the valid utf8 prior to the incorrect UTF-8 sequence is read
+    //
+    //    - `errorStatus()` correctly identifies the nature of the UTF-8 error
+    //
+    //    - `pubseekoff(0, bsl::ios_base::cur)` correctly identifies the offset
+    //      in the streambuf where the UTF-8 error occurs.
+    //
+    // 6. Repeat all of the above, with valid UTF-8 appended after the invalid
+    //    code point.  If the expected error code was
+    //    `end of input truncation`, substitute `non continuation offset`.
+    //
+    // 7. Repeat all the above, seeking first past the valid UTF-8 before the
+    //    bad UTF-8 begins, and beginning reading from there.  Of particular
+    //    interest in that case is whether `pubseekoff(0, bsl::ios_base::cur)`
+    //    gives the correct offset.
     //
     // Testing:
     //   BROKEN GLASS TEST
@@ -2294,7 +2294,7 @@ void brokenGlassTest(const u::Data&     data,
     char buf[1024];
     ASSERT(UTF8.length() < sizeof(buf));
 
-    if (veryVeryVeryVerbose) cout << "One big 'sgetn'\n";
+    if (veryVeryVeryVerbose) cout << "One big `sgetn`\n";
     {
         FSB fsb(UTF8.c_str(), UTF8.length());
 
@@ -2329,7 +2329,7 @@ void brokenGlassTest(const u::Data&     data,
                          (UTF8_ERR_OFFSET ? 0 : ERR_TYPE) == SB.errorStatus());
     }
 
-    if (veryVeryVeryVerbose) cout << "Multiple 'sgetn's\n";
+    if (veryVeryVeryVerbose) cout << "Multiple `sgetn`s\n";
     {
         FSB fsb(UTF8.c_str(), UTF8.length());
 
@@ -2344,7 +2344,7 @@ void brokenGlassTest(const u::Data&     data,
 
         OT totSz = 0, sz;
 
-        // read chunks of random size in the range '[ 1 .. 3 ]'
+        // read chunks of random size in the range `[ 1 .. 3 ]`
 
         while (0 < (sz = sb.sgetn(buf + totSz, rand() % 3 + 1))){
             if (veryVeryVeryVeryVerbose) P("trace to satiate bde verify");
@@ -2377,7 +2377,7 @@ void brokenGlassTest(const u::Data&     data,
         }
     }
 
-    if (veryVeryVeryVerbose) cout << "'sbumpc's\n";
+    if (veryVeryVeryVerbose) cout << "`sbumpc`s\n";
     {
         FSB fsb(UTF8.c_str(), UTF8.length());
 
@@ -2485,18 +2485,18 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the usage of the 'class' under test.
+        // 1. Demonstrate the usage of the `class` under test.
         //
         // Plan:
-        //: 1 Create a streambuf containing a string with invalid UTF-8.
-        //:
-        //: 2 Attempt to read it until reads fail.
-        //:
-        //: 3 Observe that 'errorStatus' and
-        //:   'pubseekoff(0, bsl::ios_base::cur)' tell us what went wrong, and
-        //:   where.
-        //:
-        //: 4 Observe that all the data before the invalid code point was read.
+        // 1. Create a streambuf containing a string with invalid UTF-8.
+        //
+        // 2. Attempt to read it until reads fail.
+        //
+        // 3. Observe that `errorStatus` and
+        //    `pubseekoff(0, bsl::ios_base::cur)` tell us what went wrong, and
+        //    where.
+        //
+        // 4. Observe that all the data before the invalid code point was read.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2514,21 +2514,21 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 //
-///Example 1: Detecting invalid UTF-8 read from a 'streambuf':
+///Example 1: Detecting invalid UTF-8 read from a `streambuf`:
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose one has a 'streambuf', 'myStreamBuf' containing UTF-8 that one wants
+// Suppose one has a `streambuf`, `myStreamBuf` containing UTF-8 that one wants
 // to read, and check that it is valid UTF-8.
 //
-// First, create a 'Utf8CheckingInStreamBufWrapper' that will wrap
-// 'myStreamBuf':
-//..
+// First, create a `Utf8CheckingInStreamBufWrapper` that will wrap
+// `myStreamBuf`:
+// ```
     typedef bdlde::Utf8CheckingInStreamBufWrapper Wrapper;
     Wrapper wrapper;
     wrapper.reset(&myStreamBuf);
-//..
-// Then, read the data from the 'wrapper' 'streambuf' until it stops yielding
+// ```
+// Then, read the data from the `wrapper` `streambuf` until it stops yielding
 // data.
-//..
+// ```
     std::string s;
     bsl::streamsize len = 0, bytesRead;
     do {
@@ -2546,10 +2546,10 @@ int main(int argc, char *argv[])
 
     ASSERT(wrapper.pubseekoff(0, bsl::ios_base::cur) ==
                                                        Wrapper::pos_type(len));
-//..
-// Next, use the 'errorStatus' accessor and 'pubseekoff' manipulator to see
+// ```
+// Next, use the `errorStatus` accessor and `pubseekoff` manipulator to see
 // what, if anything, went wrong and where.
-//..
+// ```
     const int es = wrapper.errorStatus();
 
     if      (0 == es) {
@@ -2564,42 +2564,42 @@ if (verbose) {
     else {
         cout << "Non-UTF-8 error " << Wrapper::toAscii(es) << endl;
     }
-//..
+// ```
 // Now, we observe the output:
-//..
+// ```
 //  Incorrect UTF-8 encountered UNEXPECTED_CONTINUATION_OCTET at offset 79
-//..
-// Finally, we observe that all the data from 'myStreamBuf' up to offset 79
-// was read into 's', and that it's all correct UTF-8.
-//..
+// ```
+// Finally, we observe that all the data from `myStreamBuf` up to offset 79
+// was read into `s`, and that it's all correct UTF-8.
+// ```
     ASSERT(len == s.end() - s.begin());
     ASSERT(bdlde::Utf8Util::isValid(&s[0], len));
-//..
+// ```
       } break;
       case 9: {
         // --------------------------------------------------------------------
         // HOLDING SEEKLESS STREAMBUF TEST
         //
         // Concerns:
-        //: 1 That the object under test functions correctly when bound to a
-        //:   'streambuf' that doesn't support seeking.  Note that this
-        //:   component requires that, if the bound 'streambuf' doesn't support
-        //:   seeking, it must always return a negative value.
+        // 1. That the object under test functions correctly when bound to a
+        //    `streambuf` that doesn't support seeking.  Note that this
+        //    component requires that, if the bound `streambuf` doesn't support
+        //    seeking, it must always return a negative value.
         //
         // Plan:
-        //: 1 Create a class, 'u::SeekLessFixedMemInStreamBuf', which supports
-        //:   normal input, but always returns a negative value from seek
-        //:   attempts.
-        //:
-        //: 2 Bind the object under test to one beginning at offset 0, and
-        //:   observe that input works and that relative seeks within the
-        //:   buffer work, especially 'seekoff(0, cur)'.
-        //:
-        //: 3 Start the bound object over again, and do a read on it to
-        //:   somewhere in the middle, then 'reset' the object under test to
-        //:   it.  Observe that input works correctly, and that relative seeks
-        //:   within the buffer return an offset relative to the position when
-        //:   bound, not to the beginning of data.
+        // 1. Create a class, `u::SeekLessFixedMemInStreamBuf`, which supports
+        //    normal input, but always returns a negative value from seek
+        //    attempts.
+        //
+        // 2. Bind the object under test to one beginning at offset 0, and
+        //    observe that input works and that relative seeks within the
+        //    buffer work, especially `seekoff(0, cur)`.
+        //
+        // 3. Start the bound object over again, and do a read on it to
+        //    somewhere in the middle, then `reset` the object under test to
+        //    it.  Observe that input works correctly, and that relative seeks
+        //    within the buffer return an offset relative to the position when
+        //    bound, not to the beginning of data.
         //
         // Testing:
         //   HOLDING SEEKLESS STREAMBUF TEST
@@ -2673,28 +2673,28 @@ if (verbose) {
         // PUTBACK BUFFER TEST
         //
         // Concerns:
-        //: 1 The putback buffer can successfully store up to 8 bytes.
-        //:
-        //: 2 Reads following a putback will read the data stored.
+        // 1. The putback buffer can successfully store up to 8 bytes.
+        //
+        // 2. Reads following a putback will read the data stored.
         //
         // Plan:
-        //: 1 Fill the putback buffer with data.
-        //:
-        //: 2 Read the data from the putback buffer.
-        //:
-        //: 3 Read all the data in the 'streambuf' to the very end, but without
-        //:   reaching EOF.  All of it will fit in the streambuf input
-        //:   wrapper's buffer.
-        //:
-        //: 4 Back up to the beginning of the data with 'sungetc', verifying
-        //:   the data returned matches what it should be.
-        //:
-        //: 5 Read some data again.
-        //:
-        //: 6 Seek to the middle of the data, 'sputbackc' some data at that
-        //:   point that does not match the original data, and then do a read
-        //:   of the putback buffer and some data following it, and verify
-        //:   the result.
+        // 1. Fill the putback buffer with data.
+        //
+        // 2. Read the data from the putback buffer.
+        //
+        // 3. Read all the data in the `streambuf` to the very end, but without
+        //    reaching EOF.  All of it will fit in the streambuf input
+        //    wrapper's buffer.
+        //
+        // 4. Back up to the beginning of the data with `sungetc`, verifying
+        //    the data returned matches what it should be.
+        //
+        // 5. Read some data again.
+        //
+        // 6. Seek to the middle of the data, `sputbackc` some data at that
+        //    point that does not match the original data, and then do a read
+        //    of the putback buffer and some data following it, and verify
+        //    the result.
         //
         // Testing:
         //   int_type sputbackc(char_type);
@@ -2771,7 +2771,7 @@ if (verbose) {
         ASSERTV(LINE_LEN, pos,
                  PT(LINE_LEN) == (pos = sb.pubseekoff(0, bsl::ios_base::cur)));
 
-        if (verbose) cout << "Back up with 'sungetc' to the start.\n";
+        if (verbose) cout << "Back up with `sungetc` to the start.\n";
 
         pc = LINE.c_str() + LINE_LEN;
         while (LINE.c_str() < pc) {
@@ -2792,7 +2792,7 @@ if (verbose) {
         ASSERT(0 == SB.errorStatus());
         ASSERTV(pos, PT(20) == (pos = sb.pubseekoff(0, bsl::ios_base::cur)));
 
-        if (verbose) cout << "'sungetc' before the start of the file fails.\n";
+        if (verbose) cout << "`sungetc` before the start of the file fails.\n";
 
         sb.pubseekpos(0);
         ASSERT(Obj::traits_type::eof() == sb.sungetc());
@@ -2897,10 +2897,10 @@ if (verbose) {
         // BROKEN GLASS TEST
         //
         // Concerns:
-        //: 1 See test doc in box at start of function 'brokenGlassTest' above.
+        // 1. See test doc in box at start of function `brokenGlassTest` above.
         //
         // Plan:
-        //: 1 See test doc in box at start of function 'brokenGlassTest' above.
+        // 1. See test doc in box at start of function `brokenGlassTest` above.
         //
         // Testing:
         //   BROKEN GLASS TEST
@@ -2914,7 +2914,7 @@ if (verbose) {
         bsl::string validUtf8;
         validUtf8.reserve(1024);
 
-        // The data in the held 'streambuf' will consist of '[ 0 .. 3 ]' random
+        // The data in the held `streambuf` will consist of `[ 0 .. 3 ]` random
         // correct UTF-8 code points.
 
         for (int numValidCodePoints = 0; numValidCodePoints < 4;
@@ -2924,7 +2924,7 @@ if (verbose) {
             if (veryVerbose) P(numValidCodePoints);
 
             for (int ti = 0; ti < k_NUM_ITERATIONS; ++ti) {
-                // Set 'validUtf8' to 'numValidCodePoints' of random correct
+                // Set `validUtf8` to `numValidCodePoints` of random correct
                 // UTF-8.
 
                 validUtf8.clear();
@@ -2936,7 +2936,7 @@ if (verbose) {
 
                 if (veryVeryVerbose) { T_ P(validUtf8); }
 
-                // Iterate through 'DATA', each entry of which is a UTF-8
+                // Iterate through `DATA`, each entry of which is a UTF-8
                 // string containing one invalid UTF-8 code point.
 
                 for (int tj = 0; tj < u::NUM_DATA; ++tj) {
@@ -2944,14 +2944,14 @@ if (verbose) {
 
                     if (veryVeryVeryVerbose) { T_ T_ P(data.d_lineNum); }
 
-                    // Try the test without and with 'SEEK_FIRST' set.
+                    // Try the test without and with `SEEK_FIRST` set.
 
                     for (int ts = 0; ts < 2; ++ts) {
                         const bool SEEK_FIRST = ts;
 
                         if (veryVeryVeryVeryVerbose) P(
                                                 "trace to satiate bde verify");
-                        // Try the test without and with 'APPEND_VALID' set.
+                        // Try the test without and with `APPEND_VALID` set.
 
                         for (int ta = 0; ta < 2; ++ta) {
                             const bool APPEND_VALID = ta;
@@ -2973,25 +2973,25 @@ if (verbose) {
         // TESTING CORRECT UTF-8 STRINGS
         //
         // Concern:
-        //: 1 That the type under test can process correct UTF-8 containing
-        //:   non-Ascii code points.
+        // 1. That the type under test can process correct UTF-8 containing
+        //    non-Ascii code points.
         //
         // Plan:
-        //: 1 Create a function 'u::appendRandCorrectCodePoint' which will
-        //:   append a correct code point to a string, and use it to create
-        //:   strings of several code points of random UTF-8.
-        //:   o Iterate, reaching subset portions of the random correct UTF-8.
-        //:
-        //:   o Check the data obtained is correct.
-        //:
-        //: 2 Take the large correct UTF-8 string and read it in small
-        //:   sections, concatenating them into one large result and comparing
-        //:   that with the original.
-        //:
-        //: 3 Read the whole large UTF-8 string in one go.
-        //:
-        //: 4 Initialize a 'streambuf' to having zero length data, read from
-        //:   it, and observe EOF.
+        // 1. Create a function `u::appendRandCorrectCodePoint` which will
+        //    append a correct code point to a string, and use it to create
+        //    strings of several code points of random UTF-8.
+        //    - Iterate, reaching subset portions of the random correct UTF-8.
+        //
+        //    - Check the data obtained is correct.
+        //
+        // 2. Take the large correct UTF-8 string and read it in small
+        //    sections, concatenating them into one large result and comparing
+        //    that with the original.
+        //
+        // 3. Read the whole large UTF-8 string in one go.
+        //
+        // 4. Initialize a `streambuf` to having zero length data, read from
+        //    it, and observe EOF.
         //
         // Testing:
         //   VALID UTF8 TEST
@@ -3167,29 +3167,29 @@ if (verbose) {
         // ATTEMPT OUTPUT
         //
         // Concern:
-        //: 1 That the object under test shuts down when output is attempted.
-        //:
-        //: 2 After the output attempt, 'errorStatus' returns
-        //:   'k_OUTPUT_ATTEMPT'.
-        //:
-        //: 3 Attempts to read or seek fail, and do not change the value of
-        //:   'errorStatus'.
+        // 1. That the object under test shuts down when output is attempted.
+        //
+        // 2. After the output attempt, `errorStatus` returns
+        //    `k_OUTPUT_ATTEMPT`.
+        //
+        // 3. Attempts to read or seek fail, and do not change the value of
+        //    `errorStatus`.
         //
         // Plan:
-        //: 1 Create a streambuf.
-        //:
-        //: 2 Attempt output on it with 'sputn'.
-        //:   o Observe that the output attempt fails.
-        //:
-        //:   o Observe that 'errorStatus' is 'k_OUTPUT_ATTEMPT'.
-        //:
-        //: 3 Attempt input, first with 'sgetn', then with 'sbumpc'.
-        //:   o Observe that the input attempt fails.
-        //:
-        //:   o Observe that 'errorStatus' remains 'k_OUTPUT_ATTEMPT'.
-        //:
-        //: 4 Repeat the test, except attempt output with 'sputc' instead of
-        //:   'sgetn'.
+        // 1. Create a streambuf.
+        //
+        // 2. Attempt output on it with `sputn`.
+        //    - Observe that the output attempt fails.
+        //
+        //    - Observe that `errorStatus` is `k_OUTPUT_ATTEMPT`.
+        //
+        // 3. Attempt input, first with `sgetn`, then with `sbumpc`.
+        //    - Observe that the input attempt fails.
+        //
+        //    - Observe that `errorStatus` remains `k_OUTPUT_ATTEMPT`.
+        //
+        // 4. Repeat the test, except attempt output with `sputc` instead of
+        //    `sgetn`.
         //
         // Testing:
         //   size_t sputn(const char *, size_t);
@@ -3261,16 +3261,16 @@ if (verbose) {
         // TESTING TOASCII
         //
         // Concerns:
-        //: 1 That 'toAscii' returns expected strings if its input is 0 or
-        //:   'k_SEEK_FAIL'.
-        //:
-        //: 2 For other values, 'toAscii' returns exactly the same values as
-        //:   'bdlde::Utf8Util::toAscii'.  Note that all recognized values are
-        //:   in the range '[ -10 .. k_SEEK_FAIL ]'
+        // 1. That `toAscii` returns expected strings if its input is 0 or
+        //    `k_SEEK_FAIL`.
+        //
+        // 2. For other values, `toAscii` returns exactly the same values as
+        //    `bdlde::Utf8Util::toAscii`.  Note that all recognized values are
+        //    in the range `[ -10 .. k_SEEK_FAIL ]`
         //
         // Plan:
-        //: 1 Iterate over the range '[ -20 .. +20 ]' testing the function on
-        //:   all such values;
+        // 1. Iterate over the range `[ -20 .. +20 ]` testing the function on
+        //    all such values;
         //
         // Testing:
         //   const char toAscii(int);
@@ -3306,41 +3306,41 @@ if (verbose) {
         // CREATOR AND RESET TEST
         //
         // Concern:
-        //: 1 That the default c'tor works properly.
-        //:
-        //: 2 That the c'tor passed the 'streambuf' to be held works properly.
-        //:
-        //: 3 That 'reset' works properly.
-        //:
-        //: 4 If an allocator is passed to either c'tor, it is used and the
-        //:   default allocator isn't.
-        //:
-        //: 5 If no allocator is passed to either c'tor, the default allocator
-        //:   is used.
+        // 1. That the default c'tor works properly.
+        //
+        // 2. That the c'tor passed the `streambuf` to be held works properly.
+        //
+        // 3. That `reset` works properly.
+        //
+        // 4. If an allocator is passed to either c'tor, it is used and the
+        //    default allocator isn't.
+        //
+        // 5. If no allocator is passed to either c'tor, the default allocator
+        //    is used.
         //
         // Plan:
-        //: 1 Write a function 'u::checkWrapped' which is passed a pointer to
-        //:   an object under test, the expected offset to be returned from
-        //:   'seekoff(0, cur)' on it, the string expected to be encountered
-        //:   by reading to the end of data, and the line number from which it
-        //:   was called for messages.  It tests out the state of the object
-        //:   that it was passed.
-        //:
-        //: 2 Have many blocks of code where the object under test is
-        //:   constructed with every possible overload of the constructors,
-        //:   and then in some cases later reset.  Do this:
-        //:   o With the held 'streambuf' at position zero and at another
-        //:     position when bound to the wrapping 'streambuf'.
-        //:
-        //:   o Both of the above, with the held 'streambuf' being a type that
-        //:     supports seeking, and with it being a type that doesn't.
-        //:
-        //:   o All of the above, with a non-default allocator passed to the
-        //:     c'tor, and with no allocator passed to the c'tor.
-        //:
-        //: 3 In many of the blocks the object is constructed with
-        //:   'bslma::TestAllocator', so if memory is leaked by the d'tor, the
-        //:   test will abort when the test allocator is destroyed.
+        // 1. Write a function `u::checkWrapped` which is passed a pointer to
+        //    an object under test, the expected offset to be returned from
+        //    `seekoff(0, cur)` on it, the string expected to be encountered
+        //    by reading to the end of data, and the line number from which it
+        //    was called for messages.  It tests out the state of the object
+        //    that it was passed.
+        //
+        // 2. Have many blocks of code where the object under test is
+        //    constructed with every possible overload of the constructors,
+        //    and then in some cases later reset.  Do this:
+        //    - With the held `streambuf` at position zero and at another
+        //      position when bound to the wrapping `streambuf`.
+        //
+        //    - Both of the above, with the held `streambuf` being a type that
+        //      supports seeking, and with it being a type that doesn't.
+        //
+        //    - All of the above, with a non-default allocator passed to the
+        //      c'tor, and with no allocator passed to the c'tor.
+        //
+        // 3. In many of the blocks the object is constructed with
+        //    `bslma::TestAllocator`, so if memory is leaked by the d'tor, the
+        //    test will abort when the test allocator is destroyed.
         //
         // Testing:
         //   Utf8CheckingInStreamBufWrapper();
@@ -3597,46 +3597,46 @@ if (verbose) {
         // TESTING LARGE ASCII STRING AND SEEKING
         //
         // Concerns:
-        //: 1 That the wrapper functions properly on an Ascii string that will
-        //:   fill several buffers.
+        // 1. That the wrapper functions properly on an Ascii string that will
+        //    fill several buffers.
         //
         // Plan:
-        //: 1 Create a buffer filled with a large amount of random Ascii data.
-        //:
-        //: 2 Read it in pieces.
-        //:
-        //: 3 Seek back to the start and read the whole thing in one go,
-        //:   attempting to read more bytes than are present and reach EOF.
-        //:
-        //: 4 Seek back and read the exact number of bytes present, thus
-        //:   avoiding provoking EOF.
-        //:
-        //: 5 Do a null seek to verify location and observe this clears
-        //:   'errorStatus' and returns the correct offset.
-        //:
-        //: 6 Attempt to seek past EOF:
-        //:   o Observe we get a seek failure.
-        //:
-        //:   o Follow it by a null relative seek attempt and verify that that
-        //:     fails.
-        //:
-        //:   o Follow that by an absolute seek, which should work.
-        //:
-        //: 7 Attempt an absolute seek to a negative location.
-        //:   o Observe we get a seek failure.
-        //:
-        //:   o Do an absolute seek (relative to end of file) and observe that
-        //:     works and clears 'errorStatus'.
-        //:
-        //: 8 Do a few random seeks.
-        //:
-        //: 9 Seek to the center of the data and read the second half of the
-        //:   data in pieces.
-        //:
-        //: 10 Iteration
-        //:    o Seek to a random location.
-        //:
-        //:    o Read to the end of the data via 'sbumpc'.
+        // 1. Create a buffer filled with a large amount of random Ascii data.
+        //
+        // 2. Read it in pieces.
+        //
+        // 3. Seek back to the start and read the whole thing in one go,
+        //    attempting to read more bytes than are present and reach EOF.
+        //
+        // 4. Seek back and read the exact number of bytes present, thus
+        //    avoiding provoking EOF.
+        //
+        // 5. Do a null seek to verify location and observe this clears
+        //    `errorStatus` and returns the correct offset.
+        //
+        // 6. Attempt to seek past EOF:
+        //    - Observe we get a seek failure.
+        //
+        //    - Follow it by a null relative seek attempt and verify that that
+        //      fails.
+        //
+        //    - Follow that by an absolute seek, which should work.
+        //
+        // 7. Attempt an absolute seek to a negative location.
+        //    - Observe we get a seek failure.
+        //
+        //    - Do an absolute seek (relative to end of file) and observe that
+        //      works and clears `errorStatus`.
+        //
+        // 8. Do a few random seeks.
+        //
+        // 9. Seek to the center of the data and read the second half of the
+        //    data in pieces.
+        //
+        // 10. Iteration
+        //     o Seek to a random location.
+        //
+        //     o Read to the end of the data via `sbumpc`.
         //
         // Testing:
         //   size_t sgetn(char *, size_t);
@@ -3887,7 +3887,7 @@ if (verbose) {
         ASSERT(PT(k_ASCII_STR_LEN) == sb.pubseekoff(0, bsl::ios_base::cur));
         ASSERT(SB.isValid());
 
-        if (verbose) cout << "Start from random locations and 'sbumpc' to"
+        if (verbose) cout << "Start from random locations and `sbumpc` to"
                                                                      " end.\n";
 
         u::RandGen rand;
@@ -3925,11 +3925,11 @@ if (verbose) {
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Basic functionality.
+        // 1. Basic functionality.
         //
         // Plan:
-        //: 1 Attach a 'streambuf' to some memory and do some reads and seeks
-        //:   on it.
+        // 1. Attach a `streambuf` to some memory and do some reads and seeks
+        //    on it.
         //
         // Testing:
         //   BREATHING TEST

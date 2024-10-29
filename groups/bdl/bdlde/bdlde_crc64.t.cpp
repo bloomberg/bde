@@ -26,35 +26,35 @@ using namespace bsl;  // automatically added by script
 // The component under test is a value-semantic scalar whose state is
 // identically its value.  There is no allocator involved.  We are mostly
 // concerned with the mechanical functioning of the various methods and free
-// operators, and exception neutrality during 'bdex' streaming.
+// operators, and exception neutrality during `bdex` streaming.
 //
 // The component interface represents a 64-bit CRC checksum as an unsigned
-// integer value.  The checksum is calculated in the 'update' function based
+// integer value.  The checksum is calculated in the `update` function based
 // on a sequence of data bytes and the data length.  We need to verify that the
-// 'update' member function calculates the checksum correctly and the
-// 'checksum' member function returns the correct checksum.
+// `update` member function calculates the checksum correctly and the
+// `checksum` member function returns the correct checksum.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructors:
-// A 'bdlde::Crc64' object is created with a default checksum value of 0.  An
+// A `bdlde::Crc64` object is created with a default checksum value of 0.  An
 // object's white-box state is exactly the same as its black-box state (just a
 // single unsigned integer value), which can be modified using the primary
-// manipulator 'update'.  The default constructor, in conjunction with the
+// manipulator `update`.  The default constructor, in conjunction with the
 // primary manipulator, is sufficient to attain any achievable white-box state.
 //
 //    o bdlde::Crc64();
 //
 // Primary Manipulators:
-//   The 'update' method comprises the minimal set of manipulators that can
+//   The `update` method comprises the minimal set of manipulators that can
 //   attain any achievable white-box state.
 //
 //    o void update(const void *data, int length);
 //
 // Basic Accessors:
 //   This is the maximal set of accessors that have direct contact with the
-//   black-box representation of the object.  The 'checksum' method is an
-//   obvious member of this set.  Although the 'checksumAndReset' method is
+//   black-box representation of the object.  The `checksum` method is an
+//   obvious member of this set.  Although the `checksumAndReset` method is
 //   really a destructive accessor, we also include it in the set because it
 //   touches the internal state of the object.
 //
@@ -157,12 +157,12 @@ typedef bslx::TestOutStream Out;
 ///Usage
 ///-----
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::Crc64' class.  Each function would typically execute in separate
-// processes or potentially on separate machines.  The 'senderExample' function
+// `bdlde::Crc64` class.  Each function would typically execute in separate
+// processes or potentially on separate machines.  The `senderExample` function
 // below demonstrates how a message sender can write a message and its CRC-64
-// checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of
-// any class that implements the 'bslx::OutStream' protocol:
-//..
+// checksum to a `bdex` output stream.  Note that `Out` may be a `typedef` of
+// any class that implements the `bslx::OutStream` protocol:
+// ```
 
 /// Write a message and its CRC-64 checksum to the specified `output`
 /// stream.
@@ -171,38 +171,38 @@ void senderExample(Out& output)
     // prepare a message
     bsl::string message = "This is a test message.";
 
-    // generate a checksum for 'message'
+    // generate a checksum for `message`
     bdlde::Crc64 crc(message.data(), static_cast<int>(message.length()));
 
-    // write the message to 'output'
+    // write the message to `output`
     output << message;
 
-    // write the checksum to 'output'
+    // write the checksum to `output`
     const int VERSION = 1;
     crc.bdexStreamOut(output, VERSION);
 }
-//..
-// The 'receiverExample' function below illustrates how a message receiver can
-// read a message and its CRC-64 checksum from a 'bdex' input stream, then
+// ```
+// The `receiverExample` function below illustrates how a message receiver can
+// read a message and its CRC-64 checksum from a `bdex` input stream, then
 // perform a local CRC-64 computation to verify that the message was received
-// intact.  Note that 'In' may be a 'typedef' of any class that implements the
-// 'bslx::InStream' protocol:
-//..
+// intact.  Note that `In` may be a `typedef` of any class that implements the
+// `bslx::InStream` protocol:
+// ```
 
 /// Read a message and its CRC-64 checksum from the specified `input`
 /// stream, and verify the integrity of the message.
 void receiverExample(In& input)
 {
-    // read the message from 'input'
+    // read the message from `input`
     bsl::string message;
     input >> message;
 
-    // read the checksum from 'input'
+    // read the checksum from `input`
     bdlde::Crc64 crc;
     const int    VERSION = 1;
     crc.bdexStreamIn(input, VERSION);
 
-    // locally compute the checksum of the received 'message'
+    // locally compute the checksum of the received `message`
     bdlde::Crc64 crcLocal;
     crcLocal.update(message.data(), static_cast<int>(message.length()));
 
@@ -245,7 +245,7 @@ void printHex(const char *str)
                     // ------------------------------
 
 // The following functions are used as an oracle to verify the CRC value
-// computed by 'bdlde::Crc64'.  The hex constant used to update 'c' is the
+// computed by `bdlde::Crc64`.  The hex constant used to update `c` is the
 // "reversed polynomial' value defined for CRC-64-ECMA as found in
 //   http://www.ecma-international.org/publications/standards/Ecma-182.htm
 
@@ -311,7 +311,7 @@ bsls::Types::Uint64 crc(const char *buffer, int length)
                      // crc64 minimal implementation oracle
                      // -----------------------------------
 
-// 'crc64trm' is used in the PERFORMANCE TEST (case -1).
+// `crc64trm` is used in the PERFORMANCE TEST (case -1).
 
 extern "C"
 bsls::Types::Uint64 crc64trm(const char *buffer, int bufSize, char trm)
@@ -324,24 +324,24 @@ bsls::Types::Uint64 crc64trm(const char *buffer, int bufSize, char trm)
 }
 
 // ============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
+//            GENERATOR FUNCTIONS `g`, `gg` and `ggg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  The given
-// 'spec' contains the data that will be passed to the 'update' method.  The
+// `spec` contains the data that will be passed to the `update` method.  The
 // following escape sequences are recognized by the language:
 //
-//    o '//'    : will be replaced with a '/'.
-//    o '/xx'   : will be replaced with the specified 'xx' hexadecimal value
-//                (each 'x' must be one of '0'..'9' or 'a'..'f').
+//    o `//`    : will be replaced with a '/'.
+//    o `/xx`   : will be replaced with the specified `xx` hexadecimal value
+//                (each `x` must be one of '0'..'9' or 'a'..'f').
 //
 // Any other character following a '/' will be considered an error.  The
-// maximum length supported for the data in an 'update' call is 1024 bytes
+// maximum length supported for the data in an `update` call is 1024 bytes
 // (this is more than sufficient for all test data).
 //
 // LANGUAGE SPECIFICATION
 // ----------------------
-//..
+// ```
 // <SPEC>       ::= <EMPTY> | <DATA>
 //
 // <EMPTY>      ::=
@@ -360,13 +360,13 @@ bsls::Types::Uint64 crc64trm(const char *buffer, int bufSize, char trm)
 // Spec String       Description
 // ----------------- ----------------------------------------------------------
 // ""                Has no effect.
-// "/00"             Calls 'update("\x00", 1)'.
-// "abc"             Calls 'update("abc", 3)'.
-// "abc//de~/20"     Calls 'update("abc/de~ ", 8)'.   # ('/20' will become ' ')
-// "abc~de"          Calls 'update("abc~de", 6)'.
-// "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
+// "/00"             Calls `update("\x00", 1)`.
+// "abc"             Calls `update("abc", 3)`.
+// "abc//de~/20"     Calls `update("abc/de~ ", 8)`.   # (`/20` will become ' ')
+// "abc~de"          Calls `update("abc~de", 6)`.
+// "/01/02\xff"      Calls `update("\x01\x02\xff", 3)`.
 // ----------------------------------------------------------------------------
-//..
+// ```
 
 /// Configure the specified `object` according to the specified `spec`
 /// using the primary manipulator function `update` and `reset`.  Optionally
@@ -388,12 +388,12 @@ int ggg(Obj *object, const char *spec, int vF = 1)
 
             ++i;
             if ('/' == spec[i]) {
-                // add '/' to 'update_buffer'
+                // add '/' to `update_buffer`
 
                 update_buffer[buf_pos++] = '/';
             } else if (('0' <= spec[i] && spec[i] <= '9')
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
-                // build the hexadecimal character, add it to 'update_buffer'
+                // build the hexadecimal character, add it to `update_buffer`
 
                 unsigned char hex = 0;
 
@@ -425,7 +425,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     return i;                                         // RETURN
                 }
 
-                // add 'hex' to 'update_buffer'
+                // add `hex` to `update_buffer`
 
                 update_buffer[buf_pos++] = hex;
             } else {
@@ -442,13 +442,13 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 return i;                                             // RETURN
             }
         } else {
-            // add the current character to 'update_buffer'
+            // add the current character to `update_buffer`
 
             update_buffer[buf_pos++] = spec[i];
         }
     }
 
-    // call 'update' with the remaining data in 'update_buffer'
+    // call `update` with the remaining data in `update_buffer`
 
     if (buf_pos) {
         object->update(update_buffer, buf_pos);
@@ -493,12 +493,12 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run the usage example functions 'senderExample' and
-        //:   'receiverExample'.  (C-1)
+        // 1. Run the usage example functions `senderExample` and
+        //    `receiverExample`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -520,29 +520,29 @@ int main(int argc, char *argv[])
       case 14: {
         // --------------------------------------------------------------------
         // TESTING CRC_TABLE
-        //   This will test the 'CRC_TABLE' array defined in bdlde_crc64.cpp.
+        //   This will test the `CRC_TABLE` array defined in bdlde_crc64.cpp.
         //
         // Concerns:
-        //: 1 The CRC algorithm depends on a static constant array of values
-        //:   defined in bdlde_crc64.cpp as 'CRC_TABLE[256]'.  We want to
-        //:   ensure that the values in the table are correct.
+        // 1. The CRC algorithm depends on a static constant array of values
+        //    defined in bdlde_crc64.cpp as `CRC_TABLE[256]`.  We want to
+        //    ensure that the values in the table are correct.
         //
         // Plan:
-        //: 1 We cannot access the array directly from this test driver because
-        //:   it is internal to the bdlde_crc64.cpp translation unit.  However,
-        //:   we do have an array 'crc_table' that is internal to this
-        //:   translation unit and we can use this array as an oracle.  We can
-        //:   loop through this array, and for each 'crc_table[i]', perform the
-        //:   following steps:
-        //:     - Create an 'unsigned char' 'j' with the value 255 - 'i'.
-        //:     - Create a 'bdlde::Crc64' object 'obj' using the default
-        //:       constructor.
-        //:     - Call 'obj.update(&j, 1)'.
-        //:     - Call 'obj.checksum()' and store the result in a 64-bit
-        //:       unsigned integer 'result'.
-        //:     - Flip the eight most significant bits of 'result'.
-        //:     - Verify that 'result' is exactly the same as 'crc_table[i]'.
-        //:   (C-1)
+        // 1. We cannot access the array directly from this test driver because
+        //    it is internal to the bdlde_crc64.cpp translation unit.  However,
+        //    we do have an array `crc_table` that is internal to this
+        //    translation unit and we can use this array as an oracle.  We can
+        //    loop through this array, and for each `crc_table[i]`, perform the
+        //    following steps:
+        //      - Create an `unsigned char` `j` with the value 255 - `i`.
+        //      - Create a `bdlde::Crc64` object `obj` using the default
+        //        constructor.
+        //      - Call `obj.update(&j, 1)`.
+        //      - Call `obj.checksum()` and store the result in a 64-bit
+        //        unsigned integer `result`.
+        //      - Flip the eight most significant bits of `result`.
+        //      - Verify that `result` is exactly the same as `crc_table[i]`.
+        //    (C-1)
         //
         // Testing:
         //   CRC_TABLE TEST
@@ -579,25 +579,25 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
-        //   This will test the 'reset' method.
+        // TESTING `reset`
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 0 to 5.  For
-        //:   each datum, create a 'bdlde::Crc64' object using the fully-tested
-        //:   two-argument init constructor.  Then call the 'reset' member
-        //:   function and ensure that the resulting object contains the same
-        //:   value as an object created using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 0 to 5.  For
+        //    each datum, create a `bdlde::Crc64` object using the fully-tested
+        //    two-argument init constructor.  Then call the `reset` member
+        //    function and ensure that the resulting object contains the same
+        //    value as an object created using the default constructor.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'reset'"
+        if (verbose) cout << "\n" "TESTING `reset`"
                              "\n" "===============" "\n";
 
         static const struct {
@@ -639,15 +639,15 @@ int main(int argc, char *argv[])
         //   We need to test the init constructor that takes two arguments.
         //
         // Concerns:
-        //: 1 Since 'update' has already been tested thoroughly in [11], we
-        //:   just need to make sure that the values passed to 'update' in the
-        //:   constructor are correct.
+        // 1. Since `update` has already been tested thoroughly in [11], we
+        //    just need to make sure that the values passed to `update` in the
+        //    constructor are correct.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 0 to 5.  For
-        //:   each datum, create a 'bdlde::Crc64' object using the two-argument
-        //:   init constructor.  Then verify the CRC value stored in the object
-        //:   is the same as the expected value.  (C-1)
+        // 1. Create a set of test data with varying lengths from 0 to 5.  For
+        //    each datum, create a `bdlde::Crc64` object using the two-argument
+        //    init constructor.  Then verify the CRC value stored in the object
+        //    is the same as the expected value.  (C-1)
         //
         // Testing:
         //   bdlde::Crc64(const void *data, int length);
@@ -690,70 +690,70 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'update'
-        //   We need to thoroughly test the 'update' member function.
+        // TESTING `update`
+        //   We need to thoroughly test the `update` member function.
         //
         // Concerns:
-        //: 1 We need to test the 'update' function using data with
-        //:   lengths varying from 0-10.  The algorithm selects control paths
-        //:   based on the length of the data, and not the data itself.  The
-        //:   control path is selected using 'length % 4'.  So, in order to
-        //:   exercise all control paths, the test vectors must contain data
-        //:   with lengths varying from 0 to 3.  The test vectors must also
-        //:   contain data with lengths 4 to 10 to ensure that the loop is
-        //:   repeated correctly.  The test vectors should contain all of the
-        //:   possible values for single-byte data (0x00 .. 0xff) to make sure
-        //:   that the expected result is produced for all single-byte values.
-        //:   Data with length 0 is used as a boundary check.
-        //:
-        //: 2 We need to ensure that there are no CRC collisions for
-        //:   any possible combination of 1 or 2 byte data.
-        //:
-        //: 3 We need to ensure that multiple calls to 'update' produce
-        //:   the same result as calling 'update' once with the original two
-        //:   strings concatenated together.
+        // 1. We need to test the `update` function using data with
+        //    lengths varying from 0-10.  The algorithm selects control paths
+        //    based on the length of the data, and not the data itself.  The
+        //    control path is selected using `length % 4`.  So, in order to
+        //    exercise all control paths, the test vectors must contain data
+        //    with lengths varying from 0 to 3.  The test vectors must also
+        //    contain data with lengths 4 to 10 to ensure that the loop is
+        //    repeated correctly.  The test vectors should contain all of the
+        //    possible values for single-byte data (0x00 .. 0xff) to make sure
+        //    that the expected result is produced for all single-byte values.
+        //    Data with length 0 is used as a boundary check.
+        //
+        // 2. We need to ensure that there are no CRC collisions for
+        //    any possible combination of 1 or 2 byte data.
+        //
+        // 3. We need to ensure that multiple calls to `update` produce
+        //    the same result as calling `update` once with the original two
+        //    strings concatenated together.
         //
         // Plan:
-        //: 1 Create a test vector containing data with lengths varying from 0
-        //:   to 10.  Exercise the 'update' member function for each datum and
-        //:   make sure the object's CRC value is equal to the expected CRC
-        //:   value. (C-1)
-        //:
-        //: 2 For the second part of the test, create an integer array using
-        //:   'bsl::vector<int>'.  Fill the array using the following steps:
-        //:
-        //:     - Loop through all the possible values for an 'unsigned char'
-        //:       (0 .. 255) and add its CRC value to the array.
+        // 1. Create a test vector containing data with lengths varying from 0
+        //    to 10.  Exercise the `update` member function for each datum and
+        //    make sure the object's CRC value is equal to the expected CRC
+        //    value. (C-1)
         //
-        //:     - Loop through all the possible values for a 16-bit
-        //:       'unsigned short' (0 .. 65535) and add its CRC value to the
-        //:       array.
-        //:
-        //:     - Loop through all the possible values for a 16-bit
-        //:       'unsigned short', but insert a 0-valued byte in between the
-        //:       2 bytes.  Calculate the CRC and add it to the array.
-        //:
-        //:     - Loop through all the possible values for a 16-bit
-        //:       'unsigned short', but insert a 1-valued byte in between the
-        //:       2 bytes.  Calculate the CRC and add it to the array.
-        //:
-        //:   Sort the array, then assert that each CRC value in the array
-        //:   (except for the 0th array element) differs from the CRC value
-        //:   immediately preceding it in the array. (C-2)
-        //:
-        //: 3 For the third part of the test, create test vectors containing
-        //:   substring 1 ('MSG1') and substring 2 ('MSG2').  For each input
-        //:   case, create two 'bdlde::Crc64' objects ('obj' and 'objAccum').
-        //:   Call 'obj.update' with 'MSG1' followed by 'MSG2'.  Concatenate
-        //:   'MSG1' and 'MSG2' into a single string and call
-        //:   'objAccum.update' with the concatenated string.  Finally,
-        //:   assert that 'obj' has the same value as 'objAccum'. (C-3)
+        // 2. For the second part of the test, create an integer array using
+        //    `bsl::vector<int>`.  Fill the array using the following steps:
+        //
+        //      - Loop through all the possible values for an `unsigned char`
+        //        (0 .. 255) and add its CRC value to the array.
+        //
+        //      - Loop through all the possible values for a 16-bit
+        //        `unsigned short` (0 .. 65535) and add its CRC value to the
+        //        array.
+        //
+        //      - Loop through all the possible values for a 16-bit
+        //        `unsigned short`, but insert a 0-valued byte in between the
+        //       2. bytes.  Calculate the CRC and add it to the array.
+        //
+        //      - Loop through all the possible values for a 16-bit
+        //        `unsigned short`, but insert a 1-valued byte in between the
+        //       2. bytes.  Calculate the CRC and add it to the array.
+        //
+        //    Sort the array, then assert that each CRC value in the array
+        //    (except for the 0th array element) differs from the CRC value
+        //    immediately preceding it in the array. (C-2)
+        //
+        // 3. For the third part of the test, create test vectors containing
+        //    substring 1 (`MSG1`) and substring 2 (`MSG2`).  For each input
+        //    case, create two `bdlde::Crc64` objects (`obj` and `objAccum`).
+        //    Call `obj.update` with `MSG1` followed by `MSG2`.  Concatenate
+        //    `MSG1` and `MSG2` into a single string and call
+        //    `objAccum.update` with the concatenated string.  Finally,
+        //    assert that `obj` has the same value as `objAccum`. (C-3)
         //
         // Testing:
         //   void update(const void *data, int length);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'update'"
+        if (verbose) cout << "\n" "TESTING `update`"
                              "\n" "================" "\n";
 
         if (verbose) cout << "\n1. Testing With Data Lengths 0-10." << endl;
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n3. Multiple 'update' test." << endl;
+        if (verbose) cout << "\n3. Multiple `update` test." << endl;
         {
             static const struct {
                 int         d_lineNum;    // source line number
@@ -1200,57 +1200,57 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY
-        //   The 'bdex' streaming concerns for this component are absolutely
+        // TESTING `bdex` STREAMING FUNCTIONALITY
+        //   The `bdex` streaming concerns for this component are absolutely
         //   standard.
         //
         // Concerns:
-        //: 1 We need to probe the member functions 'bdexStreamIn' and
-        //:   'bdexStreamOut' in the manner of a "breathing test" to verify
-        //:   basic functionality, then we need to thoroughly test that
-        //:   functionality using the bdex stream functions, which forward
-        //:   appropriate calls to the member functions.  We also want to step
-        //:   through the sequence of possible stream states (valid, empty,
-        //:   invalid, incomplete, and corrupted), appropriately selecting data
-        //:   sets as described below.  In all cases, we need to confirm
-        //:   exception neutrality using the specially instrumented
-        //:   'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which
-        //:   configure the 'bslx::TestInStream' object appropriately in a
-        //:   loop.
+        // 1. We need to probe the member functions `bdexStreamIn` and
+        //    `bdexStreamOut` in the manner of a "breathing test" to verify
+        //    basic functionality, then we need to thoroughly test that
+        //    functionality using the bdex stream functions, which forward
+        //    appropriate calls to the member functions.  We also want to step
+        //    through the sequence of possible stream states (valid, empty,
+        //    invalid, incomplete, and corrupted), appropriately selecting data
+        //    sets as described below.  In all cases, we need to confirm
+        //    exception neutrality using the specially instrumented
+        //    `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which
+        //    configure the `bslx::TestInStream` object appropriately in a
+        //    loop.
         //
         // Plan:
-        //: 1 PRELIMINARY MEMBER FUNCTION TEST: Perform a trivial direct test
-        //:   of the 'bdexStreamOut' and 'bdexStreamIn' methods.  (The
-        //:   remaining tests will use the bdex stream functions.)
-        //:
-        //: 2 VALID STREAMS: For the set S of globally-defined test values, use
-        //:   all combinations (u, v) in the cross product S X S, stream the
-        //:   value of v into (a temporary copy of) u and assert u == v.
-        //:
-        //: 3 EMPTY AND INVALID STREAMS: For each u in S, create a copy and
-        //:   attempt to stream into it from an empty stream, and then an
-        //:   invalid stream.  Verify after each attempt that the object is
-        //:   unchanged and that the stream is invalid.
-        //:
-        //: 4 INCOMPLETE (BUT OTHERWISE VALID) DATA: Write 3 distinct objects
-        //:   to an output stream buffer of total length N.  For each partial
-        //:   stream length from 0 to N - 1, construct an input stream and
-        //:   attempt to read into objects initialized with distinct values.
-        //:   Verify values of objects that are either successfully modified or
-        //:   left entirely unmodified, and that the stream became invalid
-        //:   immediately after the first incomplete read.  Finally ensure that
-        //:   each object streamed into is in some valid state by assigning it
-        //:   a distinct new value and testing for equality.
-        //:
-        //: 5 CORRUPTED DATA: Use the underlying stream package to simulate an
-        //:   instance of a typical valid (control) stream and verify that it
-        //:   can be streamed in successfully.  The component does not define
-        //:   'corrupted' data (all CRCs are valid), so just check for bad
-        //:   version numbers.  After each test, verify that the object is in
-        //:   some valid state after streaming, and that the input stream has
-        //:   gone invalid.  (C-1)
+        // 1. PRELIMINARY MEMBER FUNCTION TEST: Perform a trivial direct test
+        //    of the `bdexStreamOut` and `bdexStreamIn` methods.  (The
+        //    remaining tests will use the bdex stream functions.)
+        //
+        // 2. VALID STREAMS: For the set S of globally-defined test values, use
+        //    all combinations (u, v) in the cross product S X S, stream the
+        //    value of v into (a temporary copy of) u and assert u == v.
+        //
+        // 3. EMPTY AND INVALID STREAMS: For each u in S, create a copy and
+        //    attempt to stream into it from an empty stream, and then an
+        //    invalid stream.  Verify after each attempt that the object is
+        //    unchanged and that the stream is invalid.
+        //
+        // 4. INCOMPLETE (BUT OTHERWISE VALID) DATA: Write 3 distinct objects
+        //    to an output stream buffer of total length N.  For each partial
+        //    stream length from 0 to N - 1, construct an input stream and
+        //    attempt to read into objects initialized with distinct values.
+        //    Verify values of objects that are either successfully modified or
+        //    left entirely unmodified, and that the stream became invalid
+        //    immediately after the first incomplete read.  Finally ensure that
+        //    each object streamed into is in some valid state by assigning it
+        //    a distinct new value and testing for equality.
+        //
+        // 5. CORRUPTED DATA: Use the underlying stream package to simulate an
+        //    instance of a typical valid (control) stream and verify that it
+        //    can be streamed in successfully.  The component does not define
+        //    `corrupted` data (all CRCs are valid), so just check for bad
+        //    version numbers.  After each test, verify that the object is in
+        //    some valid state after streaming, and that the input stream has
+        //    gone invalid.  (C-1)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int);
@@ -1259,7 +1259,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
           if (verbose) {
-              cout << "\n" "TESTING 'bdex' STREAMING FUNCTIONALITY"
+              cout << "\n" "TESTING `bdex` STREAMING FUNCTIONALITY"
                       "\n" "======================================" "\n";
           }
 
@@ -1277,10 +1277,10 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         const int VERSION = Obj::maxSupportedBdexVersion(20150813);
-        if (verbose) cout << "\nTesting 'bdexStreamOut' and (valid) "
-                          << "'bdexStreamIn' functionality." << endl;
+        if (verbose) cout << "\nTesting `bdexStreamOut` and (valid) "
+                          << "`bdexStreamIn` functionality." << endl;
         {
-            // testing 'bdexStreamOut' and 'bdexStreamIn' directly
+            // testing `bdexStreamOut` and `bdexStreamIn` directly
             const Obj X(VC);
             Out       out(20150813);
             out.putVersion(VERSION);
@@ -1302,7 +1302,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nThorough test using the bdex stream functions "
                           << endl;
         {
-            // testing '<<' and '>>' operators thoroughly
+            // testing `<<` and `>>` operators thoroughly
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X(VALUES[i]);
                 Out       out(20150813);
@@ -1429,7 +1429,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // On corrupted data, the component does not define 'corrupted' data
+        // On corrupted data, the component does not define `corrupted` data
         // (all CRCs are valid), so just check for bad version numbers.
 
         if (verbose) cout << "\tOn corrupted data." << endl;
@@ -1463,7 +1463,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tBad version." << endl;
         {
             const int version = 0;
-            // too small ('version' must be >= 1)
+            // too small (`version` must be >= 1)
 
             Out out(20150813);
             out.putUint64(~SERIAL_Y);  // stream out "new" value
@@ -1495,9 +1495,9 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`." << endl;
         {
-            // test 'maxSupportedBdexVersion'
+            // test `maxSupportedBdexVersion`
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(20150813));
@@ -1509,20 +1509,20 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
-        //   Test the assignment operator ('operator=').
+        //   Test the assignment operator (`operator=`).
         //
         // Concerns:
-        //: 1 Any value must be assignable to an object having any initial
-        //:   value without affecting the rhs operand value.  Also, any object
-        //:   must be assignable to itself.
+        // 1. Any value must be assignable to an object having any initial
+        //    value without affecting the rhs operand value.  Also, any object
+        //    must be assignable to itself.
         //
         // Plan:
-        //: 1 Specify a set S of (unique) objects with substantial and varied
-        //:   differences in value.  Construct and initialize all combinations
-        //:   (u, v) in the cross product S X S, copy construct a control w
-        //:   from v, assign v to u, and assert that w == u and w == v.  Then
-        //:   test aliasing by copy constructing a control w from each u in S,
-        //:   assigning u to itself, and verifying that w == u.  (C-1)
+        // 1. Specify a set S of (unique) objects with substantial and varied
+        //    differences in value.  Construct and initialize all combinations
+        //    (u, v) in the cross product S X S, copy construct a control w
+        //    from v, assign v to u, and assert that w == u and w == v.  Then
+        //    test aliasing by copy constructing a control w from each u in S,
+        //    assigning u to itself, and verifying that w == u.  (C-1)
         //
         // Testing:
         //   bdlde::Crc64& operator=(const bdlde::Crc64& rhs);
@@ -1600,26 +1600,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'g'
-        //   This will test the 'g' generator function.
+        // TESTING GENERATOR FUNCTION `g`
+        //   This will test the `g` generator function.
         //
         // Concerns:
-        //: 1 Since 'g' is implemented almost entirely using 'gg', we need only
-        //:   to verify that the arguments are properly forwarded and that 'g'
-        //:   returns an object by value.
+        // 1. Since `g` is implemented almost entirely using `gg`, we need only
+        //    to verify that the arguments are properly forwarded and that `g`
+        //    returns an object by value.
         //
         // Plan:
-        //: 1 For each spec in a short list of specifications, compare the
-        //:   object returned (by value) from the generator function, 'g(SPEC)'
-        //:   with the value of a newly constructed object 'mX' configured
-        //:   using 'gg(&mX, SPEC)'.  The test also ensures that 'g' returns a
-        //:   distinct object by comparing the memory addresses.  (C-1)
+        // 1. For each spec in a short list of specifications, compare the
+        //    object returned (by value) from the generator function, `g(SPEC)`
+        //    with the value of a newly constructed object `mX` configured
+        //    using `gg(&mX, SPEC)`.  The test also ensures that `g` returns a
+        //    distinct object by comparing the memory addresses.  (C-1)
         //
         // Testing:
         //   bdlde::Crc64 g(const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING GENERATOR FUNCTION 'g'"
+        if (verbose) cout << "\n" "TESTING GENERATOR FUNCTION `g`"
                              "\n" "==============================" "\n";
 
         static const struct {
@@ -1641,7 +1641,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nCompare values produced by 'g' and 'gg' "
+        if (verbose) cout << "\nCompare values produced by `g` and `gg` "
                           << "for various inputs." << endl;
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -1686,16 +1686,16 @@ int main(int argc, char *argv[])
         //   This will test the copy constructor.
         //
         // Concerns:
-        //: 1 Any value must be able to be copy constructed without affecting
-        //:   its argument.
+        // 1. Any value must be able to be copy constructed without affecting
+        //    its argument.
         //
         // Plan:
-        //: 1 Specify a set S whose elements have substantial and varied
-        //:   differences in value.  For each element in S, construct and
-        //:   initialize identically-values objects W and X using tested
-        //:   methods (in this case, the 'gg' function).  Then copy construct
-        //:   an object Y from X, and use the equality operator to assert that
-        //:   both X and Y have the same value as W.  (C-1)
+        // 1. Specify a set S whose elements have substantial and varied
+        //    differences in value.  For each element in S, construct and
+        //    initialize identically-values objects W and X using tested
+        //    methods (in this case, the `gg` function).  Then copy construct
+        //    an object Y from X, and use the equality operator to assert that
+        //    both X and Y have the same value as W.  (C-1)
         //
         // Testing:
         //   bdlde::Crc64(const bdlde::Crc64& original);
@@ -1746,23 +1746,23 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
-        //   This will test the equality operations ('operator==' and
-        //   'operator!=').
+        //   This will test the equality operations (`operator==` and
+        //   `operator!=`).
         //
         // Concerns:
-        //: 1 We want to make sure that 'operator==' returns true for objects
-        //:   that are very similar but still different, but returns true for
-        //:   objects that are exactly the same.  Likewise, we want to make
-        //:   sure that 'operator!=' returns true for objects that are very
-        //:   similar but still different, but returns false for objects that
-        //:   are exactly the same.
+        // 1. We want to make sure that `operator==` returns true for objects
+        //    that are very similar but still different, but returns true for
+        //    objects that are exactly the same.  Likewise, we want to make
+        //    sure that `operator!=` returns true for objects that are very
+        //    similar but still different, but returns false for objects that
+        //    are exactly the same.
         //
         // Plan:
-        //: 1 Construct a set of specs containing similar but different data
-        //:   values.  Then loop through the cross product of the test data.
-        //:   For each tuple, generate two objects 'U' and 'V' using the
-        //:   previously tested 'gg' function.  Use the '==' and '!=' operators
-        //:   and check their return value for correctness.  (C-1)
+        // 1. Construct a set of specs containing similar but different data
+        //    values.  Then loop through the cross product of the test data.
+        //    For each tuple, generate two objects `U` and `V` using the
+        //    previously tested `gg` function.  Use the `==` and `!=` operators
+        //    and check their return value for correctness.  (C-1)
         //
         // Testing:
         //   bool operator==(const bdlde::Crc64& lhs, const bdlde::Crc64& rhs);
@@ -1847,41 +1847,41 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
-        //   We need to test the '<<' operator.
+        //   We need to test the `<<` operator.
         //
         // Concerns:
-        //: 1 We want to make sure that the object is written to the stream
-        //:   correctly in the expected format (with '0x' prepended to the hex
-        //:   value).
+        // 1. We want to make sure that the object is written to the stream
+        //    correctly in the expected format (with `0x` prepended to the hex
+        //    value).
         //
         // Plan:
-        //: 1 The '<<' operator depends on the 'print' member function.
-        //:   So, we need to test 'print' before testing 'operator<<'.
-        //:   This test is broken into two parts:
-        //:     1 Testing of 'print'
-        //:     2 Testing of 'operator<<'
-        //:
-        //: 2 Each test vector in DATA contains STR, its LEN, the expected CRC
-        //:   value and also an expected output FMT.  For each datum, construct
-        //:   an independent object 'mX' and call 'update' with STR and LEN.
-        //:   Assert that the object contains the expected CRC value.  Create
-        //:   an 'ostringstream' object and use the 'print' function to stream
-        //:   'mX'.  Compare the contents of the stream object with the
-        //:   expected FMT value.
-        //:
-        //: 3 To test the 'print' operator, for each datum, construct an
-        //:   independent object 'mX' and call 'update' with STR and LEN.
-        //:   Assert that the object contains the expected CRC value.  Create
-        //:   an 'ostringstream' object and use the 'print' function to stream
-        //:   'mX'.  Compare the contents of the stream object with the
-        //:   expected FMT value.
-        //:
-        //: 4 To test the '<<' operator, construct an independent object 'obj'
-        //:   for each test vector in DATA and then call 'update' with STR and
-        //:   LEN.  Assert that the object contains the expected CRC value.
-        //:   Create an 'ostringstream' object and use the '<<' operator to
-        //:   stream 'obj'.  Finally, compare the contents of the stream object
-        //:   with the expected FMT value.  (C-1)
+        // 1. The `<<` operator depends on the `print` member function.
+        //    So, we need to test `print` before testing `operator<<`.
+        //    This test is broken into two parts:
+        //     1. Testing of `print`
+        //     2. Testing of `operator<<`
+        //
+        // 2. Each test vector in DATA contains STR, its LEN, the expected CRC
+        //    value and also an expected output FMT.  For each datum, construct
+        //    an independent object `mX` and call `update` with STR and LEN.
+        //    Assert that the object contains the expected CRC value.  Create
+        //    an `ostringstream` object and use the `print` function to stream
+        //    `mX`.  Compare the contents of the stream object with the
+        //    expected FMT value.
+        //
+        // 3. To test the `print` operator, for each datum, construct an
+        //    independent object `mX` and call `update` with STR and LEN.
+        //    Assert that the object contains the expected CRC value.  Create
+        //    an `ostringstream` object and use the `print` function to stream
+        //    `mX`.  Compare the contents of the stream object with the
+        //    expected FMT value.
+        //
+        // 4. To test the `<<` operator, construct an independent object `obj`
+        //    for each test vector in DATA and then call `update` with STR and
+        //    LEN.  Assert that the object contains the expected CRC value.
+        //    Create an `ostringstream` object and use the `<<` operator to
+        //    stream `obj`.  Finally, compare the contents of the stream object
+        //    with the expected FMT value.  (C-1)
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
@@ -1916,7 +1916,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const int SIZE     = 128;
 
-        if (verbose) cout << "\n2. Testing 'print'." << endl;
+        if (verbose) cout << "\n2. Testing `print`." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
             const int                  LINE = DATA[i].d_lineNum;
             const char                *STR  = DATA[i].d_str_p;
@@ -1937,7 +1937,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, 0 == strcmp(outbuf.str().c_str(), FMT));
         }
 
-        if (verbose) cout << "\n3. Testing 'operator<<'." << endl;
+        if (verbose) cout << "\n3. Testing `operator<<`." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
             const int           LINE = DATA[i].d_lineNum;
             const char         *STR  = DATA[i].d_str_p;
@@ -1967,21 +1967,21 @@ int main(int argc, char *argv[])
         //   In this test case, we will test the basic accessors.
         //
         // Concerns:
-        //: 1 Verify that, for each unique object value, the basic accessors
-        //:   return the correct values.
+        // 1. Verify that, for each unique object value, the basic accessors
+        //    return the correct values.
         //
         // Plan:
-        //: 1 For each test vector in DATA, construct an object 'mX' using the
-        //:   default constructor.  Then call 'mX.update' using the current STR
-        //:   and LENGTH.  Ensure that the CRC value returned by 'checksum' is
-        //:   the same as the expected CRC value.
-        //:
-        //: 2 For each test vector in DATA, construct an object 'mX' using
-        //:   the default constructor.  Then call 'mX.update' using the current
-        //:   STR and LENGTH.  Ensure that the CRC value returned by
-        //:   'checksumAndReset' is the same as the expected CRC value.  Then
-        //:   verify that a subsequent value returned by 'checksum' will be the
-        //:   same as a default object.  (C-1)
+        // 1. For each test vector in DATA, construct an object `mX` using the
+        //    default constructor.  Then call `mX.update` using the current STR
+        //    and LENGTH.  Ensure that the CRC value returned by `checksum` is
+        //    the same as the expected CRC value.
+        //
+        // 2. For each test vector in DATA, construct an object `mX` using
+        //    the default constructor.  Then call `mX.update` using the current
+        //    STR and LENGTH.  Ensure that the CRC value returned by
+        //    `checksumAndReset` is the same as the expected CRC value.  Then
+        //    verify that a subsequent value returned by `checksum` will be the
+        //    same as a default object.  (C-1)
         //
         // Testing:
         //   bsls::Types::Uint64 checksumAndReset();
@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'checksum'." << endl;
+        if (verbose) cout << "\nTesting `checksum`." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
@@ -2036,7 +2036,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'checksumAndReset'." << endl;
+        if (verbose) cout << "\nTesting `checksumAndReset`." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
@@ -2063,26 +2063,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTION 'gg'
-        //   This will test the 'gg' generator function.
+        // TESTING PRIMITIVE GENERATOR FUNCTION `gg`
+        //   This will test the `gg` generator function.
         //
         // Concerns:
-        //: 1 We want to verify (1) that valid generator syntax produces
-        //:   expected results, and (2) that invalid syntax is detected and
-        //:   reported.
+        // 1. We want to verify (1) that valid generator syntax produces
+        //    expected results, and (2) that invalid syntax is detected and
+        //    reported.
         //
         // Plan:
-        //: 1 For each enumerated sequence of 'spec' values, ordered by
-        //:   increasing 'spec' length, use the primitive generator function
-        //:   'gg' to set the state of a newly created object.  Verify that
-        //:   'gg' returns a valid reference to the modified object and, using
-        //:   basic accessors, that the value of the object is as expected.
-        //:   Note that  we are testing the parser only; the primary
-        //:   manipulators are already assumed to work.
-        //:
-        //: 2 This test case also tests the 'ggg' function using invalid 'spec'
-        //:   values, to ensure that error messages are caught and reported
-        //:   correctly.  (C-1)
+        // 1. For each enumerated sequence of `spec` values, ordered by
+        //    increasing `spec` length, use the primitive generator function
+        //    `gg` to set the state of a newly created object.  Verify that
+        //    `gg` returns a valid reference to the modified object and, using
+        //    basic accessors, that the value of the object is as expected.
+        //    Note that  we are testing the parser only; the primary
+        //    manipulators are already assumed to work.
+        //
+        // 2. This test case also tests the `ggg` function using invalid `spec`
+        //    values, to ensure that error messages are caught and reported
+        //    correctly.  (C-1)
         //
         // Testing:
         //   int ggg(bdlde::Crc64 *object, const char *spec, int vF = 1);
@@ -2090,7 +2090,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\n" "TESTING PRIMITIVE GENERATOR FUNCTION 'gg'"
+            cout << "\n" "TESTING PRIMITIVE GENERATOR FUNCTION `gg`"
                     "\n" "=========================================" "\n";
 
         {
@@ -2100,7 +2100,7 @@ int main(int argc, char *argv[])
                 int          d_lineNum;       // source line number
                 const char  *d_spec_p;        // specification string
                 const char  *d_interpreted_p; // interpreted string
-                int          d_length;        // length of 'd_interpreted_p'
+                int          d_length;        // length of `d_interpreted_p`
             } DATA[] = {
                 //line  spec             interpreted      length
                 //----  ----             -----------      ------
@@ -2207,22 +2207,22 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //: 1 When an arbitrary string is passed to the object, the correct
-        //:   CRC value should be returned.  Also, the default constructor
-        //:   should create an object with a value of 0x00000000.  We also need
-        //:   to make sure that the destructor works.
+        // 1. When an arbitrary string is passed to the object, the correct
+        //    CRC value should be returned.  Also, the default constructor
+        //    should create an object with a value of 0x00000000.  We also need
+        //    to make sure that the destructor works.
         //
         // Plan:
-        //: 1 Verify the default constructor by testing the value of the
-        //:  resulting object.
-        //:
-        //: 2 Verify that the 'update' member function works by
-        //:   constructing a series of independent objects using the default
-        //:   constructor and running 'update' using increasing string lengths.
-        //:   Verify the CRC value in the object using the basic accessor.
-        //:
-        //: 3 Note that the destructor is exercised on each configuration as
-        //:   the object being tested leaves scope.  (C-1)
+        // 1. Verify the default constructor by testing the value of the
+        //   resulting object.
+        //
+        // 2. Verify that the `update` member function works by
+        //    constructing a series of independent objects using the default
+        //    constructor and running `update` using increasing string lengths.
+        //    Verify the CRC value in the object using the basic accessor.
+        //
+        // 3. Note that the destructor is exercised on each configuration as
+        //    the object being tested leaves scope.  (C-1)
         //
         // Testing:
         //   bdlde::Crc64();
@@ -2242,7 +2242,7 @@ int main(int argc, char *argv[])
             ASSERT(defaultCrc == X.checksum());
         }
 
-        if (verbose) cout << "\nTesting 'update'." << endl;
+        if (verbose) cout << "\nTesting `update`." << endl;
         {
             if (veryVerbose) cout << "\tUsing string with length 0." << endl;
 
@@ -2328,35 +2328,35 @@ int main(int argc, char *argv[])
         //   This test exercises basic functionality, but tests nothing.
         //
         // Concerns:
-        //: 1 We want to demonstrate a base-line level of correct operation of
-        //:   the following methods and operators:
-        //:    - default and copy constructors.
-        //:    - the assignment operator (including aliasing).
-        //:    - equality operators: 'operator==' and 'operator!='.
-        //:    - primary manipulators: 'update' and 'reset'.
-        //:    - basic accessors: 'checksum'.
+        // 1. We want to demonstrate a base-line level of correct operation of
+        //    the following methods and operators:
+        //     - default and copy constructors.
+        //     - the assignment operator (including aliasing).
+        //     - equality operators: `operator==` and `operator!=`.
+        //     - primary manipulators: `update` and `reset`.
+        //     - basic accessors: `checksum`.
         //
         // Plan:
-        //: 1 Create four test objects using the default, initializing, and
-        //:   copy constructors.  Exercise the basic value-semantic methods and
-        //:   the equality operators using the test objects.  Invoke the
-        //:   primary manipulator [5, 6, 7], copy constructor [2, 4],
-        //:   assignment operator without [9, 9] and with [10] aliasing.  Use
-        //:   the basic accessors to verify the expected results.  Display
-        //:   object values frequently in verbose mode.  Note that 'VA', 'VB'
-        //:   and 'VC' denote unique, but otherwise arbitrary, object values,
-        //:   while 'U' denotes the valid, but "unknown", default object value.
-        //:    1 Create an object x1 (init. to VA)  { x1:VA                  }
-        //:    2 Create an object x2 (copy of x1)   { x1:VA x2:VA            }
-        //:    3 Create an object x3 (default ctor) { x1:VA x2:VA x3:U       }
-        //:    4 Create an object x4 (copy of x3)   { x1:VA x2:VA x3:U  x4:U }
-        //:    5 Set x3 using 'update' (set to VB)  { x1:VA x2:VA x3:VB x4:U }
-        //:    6 Change x1 using 'reset'            { x1:U  x2:VA x3:VB x4:U }
-        //:    7 Change x1 ('update', set to VC)    { x1:VC x2:VA x3:VB x4:U }
-        //:    8 Assign x2 = x1                     { x1:VC x2:VC x3:VB x4:U }
-        //:    9 Assign x2 = x3                     { x1:VC x2:VB x3:VB x4:U }
-        //:    10 Assign x1 = x1 (aliasing)         { x1:VC x2:VB x3:VB x4:U }
-        //:   (C-1)
+        // 1. Create four test objects using the default, initializing, and
+        //    copy constructors.  Exercise the basic value-semantic methods and
+        //    the equality operators using the test objects.  Invoke the
+        //    primary manipulator [5, 6, 7], copy constructor [2, 4],
+        //    assignment operator without [9, 9] and with [10] aliasing.  Use
+        //    the basic accessors to verify the expected results.  Display
+        //    object values frequently in verbose mode.  Note that `VA`, `VB`
+        //    and `VC` denote unique, but otherwise arbitrary, object values,
+        //    while `U` denotes the valid, but "unknown", default object value.
+        //    1. Create an object x1 (init. to VA)  { x1:VA                  }
+        //    2. Create an object x2 (copy of x1)   { x1:VA x2:VA            }
+        //    3. Create an object x3 (default ctor) { x1:VA x2:VA x3:U       }
+        //    4. Create an object x4 (copy of x3)   { x1:VA x2:VA x3:U  x4:U }
+        //    5. Set x3 using `update` (set to VB)  { x1:VA x2:VA x3:VB x4:U }
+        //    6. Change x1 using `reset`            { x1:U  x2:VA x3:VB x4:U }
+        //    7. Change x1 (`update`, set to VC)    { x1:VC x2:VA x3:VB x4:U }
+        //    8. Assign x2 = x1                     { x1:VC x2:VC x3:VB x4:U }
+        //    9. Assign x2 = x3                     { x1:VC x2:VB x3:VB x4:U }
+        //    10. Assign x1 = x1 (aliasing)         { x1:VC x2:VB x3:VB x4:U }
+        //    (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2454,7 +2454,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 5. Set x3 using 'update' (set to VB)."
+        if (verbose) cout << "\n 5. Set x3 using `update` (set to VB)."
                              "\t\t{ x1:VA x2:VA x3:VB x4:U }" << endl;
         mX3.update(SB, LB);
         if (verbose) { cout << '\t'; P(X3); }
@@ -2470,7 +2470,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 6. Change x1 using 'reset'."
+        if (verbose) cout << "\n 6. Change x1 using `reset`."
                              "\t\t{ x1:U x2:VA x3:VB x4:U }" << endl;
         mX1.reset();
         if (verbose) { cout << '\t'; P(X1); }
@@ -2486,7 +2486,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 7. Change x1 ('update', set to VC)."
+        if (verbose) cout << "\n 7. Change x1 (`update`, set to VC)."
                              "\t\t{ x1:VC x2:VA x3:VB x4:U }" << endl;
         mX1.update(SC, LC);
         if (verbose) { cout << '\t'; P(X1); }
@@ -2555,13 +2555,13 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns:
-        //: 1 We want to ensure that the performance of the 'update' method is
-        //:   at least as efficient as the naive implementation.
+        // 1. We want to ensure that the performance of the `update` method is
+        //    at least as efficient as the naive implementation.
         //
         // Plan:
-        //: 1 Compare performance our 'update()' to a minimal, canonical
-        //:   implementation 'crc64trm()' applied to a small set of test
-        //:   strings within a loop of at least a million iterations.  (C-1)
+        // 1. Compare performance our `update()` to a minimal, canonical
+        //    implementation `crc64trm()` applied to a small set of test
+        //    strings within a loop of at least a million iterations.  (C-1)
         //
         // Testing:
         //   PERFORMANCE TEST

@@ -31,37 +31,37 @@ using bsl::size_t;
 // ============================================================================
 //                                TEST PLAN
 // Concerns:
-//: o That the translators never segfault or fail for any possible input
-//:   stream.
-//: o That output to STL containers never overflow the size of the container
-//:   (functions with container destinations estimate output size.  The size
-//:   estimation functions are not public and cannot be tested directly, but
-//:   there are safe asserts in the container destination functions that
-//:   verify the accuracy of these estimates, enhancing the effectiveness
-//:   of the testing).
-//: o The output is correct.  This can be verified using tables of sample input
-//:   and corresponding expected output.  Sequences of input randomly selected
-//:   from the table and spliced together should generate the corresponding
-//:   output spliced together.
-//: o If a fixed-length buffer is provided, the memory after the first
-//:   'capacity' bytes or words is never written to.
-//: o If a fixed-length buffer is provided and insufficient capacity is
-//:   provided, as many code points as will fit are written.  This means that
-//:   if the destination is UTF-32, exactly 'capacity' words will be written.
-//:   1 If a fixed-length buffer is provided and a '0 == capacity', nothing is
-//:     written to the destination and the out of space bit is set in the
-//:     return value.
-//: o Preconditions are asserted before any modification of the output is
-//:   performed.
-//: o That every type of UTF-8 error is detected and appropriately handled.
-//: o That invalid UTF-32 code points are detected and appropriately handled.
-//: o All forms of valid input and all forms of errors should be handled the
-//:   same whether at the beginning, the end or in the middle of a sequence.
-//: o The invalid input bit returned always properly reflects whether any
-//:   invalid input was encountered (prior to running out of space).
-//: o The out of space bit returned always properly reflects whether the
-//:   capacity specified was adequate, and is never set on translations with
-//:   STL container output destinations.
+//  - That the translators never segfault or fail for any possible input
+//    stream.
+//  - That output to STL containers never overflow the size of the container
+//    (functions with container destinations estimate output size.  The size
+//    estimation functions are not public and cannot be tested directly, but
+//    there are safe asserts in the container destination functions that
+//    verify the accuracy of these estimates, enhancing the effectiveness
+//    of the testing).
+//  - The output is correct.  This can be verified using tables of sample input
+//    and corresponding expected output.  Sequences of input randomly selected
+//    from the table and spliced together should generate the corresponding
+//    output spliced together.
+//  - If a fixed-length buffer is provided, the memory after the first
+//    `capacity` bytes or words is never written to.
+//  - If a fixed-length buffer is provided and insufficient capacity is
+//    provided, as many code points as will fit are written.  This means that
+//    if the destination is UTF-32, exactly `capacity` words will be written.
+//   1. If a fixed-length buffer is provided and a `0 == capacity`, nothing is
+//      written to the destination and the out of space bit is set in the
+//      return value.
+//  - Preconditions are asserted before any modification of the output is
+//    performed.
+//  - That every type of UTF-8 error is detected and appropriately handled.
+//  - That invalid UTF-32 code points are detected and appropriately handled.
+//  - All forms of valid input and all forms of errors should be handled the
+//    same whether at the beginning, the end or in the middle of a sequence.
+//  - The invalid input bit returned always properly reflects whether any
+//    invalid input was encountered (prior to running out of space).
+//  - The out of space bit returned always properly reflects whether the
+//    capacity specified was adequate, and is never set on translations with
+//    STL container output destinations.
 // ----------------------------------------------------------------------------
 // [17] USAGE EXAMPLE
 // [16] UTF-32 <- UTF-8 Random garbage input, random error word
@@ -2092,7 +2092,7 @@ const char * const charUtf8MultiLang =
                                  reinterpret_cast<const char *>(utf8MultiLang);
 
 // ----------------------------------------------------------------------------
-// Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
+// Encode a 4-byte UTF-8 value, print as a sequence of decimal `int` values.
 // ----------------------------------------------------------------------------
 
 /// Translate the specified `val` to UTF-8 to be written to the specified
@@ -2857,8 +2857,8 @@ void TestDriver::testCase17()
 
         utf8ExpNumBytesWritten = 0;
 
-        // 'nullIdx0' and 'nullIdx1' are indexes where nulls are inserted.  If
-        // they have a value of '-1', no null is inserted.  We are only
+        // `nullIdx0` and `nullIdx1` are indexes where nulls are inserted.  If
+        // they have a value of `-1`, no null is inserted.  We are only
         // interested in testing cases with at least 1 embedded null.
 
         int nullIdx0, nullIdx1;
@@ -2902,7 +2902,7 @@ void TestDriver::testCase17()
 
             // Select the next char, making sure no continuation bytes
             // immediately follow truncated sequences (because that could
-            // confuse our calculation of 'expRc').
+            // confuse our calculation of `expRc`).
 
             int tableIdx;
             do {
@@ -5071,10 +5071,10 @@ void TestDriver::testCase7()
         const STRING compareStr = &compareVec[0];
 
         for (int check = 0; check < 2; ++check) {
-            //..
-            // check == 0, check 'numCodePoints' && 'numBytes' check == 1:
-            // check 'numCodePoints' check == 2: check neither
-            //..
+            // ```
+            // check == 0, check `numCodePoints` && `numBytes` check == 1:
+            // check `numCodePoints` check == 2: check neither
+            // ```
 
             int expectedRet = IS_ERROR ? Status::k_INVALID_INPUT_BIT : 0;
 
@@ -5767,15 +5767,15 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating how one might use the 'utf8ToUtf32'
-        //   and 'utf32ToUtf8' methods to translate between UTF-8 and UTF-32.
+        //   Simple example illustrating how one might use the `utf8ToUtf32`
+        //   and `utf32ToUtf8` methods to translate between UTF-8 and UTF-32.
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -5793,23 +5793,23 @@ int main(int argc, char **argv)
                              "=============\n";
 
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::CharConvertUtf32' struct's utility functions, first converting from
+// `bdlde::CharConvertUtf32` struct's utility functions, first converting from
 // UTF-8 to UTF-32, and then converting back to make sure the round trip
 // returns the same value.
 //
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
 // and quadruple-octet code points:
-//..
+// ```
     const char utf8MultiLang[] = {
         "Hello"                                         // -- ASCII
         "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
         "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
-//..
-// Then, we declare an 'enum' summarizing the counts of code points in the
+// ```
+// Then, we declare an `enum` summarizing the counts of code points in the
 // string and verify that the counts add up to the length of the string:
-//..
+// ```
     enum { NUM_ASCII_CODE_POINTS   = 5,
            NUM_GREEK_CODE_POINTS   = 3,
            NUM_CHINESE_CODE_POINTS = 2,
@@ -5821,31 +5821,31 @@ int main(int argc, char **argv)
            3 * NUM_CHINESE_CODE_POINTS +
            3 * NUM_HINDI_CODE_POINTS +
            4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
-//..
+// ```
 // Next, we declare the vector where our UTF-32 output will go, and a variable
 // into which the number of code points written will be stored.  It is not
-// necessary to create a 'utf32CodePointsWritten' variable, since the number of
+// necessary to create a `utf32CodePointsWritten` variable, since the number of
 // code points will be the size of the vector when we are done.
-//..
+// ```
     bsl::vector<unsigned int> v32;
-//..
-// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))'; it
-// is entirely redundant -- 'v32' will automatically be grown to the correct
-// size.  Also note that if 'v32' were not empty, that would not be a problem
+// ```
+// Note that it is a waste of time to `v32.reserve(sizeof(utf8MultiLang))`; it
+// is entirely redundant -- `v32` will automatically be grown to the correct
+// size.  Also note that if `v32` were not empty, that would not be a problem
 // -- any contents will be discarded.
 //
-// Then, we do the translation to 'UTF-32':
-//..
+// Then, we do the translation to `UTF-32`:
+// ```
     int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
                                                       utf8MultiLang);
 //
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v32.back());    // verify null terminated
-//..
+// ```
 // Next, we verify that the number of code points that was returned is correct.
 // Note that in UTF-32, the number of Unicode code points written is the same
 // as the number of 32-bit words written:
-//..
+// ```
     enum { EXPECTED_CODE_POINTS_WRITTEN =
                     NUM_ASCII_CODE_POINTS +
                     NUM_GREEK_CODE_POINTS +
@@ -5853,15 +5853,15 @@ int main(int argc, char **argv)
                     NUM_HINDI_CODE_POINTS +
                     NUM_QUAD_CODE_POINTS  + 1 };
     ASSERT(EXPECTED_CODE_POINTS_WRITTEN == v32.size());
-//..
+// ```
 // Next, we calculate and confirm the difference between the number of UTF-32
 // words output and the number of bytes input.  The ASCII bytes will take 1
 // 32-bit word apiece, the Greek code points are double octets that will become
-// single 'unsigned int' values, the Chinese code points are encoded as UTF-8
+// single `unsigned int` values, the Chinese code points are encoded as UTF-8
 // triple octets that will turn into single 32-bit words, the same for the
 // Hindi code points, and the quad code points are quadruple octets that will
-// turn into single 'unsigned int' words:
-//..
+// turn into single `unsigned int` words:
+// ```
     enum { SHRINKAGE =
                       NUM_ASCII_CODE_POINTS   * (1-1) +
                       NUM_GREEK_CODE_POINTS   * (2-1) +
@@ -5870,64 +5870,64 @@ int main(int argc, char **argv)
                       NUM_QUAD_CODE_POINTS    * (4-1) };
 //
     ASSERT(v32.size() == sizeof(utf8MultiLang) - SHRINKAGE);
-//..
-// Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it back
+// ```
+// Then, we go on to do the reverse `utf32ToUtf8` transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.
-// Declare a 'bsl::string' for our output, and a variable to count the number
+// Declare a `bsl::string` for our output, and a variable to count the number
 // of code points translated:
-//..
+// ```
     bsl::string s;
     bsl::size_t codePointsWritten;
-//..
-// Again, note that it would be a waste of time for the caller to 'resize' or
-// 'reserve' 'v32'; it will be automatically 'resize'd by the translator to the
+// ```
+// Again, note that it would be a waste of time for the caller to `resize` or
+// `reserve` `v32`; it will be automatically `resize`d by the translator to the
 // right length.
 //
 // Now, we do the reverse transform:
-//..
+// ```
     retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
                                                   v32.begin(),
                                                   &codePointsWritten);
-//..
+// ```
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
 // number of code points translated was as expected:
-//..
+// ```
     ASSERT(0 == retVal);
     ASSERT(utf8MultiLang  == s);
     ASSERT(s.length() + 1 == sizeof(utf8MultiLang));
 //
     ASSERT(EXPECTED_CODE_POINTS_WRITTEN == codePointsWritten);
     ASSERT(v32.size()                   == codePointsWritten);
-//..
+// ```
       } break;
       case 17: {
         // --------------------------------------------------------------------
         // RANDOM TABLE DRIVEN UTF-8 -> UTF-32 TEST PLUS EMBEDDED NULLS
         //
         // Concerns:
-        //: 1 That the translator can handle embedded nulls in UTF-8 input.
-        //:   o This component and previous test cases were all written under
-        //:     the assumption that 0 was invalid Unicode, to be used only as
-        //:     as a terminating byte or word.  So it was necessary to write a
-        //:     separate test case from scratch.
+        // 1. That the translator can handle embedded nulls in UTF-8 input.
+        //    - This component and previous test cases were all written under
+        //      the assumption that 0 was invalid Unicode, to be used only as
+        //      as a terminating byte or word.  So it was necessary to write a
+        //      separate test case from scratch.
         //
         // Plan:
-        //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
-        //:   Linux.
-        //:   o Choose a length, in Unicode code points, of the UTF-8 input
-        //:     string (not counting the embedded nulls)
-        //:   o Choose 1 or 2 indexes where embedded '\0's will be embedded in
-        //:     the input.
-        //:   o Add randomly chosen UTF-8 sequences to the input string,
-        //:     inserting embedded nulls at the appropriate places.  Make sure
-        //:     no truncated code points are immediately followed by
-        //:     continuation bytes.  Simultaneously build the expected UTF-32
-        //:     output, and keep track of whether any error sequences have
-        //:     occurred, thus anticipating the return value.
-        //:   o Call the function to convert a UTF-8 string to a UTF-32 vector.
-        //:   o Verify that the output is as expected, and also the return
-        //:     code.
+        // 1. Iterate thousands of time, enough time to take about 0.1 sec on
+        //    Linux.
+        //    - Choose a length, in Unicode code points, of the UTF-8 input
+        //      string (not counting the embedded nulls)
+        //    - Choose 1 or 2 indexes where embedded '\0's will be embedded in
+        //      the input.
+        //    - Add randomly chosen UTF-8 sequences to the input string,
+        //      inserting embedded nulls at the appropriate places.  Make sure
+        //      no truncated code points are immediately followed by
+        //      continuation bytes.  Simultaneously build the expected UTF-32
+        //      output, and keep track of whether any error sequences have
+        //      occurred, thus anticipating the return value.
+        //    - Call the function to convert a UTF-8 string to a UTF-32 vector.
+        //    - Verify that the output is as expected, and also the return
+        //      code.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -5969,32 +5969,32 @@ int main(int argc, char **argv)
         //
         // Concerns:
         //   That the translator can handle random input without dire effects.
-        //: 1 The translator never segfaults and asserts never fail.
-        //: 2 The output is always error-free UTF-32.  (Note we say
-        //:   'error-free', not 'correct'.  Figuring out what the correct
-        //:   UTF-32 would be given arbitrary UTF-8 input is about as hard as
-        //:   writing this whole component, so the exact output is not
-        //:   checked).  We merely check that it does not contain any invalid
-        //:   UTF-32 values.
+        // 1. The translator never segfaults and asserts never fail.
+        // 2. The output is always error-free UTF-32.  (Note we say
+        //    `error-free`, not `correct`.  Figuring out what the correct
+        //    UTF-32 would be given arbitrary UTF-8 input is about as hard as
+        //    writing this whole component, so the exact output is not
+        //    checked).  We merely check that it does not contain any invalid
+        //    UTF-32 values.
         //
         // Plan:
-        //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
-        //:   Linux.
-        //: 2 Generate 'numBytes', a length from 6-16, of bytes of input
-        //:   that the test sequence is to be.
-        //: 3 For each loop, iterate twice, once with a non-zero randomly
-        //:   generated legal UTF-32 'errorWord', and once with
-        //:   '0 == errorWord'.
-        //: 4 Generate an input buffer 'utf8InBuf' of 'numBytes' bytes of
-        //:   values that are purely random except that only the last one is 0.
-        //: 5 Translate the UTF-8 to a UTF-32 vector 'utf32OutVec'.  Observe
-        //:   that the 'out of space' bit of the return value is always 0.
-        //: 6 Iterate 'len' from slightly more than 'utf32OutVec.size()' down
-        //:   to 0, and for each value, translate 'utf8InBuf' to a buffer,
-        //:   passing 'len' as capacity.
-        //: 7 Observe that no more than 'len' words of output were written,
-        //:   that there were no embedded 0's in the output, and that the final
-        //:   word is 0.
+        // 1. Iterate thousands of time, enough time to take about 0.1 sec on
+        //    Linux.
+        // 2. Generate `numBytes`, a length from 6-16, of bytes of input
+        //    that the test sequence is to be.
+        // 3. For each loop, iterate twice, once with a non-zero randomly
+        //    generated legal UTF-32 `errorWord`, and once with
+        //    `0 == errorWord`.
+        // 4. Generate an input buffer `utf8InBuf` of `numBytes` bytes of
+        //    values that are purely random except that only the last one is 0.
+        // 5. Translate the UTF-8 to a UTF-32 vector `utf32OutVec`.  Observe
+        //    that the `out of space` bit of the return value is always 0.
+        // 6. Iterate `len` from slightly more than `utf32OutVec.size()` down
+        //    to 0, and for each value, translate `utf8InBuf` to a buffer,
+        //    passing `len` as capacity.
+        // 7. Observe that no more than `len` words of output were written,
+        //    that there were no embedded 0's in the output, and that the final
+        //    word is 0.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nPURELY RANDOM UTF-8 -> UTF-32 TEST\n"
@@ -6035,42 +6035,42 @@ int main(int argc, char **argv)
         //
         // Concerns:
         //   That the translator performs well when passed a random assortment
-        //   of UTF-8 sequences from 'utf8Table'.
-        //: 1 No sequence causes segfaults and asserts never fail.
-        //: 2 The translated output is exactly correct.
-        //: 3 The return value is correct.
-        //: 4 When the output is to a buffer that isn't long enough, it exactly
-        //:   fills up the space in the buffer.
-        //: 5 The UTF-32 output has *NO* errors in it.
+        //   of UTF-8 sequences from `utf8Table`.
+        // 1. No sequence causes segfaults and asserts never fail.
+        // 2. The translated output is exactly correct.
+        // 3. The return value is correct.
+        // 4. When the output is to a buffer that isn't long enough, it exactly
+        //    fills up the space in the buffer.
+        // 5. The UTF-32 output has *NO* errors in it.
         //
         // Plan:
-        //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
-        //:   Linux.
-        //: 2 Generate 'numCodePoints', a length from 2-7, of Unicode
-        //:   code points that our test sequence is to be.
-        //: 3 For each loop, iterate twice, once with a non-zero randomly
-        //:   generated legal UTF-32 'errorWord', and once with
-        //:   '0 == errorWord'.
-        //: 4 When '0 != errorWord', generate a corresponding UTF-8 sequence
-        //:   'errorSeq'.
-        //: 5 Generate a sequence of bytes in buffer 'utf8InBuf' (and a copy in
-        //:   vector 'utf8InVec') of 'numCodePoints' Unicode code points, but
-        //:   randomly selecting UTF-8 sequences from 'utf8Table' (and
-        //:   eliminating the preceding '1' and trailing 'z'.  Simultaneously
-        //:   construct vector 'utf32ExpVec' of what we expect the UTF-32
-        //:   output to be and vector 'utf8ExpVec' of what we expect the result
-        //:   to be when that UTF-32 is translated back to UTF-8.
-        //: 6 Translate 'utf8InBuf' to a UTF-32 vector 'utf32OutVec' and
-        //:   observe the result and return value are as expected.
-        //: 7 Translate 'utv32OutVec' to a UTF-8 vector 'utf8OutVec' and
-        //:   observe the result and return value are as expected.
-        //: 8 Iterate 'len' from slightly above the expected length of UTF-32
-        //:   output down to 2, and translate 'utf8InBuf' to a UTF-32 buffer,
-        //:   passing 'len' as capacity, and observe that the result and return
-        //:   value are as expected.
-        //: 9 Observe that no more than 'len' words of output were written,
-        //:   that there were no embedded 0's in the output, and that the final
-        //:   word is 0.
+        // 1. Iterate thousands of time, enough time to take about 0.1 sec on
+        //    Linux.
+        // 2. Generate `numCodePoints`, a length from 2-7, of Unicode
+        //    code points that our test sequence is to be.
+        // 3. For each loop, iterate twice, once with a non-zero randomly
+        //    generated legal UTF-32 `errorWord`, and once with
+        //    `0 == errorWord`.
+        // 4. When `0 != errorWord`, generate a corresponding UTF-8 sequence
+        //    `errorSeq`.
+        // 5. Generate a sequence of bytes in buffer `utf8InBuf` (and a copy in
+        //    vector `utf8InVec`) of `numCodePoints` Unicode code points, but
+        //    randomly selecting UTF-8 sequences from `utf8Table` (and
+        //    eliminating the preceding '1' and trailing `z`.  Simultaneously
+        //    construct vector `utf32ExpVec` of what we expect the UTF-32
+        //    output to be and vector `utf8ExpVec` of what we expect the result
+        //    to be when that UTF-32 is translated back to UTF-8.
+        // 6. Translate `utf8InBuf` to a UTF-32 vector `utf32OutVec` and
+        //    observe the result and return value are as expected.
+        // 7. Translate `utv32OutVec` to a UTF-8 vector `utf8OutVec` and
+        //    observe the result and return value are as expected.
+        // 8. Iterate `len` from slightly above the expected length of UTF-32
+        //    output down to 2, and translate `utf8InBuf` to a UTF-32 buffer,
+        //    passing `len` as capacity, and observe that the result and return
+        //    value are as expected.
+        // 9. Observe that no more than `len` words of output were written,
+        //    that there were no embedded 0's in the output, and that the final
+        //    word is 0.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -6113,35 +6113,35 @@ int main(int argc, char **argv)
         // Concerns:
         //   That the UTF-32 -> UTF-8 translators will function properly with
         //  really randomly generated input.
-        //: 1 That they produce correct output.
-        //: 2 They return correct values.
-        //: 3 When the output is to a buffer, they don't write past the end
-        //:   of where they're supposed to.
-        //: 4 The UTF-8 output should have *NO* errors in it.
+        // 1. That they produce correct output.
+        // 2. They return correct values.
+        // 3. When the output is to a buffer, they don't write past the end
+        //    of where they're supposed to.
+        // 4. The UTF-8 output should have *NO* errors in it.
         //
         // Plan:
-        //: 1 Iterate thousands of times, enough to take 0.1 seconds on Linux.
-        //: 2 For each iteration, generate a sequence of 1 to 6 UTF-32
-        //:   code points (not counting the 0), using the function
-        //:   'myRandUtf32Word', which has a possibility of generating any
-        //:   non-zero 32 bit value, weighted toward the more interesting
-        //:   values.
-        //: 3 Iterate twice, once with a randomly generate ASCII 'errorByte'
-        //:   and once where 'errorByte' is 0.
-        //: 4 For the random sequence generated in '2', anticipate the
-        //:   corresponding UTF-8 output, given the input and the value of
-        //:   'errorByte'.  Also anticipate the UTF-32 that would result from
-        //:   a reverse translation of that output.
-        //: 5 Translate the UTF-32 to a UTF-8 'bsl::vector', verify it against
-        //:   the anticipated results.
-        //: 6 Translate the UTF-32 to a UTF-8 'bsl::string', verify it against
-        //:   the anticipated results.
-        //: 7 Translate the UTF-8 output that we created back to a UTF-32
-        //:   vector, verify that the results are as anticipated.
-        //: 8 Iterate 'len' from the length of the UTF-8 output plus one
-        //:   down to 1, and repeatedly to UTF-32 -> UTF-8 translation with a
-        //:   buffer destination, and capacity 'len', and observe that the
-        //:   results are as they should be.
+        // 1. Iterate thousands of times, enough to take 0.1 seconds on Linux.
+        // 2. For each iteration, generate a sequence of 1 to 6 UTF-32
+        //    code points (not counting the 0), using the function
+        //    `myRandUtf32Word`, which has a possibility of generating any
+        //    non-zero 32 bit value, weighted toward the more interesting
+        //    values.
+        // 3. Iterate twice, once with a randomly generate ASCII `errorByte`
+        //    and once where `errorByte` is 0.
+        // 4. For the random sequence generated in '2', anticipate the
+        //    corresponding UTF-8 output, given the input and the value of
+        //    `errorByte`.  Also anticipate the UTF-32 that would result from
+        //    a reverse translation of that output.
+        // 5. Translate the UTF-32 to a UTF-8 `bsl::vector`, verify it against
+        //    the anticipated results.
+        // 6. Translate the UTF-32 to a UTF-8 `bsl::string`, verify it against
+        //    the anticipated results.
+        // 7. Translate the UTF-8 output that we created back to a UTF-32
+        //    vector, verify that the results are as anticipated.
+        // 8. Iterate `len` from the length of the UTF-8 output plus one
+        //    down to 1, and repeatedly to UTF-32 -> UTF-8 translation with a
+        //    buffer destination, and capacity `len`, and observe that the
+        //    results are as they should be.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nPURELY RANDOM TEST UTF-32 -> UTF-8\n"
@@ -6185,7 +6185,7 @@ int main(int argc, char **argv)
         //   input.
         //
         // Plan:
-        //   Use 'utf32Table' to generate random sequences of UTF-8 and
+        //   Use `utf32Table` to generate random sequences of UTF-8 and
         //   anticipate the corresponding UTF-32, do the translation and
         //   verify the results.
         // --------------------------------------------------------------------
@@ -6230,7 +6230,7 @@ int main(int argc, char **argv)
         //   input.
         //
         // Plan:
-        //   Use 'utf32Table' to generate random sequences of UTF-8 and
+        //   Use `utf32Table` to generate random sequences of UTF-8 and
         //   anticipate the corresponding UTF-32, do the translation and
         //   verify the results.
         // --------------------------------------------------------------------
@@ -6273,11 +6273,11 @@ int main(int argc, char **argv)
         //   human-generated, multi-language prose.
         //
         // Plan:
-        //: o The byte array 'utf8Multilang' above contains prose written in
-        //:   Chinese, Hindi, French, and Greek written in UTF-8, with a few
-        //:   4-octet sequences added.  This will be translated into UTF-32 and
-        //:   back, which should be achievable without any errors, and the
-        //:   final result should be identical to the original.
+        //  - The byte array `utf8Multilang` above contains prose written in
+        //    Chinese, Hindi, French, and Greek written in UTF-8, with a few
+        //    4-octet sequences added.  This will be translated into UTF-32 and
+        //    back, which should be achievable without any errors, and the
+        //    final result should be identical to the original.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nREAL PROSE TEST\n"
@@ -6311,12 +6311,12 @@ int main(int argc, char **argv)
         //
         // Plan:
         //   Undefined behavior in this component is limited to
-        //: 1 input strings not null terminated.
-        //: 2 output buffer shorter than specified.
-        //: 3 Illegal values of 'errorWord' or 'errorByte'.
-        //: 4 Pointers to input and output streams are null
+        // 1. input strings not null terminated.
+        // 2. output buffer shorter than specified.
+        // 3. Illegal values of `errorWord` or `errorByte`.
+        // 4. Pointers to input and output streams are null
         //   of these, only '3' and '4' are testable by the methods, so we will
-        //   test that these are caught by using 'bsls_asserttest'.  Follow up
+        //   test that these are caught by using `bsls_asserttest`.  Follow up
         //   failing tests that write to containers with an assert to show that
         //   the containers still still have zero size, thus verifying that the
         //   tests were performed before any output was written.
@@ -6346,19 +6346,19 @@ int main(int argc, char **argv)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorByte'
+        // TESTING UTF-32 -> UTF-8 WITH EXPLICIT `errorByte`
         //
         // Concerns:
         //   That non-zero values other than '?' can be substituted for
-        //   'errorByte'.
+        //   `errorByte`.
         //
         // Plan:
         //   Repeat the vector destination case from TC 7, substituting all
-        //   ASCII values for 'errorByte' and observe the output.
+        //   ASCII values for `errorByte` and observe the output.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                    "TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorByte'\n"
+                    "TESTING UTF-32 -> UTF-8 WITH EXPLICIT `errorByte`\n"
                     "======================================================\n";
         if (verbose) cout << "\tTesting bsl containers\n";
         TestDriver::testCase9<bsl::vector<char> >();
@@ -6377,19 +6377,19 @@ int main(int argc, char **argv)
         // Testing UTF-32 -> UTF-8 Translation With Zero error char
         //
         // Concerns:
-        //: 1 That UTF-32 -> UTF-8 translation is performed correctly when
-        //:   0 is passed to 'errorByte'.
-        //:   o When the destination is a 'bsl::vector<char>'.
-        //:   o When the destination is a 'bsl::string'
-        //:   o When the destination is a buffer of limited length.
+        // 1. That UTF-32 -> UTF-8 translation is performed correctly when
+        //   0. is passed to `errorByte`.
+        //    - When the destination is a `bsl::vector<char>`.
+        //    - When the destination is a `bsl::string`
+        //    - When the destination is a buffer of limited length.
         //
         // Plan:
-        //: 1 Repeat the tests from TC 7, omitting the 'check' iteration
-        //:   and passing '0' to the 'errorByte' arguments.
-        //: 2 For the buffer test, calculate 'enc', which is the expected
-        //:   number of code points output in the buffer test, derived from the
-        //:   previously calculated 'expectedNumCodePoints' from the vector and
-        //:   string tests.
+        // 1. Repeat the tests from TC 7, omitting the `check` iteration
+        //    and passing `0` to the `errorByte` arguments.
+        // 2. For the buffer test, calculate `enc`, which is the expected
+        //    number of code points output in the buffer test, derived from the
+        //    previously calculated `expectedNumCodePoints` from the vector and
+        //    string tests.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing UTF-32 -> UTF-8 Translation\n"
@@ -6412,37 +6412,37 @@ int main(int argc, char **argv)
         // Testing UTF-32 -> UTF-8 Translation
         //
         // Concerns:
-        //: 1 That UTF-32 -> UTF-8 translation is performed correctly
-        //:   o When the destination is a 'bsl::vector<char>'.
-        //:   o When the destination is a 'bsl::string'
-        //:   o When the destination is a buffer of limited length.
+        // 1. That UTF-32 -> UTF-8 translation is performed correctly
+        //    - When the destination is a `bsl::vector<char>`.
+        //    - When the destination is a `bsl::string`
+        //    - When the destination is a buffer of limited length.
         //
         // Plan:
-        //: 1 Test all the sequences in utf32Table
-        //:   o When the destination is a 'bsl::vector<char>'.
-        //:   o When the destination is a 'bsl::string'
-        //:   o When the destination is a buffer of limited length.
-        //: 2 Repeat the tests in 1
-        //:   o Preceded, and followed, by an ASCII value
-        //:   o Followed by an ASCII value
-        //:   o Preceded by an ASCII value
-        //:   o by itself
-        //: 3 In all these tests, calculate and verify
-        //:   o 'expectedRet', the expected return value of the call
-        //:   o 'expectedNumCodePoints', the expected value to be returned by
-        //:     the 'numCodePointsWritten' arg, if passed
-        //:   o 'expectedNumBytes', the expected value to be returned by the
-        //:     'numBytesWritten' arg, if passed
-        //:   o 'compareVec' and 'compareStr' containing the anticipated
-        //:     UTF-8 output sequence
-        //: 4 Iterate to test
-        //:   o check the number of code points returned (if returned)
-        //:   o check the number of bytes returned (if returned)
-        //:   o check running the test in opposite to host byte order
-        //: 5 When calling the buffer output routine, iterate the variable
-        //:   'len' to be passed to the 'capacity' arg, from more than enough
-        //:   down to zero and observe that the translator translates as much
-        //:   of the sequence as will fit.
+        // 1. Test all the sequences in utf32Table
+        //    - When the destination is a `bsl::vector<char>`.
+        //    - When the destination is a `bsl::string`
+        //    - When the destination is a buffer of limited length.
+        // 2. Repeat the tests in 1
+        //    - Preceded, and followed, by an ASCII value
+        //    - Followed by an ASCII value
+        //    - Preceded by an ASCII value
+        //    - by itself
+        // 3. In all these tests, calculate and verify
+        //    - `expectedRet`, the expected return value of the call
+        //    - `expectedNumCodePoints`, the expected value to be returned by
+        //      the `numCodePointsWritten` arg, if passed
+        //    - `expectedNumBytes`, the expected value to be returned by the
+        //      `numBytesWritten` arg, if passed
+        //    - `compareVec` and `compareStr` containing the anticipated
+        //      UTF-8 output sequence
+        // 4. Iterate to test
+        //    - check the number of code points returned (if returned)
+        //    - check the number of bytes returned (if returned)
+        //    - check running the test in opposite to host byte order
+        // 5. When calling the buffer output routine, iterate the variable
+        //    `len` to be passed to the `capacity` arg, from more than enough
+        //    down to zero and observe that the translator translates as much
+        //    of the sequence as will fit.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing UTF-32 -> UTF-8 Translation\n"
@@ -6466,14 +6466,14 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 OTHER VALUES OF ERRORCHAR
         //
         // Concerns:
-        //   That values of 'errorWord' other than 'default' and 0 work
+        //   That values of `errorWord` other than `default` and 0 work
         //   correctly.
         //
         // Plan:
         //   Repeat the first loop of the vector test in case 3 with multiple
-        //   values of 'errorWord' other than 0 and verify that the specified
+        //   values of `errorWord` other than 0 and verify that the specified
         //   code point is properly substituted.  Only do those cases where
-        //   'IS_ERROR' is true and 'IS_TRUNC' is 0.  Repeat for string refs
+        //   `IS_ERROR` is true and `IS_TRUNC` is 0.  Repeat for string refs
         //   and both byte orders.
         // --------------------------------------------------------------------
 
@@ -6499,20 +6499,20 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Buffer Transl'n With 0 for errChr, to Vector
         //
         // Concerns:
-        //   That 'utf8ToUtf32' called with vector output performs as expected:
-        //: 1 Test sound encodings of minimal and maximal encoded values for
-        //:   UTF-8 sequences 1, 2, 3, and 4 octets long.
-        //: 2 Test non-minimal encodings -- values 1 too small, and zero
-        //:   encodings
-        //: 3 Test 5 octet encodings (always taken to be illegal)
-        //: 4 Test truncated encodings.
-        //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII bytes
-        //:   o At beginning of string
-        //:   o At end of string
-        //:   o Followed by a lone continuation char
-        //: 6 Test input from 'const char *' and string ref
-        //: 7 Test both byte orders
+        //   That `utf8ToUtf32` called with vector output performs as expected:
+        // 1. Test sound encodings of minimal and maximal encoded values for
+        //    UTF-8 sequences 1, 2, 3, and 4 octets long.
+        // 2. Test non-minimal encodings -- values 1 too small, and zero
+        //    encodings
+        // 3. Test 5 octet encodings (always taken to be illegal)
+        // 4. Test truncated encodings.
+        // 5. Repeat test for the following configurations
+        //    - Preceded by, and followed by, valid ASCII bytes
+        //    - At beginning of string
+        //    - At end of string
+        //    - Followed by a lone continuation char
+        // 6. Test input from `const char *` and string ref
+        // 7. Test both byte orders
         //
         // Plan:
         //   Repeat the plan for TC 4, except tailored to vector, rather than
@@ -6540,47 +6540,47 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Buffer Translation With 0 for errorWord
         //
         // Concerns:
-        //   That 'utf8ToUtf32' called with buffer output performs as expected:
-        //: 1 Test sound encodings of minimal and maximal encoded values for
-        //:   UTF-8 sequences 1, 2, 3, and 4 octets long.
-        //: 2 Test non-minimal encodings -- values 1 too small, and zero
-        //:   encodings
-        //: 3 Test 5 octet encodings (always taken to be illegal)
-        //: 4 Test truncated encodings.
-        //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII bytes
-        //:   o At beginning of string
-        //:   o At end of string
-        //:   o Followed by a lone continuation char
-        //: 6 Test with input from 'const char *'s and string refs.
-        //: 7 Test with output being both byte orders
+        //   That `utf8ToUtf32` called with buffer output performs as expected:
+        // 1. Test sound encodings of minimal and maximal encoded values for
+        //    UTF-8 sequences 1, 2, 3, and 4 octets long.
+        // 2. Test non-minimal encodings -- values 1 too small, and zero
+        //    encodings
+        // 3. Test 5 octet encodings (always taken to be illegal)
+        // 4. Test truncated encodings.
+        // 5. Repeat test for the following configurations
+        //    - Preceded by, and followed by, valid ASCII bytes
+        //    - At beginning of string
+        //    - At end of string
+        //    - Followed by a lone continuation char
+        // 6. Test with input from `const char *`s and string refs.
+        // 7. Test with output being both byte orders
         //
         // Plan:
         //   Set up one loop for each of the case listed under '5' in the
-        //   concerns.  The loops will call 'utf8ToUtf32', setting up variables
+        //   concerns.  The loops will call `utf8ToUtf32`, setting up variables
         //   first to anticipate what the expected behavior of this translation
         //   call.
-        //: 1 Iterate through all the entries in the static array 'utf8Table'
-        //:   above, to determine the input string to pass to the translation
-        //:   call.
-        //: 2 Iterate the value 'len', the capacity in words of the output
-        //:   buffer, from 'more than enough room' down to zero, and pass 'len'
-        //:   to the 'capacity' arg of 'utf8ToUtf32' on each call.
-        //: 3 Calculate 'expectedRet', the expected return value for
-        //:   'utf8ToUtf32' and, after the call, verify it is indeed the
-        //:   return value.
-        //: 4 Create an unsigned int array 'expectedOut' of the expected output
-        //:   sequence, and calculate 'expectedMatch', the number of bytes of
-        //:   it that are expected to match the translation output, and compare
-        //:   to the output after the translation call.
-        //: 5 Calculate 'expectedWords', the expected number of code points
-        //:   output (including the terminating 0), and verify it is the value
-        //:   of 'numCodePoints' returned by the translation call.
-        //: 6 Calculate 'expectedMatch', the number of bytes of the output
-        //:   which are expected to match 'expectedOut' from '5', note that
-        //:   'expectedMatch' will vary with 'len'.  After the translation,
-        //:   verify that the first 'expectedMatch' bytes of output match
-        //:   expectedOut.
+        // 1. Iterate through all the entries in the static array `utf8Table`
+        //    above, to determine the input string to pass to the translation
+        //    call.
+        // 2. Iterate the value `len`, the capacity in words of the output
+        //    buffer, from `more than enough room` down to zero, and pass `len`
+        //    to the `capacity` arg of `utf8ToUtf32` on each call.
+        // 3. Calculate `expectedRet`, the expected return value for
+        //    `utf8ToUtf32` and, after the call, verify it is indeed the
+        //    return value.
+        // 4. Create an unsigned int array `expectedOut` of the expected output
+        //    sequence, and calculate `expectedMatch`, the number of bytes of
+        //    it that are expected to match the translation output, and compare
+        //    to the output after the translation call.
+        // 5. Calculate `expectedWords`, the expected number of code points
+        //    output (including the terminating 0), and verify it is the value
+        //    of `numCodePoints` returned by the translation call.
+        // 6. Calculate `expectedMatch`, the number of bytes of the output
+        //    which are expected to match `expectedOut` from '5', note that
+        //    `expectedMatch` will vary with `len`.  After the translation,
+        //    verify that the first `expectedMatch` bytes of output match
+        //    expectedOut.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -6946,16 +6946,16 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Vector Translation
         //
         // Concerns:
-        //: 1 That vector translation will size the vector appropriately
-        //:   and produce the correct output.
+        // 1. That vector translation will size the vector appropriately
+        //    and produce the correct output.
         //
         // Plan:
-        //: 1 Repeat the code for TC 2, expect this time make the output be
-        //:   vector.
-        //: 2 Note that much of the testing here involves safe asserts built
-        //:   into the translation routine, since we're testing the exact
-        //:   accuracy of the length-prediction function, which we can't test
-        //:   directly since it is not public.
+        // 1. Repeat the code for TC 2, expect this time make the output be
+        //    vector.
+        // 2. Note that much of the testing here involves safe asserts built
+        //    into the translation routine, since we're testing the exact
+        //    accuracy of the length-prediction function, which we can't test
+        //    directly since it is not public.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing UTF-8 -> UTF-32 Vector Translation\n"
@@ -6981,54 +6981,54 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 Buffer Translation
         //
         // Concerns:
-        //   That 'utf8ToUtf32' called with buffer output performs as expected:
-        //: 1 Test sound encodings of minimal and maximal encoded values for
-        //:   UTF-8 sequences 1, 2, 3, and 4 octets long.
-        //: 2 Test non-minimal encodings -- values 1 too small, and zero
-        //:   encodings
-        //: 3 Test 5 octet encodings (always taken to be illegal)
-        //: 4 Test truncated encodings.
-        //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII bytes
-        //:   o At beginning of string
-        //:   o At end of string
-        //:   o Followed by a lone continuation char
-        //: 6 Repeat all tests with both byte orders.
+        //   That `utf8ToUtf32` called with buffer output performs as expected:
+        // 1. Test sound encodings of minimal and maximal encoded values for
+        //    UTF-8 sequences 1, 2, 3, and 4 octets long.
+        // 2. Test non-minimal encodings -- values 1 too small, and zero
+        //    encodings
+        // 3. Test 5 octet encodings (always taken to be illegal)
+        // 4. Test truncated encodings.
+        // 5. Repeat test for the following configurations
+        //    - Preceded by, and followed by, valid ASCII bytes
+        //    - At beginning of string
+        //    - At end of string
+        //    - Followed by a lone continuation char
+        // 6. Repeat all tests with both byte orders.
         //
         // Plan:
         //   Set up one loop for each of the case listed under '5' in the
-        //   concerns.  The loops will call 'utf8ToUtf32', setting up variables
+        //   concerns.  The loops will call `utf8ToUtf32`, setting up variables
         //   first to anticipate what the expected behavior of this translation
         //   call.
-        //: 1 Iterate eight times over the variable 'mode', driving 3 booleans:
-        //:   o checkNumCPs -- have 'numCodePoints' returned and verify
-        //:     accuracy
-        //:   o useStringView -- pass input as a string ref rather than a
-        //:     'const char *'
-        //:   o opposite -- use the opposite of host byte order
-        //: 2 Within the loop of '1', iterate through all the entries in the
-        //:   static array 'utf8Table' above, to determine the input string to
-        //:   pass to the translation call.
-        //: 3 Iterate the value 'len', the capacity in words of the output
-        //:   buffer, from 'more than enough room' down to zero, and pass 'len'
-        //:   to the 'capacity' arg of 'utf8ToUtf32' on each call.
-        //: 4 Calculate 'expectedRet', the expected return value for
-        //:   'utf8ToUtf32' and, after the call, verify it is indeed the return
-        //:   value.
-        //: 5 Create an unsigned int array 'expectedOut' of the expected output
-        //:   sequence, and calculate 'expectedMatch', the number of bytes of
-        //:   it that are expected to match the translation output, and compare
-        //:   to the output after the translation call.
-        //: 6 Calculate 'expectedCodePoints', the expected number of code
-        //:   points output (including the terminating 0), and verify it is the
-        //:   value of 'numCodePoints' returned by the translation call (if'
-        //:   checkNumCPs' is true, meaning 'numCodePoints' is passed to the
-        //:   translation call).
-        //: 7 Calculate 'expectedMatch', the number of bytes of the output
-        //:   which are expected to match 'expectedOut' from '5', note that
-        //:   'expectedMatch' will vary with 'len'.  After the translation,
-        //:   verify that the first 'expectedMatch' bytes of output match
-        //:   expectedOut.
+        // 1. Iterate eight times over the variable `mode`, driving 3 booleans:
+        //    - checkNumCPs -- have `numCodePoints` returned and verify
+        //      accuracy
+        //    - useStringView -- pass input as a string ref rather than a
+        //      `const char *`
+        //    - opposite -- use the opposite of host byte order
+        // 2. Within the loop of '1', iterate through all the entries in the
+        //    static array `utf8Table` above, to determine the input string to
+        //    pass to the translation call.
+        // 3. Iterate the value `len`, the capacity in words of the output
+        //    buffer, from `more than enough room` down to zero, and pass `len`
+        //    to the `capacity` arg of `utf8ToUtf32` on each call.
+        // 4. Calculate `expectedRet`, the expected return value for
+        //    `utf8ToUtf32` and, after the call, verify it is indeed the return
+        //    value.
+        // 5. Create an unsigned int array `expectedOut` of the expected output
+        //    sequence, and calculate `expectedMatch`, the number of bytes of
+        //    it that are expected to match the translation output, and compare
+        //    to the output after the translation call.
+        // 6. Calculate `expectedCodePoints`, the expected number of code
+        //    points output (including the terminating 0), and verify it is the
+        //    value of `numCodePoints` returned by the translation call (if'
+        //    checkNumCPs' is true, meaning `numCodePoints` is passed to the
+        //    translation call).
+        // 7. Calculate `expectedMatch`, the number of bytes of the output
+        //    which are expected to match `expectedOut` from '5', note that
+        //    `expectedMatch` will vary with `len`.  After the translation,
+        //    verify that the first `expectedMatch` bytes of output match
+        //    expectedOut.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing UTF-8 -> UTF-32 Buffer Translation\n"

@@ -128,10 +128,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate configuring the type.
+        // 1. Demonstrate configuring the type.
         //
         // Plan:
-        //: 1 Configure an object and verify its state.
+        // 1. Configure an object and verify its state.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -144,193 +144,193 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// Suppose we want a 'Base64DecoderOptions' object configured for MIME
-// encoding, meaning 'alphabet == e_BASIC', 'isPadded == true', and
-// 'ignoreMode = e_IGNORE_WHITESPACE'.
+// Suppose we want a `Base64DecoderOptions` object configured for MIME
+// encoding, meaning `alphabet == e_BASIC`, `isPadded == true`, and
+// `ignoreMode = e_IGNORE_WHITESPACE`.
 //
-// First, we call the 'mime' class method, and we're done.
-//..
+// First, we call the `mime` class method, and we're done.
+// ```
     const bdlde::Base64DecoderOptions& mimeOptions =
                                            bdlde::Base64DecoderOptions::mime();
-//..
+// ```
 // Then, we check the attributes:
-//..
+// ```
     ASSERT(mimeOptions.ignoreMode() ==
                                  bdlde::Base64IgnoreMode::e_IGNORE_WHITESPACE);
     ASSERT(mimeOptions.alphabet()   == bdlde::Base64Alphabet::e_BASIC);
     ASSERT(mimeOptions.isPadded()   == true);
-//..
+// ```
 // Now, we stream the object:
-//..
+// ```
 if (verbose) {
     mimeOptions.print(cout);
 }
-//..
+// ```
 // Finally, we observe the output:
-//..
+// ```
 //  [
 //      ignoreMode = IGNORE_WHITESPACE
 //      alphabet = BASIC
 //      isPadded = true
 //  ]
-//..
+// ```
 //
 ///Example 2:
 /// - - - - -
-// Suppose we want a 'Base64DecoderOptions' object configured for translating
-// URL's.  That would mean 'alphabet == e_URL', 'isPadded == false', and
+// Suppose we want a `Base64DecoderOptions` object configured for translating
+// URL's.  That would mean `alphabet == e_URL`, `isPadded == false`, and
 // ignoring neither unrecognized characters nor whitespace.
 //
-// First, the class method 'urlSafe' returns an object configured exactly that
+// First, the class method `urlSafe` returns an object configured exactly that
 // way, so we simply call it:
-//..
+// ```
     const bdlde::Base64DecoderOptions& urlOptions =
                                         bdlde::Base64DecoderOptions::urlSafe();
-//..
+// ```
 // Then, we check the attributes:
-//..
+// ```
     ASSERT(urlOptions.ignoreMode() == bdlde::Base64IgnoreMode::e_IGNORE_NONE);
     ASSERT(urlOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
     ASSERT(urlOptions.isPadded()   == false);
-//..
+// ```
 // Now, we stream the object:
-//..
+// ```
 if (verbose) {
     urlOptions.print(cout);
 }
-//..
+// ```
 // Finally, we observe the output:
-//..
+// ```
 //  [
 //      ignoreMode = IGNORE_NONE
 //      alphabet = URL
 //      isPadded = false
 //  ]
-//..
+// ```
 //
 ///Example 3:
 /// - - - - -
 // Suppose we want an options object configured for standard Base64:
 //
-// First, we can simply call the 'standard' class method:
-//..
+// First, we can simply call the `standard` class method:
+// ```
     const bdlde::Base64DecoderOptions& standardOptions =
                                        bdlde::Base64DecoderOptions::standard();
-//..
+// ```
 // Then, we check the attributes:
-//..
+// ```
     ASSERT(standardOptions.ignoreMode() ==
                                        bdlde::Base64IgnoreMode::e_IGNORE_NONE);
     ASSERT(standardOptions.alphabet()            ==
                                                bdlde::Base64Alphabet::e_BASIC);
     ASSERT(standardOptions.isPadded()            == true);
-//..
+// ```
 // Now, we stream the object:
-//..
+// ```
 if (verbose) {
     standardOptions.print(cout);
 }
-//..
+// ```
 // Finally, we observe the output:
-//..
+// ```
 //  [
 //      ignoreMode = IGNORE_NONE
 //      alphabet = BASIC
 //      isPadded = true
 //  ]
-//..
+// ```
 //
 ///Example 4:
 /// - - - - -
 // Suppose we want a really strangely configured options object with
-// 'alphabet == e_URL', and padding, and ignoring neither unrecognized
+// `alphabet == e_URL`, and padding, and ignoring neither unrecognized
 // characters nor whitespace.
 //
-// First, we can simply call the 'custom' class method.  The 'padded' and
-// 'unrecognizedIsError == true' arguments are last, and they default to
-// 'true', so we don't have to pass that.
-//..
+// First, we can simply call the `custom` class method.  The `padded` and
+// `unrecognizedIsError == true` arguments are last, and they default to
+// `true`, so we don't have to pass that.
+// ```
     const bdlde::Base64DecoderOptions& customOptions =
                            bdlde::Base64DecoderOptions::custom(
                                         bdlde::Base64IgnoreMode::e_IGNORE_NONE,
                                         bdlde::Base64Alphabet::e_URL,
                                         true);
-//..
+// ```
 // Then, we check the attributes:
-//..
+// ```
     ASSERT(customOptions.ignoreMode() ==
                                        bdlde::Base64IgnoreMode::e_IGNORE_NONE);
     ASSERT(customOptions.alphabet()   == bdlde::Base64Alphabet::e_URL);
     ASSERT(customOptions.isPadded()   == true);
-//..
+// ```
 // Now, we stream the object:
-//..
+// ```
 if (verbose) {
     cout << customOptions << endl;
 }
-//..
+// ```
 // Finally, we observe the output:
-//..
+// ```
 //  [ ignoreMode = IGNORE_NONE alphabet = URL isPadded = true ]
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print'
+        // TESTING `operator<<` AND `print`
         //
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The output `operator<<` signature and return type are standard.
+        //
+        // 7. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 6)
-        //:
-        //: 2 Using the table-driven technique, define twelve carefully
-        //:   selected combinations of (two) object values ('A' and 'B'),
-        //:   having distinct values for each corresponding salient attribute,
-        //:   and various values for the two formatting parameters, along with
-        //:   the expected output
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
-        //:
-        //: 3 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
-        //:
-        //:   1 Using a 'const' 'Obj', supply each object value and pair of
-        //:     formatting parameters to 'print', unless the parameters are,
-        //:     arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:     invoked instead.
-        //:
-        //:   2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:   3 Verify the address of what is returned is that of the
-        //:     supplied stream.  (C-5, 7)
-        //:
-        //:   4 Compare the contents captured in P-2.2.2 with what is
-        //:     expected.  (C-1..3)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 6)
+        //
+        // 2. Using the table-driven technique, define twelve carefully
+        //    selected combinations of (two) object values (`A` and `B`),
+        //    having distinct values for each corresponding salient attribute,
+        //    and various values for the two formatting parameters, along with
+        //    the expected output
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
+        //     3. { B   } x {  2     } x {  3        }  -->  1 expected output
+        //     4. { A B } x { -9     } x { -9        }  -->  2 expected output
+        //
+        // 3. For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //
+        //   1. Using a `const` `Obj`, supply each object value and pair of
+        //      formatting parameters to `print`, unless the parameters are,
+        //      arbitrarily, (-9, -9), in which case `operator<<` will be
+        //      invoked instead.
+        //
+        //   2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //   3. Verify the address of what is returned is that of the
+        //      supplied stream.  (C-5, 7)
+        //
+        //   4. Compare the contents captured in P-2.2.2 with what is
+        //      expected.  (C-1..3)
         //
         // Testing:
         //   ostream& print(ostream&, int = 0, int = 4) const;
         //   operator<<(ostream&, const bdlde::DecoderOptions&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'operator<<' AND 'print'\n"
+        if (verbose) cout << "TESTING `operator<<` AND `print`\n"
                              "================================\n";
 
         {
@@ -531,56 +531,56 @@ if (verbose) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // EXHAUSTIVE STATES, ALL C'TORS, '==', '!=', COPY CONSTRUCT/ASSIGN
+        // EXHAUSTIVE STATES, ALL C'TORS, `==`, `!=`, COPY CONSTRUCT/ASSIGN
         //
         // Concerns:
-        //: 1 Test the settors, accessors, '==', and '!=' across a wide variety
-        //:   of possible states of the object.
+        // 1. Test the settors, accessors, `==`, and `!=` across a wide variety
+        //    of possible states of the object.
         //
         // Plan:
-        //: 1 Iterate 3 nested loops to drive a wide variety of values for
-        //:   'maxLineLength', and all possible values for 'alphabet' and
-        //:   'isPadded'.  For all 3 attributes, have the loops also allow
-        //:   separate iterations for defaulting values.
-        //:
-        //: 2 Default-construct an object, 'main'.
-        //:
-        //: 3 Call the 3 manipulators to set the state of 'main', except
-        //:   sometimes don't call certain ones to leave attributes in their
-        //:   default state.
-        //:
-        //: 4 Verify the state of the object through the accessors.
-        //:
-        //: 5 Value-construct an object, letting none of the arguments default,
-        //:   and observe that the value is the same as 'MAIN' by checking the
-        //:   attributes and calling '==' and '!='.
-        //:
-        //: 6 Value-construct an object, sometimes partially allowing arguments
-        //:   to default, and observe that the value is the same as 'MAIN' by
-        //:   checking the attributes and calling '==' and '!='.
-        //:
-        //: 7 Create an object using the 'urlSafe' class method, verify
-        //:   that its attributes are as expected and that comparisons between
-        //:   it and 'MAIN' using '==' and '!=' yield expected results.
-        //:
-        //: 8 Nest another 3 loops to go through all of the same set of states,
-        //:   other than the defaulting states, as the outer 3 loops do,
-        //:   calculate boolean 'EQ' to represent whether the 3 attributes
-        //:   driven by the inner loops match those of the outer loops, and
-        //:   then value-construct an inner object 'mY', setting the 3
-        //:   attribues of it according to the inner loop values.
-        //:   o Confirm that '==' and '!=' between 'main' and 'mY' yield the
-        //:     expected results.
-        //:
-        //:   o Copy-assign 'main' to 'mY' and observe with '==' and '!='
-        //:     that they match.
-        //:
-        //: 9 After the inner 3 loops are done:
-        //:   o copy-construct another object from 'MAIN' and observe that
-        //:     it has the same value.
-        //:
-        //:   o copy-assign 'MAIN to a default-constructed object and observe
-        //:     equivalence with '==' and '!='.
+        // 1. Iterate 3 nested loops to drive a wide variety of values for
+        //    `maxLineLength`, and all possible values for `alphabet` and
+        //    `isPadded`.  For all 3 attributes, have the loops also allow
+        //    separate iterations for defaulting values.
+        //
+        // 2. Default-construct an object, `main`.
+        //
+        // 3. Call the 3 manipulators to set the state of `main`, except
+        //    sometimes don't call certain ones to leave attributes in their
+        //    default state.
+        //
+        // 4. Verify the state of the object through the accessors.
+        //
+        // 5. Value-construct an object, letting none of the arguments default,
+        //    and observe that the value is the same as `MAIN` by checking the
+        //    attributes and calling `==` and `!=`.
+        //
+        // 6. Value-construct an object, sometimes partially allowing arguments
+        //    to default, and observe that the value is the same as `MAIN` by
+        //    checking the attributes and calling `==` and `!=`.
+        //
+        // 7. Create an object using the `urlSafe` class method, verify
+        //    that its attributes are as expected and that comparisons between
+        //    it and `MAIN` using `==` and `!=` yield expected results.
+        //
+        // 8. Nest another 3 loops to go through all of the same set of states,
+        //    other than the defaulting states, as the outer 3 loops do,
+        //    calculate boolean `EQ` to represent whether the 3 attributes
+        //    driven by the inner loops match those of the outer loops, and
+        //    then value-construct an inner object `mY`, setting the 3
+        //    attribues of it according to the inner loop values.
+        //    - Confirm that `==` and `!=` between `main` and `mY` yield the
+        //      expected results.
+        //
+        //    - Copy-assign `main` to `mY` and observe with `==` and `!=`
+        //      that they match.
+        //
+        // 9. After the inner 3 loops are done:
+        //    - copy-construct another object from `MAIN` and observe that
+        //      it has the same value.
+        //
+        //    - copy-assign 'MAIN to a default-constructed object and observe
+        //      equivalence with `==` and `!=`.
         //
         // Testing:
         //   Obj(int, Base64Alphabet::Enum);
@@ -599,7 +599,7 @@ if (verbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-          "EXHAUSTIVE STATES, ALL C'TORS, '==', '!=', COPY CONSTRUCT/ASSIGN\n"
+          "EXHAUSTIVE STATES, ALL C'TORS, `==`, `!=`, COPY CONSTRUCT/ASSIGN\n"
           "================================================================\n";
 
         enum { k_MAX_TI = 3 * 3 * 3 };
@@ -633,7 +633,7 @@ if (verbose) {
             ASSERT(MAIN.alphabet()   == alphabet);
             ASSERT(MAIN.isPadded()   == PADDED);
 
-            if (veryVerbose) cout << "Call 'custom' class method\n";
+            if (veryVerbose) cout << "Call `custom` class method\n";
             {
                 const Obj& X = Obj::custom(IGNORE,
                                            alphabet,
@@ -811,7 +811,7 @@ if (verbose) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'CUSTOM' CLASS METHOD and ACCESSORS
+        // TESTING `CUSTOM` CLASS METHOD and ACCESSORS
         //   Make sure we can bring the object to any attainable state.
         //
         // Concerns:
@@ -835,7 +835,7 @@ if (verbose) {
         //   bool unrecognizedIsError() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'CUSTOM' CLASS METHOD and ACCESSORS\n"
+        if (verbose) cout << "TESTING `CUSTOM` CLASS METHOD and ACCESSORS\n"
                              "===========================================\n";
 
         if (verbose) cout << "\nTry a few different settings." << endl;

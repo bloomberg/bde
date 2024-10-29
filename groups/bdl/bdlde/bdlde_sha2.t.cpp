@@ -33,34 +33,34 @@ using namespace bsl;
 // free operators.
 //
 // The component interface represents a SHA-2 digest as 8 unsigned integers.
-// The SHA-2 digest is calculated in the 'update' and 'loadDigest' functions
+// The SHA-2 digest is calculated in the `update` and `loadDigest` functions
 // based on a sequence of data bytes and the data length.  Note that the reason
-// that the 'loadDigest' function is responsible for part of the calculation is
+// that the `loadDigest` function is responsible for part of the calculation is
 // specified in the implementation file (bdlde_sha2.cpp).  We need to verify
 // that these functions calculates the checksum correctly.  Furthermore, we
-// also need to verify that the 'loadDigest' function also returns a correct
+// also need to verify that the `loadDigest` function also returns a correct
 // SHA-2 digest.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructors:
-//   A 'bdlde::Sha224' object is created with a default message length of 0 and
+//   A `bdlde::Sha224` object is created with a default message length of 0 and
 //   a digest of d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f.  A
-//   'bdlde::Sha256' object is created with a default message length of 0 and a
+//   `bdlde::Sha256` object is created with a default message length of 0 and a
 //   digest of
 //   e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.  A
-//   'bdlde::Sha384' object is created with a default message length of 0 and a
+//   `bdlde::Sha384` object is created with a default message length of 0 and a
 //   digest of 38b060a751ac96384cd9327eb1b1e36a21fdb71114be0743
-//   4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b.  A 'bdlde::Sha512'
+//   4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b.  A `bdlde::Sha512`
 //   object is created with a default message length of 0 and a digest of
 //   cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce
 //   47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e.  An
 //   object's white-box state is represented by a buffer of unprocessed bytes,
 //   the length of the message and also the current states.  The black-box
-//   state is represented by a 224-bit digest for 'bdlde::Sha224', a 256-bit
-//   digest for 'bdlde::Sha256', a 384-bit digest for 'bdlde::Sha384', and a
-//   512-bit digest for 'bdlde::Sha512', which can all be modified using the
-//   primary manipulator 'update'.  The default constructor, in conjunction
+//   state is represented by a 224-bit digest for `bdlde::Sha224`, a 256-bit
+//   digest for `bdlde::Sha256`, a 384-bit digest for `bdlde::Sha384`, and a
+//   512-bit digest for `bdlde::Sha512`, which can all be modified using the
+//   primary manipulator `update`.  The default constructor, in conjunction
 //   with the primary manipulator, is sufficient to attain any achievable
 //   white-box state.
 //
@@ -70,17 +70,17 @@ using namespace bsl;
 //    o bdlde::Sha512();
 //
 // Primary Manipulators:
-//   The 'update' method comprises the minimal set of manipulators that can
+//   The `update` method comprises the minimal set of manipulators that can
 //   attain any achievable white-box state.
 //
 //    o void update(const void *data, bsl::size_t length);
 //
 // Basic Accessors:
 //   This is the maximal set of accessors that have direct contact with the
-//   black-box representation of the object.  The 'loadDigest' method is an
+//   black-box representation of the object.  The `loadDigest` method is an
 //   obvious member of this set.  It appends the length of the current message
 //   to a copy of the current SHA-2 object and calculates the digest.  The
-//   'loadDigestAndReset' method is really a manipulator as it resets the
+//   `loadDigestAndReset` method is really a manipulator as it resets the
 //   states within the object.  Therefore, it is not included in the set.
 //
 //    o void loadDigest(unsigned char *result) const;
@@ -295,13 +295,13 @@ const char *const sha512Results[6] =
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The 'validatePassword' function below returns whether a specified password
-// has a specified hash value.  The 'assertPasswordIsExpected' function below
+// The `validatePassword` function below returns whether a specified password
+// has a specified hash value.  The `assertPasswordIsExpected` function below
 // has a sample password to hash and a hash value that matches it.  Note that
-// the output of 'loadDigest' is a binary representation.  When hashes are
+// the output of `loadDigest` is a binary representation.  When hashes are
 // displayed for human consumption, they are typically converted to hex, but
 // that would create unnecessary overhead here.
-//..
+// ```
 
 /// Return `true` if the specified `password` concatenated with the
 /// specified `salt` has a SHA-512 hash equal to the specified
@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Run the usage example function 'assertPasswordIsExpected'.
+        //   Run the usage example function `assertPasswordIsExpected`.
         //
         // Testing:
         //   Usage example.
@@ -540,20 +540,20 @@ int main(int argc, char *argv[])
         // TESTING PRINTING AND OUTPUT (<<) OPERATOR FOR SHA-512
         //
         // Concerns:
-        //: 1 The member function 'print' outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
-        //: 2 The stream operator ('<<') outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
+        // 1. The member function `print` outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
+        // 2. The stream operator (`<<`) outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
         //
         // Plan:
-        //: 1 Construct a digest from a given message with a known hash.
-        //:   (C-1..2)
-        //: 2 Construct a 'stringstream' object and pass it to print.  Compare
-        //:   the result of the 'str()' member function with the expected
-        //:   output.  (C-1)
-        //: 3 Construct a 'stringstream' object and pass it to stream
-        //:   operator.  Compare the result of the 'str()' member function with
-        //:   the expected output.  (C-2)
+        // 1. Construct a digest from a given message with a known hash.
+        //    (C-1..2)
+        // 2. Construct a `stringstream` object and pass it to print.  Compare
+        //    the result of the `str()` member function with the expected
+        //    output.  (C-1)
+        // 3. Construct a `stringstream` object and pass it to stream
+        //    operator.  Compare the result of the `str()` member function with
+        //    the expected output.  (C-2)
         //
         // Testing:
         //   void print(bsl::ostream& stream);
@@ -571,20 +571,20 @@ int main(int argc, char *argv[])
         // TESTING PRINTING AND OUTPUT (<<) OPERATOR FOR SHA-384
         //
         // Concerns:
-        //: 1 The member function 'print' outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
-        //: 2 The stream operator ('<<') outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
+        // 1. The member function `print` outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
+        // 2. The stream operator (`<<`) outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
         //
         // Plan:
-        //: 1 Construct a digest from a given message with a known hash.
-        //:   (C-1..2)
-        //: 2 Construct a 'stringstream' object and pass it to print.  Compare
-        //:   the result of the 'str()' member function with the expected
-        //:   output.  (C-1)
-        //: 3 Construct a 'stringstream' object and pass it to stream
-        //:   operator.  Compare the result of the 'str()' member function with
-        //:   the expected output.  (C-2)
+        // 1. Construct a digest from a given message with a known hash.
+        //    (C-1..2)
+        // 2. Construct a `stringstream` object and pass it to print.  Compare
+        //    the result of the `str()` member function with the expected
+        //    output.  (C-1)
+        // 3. Construct a `stringstream` object and pass it to stream
+        //    operator.  Compare the result of the `str()` member function with
+        //    the expected output.  (C-2)
         //
         // Testing:
         //   void print(bsl::ostream& stream);
@@ -602,20 +602,20 @@ int main(int argc, char *argv[])
         // TESTING PRINTING AND OUTPUT (<<) OPERATOR FOR SHA-256
         //
         // Concerns:
-        //: 1 The member function 'print' outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
-        //: 2 The stream operator ('<<') outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
+        // 1. The member function `print` outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
+        // 2. The stream operator (`<<`) outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
         //
         // Plan:
-        //: 1 Construct a digest from a given message with a known hash.
-        //:   (C-1..2)
-        //: 2 Construct a 'stringstream' object and pass it to print.  Compare
-        //:   the result of the 'str()' member function with the expected
-        //:   output.  (C-1)
-        //: 3 Construct a 'stringstream' object and pass it to stream
-        //:   operator.  Compare the result of the 'str()' member function with
-        //:   the expected output.  (C-2)
+        // 1. Construct a digest from a given message with a known hash.
+        //    (C-1..2)
+        // 2. Construct a `stringstream` object and pass it to print.  Compare
+        //    the result of the `str()` member function with the expected
+        //    output.  (C-1)
+        // 3. Construct a `stringstream` object and pass it to stream
+        //    operator.  Compare the result of the `str()` member function with
+        //    the expected output.  (C-2)
         //
         // Testing:
         //   void print(bsl::ostream& stream);
@@ -633,20 +633,20 @@ int main(int argc, char *argv[])
         // TESTING PRINTING AND OUTPUT (<<) OPERATOR FOR SHA-224
         //
         // Concerns:
-        //: 1 The member function 'print' outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
-        //: 2 The stream operator ('<<') outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
+        // 1. The member function `print` outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
+        // 2. The stream operator (`<<`) outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
         //
         // Plan:
-        //: 1 Construct a digest from a given message with a known hash.
-        //:   (C-1..2)
-        //: 2 Construct a 'stringstream' object and pass it to print.  Compare
-        //:   the result of the 'str()' member function with the expected
-        //:   output.  (C-1)
-        //: 3 Construct a 'stringstream' object and pass it to stream
-        //:   operator.  Compare the result of the 'str()' member function with
-        //:   the expected output.  (C-2)
+        // 1. Construct a digest from a given message with a known hash.
+        //    (C-1..2)
+        // 2. Construct a `stringstream` object and pass it to print.  Compare
+        //    the result of the `str()` member function with the expected
+        //    output.  (C-1)
+        // 3. Construct a `stringstream` object and pass it to stream
+        //    operator.  Compare the result of the `str()` member function with
+        //    the expected output.  (C-2)
         //
         // Testing:
         //   void print(bsl::ostream& stream);
@@ -661,28 +661,28 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'Sha512(const void *data, bsl::size_t length)'
+        // TESTING `Sha512(const void *data, bsl::size_t length)`
         //   This will test the two-argument constructor.
         //
         // Concerns:
-        //: 1 We want to ensure that the two-argument constructor from data and
-        //:   a length is equivalent to the default constructor followed by a
-        //:   call to update.
+        // 1. We want to ensure that the two-argument constructor from data and
+        //    a length is equivalent to the default constructor followed by a
+        //    call to update.
         //
         // Plan:
-        //: 1 Default construct a SHA-512 digest and call update with a given
-        //:   message.  (C-1)
-        //: 2 Construct a second SHA-512 digest directly from the data and size
-        //:   of the message.  (C-1)
-        //: 3 Assert that the two digests compare equal according to
-        //:   'operator=='.  (C-1)
+        // 1. Default construct a SHA-512 digest and call update with a given
+        //    message.  (C-1)
+        // 2. Construct a second SHA-512 digest directly from the data and size
+        //    of the message.  (C-1)
+        // 3. Assert that the two digests compare equal according to
+        //    `operator==`.  (C-1)
         //
         // Testing:
         //   Sha512(const void *data, bsl::size_t length);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'Sha512(const void *data, bsl::size_t length)'" "\n"
+               << "TESTING `Sha512(const void *data, bsl::size_t length)`" "\n"
                << "======================================================" "\n";
 
         testTwoArgumentConstructor<bdlde::Sha512>("a");
@@ -693,28 +693,28 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'Sha384(const void *data, bsl::size_t length)'
+        // TESTING `Sha384(const void *data, bsl::size_t length)`
         //   This will test the two-argument constructor.
         //
         // Concerns:
-        //: 1 We want to ensure that the two-argument constructor from data and
-        //:   a length is equivalent to the default constructor followed by a
-        //:   call to update.
+        // 1. We want to ensure that the two-argument constructor from data and
+        //    a length is equivalent to the default constructor followed by a
+        //    call to update.
         //
         // Plan:
-        //: 1 Default construct a SHA-384 digest and call update with a given
-        //:   message.  (C-1)
-        //: 2 Construct a second SHA-384 digest directly from the data and size
-        //:   of the message.  (C-1)
-        //: 3 Assert that the two digests compare equal according to
-        //:   'operator=='.  (C-1)
+        // 1. Default construct a SHA-384 digest and call update with a given
+        //    message.  (C-1)
+        // 2. Construct a second SHA-384 digest directly from the data and size
+        //    of the message.  (C-1)
+        // 3. Assert that the two digests compare equal according to
+        //    `operator==`.  (C-1)
         //
         // Testing:
         //   Sha384(const void *data, bsl::size_t length);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'Sha384(const void *data, bsl::size_t length)'" "\n"
+               << "TESTING `Sha384(const void *data, bsl::size_t length)`" "\n"
                << "======================================================" "\n";
 
         testTwoArgumentConstructor<bdlde::Sha384>("a");
@@ -725,28 +725,28 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'Sha256(const void *data, bsl::size_t length)'
+        // TESTING `Sha256(const void *data, bsl::size_t length)`
         //   This will test the two-argument constructor.
         //
         // Concerns:
-        //: 1 We want to ensure that the two-argument constructor from data and
-        //:   a length is equivalent to the default constructor followed by a
-        //:   call to update.
+        // 1. We want to ensure that the two-argument constructor from data and
+        //    a length is equivalent to the default constructor followed by a
+        //    call to update.
         //
         // Plan:
-        //: 1 Default construct a SHA-256 digest and call update with a given
-        //:   message.  (C-1)
-        //: 2 Construct a second SHA-256 digest directly from the data and size
-        //:   of the message.  (C-1)
-        //: 3 Assert that the two digests compare equal according to
-        //:   'operator=='.  (C-1)
+        // 1. Default construct a SHA-256 digest and call update with a given
+        //    message.  (C-1)
+        // 2. Construct a second SHA-256 digest directly from the data and size
+        //    of the message.  (C-1)
+        // 3. Assert that the two digests compare equal according to
+        //    `operator==`.  (C-1)
         //
         // Testing:
         //   Sha256(const void *data, bsl::size_t length);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'Sha256(const void *data, bsl::size_t length)'" "\n"
+               << "TESTING `Sha256(const void *data, bsl::size_t length)`" "\n"
                << "======================================================" "\n";
 
         testTwoArgumentConstructor<bdlde::Sha256>("a");
@@ -757,28 +757,28 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'Sha224(const void *data, bsl::size_t length)'
+        // TESTING `Sha224(const void *data, bsl::size_t length)`
         //   This will test the two-argument constructor.
         //
         // Concerns:
-        //: 1 We want to ensure that the two-argument constructor from data and
-        //:   a length is equivalent to the default constructor followed by a
-        //:   call to update.
+        // 1. We want to ensure that the two-argument constructor from data and
+        //    a length is equivalent to the default constructor followed by a
+        //    call to update.
         //
         // Plan:
-        //: 1 Default construct a SHA-224 digest and call update with a given
-        //:   message.  (C-1)
-        //: 2 Construct a second SHA-224 digest directly from the data and size
-        //:   of the message.  (C-1)
-        //: 3 Assert that the two digests compare equal according to
-        //:   'operator=='.  (C-1)
+        // 1. Default construct a SHA-224 digest and call update with a given
+        //    message.  (C-1)
+        // 2. Construct a second SHA-224 digest directly from the data and size
+        //    of the message.  (C-1)
+        // 3. Assert that the two digests compare equal according to
+        //    `operator==`.  (C-1)
         //
         // Testing:
         //   Sha224(const void *data, bsl::size_t length);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'Sha224(const void *data, bsl::size_t length)'" "\n"
+               << "TESTING `Sha224(const void *data, bsl::size_t length)`" "\n"
                << "======================================================" "\n";
 
         testTwoArgumentConstructor<bdlde::Sha224>("a");
@@ -789,28 +789,28 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset' FOR SHA-512
-        //   This will test the 'loadDigestAndReset' method.
+        // TESTING `loadDigestAndReset` FOR SHA-512
+        //   This will test the `loadDigestAndReset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'loadDigestAndReset' contains the same value as a default object,
-        //:   and the resulting output matches that which is given by
-        //:   'loadDigest'.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `loadDigestAndReset` contains the same value as a default object,
+        //    and the resulting output matches that which is given by
+        //    `loadDigest`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha512' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'loadDigestAndReset' member function and ensure
-        //:   that the resulting object contains the same value as an object
-        //:   created using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha512` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `loadDigestAndReset` member function and ensure
+        //    that the resulting object contains the same value as an object
+        //    created using the default constructor.  (C-1)
         //
         // Testing:
         //   void loadDigestAndReset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'loadDigestAndReset' FOR SHA-512" "\n"
+        if (verbose) cout << "TESTING `loadDigestAndReset` FOR SHA-512" "\n"
                           << "========================================" "\n";
 
         testLoadDigestAndReset<bdlde::Sha512>("a");
@@ -821,28 +821,28 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset' FOR SHA-384
-        //   This will test the 'loadDigestAndReset' method.
+        // TESTING `loadDigestAndReset` FOR SHA-384
+        //   This will test the `loadDigestAndReset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'loadDigestAndReset' contains the same value as a default object,
-        //:   and the resulting output matches that which is given by
-        //:   'loadDigest'.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `loadDigestAndReset` contains the same value as a default object,
+        //    and the resulting output matches that which is given by
+        //    `loadDigest`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha384' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'loadDigestAndReset' member function and ensure
-        //:   that the resulting object contains the same value as an object
-        //:   created using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha384` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `loadDigestAndReset` member function and ensure
+        //    that the resulting object contains the same value as an object
+        //    created using the default constructor.  (C-1)
         //
         // Testing:
         //   void loadDigestAndReset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'loadDigestAndReset' FOR SHA-384" "\n"
+        if (verbose) cout << "TESTING `loadDigestAndReset` FOR SHA-384" "\n"
                           << "========================================" "\n";
 
         testLoadDigestAndReset<bdlde::Sha384>("a");
@@ -853,28 +853,28 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset' FOR SHA-256
-        //   This will test the 'loadDigestAndReset' method.
+        // TESTING `loadDigestAndReset` FOR SHA-256
+        //   This will test the `loadDigestAndReset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'loadDigestAndReset' contains the same value as a default object,
-        //:   and the resulting output matches that which is given by
-        //:   'loadDigest'.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `loadDigestAndReset` contains the same value as a default object,
+        //    and the resulting output matches that which is given by
+        //    `loadDigest`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha256' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'loadDigestAndReset' member function and ensure
-        //:   that the resulting object contains the same value as an object
-        //:   created using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha256` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `loadDigestAndReset` member function and ensure
+        //    that the resulting object contains the same value as an object
+        //    created using the default constructor.  (C-1)
         //
         // Testing:
         //   void loadDigestAndReset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'loadDigestAndReset' FOR SHA-256" "\n"
+        if (verbose) cout << "TESTING `loadDigestAndReset` FOR SHA-256" "\n"
                           << "========================================" "\n";
 
         testLoadDigestAndReset<bdlde::Sha256>("a");
@@ -885,28 +885,28 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset' FOR SHA-224
-        //   This will test the 'loadDigestAndReset' method.
+        // TESTING `loadDigestAndReset` FOR SHA-224
+        //   This will test the `loadDigestAndReset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'loadDigestAndReset' contains the same value as a default object,
-        //:   and the resulting output matches that which is given by
-        //:   'loadDigest'.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `loadDigestAndReset` contains the same value as a default object,
+        //    and the resulting output matches that which is given by
+        //    `loadDigest`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha224' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'loadDigestAndReset' member function and ensure
-        //:   that the resulting object contains the same value as an object
-        //:   created using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha224` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `loadDigestAndReset` member function and ensure
+        //    that the resulting object contains the same value as an object
+        //    created using the default constructor.  (C-1)
         //
         // Testing:
         //   void loadDigestAndReset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'loadDigestAndReset' FOR SHA-224" "\n"
+        if (verbose) cout << "TESTING `loadDigestAndReset` FOR SHA-224" "\n"
                           << "========================================" "\n";
 
         testLoadDigestAndReset<bdlde::Sha224>("a");
@@ -917,26 +917,26 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' FOR SHA-512
-        //   This will test the 'reset' method.
+        // TESTING `reset` FOR SHA-512
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha512' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'reset' member function and ensure that the
-        //:   resulting object contains the same value as an object created
-        //:   using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha512` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `reset` member function and ensure that the
+        //    resulting object contains the same value as an object created
+        //    using the default constructor.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'reset' FOR SHA-512" "\n"
+        if (verbose) cout << "TESTING `reset` FOR SHA-512" "\n"
                           << "===========================" "\n";
 
         testReset<bdlde::Sha512>("a");
@@ -947,26 +947,26 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' FOR SHA-384
-        //   This will test the 'reset' method.
+        // TESTING `reset` FOR SHA-384
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha384' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'reset' member function and ensure that the
-        //:   resulting object contains the same value as an object created
-        //:   using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha384` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `reset` member function and ensure that the
+        //    resulting object contains the same value as an object created
+        //    using the default constructor.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'reset' FOR SHA-384" "\n"
+        if (verbose) cout << "TESTING `reset` FOR SHA-384" "\n"
                           << "===========================" "\n";
 
         testReset<bdlde::Sha384>("a");
@@ -977,26 +977,26 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' FOR SHA-256
-        //   This will test the 'reset' method.
+        // TESTING `reset` FOR SHA-256
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha256' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'reset' member function and ensure that the
-        //:   resulting object contains the same value as an object created
-        //:   using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha256` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `reset` member function and ensure that the
+        //    resulting object contains the same value as an object created
+        //    using the default constructor.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'reset' FOR SHA-256" "\n"
+        if (verbose) cout << "TESTING `reset` FOR SHA-256" "\n"
                           << "===========================" "\n";
 
         testReset<bdlde::Sha256>("a");
@@ -1007,26 +1007,26 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' FOR SHA-224
-        //   This will test the 'reset' method.
+        // TESTING `reset` FOR SHA-224
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha224' object using the
-        //:   fully-tested default constructor and 'update' member function.
-        //:   Then call the 'reset' member function and ensure that the
-        //:   resulting object contains the same value as an object created
-        //:   using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha224` object using the
+        //    fully-tested default constructor and `update` member function.
+        //    Then call the `reset` member function and ensure that the
+        //    resulting object contains the same value as an object created
+        //    using the default constructor.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'reset' FOR SHA-224" "\n"
+        if (verbose) cout << "TESTING `reset` FOR SHA-224" "\n"
                           << "===========================" "\n";
 
         testReset<bdlde::Sha224>("a");
@@ -1041,11 +1041,11 @@ int main(int argc, char *argv[])
         //   Test the update function
         //
         // Concerns:
-        //: 1 Ensure that providing data one byte at a time is the same as
-        //:   providing it all at once.
+        // 1. Ensure that providing data one byte at a time is the same as
+        //    providing it all at once.
         //
         // Plan:
-        //: 1 Pass each byte of a string to update and compare the result of
+        // 1. Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
@@ -1063,11 +1063,11 @@ int main(int argc, char *argv[])
         //   Test the update function
         //
         // Concerns:
-        //: 1 Ensure that providing data one byte at a time is the same as
-        //:   providing it all at once.
+        // 1. Ensure that providing data one byte at a time is the same as
+        //    providing it all at once.
         //
         // Plan:
-        //: 1 Pass each byte of a string to update and compare the result of
+        // 1. Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
@@ -1085,11 +1085,11 @@ int main(int argc, char *argv[])
         //   Test the update function
         //
         // Concerns:
-        //: 1 Ensure that providing data one byte at a time is the same as
-        //:   providing it all at once.
+        // 1. Ensure that providing data one byte at a time is the same as
+        //    providing it all at once.
         //
         // Plan:
-        //: 1 Pass each byte of a string to update and compare the result of
+        // 1. Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
@@ -1107,11 +1107,11 @@ int main(int argc, char *argv[])
         //   Test the update function
         //
         // Concerns:
-        //: 1 Ensure that providing data one byte at a time is the same as
-        //:   providing it all at once.
+        // 1. Ensure that providing data one byte at a time is the same as
+        //    providing it all at once.
         //
         // Plan:
-        //: 1 Pass each byte of a string to update and compare the result of
+        // 1. Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
@@ -1129,13 +1129,13 @@ int main(int argc, char *argv[])
         //   Ensure that values hash to their expected hashes
         //
         // Concerns:
-        //: 1 Hashing a particular value provides the expected hash output when
-        //:   known values.  These known values came from running the Python
-        //:   implementation of the SHA-2 algorithms.
+        // 1. Hashing a particular value provides the expected hash output when
+        //    known values.  These known values came from running the Python
+        //    implementation of the SHA-2 algorithms.
         //
         // Plan:
-        //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.  (C-1)
+        // 1. Verify a range of values with varying sizes and bytes against
+        //    known values.  (C-1)
         //
         // Testing:
         //   Sha512::Sha512();
@@ -1153,13 +1153,13 @@ int main(int argc, char *argv[])
         //   Ensure that values hash to their expected hashes
         //
         // Concerns:
-        //: 1 Hashing a particular value provides the expected hash output when
-        //:   known values.  These known values came from running the Python
-        //:   implementation of the SHA-2 algorithms.
+        // 1. Hashing a particular value provides the expected hash output when
+        //    known values.  These known values came from running the Python
+        //    implementation of the SHA-2 algorithms.
         //
         // Plan:
-        //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.  (C-1)
+        // 1. Verify a range of values with varying sizes and bytes against
+        //    known values.  (C-1)
         //
         // Testing:
         //   Sha384::Sha384();
@@ -1177,13 +1177,13 @@ int main(int argc, char *argv[])
         //   Ensure that values hash to their expected hashes
         //
         // Concerns:
-        //: 1 Hashing a particular value provides the expected hash output when
-        //:   known values.  These known values came from running the Python
-        //:   implementation of the SHA-2 algorithms.
+        // 1. Hashing a particular value provides the expected hash output when
+        //    known values.  These known values came from running the Python
+        //    implementation of the SHA-2 algorithms.
         //
         // Plan:
-        //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.  (C-1)
+        // 1. Verify a range of values with varying sizes and bytes against
+        //    known values.  (C-1)
         //
         // Testing:
         //   Sha256::Sha256();
@@ -1201,13 +1201,13 @@ int main(int argc, char *argv[])
         //   Ensure that values hash to their expected hashes
         //
         // Concerns:
-        //: 1 Hashing a particular value provides the expected hash output when
-        //:   known values.  These known values came from running the Python
-        //:   implementation of the SHA-2 algorithms.
+        // 1. Hashing a particular value provides the expected hash output when
+        //    known values.  These known values came from running the Python
+        //    implementation of the SHA-2 algorithms.
         //
         // Plan:
-        //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.  (C-1)
+        // 1. Verify a range of values with varying sizes and bytes against
+        //    known values.  (C-1)
         //
         // Testing:
         //   Sha224::Sha224();
@@ -1225,11 +1225,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify default constructed hashes equal themselves.  (C-1)
+        // 1. Verify default constructed hashes equal themselves.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

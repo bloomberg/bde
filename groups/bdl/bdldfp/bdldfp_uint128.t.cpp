@@ -6,7 +6,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_cstdlib.h>    // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -80,10 +80,10 @@ int main(int argc, char *argv[])
 
         // Phase 2a: Test integer-init creation:
 
-        //: o Ubiquitous Concern: All int-created values should have the
-        //:   high-word set to 0.
-        //: o Ubiquitous Concern: All int-created values should have the
-        //:   low-word set to the passed parameter.
+        //  - Ubiquitous Concern: All int-created values should have the
+        //    high-word set to 0.
+        //  - Ubiquitous Concern: All int-created values should have the
+        //    low-word set to the passed parameter.
 
         const Uint128    fromInt(VALUE_A);
         ASSERT(fromInt.low()  == VALUE_A);
@@ -103,12 +103,12 @@ int main(int argc, char *argv[])
 
         // Phase 2b: Test high-low integrity, on synthesize-with-high:
 
-        //: o Ubiquitous Concern: Low words shouldn't be affected by high-word
-        //:   manipulation.
-        //: o Ubiquitous Concern: High words should be set to the value being
-        //:   used.
-        //: o Note that this test is effectively not needed, but is included
-        //:   for theoretical completeness.
+        //  - Ubiquitous Concern: Low words shouldn't be affected by high-word
+        //    manipulation.
+        //  - Ubiquitous Concern: High words should be set to the value being
+        //    used.
+        //  - Note that this test is effectively not needed, but is included
+        //    for theoretical completeness.
 
         Uint128 fromHigh;
         fromHigh.setHigh(VALUE_A);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
         ASSERT(VALUE_D == fromInt4);
 
 
-        // Phase 4: Test 'and', 'or', and 'xor':
+        // Phase 4: Test `and`, `or`, and `xor`:
         ASSERT((blank & fromInt2) != fromInt2);
         ASSERT((blank & fromInt2) != fromInt3);
         ASSERT((blank & fromInt2) == blank);
@@ -224,13 +224,13 @@ int main(int argc, char *argv[])
 
 
         // Phase 5: Test left and right shift:
-        //: o Ubiquitous Concern: All comparisons are tested by high-then-low
-        //:   tests for shifting, to provide inspection of implementation
-        //:   mechanism.
-        //: o Ubiquitous Concern: High bits get tested first for right shifts,
-        //:   to make sure they are properly evacuated.
-        //: o Ubiquitous Concern: Low bits get tested first for left shifts, to
-        //:   make sure they are properly evacuated.
+        //  - Ubiquitous Concern: All comparisons are tested by high-then-low
+        //    tests for shifting, to provide inspection of implementation
+        //    mechanism.
+        //  - Ubiquitous Concern: High bits get tested first for right shifts,
+        //    to make sure they are properly evacuated.
+        //  - Ubiquitous Concern: Low bits get tested first for left shifts, to
+        //    make sure they are properly evacuated.
 
         // Concern: blank numbers shifted to the right stay blank
             ASSERT((blank >> 50).low()  == 0);

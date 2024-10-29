@@ -9,8 +9,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcmp', 'strcmp'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcmp`, `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -31,30 +31,30 @@ using bsl::ostream;
 // attribute class.  The Primary Manipulators and Basic Accessors are
 // therefore, respectively, the attribute setters and getters, each of which
 // follows our standard unconstrained attribute-type naming conventions:
-// 'setAttributeName' and 'attributeName'.
+// `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setBasic'
-//: o 'setRelaxed'
+//  - `setBasic`
+//  - `setRelaxed`
 //
 // Basic Accessors:
-//: o 'basic'
-//: o 'relaxed'
+//  - `basic`
+//  - `relaxed`
 //
 // We will therefore follow our standard 10-case approach to testing
 // value-semantic types, with the default constructor and primary manipulators
 // tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BDEX streaming is not (yet) implemented for this class.
+//  - [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] Config();
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -203,13 +203,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -223,33 +223,33 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-// Our type, 'Iso8601UtilParseConfiguration', has two boolean attributes,
-// 'basic' and 'relaxed'.
-//..
+// Our type, `Iso8601UtilParseConfiguration`, has two boolean attributes,
+// `basic` and `relaxed`.
+// ```
         typedef bdlt::Iso8601UtilParseConfiguration Config;
-//..
-// A default configured object has both attributes being 'false':
-//..
+// ```
+// A default configured object has both attributes being `false`:
+// ```
         Config c;
         ASSERT(!c.basic());
         ASSERT(!c.relaxed());
-//..
-// The 'setBasic' sets the 'basic' attribute, leaves the 'relaxed' attribute
+// ```
+// The `setBasic` sets the `basic` attribute, leaves the `relaxed` attribute
 // alone:
-//..
+// ```
         Config c2 = c.setBasic();
         ASSERT( c.basic());
         ASSERT(!c.relaxed());
-//..
-// 'setBasic' and 'setRelaxed' take a boolean argument that defaults to 'true':
-//..
+// ```
+// `setBasic` and `setRelaxed` take a boolean argument that defaults to `true`:
+// ```
         for (int ii = 0; ii < 16; ++ii) {
             const bool basic    = ii & 1;
             const bool relaxed  = ii & 2;
             const bool basicB   = ii & 4;
             const bool relaxedB = ii & 8;
 
-            // 'c' can have any valid state at this point.
+            // `c` can have any valid state at this point.
 
             const Config& c3 = c.setBasic(basic);
             ASSERT(&c3 != &c);                // copy, not reference, returned
@@ -265,21 +265,21 @@ int main(int argc, char *argv[])
             ASSERT(c.relaxed() == relaxedB);
             ASSERT(c.basic()   == basicB);
 
-            Config d = c;    // copy 'c' to 'd'
+            Config d = c;    // copy `c` to `d`
 
             ASSERT(d.relaxed() == relaxedB);
             ASSERT(d.basic()   == basicB);
 
             ASSERT(d == c);
-            ASSERT(&d != &c);        // 'd' is a copy, not a reference
+            ASSERT(&d != &c);        // `d` is a copy, not a reference
 
-            d.setBasic();      // defaults to 'true'
-            d.setRelaxed();    // defaults to 'true'
+            d.setBasic();      // defaults to `true`
+            d.setRelaxed();    // defaults to `true`
 
             ASSERT(d.basic()   == true);
             ASSERT(d.relaxed() == true);
         }
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -289,69 +289,69 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object 'Z' having the value from 'R1', and use the
-        //:     copy constructor to create a second 'const' object 'ZZ' from
-        //:     'Z'.
-        //:
-        //:   2 For each row 'R2' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Use the default constructor and primary manipulators to
-        //:       create a modifiable 'Obj', 'mX', having the value from 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-3 except that, this
-        //:   time, there is no inner loop (as in P-3.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are created to have the value from 'R1'.  For each
-        //:   'R1' in the table of P-2:  (C-5)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a modifiable 'Obj', 'mX', having the value from 'R1', and use
-        //:     the copy constructor to create a 'const' object 'ZZ' from 'mX'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z' ('mX'), still has the same value as that of
-        //:     'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object `Z` having the value from `R1`, and use the
+        //      copy constructor to create a second `const` object `ZZ` from
+        //      `Z`.
+        //
+        //   2. For each row `R2` in the table of P-2:  (C-1, 3..4)
+        //
+        //     1. Use the default constructor and primary manipulators to
+        //        create a modifiable `Obj`, `mX`, having the value from `R2`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-3 except that, this
+        //    time, there is no inner loop (as in P-3.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are created to have the value from `R1`.  For each
+        //    `R1` in the table of P-2:  (C-5)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a modifiable `Obj`, `mX`, having the value from `R1`, and use
+        //      the copy constructor to create a `const` object `ZZ` from `mX`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z` (`mX`), still has the same value as that of
+        //      `ZZ`.  (C-5)
         //
         // Testing:
         //   Config& operator=(const Config& rhs);
@@ -474,32 +474,32 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     two 'const' objects, 'Z' and 'ZZ', both having the value from
-        //:     'R'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X' from 'Z'.
-        //:     (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:  (C-1, 3)
-        //:
-        //:     1 'X' has the same value as that of 'Z'.  (C-1)
-        //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      two `const` objects, `Z` and `ZZ`, both having the value from
+        //      `R`.
+        //
+        //   2. Use the copy constructor to create an object `X` from `Z`.
+        //      (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:  (C-1, 3)
+        //
+        //     1. `X` has the same value as that of `Z`.  (C-1)
+        //
+        //     2. `Z` still has the same value as that of `ZZ`.  (C-3)
         //
         // Testing:
         //   Config(const Config& original);
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(ILINE, Z,  X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERTV(ILINE, ZZ, Z, ZZ == Z);
         }
@@ -565,63 +565,63 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 4 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., identity)
+        //
+        // 4. `false == (X != X)`  (i.e., identity)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-8..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..7)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object, 'W', having the value from 'R1'.
-        //:
-        //:   2 Using 'W', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-3..4)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1..2, 5..7)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Use the default constructor and primary manipulators to
-        //:       create a 'const' object, 'X', having the value from 'R1', and
-        //:       a second 'const' object, 'Y', having the value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1..2, 5..7)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-8..10)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..7)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object, `W`, having the value from `R1`.
+        //
+        //   2. Using `W`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-3..4)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1..2, 5..7)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Use the default constructor and primary manipulators to
+        //        create a `const` object, `X`, having the value from `R1`, and
+        //        a second `const` object, `Y`, having the value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1..2, 5..7)
         //
         // Testing:
         //   bool operator==(const Config& lhs, const Config& rhs);
@@ -735,75 +735,75 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the
+        //      two formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   ostream& operator<<(ostream& s, const Config& d);
-        //   CONCERN: All accessor methods are declared 'const'.
+        //   CONCERN: All accessor methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "=========================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -1044,22 +1044,22 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the two basic accessors returns the value of the
-        //:   corresponding attribute of the object.
-        //:
-        //: 2 Each basic accessor method is declared 'const'.
+        // 1. Each of the two basic accessors returns the value of the
+        //    corresponding attribute of the object.
+        //
+        // 2. Each basic accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object, 'X', having the value from 'R'.
-        //:
-        //:   2 Verify that each basic accessor, invoked on 'X', returns the
-        //:     expected value.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..2)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object, `X`, having the value from `R`.
+        //
+        //   2. Verify that each basic accessor, invoked on `X`, returns the
+        //      expected value.  (C-1..2)
         //
         // Testing:
         //   bool basic() const;
@@ -1110,43 +1110,43 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 Each attribute can be set to represent any value.
-        //:
-        //: 4 Any argument can be 'const'.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. Each attribute can be set to represent any value.
+        //
+        // 4. Any argument can be `const`.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create two sets of attribute values for the object: ('D') values
-        //:   corresponding to the default-constructed object and ('A') values
-        //:   distinct from those corresponding to the default-constructed
-        //:   object.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 Use the individual (as yet unproven) salient attribute accessors
-        //:   to verify the default-constructed value.  (C-1)
-        //:
-        //: 4 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's value,
-        //:   passing a 'const' argument representing each of the two test
-        //:   values, in turn (see P-1), first to 'Ai', then back to 'Di'.
-        //:   After each transition, use the (as yet unproven) basic accessors
-        //:   to verify that only the intended attribute value changed.
-        //:   (C-3..4)
-        //:
-        //: 5 Corroborate that attributes are modifiable independently by first
-        //:   setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to it's corresponding 'D' value
-        //:   and verify after each manipulation that only that attribute's
-        //:   value changed.  (C-2)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. Create two sets of attribute values for the object: (`D`) values
+        //    corresponding to the default-constructed object and (`A`) values
+        //    distinct from those corresponding to the default-constructed
+        //    object.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. Use the individual (as yet unproven) salient attribute accessors
+        //    to verify the default-constructed value.  (C-1)
+        //
+        // 4. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's value,
+        //    passing a `const` argument representing each of the two test
+        //    values, in turn (see P-1), first to `Ai`, then back to `Di`.
+        //    After each transition, use the (as yet unproven) basic accessors
+        //    to verify that only the intended attribute value changed.
+        //    (C-3..4)
+        //
+        // 5. Corroborate that attributes are modifiable independently by first
+        //    setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to it's corresponding `D` value
+        //    and verify after each manipulation that only that attribute's
+        //    value changed.  (C-2)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   Iso8601UtilParseConfiguration();

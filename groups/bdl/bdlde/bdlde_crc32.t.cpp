@@ -25,36 +25,36 @@ using namespace bsl;  // automatically added by script
 // The component under test is a value-semantic scalar whose state is
 // identically its value.  There is no allocator involved.  We are mostly
 // concerned with the mechanical functioning of the various methods and free
-// operators, and exception neutrality during 'bdex' streaming.
+// operators, and exception neutrality during `bdex` streaming.
 //
 // The component interface represents a 32-bit CRC checksum as an unsigned
-// integer value.  The checksum is calculated in the 'update' function based
+// integer value.  The checksum is calculated in the `update` function based
 // on a sequence of data bytes and the data length.  We need to verify that the
-// 'update' member function calculates the checksum correctly and the
-// 'checksum' member function returns the correct checksum.
+// `update` member function calculates the checksum correctly and the
+// `checksum` member function returns the correct checksum.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructors:
-//   A 'bdlde::Crc32' object is created with a default checksum value of
+//   A `bdlde::Crc32` object is created with a default checksum value of
 //   0x00000000.  An object's white-box state is exactly the same as its
 //   black-box state (just a single unsigned integer value), which can be
-//   modified using the primary manipulator 'update'.  The default constructor,
+//   modified using the primary manipulator `update`.  The default constructor,
 //   in conjunction with the primary manipulator, is sufficient to attain any
 //   achievable white-box state.
 //
 //    o bdlde::Crc32();
 //
 // Primary Manipulators:
-//   The 'update' method comprises the minimal set of manipulators that can
+//   The `update` method comprises the minimal set of manipulators that can
 //   attain any achievable white-box state.
 //
 //    o void update(const void *data, int length);
 //
 // Basic Accessors:
 //   This is the maximal set of accessors that have direct contact with the
-//   black-box representation of the object.  The 'checksum' method is an
-//   obvious member of this set.  Although the 'checksumAndReset' method is
+//   black-box representation of the object.  The `checksum` method is an
+//   obvious member of this set.  Although the `checksumAndReset` method is
 //   really a destructive accessor, we also include it in the set because it
 //   touches the internal state of the object.
 //
@@ -173,12 +173,12 @@ typedef bslx::TestOutStream Out;
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::Crc32' class.  Each function would typically execute in separate
-// processes or potentially on separate machines.  The 'senderExample' function
+// `bdlde::Crc32` class.  Each function would typically execute in separate
+// processes or potentially on separate machines.  The `senderExample` function
 // below demonstrates how a message sender can write a message and its CRC-32
-// checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of
-// any class that implements the 'bslx::OutStream' protocol:
-//..
+// checksum to a `bdex` output stream.  Note that `Out` may be a `typedef` of
+// any class that implements the `bslx::OutStream` protocol:
+// ```
 
 /// Write a message and its CRC-32 checksum to the specified `output`
 /// stream.
@@ -187,38 +187,38 @@ void senderExample(Out& output)
     // prepare a message
     bsl::string message = "This is a test message.";
 
-    // generate a checksum for 'message'
+    // generate a checksum for `message`
     bdlde::Crc32 crc(message.data(), message.length());
 
-    // write the message to 'output'
+    // write the message to `output`
     output << message;
 
-    // write the checksum to 'output'
+    // write the checksum to `output`
     const int VERSION = 1;
     crc.bdexStreamOut(output, VERSION);
 }
-//..
-// The 'receiverExample' function below illustrates how a message receiver can
-// read a message and its CRC-32 checksum from a 'bdex' input stream, then
+// ```
+// The `receiverExample` function below illustrates how a message receiver can
+// read a message and its CRC-32 checksum from a `bdex` input stream, then
 // perform a local CRC-32 computation to verify that the message was received
-// intact.  Note that 'In' may be a 'typedef' of any class that implements the
-// 'bslx::InStream' protocol:
-//..
+// intact.  Note that `In` may be a `typedef` of any class that implements the
+// `bslx::InStream` protocol:
+// ```
 
 /// Read a message and its CRC-32 checksum from the specified `input`
 /// stream, and verify the integrity of the message.
 void receiverExample(In& input)
 {
-    // read the message from 'input'
+    // read the message from `input`
     bsl::string message;
     input >> message;
 
-    // read the checksum from 'input'
+    // read the checksum from `input`
     bdlde::Crc32 crc;
     const int VERSION = 1;
     crc.bdexStreamIn(input, VERSION);
 
-    // locally compute the checksum of the received 'message'
+    // locally compute the checksum of the received `message`
     bdlde::Crc32 crcLocal;
     crcLocal.update(message.data(), message.length());
 
@@ -262,7 +262,7 @@ void printHex(const char *str)
 
 // The following functions were taken directly from RFC 1952 (with some minor
 // cosmetic changes) and are used as an oracle to verify the CRC value computed
-// by 'bdlde::Crc32'.
+// by `bdlde::Crc32`.
 
 // Table of CRCs of all 8-bit messages.
 static unsigned int crc_table[256];
@@ -328,14 +328,14 @@ unsigned int crc(const char *buf, int len)
                         // crc32 Implementation from dbutil
                         // --------------------------------
 
-// 'crc32trm' (below) was taken from crc32.c in dbutil and the following
+// `crc32trm` (below) was taken from crc32.c in dbutil and the following
 // modifications were made to it:
-//..
-//  1) 'crctab' was replaced with 'crc_table' (defined above).
-//  2) 'u_int32_t' was replaced with 'unsigned int'.
-//  3) '~0' was changed to '(unsigned int)~0' to quell a compiler warning.
-//..
-// 'crc32trm' is used in the PERFORMANCE TEST (case -1).
+// ```
+//  1) `crctab` was replaced with `crc_table` (defined above).
+//  2) `u_int32_t` was replaced with `unsigned int`.
+//  3) `~0` was changed to `(unsigned int)~0` to quell a compiler warning.
+// ```
+// `crc32trm` is used in the PERFORMANCE TEST (case -1).
 //
 // Note that the formatting style (indentation, etc.) was deliberately
 // preserved.
@@ -352,19 +352,19 @@ unsigned int crc32trm(const char *buf, int bufsize, char trm)
 }
 
 //=============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
+//            GENERATOR FUNCTIONS `g`, `gg` and `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  The given
-// 'spec' contains the data that will be passed to the 'update' method.  The
+// `spec` contains the data that will be passed to the `update` method.  The
 // following escape sequences are recognized by the language:
 //
-//    o '//'    : will be replaced with a '/'.
-//    o '/xx'   : will be replaced with the specified 'xx' hexadecimal value
-//                (each 'x' must be one of '0'..'9' or 'a'..'f').
+//    o `//`    : will be replaced with a '/'.
+//    o `/xx`   : will be replaced with the specified `xx` hexadecimal value
+//                (each `x` must be one of '0'..'9' or 'a'..'f').
 //
 // Any other character following a '/' will be considered an error.  The
-// maximum length supported for the data in an 'update' call is 1024 bytes
+// maximum length supported for the data in an `update` call is 1024 bytes
 // (this is more than sufficient for all test data).
 //
 // LANGUAGE SPECIFICATION
@@ -388,11 +388,11 @@ unsigned int crc32trm(const char *buf, int bufsize, char trm)
 // Spec String       Description
 // ----------------- ----------------------------------------------------------
 // ""                Has no effect.
-// "/00"             Calls 'update("\x00", 1)'.
-// "abc"             Calls 'update("abc", 3)'.
-// "abc//de~/20"     Calls 'update("abc/de~ ", 8)'.   # ('/20' will become ' ')
-// "abc~de"          Calls 'update("abc~de", 6)'.
-// "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
+// "/00"             Calls `update("\x00", 1)`.
+// "abc"             Calls `update("abc", 3)`.
+// "abc//de~/20"     Calls `update("abc/de~ ", 8)`.   # (`/20` will become ' ')
+// "abc~de"          Calls `update("abc~de", 6)`.
+// "/01/02\xff"      Calls `update("\x01\x02\xff", 3)`.
 // ----------------------------------------------------------------------------
 
 /// Configure the specified `object` according to the specified `spec`
@@ -415,12 +415,12 @@ int ggg(Obj *object, const char *spec, int vF = 1)
 
             ++i;
             if ('/' == spec[i]) {
-                // add '/' to 'update_buffer'
+                // add '/' to `update_buffer`
 
                 update_buffer[buf_pos++] = '/';
             } else if (('0' <= spec[i] && spec[i] <= '9')
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
-                // build the hexadecimal character, add it to 'update_buffer'
+                // build the hexadecimal character, add it to `update_buffer`
 
                 unsigned char hex = 0;
 
@@ -452,7 +452,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     return i;                                         // RETURN
                 }
 
-                // add 'hex' to 'update_buffer'
+                // add `hex` to `update_buffer`
 
                 update_buffer[buf_pos++] = hex;
             } else {
@@ -469,13 +469,13 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 return i;                                             // RETURN
             }
         } else {
-            // add the current character to 'update_buffer'
+            // add the current character to `update_buffer`
 
             update_buffer[buf_pos++] = spec[i];
         }
     }
 
-    // call 'update' with the remaining data in 'update_buffer'
+    // call `update` with the remaining data in `update_buffer`
 
     if (buf_pos) {
         object->update(update_buffer, buf_pos);
@@ -524,8 +524,8 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Run the usage example functions 'senderExample' and
-        //   'receiverExample'.
+        //   Run the usage example functions `senderExample` and
+        //   `receiverExample`.
         //
         // Testing:
         //   Usage example.
@@ -547,11 +547,11 @@ int main(int argc, char *argv[])
       case 14: {
         // --------------------------------------------------------------------
         // TESTING CRC_TABLE
-        //   This will test the 'CRC_TABLE' array defined in bdlde_crc32.cpp.
+        //   This will test the `CRC_TABLE` array defined in bdlde_crc32.cpp.
         //
         // Concerns:
         //   The CRC algorithm depends on a static constant array of unsigned
-        //   integers defined in bdlde_crc32.cpp as 'CRC_TABLE[256]'.  This
+        //   integers defined in bdlde_crc32.cpp as `CRC_TABLE[256]`.  This
         //   array was generated from the initialization step found at the end
         //   of RFC 1952.  We want to ensure that the values in the table are
         //   correct.
@@ -559,22 +559,22 @@ int main(int argc, char *argv[])
         // Plan:
         //   We cannot access the array directly from this test driver because
         //   it is internal to the bdlde_crc32.cpp translation unit.  However,
-        //   we do have an array 'crc_table' that is internal to this
+        //   we do have an array `crc_table` that is internal to this
         //   translation unit and we can use this array as an oracle.  We can
-        //   loop through this array, and for each 'crc_table[i]', perform the
+        //   loop through this array, and for each `crc_table[i]`, perform the
         //   following steps:
-        //      a. Create an 'unsigned char' 'j' with the value 255 - 'i'.
-        //      b. Create a 'bdlde::Crc32' object 'obj' using the default
+        //      a. Create an `unsigned char` `j` with the value 255 - `i`.
+        //      b. Create a `bdlde::Crc32` object `obj` using the default
         //         constructor.
-        //      c. Call 'obj.update(&j, 1)'.
-        //      d. Call 'obj.checksum' and store the result in an 'unsigned'
-        //         integer 'result'.
-        //      e. Flip the eight most significant bits of 'result'.
-        //      f. Verify that 'result' is exactly the same as 'crc_table[i]'.
+        //      c. Call `obj.update(&j, 1)`.
+        //      d. Call `obj.checksum` and store the result in an `unsigned`
+        //         integer `result`.
+        //      e. Flip the eight most significant bits of `result`.
+        //      f. Verify that `result` is exactly the same as `crc_table[i]`.
         //
         //   These steps were created based on a study of the implementation of
-        //   the 'update' and 'checksum' methods with the assumption that the
-        //   'update' and 'checksum' methods are correct.
+        //   the `update` and `checksum` methods with the assumption that the
+        //   `update` and `checksum` methods are correct.
         //
         // Testing:
         //   static const unsigned int CRC_TABLE[256]; (bdlde_crc32.cpp)
@@ -610,17 +610,17 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
-        //   This will test the 'reset' method.
+        // TESTING `reset`
+        //   This will test the `reset` method.
         //
         // Concerns:
         //   We need to make sure that the resulting object after the call to
-        //   'reset' contains the same value as a default object.
+        //   `reset` contains the same value as a default object.
         //
         // Plan:
         //   Create a set of test data with varying lengths from 0 to 5.  For
-        //   each datum, create a 'bdlde::Crc32' object using the fully-tested
-        //   two-argument init constructor.  Then call the 'reset' member
+        //   each datum, create a `bdlde::Crc32` object using the fully-tested
+        //   two-argument init constructor.  Then call the `reset` member
         //   function and ensure that the resulting object contains the same
         //   value as an object created using the default constructor.
         //
@@ -628,7 +628,7 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'reset'"
+        if (verbose) cout << "\nTesting `reset`"
                           << "\n===============" << endl;
 
         static const struct {
@@ -670,13 +670,13 @@ int main(int argc, char *argv[])
         //   We need to test the init constructor that takes two arguments.
         //
         // Concerns:
-        //   Since 'update' has already been tested thoroughly in [11], we just
-        //   need to make sure that the values passed to 'update' in the
+        //   Since `update` has already been tested thoroughly in [11], we just
+        //   need to make sure that the values passed to `update` in the
         //   constructor are correct.
         //
         // Plan:
         //   Create a set of test data with varying lengths from 0 to 5.  For
-        //   each datum, create a 'bdlde::Crc32' object using the two-argument
+        //   each datum, create a `bdlde::Crc32` object using the two-argument
         //   init constructor.  Then verify the CRC value stored in the object
         //   is the same as the expected value.
         //
@@ -721,16 +721,16 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'update'
-        //   We need to thoroughly test the 'update' member function.
+        // TESTING `update`
+        //   We need to thoroughly test the `update` member function.
         //
         // Concerns:
         //   There are three things we are concerned about in this test.
         //
-        //   Firstly, we need to test the 'update' function using data with
+        //   Firstly, we need to test the `update` function using data with
         //   lengths varying from 0-10.  The algorithm selects control paths
         //   based on the length of the data, and not the data itself.  The
-        //   control path is selected using 'length % 4'.  So, in order to
+        //   control path is selected using `length % 4`.  So, in order to
         //   exercise all control paths, the test vectors must contain data
         //   with lengths varying from 0 to 3.  The test vectors must also
         //   contain data with lengths 4 to 10 to ensure that the loop is
@@ -742,25 +742,25 @@ int main(int argc, char *argv[])
         //   Secondly, we need to ensure that there are no CRC collisions for
         //   any possible combination of 1 or 2 byte data.
         //
-        //   Finally, we need to ensure that multiple calls to 'update' produce
-        //   the same result as calling 'update' once with the original two
+        //   Finally, we need to ensure that multiple calls to `update` produce
+        //   the same result as calling `update` once with the original two
         //   strings concatenated together.
         //
         // Plan:
         //   For the first part of the test, create a test vector containing
-        //   data with lengths varying from 0 to 10.  Exercise the 'update'
+        //   data with lengths varying from 0 to 10.  Exercise the `update`
         //   member function for each datum and make sure the object's CRC
         //   value is equal to the expected CRC value.
         //
         //   For the second part of the test, create an integer array using
-        //   'bsl::vector<int>'.  Fill the array using the following steps:
-        //      a. Loop through all the possible values for an 'unsigned char'
+        //   `bsl::vector<int>`.  Fill the array using the following steps:
+        //      a. Loop through all the possible values for an `unsigned char`
         //         (0 .. 255) and add its CRC value to the array.
         //      b. Then loop through all the possible values for a 16-bit
-        //         'unsigned short' (0 .. 65535) and add its CRC value to the
+        //         `unsigned short` (0 .. 65535) and add its CRC value to the
         //         array.
         //      c. Again, loop through all the possible values for a 16-bit
-        //         'unsigned short', but insert a 0-valued byte in between the
+        //         `unsigned short`, but insert a 0-valued byte in between the
         //         2 bytes.  Calculate the CRC and add it to the array.
         //      d. Repeat step (c), but insert a 1-valued byte instead of a
         //         0-valued byte.
@@ -769,12 +769,12 @@ int main(int argc, char *argv[])
         //   immediately preceding it in the array.
         //
         //   For the third part of the test, create test vectors containing
-        //   substring 1 ('MSG1') and substring 2 ('MSG2').  For each input
-        //   case, create two 'bdlde::Crc32' objects ('obj' and 'objAccum').
-        //   Call 'obj.update' with 'MSG1' followed by 'MSG2'.  Concatenate
-        //   'MSG1' and 'MSG2' into a single string and call
-        //   'objAccum.update' with the concatenated string.  Finally,
-        //   assert that 'obj' has the same value as 'objAccum'.
+        //   substring 1 (`MSG1`) and substring 2 (`MSG2`).  For each input
+        //   case, create two `bdlde::Crc32` objects (`obj` and `objAccum`).
+        //   Call `obj.update` with `MSG1` followed by `MSG2`.  Concatenate
+        //   `MSG1` and `MSG2` into a single string and call
+        //   `objAccum.update` with the concatenated string.  Finally,
+        //   assert that `obj` has the same value as `objAccum`.
         //
         // Testing:
         //   void update(const void *data, int length);
@@ -1150,7 +1150,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n3. Multiple 'update' test." << endl;
+        if (verbose) cout << "\n3. Multiple `update` test." << endl;
         {
             static const struct {
                 int         d_lineNum;   // source line number
@@ -1227,13 +1227,13 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY
-        //   The 'bdex' streaming concerns for this component are absolutely
+        // TESTING `bdex` STREAMING FUNCTIONALITY
+        //   The `bdex` streaming concerns for this component are absolutely
         //   standard.
         //
         // Concerns:
-        //   We need to probe the member functions 'bdexStreamIn' and
-        //   'bdexStreamOut' in the manner of a "breathing test" to verify
+        //   We need to probe the member functions `bdexStreamIn` and
+        //   `bdexStreamOut` in the manner of a "breathing test" to verify
         //   basic functionality, then we need to thoroughly test that
         //   functionality using the bdex stream functions, which forward
         //   appropriate calls to the member functions.  We also want to step
@@ -1241,15 +1241,15 @@ int main(int argc, char *argv[])
         //   invalid, incomplete, and corrupted), appropriately selecting data
         //   sets as described below.  In all cases, we need to confirm
         //   exception neutrality using the specially instrumented
-        //   'bslx::TestInStream' and a pair of standard macros,
-        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which
-        //   configure the 'bslx::TestInStream' object appropriately in a loop.
+        //   `bslx::TestInStream` and a pair of standard macros,
+        //   `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //   `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which
+        //   configure the `bslx::TestInStream` object appropriately in a loop.
         //
         // Plan:
         //   PRELIMINARY MEMBER FUNCTION TEST
-        //     First perform a trivial direct test of the 'bdexStreamOut' and
-        //     'bdexStreamIn' methods.  (The remaining tests will use the
+        //     First perform a trivial direct test of the `bdexStreamOut` and
+        //     `bdexStreamIn` methods.  (The remaining tests will use the
         //     bdex stream functions.)
         //
         //   VALID STREAMS
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
         //     Use the underlying stream package to simulate an instance of
         //     a typical valid (control) stream and verify that it can be
         //     streamed in successfully.  The component does not define
-        //     'corrupted' data (all CRCs are valid), so just check for bad
+        //     `corrupted` data (all CRCs are valid), so just check for bad
         //     version numbers.  After each test, verify that the object is in
         //     some valid state after streaming, and that the input stream has
         //     gone invalid.
@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'bdex' Streaming Functionality"
+        if (verbose) cout << "\nTesting `bdex` Streaming Functionality"
                           << "\n======================================"
                           << endl;
 
@@ -1307,10 +1307,10 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         const int VERSION = Obj::maxSupportedBdexVersion(20150813);
-        if (verbose) cout << "\nTesting 'bdexStreamOut' and (valid) "
-                          << "'bdexStreamIn' functionality." << endl;
+        if (verbose) cout << "\nTesting `bdexStreamOut` and (valid) "
+                          << "`bdexStreamIn` functionality." << endl;
         {
-            // testing 'bdexStreamOut' and 'bdexStreamIn' directly
+            // testing `bdexStreamOut` and `bdexStreamIn` directly
             const Obj X(VC);
             Out out(20150813);
             out.putVersion(VERSION);
@@ -1332,7 +1332,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nThorough test using the bdex stream functions "
                           << endl;
         {
-            // testing '<<' and '>>' operators thoroughly
+            // testing `<<` and `>>` operators thoroughly
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X(VALUES[i]);
                 Out out(20150813);
@@ -1459,7 +1459,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // On corrupted data, the component does not define 'corrupted' data
+        // On corrupted data, the component does not define `corrupted` data
         // (all CRCs are valid), so just check for bad version numbers.
 
         if (verbose) cout << "\tOn corrupted data." << endl;
@@ -1493,7 +1493,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tBad version." << endl;
         {
             const int version = 0;
-            // too small ('version' must be >= 1)
+            // too small (`version` must be >= 1)
 
             Out out(20150813);
             out.putUint32(SERIAL_Y);  // stream out "new" value
@@ -1525,9 +1525,9 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`." << endl;
         {
-            // test 'maxSupportedBdexVersion'
+            // test `maxSupportedBdexVersion`
             if (verbose) cout << "\tusing object syntax:" << endl;
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(20150813));
@@ -1539,7 +1539,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
-        //   We need to test the assignment operator ('operator=').
+        //   We need to test the assignment operator (`operator=`).
         //
         // Concerns:
         //   Any value must be assignable to an object having any initial value
@@ -1630,26 +1630,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'g'
-        //   This will test the 'g' generator function.
+        // TESTING GENERATOR FUNCTION `g`
+        //   This will test the `g` generator function.
         //
         // Concerns:
-        //   Since 'g' is implemented almost entirely using 'gg', we need only
-        //   to verify that the arguments are properly forwarded and that 'g'
+        //   Since `g` is implemented almost entirely using `gg`, we need only
+        //   to verify that the arguments are properly forwarded and that `g`
         //   returns an object by value.
         //
         // Plan:
         //   For each spec in a short list of specifications, compare the
-        //   object returned (by value) from the generator function, 'g(SPEC)'
-        //   with the value of a newly constructed object 'mX' configured using
-        //   'gg(&mX, SPEC)'.  The test also ensures that 'g' returns a
+        //   object returned (by value) from the generator function, `g(SPEC)`
+        //   with the value of a newly constructed object `mX` configured using
+        //   `gg(&mX, SPEC)`.  The test also ensures that `g` returns a
         //   distinct object by comparing the memory addresses.
         //
         // Testing:
         //   bdlde::Crc32 g(const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Generator Function 'g'" << endl
+        if (verbose) cout << "\nTesting Generator Function `g`" << endl
                           << "\n==============================" << endl;
 
         static const struct {
@@ -1671,7 +1671,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nCompare values produced by 'g' and 'gg' "
+        if (verbose) cout << "\nCompare values produced by `g` and `gg` "
                           << "for various inputs." << endl;
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -1722,7 +1722,7 @@ int main(int argc, char *argv[])
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
         //   initialize identically-values objects W and X using tested methods
-        //   (in this case, the 'gg' function).  Then copy construct an object
+        //   (in this case, the `gg` function).  Then copy construct an object
         //   Y from X, and use the equality operator to assert that both X and
         //   Y have the same value as W.
         //
@@ -1775,22 +1775,22 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
-        //   This will test the equality operations ('operator==' and
-        //   'operator!=').
+        //   This will test the equality operations (`operator==` and
+        //   `operator!=`).
         //
         // Concerns:
-        //   We want to make sure that 'operator==' returns true for objects
+        //   We want to make sure that `operator==` returns true for objects
         //   that are very similar but still different, but returns true for
         //   objects that are exactly the same.  Likewise, we want to make sure
-        //   that 'operator!=' returns true for objects that are very similar
+        //   that `operator!=` returns true for objects that are very similar
         //   but still different, but returns false for objects that are
         //   exactly the same.
         //
         // Plan:
         //   Construct a set of specs containing similar but different data
         //   values.  Then loop through the cross product of the test data.
-        //   For each tuple, generate two objects 'U' and 'V' using the
-        //   previously tested 'gg' function.  Use the '==' and '!=' operators
+        //   For each tuple, generate two objects `U` and `V` using the
+        //   previously tested `gg` function.  Use the `==` and `!=` operators
         //   and check their return value for correctness.
         //
         // Testing:
@@ -1876,40 +1876,40 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
-        //   We need to test the '<<' operator.
+        //   We need to test the `<<` operator.
         //
         // Concerns:
         //   We want to make sure that the object is written to the stream
-        //   correctly in the expected format (with '0x' prepended to the hex
+        //   correctly in the expected format (with `0x` prepended to the hex
         //   value).
         //
         // Plan:
-        //   The '<<' operator depends on the 'print' member function.
-        //   So, we need to test 'print' before testing 'operator<<'.
+        //   The `<<` operator depends on the `print` member function.
+        //   So, we need to test `print` before testing `operator<<`.
         //   This test is broken into two parts:
-        //:    1 Testing of 'print'
-        //:    2 Testing of 'operator<<'
+        //    1. Testing of `print`
+        //    2. Testing of `operator<<`
         //
         //   Each test vector in DATA contains STR, its LEN, the expected CRC
         //   value and also an expected output FMT.  For each datum, construct
-        //   an independent object 'mX' and call 'update' with STR and LEN.
+        //   an independent object `mX` and call `update` with STR and LEN.
         //   Assert that the object contains the expected CRC value.  Create an
-        //   'ostringstream' object and use the 'print' function to stream
-        //   'mX'.  Compare the contents of the stream object with the expected
+        //   `ostringstream` object and use the `print` function to stream
+        //   `mX`.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
-        //   To test the 'print' operator, for each datum, construct an
-        //   independent object 'mX' and call 'update' with STR and LEN.
+        //   To test the `print` operator, for each datum, construct an
+        //   independent object `mX` and call `update` with STR and LEN.
         //   Assert that the object contains the expected CRC value.  Create an
-        //   'ostringstream' object and use the 'print' function to stream
-        //   'mX'.  Compare the contents of the stream object with the expected
+        //   `ostringstream` object and use the `print` function to stream
+        //   `mX`.  Compare the contents of the stream object with the expected
         //   FMT value.
         //
-        //   To test the '<<' operator, construct an independent object 'obj'
-        //   for each test vector in DATA and then call 'update' with STR and
+        //   To test the `<<` operator, construct an independent object `obj`
+        //   for each test vector in DATA and then call `update` with STR and
         //   LEN.  Assert that the object contains the expected CRC value.
-        //   Create an 'ostringstream' object and use the '<<' operator to
-        //   stream 'obj'.  Finally, compare the contents of the stream object
+        //   Create an `ostringstream` object and use the `<<` operator to
+        //   stream `obj`.  Finally, compare the contents of the stream object
         //   with the expected FMT value.
         //
         // Testing:
@@ -1940,7 +1940,7 @@ int main(int argc, char *argv[])
         const int SIZE     = 128;
         int i;
 
-        if (verbose) cout << "\n2. Testing 'print'." << endl;
+        if (verbose) cout << "\n2. Testing `print`." << endl;
         for (i = 0; i < NUM_DATA; ++i) {
             const int           LINE = DATA[i].d_lineNum;
             const char         *STR  = DATA[i].d_str;
@@ -1961,7 +1961,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, 0 == strcmp(outbuf.str().c_str(), FMT));
         }
 
-        if (verbose) cout << "\n3. Testing 'operator<<'." << endl;
+        if (verbose) cout << "\n3. Testing `operator<<`." << endl;
         for (i = 0; i < NUM_DATA; ++i) {
             const int           LINE = DATA[i].d_lineNum;
             const char         *STR  = DATA[i].d_str;
@@ -1993,16 +1993,16 @@ int main(int argc, char *argv[])
         //   accessors return the correct values.
         //
         // Plan:
-        //   For each test vector in DATA, construct an object 'mX' using the
-        //   default constructor.  Then call 'mX.update' using the current STR
-        //   and LENGTH.  Ensure that the CRC value returned by 'checksum' is
+        //   For each test vector in DATA, construct an object `mX` using the
+        //   default constructor.  Then call `mX.update` using the current STR
+        //   and LENGTH.  Ensure that the CRC value returned by `checksum` is
         //   the same as the expected CRC value.
         //
-        //   Then, for each test vector in DATA, construct an object 'mX' using
-        //   the default constructor.  Then call 'mX.update' using the current
+        //   Then, for each test vector in DATA, construct an object `mX` using
+        //   the default constructor.  Then call `mX.update` using the current
         //   STR and LENGTH.  Ensure that the CRC value returned by
-        //   'checksumAndReset' is the same as the expected CRC value.  Then
-        //   verify that a subsequent value returned by 'checksum' will be the
+        //   `checksumAndReset` is the same as the expected CRC value.  Then
+        //   verify that a subsequent value returned by `checksum` will be the
         //   same as a default object.
         //
         // Testing:
@@ -2037,7 +2037,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'checksum'." << endl;
+        if (verbose) cout << "\nTesting `checksum`." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
@@ -2058,7 +2058,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'checksumAndReset'." << endl;
+        if (verbose) cout << "\nTesting `checksumAndReset`." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
@@ -2085,8 +2085,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTION 'gg'
-        //   This will test the 'gg' generator function.
+        // TESTING PRIMITIVE GENERATOR FUNCTION `gg`
+        //   This will test the `gg` generator function.
         //
         // Concerns:
         //   We want to verify (1) that valid generator syntax produces
@@ -2094,15 +2094,15 @@ int main(int argc, char *argv[])
         //   reported.
         //
         // Plan:
-        //   For each enumerated sequence of 'spec' values, ordered by
-        //   increasing 'spec' length, use the primitive generator function
-        //   'gg' to set the state of a newly created object.  Verify that 'gg'
+        //   For each enumerated sequence of `spec` values, ordered by
+        //   increasing `spec` length, use the primitive generator function
+        //   `gg` to set the state of a newly created object.  Verify that `gg`
         //   returns a valid reference to the modified object and, using basic
         //   accessors, that the value of the object is as expected.  Note that
         //   we are testing the parser only; the primary manipulators are
         //   already assumed to work.
         //
-        //   This test case also tests the 'ggg' function using invalid 'spec'
+        //   This test case also tests the `ggg` function using invalid `spec`
         //   values, to ensure that error messages are caught and reported
         //   correctly.
         //
@@ -2112,7 +2112,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl << "Testing Primitive Generator Function 'gg'"
+            cout << endl << "Testing Primitive Generator Function `gg`"
                  << endl << "========================================="
                  << endl;
 
@@ -2123,7 +2123,7 @@ int main(int argc, char *argv[])
                 int          d_lineNum;      // source line number
                 const char  *d_spec;         // specification string
                 const char  *d_interpreted;  // interpreted string
-                int          d_length;       // length of 'd_interpreted'
+                int          d_length;       // length of `d_interpreted`
             } DATA[] = {
                 //line  spec             interpreted      length
                 //----  ----             -----------      ------
@@ -2240,9 +2240,9 @@ int main(int argc, char *argv[])
         //   First, verify the default constructor by testing the value of the
         //   resulting object.
         //
-        //   Next, verify that the 'update' member function works by
+        //   Next, verify that the `update` member function works by
         //   constructing a series of independent objects using the default
-        //   constructor and running 'update' using increasing string lengths.
+        //   constructor and running `update` using increasing string lengths.
         //   Verify the CRC value in the object using the basic accessor.
         //
         //   Note that the destructor is exercised on each configuration as the
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
             ASSERT(defaultCrc == X.checksum());
         }
 
-        if (verbose) cout << "\nTesting 'update'." << endl;
+        if (verbose) cout << "\nTesting `update`." << endl;
         {
             if (veryVerbose) cout << "\tUsing string with length 0." << endl;
 
@@ -2343,9 +2343,9 @@ int main(int argc, char *argv[])
         //   the following methods and operators:
         //     - default and copy constructors.
         //     - the assignment operator (including aliasing).
-        //     - equality operators: 'operator==' and 'operator!='.
-        //     - primary manipulators: 'update' and 'reset'.
-        //     - basic accessors: 'checksum'.
+        //     - equality operators: `operator==` and `operator!=`.
+        //     - primary manipulators: `update` and `reset`.
+        //     - basic accessors: `checksum`.
         //
         // Plan:
         //   Create four test objects using the default, initializing, and copy
@@ -2354,17 +2354,17 @@ int main(int argc, char *argv[])
         //   manipulator [5, 6, 7], copy constructor [2, 4], assignment
         //   operator without [9, 9] and with [10] aliasing.  Use the basic
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB' and 'VC' denote
-        //   unique, but otherwise arbitrary, object values, while 'U' denotes
+        //   frequently in verbose mode.  Note that `VA`, `VB` and `VC` denote
+        //   unique, but otherwise arbitrary, object values, while `U` denotes
         //   the valid, but "unknown", default object value.
         //
         //    1. Create an object x1 (init. to VA)  { x1:VA                  }
         //    2. Create an object x2 (copy of x1)   { x1:VA x2:VA            }
         //    3. Create an object x3 (default ctor) { x1:VA x2:VA x3:U       }
         //    4. Create an object x4 (copy of x3)   { x1:VA x2:VA x3:U  x4:U }
-        //    5. Set x3 using 'update' (set to VB)  { x1:VA x2:VA x3:VB x4:U }
-        //    6. Change x1 using 'reset'            { x1:U  x2:VA x3:VB x4:U }
-        //    7. Change x1 ('update', set to VC)    { x1:VC x2:VA x3:VB x4:U }
+        //    5. Set x3 using `update` (set to VB)  { x1:VA x2:VA x3:VB x4:U }
+        //    6. Change x1 using `reset`            { x1:U  x2:VA x3:VB x4:U }
+        //    7. Change x1 (`update`, set to VC)    { x1:VC x2:VA x3:VB x4:U }
         //    8. Assign x2 = x1                     { x1:VC x2:VC x3:VB x4:U }
         //    9. Assign x2 = x3                     { x1:VC x2:VB x3:VB x4:U }
         //   10. Assign x1 = x1 (aliasing)          { x1:VC x2:VB x3:VB x4:U }
@@ -2463,7 +2463,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X4 == X4));        ASSERT(0 == (X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 5. Set x3 using 'update' (set to VB)."
+        if (verbose) cout << "\n 5. Set x3 using `update` (set to VB)."
                              "\t\t{ x1:VA x2:VA x3:VB x4:U }" << endl;
         mX3.update(SB, LB);
         if (verbose) { cout << '\t'; P(X3); }
@@ -2479,7 +2479,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (X3 == X4));        ASSERT(1 == (X3 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 6. Change x1 using 'reset'."
+        if (verbose) cout << "\n 6. Change x1 using `reset`."
                              "\t\t{ x1:U x2:VA x3:VB x4:U }" << endl;
         mX1.reset();
         if (verbose) { cout << '\t'; P(X1); }
@@ -2495,7 +2495,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (X1 == X4));        ASSERT(0 == (X1 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 7. Change x1 ('update', set to VC)."
+        if (verbose) cout << "\n 7. Change x1 (`update`, set to VC)."
                              "\t\t{ x1:VC x2:VA x3:VB x4:U }" << endl;
         mX1.update(SC, LC);
         if (verbose) { cout << '\t'; P(X1); }
@@ -2564,15 +2564,15 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns:
-        //   We want to ensure that the performance of the 'update' method is
-        //   at least as efficient as the 'crc32' legacy implementation from
+        //   We want to ensure that the performance of the `update` method is
+        //   at least as efficient as the `crc32` legacy implementation from
         //   dbutil.
         //
         // Plan:
-        //   Incorporate, verbatim, the source code of the 'crc32trm' function
+        //   Incorporate, verbatim, the source code of the `crc32trm` function
         //   from dbutil and make the minimal modifications required to compile
         //   and run it in the context of this test driver.  Compare the
-        //   performance of 'crc32trm' against 'update' when applied to a small
+        //   performance of `crc32trm` against `update` when applied to a small
         //   set of test strings within a loop of at least 1M iterations.
         //
         // Testing:

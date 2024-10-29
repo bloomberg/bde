@@ -36,7 +36,7 @@ using namespace bsl;
 // [1] BREATHING TEST
 // [2] FREE FUNCTIONS AND MEMBER FUNCTIONS
 // [3] TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
-// [4] WORKING WITH 'VARIANT'
+// [4] WORKING WITH `VARIANT`
 // [5] USAGE EXAMPLE
 
 // ============================================================================
@@ -144,16 +144,17 @@ namespace FreeFN {
 }  // close namespace FreeFN
 
 //  ----- member functions
+
+/// A structure containing a set of static member functions that take the
+/// types that we are testing, and return the enum corresponding to the
+/// type.
 struct StaticMF {
-    // A structure containing a set of static member functions that take the
-    // types that we are testing, and return the enum corresponding to the
-    // type.
     static int HandleIntMF (int) { return kInt;}
 };
 
+/// A structure containing a set of member functions that take the types
+/// that we are testing, and return the enum corresponding to the type.
 struct NonStaticMF {
-    // A structure containing a set of member functions that take the types
-    // that we are testing, and return the enum corresponding to the type.
 
     int HandleShortMF          (short)                { return kShort;}
     int HandleUnsignedShortMF  (unsigned short)       { return kUnsignedShort;}
@@ -173,7 +174,7 @@ struct NonStaticMF {
 struct staticTemplateMF {
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
-// warning: declaring overloaded 'operator()' as 'static' is a C++2b extension
+// warning: declaring overloaded `operator()` as `static` is a C++2b extension
     static int operator()() { return kVoid; }
 
     template <class TYPE>
@@ -206,11 +207,11 @@ struct staticTemplateMF {
     }
 };
 
+/// A structure containing a templated `operator()` member function that
+/// returns the  enum corresponding to the type that the function was
+/// instantiated with.  It also contains a member function `MemberFN` that
+/// does the same thing.
 struct TemplateMF {
-    // A structure containing a templated 'operator()' member function that
-    // returns the  enum corresponding to the type that the function was
-    // instantiated with.  It also contains a member function 'MemberFN' that
-    // does the same thing.
 
     int operator()() const { return kVoid; }
 
@@ -245,10 +246,10 @@ struct TemplateMF {
 };
 
 
+/// Call the `operator()` of the specified `call` with various types, and
+/// ensure that the return value corresponds to the types that were passed.
 template <class CALLABLE>
 void checkEm(const CALLABLE& call)
-    // Call the 'operator()' of the specified 'call' with various types, and
-    // ensure that the return value corresponds to the types that were passed.
 {
     ASSERT(kVoid          == call());
 
@@ -264,11 +265,11 @@ void checkEm(const CALLABLE& call)
     ASSERT(kStringView    == call(string_view("2.0")));
 }
 
+/// Call the `operator()` of the specified `call` the specified `p` and
+/// various types, and ensure that the return value corresponds to the types
+/// that were passed.
 template <class CALLABLE, class PARAM>
 void checkEm(const CALLABLE& call, PARAM p)
-    // Call the 'operator()' of the specified 'call' the specified 'p' and
-    // various types, and ensure that the return value corresponds to the types
-    // that were passed.
 {
     ASSERT(kVoid          == call(p));
 
@@ -307,7 +308,7 @@ int main(int argc, char *argv[])
     (void)veryVeryVeryVerbose;  // unused variable warning
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    ASSERT(true);  // silence 'unused function' warning on C++11
+    ASSERT(true);  // silence `unused function` warning on C++11
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -316,13 +317,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -335,28 +336,28 @@ int main(int argc, char *argv[])
 
         // First, create a bsl::variant object that can contain several different
         // types.
-        //..
+        // ```
         bsl::variant<unsigned, double, bsl::string> v;
-        //..
+        // ```
         // Next, Create an Overload object containing several options:
-        //..
+        // ```
         bdlf::Overloaded over{
               [](unsigned)           {return 1;}
             , [](double)             {return 2;}
             , [](const bsl::string&) {return 3;}
             };
-        //..
+        // ```
         // Set the value of variant, and then call std::visit, passing the
         // overload set and the variant.  Check the return value to see that
         // the right lambda was called.
-        //..
+        // ```
         v = 2U;
         ASSERT(1 == bsl::visit(over, v));
         v = 2.0;
         ASSERT(2 == bsl::visit(over, v));
         v = bsl::string("2.0");
         ASSERT(3 == bsl::visit(over, v));
-        //..
+        // ```
 
 #endif
       } break;
@@ -364,23 +365,23 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // WORKING WITH 'VARIANT'
+        // WORKING WITH `VARIANT`
         //
         // Concerns:
-        //: 1 'bdlf::Overloaded' works with 'std::visit'
+        // 1. `bdlf::Overloaded` works with `std::visit`
         //
         // Plan:
-        //: 1 Create a 'std::variant' that can hold several types. Call
-        //:   std::visit on that variant, passing a 'bdlf::Overloaded' object
-        //:   and verify the results (C-1)
+        // 1. Create a `std::variant` that can hold several types. Call
+        //    std::visit on that variant, passing a `bdlf::Overloaded` object
+        //    and verify the results (C-1)
         //
         // Testing:
-        //   WORKING WITH 'VARIANT'
+        //   WORKING WITH `VARIANT`
         // --------------------------------------------------------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
         if (verbose) cout << endl
-                    << "WORKING WITH 'VARIANT'" << endl
+                    << "WORKING WITH `VARIANT`" << endl
                     << "======================" << endl;
 
 
@@ -481,18 +482,18 @@ int main(int argc, char *argv[])
         // TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
         //
         // Concerns:
-        //: 1 We can create overload sets containing templated free functions,
-        //:  templated static member functions, and templated non-static member
-        //:  functions.
+        // 1. We can create overload sets containing templated free functions,
+        //   templated static member functions, and templated non-static member
+        //   functions.
         //
         // Plan:
-        //: 1 Create overload sets from a various combinations of free
-        //:   functions, static member functions, and non-static member
-        //:   functions (C-1).
-        //:
-        //: 2 Call the overloads with a variety of types as the (single)
-        //:   parameter, and inspect the result of the call to verify that the
-        //:   correct option was invoked.
+        // 1. Create overload sets from a various combinations of free
+        //    functions, static member functions, and non-static member
+        //    functions (C-1).
+        //
+        // 2. Call the overloads with a variety of types as the (single)
+        //    parameter, and inspect the result of the call to verify that the
+        //    correct option was invoked.
         //
         // Testing:
         //   TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
@@ -504,7 +505,7 @@ int main(int argc, char *argv[])
             << "=============================================" << endl;
 
 
-        //  You can use classes that have a templated 'operator()'
+        //  You can use classes that have a templated `operator()`
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
         checkEm(bdlf::Overloaded{staticTemplateMF()}); // works with operator()
 #endif
@@ -566,24 +567,24 @@ int main(int argc, char *argv[])
         // FREE FUNCTIONS AND MEMBER FUNCTIONS
         //
         // Concerns:
-        //: 1 We can create overload sets containing free functions, static
-        //:   member functions, and non-static member functions.
-        //:
-        //: 2 The 'no-except'-ness of a member function is reflected in the
-        //:   overload set that contains it.
+        // 1. We can create overload sets containing free functions, static
+        //    member functions, and non-static member functions.
+        //
+        // 2. The `no-except`-ness of a member function is reflected in the
+        //    overload set that contains it.
         //
         // Plan:
-        //: 1 Create overload sets from a various combinations of free
-        //:   functions, static member functions, and non-static member
-        //:   functions (C-1).
-        //:
-        //: 2 Call the overloads with a variety of types as the (single)
-        //:   parameter, and inspect the result of the call to verify that the
-        //:   correct option was invoked.
-        //:
-        //: 3 Test that a call to an overload set that would call a noexcept
-        //:   function is actually noexcept, and the converse.
-        //:   useless). (C-2)
+        // 1. Create overload sets from a various combinations of free
+        //    functions, static member functions, and non-static member
+        //    functions (C-1).
+        //
+        // 2. Call the overloads with a variety of types as the (single)
+        //    parameter, and inspect the result of the call to verify that the
+        //    correct option was invoked.
+        //
+        // 3. Test that a call to an overload set that would call a noexcept
+        //    function is actually noexcept, and the converse.
+        //    useless). (C-2)
         //
         // Testing:
         //   FREE FUNCTIONS AND MEMBER FUNCTIONS
@@ -607,24 +608,24 @@ int main(int argc, char *argv[])
             , [](string_view)  {return kStringView;}
             });
 
-        // I would like the line below marked 'does not work; see above' to
+        // I would like the line below marked `does not work; see above` to
         // work, where we add a const member function to an overload set that
         // gets passed a non-const object pointer.  It *could* work, but not in
-        // this case.  In the overload set 'over2', if we call with the
-        // parameters '(NonStaticMF *, int)', the following functions in the
-        // overload set are equally good (and result in a 'call is ambiguous'
+        // this case.  In the overload set `over2`, if we call with the
+        // parameters `(NonStaticMF *, int)`, the following functions in the
+        // overload set are equally good (and result in a `call is ambiguous`
         // error):
-        //..
+        // ```
         //      const NonStaticMF *, int
         //            NonStaticMF *, float
         //            NonStaticMF *, double
         //            NonStaticMF *, long double
-        //..
+        // ```
         // but if I pass something for the second parameter that doesn't have a
         // lot of conversions, like a string_view, then the conversion from
-        // 'NonStaticMF *' to a 'const NonStaticMF *' doesn't open the door to
+        // `NonStaticMF *` to a `const NonStaticMF *` doesn't open the door to
         // other members of the overload.  That example is marked as
-        // 'see above (2)'.
+        // `see above (2)`.
         auto over1 = bdlf::Overloaded{
               [](NonStaticMF *)                 {return kVoid;}
             , &NonStaticMF::HandleShortMF
@@ -672,21 +673,21 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Users can create a 'bdlf::Overloaded' from a sequence of lambda
-        //:   expressions.
-        //:
-        //: 2 Users can also use structures containing one or more
-        //:   'operator()' members when constructing the 'bdlf::Overloaded'.
-        //:
-        //: 3 When the Overloaded object is called, the correct lambda is
-        //:   invoked.
+        // 1. Users can create a `bdlf::Overloaded` from a sequence of lambda
+        //    expressions.
+        //
+        // 2. Users can also use structures containing one or more
+        //    `operator()` members when constructing the `bdlf::Overloaded`.
+        //
+        // 3. When the Overloaded object is called, the correct lambda is
+        //    invoked.
         //
         // Plan:
-        //: 1 Create the overloads from the sources mentioned above (C-1, 2)
-        //:
-        //: 2 Call the overloads with a variety of types as the (single)
-        //:   parameter, and inspect the result of the call to verify that the
-        //:   correct option was invoked. (C-3)
+        // 1. Create the overloads from the sources mentioned above (C-1, 2)
+        //
+        // 2. Call the overloads with a variety of types as the (single)
+        //    parameter, and inspect the result of the call to verify that the
+        //    correct option was invoked. (C-3)
         //
         // Testing:
         //   BREATHING TEST
@@ -717,7 +718,7 @@ int main(int argc, char *argv[])
             });
 
         // Build an overload set from a series of lambdas and a struct that
-        // has an 'operator()'
+        // has an `operator()`
         checkEm(bdlf::Overloaded{
               [](void)           {return kVoid;}
             , FloatingPoint{}

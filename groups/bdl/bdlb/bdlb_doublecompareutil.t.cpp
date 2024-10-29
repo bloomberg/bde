@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -552,10 +552,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate the tabular example from header as a conventional set
-        //   of table-generated test vectors and 'ASSERT' the expected results.
+        //   of table-generated test vectors and `ASSERT` the expected results.
         //
         // Testing:
-        //   The numerical example from 'bdlb_DoubleCompareUtil.h'.
+        //   The numerical example from `bdlb_DoubleCompareUtil.h`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING TABULAR EXAMPLE"

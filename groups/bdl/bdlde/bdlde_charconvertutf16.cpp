@@ -201,8 +201,8 @@ enum {
                     BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
 
+/// For storing uncompressed Unicode code point (21 bit, 17 plane).
 typedef unsigned int UnicodeCodePoint;
-    // For storing uncompressed Unicode code point (21 bit, 17 plane).
 
 // Portability check -- data type sizes.
 BSLMF_ASSERT(8 == CHAR_BIT);
@@ -228,152 +228,159 @@ BSLMF_ASSERT(2 == sizeof(wchar_t) || 4 == sizeof(wchar_t));
 // When the words storing the UTF-16 content are 2 bytes long, a full swap is
 // necessary, and then we just call 'bsls::ByteOrderUtil::swapBytes'.
 
+/// Return the value of the specified `uc` in host byte order, where `uc` is
+/// assumed to be in a swapped state.
 template <class    UTF16_WORD,
           unsigned UTF16_WORD_SIZE>
 BSLA_MAYBE_UNUSED UTF16_WORD swappedToHost(UTF16_WORD uc);
-    // Return the value of the specified 'uc' in host byte order, where 'uc' is
-    // assumed to be in a swapped state.
 
+/// Return the value of the specified `uc` with its bytes swapped, where `uc`
+/// is assumed to be in host byte order.
 template <class    UTF16_WORD,
           unsigned UTF16_WORD_SIZE>
 BSLA_MAYBE_UNUSED UTF16_WORD hostToSwapped(UTF16_WORD uc);
-    // Return the value of the specified 'uc' with its bytes swapped, where
-    // 'uc' is assumed to be in host byte order.
 
+/// Return the value of the specified `uc` in host byte order, where `uc` is
+/// assumed to be in a swapped state.
 template <>
 inline
 unsigned short swappedToHost<unsigned short, 2>(unsigned short uc)
-    // Return the value of the specified 'uc' in host byte order, where 'uc' is
-    // assumed to be in a swapped state.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
+/// Return the value of the specified `uc` with its bytes swapped, where `uc`
+/// is assumed to be in host byte order.
 template <>
 inline
 unsigned short hostToSwapped<unsigned short, 2>(unsigned short uc)
-    // Return the value of the specified 'uc' with its bytes swapped, where
-    // 'uc' is assumed to be in host byte order.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
 #if 65535 >= WCHAR_MAX  // remove unused function warning
+/// Return the value of the specified 'uc' in host byte order, where 'uc' is
+/// assumed to be in a swapped state.
 template <>
 inline
 wchar_t swappedToHost<wchar_t, 2>(wchar_t uc)
-    // Return the value of the specified 'uc' in host byte order, where 'uc' is
-    // assumed to be in a swapped state.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
+/// Return the value of the specified `uc` with its bytes swapped, where
+/// `uc` is assumed to be in host byte order.
 template <>
 inline
 wchar_t hostToSwapped<wchar_t, 2>(wchar_t uc)
-    // Return the value of the specified 'uc' with its bytes swapped, where
-    // 'uc' is assumed to be in host byte order.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+/// Return the value of the specified `uc` in host byte order, where `uc` is
+/// assumed to be in a swapped state.
 template <>
 inline
 char16_t swappedToHost<char16_t, 2>(char16_t uc)
-    // Return the value of the specified 'uc' in host byte order, where 'uc' is
-    // assumed to be in a swapped state.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 
+/// Return the value of the specified `uc` with its bytes swapped, where `uc`
+/// is assumed to be in host byte order.
 template <>
 inline
 char16_t hostToSwapped<char16_t, 2>(char16_t uc)
-    // Return the value of the specified 'uc' with its bytes swapped, where
-    // 'uc' is assumed to be in host byte order.
 {
     return BloombergLP::bsls::ByteOrderUtil::swapBytes(uc);
 }
 #endif
 
+/// Return the value of the specified `uc` in host byte order, where `uc` is
+/// assumed to be in a swapped state. The low-order 16 bits of 'uc' are assumed
+/// to be 0.
 template <>
 inline
 wchar_t swappedToHost<wchar_t, 4>(wchar_t uc)
-    // Return the value of the specified 'uc' in host byte order, where 'uc' is
-    // assumed to be in a swapped state.  The low-order 16 bits of 'uc' are
-    // assumed to be 0.
 {
     return (static_cast<unsigned int>(uc) >> 24) | ((uc & 0xff0000) >> 8);
 }
 
+/// Return the value of the specified `uc` with its bytes swapped, where `uc`
+/// is assumed to be in host byte order.  The high-order 16 bits of 'uc' are
+/// assumed to be 0.
 template <>
 inline
 wchar_t hostToSwapped<wchar_t, 4>(wchar_t uc)
-    // Return the value of the specified 'uc' with its bytes swapped, where
-    // 'uc' is assumed to be in host byte order.  The high-order 16 bits of
-    // 'uc' are assumed to be 0.
 {
     return (static_cast<unsigned int>(uc) << 24) | ((uc & 0xff00) << 8);
 }
 
+/// Functor passed to `localUtf8ToUtf16` and `localUtf16ToUtf8` in cases
+/// where we monitor capacity available in output.  Initialize in c'tor with
+/// an integer `capacity`, then thereafter support operators `--`, `-=`, and
+/// `<` for that value.
 struct Capacity {
-    // Functor passed to 'localUtf8ToUtf16' and 'localUtf16ToUtf8' in cases
-    // where we monitor capacity available in output.  Initialize in c'tor with
-    // an integer 'capacity', then thereafter support operators '--', '-=', and
-    // '<' for that value.
 
     bsl::size_t d_capacity;
 
     // CREATORS
+
+    /// Create a `Capacity` object with the specified `capacity`.
     explicit
     Capacity(bsl::size_t capacity) : d_capacity(capacity) {}
-        // Create a 'Capacity' object with the specified 'capacity'.
 
     // MANIPULATORS
-    void operator--() { --d_capacity; }
-        // Decrement 'd_capacity'.
 
+    /// Decrement `d_capacity`.
+    void operator--() { --d_capacity; }
+
+    /// Decrement `d_capacity` by the specified `delta`.
     void operator-=(int delta) { d_capacity -= delta; }
-        // Decrement 'd_capacity' by the specified 'delta'.
 
     // ACCESSORS
+
+    /// Return `true` if `d_capacity` is less than the specified `rhs`, and
+    /// `false` otherwise.
     bool operator<(bsl::size_t rhs) const { return d_capacity < rhs; }
-        // Return 'true' if 'd_capacity' is less than the specified 'rhs', and
-        // 'false' otherwise.
 };
 
+/// Functor passed to `localUtf8ToUtf16` and `localUtf16ToUtf8` in cases
+/// where we don't want to monitor capacity available in output, all
+/// operations on this object are to become no-ops, all if-blocks controlled
+/// by `<` are `if `<capacity> < <value>` with no `else' and will expand to
+/// no code.
 struct NoOpCapacity {
-    // Functor passed to 'localUtf8ToUtf16' and 'localUtf16ToUtf8' in cases
-    // where we don't want to monitor capacity available in output, all
-    // operations on this object are to become no-ops, all if-blocks controlled
-    // by '<' are 'if '<capacity> < <value>' with no 'else' and will expand to
-    // no code.
 
     // MANIPULATORS
-    void operator--() {}
-        // No-op.
 
+    /// No-op.
+    void operator--() {}
+
+    /// No-op.
     void operator-=(int) {}
-        // No-op.
 
     // ACCESSORS
+
+    /// Return `false`.
     bool operator<(bsl::size_t) const { return false; }
-        // Return 'false'.
 };
 
 // LOCAL HELPER STRUCT
+
+/// `Utf8` is an `expert` struct, embodying the rules for converting between
+/// 21-bit (17-plane) Unicode and UTF-8.
 struct Utf8 {
-    // 'Utf8' is an 'expert' struct, embodying the rules for converting between
-    // 21-bit (17-plane) Unicode and UTF-8.
 
     // TYPES
+
+    /// Treating the octets as a signed (or default signed) `char` has so
+    /// many pitfalls in widening that the code would become unreadable.
+    /// This typedef (used especially for pointer punning) gives a shorter
+    /// way to write all the conversions necessary.
     typedef unsigned char OctetType;
-        // Treating the octets as a signed (or default signed) 'char' has so
-        // many pitfalls in widening that the code would become unreadable.
-        // This typedef (used especially for pointer punning) gives a shorter
-        // way to write all the conversions necessary.
 
     enum Utf8Bits {
         // Masks and shifts used to assemble and dismantle UTF-8 encodings.
@@ -406,18 +413,20 @@ struct Utf8 {
 
       public:
         // CREATORS
+
+        /// Create a `PtrBasedEnd` object with the end at the specified
+        /// `end`.
         explicit
         PtrBasedEnd(const char *end)
-            // Create a 'PtrBasedEnd' object with the end at the specified
-            // 'end'.
         : d_end(reinterpret_cast<const OctetType *>(end))
         {}
 
         // ACCESSORS
+
+        /// Return `true` if the specified `position` is at the end of
+        /// input, and `false` otherwise.  The behavior is undefined unless
+        /// `position <= d_end`.
         bool isFinished(const OctetType *position) const
-            // Return 'true' if the specified 'position' is at the end of
-            // input, and 'false' otherwise.  The behavior is undefined unless
-            // 'position <= d_end'.
         {
             if (position < d_end) {
                 return false;                                         // RETURN
@@ -428,10 +437,10 @@ struct Utf8 {
             }
         }
 
+        /// Return a pointer to after all the consecutive continuation
+        /// bytes following the specified `octets` that are prior to
+        /// `d_end`.  The behavior is undefined unless `octets <= d_end`.
         const OctetType *skipContinuations(const OctetType *octets) const
-            // Return a pointer to after all the consecutive continuation
-            // bytes following the specified 'octets' that are prior to
-            // 'd_end'.  The behavior is undefined unless 'octets <= d_end'.
         {
             // This function is not called in the critical path.  It is called
             // when it is known that there are fewer continuation octets after
@@ -447,12 +456,12 @@ struct Utf8 {
             return octets;
         }
 
+        /// Return `true` if there are at least the specified `n`
+        /// continuation bytes beginning at the specified `octets` and prior
+        /// to `d_end`, and `false` otherwise.  The behavior is undefined if
+        /// `octets` is past the end.  The behavior is undefined unless
+        /// `octets <= d_end`.
         bool verifyContinuations(const OctetType *octets, int n) const
-            // Return 'true' if there are at least the specified 'n'
-            // continuation bytes beginning at the specified 'octets' and prior
-            // to 'd_end', and 'false' otherwise.  The behavior is undefined if
-            // 'octets' is past the end.  The behavior is undefined unless
-            // 'octets <= d_end'.
         {
             BSLS_ASSERT(n >= 1);
             BSLS_ASSERT(d_end >= octets);
@@ -476,23 +485,25 @@ struct Utf8 {
 
     struct ZeroBasedEnd {
         // CREATORS
+
+        /// Create a `ZeroBasedEnd` object.
         ZeroBasedEnd()
-            // Create a 'ZeroBasedEnd' object.
         {
         }
 
         // ACCESSORS
+
+        /// Return `true` if the specified `position` is at the end of
+        /// input, and `false` otherwise.
         bool isFinished(const OctetType *position) const
-            // Return 'true' if the specified 'position' is at the end of
-            // input, and 'false' otherwise.
         {
             return 0 == *position;
         }
 
+        /// Return a pointer to after all the consecutive continuation
+        /// bytes following the specified `octets`.  The behavior is
+        /// undefined unless `octets <= d_end`.
         const OctetType *skipContinuations(const OctetType *octets) const
-            // Return a pointer to after all the consecutive continuation
-            // bytes following the specified 'octets'.  The behavior is
-            // undefined unless 'octets <= d_end'.
         {
             // This function is not called in the critical path.  It is called
             // when it is known that there are not as many continuation octets
@@ -505,10 +516,10 @@ struct Utf8 {
             return octets;
         }
 
+        /// Return `true` if there are at least the specified `n`
+        /// continuation bytes beginning at the specified `octets`, and
+        /// `false` otherwise.  The behavior is undefined unless `n >= 1`.
         bool verifyContinuations(const OctetType *octets, int n) const
-            // Return 'true' if there are at least the specified 'n'
-            // continuation bytes beginning at the specified 'octets', and
-            // 'false' otherwise.  The behavior is undefined unless 'n >= 1'.
         {
             BSLS_ASSERT(n >= 1);
 
@@ -542,35 +553,35 @@ struct Utf8 {
     //   the original UTF-8 scheme, but not UTF-8 as it is used for encoding
     //   iso10646 code points.)
 
+    /// Return `true` if the specified `oct` is a complete Unicode
+    /// code point, and `false` otherwise.
     static
     bool isSingleOctet(OctetType oct)
-        // Return 'true' if the specified 'oct' is a complete Unicode
-        // code point, and 'false' otherwise.
     {
         return 0 == (oct & ONE_OCTET_MASK);
     }
 
 
+    /// Return `true` if the specified `oct` is the start of a two-octet
+    /// sequence, and `false` otherwise.
     static
     bool isTwoOctetHeader(OctetType oct)
-        // Return 'true' if the specified 'oct' is the start of a two-octet
-        // sequence, and 'false' otherwise.
     {
         return (oct & TWO_OCTET_MASK) == TWO_OCTET_TAG;
     }
 
+    /// Return `true` if the specified `oct` is the start of a three-octet
+    /// sequence, and `false` otherwise.
     static
     bool isThreeOctetHeader(OctetType oct)
-        // Return 'true' if the specified 'oct' is the start of a three-octet
-        // sequence, and 'false' otherwise.
     {
         return (oct & THREE_OCTET_MASK) == THREE_OCTET_TAG;
     }
 
+    /// Return `true` if the specified `oct` is the start of a four-octet
+    /// sequence, and `false` otherwise.
     static
     bool isFourOctetHeader(OctetType oct)
-        // Return 'true' if the specified 'oct' is the start of a four-octet
-        // sequence, and 'false' otherwise.
     {
         return (oct & FOUR_OCTET_MASK) == FOUR_OCTET_TAG;
     }
@@ -589,32 +600,32 @@ struct Utf8 {
     //:   single-octet code point can be copied directly; no function is
     //:   provided to cover this trivial computation.
 
+    /// Assume the specified `octBuf` is the beginning of a two-octet
+    /// sequence, decode that sequence, and return the decoded Unicode
+    /// code point.
     static
     UnicodeCodePoint decodeTwoOctets(const OctetType *octBuf)
-        // Assume the specified 'octBuf' is the beginning of a two-octet
-        // sequence, decode that sequence, and return the decoded Unicode
-        // code point.
     {
         return (octBuf[1] & ~CONTINUE_MASK)
             | ((octBuf[0] & ~TWO_OCTET_MASK) << CONTINUE_CONT_WID);
     }
 
+    /// Assume the specified `octBuf` is the beginning of a three-octet
+    /// sequence, decode that sequence, and return the decoded Unicode
+    /// code point.
     static
     UnicodeCodePoint decodeThreeOctets(const OctetType *octBuf)
-        // Assume the specified 'octBuf' is the beginning of a three-octet
-        // sequence, decode that sequence, and return the decoded Unicode
-        // code point.
     {
         return (octBuf[2] & ~CONTINUE_MASK)
             | ((octBuf[1] & ~CONTINUE_MASK)    <<     CONTINUE_CONT_WID)
             | ((octBuf[0] & ~THREE_OCTET_MASK) << 2 * CONTINUE_CONT_WID);
     }
 
+    /// Assume the specified `octBuf` is the beginning of a four-octet
+    /// sequence, decode that sequence, and return the decoded Unicode
+    /// code point.
     static
     UnicodeCodePoint decodeFourOctets(const OctetType *octBuf)
-        // Assume the specified 'octBuf' is the beginning of a four-octet
-        // sequence, decode that sequence, and return the decoded Unicode
-        // code point.
     {
         return (octBuf[3] & ~CONTINUE_MASK)
             | ((octBuf[2] & ~CONTINUE_MASK)   <<     CONTINUE_CONT_WID)
@@ -634,27 +645,27 @@ struct Utf8 {
     //    code point (i.e., that it does not lie in the d800-to-dfff reserved
     //    range).
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in a
+    /// single octet of UTF-8, and `false` otherwise.
     static
     bool fitsInSingleOctet(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode code point 'uc' will fit in a
-        // single octet of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << ONE_OCT_CONT_WID);
     }
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in
+    /// two octets of UTF-8, and `false` otherwise.
     static
     bool fitsInTwoOctets(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode code point 'uc' will fit in
-        // two octets of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << (TWO_OCT_CONT_WID +
                                                           CONTINUE_CONT_WID));
     }
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in
+    /// three octets of UTF-8, and `false` otherwise.
     static
     bool fitsInThreeOctets(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode code point 'uc' will fit in
-        // three octets of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << (THREE_OCT_CONT_WID +
                                                       2 * CONTINUE_CONT_WID));
@@ -672,10 +683,10 @@ struct Utf8 {
     //     given.  Note that the single-byte encoding is accomplished by a
     //     direct copy, for which no function is provided here.
 
+    /// Assume the specified `isoBuf` will fit in 2 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeTwoOctets(char *octBuf, UnicodeCodePoint isoBuf)
-        // Assume the specified 'isoBuf' will fit in 2 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
     {
         octBuf[1] = static_cast<char>(CONTINUE_TAG |
                              (isoBuf                       & ~CONTINUE_MASK));
@@ -683,10 +694,10 @@ struct Utf8 {
                             ((isoBuf >> CONTINUE_CONT_WID) & ~TWO_OCTET_MASK));
     }
 
+    /// Assume the specified `isoBuf` will fit in 3 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeThreeOctets(char *octBuf, UnicodeCodePoint isoBuf)
-        // Assume the specified 'isoBuf' will fit in 3 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
     {
         octBuf[2] = static_cast<char>(CONTINUE_TAG |
                      (isoBuf                           & ~CONTINUE_MASK));
@@ -696,10 +707,10 @@ struct Utf8 {
                     ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~THREE_OCTET_MASK));
     }
 
+    /// Assume the specified `isoBuf` will fit in 4 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeFourOctets(char *octBuf, UnicodeCodePoint isoBuf)
-        // Assume the specified 'isoBuf' will fit in 4 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
     {
         octBuf[3] = static_cast<char>(CONTINUE_TAG |
                         (isoBuf                           & ~CONTINUE_MASK));
@@ -713,9 +724,10 @@ struct Utf8 {
 };
 
 // LOCAL HELPER STRUCT
+
+/// `Utf16` embodies the rules for converting between 21-bit (17 plane)
+/// Unicode and UTF-16
 struct Utf16 {
-    // 'Utf16' embodies the rules for converting between 21-bit (17 plane)
-    // Unicode and UTF-16
 
     // TYPES
     typedef Utf8::OctetType OctetType;
@@ -733,25 +745,27 @@ struct Utf16 {
                                        // outside the reserved range.
     };
 
+    /// The `class` determines whether translation is at the end of input by
+    /// comparisons with an end pointer.
     template <class UTF16_WORD>
     class PtrBasedEnd {
-        // The 'class' determines whether translation is at the end of input by
-        // comparisons with an end pointer.
 
         // DATA
         const UTF16_WORD * const d_end;
 
       public:
         // CREATORS
+
+        /// Create a `PtrBasedEnd` object with the end at the specified
+        /// `end`.
         explicit
         PtrBasedEnd(const UTF16_WORD *end) : d_end(end) {}
-            // Create a 'PtrBasedEnd' object with the end at the specified
-            // 'end'.
 
         // ACCESSORS
+
+        /// Return `true` if the specified `utf16Buf` is at the end of
+        /// input, and `false` otherwise.
         bool isFinished(const UTF16_WORD *utf16Buf) const
-            // Return 'true' if the specified 'utf16Buf' is at the end of
-            // input, and 'false' otherwise.
         {
             if (utf16Buf < d_end) {
                 return false;                                         // RETURN
@@ -764,21 +778,23 @@ struct Utf16 {
         }
     };
 
+    /// The `class` determines whether translation is at the end of input by
+    /// evaluating whether the next word of input is 0.
     template <class UTF16_WORD>
     struct ZeroBasedEnd {
-        // The 'class' determines whether translation is at the end of input by
-        // evaluating whether the next word of input is 0.
 
         // CREATORS
+
+        /// Create a `ZeroBasedEnd` object.
         ZeroBasedEnd()
-            // Create a 'ZeroBasedEnd' object.
         {
         }
 
         // ACCESSORS
+
+        /// Return `true` if the specified `utf16Buf` is at the end of
+        /// input, and `false` otherwise.
         bool isFinished(const UTF16_WORD *u16Buf) const
-            // Return 'true' if the specified 'utf16Buf' is at the end of
-            // input, and 'false' otherwise.
         {
             return !*u16Buf;
         }
@@ -797,11 +813,11 @@ struct Utf16 {
     //    two-word encoding, or the second word of a two-word encoding,
     //    respectively, and 'false' otherwise.
 
+    /// Return `true` if the specified `uc` will fit in a single UTF-8 code
+    /// point, and `false` otherwise.
     template <class UTF16_WORD>
     static
     bool isSingleUtf8(UTF16_WORD uc)
-        // Return 'true' if the specified 'uc' will fit in a single UTF-8 code
-        // point, and 'false' otherwise.
     {
         enum { HIGH_BITS =
                         UTF16_WORD(~UTF16_WORD(0) << Utf8::ONE_OCT_CONT_WID) };
@@ -809,29 +825,29 @@ struct Utf16 {
         return 0 == (uc & HIGH_BITS);
     }
 
+    /// Return `true` if the specified `uc` is a Unicode value that will fit
+    /// in a single UTF-16 word, and `false` otherwise.
     template <class UTF16_WORD>
     static
     bool isSingleWord(UTF16_WORD uc)
-        // Return 'true' if the specified 'uc' is a Unicode value that will fit
-        // in a single UTF-16 word, and 'false' otherwise.
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
+    /// Return `true` if the specified `uc` is the first word of a two-word
+    /// UTF-16 sequence, and `false` otherwise.
     template <class UTF16_WORD>
     static
     bool isFirstWord(UTF16_WORD uc)
-        // Return 'true' if the specified 'uc' is the first word of a two-word
-        // UTF-16 sequence, and 'false' otherwise.
     {
         return (uc & HEADER_MASK) == FIRST_TAG;
     }
 
+    /// Return `true` if the specified `uc` is the second word of a two-word
+    /// UTF-16 sequence, and `false` otherwise.
     template <class UTF16_WORD>
     static
     bool isSecondWord(UTF16_WORD uc)
-        // Return 'true' if the specified 'uc' is the second word of a two-word
-        // UTF-16 sequence, and 'false' otherwise.
     {
         return (uc & HEADER_MASK) == SECOND_TAG;
     }
@@ -854,11 +870,11 @@ struct Utf16 {
     //     words addressed by the second argument are a valid iso10646
     //     code point in the specified encoding.
 
+    /// Assuming the specified `uc` is a Unicode value that can be expressed
+    /// as a single ASCII `char`, return it without modification.
     template <class UTF16_WORD>
     static
     OctetType getUtf8Value(UTF16_WORD uc)
-        // Assuming the specified 'uc' is a Unicode value that can be expressed
-        // as a single ASCII 'char', return it without modification.
     {
         return static_cast<OctetType>(uc);
     }
@@ -873,75 +889,76 @@ struct Utf16 {
     //     invalid result for a code point that can be encoded in a single
     //     word.
 
+    /// Return `true` if the specified `uc` will fit in a single word of
+    /// UTF-16, and `false` otherwise.
     static
     bool fitsInOneWord(UnicodeCodePoint uc)
-        // Return 'true' if the specified 'uc' will fit in a single word of
-        // UTF-16, and 'false' otherwise.
     {
         return uc < RESERVE_OFFSET;
     }
 
+    /// Return `true` if the specified `uc` will fit in a single word of
+    /// UTF-16, and is not the first or second word of a double-word UTF-16
+    /// sequence, and `false` otherwise.
     static
     bool isValidOneWord(UnicodeCodePoint uc)
-        // Return 'true' if the specified 'uc' will fit in a single word of
-        // UTF-16, and is not the first or second word of a double-word UTF-16
-        // sequence, and 'false' otherwise.
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
+    /// Return `true` if the specified `uc` is not too large to be encoded
+    /// as two words of UTF-16, and `false` otherwise.
     static
     bool isValidTwoWords(UnicodeCodePoint uc)
-        // Return 'true' if the specified 'uc' is not too large to be encoded
-        // as two words of UTF-16, and 'false' otherwise.
     {
         return uc < UPPER_LIMIT;
     }
 
+    /// Assume that the specified `first` is a valid first word of a 2-word
+    /// UTF-16 sequence, and that the specified `second` is a valid second
+    /// word of such a sequence; return the two words combined into a
+    /// single Unicode code point.
     static
     UnicodeCodePoint combineTwoWords(UnicodeCodePoint first,
                                      UnicodeCodePoint second)
-        // Assume that the specified 'first' is a valid first word of a 2-word
-        // UTF-16 sequence, and that the specified 'second' is a valid second
-        // word of such a sequence; return the two words combined into a
-        // single Unicode code point.
     {
         return RESERVE_OFFSET + (((first  & ~HEADER_MASK) << CONTENT_CONT_WID)
                                 | (second & ~HEADER_MASK));
     }
 };
 
+/// This `struct` contains static functions that facilitate doing encoding
+/// and decoding of swapped UTF-16 data.
 template <class UTF16_WORD>
 struct Swapper {
-    // This 'struct' contains static functions that facilitate doing encoding
-    // and decoding of swapped UTF-16 data.
 
     enum { k_SIZE = sizeof(UTF16_WORD) };
 
     // CLASS METHODS
+
+    /// `utf16Buf` points to a swapped, single-word Unicode code point.
+    /// Return the Unicode code point version of the specified `*utf16Buf`
+    /// in host byte order.
     static
     UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
-        // 'utf16Buf' points to a swapped, single-word Unicode code point.
-        // Return the Unicode code point version of the specified '*utf16Buf'
-        // in host byte order.
     {
         return swappedToHost<UTF16_WORD, k_SIZE>(*u16Buf);
     }
 
+    /// The specified `uc` is a Unicode code point, in host byte order,
+    /// encodable as a single `UTF16_WORD`.  Return the swapped single-word
+    /// encoding of the `uc`.
     static
     UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
-        // The specified 'uc' is a Unicode code point, in host byte order,
-        // encodable as a single 'UTF16_WORD'.  Return the swapped single-word
-        // encoding of the 'uc'.
     {
         return hostToSwapped<UTF16_WORD, k_SIZE>(static_cast<UTF16_WORD>(uc));
     }
 
+    /// Write the specified `uc` to two swapped words beginning at the
+    /// specified `u16Buf`, assuming that `uc` is a Unicode value that
+    /// requires two words of UTF-16 to encode.
     static
     void encodeTwoWords(UTF16_WORD *u16Buf, UnicodeCodePoint uc)
-        // Write the specified 'uc' to two swapped words beginning at the
-        // specified 'u16Buf', assuming that 'uc' is a Unicode value that
-        // requires two words of UTF-16 to encode.
     {
         UnicodeCodePoint v = uc - Utf16::RESERVE_OFFSET;
         UTF16_WORD word = static_cast<UTF16_WORD>(Utf16::FIRST_TAG  |
@@ -952,12 +969,12 @@ struct Swapper {
         u16Buf[1] = hostToSwapped<UTF16_WORD, k_SIZE>(word);
     }
 
+    /// Return the value of the specified `utf16Word` with its byte order
+    /// swapped.  Note that this function is never called unless
+    /// `UTF16_WORD` is a 32-bit quantity, and it is not called in the
+    /// critical path.
     static
     UTF16_WORD swap32(UTF16_WORD utf16Word)
-        // Return the value of the specified 'utf16Word' with its byte order
-        // swapped.  Note that this function is never called unless
-        // 'UTF16_WORD' is a 32-bit quantity, and it is not called in the
-        // critical path.
     {
         BSLS_ASSERT(4 == sizeof(UTF16_WORD));
 
@@ -965,37 +982,38 @@ struct Swapper {
     }
 };
 
+/// This `struct` provides functions with the same names and interfaces as
+/// the functions in `Swapper`, except that the functions here don't swap
+/// byte order -- the UTF-16 data that is being input or output is assumed
+/// to be in host byte order.
 template <class UTF16_WORD>
 struct NoOpSwapper {
-    // This 'struct' provides functions with the same names and interfaces as
-    // the functions in 'Swapper', except that the functions here don't swap
-    // byte order -- the UTF-16 data that is being input or output is assumed
-    // to be in host byte order.
 
     // CLASS METHODS
+
+    /// Return the Unicode code point version of the specified `*utf16Buf`
+    /// in host byte order.  `utf16Buf` points to a single-word Unicode code
+    /// point in host byte order.
     static
     UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
-        // Return the Unicode code point version of the specified '*utf16Buf'
-        // in host byte order.  'utf16Buf' points to a single-word Unicode code
-        // point in host byte order.
     {
         return *u16Buf;
     }
 
+    /// Return the single-word encoding of the specified `uc` in host byte
+    /// order.  The `uc` is a Unicode code point encodable as a single
+    /// `UTF16_WORD` in host byte order.
     static
     UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
-        // Return the single-word encoding of the specified 'uc' in host byte
-        // order.  The 'uc' is a Unicode code point encodable as a single
-        // 'UTF16_WORD' in host byte order.
     {
         return static_cast<UTF16_WORD>(uc);
     }
 
+    /// Write the specified `uc`, in host byte order, to two words beginning
+    /// at the specified `u16Buf`, assuming that `uc` is a Unicode value
+    /// that requires two words of UTF-16 to encode.
     static
     void encodeTwoWords(UTF16_WORD *u16Buf, UnicodeCodePoint uc)
-        // Write the specified 'uc', in host byte order, to two words beginning
-        // at the specified 'u16Buf', assuming that 'uc' is a Unicode value
-        // that requires two words of UTF-16 to encode.
     {
         UnicodeCodePoint v = uc - Utf16::RESERVE_OFFSET;
         u16Buf[0] = static_cast<UTF16_WORD>(Utf16::FIRST_TAG  |
@@ -1004,11 +1022,11 @@ struct NoOpSwapper {
                      (v & ~(~UnicodeCodePoint(0) << Utf16::CONTENT_CONT_WID)));
     }
 
+    /// Return the value of the specified `utf16Word` with its byte order
+    /// swapped.  Note that this function is never called unless
+    /// `UTF16_WORD` is a 32-bit quantity.
     static
     UTF16_WORD swap32(UTF16_WORD utf16Word)
-        // Return the value of the specified 'utf16Word' with its byte order
-        // swapped.  Note that this function is never called unless
-        // 'UTF16_WORD' is a 32-bit quantity.
     {
         return utf16Word;
     }
@@ -1026,21 +1044,21 @@ BSLMF_ASSERT(sizeof(bsl::wstring::value_type) >= sizeof(unsigned short));
 // are declared static, you have to fully specialize them every time you call
 // them.
 
+/// Return the number of shorts required to store the translation of the
+/// specified UTF-8 string `srcBuffer`, using the specified `endFunctor` to
+/// evaluate end of input and explore continuation bytes.  Note that this
+/// routine will exactly estimate the right size except in two cases, in
+/// which case it will either still return exactly the right value, or a
+/// slight over-estimation.  The two cases where this routine will
+/// over-estimate the size required are:
+/// * There are errors and the `errorWord` is 0.  This routine assumes that
+///   `errorWord` is non-zero.
+/// * if a four byte sequence is a non-minimal encoding.  This would be
+///   translated as a single error word, while we don't decode it so
+///   we just assume it will result in 2 words output.
 template <class END_FUNCTOR>
 bsl::size_t computeRequiredUtf16WordsImp(const char  *srcBuffer,
                                          END_FUNCTOR  endFunctor)
-    // Return the number of shorts required to store the translation of the
-    // specified UTF-8 string 'srcBuffer', using the specified 'endFunctor' to
-    // evaluate end of input and explore continuation bytes.  Note that this
-    // routine will exactly estimate the right size except in two cases, in
-    // which case it will either still return exactly the right value, or a
-    // slight over-estimation.  The two cases where this routine will
-    // over-estimate the size required are:
-    //: o There are errors and the 'errorWord' is 0.  This routine assumes that
-    //:   'errorWord' is non-zero.
-    //: o if a four byte sequence is a non-minimal encoding.  This would be
-    //:   translated as a single error word, while we don't decode it so
-    //:   we just assume it will result in 2 words output.
 {
     bsl::size_t wordsNeeded = 0;
 
@@ -1105,6 +1123,29 @@ bsl::size_t computeRequiredUtf16WordsImp(const char  *srcBuffer,
     return wordsNeeded + 1;
 }
 
+/// Translate from the specified null-terminated UTF-8 buffer `srcBuffer` to
+/// the specified null-terminated UTF-16 buffer `dstBuffer` whose capacity
+/// is evaluated by the specified `dstCapacity`, using the specified
+/// `endFunctor` to evaluate end of input and continuation bytes.  Use the
+/// specified `swapper` to either swap UTF-16 words (if it is `Swapper`) or
+/// not swap them (if it is `NoopSwapper`).  Return the number of Unicode
+/// code points in the specified `*numCodePointsWritten` and the number of
+/// `UTF16_WORD`s written in the specified `*numWordsWritten`.  The
+/// specified `errorWord` is output in place of any error sequences
+/// encountered, or nothing is output in their place if `0 == errorWord`.
+/// Return a bit-wise or of the flags specified by
+/// `bdlde::CharConvertStatus::Enum` to indicate whether error sequences
+/// were encountered and/or whether the translation ran out of space.  Use
+/// type `CAPACITY_FUNCTOR` to check if there is enough room.  If the caller
+/// isn't certain the output buffer will be big enough, `CAPACITY_FUNCTOR`
+/// should be `Capacity` defined in this file, and the routine will
+/// constantly check that adequate room for output exists.  If the caller is
+/// certain adequate room exists, `CAPACITY_FUNCTOR` should be
+/// `NoOpCapacity`, which translates all the checking to no-ops and always
+/// returns that room is adequate, for faster execution.  Note that
+/// `SWAPPER` is a stateless type, we use it to call static functions that
+/// it has; we take it as an argument to avoid having to explicitly specify
+/// template arguments every time this function is called.
 template <class UTF16_WORD,
           class CAPACITY_FUNCTOR,
           class END_FUNCTOR,
@@ -1117,29 +1158,6 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
                      bsl::size_t      *numCodePointsWritten,
                      bsl::size_t      *numWordsWritten,
                      UTF16_WORD        errorWord)
-    // Translate from the specified null-terminated UTF-8 buffer 'srcBuffer' to
-    // the specified null-terminated UTF-16 buffer 'dstBuffer' whose capacity
-    // is evaluated by the specified 'dstCapacity', using the specified
-    // 'endFunctor' to evaluate end of input and continuation bytes.  Use the
-    // specified 'swapper' to either swap UTF-16 words (if it is 'Swapper') or
-    // not swap them (if it is 'NoopSwapper').  Return the number of Unicode
-    // code points in the specified '*numCodePointsWritten' and the number of
-    // 'UTF16_WORD's written in the specified '*numWordsWritten'.  The
-    // specified 'errorWord' is output in place of any error sequences
-    // encountered, or nothing is output in their place if '0 == errorWord'.
-    // Return a bit-wise or of the flags specified by
-    // 'bdlde::CharConvertStatus::Enum' to indicate whether error sequences
-    // were encountered and/or whether the translation ran out of space.  Use
-    // type 'CAPACITY_FUNCTOR' to check if there is enough room.  If the caller
-    // isn't certain the output buffer will be big enough, 'CAPACITY_FUNCTOR'
-    // should be 'Capacity' defined in this file, and the routine will
-    // constantly check that adequate room for output exists.  If the caller is
-    // certain adequate room exists, 'CAPACITY_FUNCTOR' should be
-    // 'NoOpCapacity', which translates all the checking to no-ops and always
-    // returns that room is adequate, for faster execution.  Note that
-    // 'SWAPPER' is a stateless type, we use it to call static functions that
-    // it has; we take it as an argument to avoid having to explicitly specify
-    // template arguments every time this function is called.
 {
     BSLS_ASSERT(Utf16::isValidOneWord(errorWord));
 
@@ -1389,20 +1407,20 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
     return returnStatus;
 }
 
+/// Return the length needed in bytes, for a buffer to hold the
+/// null-terminated UTF-8 string translated from the specified
+/// null-terminated UTF-16 string `srcBuffer`, using the specified
+/// `endFunctor` to evaluate end of input, and using the specified `swapper`
+/// to swap or not swap bytes.  Note that the method will get the length
+/// exactly right unless there are errors and the `errorByte` is 0, in which
+/// case it will slightly over-estimate the necessary length.  Also note
+/// that `SWAPPER` is a stateless type containing only static functions; we
+/// take it as an argument to avoid having to explicitly specify template
+/// arguments when calling this function.
 template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
 bsl::size_t requiredUtf8BytesImp(const UTF16_WORD *srcBuffer,
                                  END_FUNCTOR       endFunctor,
                                  SWAPPER           swapper)
-    // Return the length needed in bytes, for a buffer to hold the
-    // null-terminated UTF-8 string translated from the specified
-    // null-terminated UTF-16 string 'srcBuffer', using the specified
-    // 'endFunctor' to evaluate end of input, and using the specified 'swapper'
-    // to swap or not swap bytes.  Note that the method will get the length
-    // exactly right unless there are errors and the 'errorByte' is 0, in which
-    // case it will slightly over-estimate the necessary length.  Also note
-    // that 'SWAPPER' is a stateless type containing only static functions; we
-    // take it as an argument to avoid having to explicitly specify template
-    // arguments when calling this function.
 {
     (void) swapper;    // suppress 'unused' warning -- we use the type
                        // 'SWAPPER', but not the variable 'swapper'.
@@ -1437,6 +1455,26 @@ bsl::size_t requiredUtf8BytesImp(const UTF16_WORD *srcBuffer,
     return bytesNeeded + 1;
 }
 
+/// Translate from the specified null-terminated UTF-16 buffer `srcBuffer`,
+/// using the specified `endFunctor` to determine end of input, to the
+/// specified null-terminated UTF-8 buffer `dstBuffer` using the specified
+/// `dstCapacity`; to evaluate the size of `dstBuffer`.  Use the specified
+/// `swapper` to swap bytes (using type `Swapper`) or not swap them (using
+/// type `NoopSwapper`) as the caller desires.  Return the number of Unicode
+/// code points translated in the specified `*numCodePointsWritten` and the
+/// number of bytes written in the specified `*numBytesWritten`.  Return a
+/// bit-wise or of the flags specified by `bdlde::CharConvertStatus::Enum`
+/// to indicate whether error sequences were encountered and/or whether the
+/// translation ran out of space.  Use type `CAPACITY_FUNCTOR` to check if
+/// there is enough room.  If the caller isn't certain the output buffer
+/// will be big enough, `CAPACITY_FUNCTOR` should be `Capacity` defined in
+/// this file, and the routine will constantly check that adequate room for
+/// output exists.  If the caller is certain adequate room exists,
+/// `CAPACITY_FUNCTOR` should be `NoOpCapacity`, which translates all the
+/// checking to no-ops and always returns that room is adequate, for faster
+/// execution.  Note that `SWAPPER` is a stateless type containing only
+/// static functions; we take it as an argument to avoid having to
+/// explicitly specify the template parameters for this function.
 template <class UTF16_WORD,
           class CAPACITY_FUNCTOR,
           class END_FUNCTOR,
@@ -1449,26 +1487,6 @@ int localUtf16ToUtf8(char             *dstBuffer,
                      bsl::size_t      *numCodePointsWritten,
                      bsl::size_t      *numBytesWritten,
                      char              errorByte)
-    // Translate from the specified null-terminated UTF-16 buffer 'srcBuffer',
-    // using the specified 'endFunctor' to determine end of input, to the
-    // specified null-terminated UTF-8 buffer 'dstBuffer' using the specified
-    // 'dstCapacity'; to evaluate the size of 'dstBuffer'.  Use the specified
-    // 'swapper' to swap bytes (using type 'Swapper') or not swap them (using
-    // type 'NoopSwapper') as the caller desires.  Return the number of Unicode
-    // code points translated in the specified '*numCodePointsWritten' and the
-    // number of bytes written in the specified '*numBytesWritten'.  Return a
-    // bit-wise or of the flags specified by 'bdlde::CharConvertStatus::Enum'
-    // to indicate whether error sequences were encountered and/or whether the
-    // translation ran out of space.  Use type 'CAPACITY_FUNCTOR' to check if
-    // there is enough room.  If the caller isn't certain the output buffer
-    // will be big enough, 'CAPACITY_FUNCTOR' should be 'Capacity' defined in
-    // this file, and the routine will constantly check that adequate room for
-    // output exists.  If the caller is certain adequate room exists,
-    // 'CAPACITY_FUNCTOR' should be 'NoOpCapacity', which translates all the
-    // checking to no-ops and always returns that room is adequate, for faster
-    // execution.  Note that 'SWAPPER' is a stateless type containing only
-    // static functions; we take it as an argument to avoid having to
-    // explicitly specify the template parameters for this function.
 {
     (void) swapper;    // suppress 'unused' warning
 
@@ -1623,6 +1641,9 @@ int localUtf16ToUtf8(char             *dstBuffer,
     return returnStatus;
 }
 
+/// Truncate the specified container in accordance with the specified
+/// `numBytesWritten`.  Note that also we have to get rid of the final '\0'
+/// character.
 template <class CONTAINER>
 void resizeToZeroTerminate(
                         CONTAINER   *container,
@@ -1642,9 +1663,6 @@ void resizeToZeroTerminate(
                          || bsl::is_same<CONTAINER, std::pmr::u16string>::value
 #endif
                           , void *>::type = 0)
-    // Truncate the specified container in accordance with the specified
-    // 'numBytesWritten'.  Note that also we have to get rid of the final '\0'
-    // character.
 {
     BSLS_ASSERT(numBytesWritten <= container->length());
 
@@ -1654,6 +1672,8 @@ void resizeToZeroTerminate(
     container->resize(numBytesWritten - 1);
 }
 
+/// Truncate the specified container in accordance with the specified
+/// `numBytesWritten`.
 template <class CONTAINER>
 void resizeToZeroTerminate(
                CONTAINER   *container,
@@ -1669,8 +1689,6 @@ void resizeToZeroTerminate(
                                                                        >::value
 #endif
                , void *>::type = 0)
-    // Truncate the specified container in accordance with the specified
-    // 'numBytesWritten'.
 {
     if (numBytesWritten != container->size()) {
         BSLS_ASSERT(numBytesWritten < container->size());
@@ -1679,6 +1697,16 @@ void resizeToZeroTerminate(
     }
 }
 
+/// Translate the UTF-16 encoded sequence in the specified `srcBuffer` to
+/// the specified `container`, using the specified `endFunctor` to evaluate
+/// end of input.  Any pre-existing contents of `container` are discarded.
+///  Use the specified `swapper` to swap bytes (`Swapper` type) or not swap
+/// them (`NoopSwapper` type).  Return the number of code points (not words
+/// or bytes) translated to the specified `*numCodePointsWritten`.  If error
+/// sequences are encountered, substitute the specified `errorByte`, or
+/// eliminate the sequence entirely if `0 == errorByte`.  The behavior is
+/// undefined if `srcBuffer` is not null-terminated when it is expected to
+/// be, or if `errorByte >= 0x80`.
 template <class CONTAINER, class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
 int localUtf16ToUtf8Container(CONTAINER        *container,
                               const UTF16_WORD *srcBuffer,
@@ -1686,16 +1714,6 @@ int localUtf16ToUtf8Container(CONTAINER        *container,
                               SWAPPER           swapper,
                               bsl::size_t      *numCodePointsWritten,
                               char              errorByte)
-    // Translate the UTF-16 encoded sequence in the specified 'srcBuffer' to
-    // the specified 'container', using the specified 'endFunctor' to evaluate
-    // end of input.  Any pre-existing contents of 'container' are discarded.
-    //  Use the specified 'swapper' to swap bytes ('Swapper' type) or not swap
-    // them ('NoopSwapper' type).  Return the number of code points (not words
-    // or bytes) translated to the specified '*numCodePointsWritten'.  If error
-    // sequences are encountered, substitute the specified 'errorByte', or
-    // eliminate the sequence entirely if '0 == errorByte'.  The behavior is
-    // undefined if 'srcBuffer' is not null-terminated when it is expected to
-    // be, or if 'errorByte >= 0x80'.
 {
     bsl::size_t estimatedSize = requiredUtf8BytesImp(srcBuffer,
                                                      endFunctor,

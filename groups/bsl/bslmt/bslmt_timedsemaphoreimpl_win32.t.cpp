@@ -284,27 +284,27 @@ class MyBarrier {
   public:
     // CREATORS
     explicit MyBarrier(int numThreads);
-        // Construct a barrier that requires 'numThreads' to unblock.  Note
-        // that the behavior is undefined unless '0 < numThreads'.
+        // Construct a barrier that requires `numThreads` to unblock.  Note
+        // that the behavior is undefined unless `0 < numThreads`.
 
     ~MyBarrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
-        // (See 'wait' and 'timedWait' below for the meaning of *signaled*.)
+        // (See `wait` and `timedWait` below for the meaning of *signaled*.)
         // Note that the behavior is undefined if a barrier is destroyed while
         // one or more threads are waiting on it.
 
     // MANIPULATORS
     void wait();
-        // Block until the required number of threads have called either 'wait'
-        // or 'timedWait' on this barrier.  Then *signal* all the threads that
+        // Block until the required number of threads have called either `wait`
+        // or `timedWait` on this barrier.  Then *signal* all the threads that
         // are currently waiting on this barrier to unblock and reset the state
-        // of this barrier to its initial state.  Note that generally 'wait'
-        // and 'timedWait' should not be used together, for reasons explained
-        // in the documentation of 'timedWait'.
+        // of this barrier to its initial state.  Note that generally `wait`
+        // and `timedWait` should not be used together, for reasons explained
+        // in the documentation of `timedWait`.
 
     // ACCESSORS
     int numThreads() const;
-        // Return the number of threads that are required to call 'wait' before
+        // Return the number of threads that are required to call `wait` before
         // all waiting threads will unblock.
 };
 
@@ -559,7 +559,7 @@ class IntQueue {
     public:
     // CREATORS
     explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-        // Create a new 'IntQueue' object.
+        // Create a new `IntQueue` object.
 
     ~IntQueue();
         // Destroy this object.
@@ -569,7 +569,7 @@ class IntQueue {
         // Get an integer from the queue.
 
     void pushInt(int number);
-        // Push the specified 'number' to the queue.
+        // Push the specified `number` to the queue.
 };
 
 IntQueue::IntQueue(bslma::Allocator *basicAllocator)
@@ -589,7 +589,7 @@ int IntQueue::getInt()
     // Waiting for resources.
     d_resourceSem.wait();
 
-    // 'd_mutexSem' is used for exclusive access.
+    // `d_mutexSem` is used for exclusive access.
     d_mutexSem.wait();
     int ret = d_queue.back();
     d_queue.pop_back();
@@ -622,7 +622,7 @@ int main(int argc, char *argv[]) {
       case 7: {
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -637,23 +637,23 @@ int main(int argc, char *argv[]) {
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "======================" << endl;
 
         const Obj def;
@@ -667,24 +667,24 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'tryWait'
+        // TESTING `tryWait`
         //
         // Concerns:
-        //   1. 'tryWait' decrements the count if resources are available,
+        //   1. `tryWait` decrements the count if resources are available,
         //      or return an error otherwise.
         //
         // Plan:
-        // We create two groups of threads.  One will call 'post', the other
-        // 'tryWait'.  First, we make sure that 'tryWait' fails if no resources
+        // We create two groups of threads.  One will call `post`, the other
+        // `tryWait`.  First, we make sure that `tryWait` fails if no resources
         // is available.  Then we will make sure it succeeds if resources are.
-        // We will also test 'tryWait' in the steady state works fine.
+        // We will also test `tryWait` in the steady state works fine.
         //
         // Testing:
         //   void tryWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'tryWait'" << endl
+                          << "Testing `tryWait`" << endl
                           << "=================" << endl;
 
         bslmt::ThreadUtil::Handle threads[10];
@@ -712,13 +712,13 @@ int main(int argc, char *argv[]) {
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'post(int)'
+        // TESTING `post(int)`
         //
         // Concerns:
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        // Create a set of threads calling 'wait' and use a thread to post a
+        // Create a set of threads calling `wait` and use a thread to post a
         // number smaller than the set of threads.
         //
         // Testing:
@@ -726,7 +726,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'post(int number)'" << endl
+                          << "Testing `post(int number)`" << endl
                           << "==========================" << endl;
 
         bslmt::ThreadUtil::Handle threads[6];
@@ -754,19 +754,19 @@ int main(int argc, char *argv[]) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'timedWait'
+        // TESTING `timedWait`
         //
         // Concerns:
         //   1. timedWait() blocks the thread until a resource is available
-        //      or 'absTime' the timeout expires.
+        //      or `absTime` the timeout expires.
         //
         // Plan:
-        //  Create two groups of threads one will call 'post' and the other
-        //  will call 'timedWait'.  First, we will make sure that the
-        //  'timedWait' will timeout properly if no resource available by
+        //  Create two groups of threads one will call `post` and the other
+        //  will call `timedWait`.  First, we will make sure that the
+        //  `timedWait` will timeout properly if no resource available by
         //  calling the function with a reasonable timeout before any calls to
-        //  'post'.  Then, both groups of threads will enter a loop to simulate
-        //  the steady state.  The 'post' loop will be perturbed to exercise
+        //  `post`.  Then, both groups of threads will enter a loop to simulate
+        //  the steady state.  The `post` loop will be perturbed to exercise
         //  different portions of code.  The specified timeout will be pretty
         //  important and we will make sure we do not timeout.  At the end
         //  of this first run, we will make a second run with a much lower
@@ -777,7 +777,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'timedWait'" << endl
+                          << "Testing `timedWait`" << endl
                           << "===================" << endl;
 
         testCase3(bsls::SystemClockType::e_REALTIME);
@@ -786,7 +786,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'wait' and 'post'
+        // TESTING `wait` and `post`
         //
         // Concerns:
         //   1. wait() blocks the thread when no resource is available,
@@ -794,12 +794,12 @@ int main(int argc, char *argv[]) {
         //   2. post() increments the count
         //
         // Plan:
-        //  Create two groups of threads one will call 'post' and the other
-        //  will call 'wait'.  To address concern 1, we will use a barrier and
+        //  Create two groups of threads one will call `post` and the other
+        //  will call `wait`.  To address concern 1, we will use a barrier and
         //  a counter to make sure that waiting threads are blocked into wait
-        //  state before any calls to 'post'.  After that, we will try to reach
+        //  state before any calls to `post`.  After that, we will try to reach
         //  a steady state by calling the two functions in a loop and perturb
-        //  the 'post' operation by adding small delays to exercise different
+        //  the `post` operation by adding small delays to exercise different
         //  parts of the code.
         //
         // Testing:
@@ -808,7 +808,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'wait' and 'post'" << endl
+                          << "Testing `wait` and `post`" << endl
                           << "=========================" << endl;
 
         bslmt::ThreadUtil::Handle threads[10];

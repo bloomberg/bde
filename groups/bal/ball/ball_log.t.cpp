@@ -2968,7 +2968,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
     BALL_LOG_TRACE << "Write this message to the log if the log threshold "
                    << "is above 'ball::Severity::e_TRACE' (i.e., 192).";
-//..
+// ```
 // Next, we demonstrate how to use proprietary code within logging macros.
 // Suppose you want to add the content of a vector to the log trace:
 // ```

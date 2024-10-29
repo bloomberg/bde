@@ -68,13 +68,13 @@ using bsl::uint64_t;
 //                              --------
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'append' and 'removeAll' methods to be used by the generator functions 'g'
-// and 'gg'.  Additional helper functions are provided to facilitate
+// `append` and `removeAll` methods to be used by the generator functions `g`
+// and `gg`.  Additional helper functions are provided to facilitate
 // perturbation of internal state (e.g., capacity).  Note that each manipulator
 // must support aliasing, and those that perform memory allocation must be
-// tested for exception neutrality via the 'bslma_testallocator' component.
+// tested for exception neutrality via the `bslma_testallocator` component.
 // Exception neutrality involving streaming is verified using
-// 'bslx::testinstream' (and 'bslx::testoutstream').
+// `bslx::testinstream` (and `bslx::testoutstream`).
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
@@ -362,7 +362,7 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-//..
+// ```
 
     /// This class implements a sequential container of elements of the
     /// template parameter `TYPE`.
@@ -371,7 +371,7 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
 
         // DATA
         bsl::vector<TYPE>  d_values;       // data elements
-        bdlc::BitArray     d_nullFlags;    // 'true' indicates i'th element is
+        bdlc::BitArray     d_nullFlags;    // `true` indicates i'th element is
                                            // null
 
       private:
@@ -461,9 +461,9 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
         /// Return the number of null elements in this vector.
         bsl::size_t numNullElements() const;
     };
-//..
+// ```
 // Then, we implement, in turn, each of the methods declared above:
-//..
+// ```
                      // --------------------
                      // class NullableVector
                      // --------------------
@@ -585,7 +585,7 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
     {
         return d_nullFlags.num1();
     }
-//..
+// ```
 
 /// Configure the specified `bitArray` with the nibbles specified by the
 /// characters in the specified `spec`, which is in hex.  Return -1 on
@@ -652,7 +652,7 @@ int gggHex(bdlc::BitArray *bitArray, const char *spec)
 
     // We should have detected all possible errors by this point, so the input
     // string should be valid.  Any errors detected after this will be detected
-    // by 'BSLS_ASSERT_OPT'.
+    // by `BSLS_ASSERT_OPT`.
 
     bitArray->removeAll();
 
@@ -723,14 +723,14 @@ int gggHex(bdlc::BitArray *bitArray, const char *spec)
 }
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  The numbers
-// 0 and 1 correspond to bit values to be appended to the 'bdlc::BitArray'
+// 0 and 1 correspond to bit values to be appended to the `bdlc::BitArray`
 // object.  A tilde ('~') indicates that the logical (but not necessarily
 // physical) state of the object is to be set to its initial, empty state (via
-// the 'removeAll' method).
+// the `removeAll` method).
 //
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -876,38 +876,38 @@ void testUsage()
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Creating a 'NullableVector' Class
+///Example 1: Creating a `NullableVector` Class
 /// - - - - - - - - - - - - - - - - - - - - - -
 // An efficient implementation of an arbitrary precision bit sequence container
-// has myriad applications.  For example, a 'bdlc::BitArray' can be used
+// has myriad applications.  For example, a `bdlc::BitArray` can be used
 // effectively as a parallel array of flags indicating some special property,
-// such as, 'isNull', 'isBusinessDay', etc.; its use is especially indicated
+// such as, `isNull`, `isBusinessDay`, etc.; its use is especially indicated
 // when (1) the number of elements of the primary array can grow large, and
 // (2) the individual elements do not have the capacity or capability to store
 // the information directly.
 //
 // As a simple example, we'll implement a (heavily elided) value-semantic
-// template class, 'NullableVector<TYPE>', that behaves like a
-// 'bsl::vector<TYPE>' but additionally allows storing a nullness flag to
+// template class, `NullableVector<TYPE>`, that behaves like a
+// `bsl::vector<TYPE>` but additionally allows storing a nullness flag to
 // signify that the corresponding element was not specified.  Elements added to
-// a 'NullableVector' are null by default, although there are manipulator
+// a `NullableVector` are null by default, although there are manipulator
 // functions that allow appending a non-null element.  Each null element
-// stores the default value for 'TYPE'.
+// stores the default value for `TYPE`.
 //
 // Note that this class has a minimal interface (suitable for illustration
-// purpose only) that allows users to either append a (non-null) 'TYPE' value
-// or a null value.  A real 'NullableVector' class would support a complete set
+// purpose only) that allows users to either append a (non-null) `TYPE` value
+// or a null value.  A real `NullableVector` class would support a complete set
 // of *value* *semantic* operations, including copy construction, assignment,
-// equality comparison, 'ostream' printing, and BDEX serialization.
+// equality comparison, `ostream` printing, and BDEX serialization.
 //
-// First, we define the interface of 'NullableVector':
-//..
+// First, we define the interface of `NullableVector`:
+// ```
 
-    // See class definition is above 'main'.
+    // See class definition is above `main`.
 
-//..
-// Next, we create an empty 'NullableVector':
-//..
+// ```
+// Next, we create an empty `NullableVector`:
+// ```
     NullableVector<int>        array(0);
     const NullableVector<int>& ARRAY       = array;
     const int                  DEFAULT_INT = 0;
@@ -916,9 +916,9 @@ void testUsage()
     ASSERT(0       == ARRAY.numNullElements());
     ASSERT(false   == ARRAY.isAnyElementNonNull());
     ASSERT(false   == ARRAY.isAnyElementNull());
-//..
+// ```
 // Then, we append a non-null element to it:
-//..
+// ```
     array.appendElement(5);
     ASSERT(1       == ARRAY.length());
     ASSERT(5       == ARRAY.constElement(0));
@@ -926,9 +926,9 @@ void testUsage()
     ASSERT(0       == ARRAY.numNullElements());
     ASSERT(true    == ARRAY.isAnyElementNonNull());
     ASSERT(false   == ARRAY.isAnyElementNull());
-//..
+// ```
 // Next, we append a null element:
-//..
+// ```
     array.appendNullElement();
     ASSERT(2           == ARRAY.length());
     ASSERT(5           == ARRAY.constElement(0));
@@ -938,9 +938,9 @@ void testUsage()
     ASSERT(1           == ARRAY.numNullElements());
     ASSERT(true        == ARRAY.isAnyElementNonNull());
     ASSERT(true        == ARRAY.isAnyElementNull());
-//..
+// ```
 // Then, we make the null element non-null:
-//..
+// ```
     array.makeNonNull(1);
     ASSERT(2           == ARRAY.length());
     ASSERT(5           == ARRAY.constElement(0));
@@ -950,9 +950,9 @@ void testUsage()
     ASSERT(0           == ARRAY.numNullElements());
     ASSERT(true        == ARRAY.isAnyElementNonNull());
     ASSERT(false       == ARRAY.isAnyElementNull());
-//..
+// ```
 // Next, we make the first element null:
-//..
+// ```
     array.makeNull(0);
     ASSERT(2           == ARRAY.length());
     ASSERT(DEFAULT_INT == ARRAY.constElement(0));
@@ -962,9 +962,9 @@ void testUsage()
     ASSERT(1           == ARRAY.numNullElements());
     ASSERT(true        == ARRAY.isAnyElementNonNull());
     ASSERT(true        == ARRAY.isAnyElementNull());
-//..
+// ```
 // Now, we remove the front element:
-//..
+// ```
     array.removeElement(0);
     ASSERT(1           == ARRAY.length());
     ASSERT(DEFAULT_INT == ARRAY.constElement(0));
@@ -972,16 +972,16 @@ void testUsage()
     ASSERT(0           == ARRAY.numNullElements());
     ASSERT(true        == ARRAY.isAnyElementNonNull());
     ASSERT(false       == ARRAY.isAnyElementNull());
-//..
+// ```
 // Finally, we remove the last remaining element and observe that the object is
 // empty again:
-//..
+// ```
     array.removeElement(0);
     ASSERT(0       == ARRAY.length());
     ASSERT(0       == ARRAY.numNullElements());
     ASSERT(false   == ARRAY.isAnyElementNonNull());
     ASSERT(false   == ARRAY.isAnyElementNull());
-//..
+// ```
 }
 
 /// Test the `num0` and `num1` methods when applied to subranges.  The
@@ -1166,7 +1166,7 @@ void testAssignBits()
             }
             const bsl::string& xSpec = binSpec(X);
 
-            // Check case where '0 == numBits'.
+            // Check case where `0 == numBits`.
 
             {
                 Obj mR(X, &testAllocator);    const Obj& R = mR;
@@ -1382,7 +1382,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -1429,12 +1429,12 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1450,29 +1450,29 @@ int main(int argc, char *argv[])
         // TESTING RANGE-BASED NUM0, NUM1
         //
         // Concerns:
-        //: 1 That the functions return the right values.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the functions return the right values.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Generate a number of objects with their bits set up in a variety
-        //:   of regular patterns:
-        //:   o Vary 'begin' and 'end' over most of the range of possible
-        //:     ranges for such an object.
-        //:   o Calculate expected values for 'num1' and 'num0' over that
-        //:     range.
-        //:   o Verify that the functions return their expected values.
-        //:
-        //: 2 For a sequence of possible lengths:
-        //:   o Generate a number of random specs for that length.
-        //:   o Create a bit array object from that spec.
-        //:   o Vary 'begin' and 'end' over most of the range of possible
-        //:     ranges for such an object.
-        //:   o Use 'countOnesOracle' to calculate expected values to be
-        //:     returned from 'num0' and 'num1' for that range.
-        //:   o Verify the results are as expected.  (C-1)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Generate a number of objects with their bits set up in a variety
+        //    of regular patterns:
+        //    - Vary `begin` and `end` over most of the range of possible
+        //      ranges for such an object.
+        //    - Calculate expected values for `num1` and `num0` over that
+        //      range.
+        //    - Verify that the functions return their expected values.
+        //
+        // 2. For a sequence of possible lengths:
+        //    - Generate a number of random specs for that length.
+        //    - Create a bit array object from that spec.
+        //    - Vary `begin` and `end` over most of the range of possible
+        //      ranges for such an object.
+        //    - Use `countOnesOracle` to calculate expected values to be
+        //      returned from `num0` and `num1` for that range.
+        //    - Verify the results are as expected.  (C-1)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   size_t num0(size_t begin, size_t end);
@@ -1486,51 +1486,51 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'assignBits'
+        // TESTING `assignBits`
         //   Ensure the method returns the expected value.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No memory is allocated.
-        //:
-        //: 3 High-order bits above the low order 'numBits' assigned are
-        //:   ignored.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No memory is allocated.
+        //
+        // 3. High-order bits above the low order `numBits` assigned are
+        //    ignored.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate over a sequence of specifications, initializing 'mX', a
-        //:   bit array object, from them.
-        //:
-        //: 2 Nested within that, iterate over the same sequence, initializing
-        //:   object 'Y', to be assigned from.
-        //:
-        //: 3 Nested within that, iterate int 'numBits' from 1 to 64.
-        //:
-        //: 4 Nested within that, iterate int 'di' from 0 to
-        //:   'X.length() - numBits'.
-        //:
-        //: 5 Nested within that, iterate int 'si' from 0 to
-        //:   'Y.length() - numBits'.
-        //:
-        //: 6 Through string operations, create the spec of the expected
-        //:   result, and create object 'E' from that spec.
-        //:
-        //: 7 Copy construct an object 'mR' from 'X'.
-        //:
-        //: 8 Apply 'mR.assignBits(di, Y.bits(0, 64), numBits)', making
-        //:   sure no memory is allocated.  (C-2) (C-3)
-        //:
-        //: 9 Verify that 'E == R'.  (C-1)
-        //:
-        //: 10 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Iterate over a sequence of specifications, initializing `mX`, a
+        //    bit array object, from them.
+        //
+        // 2. Nested within that, iterate over the same sequence, initializing
+        //    object `Y`, to be assigned from.
+        //
+        // 3. Nested within that, iterate int `numBits` from 1 to 64.
+        //
+        // 4. Nested within that, iterate int `di` from 0 to
+        //    `X.length() - numBits`.
+        //
+        // 5. Nested within that, iterate int `si` from 0 to
+        //    `Y.length() - numBits`.
+        //
+        // 6. Through string operations, create the spec of the expected
+        //    result, and create object `E` from that spec.
+        //
+        // 7. Copy construct an object `mR` from `X`.
+        //
+        // 8. Apply `mR.assignBits(di, Y.bits(0, 64), numBits)`, making
+        //    sure no memory is allocated.  (C-2) (C-3)
+        //
+        // 9. Verify that `E == R`.  (C-1)
+        //
+        // 10. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void assignBits(size_t index, uint64_t srcBits, size_t numBits);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'assignBits'\n"
+        if (verbose) cout << "TESTING `assignBits`\n"
                              "====================\n";
 
 
@@ -1542,38 +1542,38 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 The object is unchanged.
-        //:
-        //: 3 Memory is not allocated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. The object is unchanged.
+        //
+        // 3. Memory is not allocated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of specifications and their complements,
-        //:   create an object X from that specification.
-        //:
-        //: 2 Copy construct 'XX' from 'X', to be compared later to ensure 'X'
-        //:   hasn't changed.
-        //:
-        //: 3 Iterate int 'begin' from 0 to the length of 'X'.
-        //:
-        //: 4 Iterate int 'end' from 'begin' to the length of 'X'
-        //:
-        //: 5 By iterating and using the '[]' operator, find the min positions,
-        //:   if any, of set and clear bits in the range '[begin .. end)'.
-        //:
-        //: 6 Call the function, allowing optional args to default if the
-        //:   default values match 'begin' or 'end', and observe that the
-        //:   result returned is as expected.  (C-1).
-        //:
-        //: 7 Verify that 'XX == X'.  (C-2).
-        //:
-        //: 8 After the loops, verify that no memory has been allocated since
-        //:   'XX' was created.  (C-3).
-        //:
-        //: 9 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. For each of a sequence of specifications and their complements,
+        //    create an object X from that specification.
+        //
+        // 2. Copy construct `XX` from `X`, to be compared later to ensure `X`
+        //    hasn't changed.
+        //
+        // 3. Iterate int `begin` from 0 to the length of `X`.
+        //
+        // 4. Iterate int `end` from `begin` to the length of `X`
+        //
+        // 5. By iterating and using the `[]` operator, find the min positions,
+        //    if any, of set and clear bits in the range `[begin .. end)`.
+        //
+        // 6. Call the function, allowing optional args to default if the
+        //    default values match `begin` or `end`, and observe that the
+        //    result returned is as expected.  (C-1).
+        //
+        // 7. Verify that `XX == X`.  (C-2).
+        //
+        // 8. After the loops, verify that no memory has been allocated since
+        //    `XX` was created.  (C-3).
+        //
+        // 9. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   size_t find0AtMinIndex(size_t begin, size_t end) const;
@@ -1592,38 +1592,38 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 The object is unchanged.
-        //:
-        //: 3 Memory is not allocated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. The object is unchanged.
+        //
+        // 3. Memory is not allocated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of specifications and their complements,
-        //:   create an object X from that specification.
-        //:
-        //: 2 Copy construct 'XX' from 'X', to be compared later to ensure 'X'
-        //:   hasn't changed.
-        //:
-        //: 3 Iterate int 'begin' from 0 to the length of 'X'.
-        //:
-        //: 4 Iterate int 'end' from 'begin' to the length of 'X'
-        //:
-        //: 5 By iterating and using the '[]' operator, find the max positions,
-        //:   if any, of set and clear bits in the range '[begin .. end)'.
-        //:
-        //: 6 Call the function, allowing optional args to default if the
-        //:   default values match 'begin' or 'end', and observe that the
-        //:   result returned is as expected.  (C-1).
-        //:
-        //: 7 Verify that 'XX == X'.  (C-2).
-        //:
-        //: 8 After the loops, verify that no memory has been allocated since
-        //:   'XX' was created.  (C-3).
-        //:
-        //: 9 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. For each of a sequence of specifications and their complements,
+        //    create an object X from that specification.
+        //
+        // 2. Copy construct `XX` from `X`, to be compared later to ensure `X`
+        //    hasn't changed.
+        //
+        // 3. Iterate int `begin` from 0 to the length of `X`.
+        //
+        // 4. Iterate int `end` from `begin` to the length of `X`
+        //
+        // 5. By iterating and using the `[]` operator, find the max positions,
+        //    if any, of set and clear bits in the range `[begin .. end)`.
+        //
+        // 6. Call the function, allowing optional args to default if the
+        //    default values match `begin` or `end`, and observe that the
+        //    result returned is as expected.  (C-1).
+        //
+        // 7. Verify that `XX == X`.  (C-2).
+        //
+        // 8. After the loops, verify that no memory has been allocated since
+        //    `XX` was created.  (C-3).
+        //
+        // 9. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   size_t find0AtMaxIndex(size_t begin, size_t end) const;
@@ -1751,61 +1751,61 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 The value of the parameters that are not to be modified stay
-        //:   unchanged.
-        //:
-        //: 3 For the bitwise assignment operators:
-        //:   o No allocations are performed unless the lhs grows in length.
-        //:   o alias-safe
-        //:   o A reference to the modifiable object assigned to is returned.
-        //:
-        //: 4 All bitwise operators are exception-neutral.
+        // 1. The correct result is obtained.
+        //
+        // 2. The value of the parameters that are not to be modified stay
+        //    unchanged.
+        //
+        // 3. For the bitwise assignment operators:
+        //    - No allocations are performed unless the lhs grows in length.
+        //    - alias-safe
+        //    - A reference to the modifiable object assigned to is returned.
+        //
+        // 4. All bitwise operators are exception-neutral.
         //
         // Note that there is no possibility of undefined behavior, no
         // preconditions need testing.
         //
         // Plan:
-        //: 1 For each of a sequence of specs, create an object 'X' which is
-        //:   the template of the objects to be assigned to, and copy construct
-        //:   an object 'XX' from 'X', to be compared later to ensure that
-        //:   'X' has not changed.
-        //:
-        //: 2 Nested within that, for each of the same sequence of specs,
-        //:   create an object 'Y' which will serve as the object to be
-        //:   assigned from.  Create 'YY', a copy of 'Y', to be compared with
-        //:   later to ensure that 'Y' has not changed.
-        //:
-        //: 3 In blocks for each of the operations '&', '-', '|', and '^':
-        //:   o Create an object 'E' by applying 'setLength' and bitwise
-        //:     operations, one bit at a time, between 'X' and 'Y'.
-        //:   o Create 'mR', a copy of 'X' and bit-wise assign to it,
-        //:     monitoring the test allocator to ensure no allocation happened
-        //:     unless 'R' grows in length and verify that the result is as
-        //:     expected.  (C-1, C-3-1)
-        //:   o Do the bitwise assignment in a 'BEGIN' - 'END' block, testing
-        //:     that 'R == X' at the beginning of the block to verify
-        //:     exception-neutrality.  (C-4)
-        //:   o Keep a reference 'RRR' to the result of the assignment and
-        //:     verify that its address matches that of 'R'.  (C-3-3)
-        //:   o Observe that 'Y' is unchanged.  (C-2)
-        //:   o Do the bitwise non-assignment operator between 'X' and 'Y' and
-        //:     bind a const reference to the temporary objected returned, and
-        //:     verify its value matched 'E'.  (C-1)
-        //:   o Set the default allocator to the test allocator, and do the
-        //:     infix bit-wise operation in a 'BEGIN' - 'END' block to ensure
-        //:     ensure expectation neutrality, and check that the result is as
-        //:     expected.  (C-4)
-        //:   o Observe that 'X' and 'Y' and unchanged.  (C-2)
-        //:
-        //: 4 In blocks for each of the operations '&', '-', '|', and '^':
-        //:   o Copy-construct an object 'mR' from 'X' to be assigned to in an
-        //:     aliasing operation using the bitwise-assignment operator, and
-        //:     verify the result is as expected.  (C-1)  (C-3-2)
-        //:   o Copy-construct an object 'S' from 'X', then use the bitwise
-        //:     non-assignment operator to alias S with itself, and observe the
-        //:     result is as expected.  (C-1)  (C-3-2)
+        // 1. For each of a sequence of specs, create an object `X` which is
+        //    the template of the objects to be assigned to, and copy construct
+        //    an object `XX` from `X`, to be compared later to ensure that
+        //    `X` has not changed.
+        //
+        // 2. Nested within that, for each of the same sequence of specs,
+        //    create an object `Y` which will serve as the object to be
+        //    assigned from.  Create `YY`, a copy of `Y`, to be compared with
+        //    later to ensure that `Y` has not changed.
+        //
+        // 3. In blocks for each of the operations '&', '-', '|', and '^':
+        //    - Create an object `E` by applying `setLength` and bitwise
+        //      operations, one bit at a time, between `X` and `Y`.
+        //    - Create `mR`, a copy of `X` and bit-wise assign to it,
+        //      monitoring the test allocator to ensure no allocation happened
+        //      unless `R` grows in length and verify that the result is as
+        //      expected.  (C-1, C-3-1)
+        //    - Do the bitwise assignment in a `BEGIN` - `END` block, testing
+        //      that `R == X` at the beginning of the block to verify
+        //      exception-neutrality.  (C-4)
+        //    - Keep a reference `RRR` to the result of the assignment and
+        //      verify that its address matches that of `R`.  (C-3-3)
+        //    - Observe that `Y` is unchanged.  (C-2)
+        //    - Do the bitwise non-assignment operator between `X` and `Y` and
+        //      bind a const reference to the temporary objected returned, and
+        //      verify its value matched `E`.  (C-1)
+        //    - Set the default allocator to the test allocator, and do the
+        //      infix bit-wise operation in a `BEGIN` - `END` block to ensure
+        //      ensure expectation neutrality, and check that the result is as
+        //      expected.  (C-4)
+        //    - Observe that `X` and `Y` and unchanged.  (C-2)
+        //
+        // 4. In blocks for each of the operations '&', '-', '|', and '^':
+        //    - Copy-construct an object `mR` from `X` to be assigned to in an
+        //      aliasing operation using the bitwise-assignment operator, and
+        //      verify the result is as expected.  (C-1)  (C-3-2)
+        //    - Copy-construct an object `S` from `X`, then use the bitwise
+        //      non-assignment operator to alias S with itself, and observe the
+        //      result is as expected.  (C-1)  (C-3-2)
         //
         // Testing:
         //   BitArray& operator&=(const BitArray& rhs);
@@ -1842,7 +1842,7 @@ int main(int argc, char *argv[])
            0}; // Null string required as last element.
 
         if (verbose) cout <<
-            "\nTesting 'operator&=', et al.; not aliased" << endl;
+            "\nTesting `operator&=`, et al.; not aliased" << endl;
         {
             for (int ti = 0; SPECS[ti]; ++ti) {
                 const char *const DST = SPECS[ti];
@@ -2037,7 +2037,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting 'operator&=', et al.; aliased" << endl;
+            "\nTesting `operator&=`, et al.; aliased" << endl;
         {
             for (int ti = 0; SPECS[ti]; ++ti) {
                 const char *const DST = SPECS[ti];
@@ -2148,41 +2148,41 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No allocations are performed.
-        //:
-        //: 3 The methods are alias-safe.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No allocations are performed.
+        //
+        // 3. The methods are alias-safe.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a sequence of test specs, creating an object
-        //:   'X' that will be the template for the object assigned to.
-        //:
-        //: 2 Nested within that, iterate through the same sequence of test
-        //:   specs, creating an object 'Y' that will be the assigned from.
-        //:   Copy construct 'YY' from 'Y'.
-        //:
-        //: 3 Nested within that, iterate through different values of 'NB", the
-        //:   number of bits to be operated in.
-        //:
-        //: 4 In separate blocks, create a local copy 'mR' of 'X', and apply
-        //:   the four bit-wise logical operations to them from 'Y'.  Also
-        //:   create 'E', the expected result, by doing repetitive single-bit
-        //:   operations on it.  Do the operation between 'mR' and 'Y'.
-        //:   Observe that no memory was allocated by the operation.  After the
-        //:   operation, compare 'E' and 'R'.  Then compare 'YY == Y', showing
-        //:   'Y' is unchanged.  (C-1) (C-2)
-        //:
-        //: 5 In separate blocks, create a local copy 'mR' of 'X', and apply
-        //:   the four bit-wise logical operations to them from 'R' (aliasing).
-        //:   Also create 'E', the expected result, by doing repetitive
-        //:   single-bit operations on it.  Observe that no memory was
-        //:   allocated by the operation.  After the operation, compare 'E' and
-        //:   'R'.  (C-1) (C-2) (C-3)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Iterate through a sequence of test specs, creating an object
+        //    `X` that will be the template for the object assigned to.
+        //
+        // 2. Nested within that, iterate through the same sequence of test
+        //    specs, creating an object `Y` that will be the assigned from.
+        //    Copy construct `YY` from `Y`.
+        //
+        // 3. Nested within that, iterate through different values of 'NB", the
+        //    number of bits to be operated in.
+        //
+        // 4. In separate blocks, create a local copy `mR` of `X`, and apply
+        //    the four bit-wise logical operations to them from `Y`.  Also
+        //    create `E`, the expected result, by doing repetitive single-bit
+        //    operations on it.  Do the operation between `mR` and `Y`.
+        //    Observe that no memory was allocated by the operation.  After the
+        //    operation, compare `E` and `R`.  Then compare `YY == Y`, showing
+        //    `Y` is unchanged.  (C-1) (C-2)
+        //
+        // 5. In separate blocks, create a local copy `mR` of `X`, and apply
+        //    the four bit-wise logical operations to them from `R` (aliasing).
+        //    Also create `E`, the expected result, by doing repetitive
+        //    single-bit operations on it.  Observe that no memory was
+        //    allocated by the operation.  After the operation, compare `E` and
+        //    `R`.  (C-1) (C-2) (C-3)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void andEqual(dstIndex, srcArray, srcIndex, numBits);
@@ -2196,7 +2196,7 @@ int main(int argc, char *argv[])
                       << "===========================================" << endl;
 
         if (verbose) cout <<
-         "\nTesting 'andEqual(dstIndex, srcArray, srcIndex, numBits)', et al."
+         "\nTesting `andEqual(dstIndex, srcArray, srcIndex, numBits)`, et al."
                           << endl << "\t\tno aliasing"
                           << endl;
         {
@@ -2387,7 +2387,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-         "\nTesting 'andEqual(dstIndex, srcArray, srcIndex, numBits)', et al."
+         "\nTesting `andEqual(dstIndex, srcArray, srcIndex, numBits)`, et al."
                           << endl << "\t\taliased"
                           << endl;
         {
@@ -2604,22 +2604,22 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No allocations are performed.
-        //:
-        //: 3 The method does not depend upon capacity.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No allocations are performed.
+        //
+        // 3. The method does not depend upon capacity.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of test vectors:
-        //:   o Reserve a varying amount of padding to verify that this makes
-        //:     no difference.  (C-3)
-        //:   o Verify that the methods give the expected value.  (C-1)
-        //:   o Verify that no memory is allocated.  (C-2)
-        //:   o Verify defensive checks are triggered for invalid values.
-        //:     (C-4)
+        // 1. For each of a sequence of test vectors:
+        //    - Reserve a varying amount of padding to verify that this makes
+        //      no difference.  (C-3)
+        //    - Verify that the methods give the expected value.  (C-1)
+        //    - Verify that no memory is allocated.  (C-2)
+        //    - Verify defensive checks are triggered for invalid values.
+        //      (C-4)
         //
         // Testing:
         //   void xorEqual(size_t index, bool value);
@@ -2740,22 +2740,22 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No allocations are performed.
-        //:
-        //: 3 The method does not depend upon capacity.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No allocations are performed.
+        //
+        // 3. The method does not depend upon capacity.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of test vectors:
-        //:   o Reserve a varying amount of padding to verify that this makes
-        //:     no difference.  (C-3)
-        //:   o Verify that the methods give the expected value.  (C-1)
-        //:   o Verify that no memory is allocated.  (C-2)
-        //:   o Verify defensive checks are triggered for invalid values.
-        //:     (C-4)
+        // 1. For each of a sequence of test vectors:
+        //    - Reserve a varying amount of padding to verify that this makes
+        //      no difference.  (C-3)
+        //    - Verify that the methods give the expected value.  (C-1)
+        //    - Verify that no memory is allocated.  (C-2)
+        //    - Verify defensive checks are triggered for invalid values.
+        //      (C-4)
         //
         // Testing:
         //   void orEqual(size_t index, bool value);
@@ -2877,22 +2877,22 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No allocations are performed.
-        //:
-        //: 3 The method does not depend upon capacity.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No allocations are performed.
+        //
+        // 3. The method does not depend upon capacity.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of test vectors:
-        //:   o Reserve a varying amount of padding to verify that this makes
-        //:     no difference.  (C-3)
-        //:   o Verify that the methods give the expected value.  (C-1)
-        //:   o Verify that no memory is allocated.  (C-2)
-        //:   o Verify defensive checks are triggered for invalid values.
-        //:     (C-4)
+        // 1. For each of a sequence of test vectors:
+        //    - Reserve a varying amount of padding to verify that this makes
+        //      no difference.  (C-3)
+        //    - Verify that the methods give the expected value.  (C-1)
+        //    - Verify that no memory is allocated.  (C-2)
+        //    - Verify defensive checks are triggered for invalid values.
+        //      (C-4)
         //
         // Testing:
         //   void minusEqual(size_t index, bool value);
@@ -3010,22 +3010,22 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 No allocations are performed.
-        //:
-        //: 3 The method does not depend upon capacity.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. No allocations are performed.
+        //
+        // 3. The method does not depend upon capacity.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of test vectors:
-        //:   o Reserve a varying amount of padding to verify that this makes
-        //:     no difference.  (C-3)
-        //:   o Verify that the methods give the expected value.  (C-1)
-        //:   o Verify that no memory is allocated.  (C-2)
-        //:   o Verify defensive checks are triggered for invalid values.
-        //:     (C-4)
+        // 1. For each of a sequence of test vectors:
+        //    - Reserve a varying amount of padding to verify that this makes
+        //      no difference.  (C-3)
+        //    - Verify that the methods give the expected value.  (C-1)
+        //    - Verify that no memory is allocated.  (C-2)
+        //    - Verify defensive checks are triggered for invalid values.
+        //      (C-4)
         //
         // Testing:
         //   void andEqual(size_t index, bool value);
@@ -3136,43 +3136,43 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 the correct result is obtained
-        //:
-        //: 2 no allocations are performed from the object's allocator (for
-        //:   the '<<' and '>>' methods, allocation from the default allocator
-        //:   will happen for the temporary that is created).
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. the correct result is obtained
+        //
+        // 2. no allocations are performed from the object's allocator (for
+        //    the `<<` and `>>` methods, allocation from the default allocator
+        //    will happen for the temporary that is created).
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through different specs indicating the initial state of a
-        //:   bit array object 'X'.
-        //:
-        //: 2 In a nested loop, iterate through different numbers of bits to
-        //:   shift.
-        //:
-        //: 3 Calculate through string operations the spec of the expected
-        //:   result of a right shift on 'X', and create an object EXP from
-        //:   that spec.
-        //:
-        //: 4 Copy-construct 'mY' from 'X'.
-        //:
-        //: 5 Apply the infix '>>' operator to 'Y' and keep a const ref 'Z' to
-        //:   the result, and verify 'EXP == Z'.  (C-1)
-        //:
-        //: 6 Apply '>>=' to 'mY', and verify 'EXP == Y'.  (C-1)
-        //:
-        //: 7 Check 'Y', bit-by-bit, and compare with bits in 'X' that should
-        //:   match.  (C-1)
-        //:
-        //: 8 Do 5, 6, 7, in a BEGIN - END block causing the allocator from
-        //:   which 'Y' is constructed to throw, and verify that it never
-        //:   threw.  (C-2)
-        //:
-        //: 9 Repeat steps 3-8, except doing '<<' and '<<=' instead of '>>' and
-        //:   '>>='.  (C-1) (C-2)
-        //:
-        //: 10 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Iterate through different specs indicating the initial state of a
+        //    bit array object `X`.
+        //
+        // 2. In a nested loop, iterate through different numbers of bits to
+        //    shift.
+        //
+        // 3. Calculate through string operations the spec of the expected
+        //    result of a right shift on `X`, and create an object EXP from
+        //    that spec.
+        //
+        // 4. Copy-construct `mY` from `X`.
+        //
+        // 5. Apply the infix `>>` operator to `Y` and keep a const ref `Z` to
+        //    the result, and verify `EXP == Z`.  (C-1)
+        //
+        // 6. Apply `>>=` to `mY`, and verify `EXP == Y`.  (C-1)
+        //
+        // 7. Check `Y`, bit-by-bit, and compare with bits in `X` that should
+        //    match.  (C-1)
+        //
+        // 8. Do 5, 6, 7, in a BEGIN - END block causing the allocator from
+        //    which `Y` is constructed to throw, and verify that it never
+        //    threw.  (C-2)
+        //
+        // 9. Repeat steps 3-8, except doing `<<` and `<<=` instead of `>>` and
+        //    `>>=`.  (C-1) (C-2)
+        //
+        // 10. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   BitArray& operator<<=(size_t numBits);
@@ -3185,7 +3185,7 @@ int main(int argc, char *argv[])
                                "=====================\n";
 
         if (verbose) cout <<
-       "\nTesting 'operator<<=', 'operator>>=', 'operator<<', and 'operator>>'"
+       "\nTesting `operator<<=`, `operator>>=`, `operator<<`, and `operator>>`"
                           << endl;
         {
             static const char *SPECS[] = {
@@ -3334,33 +3334,33 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained.
-        //:
-        //: 2 The operation is exception-neutral.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained.
+        //
+        // 2. The operation is exception-neutral.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use specs from a table to drive a sequence of possible object
-        //:   values.
-        //:
-        //: 2 Use 'binSpec' to produce 's', a binary spec of the object.
-        //:
-        //: 3 Iterate through a table of values specifying the amount to
-        //:   rotate.
-        //:
-        //: 4 By string operations on 's', calculate the spec of the expected
-        //:   value of the object after 'rotateRight'.  Create an object 'EXP'
-        //:   from this spec.
-        //:
-        //: 5 Apply 'rotateRight' and compare the result to 'EXP'.  (C-1)
-        //:
-        //: 6 Steps 4 and 5 are enclosed in a 'BEGIN - END' block to ensure
-        //:   that 'rotateRight' is exception-neutral.  (C-2)
-        //:
-        //: 7 Repeat steps 4-6, except for 'rotateLeft'.  (C-1) (C-2)
-        //:
-        //: 8 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Use specs from a table to drive a sequence of possible object
+        //    values.
+        //
+        // 2. Use `binSpec` to produce `s`, a binary spec of the object.
+        //
+        // 3. Iterate through a table of values specifying the amount to
+        //    rotate.
+        //
+        // 4. By string operations on `s`, calculate the spec of the expected
+        //    value of the object after `rotateRight`.  Create an object `EXP`
+        //    from this spec.
+        //
+        // 5. Apply `rotateRight` and compare the result to `EXP`.  (C-1)
+        //
+        // 6. Steps 4 and 5 are enclosed in a `BEGIN - END` block to ensure
+        //    that `rotateRight` is exception-neutral.  (C-2)
+        //
+        // 7. Repeat steps 4-6, except for `rotateLeft`.  (C-1) (C-2)
+        //
+        // 8. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   void rotateLeft(size_t numBits);
@@ -3371,7 +3371,7 @@ int main(int argc, char *argv[])
                                "======================\n";
 
         if (verbose) cout <<
-            "\nTesting 'rotateLeft(numBits)' and 'rotateRight(numBits)'"
+            "\nTesting `rotateLeft(numBits)` and `rotateRight(numBits)`"
                           << endl;
         {
             static const char *SPECS[] = {
@@ -3489,60 +3489,60 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 the correct result is obtained
-        //:
-        //: 2 no allocations are performed
-        //:
-        //: 3 does not depend upon internal representation
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. the correct result is obtained
+        //
+        // 2. no allocations are performed
+        //
+        // 3. does not depend upon internal representation
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 In the first loop, iterate through a sequence of specs, and
-        //:   nested within that, iterate through amounts to extend by.
-        //:
-        //: 2 Create an object 'X', based on the spec.  Create an object 'mY'
-        //:   stretch it by the amount to extend by, and initialize it
-        //:   according to the spec.  (C-3)
-        //:
-        //: 3 Create an object 'Z' by applying the '~' operator to 'X'.
-        //:
-        //: 4 Apply 'toggleAll' to 'mY'.
-        //:
-        //: 5 Verify, one by one, that the bits in 'Y' are as expected.  (C-1)
-        //:
-        //: 6 Verify 'Z == Y'.  (C-1)
-        //:
-        //: 7 Verify that no memory allocation occurred in either toggle.
-        //:   (C-2)
-        //:
-        //: 8 In the second loop, iterate through a sequence of specs, and
-        //:   nested within that, iterate through amounts to extend by.
-        //:
-        //: 9 Create an object 'X' according to the spec, and an a possibly
-        //:   stretched object 'Y' with an identical value.  (C-3)
-        //:
-        //: 10 Iterate 'idx' through all valid values for an index into 'X'.
-        //:
-        //: 11 Call the single-bit 'toggle' to toggle the bit at index in 'mY'.
-        //:
-        //: 12 Verify, one by one, that the bits in 'Y' are as expected.  (C-1)
-        //:
-        //: 13 Toggle the one bit back so 'X == Y' again.
-        //:
-        //: 14 Iterate 'nb' from 0 to 'X.length() - idx'.
-        //:
-        //: 15 Call 'toggle(idx, nb)' to toggle the 'nb' bits of 'mY' starting
-        //:    at 'idx'.
-        //:
-        //: 16 Verify, one by one, that the bits in 'Y' are as expected.  (C-1)
-        //:
-        //: 17 Toggle the 'nb' bits back so 'X == Y' again.
-        //:
-        //: 18 Verify that no memory allocation occurred in the whole loop.
-        //:    (C-3)
-        //:
-        //: 19 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. In the first loop, iterate through a sequence of specs, and
+        //    nested within that, iterate through amounts to extend by.
+        //
+        // 2. Create an object `X`, based on the spec.  Create an object `mY`
+        //    stretch it by the amount to extend by, and initialize it
+        //    according to the spec.  (C-3)
+        //
+        // 3. Create an object `Z` by applying the '~' operator to `X`.
+        //
+        // 4. Apply `toggleAll` to `mY`.
+        //
+        // 5. Verify, one by one, that the bits in `Y` are as expected.  (C-1)
+        //
+        // 6. Verify `Z == Y`.  (C-1)
+        //
+        // 7. Verify that no memory allocation occurred in either toggle.
+        //    (C-2)
+        //
+        // 8. In the second loop, iterate through a sequence of specs, and
+        //    nested within that, iterate through amounts to extend by.
+        //
+        // 9. Create an object `X` according to the spec, and an a possibly
+        //    stretched object `Y` with an identical value.  (C-3)
+        //
+        // 10. Iterate `idx` through all valid values for an index into `X`.
+        //
+        // 11. Call the single-bit `toggle` to toggle the bit at index in `mY`.
+        //
+        // 12. Verify, one by one, that the bits in `Y` are as expected.  (C-1)
+        //
+        // 13. Toggle the one bit back so `X == Y` again.
+        //
+        // 14. Iterate `nb` from 0 to `X.length() - idx`.
+        //
+        // 15. Call `toggle(idx, nb)` to toggle the `nb` bits of `mY` starting
+        //     at `idx`.
+        //
+        // 16. Verify, one by one, that the bits in `Y` are as expected.  (C-1)
+        //
+        // 17. Toggle the `nb` bits back so `X == Y` again.
+        //
+        // 18. Verify that no memory allocation occurred in the whole loop.
+        //     (C-3)
+        //
+        // 19. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void toggleAll();
@@ -3555,7 +3555,7 @@ int main(int argc, char *argv[])
                                "=======================================\n";
 
         if (verbose) cout <<
-            "\nTesting 'toggleAll' and 'operator~'" << endl;
+            "\nTesting `toggleAll` and `operator~`" << endl;
         {
             static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
@@ -3634,7 +3634,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting 'toggle(index)', and 'toggle(index, numBits)'"
+            "\nTesting `toggle(index)`, and `toggle(index, numBits)`"
                           << endl;
         {
             static const char *SPECS[] = {
@@ -3754,45 +3754,45 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The correct result is obtained
-        //:
-        //: 2 No allocations are performed
-        //:
-        //: 3 Does not depend upon internal representation
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The correct result is obtained
+        //
+        // 2. No allocations are performed
+        //
+        // 3. Does not depend upon internal representation
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a table of specs, creating an object 'X' from
-        //:   the spec.
-        //:
-        //: 2 Iterate through a table of amounts to extend by, creating
-        //:   stretched objects 'Y' and 'Y2' initialized to the spec from '1'.
-        //:   (C-3)
-        //:
-        //: 3 Apply 'assignAll', 'assignAll1', and 'assignAll0' to 'Y' and
-        //:   'Y2', using 'isAny*' to verify the result is as expected.  (C-1)
-        //:
-        //: 4 Start a new pair of loops, iterating through all specs and
-        //:   extend amounts, creating a non-extended 'X' based on the spec.
-        //:
-        //: 5 Create an extended 'mY' whose value equals that of 'X'.  (C-3)
-        //:
-        //: 6 Iterate 'idx' through possible value indexes of 'X'.
-        //:
-        //: 7 Apply 'assign1(idx)' and 'assign0(idx)' to 'mY' and observe the
-        //:   result.  (C-1)
-        //:
-        //: 8 Still in the same loop, iterate 'nb' from 0 to
-        //:   'X.length() - idx'.
-        //:
-        //: 9 Apply 'assign1(idx, nb)' and 'assign0(idx, nb)', observing the
-        //:   result is as expected.  (C-1)
-        //:
-        //: 10 Observe that none of that assignment methods did any memory
-        //:    allocation.  (C-2)
-        //:
-        //: 11 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Iterate through a table of specs, creating an object `X` from
+        //    the spec.
+        //
+        // 2. Iterate through a table of amounts to extend by, creating
+        //    stretched objects `Y` and `Y2` initialized to the spec from '1'.
+        //    (C-3)
+        //
+        // 3. Apply `assignAll`, `assignAll1`, and `assignAll0` to `Y` and
+        //    `Y2`, using `isAny*` to verify the result is as expected.  (C-1)
+        //
+        // 4. Start a new pair of loops, iterating through all specs and
+        //    extend amounts, creating a non-extended `X` based on the spec.
+        //
+        // 5. Create an extended `mY` whose value equals that of `X`.  (C-3)
+        //
+        // 6. Iterate `idx` through possible value indexes of `X`.
+        //
+        // 7. Apply `assign1(idx)` and `assign0(idx)` to `mY` and observe the
+        //    result.  (C-1)
+        //
+        // 8. Still in the same loop, iterate `nb` from 0 to
+        //    `X.length() - idx`.
+        //
+        // 9. Apply `assign1(idx, nb)` and `assign0(idx, nb)`, observing the
+        //    result is as expected.  (C-1)
+        //
+        // 10. Observe that none of that assignment methods did any memory
+        //     allocation.  (C-2)
+        //
+        // 11. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void assignAll(bool value);
@@ -3807,7 +3807,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING ASSIGN METHODS\n"
                                "======================\n";
 
-        if (verbose) cout << "\nTesting 'assignAll0' and 'assignAll1'" << endl;
+        if (verbose) cout << "\nTesting `assignAll0` and `assignAll1`" << endl;
         {
             static const char *SPECS[] = {
                 "",      "0",      "01",     "011",    "0110",   "01100",
@@ -3912,7 +3912,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting 'assign?(index)', and 'assign?(index, numBits)'"
+            "\nTesting `assign?(index)`, and `assign?(index, numBits)`"
                           << endl;
         {
             static const char *SPECS[] = {
@@ -4067,37 +4067,37 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The resulting value is correct (unchanged).
-        //:
-        //: 2 The resulting capacity is correct (not less than initial).
-        //:
-        //: 3 The method is exception neutral w.r.t. allocation.
-        //:
-        //: 4 The resulting value is unchanged in the event of
-        //:   exceptions.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
+        // 1. The resulting value is correct (unchanged).
+        //
+        // 2. The resulting capacity is correct (not less than initial).
+        //
+        // 3. The method is exception neutral w.r.t. allocation.
+        //
+        // 4. The resulting value is unchanged in the event of
+        //    exceptions.
+        //
+        // 5. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a table of initial object values and subsequent
-        //:   capacities to reserve.
-        //:
-        //: 2 Construct each tabulated value.
-        //:
-        //: 3 Call 'reserveCapacity' with the tabulated number of elements.
-        //:
-        //: 4 Confirm that the test object has the same value as a separately
-        //:   constructed control object.  (C-1)
-        //:
-        //: 5 Append as many values as required to bring the test object's
-        //:   length to the specified number of elements, and use
-        //:   'bslma::TestAllocator' to verify that no additional allocations
-        //:   have occurred.  (C-2)
-        //:
-        //: 6 Perform each test in the standard 'bslma' exception-testing macro
-        //:   block.  (C-3) (C-4)
-        //:
-        //: 7 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. Specify a table of initial object values and subsequent
+        //    capacities to reserve.
+        //
+        // 2. Construct each tabulated value.
+        //
+        // 3. Call `reserveCapacity` with the tabulated number of elements.
+        //
+        // 4. Confirm that the test object has the same value as a separately
+        //    constructed control object.  (C-1)
+        //
+        // 5. Append as many values as required to bring the test object's
+        //    length to the specified number of elements, and use
+        //    `bslma::TestAllocator` to verify that no additional allocations
+        //    have occurred.  (C-2)
+        //
+        // 6. Perform each test in the standard `bslma` exception-testing macro
+        //    block.  (C-3) (C-4)
+        //
+        // 7. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   void reserveCapacity(size_t ne);
@@ -4106,7 +4106,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING RESERVECAPACITY\n"
                                "=======================\n";
 
-        // Test 'reserveCapacity' methods.
+        // Test `reserveCapacity` methods.
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -4186,7 +4186,7 @@ int main(int argc, char *argv[])
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose)
-           cout << "\nTesting the 'reserveCapacity' method" << endl;
+           cout << "\nTesting the `reserveCapacity` method" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int     LINE = DATA[ti].d_lineNum;
@@ -4236,24 +4236,24 @@ int main(int argc, char *argv[])
         // TESTING TWO-BIT SWAPBITS METHOD
         //
         // Concerns:
-        //: 1 The method swaps the specified pair of values.
-        //:
-        //: 2 The method leaves all other values in the container untouched.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method swaps the specified pair of values.
+        //
+        // 2. The method leaves all other values in the container untouched.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each length specified in a table, randomly populate a bit
-        //:   array of that length.
-        //:
-        //: 2 For any possible pair of valid indexes into the bit array, call
-        //:   'swapBits'.
-        //:
-        //: 3 Observe that the values at the two indexes are swapped.  (C-1)
-        //:
-        //: 4 Verify that no other values were changed.  (C-2)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For each length specified in a table, randomly populate a bit
+        //    array of that length.
+        //
+        // 2. For any possible pair of valid indexes into the bit array, call
+        //    `swapBits`.
+        //
+        // 3. Observe that the values at the two indexes are swapped.  (C-1)
+        //
+        // 4. Verify that no other values were changed.  (C-2)
+        //
+        // 5. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   void swapBits(size_t index1, size_t index2);
@@ -4330,40 +4330,40 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The source is left unaffected (apart from aliasing).
-        //:
-        //: 2 The subsequent existence of the source has no effect on the
-        //:   result object (apart from aliasing).
-        //:
-        //: 3 The function is alias-safe.
-        //:
-        //: 4 The function preserves object invariants.
-        //:
-        //: 5 Note that the 'assign' methods cannot allocate, but are tested
-        //:   for exceptions anyway.
-        //:
-        //: 6 Test multi-word bit arrays.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
+        // 1. The source is left unaffected (apart from aliasing).
+        //
+        // 2. The subsequent existence of the source has no effect on the
+        //    result object (apart from aliasing).
+        //
+        // 3. The function is alias-safe.
+        //
+        // 4. The function preserves object invariants.
+        //
+        // 5. Note that the `assign` methods cannot allocate, but are tested
+        //    for exceptions anyway.
+        //
+        // 6. Test multi-word bit arrays.
+        //
+        // 7. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 In the "canonical state" (black-box) tests, we confirm that the
-        //:   source is unmodified by the method call, and that its subsequent
-        //:   destruction has no effect on the destination object.  (C-1) (C-2)
-        //:
-        //: 2 In all cases we want to make sure that after the application of
-        //:   the operation, the object is allowed to go out of scope directly
-        //:   to enable the destructor to assert object invariants.  (C-4)
-        //:
-        //: 3 Each object constructed should be wrapped in separate BSLMA test
-        //:   assert macros and use gg as an optimization.  (C-5)
-        //:
-        //: 4 Generate random specs to drive the creation of dest and src bit
-        //:   arrays, and do string operations to generate the spec of the
-        //:   expected result, use that spec to create the expected result, and
-        //:   compare with the result of the function.
-        //:
-        //: 5 Ensure that each function verifies all preconditions.  (C-7)
+        // 1. In the "canonical state" (black-box) tests, we confirm that the
+        //    source is unmodified by the method call, and that its subsequent
+        //    destruction has no effect on the destination object.  (C-1) (C-2)
+        //
+        // 2. In all cases we want to make sure that after the application of
+        //    the operation, the object is allowed to go out of scope directly
+        //    to enable the destructor to assert object invariants.  (C-4)
+        //
+        // 3. Each object constructed should be wrapped in separate BSLMA test
+        //    assert macros and use gg as an optimization.  (C-5)
+        //
+        // 4. Generate random specs to drive the creation of dest and src bit
+        //    arrays, and do string operations to generate the spec of the
+        //    expected result, use that spec to create the expected result, and
+        //    compare with the result of the function.
+        //
+        // 5. Ensure that each function verifies all preconditions.  (C-7)
         //
         // Testing:
         //   void assign(size_t di, bool value);
@@ -4632,7 +4632,7 @@ int main(int argc, char *argv[])
                         ASSERT(S == SS);
 
                         if (veryVerbose) { outerP("\t\t\tBEFORE: ", X); }
-                        x.assign(DI, s, SI, NE);     // source non-'const'
+                        x.assign(DI, s, SI, NE);     // source non-`const`
                         if (veryVerbose) { outerP("\t\t\t AFTER: ", X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);   // source unchanged?
@@ -4654,7 +4654,7 @@ int main(int argc, char *argv[])
                         ASSERT(S == SS);
 
                         if (veryVerbose) { outerP("\t\t\tBEFORE: ", X); }
-                        x.assign(DI, s[SI]);           // source non-'const'
+                        x.assign(DI, s[SI]);           // source non-`const`
                         if (veryVerbose) { outerP("\t\t\t AFTER: ", X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5169,85 +5169,85 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The destination has the correct value.
-        //:
-        //: 2 The source is left unaffected (apart from aliasing).
-        //:
-        //: 3 The subsequent existing of the source has no effect on the
-        //:   result object (apart from aliasing).
-        //:
-        //: 4 The function is alias-safe.
-        //:
-        //: 5 The function is exception neutral (w.r.t. allocation).
-        //:
-        //: 6 The function preserves object invariants.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
+        // 1. The destination has the correct value.
         //
-        //    For the 'remove' methods, the concerns are simply to cover the
+        // 2. The source is left unaffected (apart from aliasing).
+        //
+        // 3. The subsequent existing of the source has no effect on the
+        //    result object (apart from aliasing).
+        //
+        // 4. The function is alias-safe.
+        //
+        // 5. The function is exception neutral (w.r.t. allocation).
+        //
+        // 6. The function preserves object invariants.
+        //
+        // 7. QoI: asserted precondition violations are detected when enabled.
+        //
+        //    For the `remove` methods, the concerns are simply to cover the
         //    full range of possible indices and numbers of elements.
         //
         // Plan:
-        //: 1 Do the table-driven non-aliasing tests:
-        //:   o Generate dest ('DD') src ('SS') and expected ('EE') values
-        //:     from table.
-        //:
-        //:   o Copy construct objects 'X' and 'S' from 'DD' and 'SS'.
-        //:
-        //:   o Apply the operation between 'x' and 'S' and afterward compare
-        //:     'X' with 'EE'.  (C-1)
-        //:
-        //:   o Enclose the operation in a 'BEGIN .. END' macro block to throw
-        //:     exceptions when memory is allocated.  Catch the exceptions
-        //:     before 'x' and 'S' are destroyed, and verify they still match
-        //:     'DD' and 'SS'.  (C-5)
-        //:
-        //:   o Compare 'X' with 'EE' again after 'S' has gone out of scope,
-        //:     to verify this had no influence on 'X'.  (C-3)
-        //:
-        //:   o Compare 'S' with 'SS'.  (C-2)
-        //:
-        //:   o In the case of append, only do the case where 'DI' (destination
-        //:     index) equals the length of 'x', so the value of 'EE' for
-        //:     'insert' will work.
-        //:
-        //:   o Exit the block where 'x' is created, so that its invariants are
-        //:     checked by the d'tor.  (C-6)
-        //:
-        //: 2 Repeat '1', substituting 'X' for 'S', to test aliasing.  (C-4)
-        //:
-        //: 3 Do random testing to repeat the table-driven testing, but with
-        //:   larger objects.
-        //:   o Randomly choose the lengths 'dstLen' and 'srcLen' of the
-        //:     destination and source.
-        //:
-        //:   o Use 'randSpec' to generate random binary specs of length
-        //:     'dstLen' and 'srcLen'.
-        //:
-        //:   o Create an object 'S' from the source spec.
-        //:
-        //:   o In each block:
-        //:     1 Create a destination object 'mD' from the destination spec.
-        //:
-        //:     2 Use string operations on the dest and src specs to generate a
-        //:       binary spec of the result of the operation, create a bit
-        //:       array 'EXP' from that spec.
-        //:
-        //:     3 Apply the operation and observe 'EXP == D'.  (C-1)
-        //:
-        //:     4 Do '3' in a 'BEGIN .. END' exception block, that beings after
-        //:       'D' is created, and verify at the beginning of the block That
-        //:       'D == DD'.  (C-5)
-        //:
-        //:     5 Compare 'S' with 'SS'.  (C-2)
-        //:
-        //:     6 Call 'removeAll' on 'S' and observe 'D' doesn't change.
-        //:       (C-3)
-        //:
-        //:     7 Exit the block where 'x' is created, so that its invariants
-        //:       are checked by the d'tor.  (C-6)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-7)
+        // 1. Do the table-driven non-aliasing tests:
+        //    - Generate dest (`DD`) src (`SS`) and expected (`EE`) values
+        //      from table.
+        //
+        //    - Copy construct objects `X` and `S` from `DD` and `SS`.
+        //
+        //    - Apply the operation between `x` and `S` and afterward compare
+        //      `X` with `EE`.  (C-1)
+        //
+        //    - Enclose the operation in a `BEGIN .. END` macro block to throw
+        //      exceptions when memory is allocated.  Catch the exceptions
+        //      before `x` and `S` are destroyed, and verify they still match
+        //      `DD` and `SS`.  (C-5)
+        //
+        //    - Compare `X` with `EE` again after `S` has gone out of scope,
+        //      to verify this had no influence on `X`.  (C-3)
+        //
+        //    - Compare `S` with `SS`.  (C-2)
+        //
+        //    - In the case of append, only do the case where `DI` (destination
+        //      index) equals the length of `x`, so the value of `EE` for
+        //      `insert` will work.
+        //
+        //    - Exit the block where `x` is created, so that its invariants are
+        //      checked by the d'tor.  (C-6)
+        //
+        // 2. Repeat '1', substituting `X` for `S`, to test aliasing.  (C-4)
+        //
+        // 3. Do random testing to repeat the table-driven testing, but with
+        //    larger objects.
+        //    - Randomly choose the lengths `dstLen` and `srcLen` of the
+        //      destination and source.
+        //
+        //    - Use `randSpec` to generate random binary specs of length
+        //      `dstLen` and `srcLen`.
+        //
+        //    - Create an object `S` from the source spec.
+        //
+        //    - In each block:
+        //     1. Create a destination object `mD` from the destination spec.
+        //
+        //     2. Use string operations on the dest and src specs to generate a
+        //        binary spec of the result of the operation, create a bit
+        //        array `EXP` from that spec.
+        //
+        //     3. Apply the operation and observe `EXP == D`.  (C-1)
+        //
+        //     4. Do '3' in a `BEGIN .. END` exception block, that beings after
+        //        `D` is created, and verify at the beginning of the block That
+        //        `D == DD`.  (C-5)
+        //
+        //     5. Compare `S` with `SS`.  (C-2)
+        //
+        //     6. Call `removeAll` on `S` and observe `D` doesn't change.
+        //        (C-3)
+        //
+        //     7. Exit the block where `x` is created, so that its invariants
+        //        are checked by the d'tor.  (C-6)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-7)
         //
         // Testing:
         //   void append(bool value);
@@ -5600,7 +5600,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s, SI, NE);        // source non-'const'
+                        x.insert(DI, s, SI, NE);        // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5616,7 +5616,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s);                // source non-'const'
+                        x.insert(DI, s);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5632,7 +5632,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s[SI]);            // source non-'const'
+                        x.insert(DI, s[SI]);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5650,7 +5650,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s, SI, NE);            // source non-'const'
+                        x.append(s, SI, NE);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5667,7 +5667,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s);                    // source non-'const'
+                        x.append(s);                    // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -5683,7 +5683,7 @@ int main(int argc, char *argv[])
                         ASSERT(DD == X);
 
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s[SI]);                // source non-'const'
+                        x.append(s[SI]);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -6599,29 +6599,29 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The resulting length is correct.
-        //:
-        //: 2 The resulting element values are correct when:
-        //:   o new length <  initial length
-        //:   o new length == initial length
-        //:   o new length >  initial length
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The resulting length is correct.
+        //
+        // 2. The resulting element values are correct when:
+        //    - new length <  initial length
+        //    - new length == initial length
+        //    - new length >  initial length
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set A of lengths.
-        //:
-        //: 2 For each a1 in A construct an object x of length a1 with each
-        //:   element in x initialized to an arbitrary but known value V.
-        //:
-        //: 3 For each a2 in A use the 'setLength' method under test to set the
-        //:   length of x and potentially remove or set element values as per
-        //:   the method's contract.
-        //:
-        //: 4 Use the basic accessors to verify the length and element values
-        //:   of the modified object x.  (C-1) (C-2)
-        //:
-        //: 5 Verify that 'setLength' is properly checking 'newLength'.  (C-3)
+        // 1. Specify a set A of lengths.
+        //
+        // 2. For each a1 in A construct an object x of length a1 with each
+        //    element in x initialized to an arbitrary but known value V.
+        //
+        // 3. For each a2 in A use the `setLength` method under test to set the
+        //    length of x and potentially remove or set element values as per
+        //    the method's contract.
+        //
+        // 4. Use the basic accessors to verify the length and element values
+        //    of the modified object x.  (C-1) (C-2)
+        //
+        // 5. Verify that `setLength` is properly checking `newLength`.  (C-3)
         //
         // Testing:
         //   void setLength(size_t newLength, bit iVal = false);
@@ -6630,7 +6630,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING SET-LENGTH FUNCTION\n"
                                "===========================\n";
 
-        if (verbose) cout << "\nTesting 'setLength(int)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 31, 32, 33, 63, 64, 65, 100 };
             enum { NUM_TESTS     = sizeof lengths / sizeof lengths[0] };
@@ -6663,7 +6663,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int, 0)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int, 0)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 31, 32, 33, 63, 64, 65, 100 };
             enum { NUM_TESTS = sizeof lengths / sizeof lengths[0] };
@@ -6696,7 +6696,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int, 1)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int, 1)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 31, 32, 33, 63, 64, 65, 100 };
             enum { NUM_TESTS = sizeof lengths / sizeof lengths[0] };
@@ -6729,7 +6729,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int, 2)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int, 2)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 31, 32, 33, 63, 64, 65, 100 };
             enum { NUM_TESTS = sizeof lengths / sizeof lengths[0] };
@@ -6762,7 +6762,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int, -1)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int, -1)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 31, 32, 33, 63, 64, 65, 100 };
             enum { NUM_TESTS = sizeof lengths / sizeof lengths[0] };
@@ -6811,32 +6811,32 @@ int main(int argc, char *argv[])
         //   Ensure the constructors have the desired effect.
         //
         // Concerns:
-        //: 1 The initial value is correct.
-        //:
-        //: 2 The constructor is exception neutral w.r.t. memory allocation.
-        //:
-        //: 3 The internal memory management system is hooked up properly so
-        //:   that *all* internally allocated memory draws from a user-supplied
-        //:   allocator whenever one is specified.
+        // 1. The initial value is correct.
+        //
+        // 2. The constructor is exception neutral w.r.t. memory allocation.
+        //
+        // 3. The internal memory management system is hooked up properly so
+        //    that *all* internally allocated memory draws from a user-supplied
+        //    allocator whenever one is specified.
         //
         // Plan:
-        //: 1 For each constructor we will create objects
-        //:   o With and without passing in an allocator.
-        //:
-        //:   o In the presence of exceptions during memory allocations using a
-        //:     'bslma::TestAllocator' and varying its *allocation* *limit*.
-        //:     (C-2)
-        //:
-        //:   o Where the object is constructed entirely in static memory
-        //:     (using a 'bdlma::BufferedSequentialAllocator') and never
-        //:     destroyed, so that any memory that doesn't come from the
-        //:     specified allocator will be leaked and detected by purify.
-        //:
-        //: 2 Use basic accessors to verify (C-1)
-        //:   o length
-        //:   o element value at each index position { 0 .. length - 1 }.
-        //:
-        //: 3 Verify that the c'tors are checking their arguments.  (C-3)
+        // 1. For each constructor we will create objects
+        //    - With and without passing in an allocator.
+        //
+        //    - In the presence of exceptions during memory allocations using a
+        //      `bslma::TestAllocator` and varying its *allocation* *limit*.
+        //      (C-2)
+        //
+        //    - Where the object is constructed entirely in static memory
+        //      (using a `bdlma::BufferedSequentialAllocator`) and never
+        //      destroyed, so that any memory that doesn't come from the
+        //      specified allocator will be leaked and detected by purify.
+        //
+        // 2. Use basic accessors to verify (C-1)
+        //    - length
+        //    - element value at each index position { 0 .. length - 1 }.
+        //
+        // 3. Verify that the c'tors are checking their arguments.  (C-3)
         //
         // Testing:
         //   BitArray(size_t iLen, *ba = 0);
@@ -7019,83 +7019,83 @@ int main(int argc, char *argv[])
         //   Ensure the methods have the desired effect.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   int maxSupportedBdexVersion(int);
@@ -7113,8 +7113,8 @@ int main(int argc, char *argv[])
         const int VERSION      = Obj::maxSupportedBdexVersion(0);
         const int VERSION_DATE = 20140601;
 
-        if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
-                             " (valid) 'streamIn' functionality." << endl;
+        if (verbose) cout << "\nDirect initial trial of `streamOut` and"
+                             " (valid) `streamIn` functionality." << endl;
         {
             const Obj X(gDispatch("011"), &testAllocator);
             if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
@@ -7139,7 +7139,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { cout << "\t  Value after overwrite: "; P(t); }
             ASSERT(X == t);
 
-            // Corrupt the data, verify 'bdexStreamIn' detects it.
+            // Corrupt the data, verify `bdexStreamIn` detects it.
 
             bsl::vector<char> vc(OD, OD + LOD);
             vc.back() = static_cast<char>(0x7f);
@@ -7151,7 +7151,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting stream operators ('<<' and '>>')." << endl;
+            "\nTesting stream operators (`<<` and `>>`)." << endl;
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
@@ -7565,7 +7565,7 @@ int main(int argc, char *argv[])
             ASSERT(W == t);    ASSERT(X != t);      ASSERT(Y != t);
         }
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+        if (verbose) cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         {
             const Obj X;
             ASSERT(1 == X.maxSupportedBdexVersion(0));
@@ -7684,48 +7684,48 @@ int main(int argc, char *argv[])
         //   Ensure the method has the desired effect.
         //
         // Concerns:
-        //: 1 The value represented by any object can be assigned to any other
-        //:   object regardless of how either value is represented internally.
-        //:
-        //: 2 The 'rhs' value must not be affected by the operation.
-        //:
-        //: 3 'rhs' going out of scope has no effect on the value of 'lhs'
-        //:   after the assignment.
-        //:
-        //: 4 Aliasing (x = x): The assignment operator must always work --
-        //:   even when the lhs and rhs are identically the same object.
-        //:
-        //: 5 The assignment operator must be neutral with respect to memory
-        //:   allocation exceptions.
-        //:
-        //: 6 The assignment operator only allocates when needed.
+        // 1. The value represented by any object can be assigned to any other
+        //    object regardless of how either value is represented internally.
+        //
+        // 2. The `rhs` value must not be affected by the operation.
+        //
+        // 3. `rhs` going out of scope has no effect on the value of `lhs`
+        //    after the assignment.
+        //
+        // 4. Aliasing (x = x): The assignment operator must always work --
+        //    even when the lhs and rhs are identically the same object.
+        //
+        // 5. The assignment operator must be neutral with respect to memory
+        //    allocation exceptions.
+        //
+        // 6. The assignment operator only allocates when needed.
         //
         // Plan:
-        //: 1 Specify a set S of unique object values with substantial and
-        //:   varied differences, ordered by increasing length.  For each value
-        //:   in S, construct an object x along with a sequence of similarly
-        //:   constructed duplicates x1, x2, ..., xN.  Attempt to affect every
-        //:   aspect of white-box state by altering each xi in a unique way.
-        //:   Let the union of all such objects be the set T.
-        //:
-        //: 2 Construct tests u = v for all (u, v) in T X T.  Using canonical
-        //:   controls UU and VV, assert before the assignment that UU == u,
-        //:   VV == v, and v == u if and only if VV == UU.  After the
-        //:   assignment, assert that VV == u, VV == v, and, for grins, that
-        //:   v == u.  Let v go out of scope and confirm that VV == u.  All of
-        //:   these tests are performed within the 'bslma' exception testing
-        //:   apparatus.  (C-1) (C-2) (C-5)
-        //:
-        //: 3 As a separate exercise, construct tests y = y for all y in T.
-        //:   Using a canonical control X, verify that X == y before and after
-        //:   the assignment, again within the 'bslma' exception testing
-        //:   apparatus.  (C-4) (C-5)
-        //:
-        //: 4 After assignment, have the object on the rhs going out of scope
-        //:   and verify this doesn't change the result.  (C-3)
-        //:
-        //: 5 An additional set of assignments are performed to ensure
-        //:   allocations occur only when needed.  (C-6)
+        // 1. Specify a set S of unique object values with substantial and
+        //    varied differences, ordered by increasing length.  For each value
+        //    in S, construct an object x along with a sequence of similarly
+        //    constructed duplicates x1, x2, ..., xN.  Attempt to affect every
+        //    aspect of white-box state by altering each xi in a unique way.
+        //    Let the union of all such objects be the set T.
+        //
+        // 2. Construct tests u = v for all (u, v) in T X T.  Using canonical
+        //    controls UU and VV, assert before the assignment that UU == u,
+        //    VV == v, and v == u if and only if VV == UU.  After the
+        //    assignment, assert that VV == u, VV == v, and, for grins, that
+        //    v == u.  Let v go out of scope and confirm that VV == u.  All of
+        //    these tests are performed within the `bslma` exception testing
+        //    apparatus.  (C-1) (C-2) (C-5)
+        //
+        // 3. As a separate exercise, construct tests y = y for all y in T.
+        //    Using a canonical control X, verify that X == y before and after
+        //    the assignment, again within the `bslma` exception testing
+        //    apparatus.  (C-4) (C-5)
+        //
+        // 4. After assignment, have the object on the rhs going out of scope
+        //    and verify this doesn't change the result.  (C-3)
+        //
+        // 5. An additional set of assignments are performed to ensure
+        //    allocations occur only when needed.  (C-6)
         //
         // Testing:
         //   BitArray& operator=(const BitArray& rhs);
@@ -7823,7 +7823,7 @@ int main(int argc, char *argv[])
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
                             //--v
                             }
-                            // 'mV' (and therefore 'V') now out of scope
+                            // `mV` (and therefore `V`) now out of scope
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
@@ -7935,134 +7935,134 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTION
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects that use the same
         //   allocator.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 The common object allocator address held by both objects is
-        //:   unchanged.
-        //:
-        //: 3 The member function does not allocate memory from any allocator;
-        //:   nor does the free function when the two objects being swapped use
-        //:   the same allocator.
-        //:
-        //: 4 The free function can be called with two objects that use
-        //:   different allocators.
-        //:
-        //: 5 Both functions have standard signatures and return types.
-        //:
-        //: 6 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 7 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. The common object allocator address held by both objects is
+        //    unchanged.
+        //
+        // 3. The member function does not allocate memory from any allocator;
+        //    nor does the free function when the two objects being swapped use
+        //    the same allocator.
+        //
+        // 4. The free function can be called with two objects that use
+        //    different allocators.
+        //
+        // 5. Both functions have standard signatures and return types.
+        //
+        // 6. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 7. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-5)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable
-        //:     'Obj', 'mW', having the value described by 'R1'; also use the
-        //:     copy constructor and a "scratch" allocator to create a 'const'
-        //:     'Obj' 'XX' from 'mW'.
-        //:
-        //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-6)
-        //:
-        //:     1 The value is unchanged.  (C-6)
-        //:
-        //:     2 The allocator address held by the object is unchanged.
-        //:
-        //:     3 There was no additional object memory allocation.
-        //:
-        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
-        //:
-        //:     1 Use the copy constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', from 'XX' (P-4.2).
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:     3 Use, in turn, the member and free 'swap' functions to swap
-        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-        //:       (C-1..2)
-        //:
-        //:       1 The values have been exchanged.  (C-1)
-        //:
-        //:       2 The common object allocator address held by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
-        //:
-        //:       3 There was no additional object memory allocation.
-        //:
-        //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-7)
-        //:
-        //:   1 Create a set of attribute values, 'A', distinct from the values
-        //:     corresponding to the default-constructed object, choosing
-        //:     values that allocate memory if possible.
-        //:
-        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   3 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX' (having default attribute values); also use the copy
-        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-        //:     'XX' from 'mX'.
-        //:
-        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mY' having the value described by the 'Ai' attributes; also
-        //:     use the copy constructor and a "scratch" allocator to create a
-        //:     'const' 'Obj' 'YY' from 'mY'.
-        //:
-        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-7)
-        //:
-        //:     1 The values have been exchanged.
-        //:
-        //:     2 There was no additional object memory allocation.  (C-7)
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory was
-        //:   allocated from the default allocator.  (C-3)
-        //:
-        //: 7 Verify that free 'swap' exchanges the values of any two objects
-        //:   that use different allocators.  (C-4)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when, using the member 'swap' function, an attempt is
-        //:   made to swap objects that do not refer to the same allocator, but
-        //:   not when the allocators are the same (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-5)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..2, 6)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor and `oa` to create a modifiable
+        //      `Obj`, `mW`, having the value described by `R1`; also use the
+        //      copy constructor and a "scratch" allocator to create a `const`
+        //      `Obj` `XX` from `mW`.
+        //
+        //   3. Use the member and free `swap` functions to swap the value of
+        //      `mW` with itself; verify, after each swap, that:  (C-6)
+        //
+        //     1. The value is unchanged.  (C-6)
+        //
+        //     2. The allocator address held by the object is unchanged.
+        //
+        //     3. There was no additional object memory allocation.
+        //
+        //   4. For each row `R2` in the table of P-3:  (C-1..2)
+        //
+        //     1. Use the copy constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, from `XX` (P-4.2).
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mY`, and having the value described by `R2`; also use
+        //        the copy constructor to create, using a "scratch" allocator,
+        //        a `const` `Obj`, `YY`, from `Y`.
+        //
+        //     3. Use, in turn, the member and free `swap` functions to swap
+        //        the values of `mX` and `mY`; verify, after each swap, that:
+        //        (C-1..2)
+        //
+        //       1. The values have been exchanged.  (C-1)
+        //
+        //       2. The common object allocator address held by `mX` and `mY`
+        //          is unchanged in both objects.  (C-2)
+        //
+        //       3. There was no additional object memory allocation.
+        //
+        // 5. Verify that the free `swap` function is discoverable through ADL:
+        //    (C-7)
+        //
+        //   1. Create a set of attribute values, `A`, distinct from the values
+        //      corresponding to the default-constructed object, choosing
+        //      values that allocate memory if possible.
+        //
+        //   2. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   3. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX` (having default attribute values); also use the copy
+        //      constructor and a "scratch" allocator to create a `const` `Obj`
+        //      `XX` from `mX`.
+        //
+        //   4. Use the value constructor and `oa` to create a modifiable `Obj`
+        //      `mY` having the value described by the `Ai` attributes; also
+        //      use the copy constructor and a "scratch" allocator to create a
+        //      `const` `Obj` `YY` from `mY`.
+        //
+        //   5. Use the `bslalg::SwapUtil` helper function template to swap the
+        //      values of `mX` and `mY`, using the free `swap` function defined
+        //      in this component, then verify that:  (C-7)
+        //
+        //     1. The values have been exchanged.
+        //
+        //     2. There was no additional object memory allocation.  (C-7)
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory was
+        //    allocated from the default allocator.  (C-3)
+        //
+        // 7. Verify that free `swap` exchanges the values of any two objects
+        //    that use different allocators.  (C-4)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when, using the member `swap` function, an attempt is
+        //    made to swap objects that do not refer to the same allocator, but
+        //    not when the allocators are the same (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-8)
         //
         // Testing:
         //   void swap(BitArray& other);
@@ -8139,7 +8139,7 @@ int main(int argc, char *argv[])
                 firstFlag = false;
             }
 
-            // member 'swap'
+            // member `swap`
             {
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -8150,7 +8150,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE1, oam.isTotalSame());
             }
 
-            // free function 'swap'
+            // free function `swap`
             {
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -8174,7 +8174,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P_(YY) }
 
-                // member 'swap'
+                // member `swap`
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -8187,7 +8187,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
 
-                // free function 'swap', same allocator
+                // free function `swap`, same allocator
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -8203,7 +8203,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                "\nInvoke free 'swap' function in a context where ADL is used."
+                "\nInvoke free `swap` function in a context where ADL is used."
                                                                        << endl;
         {
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -8233,7 +8233,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(da.numBlocksTotal(), !da.numBlocksTotal());
 
         if (verbose) cout <<
-                   "\nFree 'swap' function with different allocators." << endl;
+                   "\nFree `swap` function with different allocators." << endl;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1 = DATA[ti].d_line;
             const char *const SPEC1 = DATA[ti].d_spec_p;
@@ -8257,7 +8257,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
-                // free function 'swap', different allocators
+                // free function `swap`, different allocators
                 {
                     swap(mX, mY);
 
@@ -8295,49 +8295,49 @@ int main(int argc, char *argv[])
         //   Ensure the constructor has the desired effect.
         //
         // Concerns:
-        //: 1 The new object's value is the same as that of the original object
-        //:   (relying on the previously tested equality operators).
-        //:
-        //: 2 All internal representations of a given value can be used to
-        //:   create a new object of equivalent value.
-        //:
-        //: 3 The value of the original object is left unaffected.
-        //:
-        //: 4 Subsequent changes in or destruction of the source object have no
-        //:   effect on the copy-constructed object.
-        //:
-        //: 5 The function is exception neutral w.r.t. memory allocation.
-        //:
-        //: 6 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
+        // 1. The new object's value is the same as that of the original object
+        //    (relying on the previously tested equality operators).
+        //
+        // 2. All internal representations of a given value can be used to
+        //    create a new object of equivalent value.
+        //
+        // 3. The value of the original object is left unaffected.
+        //
+        // 4. Subsequent changes in or destruction of the source object have no
+        //    effect on the copy-constructed object.
+        //
+        // 5. The function is exception neutral w.r.t. memory allocation.
+        //
+        // 6. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
         //
         // Plan:
-        //: 1 Specify a set S of object values with
-        //:   substantial and varied differences, ordered by increasing length.
-        //:   For each value in S, initialize objects w and x, copy construct y
-        //:   from x and use 'operator==' to verify that both x and y
-        //:   subsequently have the same value as w.  Let x go out of scope and
-        //:   again verify that w == x.  Repeat this test with x having the
-        //:   same *logical* value, but perturbed so as to have potentially
-        //:   different internal representations.  (C-1) (C-2) (C-3)
-        //:
-        //: 2 In one case, call 'removeAll' on the source object after the copy
-        //:   construction and observe the copied object is unchanged.  (C-4)
-        //:
-        //: 3 Perform each of the above tests in the presence of exceptions
-        //:   during memory allocations using a 'bslma::TestAllocator' and
-        //:   varying its *allocation* *limit*.  (C-5)
-        //:
-        //: 4 For (C-6), repeat the above tests:
-        //:   o When passing in no allocator.
-        //:   o When passing in a null pointer: (bslma::Allocator *)0.
-        //:   o When passing in a test allocator (see concern 5).
-        //:   o Where the object is constructed entirely in static memory
-        //:     (using a 'bdlma::BufferedSequentialAllocator') and never
-        //:     destroyed.
-        //:   o After the (dynamically allocated) source object is deleted and
-        //:     its footprint erased (see concern 4).
+        // 1. Specify a set S of object values with
+        //    substantial and varied differences, ordered by increasing length.
+        //    For each value in S, initialize objects w and x, copy construct y
+        //    from x and use `operator==` to verify that both x and y
+        //    subsequently have the same value as w.  Let x go out of scope and
+        //    again verify that w == x.  Repeat this test with x having the
+        //    same *logical* value, but perturbed so as to have potentially
+        //    different internal representations.  (C-1) (C-2) (C-3)
+        //
+        // 2. In one case, call `removeAll` on the source object after the copy
+        //    construction and observe the copied object is unchanged.  (C-4)
+        //
+        // 3. Perform each of the above tests in the presence of exceptions
+        //    during memory allocations using a `bslma::TestAllocator` and
+        //    varying its *allocation* *limit*.  (C-5)
+        //
+        // 4. For (C-6), repeat the above tests:
+        //    - When passing in no allocator.
+        //    - When passing in a null pointer: (bslma::Allocator *)0.
+        //    - When passing in a test allocator (see concern 5).
+        //    - Where the object is constructed entirely in static memory
+        //      (using a `bdlma::BufferedSequentialAllocator`) and never
+        //      destroyed.
+        //    - After the (dynamically allocated) source object is deleted and
+        //      its footprint erased (see concern 4).
         //
         // Testing:
         //   BitArray(const BitArray& original, *ba = 0);
@@ -8431,7 +8431,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(SPEC, N, W == X);
                     }
 
-                    {                             // with 'original' destroyed
+                    {                             // with `original` destroyed
                         const Obj Y2(X, &testAllocator);
 
                         // testAllocator will erase the footprint of pX
@@ -8451,39 +8451,39 @@ int main(int argc, char *argv[])
         //   Ensure the operators return the correct values.
         //
         // Concerns:
-        //: 1 That '==' and '!=' correctly return a result based on the salient
-        //:   attributes of 'lhs' and 'rhs'.
-        //:
-        //: 2 To test that no other internal state information is being
-        //:   considered, we want also to verify that 'operator==' reports true
-        //:   when applied to any two objects whose internal representations
-        //:   may be different yet still represent the same (logical) value.
-        //:
-        //: 3 Note also that both equality operators must return either 1 or 0,
-        //:   and neither 'lhs' nor 'rhs' value may be modified.
+        // 1. That `==` and `!=` correctly return a result based on the salient
+        //    attributes of `lhs` and `rhs`.
+        //
+        // 2. To test that no other internal state information is being
+        //    considered, we want also to verify that `operator==` reports true
+        //    when applied to any two objects whose internal representations
+        //    may be different yet still represent the same (logical) value.
+        //
+        // 3. Note also that both equality operators must return either 1 or 0,
+        //    and neither `lhs` nor `rhs` value may be modified.
         //
         // Plan:
-        //: 1 Specify a set S of unique object values, all different, some of
-        //:   the differences subtle, ordered by non-decreasing length.
-        //:
-        //: 2 Iterate two nested loops, both iterating through the set 'S' of
-        //:   specs, creating 'X' from one spec and 'V' from the other.  Verify
-        //:   the correctness of 'operator==' and 'operator!=' (returning
-        //:   either true or false) using all elements 'X' and 'V') of the
-        //:   cross product S X S.  Verify that objects created from different
-        //:   specs compare unequally, objects created from the same spec
-        //:   compare equally.  (C-1)
-        //:
-        //: 3 Iterate four nested loops, 2 going through the values in S, and
-        //:   the other going through different amounts to extend by.  Create
-        //:   objects 'U' and 'V' from specs 'ti' and 'tj', extended by
-        //:   amounts indexed by 'u' and 'v'.  Verify that objects created
-        //:   from the same spec compare equally, regardless of their internal
-        //:   representation.  (C-1) (C-2)
-        //:
-        //: 4 When comparing the result of '==' and '!=', compare them to the
-        //:   results returned from '==' and '!=' applied to integers,
-        //:   guaranteeing that they must equal 1 or 0.  (C-3)
+        // 1. Specify a set S of unique object values, all different, some of
+        //    the differences subtle, ordered by non-decreasing length.
+        //
+        // 2. Iterate two nested loops, both iterating through the set `S` of
+        //    specs, creating `X` from one spec and `V` from the other.  Verify
+        //    the correctness of `operator==` and `operator!=` (returning
+        //    either true or false) using all elements `X` and `V`) of the
+        //    cross product S X S.  Verify that objects created from different
+        //    specs compare unequally, objects created from the same spec
+        //    compare equally.  (C-1)
+        //
+        // 3. Iterate four nested loops, 2 going through the values in S, and
+        //    the other going through different amounts to extend by.  Create
+        //    objects `U` and `V` from specs `ti` and `tj`, extended by
+        //    amounts indexed by `u` and `v`.  Verify that objects created
+        //    from the same spec compare equally, regardless of their internal
+        //    representation.  (C-1) (C-2)
+        //
+        // 4. When comparing the result of `==` and `!=`, compare them to the
+        //    results returned from `==` and `!=` applied to integers,
+        //    guaranteeing that they must equal 1 or 0.  (C-3)
         //
         // Testing:
         //   operator==(const BitArray&, const BitArray&);
@@ -8662,33 +8662,33 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING PRINT METHOD
-        //   Ensure that the print and '<<' function produces the right output.
+        //   Ensure that the print and `<<` function produces the right output.
         //
         // Concerns:
-        //: 1 Ensure that the method formats properly for empty and non-empty
-        //:   values
-        //:
-        //: 2 Ensure that the method formats properly for negative, 0, and
-        //:   positive levels.
-        //:
-        //: 3 Ensure that the method formats properly for 0 and non-zero spaces
-        //:   per level.
+        // 1. Ensure that the method formats properly for empty and non-empty
+        //    values
+        //
+        // 2. Ensure that the method formats properly for negative, 0, and
+        //    positive levels.
+        //
+        // 3. Ensure that the method formats properly for 0 and non-zero spaces
+        //    per level.
         //
         // Plan:
-        //: 1 Iterate through a table of specs, input values, and expected
-        //:   output values:
-        //:   o Create an object and initialize it to the spec using
-        //:     'ggDispatch'.
-        //:   o Call 'print' on the object with the 'level' and
-        //:     'spacesPerLevel' from the table, capturing the output in a
-        //:     string stream.
-        //:   o Verify that the value of the string stream matches the expected
-        //:     value from the table.  (C-1) (C-2) (C-3)
-        //:   o Reset the string stream to empty.
-        //:   o Call 'print' function using the string stream with 'level = 0'
-        //:     and 'spacesPerLevel = -1'.
-        //:   o Call '<<' using a second string stream on the same object.
-        //:   o Verify the two string streams match.  (C-1) (C-2) (C-3)
+        // 1. Iterate through a table of specs, input values, and expected
+        //    output values:
+        //    - Create an object and initialize it to the spec using
+        //      `ggDispatch`.
+        //    - Call `print` on the object with the `level` and
+        //      `spacesPerLevel` from the table, capturing the output in a
+        //      string stream.
+        //    - Verify that the value of the string stream matches the expected
+        //      value from the table.  (C-1) (C-2) (C-3)
+        //    - Reset the string stream to empty.
+        //    - Call `print` function using the string stream with `level = 0`
+        //      and `spacesPerLevel = -1`.
+        //    - Call `<<` using a second string stream on the same object.
+        //    - Verify the two string streams match.  (C-1) (C-2) (C-3)
         //
         // Testing:
         //   ostream& print(ostream& stream, int level, int spacesPerLevel);
@@ -8698,7 +8698,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING PRINT METHOD\n"
                                "====================\n";
 
-        if (verbose) cout << "\nTesting 'print' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `print` (ostream)." << endl;
 #define NL "\n"
         {
             static const struct {
@@ -8824,52 +8824,52 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the correct values.
         //
         // Concerns:
-        //: 1 The accessors return results appropriate for the value of the
-        //:   container.
-        //:
-        //: 2 Non-salient attributes do not affect the returned values.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The accessors return results appropriate for the value of the
+        //    container.
+        //
+        // 2. Non-salient attributes do not affect the returned values.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of representative object values ordered by
-        //:   non-decreasing length.
-        //:
-        //: 2 For each value w in S, initialize a newly constructed object x
-        //:   with w using 'ggDispatch' and verify that 'length()',
-        //:   'operator[]', and 'bits' return the expected result.  In the case
-        //:   of 'operator[]' and 'bits', calculate the expected result by
-        //:   operations on the binary spec of the object's value.
-        //:
-        //: 3 Reinitialize and repeat the same test on an existing object y
-        //:   after perturbing y so as to achieve an internal state
-        //:   representation of w that is potentially different from that of x.
-        //:
-        //: 4 Specify another table of specs of object values with the numbers
-        //:   of set and clear bits specified in each spec.
-        //:
-        //: 5 Iterate through this second table:
-        //:   o Initialize an object X according to the spec.
-        //:
-        //:   o Initialize a stretched object Y according to the spec.
-        //:
-        //:   o Verify the 'allocator()' method returns the allocator that was
-        //:     supplied at construction.
-        //:
-        //:   o Verify that the sum of the number of 0's and 1's, from the
-        //:     table, equal the returned 'length()'.
-        //:
-        //:   o Verify that 'isEmpty()' is true only when the object has a
-        //:     length of 0.
-        //:
-        //:   o Verify for both X and Y that 'num1' and 'num0' match the
-        //:     expected value.
-        //:
-        //:   o Verify that 'isAny1()' and 'isAny0()' return results consistent
-        //:     with the numbers of 1's and 0's from the table.
-        //:
-        //: 6 At the end, verify that 'operator[]' and 'bits' are properly
-        //:   checking their arguments.  (C-3)
+        // 1. Specify a set S of representative object values ordered by
+        //    non-decreasing length.
+        //
+        // 2. For each value w in S, initialize a newly constructed object x
+        //    with w using `ggDispatch` and verify that `length()`,
+        //    `operator[]`, and `bits` return the expected result.  In the case
+        //    of `operator[]` and `bits`, calculate the expected result by
+        //    operations on the binary spec of the object's value.
+        //
+        // 3. Reinitialize and repeat the same test on an existing object y
+        //    after perturbing y so as to achieve an internal state
+        //    representation of w that is potentially different from that of x.
+        //
+        // 4. Specify another table of specs of object values with the numbers
+        //    of set and clear bits specified in each spec.
+        //
+        // 5. Iterate through this second table:
+        //    - Initialize an object X according to the spec.
+        //
+        //    - Initialize a stretched object Y according to the spec.
+        //
+        //    - Verify the `allocator()` method returns the allocator that was
+        //      supplied at construction.
+        //
+        //    - Verify that the sum of the number of 0's and 1's, from the
+        //      table, equal the returned `length()`.
+        //
+        //    - Verify that `isEmpty()` is true only when the object has a
+        //      length of 0.
+        //
+        //    - Verify for both X and Y that `num1` and `num0` match the
+        //      expected value.
+        //
+        //    - Verify that `isAny1()` and `isAny0()` return results consistent
+        //      with the numbers of 1's and 0's from the table.
+        //
+        // 6. At the end, verify that `operator[]` and `bits` are properly
+        //    checking their arguments.  (C-3)
         //
         // Testing:
         //   size_t length() const;
@@ -8886,7 +8886,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING BASIC ACCESSORS\n"
                                "=======================\n";
 
-        if (verbose) cout << "\nTesting 'length' & 'operator[]'" << endl;
+        if (verbose) cout << "\nTesting `length` & `operator[]`" << endl;
         static const struct {
             int         d_lineNum;          // source line number
             const char *d_spec_p;           // specification string
@@ -8953,8 +8953,8 @@ int main(int argc, char *argv[])
                     size_t end = bsl::min(LENGTH - idx,
                                           sizeof(uint64_t) * CHAR_BIT);
                     for (int nb = 0; nb <= static_cast<int>(end); ++nb) {
-                        // Set 'bitsSpec' to be the binary spec of what we
-                        // expect from 'bits'.  Set 'x' to be the value.
+                        // Set `bitsSpec` to be the binary spec of what we
+                        // expect from `bits`.  Set `x` to be the value.
 
                         const bsl::string& bitsSpec = bs.substr(idx, nb);
                         uint64_t           x = 0;
@@ -8971,7 +8971,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'num?' and 'isAny?'" << endl;
+        if (verbose) cout << "\nTesting `num?` and `isAny?`" << endl;
         {
             static const struct {
                 int         d_lineNum;          // source line number
@@ -9137,80 +9137,80 @@ int main(int argc, char *argv[])
         //   Test the various helper functions.
         //
         // Concerns:
-        //: 1 That 'ggg' and 'gggDispatch' function correctly on valid binary
-        //:   specs.
-        //:
-        //: 2 That 'gggDispatch' correctly detect invalid specs.
-        //:
-        //: 3 That 'gg' and 'ggDispatch' function correctly on valid binary
-        //:   and hex specs.
-        //:
-        //: 4 That 'gDispatch' returns an object with the same value as an
-        //:   object initialized with 'gg' using the same spec.
-        //:
-        //: 5 'gDispatch' does not affect the test allocator.
-        //:
-        //: 6 'gDispatch' returns an object by value.
+        // 1. That `ggg` and `gggDispatch` function correctly on valid binary
+        //    specs.
         //
-        //: 7 That 'stretchRemoveAll' increases capacity appropriately.
-        //:
-        //: 8 That 'binSpec' correctly produces a binary spec correlating to
-        //:   the state of the object passed to it.
-        //:
-        //: 9 That 'randSpec' correctly produces a random binary spec of the
-        //:   length passed to it.
+        // 2. That `gggDispatch` correctly detect invalid specs.
+        //
+        // 3. That `gg` and `ggDispatch` function correctly on valid binary
+        //    and hex specs.
+        //
+        // 4. That `gDispatch` returns an object with the same value as an
+        //    object initialized with `gg` using the same spec.
+        //
+        // 5. `gDispatch` does not affect the test allocator.
+        //
+        // 6. `gDispatch` returns an object by value.
+        //
+        // 7. That `stretchRemoveAll` increases capacity appropriately.
+        //
+        // 8. That `binSpec` correctly produces a binary spec correlating to
+        //    the state of the object passed to it.
+        //
+        // 9. That `randSpec` correctly produces a random binary spec of the
+        //    length passed to it.
         //
         // Plan:
-        //: 1 Iterate through a table of valid binary specs, which also has
-        //:   expected values for the contents of the objects to be created.
-        //:   Apply 'gg' and 'ggDispatch' and observe that the values created
-        //:   are correct.  (C-1)
-        //:
-        //: 2 Iterate through a table of valid and invalid binary and hex
-        //:   specs, parsing them with 'gggDispatch', and observe that the
-        //:   value returned correctly reflects the correctness of the spec.
-        //:   (C-2)
-        //:
-        //: 3 For each SPEC in a list of specifications, compare the object
-        //:   returned (by value) from the generator function,
-        //:   'gDispatch(SPEC)' with the value of a newly constructed OBJECT
-        //:   configured using 'ggDispatch(&OBJECT, SPEC)'.  (C-4)
-        //:
-        //: 4 Verify that no memory was allocated from the test allocator
-        //:   when 'gDispatch' was called.  (C-5)
-        //:
-        //: 5 Use 'sizeof' to verify the size of the return value of
-        //:   'gDispatch' is the size of a bit array.  Take references to the
-        //:   return value of multiple calls to 'ggDispatch' and 'gDispatch'
-        //:   and verify that their addresses match and fail to match as would
-        //:   be expected if 'ggDispatch' returns a reference to the object
-        //:   passed to it and 'gDispatch' returns a newly created object by
-        //:   value.  (C-6)
-        //:
-        //: 6 Iterate through a table of specs, with amounts to stretch and
-        //:   expected increases in memory usage due to stretching, create
-        //:   objects from the specs, stretch them, and observe the memory
-        //:   usage is as expected.  (C-7)
-        //:
-        //: 7 Iterate through a table of pairs of specs, one simple binary spec
-        //:   ('simple' meaning nothing but '0's and '1's) and one hex spec
-        //:   that should give the same result.  Create objects with both
-        //:   specs, using both 'ggg' and 'gggDispatch' in the case of the
-        //:   binary spec, and using 'ggDispatch' in the case of the hex spec
-        //:   and observe they match.  (C-3)
-        //:
-        //: 8 In the loop in plan part 4, call 'binSpec' on object created from
-        //:   the specs and verify that it matches the simple binary spec from
-        //:   the table.  (C-8)
-        //:
-        //: 9 Test 'randSpec' (C-9):
-        //:   o Iterate through a range of lengths and call 'randSpec',
-        //:     verifying that the string produced is a simple binary spec of
-        //:     the length specified.
-        //:
-        //:   o Iterate many times, calling 'randSpec' with a fixed length,
-        //:     and keep statistics on the nature of the strings produced to
-        //:     to verify that they look random.
+        // 1. Iterate through a table of valid binary specs, which also has
+        //    expected values for the contents of the objects to be created.
+        //    Apply `gg` and `ggDispatch` and observe that the values created
+        //    are correct.  (C-1)
+        //
+        // 2. Iterate through a table of valid and invalid binary and hex
+        //    specs, parsing them with `gggDispatch`, and observe that the
+        //    value returned correctly reflects the correctness of the spec.
+        //    (C-2)
+        //
+        // 3. For each SPEC in a list of specifications, compare the object
+        //    returned (by value) from the generator function,
+        //    `gDispatch(SPEC)` with the value of a newly constructed OBJECT
+        //    configured using `ggDispatch(&OBJECT, SPEC)`.  (C-4)
+        //
+        // 4. Verify that no memory was allocated from the test allocator
+        //    when `gDispatch` was called.  (C-5)
+        //
+        // 5. Use `sizeof` to verify the size of the return value of
+        //    `gDispatch` is the size of a bit array.  Take references to the
+        //    return value of multiple calls to `ggDispatch` and `gDispatch`
+        //    and verify that their addresses match and fail to match as would
+        //    be expected if `ggDispatch` returns a reference to the object
+        //    passed to it and `gDispatch` returns a newly created object by
+        //    value.  (C-6)
+        //
+        // 6. Iterate through a table of specs, with amounts to stretch and
+        //    expected increases in memory usage due to stretching, create
+        //    objects from the specs, stretch them, and observe the memory
+        //    usage is as expected.  (C-7)
+        //
+        // 7. Iterate through a table of pairs of specs, one simple binary spec
+        //    (`simple` meaning nothing but `0`s and '1's) and one hex spec
+        //    that should give the same result.  Create objects with both
+        //    specs, using both `ggg` and `gggDispatch` in the case of the
+        //    binary spec, and using `ggDispatch` in the case of the hex spec
+        //    and observe they match.  (C-3)
+        //
+        // 8. In the loop in plan part 4, call `binSpec` on object created from
+        //    the specs and verify that it matches the simple binary spec from
+        //    the table.  (C-8)
+        //
+        // 9. Test `randSpec` (C-9):
+        //    - Iterate through a range of lengths and call `randSpec`,
+        //      verifying that the string produced is a simple binary spec of
+        //      the length specified.
+        //
+        //    - Iterate many times, calling `randSpec` with a fixed length,
+        //      and keep statistics on the nature of the strings produced to
+        //      to verify that they look random.
         //
         // Testing:
         //   BitArray& gg(BitArray* object, const char *spec);
@@ -9226,7 +9226,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING HELPER FUNCTIONS\n"
                                "========================\n";
 
-        if (verbose) cout << "\nTesting generator 'gg' on valid specs.\n";
+        if (verbose) cout << "\nTesting generator `gg` on valid specs.\n";
         static const struct {
             int         d_lineNum;          // source line number
             const char *d_spec_p;           // specification string
@@ -9399,8 +9399,8 @@ int main(int argc, char *argv[])
             "xwwbw4h0y8",
         0}; // Null string required as last element.
 
-        if (verbose) cout << "Compare values produced by 'gDispatch' and"
-                                         " 'ggDispatch' for various inputs.\n";
+        if (verbose) cout << "Compare values produced by `gDispatch` and"
+                                         " `ggDispatch` for various inputs.\n";
 
         for (int ti = 0; SPECS_G[ti]; ++ti) {
             const char *spec = SPECS_G[ti];
@@ -9438,7 +9438,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting 'stretchRemoveAll'." << endl;
+            "\nTesting `stretchRemoveAll`." << endl;
         static const struct {
             int         d_lineNum;       // source line number
             const char *d_spec_p;        // specification string
@@ -9447,7 +9447,7 @@ int main(int argc, char *argv[])
             int         d_secondResize;  // total blocks allocated
 
             // Note: total blocks (first/second Resize) and whether or not
-            // 'removeAll' deallocates memory depends on 'Element' type.
+            // `removeAll` deallocates memory depends on `Element` type.
 
         } DATA_C[] = {
             //line  spec            size    firstResize     secondResize
@@ -9601,7 +9601,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting invalid hex parsed by 'gggDispatch'." << endl;
+            "\nTesting invalid hex parsed by `gggDispatch`." << endl;
         static const struct {
             int         d_lineNum;
             const char *d_dispatchSpec;
@@ -9649,19 +9649,19 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, ERROR_IDX == rc);
 
             if (-1 == rc) {
-                // If 'gggDispatch' succeeded, we can only do multiples of
+                // If `gggDispatch` succeeded, we can only do multiples of
                 // nibbles.
 
                 ASSERT(0 == X.length() % 4);
             }
             else {
-                // If 'gggDispatch' failed, 'X' should be unchanged.
+                // If `gggDispatch` failed, `X` should be unchanged.
 
                 ASSERT(X == Z);
             }
 
             // Randomly insert white space throughout the string (but not
-            // before the leading 'x' to show white space makes no difference.
+            // before the leading `x` to show white space makes no difference.
 
             for (int repeat = 1; repeat <= 4; ++repeat) {
                 mY = Z;
@@ -9684,7 +9684,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nComparing binary and hex specs, testing 'binSpec'." << endl;
+            "\nComparing binary and hex specs, testing `binSpec`." << endl;
         static const struct {
             int         d_lineNum;
             const char *d_binarySpec;
@@ -9795,11 +9795,11 @@ int main(int argc, char *argv[])
             }
 
             // Randomly insert white space throughout the string (but not
-            // before the leading 'x' to show white space makes no difference.
+            // before the leading `x` to show white space makes no difference.
 
             for (bsl::size_t repeat = 0; repeat <= 4; ++repeat) {
-                // Set 'mY' to a random state.  'gggDispatch' passed a valid
-                // hex spec will 'removeAll' at the start.
+                // Set `mY` to a random state.  `gggDispatch` passed a valid
+                // hex spec will `removeAll` at the start.
 
                 bsl::string s(DISPATCH_SPEC);
                 for (bsl::size_t pos = s.length() - 1; pos >= 1; --pos) {
@@ -9826,7 +9826,7 @@ int main(int argc, char *argv[])
                 ASSERT(3 == Y.length());
                 ASSERT(X != Y);
 
-                // Observe that 'gggDispatch' empties the object before
+                // Observe that `gggDispatch` empties the object before
                 // initializing it, and use the same hex string we did last
                 // time, only upper case.
 
@@ -9841,13 +9841,13 @@ int main(int argc, char *argv[])
                 ASSERT(&Z == &ggDispatch(&mZ, s.c_str()));
                 ASSERT(X == Z);
 
-                // Observe that 'binSpec' matches the binary spec.
+                // Observe that `binSpec` matches the binary spec.
 
                 ASSERT(BINARY_SPEC == binSpec(X));
             }
         }
 
-        if (verbose) cout << "Check that 'randSpec' is providing reasonably"
+        if (verbose) cout << "Check that `randSpec` is providing reasonably"
                                                              " random specs\n";
         {
             for (unsigned len = 0; len < 320; ++len) {
@@ -9856,7 +9856,7 @@ int main(int argc, char *argv[])
                 ASSERT(bsl::string::npos == rs.find_first_not_of("01"));
 
                 Obj mX;    const Obj& X = mX;
-                ASSERT(-1 == ggg(&mX, rs.c_str()));    // 'rs' is valid
+                ASSERT(-1 == ggg(&mX, rs.c_str()));    // `rs` is valid
                 ASSERT(static_cast<unsigned>(X.length()) == len);
             }
 
@@ -9919,69 +9919,69 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
         //
         // Concerns:
-        //: 1 The default Constructor
-        //:   o creates the correct initial value.
-        //:   o is exception neutral with respect to memory allocation.
-        //:   o has the internal memory management system hooked up properly so
-        //:     that *all* internally allocated memory draws from the same
-        //:     user-supplied allocator whenever one is specified.
-        //:
-        //: 2 The destructor properly deallocates all allocated memory to
-        //:   its corresponding allocator from any attainable state.
-        //:
-        //: 3 'append'
-        //:   o produces the expected value.
-        //:   o increases capacity as needed.
-        //:   o maintains valid internal state.
-        //:   o treats argument as boolean
-        //:   o is exception neutral with respect to memory allocation.
-        //:
-        //: 4 'removeAll'
-        //:   o produces the expected value (empty).
-        //:   o properly destroys each contained element value.
-        //:   o maintains valid internal state.
-        //:   o does not allocate memory.
+        // 1. The default Constructor
+        //    - creates the correct initial value.
+        //    - is exception neutral with respect to memory allocation.
+        //    - has the internal memory management system hooked up properly so
+        //      that *all* internally allocated memory draws from the same
+        //      user-supplied allocator whenever one is specified.
+        //
+        // 2. The destructor properly deallocates all allocated memory to
+        //    its corresponding allocator from any attainable state.
+        //
+        // 3. `append`
+        //    - produces the expected value.
+        //    - increases capacity as needed.
+        //    - maintains valid internal state.
+        //    - treats argument as boolean
+        //    - is exception neutral with respect to memory allocation.
+        //
+        // 4. `removeAll`
+        //    - produces the expected value (empty).
+        //    - properly destroys each contained element value.
+        //    - maintains valid internal state.
+        //    - does not allocate memory.
         //
         // Plan:
-        //: 1 Create an object using the default constructor (C-1) (C-2):
-        //:   o With and without passing in an allocator.
-        //:   o In the presence of exceptions during memory allocations using a
-        //:     'bslma::TestAllocator' and varying its *allocation* *limit*.
-        //:   o Where the object is constructed entirely in static memory
-        //:     (using a 'bdlma::BufferedSequentialAllocator') and never
-        //:     destroyed.
-        //:
-        //: 2 (C-3) Construct a series of independent objects, ordered by
-        //:   increasing length using the input values 0, 1, and 2.  In each
-        //:   test, allow the object to leave scope without further
-        //:   modification, so that the destructor asserts internal object
-        //:   invariants appropriately.  After the final append operation in
-        //:   each test, use the (untested) basic accessors to cross-check the
-        //:   value of the object and the 'bslma::TestAllocator' to confirm
-        //:   whether a resize has occurred.
-        //:
-        //: 3 (C-4) construct a similar test, replacing 'append' with
-        //:   'removeAll'; this time, however, use the test allocator to record
-        //:   *numBlocksInUse* rather than *numBlocksTotal*.
-        //:
-        //: 4 (Parts of C-2, C-3, and C-4) create a small "area" test that
-        //:   exercises the construction and destruction of objects of various
-        //:   lengths and capacities in the presence of memory allocation
-        //:   exceptions.  Let S be the sequence of integers
-        //:   '{ 0 .. N - 1 } mod 3'.  Two separate tests will be performed,
-        //:   where The first test acts as a "control" in that 'removeAll' is
-        //:   not called; if only the second test produces an error, we know
-        //:   that 'removeAll' is to blame.  We will rely on
-        //:   'bslma::TestAllocator' and purify to address concern 2, and on
-        //:   the object invariant assertions in the destructor to address
-        //:   concerns 3e and 4d.
-        //:   o For each i in S, use the default constructor and 'append' to
-        //:     create an object of length i, confirm its value (using basic
-        //:     accessors), and let it leave scope.
-        //:   o For each (i, j) in S X S, use 'append' to create an object of
-        //:     length i, use 'removeAll' to erase its value and confirm (with
-        //:     'length'), use append to set the object to a value of length j,
-        //:     verify the value, and allow the object to leave scope.
+        // 1. Create an object using the default constructor (C-1) (C-2):
+        //    - With and without passing in an allocator.
+        //    - In the presence of exceptions during memory allocations using a
+        //      `bslma::TestAllocator` and varying its *allocation* *limit*.
+        //    - Where the object is constructed entirely in static memory
+        //      (using a `bdlma::BufferedSequentialAllocator`) and never
+        //      destroyed.
+        //
+        // 2. (C-3) Construct a series of independent objects, ordered by
+        //    increasing length using the input values 0, 1, and 2.  In each
+        //    test, allow the object to leave scope without further
+        //    modification, so that the destructor asserts internal object
+        //    invariants appropriately.  After the final append operation in
+        //    each test, use the (untested) basic accessors to cross-check the
+        //    value of the object and the `bslma::TestAllocator` to confirm
+        //    whether a resize has occurred.
+        //
+        // 3. (C-4) construct a similar test, replacing `append` with
+        //    `removeAll`; this time, however, use the test allocator to record
+        //    *numBlocksInUse* rather than *numBlocksTotal*.
+        //
+        // 4. (Parts of C-2, C-3, and C-4) create a small "area" test that
+        //    exercises the construction and destruction of objects of various
+        //    lengths and capacities in the presence of memory allocation
+        //    exceptions.  Let S be the sequence of integers
+        //    `{ 0 .. N - 1 } mod 3`.  Two separate tests will be performed,
+        //    where The first test acts as a "control" in that `removeAll` is
+        //    not called; if only the second test produces an error, we know
+        //    that `removeAll` is to blame.  We will rely on
+        //    `bslma::TestAllocator` and purify to address concern 2, and on
+        //    the object invariant assertions in the destructor to address
+        //    concerns 3e and 4d.
+        //    - For each i in S, use the default constructor and `append` to
+        //      create an object of length i, confirm its value (using basic
+        //      accessors), and let it leave scope.
+        //    - For each (i, j) in S X S, use `append` to create an object of
+        //      length i, use `removeAll` to erase its value and confirm (with
+        //      `length`), use append to set the object to a value of length j,
+        //      verify the value, and allow the object to leave scope.
         //
         // Testing:
         //   BitArray(bslma::Allocator *ba);
@@ -10044,7 +10044,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'append' (bootstrap)." << endl;
+        if (verbose) cout << "\nTesting `append` (bootstrap)." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -10142,7 +10142,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -10216,7 +10216,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
           "\nTesting the destructor and exception neutrality." << endl;
 
-        if (verbose) cout << "\tWith 'append' only" << endl;
+        if (verbose) cout << "\tWith `append` only" << endl;
         {
             // For each lengths i up to some modest limit:
             //    1) create an object
@@ -10245,7 +10245,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tWith 'append' and 'removeAll'" << endl;
+        if (verbose) cout << "\tWith `append` and `removeAll`" << endl;
         {
             // For each pair of lengths (i, j) up to some modest limit:
             //    1) create an object
@@ -10300,32 +10300,32 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test exercises basic functionality, but tests nothing.
+        // 1. This test exercises basic functionality, but tests nothing.
         //
         // Plan:
-        //: 1 Create an object x1 (default ctor).
-        //:
-        //: 2 Create a second object x2 (copy from x1).
-        //:
-        //: 3 Append an element value 0 to x1).
-        //:
-        //: 4 Append the same element value 0 to x2).
-        //:
-        //: 5 Append another element value 1 to x2).
-        //:
-        //: 6 Remove all elements from x1.
-        //:
-        //: 7 Create a third object x3 (default ctor).
-        //:
-        //: 8 Create a fourth object x4 (copy of x2).
-        //:
-        //: 9 Assign x2 = x1 (non-empty becomes empty).
-        //:
-        //: 10 Assign x3 = x4 (empty becomes non-empty).
-        //:
-        //: 11 Assign x4 = x4 (aliasing).
-        //:
-        //: 12 Verify type traits.
+        // 1. Create an object x1 (default ctor).
+        //
+        // 2. Create a second object x2 (copy from x1).
+        //
+        // 3. Append an element value 0 to x1).
+        //
+        // 4. Append the same element value 0 to x2).
+        //
+        // 5. Append another element value 1 to x2).
+        //
+        // 6. Remove all elements from x1.
+        //
+        // 7. Create a third object x3 (default ctor).
+        //
+        // 8. Create a fourth object x4 (copy of x2).
+        //
+        // 9. Assign x2 = x1 (non-empty becomes empty).
+        //
+        // 10. Assign x3 = x4 (empty becomes non-empty).
+        //
+        // 11. Assign x4 = x4 (aliasing).
+        //
+        // 12. Verify type traits.
         //
         // Testing:
         //   BREATHING TEST

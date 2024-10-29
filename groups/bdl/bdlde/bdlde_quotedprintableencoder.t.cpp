@@ -1694,7 +1694,7 @@ int main(int argc, char *argv[])
 { L_, "AAAQ",     0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x10"    },
 { L_, "AAAgQ",   -1, 0, 1, 3, 5, N,         -1,-1, E, 0, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 4.-2
 { L_, "AAE=",     0, 2, S, 0, 4, N,         -1, 0, D, 2, _,"\x00\x01"        },
 { L_, "AQ==",     0, 1, S, 0, 4, N,         -1, 0, D, 1, _,"\x01"            },
@@ -1855,7 +1855,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgQ",    0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ",  -1, 0, 2, 4, 6, N,         -1,-1, E, 0, _,"\x00\x00\x20\x01"},
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 5.-2
 { L_, "AAE=",     1, 1, S, 1, 4, N,         -1, 0, D, 1, _,"\x00\x01"        },
 { L_, "AQ==",     1, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
@@ -2021,7 +2021,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAQ", -1, 0, 3, 5, 7, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x04"        },
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 6.-2
 { L_, "AAE=",     2, 0, S, 2, 4, N,         -1, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     2, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
@@ -2191,7 +2191,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAQ",  0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAQ",-1, 0, 4, 6, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 7.-2
 { L_, "AAAgAAE=",-1, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2368,7 +2368,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAwQ",-1,0, 1, 6, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 8.-2
 { L_, "AAAgAAE=", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ==", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
@@ -2386,7 +2386,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAAAwQ",0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                         // 9.-2
 { L_, "AAAgAAE=", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAQ==", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
@@ -2403,7 +2403,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAAAwQ",1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                        // 10.-2
 { L_, "AAAgAAE=", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAQ==", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
@@ -2420,7 +2420,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                        // 11.-2
 { L_, "AAAgAAE=", 3, 2, S, 3, 8, N,         -1, 0, D, 2, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2438,7 +2438,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",3, 3, 4, 3, 8, N,         -1, 0, D, 3, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                        // 12.-2
 { L_, "AAAgAAE=", 4, 1, S, 4, 8, N,         -1, 0, D, 1, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",4, 2, 1, 4, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20\x00"},
 
-// *** Verify '=' and `==` variants.
+// *** Verify `=` and `==` variants.
                                                                        // 13.-2
 { L_, "AAAgAAE=", 5, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },

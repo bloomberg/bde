@@ -55,7 +55,7 @@ using namespace bsl;
 // Accelerated) and software implementations against various alternative
 // implementations that compute a  32-bit CRC checksum.  They were obtained on
 // a Linux machine with the following CPU architecture:
-//..
+// ```
 //  $ lscpu
 //  Architecture:          x86_64
 //  CPU op-mode(s):        32-bit, 64-bit
@@ -79,28 +79,28 @@ using namespace bsl;
 //  L3 cache:              25600K
 //  NUMA node0 CPU(s):     0-9,20-29
 //  NUMA node1 CPU(s):     10-19,30-39
-//..
+// ```
 //
 // Throughput
 // ----------
-//..
+// ```
 //  Default (Hardware Acceleration)| 20.363 GB per second
 //  Software                       |  1.582 GB per second
-//  BDE 'bdlde::crc32'             |  0.374 GB per second
-//..
+//  BDE `bdlde::crc32`             |  0.374 GB per second
+// ```
 //
 // Calculation Time
 // ----------------
 // In the tables below:
-//: o !Time! is an average (in absolute nanoseconds) measured over a tight loop
-//:   of 100,000 iterations.
-//:
-//: o !Size! is the size (in bytes) of a 'char *' of random input. Note that it
-//:   uses IEC base2 notation (e.g. 1Ki = 2^10 = 1024, 1Mi = 2^20 = 1,048,576).
+//  - !Time! is an average (in absolute nanoseconds) measured over a tight loop
+//    of 100,000 iterations.
 //
-// 64-bit Default (Hardware Acceleration) vs. BDE's 'bdlde::crc32'
+//  - !Size! is the size (in bytes) of a `char *` of random input. Note that it
+//    uses IEC base2 notation (e.g. 1Ki = 2^10 = 1024, 1Mi = 2^20 = 1,048,576).
+//
+// 64-bit Default (Hardware Acceleration) vs. BDE's `bdlde::crc32`
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//..
+// ```
 //  ===========================================================================
 //  | Size(B) | Def time(ns) | bdlde::crc32 time(ns)| Ratio(bdlde::crc32 / Def)
 //  ===========================================================================
@@ -128,11 +128,11 @@ using namespace bsl;
 //  |     4 Mi|        198662|              10562189|                    53.167
 //  |    16 Mi|        796534|              42570294|                    53.444
 //  |    64 Mi|       9976933|             169051561|                    16.944
-//..
+// ```
 //
-// 64-bit Software (SW) vs. BDE's 'bdlde::crc32'
+// 64-bit Software (SW) vs. BDE's `bdlde::crc32`
 // - - - - - - - - - - - - - - - - - - - - - - -
-//..
+// ```
 //  ==========================================================================
 //  | Size(B) | SW time(ns) | bdlde::crc32 time(ns) | Ratio(bdlde::crc32 / SW)
 //  ==========================================================================
@@ -160,25 +160,25 @@ using namespace bsl;
 //  |     4 Mi|      2575623|               10601903|                    4.116
 //  |    16 Mi|     10085862|               42775171|                    4.241
 //  |    64 Mi|     40705975|              169682572|                    4.168
-//..
+// ```
 //
-// 64-bit Default vs. the 'serial' CRC32-C implementation
+// 64-bit Default vs. the `serial` CRC32-C implementation
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Compare the 64-bit Default to a hardware-based implementation for
 // calculating CRC-32C in 64 bit mode (using SIMD - SSE 4.2) which issues the
-// specialized hardware instruction in 'serial' over a loop (as opposed to
-// 'triplet' -- three at a time).
+// specialized hardware instruction in `serial` over a loop (as opposed to
+// `triplet` -- three at a time).
 //
 // Both implementations ultimately leverage the same specialized hardware
-// instructions for calculating CRC32-C (Intel SSE4.2 'crc32' instruction).
+// instructions for calculating CRC32-C (Intel SSE4.2 `crc32` instruction).
 // However, there are differences in how fast they perform.  For sizes less
-// than 1024B, the 'serial' implementation is faster.  For sizes equal to or
-// larger than 1024B, the 'triplet' implementation is faster due to dividing
+// than 1024B, the `serial` implementation is faster.  For sizes equal to or
+// larger than 1024B, the `triplet` implementation is faster due to dividing
 // the buffer into three non-overlapping parts and processing three CRC32
-// calculations in parallel (see 'C(i)' in 'crc32c1024SseInt' in '.cpp' file or
+// calculations in parallel (see `C(i)` in `crc32c1024SseInt` in `.cpp` file or
 // refer to the white paper linked in the implementation for
-// 'crc32c1024SseInt').
-//..
+// `crc32c1024SseInt`).
+// ```
 //  ========================================================================
 //  | Size(B) | Default time(ns) | Serial time(ns) | Ratio(Serial / Triplet)
 //  ========================================================================
@@ -206,17 +206,17 @@ using namespace bsl;
 //  |     4 Mi|            203426|           659671|                   3.243
 //  |    16 Mi|            811794|          2638746|                   3.251
 //  |    64 Mi|           7147904|         11091230|                   1.552
-//..
+// ```
 //
 ///Performance (sparc)
 ///-------------------
 // Below are software vs hardware performance comparison for different sparc
 // CPUs:
-//..
+// ```
 //  SPARC T5: 10.1465 times faster, at 710,138 iterations per second
 //  SPARC T7: 10.1007 times faster, at 808,625 iterations per second
 //  SPARC T8: 7.66392 times faster, at 1,013,937 iterations per second
-//..
+// ```
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [2] int Crc32c::calculate(const void *, size_t, unsigned int);
@@ -474,23 +474,23 @@ void test1_breathingTest()
     // BREATHING TEST
     //
     // Concerns:
-    //: 1 Exercise the basic functionality of the component.
+    // 1. Exercise the basic functionality of the component.
     //
     // Plan:
-    //: 1 Calculate CRC32-C on a buffer and compare the result to the known
-    //:   correct CRC32-C.
-    //:
-    //: 2 Calculate CRC32-C on a null buffer using the previous crc as a
-    //:   starting point and verify that the result is the same as the
-    //:   previous result.
-    //:
-    //: 3 Calculate CRC32-C on a buffer with length 0 using the previous crc
-    //:   as a starting point and verify that the result is the same as the
-    //:   previous crc.
-    //:
-    //: 4 Calculate CRC32-C on a prefix of a buffer and then on the rest of
-    //:   the buffer using the result of the first calculation as starting
-    //:   point and compare the final result to the known correct CRC32-C
+    // 1. Calculate CRC32-C on a buffer and compare the result to the known
+    //    correct CRC32-C.
+    //
+    // 2. Calculate CRC32-C on a null buffer using the previous crc as a
+    //    starting point and verify that the result is the same as the
+    //    previous result.
+    //
+    // 3. Calculate CRC32-C on a buffer with length 0 using the previous crc
+    //    as a starting point and verify that the result is the same as the
+    //    previous crc.
+    //
+    // 4. Calculate CRC32-C on a prefix of a buffer and then on the rest of
+    //    the buffer using the result of the first calculation as starting
+    //    point and compare the final result to the known correct CRC32-C
     //
     // Testing:
     //   Basic functionality
@@ -664,34 +664,34 @@ void test2_calculateOnBuffer()
     // CALCULATE CRC32-C ON BUFFER
     //
     // Concerns:
-    //: 1 Verify the correctness of computing CRC32-C on a buffer w/o a
-    //:   previous CRC (which would have to be taken into account if it were
-    //:   provided) using both the default and software implementations.
-    //:
-    //: 2 Ensure that there are no CRC collisions for possible combination of
-    //:   1, 2 bytes.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Verify the correctness of computing CRC32-C on a buffer w/o a
+    //    previous CRC (which would have to be taken into account if it were
+    //    provided) using both the default and software implementations.
+    //
+    // 2. Ensure that there are no CRC collisions for possible combination of
+    //    1, 2 bytes.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Calculate CRC32-C for various buffers and compare the results to the
-    //:   known correct CRC32-C values for these buffers.
-    //:
-    //: 2 For C-2 create an integer array using 'bsl::vector<int>' and fill it
-    //: as follows:
-    //:   2.1 Loop through all the possible values for an 'unsigned char'
-    //:       (0 .. 255) and add its CRC32-C value to the array.
-    //:   2.2 Then loop through all the possible values for a 16-bit
-    //:       'unsigned short' (0 .. 65535) and add its CRC32-C value to the
-    //:       array.
-    //:   2.3 Again, loop through all the possible values for a 16-bit
-    //:       'unsigned short', but insert a 0-valued byte in between the
-    //:       2 bytes.  Calculate the CRC32-C and add it to the array.
-    //:   2.4 Repeat step (P-2.3), but insert a 1-valued byte instead of a
-    //:       0-valued byte.
-    //:   2.5 Sort the array, then assert that each CRC value in the array
-    //:       (except for the 0th array element) differs from the CRC value
-    //:       immediately preceding it in the array.
+    // 1. Calculate CRC32-C for various buffers and compare the results to the
+    //    known correct CRC32-C values for these buffers.
+    //
+    // 2. For C-2 create an integer array using `bsl::vector<int>` and fill it
+    //  as follows:
+    //    2.1 Loop through all the possible values for an `unsigned char`
+    //        (0 .. 255) and add its CRC32-C value to the array.
+    //    2.2 Then loop through all the possible values for a 16-bit
+    //        `unsigned short` (0 .. 65535) and add its CRC32-C value to the
+    //        array.
+    //    2.3 Again, loop through all the possible values for a 16-bit
+    //        `unsigned short`, but insert a 0-valued byte in between the
+    //       2. bytes.  Calculate the CRC32-C and add it to the array.
+    //    2.4 Repeat step (P-2.3), but insert a 1-valued byte instead of a
+    //        0-valued byte.
+    //    2.5 Sort the array, then assert that each CRC value in the array
+    //        (except for the 0th array element) differs from the CRC value
+    //        immediately preceding it in the array.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -866,17 +866,17 @@ void test3_calculateOnMisalignedBuffer()
     // CALCULATE CRC32-C ON MISALIGNED BUFFER
     //
     // Concerns:
-    //: 1 Ensure that calculating CRC32-C on a buffer that is not at an
-    //:   alignment boundary yields the same result as for one that is.
-    //:
-    //: 2 Ensure that CRC32-C is calculated on a buffer of the specified
-    //:   length.
+    // 1. Ensure that calculating CRC32-C on a buffer that is not at an
+    //    alignment boundary yields the same result as for one that is.
+    //
+    // 2. Ensure that CRC32-C is calculated on a buffer of the specified
+    //    length.
     //
     // Plan:
-    //: 1 Generate buffers at an alignment boundary consisting of '1 <= i <= 7'
-    //:   characters preceding the test buffers from the previous previous test
-    //:   cases and calculate CRC32-C for the test buffers at 'i' bytes from
-    //:   the beginning of the aligned buffer.
+    // 1. Generate buffers at an alignment boundary consisting of `1 <= i <= 7`
+    //    characters preceding the test buffers from the previous previous test
+    //    cases and calculate CRC32-C for the test buffers at `i` bytes from
+    //    the beginning of the aligned buffer.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -958,8 +958,8 @@ void test3_calculateOnMisalignedBuffer()
                                                                 k_MY_ALIGNMENT)
                             != 0);
 
-            // Create a C-string with 'i' characters preceding the test buffer:
-            // 'XX...X<test.d_bufer>XX...X'
+            // Create a C-string with `i` characters preceding the test buffer:
+            // `XX...X<test.d_bufer>XX...X`
             bsl::memset(allocPtr, 'X', NEW_LENGTH);
             allocPtr[NEW_LENGTH - 1] = '\0';
             bsl::memcpy(allocPtr + i, BUFFER, LENGTH);
@@ -1000,14 +1000,14 @@ void test4_calculateOnBufferWithPreviousCrc()
     // CALCULATE CRC32-C ON BUFFER WITH PREVIOUS CRC
     //
     // Concerns:
-    //: 1 Ensure that calculating CRC32-C on a buffer with previous crc results
-    //:   in the expected value.
+    // 1. Ensure that calculating CRC32-C on a buffer with previous crc results
+    //    in the expected value.
     //
     // Plan:
-    //: 1 For various buffers, calculate CRC32-C for a prefix chunk of the
-    //:   buffer, and pass the calculated CRC32-C as a parameter ('crc') for
-    //:   calculating the final CRC32-C value.  Compare the final CRC32-C
-    //:   values to the known correct crc32c values for these buffers.
+    // 1. For various buffers, calculate CRC32-C for a prefix chunk of the
+    //    buffer, and pass the calculated CRC32-C as a parameter (`crc`) for
+    //    calculating the final CRC32-C value.  Compare the final CRC32-C
+    //    values to the known correct crc32c values for these buffers.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -1132,20 +1132,20 @@ void test5_multithreadedCrc32cDefault()
     // MULTITHREAD DEFAULT CRC32-C
     //
     // Concerns:
-    //: 1 Test bdlde::Crc32c::calculate(const void *data, unsigned int length)
-    //:   in a multi-threaded environment, making sure that each CRC32-C is
-    //:   computed correctly across all threads when they perform the
-    //:   calculation concurrently.
+    // 1. Test bdlde::Crc32c::calculate(const void *data, unsigned int length)
+    //    in a multi-threaded environment, making sure that each CRC32-C is
+    //    computed correctly across all threads when they perform the
+    //    calculation concurrently.
     //
     // Plan:
-    //: 1 Generate a large set of random payloads of different sizes.
-    //:
-    //: 2 In serial, calculate the CRC32-C value for each of these payloads.
-    //:
-    //: 3 Spawn a few threads and have them calculate the CRC32-C value for
-    //:   each payload. Once they are done, make sure all calculated CRC32-C
-    //:   values from the threads match the CRC32-C values calculated in
-    //:   serial.
+    // 1. Generate a large set of random payloads of different sizes.
+    //
+    // 2. In serial, calculate the CRC32-C value for each of these payloads.
+    //
+    // 3. Spawn a few threads and have them calculate the CRC32-C value for
+    //    each payload. Once they are done, make sure all calculated CRC32-C
+    //    values from the threads match the CRC32-C values calculated in
+    //    serial.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -1227,20 +1227,20 @@ void test6_multithreadedCrc32cSoftware()
     // MULTITHREAD SOFTWARE CRC32-C
     //
     // Concerns:
-    //: 1 Test 'bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)'
-    //:   in a multi-threaded environment, making sure that each CRC32-C is
-    //:   computed correctly across all threads when they perform the
-    //:   calculation concurrently.
+    // 1. Test `bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)`
+    //    in a multi-threaded environment, making sure that each CRC32-C is
+    //    computed correctly across all threads when they perform the
+    //    calculation concurrently.
     //
     // Plan:
-    //: 1 Generate a large set of random payloads of different sizes.
-    //:
-    //: 2 In serial, calculate the CRC32-C value for each of these payloads.
-    //:
-    //: 3 Spawn a few threads and have them calculate the CRC32-C value for
-    //:   each payload using the software-based utility. Once they are done,
-    //:   make sure all calculated CRC32-C values from the threads match the
-    //:   CRC32-C values calculated in serial.
+    // 1. Generate a large set of random payloads of different sizes.
+    //
+    // 2. In serial, calculate the CRC32-C value for each of these payloads.
+    //
+    // 3. Spawn a few threads and have them calculate the CRC32-C value for
+    //    each payload using the software-based utility. Once they are done,
+    //    make sure all calculated CRC32-C values from the threads match the
+    //    CRC32-C values calculated in serial.
     //
     // Testing:
     //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
@@ -1326,17 +1326,17 @@ void testN1_performanceDefault()
     // PERFORMANCE: CALCULATE CRC32-C ON BUFFER DEFAULT
     //
     // Concerns:
-    //: 1 Test the performance of bdlde::Crc32c::calculate(const void *,
-    //:                                                    unsigned int);
-    //:   in a single thread environment.  On a supported platform (see
-    //:   'Support for Hardware Acceleration' in the header file), this will
-    //:   use a hardware-accelerated implementation.  Otherwise, it will use a
-    //:   portable software implementation.
+    // 1. Test the performance of bdlde::Crc32c::calculate(const void *,
+    //                                                     unsigned int);
+    //    in a single thread environment.  On a supported platform (see
+    //    `Support for Hardware Acceleration` in the header file), this will
+    //    use a hardware-accelerated implementation.  Otherwise, it will use a
+    //    portable software implementation.
     //
     // Plan:
-    //: 1 Time a large number of CRC32-C calculations for buffers of varying
-    //:   sizes in a single thread and take the average.  Compare the average
-    //:   to that of 'bdlde::crc32'.
+    // 1. Time a large number of CRC32-C calculations for buffers of varying
+    //    sizes in a single thread and take the average.  Compare the average
+    //    to that of `bdlde::crc32`.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t int, unsigned int);
@@ -1440,15 +1440,15 @@ void testN2_performanceSoftware()
     // PERFORMANCE: CALCULATE CRC32-C ON BUFFER SOFTWARE
     //
     // Concerns:
-    //: 1 Test the performance of
-    //:   'bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)' in a
-    //:   single thread environment. This will explicitly use the software
-    //:   implementation.
+    // 1. Test the performance of
+    //    `bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)` in a
+    //    single thread environment. This will explicitly use the software
+    //    implementation.
     //
     // Plan:
-    //: 1 Time a large number of CRC32-C calculations for buffers of varying
-    //:   sizes in a single thread and take the average.  Compare the average
-    //:   to that of 'bdlde::crc32'.
+    // 1. Time a large number of CRC32-C calculations for buffers of varying
+    //    sizes in a single thread and take the average.  Compare the average
+    //    to that of `bdlde::crc32`.
     //
     // Testing:
     //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
@@ -1550,18 +1550,18 @@ void testN3_calculateThroughput()
     // BENCHMARK: CALCULATE CRC32-C THROUGPUT DEFAULT & SOFTWARE
     //
     // Concerns:
-    //: 1 Test the throughput (GB/s) of CRC32-C calculation using the default
-    //:   and software implementations in a single thread environment.  On a
-    //:   supported platform (see 'Support for Hardware Acceleration' in the
-    //:   header file), the default method will use a hardware-accelerated
-    //:   implementation.  Otherwise, the default method will use a portable
-    //:   software implementation.
+    // 1. Test the throughput (GB/s) of CRC32-C calculation using the default
+    //    and software implementations in a single thread environment.  On a
+    //    supported platform (see `Support for Hardware Acceleration` in the
+    //    header file), the default method will use a hardware-accelerated
+    //    implementation.  Otherwise, the default method will use a portable
+    //    software implementation.
     //
     // Plan:
-    //: 1 Time a large number of CRC32-C calculations using the default and
-    //:    software implementations for a buffer of fixed size in a single
-    //:    thread and take the average for each implementation.  Calculate the
-    //:    throughput of each implementation using its average.
+    // 1. Time a large number of CRC32-C calculations using the default and
+    //     software implementations for a buffer of fixed size in a single
+    //     thread and take the average for each implementation.  Calculate the
+    //     throughput of each implementation using its average.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -1697,14 +1697,14 @@ void testN4_calculateHardwareSerial()
     // PERFORMANCE: CALCULATE CRC32-C DEFAULT & FOLLY
     //
     // Concerns:
-    //: 1 Test the performance of
-    //:   'bdlde::Crc32c::calculate(const void *, size_t length)'
-    //:   and compare its performance to Facebook folly's implementation
-    //:   'bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, size_t)'.
+    // 1. Test the performance of
+    //    `bdlde::Crc32c::calculate(const void *, size_t length)`
+    //    and compare its performance to Facebook folly's implementation
+    //    `bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, size_t)`.
     //
     // Plan:
-    //: 1 Time a large number of crc32c calculations for buffers of varying
-    //:   sizes, single threaded.
+    // 1. Time a large number of crc32c calculations for buffers of varying
+    //    sizes, single threaded.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -1801,9 +1801,9 @@ void testN5_performanceDefaultUserInput()
     // PERFORMANCE: CALCULATE CRC32-C DEFAULT ON USER INPUT
     //
     // Concerns:
-    //: 1 Test the performance of
-    //:   'bdlde::Crc32c::calculate(const void *, unsigned int)' on an user
-    //:   input.
+    // 1. Test the performance of
+    //    `bdlde::Crc32c::calculate(const void *, unsigned int)` on an user
+    //    input.
     //
     // Testing:
     //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
@@ -1851,7 +1851,7 @@ int main(int argc, char* argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;  // always the last
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
@@ -1891,18 +1891,18 @@ int main(int argc, char* argv[])
 // checksum for a message over the course of building the full message.
 //
 // First, prepare a message.
-//..
+// ```
         bsl::string message = "This is a test message.";
-//..
-// Now, generate a checksum for 'message'.
-//..
+// ```
+// Now, generate a checksum for `message`.
+// ```
         unsigned int checksum = bdlde::Crc32c::calculate(message.c_str(),
                                                          message.size());
-//..
+// ```
 // Finally, if we learn that our message has grown by another chunk and we want
 // to compute the checksum of the original message plus the new chunk, let's
 // update the checksum by using it as a starting point.
-//..
+// ```
         // New chunk
         bsl::string newChunk = "This is a chunk appended to original message";
         message += newChunk;
@@ -1911,7 +1911,7 @@ int main(int argc, char* argv[])
         checksum = bdlde::Crc32c::calculate(newChunk.c_str(),
                                             newChunk.size(),
                                             checksum);
-//..
+// ```
       } break;
       case  6: {
         test6_multithreadedCrc32cSoftware();

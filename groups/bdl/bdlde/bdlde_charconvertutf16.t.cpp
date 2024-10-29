@@ -40,51 +40,51 @@ using namespace bsl;
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
 //CONCERNS:
-//  1) Do not overwrite memory (a) outside the assigned range, nor (b) beyond
+//  1. Do not overwrite memory (a) outside the assigned range, nor (b) beyond
 //     what you say you have written.  ((b) overlaps with (2a).)
 //
-//  2) Provide the correct (a) direct return value and (b) return-through-
+//  2. Provide the correct (a) direct return value and (b) return-through-
 //     parameter values (when called for).  (c) The null/non-null distinction
 //     for the return for parameter values must not affect the operation in
 //     any other way.
 //
-//  3) Do not damage the input string.  (The parameter is 'const', so damage
+//  3. Do not damage the input string.  (The parameter is `const`, so damage
 //     would require deliberate action.)
 //
-//  4) Create a properly null-terminated string on the output whenever there
+//  4. Create a properly null-terminated string on the output whenever there
 //     is room to write anything at all to the output.
 //
-//  5) Correctly convert single code points, of however many
+//  5. Correctly convert single code points, of however many
 //     bytes/words (in each direction).
 //
-//  6) (a) Correctly recognize every possible type of input string error
+//  6. (a) Correctly recognize every possible type of input string error
 //     (forbidden range, invalid code sequence, etc.) and, when appropriate,
 //     write the given error indicator into the output string.  (Note that
 //     2a, 2b, and 2c apply here especially, since the error indicator's
 //     presence or absence will change the write-counts.)  (b) Verify that
 //     the preceding and subsequent bytes/words are handled properly.
 //
-//  7) Considering all code points that require a given encoding (2-byte,
+//  7. Considering all code points that require a given encoding (2-byte,
 //     single-word, etc.) to represent an equivalence class for that coding
-//     sequence, handle all the possible 'digraphs' and 'trigraphs' of those
+//     sequence, handle all the possible `digraphs` and `trigraphs` of those
 //     equivalence classes, and possibly larger sequences.  The test should
 //     use varying code points (bit patterns) within each encoding class.
 //
-//  8) As in (7), but adding the various types of input string error to the
+//  8. As in (7), but adding the various types of input string error to the
 //     set of equivalence classes.  (A 2-byte encoding cut short before
 //     another sequence is not the same as a 3-byte encoding cut short at the
-//     end of the string, etc.)  This creates a very large 'alphabet' on which
+//     end of the string, etc.)  This creates a very large `alphabet` on which
 //     to test strings, but it is important to test that re-sync works
 //     properly and that every case consumes at least one input byte or word so
 //     that no infinite loop can occur.
 //
-//  9) Performance: it is highly desirable that the single-byte, single-word
+//  9. Performance: it is highly desirable that the single-byte, single-word
 //     case run fast.  There should be a negative test that can be run to
 //     confirm that (a) it is faster than the more interesting cases and (b)
 //     its performance more closely resembles a byte-to-word or word-to-byte
 //     copy than it resembles the performance of more interesting cases.
 //
-// 10) The combinatorics of these tests, especially (8), could lead to very
+// 10. The combinatorics of these tests, especially (8), could lead to very
 //     long run-times if they are not carefully designed.  (5) involves
 //     1,114,112 possible iso10646 code values, of which one is null and
 //     2048 are invalid (because in UTF-16 they represent words of two-word
@@ -116,7 +116,7 @@ using namespace bsl;
 //     Concern 9 requires testing on a processor and operating system that
 //     can accurately and reproducibly report processor usage.  (Linux and
 //     Windows are disqualified.)  It also may require some control over
-//     other things running at the time.  Thus it should be a 'negative'
+//     other things running at the time.  Thus it should be a `negative`
 //     test case intended for manual use only.
 //
 
@@ -172,7 +172,7 @@ using namespace bsl;
 // [ 2] strange template functions
 // [ 1] strange template functions
 
-// SERIOUS THING TO FIX: The tests use varying values for 'BUFFER_ZONE' and the
+// SERIOUS THING TO FIX: The tests use varying values for `BUFFER_ZONE` and the
 // value is NOT passed from the place that allocates the space to the place
 // that does the work.
 
@@ -254,10 +254,9 @@ const char a5 = static_cast<char>(0xa5);
 //                           CUSTOM TEST APPARATUS
 // ----------------------------------------------------------------------------
 
+/// convert a char value into a `void *` so `<<` will print it in hex
 void *hc(unsigned char c)
 {
-    // convert a char value into a 'void *' so '<<' will print it in hex
-
     return (void *) (size_t) c;
 }
 
@@ -273,67 +272,67 @@ const char16_t *usToC16(const unsigned short *us)
 //                   Evaluate and combine: bothAnd, allAnd
 // ----------------------------------------------------------------------------
 
+/// Force the execution of BOTH of arguments and returns the logical AND of
+/// the two.
 inline
 bool bothAnd(bool a, bool b)
-    // Force the execution of BOTH of arguments and returns the logical AND of
-    // the two.
 {
     return a && b;
 }
 
+/// Force the execution of BOTH of arguments and return the logical AND of
+/// both arguments.  (The two-argument overload duplicates the `bothAnd`
+/// function.)
 inline
 bool allAnd(bool a, bool b)
-    // Force the execution of BOTH of arguments and return the logical AND of
-    // both arguments.  (The two-argument overload duplicates the 'bothAnd'
-    // function.)
 {
     return a && b;
 }
 
+/// Force the execution of ALL three arguments, then returns the logical AND
+/// all three arguments.
 inline
 bool allAnd(bool a, bool b, bool c)
-    // Force the execution of ALL three arguments, then returns the logical AND
-    // all three arguments.
 {
     return a && b && c;
 }
 
+/// Forces the execution of ALL of four arguments, then returns the logical
+/// AND of all four arguments.
 inline
 bool allAnd(bool a, bool b, bool c, bool d)
-    // Forces the execution of ALL of four arguments, then returns the logical
-    // AND of all four arguments.
 {
     return a && b && c && d;
 }
 
+/// Force the execution of ALL of five arguments, then returns the logical
+/// AND of all five arguments.
 inline
 bool allAnd(bool a, bool b, bool c, bool d, bool e)
-    // Force the execution of ALL of five arguments, then returns the logical
-    // AND of all five arguments.
 {
     return a && b && c && d && e;
 }
 
+/// Force the execution of ALL six arguments, then returns the logical AND
+/// of all six arguments.
 inline
 bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f)
-    // Force the execution of ALL six arguments, then returns the logical AND
-    // of all six arguments.
 {
     return a && b && c && d && e && f;
 }
 
+/// Force the execution of ALL seven arguments, then returns the logical AND
+/// of all seven arguments.
 inline
 bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g)
-    // Force the execution of ALL seven arguments, then returns the logical AND
-    // of all seven arguments.
 {
     return a && b && c && d && e && f && g;
 }
 
+/// Forces the execution of ALL eight arguments, then returns the logical
+/// AND of all eight arguments.
 inline
 bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
-    // Forces the execution of ALL eight arguments, then returns the logical
-    // AND of all eight arguments.
 {
     return a && b && c && d && e && f && g && h;
 }
@@ -342,10 +341,10 @@ bool allAnd(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h)
 //  Assertion-expression with value printing on equality test: EXPECTED_GOT
 // ----------------------------------------------------------------------------
 
-// The 'EXPECTED_GOT' macro compresses a great deal of testing and output in a
+// The `EXPECTED_GOT` macro compresses a great deal of testing and output in a
 // small space, especially for compound types that support comparison and
 // printing.  It is written as an expression so that it may in turn be used as
-// an 'if' condition (which may control subsequent test execution or
+// an `if` condition (which may control subsequent test execution or
 // v{eryV}*erbose printing).  It evaluates to 1 on success, 0 on failure.  It
 // requires that the two parameters be comparable (via ==) and printable (via
 // ostream<<).
@@ -445,16 +444,17 @@ class FixedVector {
 
 //  To prevent template type proliferation with vectors or arrays of various
 //  size, and to avoid making everything a vector with its (very) measurable
-//  allocation overhead, we define an 'view' that's templatized on the value
+//  allocation overhead, we define an `view` that's templatized on the value
 //  type, but carries the size as a variable.
-//  We'll have a 'const' and non-'const' version, and define appropriate
+//  We'll have a `const` and non-`const` version, and define appropriate
 //  comparisons and conversions.
-//  Non-'const':
+//  Non-`const`:
+
+/// ArrayRange<> allows iteration through an array.  It combines the
+/// starting pointer and the length in one object.  It is used to unify the
+/// handling of array, pointer/length, and FixedVector<> cases.
 template<class VALUE_TYPE>
 struct ArrayRange {
-    // ArrayRange<> allows iteration through an array.  It combines the
-    // starting pointer and the length in one object.  It is used to unify the
-    // handling of array, pointer/length, and FixedVector<> cases.
 
     typedef VALUE_TYPE           value_type;
     typedef VALUE_TYPE&          reference;
@@ -468,30 +468,31 @@ struct ArrayRange {
     const size_type  d_size;
 
     // CREATORS
+
+    /// Create an ArrayRange given a pointer to an array and a length to
+    /// span.
     ArrayRange(value_type* array, size_type span)
-        // Create an ArrayRange given a pointer to an array and a length to
-        // span.
     : d_array(array), d_size(span)
     {
     }
 
+    /// Create an ArrayRange that spans a given array.
     ArrayRange(value_type* aBegin, value_type* aEnd)
-        // Create an ArrayRange that spans a given array.
     : d_array(aBegin), d_size(aEnd - aBegin)
     {
     }
 
+    /// Create an ArrayRange that spans a given FixedVector<>
     template<bsl::size_t LEN>
     explicit
     ArrayRange(FixedVector<VALUE_TYPE, LEN> &v)
-        // Create an ArrayRange that spans a given FixedVector<>
     : d_array(&v[0]), d_size(v.size())
     {
     }
 
+    /// Create an ArrayRange that spans a given array.
     template<bsl::size_t LEN>
     ArrayRange(VALUE_TYPE (&a)[LEN])
-        // Create an ArrayRange that spans a given array.
     : d_array(&a[0]), d_size(LEN)
     {
     }
@@ -598,10 +599,10 @@ bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
 //        checked (no null assumed).
 //    void copy(value_type *toBuffer) [const]
 //        Copies the code point sequence that it stores or generates into
-//        the array beginning at 'toBuffer'
+//        the array beginning at `toBuffer`
 //    bool check(value_type const *checkBuffer) [const]
-//        Returns 'true' if the code point sequence in the array beginning at
-//        'checkBuffer' equals the code point sequence represented by this
+//        Returns `true` if the code point sequence in the array beginning at
+//        `checkBuffer` equals the code point sequence represented by this
 //        object, and false otherwise.
 
 // Generate/Check built from an ArrayRange
@@ -630,8 +631,8 @@ struct GenCheckArrRange {
         return d_range.size();
     }
 
-    // 'value_type' may be a const type, which would prevent us from using it
-    // as the parameter in 'fill()' So 'fill()' is a template on the copy-to
+    // `value_type` may be a const type, which would prevent us from using it
+    // as the parameter in `fill()` So `fill()` is a template on the copy-to
     // type, and we verify that they are comparable by doing one code point's
     // copy by assignment.
 
@@ -639,8 +640,8 @@ struct GenCheckArrRange {
     void fill(TO_TYPE* toBuffer) const
     {
         if (size() > 0) {
-            *toBuffer = *d_range.begin();  // (Only compiles if 'TO_TYPE' and
-                                           // 'value_type' are compatible.)
+            *toBuffer = *d_range.begin();  // (Only compiles if `TO_TYPE` and
+                                           // `value_type` are compatible.)
             memcpy(toBuffer + 1,
                    d_range.begin() + 1,
                    sizeof(value_type) * (size() - 1));
@@ -648,16 +649,16 @@ struct GenCheckArrRange {
     }
 
     // We also have to pun signed and unsigned types against each other.  Thus
-    // we play the template game for the 'check' method just as for 'fill()'.
-    // Note that in order to prevent signed/unsigned promotions on 'char's
-    // and 'short's from messing up the tests, we have to force a static cast
+    // we play the template game for the `check` method just as for `fill()`.
+    // Note that in order to prevent signed/unsigned promotions on `char`s
+    // and `short`s from messing up the tests, we have to force a static cast
     // to the value type in the equality comparison.
 
+    /// Return true if the contents of the array addressed by `*checkBuffer`
+    /// are identical to the contents of the source buffer held by
+    /// `d_range`, up to the length `d_range.size()`, and false otherwise.
     template<class CHECK_TYPE>
     bool check(const CHECK_TYPE* checkBuffer) const
-        // Return true if the contents of the array addressed by '*checkBuffer'
-        // are identical to the contents of the source buffer held by
-        // 'd_range', up to the length 'd_range.size()', and false otherwise.
     {
         return 0 == size()
             ||  (static_cast<value_type>(checkBuffer[0]) == d_range.begin()[0]
@@ -669,18 +670,18 @@ struct GenCheckArrRange {
 };
 
 // ----------------------------------------------------------------------------
-//    deChar: Print and evaluate 'char's and 'unsigned char's as 'int's.
+//    deChar: Print and evaluate `char`s and `unsigned char`s as `int`s.
 // ----------------------------------------------------------------------------
 
-//  Template and overloads: 'deChar'
+//  Template and overloads: `deChar`
 //     Code point types get printed as code points; this is undesirable because
 //     not all are printable and because we are working with the coding of
 //     octets so we WANT to see the numeric format.  But we can't go putting
 //     conversions blindly into templates that handle a variety of types,
 //     including some that are not numeric.  The function template and
-//     overloads on the 'deChar' function will leave unchanged anything that
+//     overloads on the `deChar` function will leave unchanged anything that
 //     is not the exact type of the overloads (char and unsigned char) but
-//     will convert those two to 'unsigned int' without sign extension.
+//     will convert those two to `unsigned int` without sign extension.
 //
 //     The template must use a reference parameter to avoid copying a
 //     who-knows-what.
@@ -778,7 +779,7 @@ MixedPrImpl<T> prMixedRange(
     return MixedPrImpl<T>(v.begin(), v.size());
 }
 
-// 'printStr' helper routines to print test strings at high verbosity levels.
+// `printStr` helper routines to print test strings at high verbosity levels.
 // @@@ Replace this by the ArrayRange machinery ...
 void printStr(const char *q);
 void printStr(const unsigned short *p);
@@ -788,7 +789,7 @@ void printStr(const unsigned short *p);
 // ----------------------------------------------------------------------------
 
 // Array fill and fill-check.  Used to verify that unsanctioned writes have
-// not occurred in a 'margin' around the intended output buffer.
+// not occurred in a `margin` around the intended output buffer.
 template<class CHAR_TYPE, class ITER>
 void fillArray(ITER      first,
                ITER      last,
@@ -802,56 +803,56 @@ int checkFill(ITER      first,
 //  OdomIter: Run multiple nested iterators by means of a single, flat loop
 // ----------------------------------------------------------------------------
 
+/// Compound "iterator" based on the odometer algorithm.  Note that this is
+/// not really an iterator but a generator.  (It's big enough that to return
+/// objects via `begin` and `end` is a good deal more costly than we expect
+/// in an iterator.)
+///
+/// `OdomIter` is set up to work for N iterators of the same type.  (With
+/// parameter packs we could do better.  Otherwise a common wrapper type can
+/// be used to make dissimilar things work together, and a range type can be
+/// used to wrap containers holding the same types but having a different
+/// sizing parameter.  There are some `const` issues as well.)  Note that
+/// the iterators do NOT have to operate over the same range, or cover an
+/// equal number of values.  Only the types must match.
+///
+/// OdomIter works by cycling the last iterator through its range, then
+/// resetting it and advancing the next-to-last, and when that reaches the
+/// end of its range, it too is reset and the next-to-next-to-last iterator
+/// is advanced, and so forth--like turning the wheels of an odometer.
+///
+/// Why use it?  Well, we go four loops deep in places and that tends to
+/// nest things off the page.  OdomIter flattens the loops out.  @+@+@+@
+/// Need a range iterator to use this in the other places!
 template<class ITER, int N_ITER_PARM>
 struct OdomIter {
-    // Compound "iterator" based on the odometer algorithm.  Note that this is
-    // not really an iterator but a generator.  (It's big enough that to return
-    // objects via 'begin' and 'end' is a good deal more costly than we expect
-    // in an iterator.)
-    //
-    // 'OdomIter' is set up to work for N iterators of the same type.  (With
-    // parameter packs we could do better.  Otherwise a common wrapper type can
-    // be used to make dissimilar things work together, and a range type can be
-    // used to wrap containers holding the same types but having a different
-    // sizing parameter.  There are some 'const' issues as well.)  Note that
-    // the iterators do NOT have to operate over the same range, or cover an
-    // equal number of values.  Only the types must match.
-    //
-    // OdomIter works by cycling the last iterator through its range, then
-    // resetting it and advancing the next-to-last, and when that reaches the
-    // end of its range, it too is reset and the next-to-next-to-last iterator
-    // is advanced, and so forth--like turning the wheels of an odometer.
-    //
-    // Why use it?  Well, we go four loops deep in places and that tends to
-    // nest things off the page.  OdomIter flattens the loops out.  @+@+@+@
-    // Need a range iterator to use this in the other places!
 
     typedef ITER Iter;
     enum { N_ITER = N_ITER_PARM };
 
+    /// The Wheel represents a single `odometer wheel`.  Each has its own
+    /// begin and end values, and its own current position.
     struct Wheel {
-        // The Wheel represents a single 'odometer wheel'.  Each has its own
-        // begin and end values, and its own current position.
 
         Iter d_begin;
         Iter d_end;
         Iter d_pos;
     };
 
+    /// The array of wheels.  The last wheel (N_ITER - 1) turns fastest, and
+    /// corresponds to the innermost loop.
     Wheel d_wheels[N_ITER];
-        // The array of wheels.  The last wheel (N_ITER - 1) turns fastest, and
-        // corresponds to the innermost loop.
 
     // The general algorithm is to turn the lowest wheel, then if it rolls
     // over, to turn the next wheel, and so forth.  But it's a little trickier
     // because we want the behavior of a fixed end state and explicit
     // return-to-beginning from the end state rather that just rolling over.
 
+    /// Create the Odom-Iter from the homogeneous list of collections
+    /// passed as `COLLECTION** init`
     template<class COLLECTION>
     explicit
     OdomIter(COLLECTION *const *init)
-        // Create the Odom-Iter from the homogeneous list of collections
-        // passed as 'COLLECTION** init'
     {
         for (int i = 0 ; i < N_ITER ; ++i) {
             d_wheels[i].d_begin = init[i]->begin();
@@ -860,17 +861,17 @@ struct OdomIter {
         }
     }
 
+    /// Turn the "odometer" back to the initial position.
     void reset()
-        // Turn the "odometer" back to the initial position.
     {
         for (int i = 0; i < N_ITER ; i++) {
             d_wheels[i].d_pos = d_wheels[i].d_begin;
         }
     }
 
+    /// Return `true` if all wheels are at their end positions, otherwise
+    /// `false`.
     bool done() const
-        // Return 'true' if all wheels are at their end positions, otherwise
-        // 'false'.
     {
         for (int i = 0 ; i < N_ITER ; i++) {
             if (d_wheels[i].d_pos != d_wheels[i].d_end)
@@ -879,48 +880,48 @@ struct OdomIter {
         return true;
     }
 
+    /// Inverse sense of done(): returns true if there is more to go,
+    /// otherwise false.
     inline
     operator bool() const
-        // Inverse sense of done(): returns true if there is more to go,
-        // otherwise false.
     {
         return !done();
     }
 
+    /// Return the true iterator at position `i`.
     inline
     Iter operator[](int i)
-        // Return the true iterator at position 'i'.
     {
         return d_wheels[i].d_pos;
     }
 
+    /// Return the true iterator at position `i`.
     inline
     const Iter operator[](int i) const
-        // Return the true iterator at position 'i'.
     {
         return d_wheels[i].d_pos;
     }
 
+    /// Return the begin() value extracted for the true iterator at position
+    /// `i`.
     inline
     const Iter begin(int i) const
-        // Return the begin() value extracted for the true iterator at position
-        // 'i'.
     {
         return d_wheels[i].d_begin;
     }
 
+    /// Return the end() value extracted for the true iterator at position
+    /// `i`.
     inline
     const Iter end(int i) const
-        // Return the end() value extracted for the true iterator at position
-        // 'i'.
     {
         return d_wheels[i].d_end;
     }
 
+    /// Returns false if the OdomIter is at the end; otherwise advances the
+    /// OdomIter, then returns true if it is not at the end of its cycle,
+    /// or false if it is at the end of its cycle.
     bool next()
-        // Returns false if the OdomIter is at the end; otherwise advances the
-        // OdomIter, then returns true if it is not at the end of its cycle,
-        // or false if it is at the end of its cycle.
     {
         int i;
         for (i = N_ITER - 1 ; ; --i) {
@@ -965,14 +966,14 @@ struct HighBit {
     enum { HIGH_BIT = X1 << K6 };
 };
 
+/// Calculate the sizes needed for various buffers.  Compile-time
+/// metaprogramming.  There need be no instances of this object, as all its
+/// products are enums.
 template<bsl::size_t N_CHARS_P,
          int         FROM_SIZE_P,
          int         TO_SIZE_P,
          int         MARGIN_P>
 struct BufferSizes {
-    // Calculate the sizes needed for various buffers.  Compile-time
-    // metaprogramming.  There need be no instances of this object, as all its
-    // products are enums.
 
     enum { N_CHARS   = N_CHARS_P,    // Number of code points, of whatever size
            FROM_SIZE = FROM_SIZE_P,  // Bytes or words per input char
@@ -996,7 +997,7 @@ struct BufferSizes {
 // ConvRslt: Summarizing the three return values from a conversion function.
 // ----------------------------------------------------------------------------
 
-//  The ConvRslt holds the three 'return' values from a call to one of the
+//  The ConvRslt holds the three `return` values from a call to one of the
 //  conversion routines.  It can be printed and compared with its like for
 //  equality and inequality, and is especially suited for use with the
 //  EXPECTED_GOT macro.  The name is kept short because it will be used
@@ -1007,9 +1008,9 @@ struct ConvRslt {
     bsl::size_t d_symbols;  // Code Points of whatever size
     bsl::size_t d_units;    // No. of bytes/words written, including the null
 
+    /// d_retVal's default init does NOT have the 1 or 2 bit set.
     ConvRslt()
     : d_retVal(0x10), d_symbols( -1 ), d_units( -1 )
-        // d_retVal's default init does NOT have the 1 or 2 bit set.
     {
     }
 
@@ -1189,12 +1190,12 @@ struct BufferedWPiece {
 //-----------------------------------------------------------------------------
 // Surrogate Routines
 //
-// 'Conversion' (below) was written a long time ago based on the assumption
-// that 'utf8ToUtf16' and 'utf16ToUtf8' had the same args except for varying
-// 'TO_CHAR' and 'FROM_CHAR'.  When we started taking 'bslstl::StringRef's (and
-// then replaced them with 'bsl::string_view's) this violated that assumption.
+// `Conversion` (below) was written a long time ago based on the assumption
+// that `utf8ToUtf16` and `utf16ToUtf8` had the same args except for varying
+// `TO_CHAR` and `FROM_CHAR`.  When we started taking `bslstl::StringRef`s (and
+// then replaced them with `bsl::string_view`s) this violated that assumption.
 // These surrogate routines provide a layer to reinstate that assumption so we
-// can still use the 'Conversion' template.
+// can still use the `Conversion` template.
 //-----------------------------------------------------------------------------
 
 static
@@ -1230,25 +1231,28 @@ class RandGen {
     unsigned d_bitAccumNumBits;
 
     // PRIVATE MANIPULATORS
+
+    /// Replenish `d_bitAccum` with fresh random bits.
     void replenishBitAccum();
-        // Replenish 'd_bitAccum' with fresh random bits.
 
   public:
     // CREATOR
+
+    /// Initialize the generator with the optionally specified `startSeed`.
     explicit
     RandGen(unsigned startSeed = 0);
-        // Initialize the generator with the optionally specified 'startSeed'.
 
     // MANIPULATORS
+
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 
+    /// Return a value where the low-order `numBits` are random and all
+    /// other bits are 0.
     unsigned bits(unsigned numBits);
-        // Return a value where the low-order 'numBits' are random and all
-        // other bits are 0.
 
+    /// Return a random `char`.
     char getChar();
-        // Return a random 'char'.
 };
 
                         // ------------------------
@@ -1294,7 +1298,7 @@ char RandGen::getChar()
 // PRIVATE MANIPULATORS
 void RandGen::replenishBitAccum()
 {
-    // This function is NOT inlined so that inline calls to 'bits' will have a
+    // This function is NOT inlined so that inline calls to `bits` will have a
     // smaller code footprint.
 
     const Uint64 hi = (*this)();
@@ -1379,16 +1383,16 @@ struct Conversion {
 // ConversionArg<>: Metaprogram find of the function needed for a conversion
 // ----------------------------------------------------------------------------
 
+/// This template exists to be specialized; the specializations (below)
+/// provide the arg needed for Conversion<>::Conversion.
 template<class TO_CHAR, class FROM_CHAR>
 struct ConversionArg {
-    // This template exists to be specialized; the specializations (below)
-    // provide the arg needed for Conversion<>::Conversion.
 };
 
+/// Specialization of `ConversionArg` to provide (in template fashion) the
+/// arg needed to initialize `Conversion<unsigned short, char>`
 template<>
 struct ConversionArg<unsigned short, char> {
-    // Specialization of 'ConversionArg' to provide (in template fashion) the
-    // arg needed to initialize 'Conversion<unsigned short, char>'
 
     static Conversion<unsigned short, char>::Function arg()
     {
@@ -1396,10 +1400,10 @@ struct ConversionArg<unsigned short, char> {
     }
 };
 
+/// Specialization of `ConversionArg` to provide (in template fashion) the
+/// arg needed to initialize `Conversion<char, unsigned short>`
 template<>
 struct ConversionArg<char, unsigned short> {
-    // Specialization of 'ConversionArg' to provide (in template fashion) the
-    // arg needed to initialize 'Conversion<char, unsigned short>'
 
     static Conversion<char, unsigned short>::Function arg()
     {
@@ -1407,10 +1411,10 @@ struct ConversionArg<char, unsigned short> {
     }
 };
 
-// The 'RUN_AND_CHECK' macro sets up the workpiece and runs the basic checks
-// against it.  (This could be made a member of 'WorkPiece' and
-// 'BufferedWPiece', just as the core of the 'RUN_FOUR_WAYS' macro is
-// 'FourWayRunner::runFourWays()'.
+// The `RUN_AND_CHECK` macro sets up the workpiece and runs the basic checks
+// against it.  (This could be made a member of `WorkPiece` and
+// `BufferedWPiece`, just as the core of the `RUN_FOUR_WAYS` macro is
+// `FourWayRunner::runFourWays()`.
 
 #define RUN_AND_CHECK(WP,MEM,RESULT,CONV,SOURCE,EXPECTED)   \
         ((WP).fillMargins(MEM),                             \
@@ -1431,11 +1435,11 @@ template<class ARRAY_TYPE, bsl::size_t N_WAY>
 void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
                    const ARRAY_TYPE&                             sv);
 
-// The 'RUN_FOUR_WAYS' macros contains the basic test sequence, set up four
+// The `RUN_FOUR_WAYS` macros contains the basic test sequence, set up four
 // times to run with all four combinations of return-by-argument.  It does the
 // basic sanity checks on each return.  (Using a macro keeps __LINE__'s value
-// meaningful.)  It uses 'RUN_AND_CHECK_4' for each basic run/check.
-// 'RUN_AND_CHECK_4' evaluates to true if the sanity test on the string passes;
+// meaningful.)  It uses `RUN_AND_CHECK_4` for each basic run/check.
+// `RUN_AND_CHECK_4` evaluates to true if the sanity test on the string passes;
 // if all the sanity tests pass (and the expected length is not zero) the
 // four-way comparison is safe to do.
 
@@ -1505,9 +1509,9 @@ struct FourWayRunner {
     }
 };
 
-// Note that the 'checkMargins' in this call goes through 'FourWayRunner' while
-// in 'RUN_AND_CHECK' it goes through 'WorkPiece'.  ('FourWayRunner' forwards
-// to 'WorkPiece', translating the arguments.)
+// Note that the `checkMargins` in this call goes through `FourWayRunner` while
+// in `RUN_AND_CHECK` it goes through `WorkPiece`.  (`FourWayRunner` forwards
+// to `WorkPiece`, translating the arguments.)
 
 #define RUN_AND_CHECK_4(RN,N) ((RN).runAndCheck(N,__LINE__))
 
@@ -1557,8 +1561,8 @@ enum {
     #define U8_10ffff "\xf7\xbf\xbf\xbf"
 
 // Precomputed conversions for state space enumeration.  These will be
-// enumerated by 'buildUpAndTestStringsU8ToU2' and
-// 'buildUpAndTestStringsU2ToU8'.
+// enumerated by `buildUpAndTestStringsU8ToU2` and
+// `buildUpAndTestStringsU2ToU8`.
 
 const struct PrecomputedData {
     const char           *d_utf8CodePoint;
@@ -1591,10 +1595,10 @@ const struct PrecomputedData {
 bsl::size_t precomputedDataCount = sizeof PRECOMPUTED_DATA
                                  / sizeof *PRECOMPUTED_DATA;
 
-// Utility function validating that a 'utf16ToUtf8' conversion has the expected
+// Utility function validating that a `utf16ToUtf8` conversion has the expected
 // results.  The function will also test to make sure that insufficient
-// 'dstCapacity' arguments for the conversion function return an
-// 'OUTPUT_BUFFER_TOO_SMALL' result.
+// `dstCapacity` arguments for the conversion function return an
+// `OUTPUT_BUFFER_TOO_SMALL` result.
 
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
@@ -1604,12 +1608,12 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              int             verbose,
                                              int             veryVerbose);
 
-// This utility function for testing 'utf16ToUtf8' will *recursively* build up
-// input strings in 'inputBuffer' and output strings in 'outputBuffer', and
-// call 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
-// match.  'inputCursor' and 'outputCursor' point to the "current position" in
+// This utility function for testing `utf16ToUtf8` will *recursively* build up
+// input strings in `inputBuffer` and output strings in `outputBuffer`, and
+// call `checkForExpectedConversionResultsU2ToU8` to make sure that the results
+// match.  `inputCursor` and `outputCursor` point to the "current position" in
 // the respective buffers where this level of the recursion will operate.  The
-// recursion terminates once 'depth <= 0'.
+// recursion terminates once `depth <= 0`.
 
 void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
@@ -1624,7 +1628,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             veryVerbose);
 
 // *Break* a copy of the input, manipulating the bits to make each code point
-// in turn, and validating the reported 'numCodePointsWritten' and output
+// in turn, and validating the reported `numCodePointsWritten` and output
 // string.
 
 struct PerturbationDesc {
@@ -1635,8 +1639,8 @@ struct PerturbationDesc {
     int             d_extraInvalidAfter;
 };
 
-// This utility function perturbs a single octet in 'input' and checks that
-// only the effects specified in the 'perturb' description occur.
+// This utility function perturbs a single octet in `input` and checks that
+// only the effects specified in the `perturb` description occur.
 
 void testSingleOctetPerturbation(const char             *input,
                                  bsl::size_t             perturbationPos,
@@ -1659,15 +1663,15 @@ void testSingleOctetPerturbation(const char             *input,
     int after  = perturb.d_extraInvalidAfter;
     int pos    = (int)perturbationChar;
 
-    // Increment 'codePointCount' to account for additional error code points
-    // before and after 'pos' and for the null terminator.
+    // Increment `codePointCount` to account for additional error code points
+    // before and after `pos` and for the null terminator.
 
     codePointCount += before + after + 1;
 
     unsigned short outputBuffer[256] = { 0 };
     bsl::size_t    codePointsWritten = 0;
 
-    // Make sure conversions where 'outputBuffer' is too small result in the
+    // Make sure conversions where `outputBuffer` is too small result in the
     // correct errors AND a null-terminated output
 
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(outputBuffer,
@@ -1718,7 +1722,7 @@ void testSingleOctetPerturbation(const char             *input,
     ASSERT ( codePointsWritten == codePointCount );
 
     // Adjust the position in the output of the code point we changed by adding
-    // 'before'.
+    // `before`.
 
     pos += before;
 
@@ -1728,7 +1732,7 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == origExpectedOutput[i]);
         }
         else if (before && i <  pos && i >= pos - before) {
-            // We have introduced 'before' new '?'(s) before 'pos'.
+            // We have introduced `before` new '?'(s) before `pos`.
 
             LOOP3_ASSERT(i, outputBuffer[i],   '?',
                             outputBuffer[i] == '?');
@@ -1740,13 +1744,13 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == perturb.d_newCodePoint);
         }
         else if (after && i >  pos && i <= pos + after) {
-            // We have introduced 'after' new '?'(s) after 'pos'
+            // We have introduced `after` new '?'(s) after `pos`
 
             LOOP3_ASSERT(i, outputBuffer[i],   '?',
                             outputBuffer[i] == '?');
         }
         else {
-            // we're beyond 'pos + after':
+            // we're beyond `pos + after`:
 
             int posInOrig = i - before - after;
             LOOP4_ASSERT(i, posInOrig,
@@ -1757,7 +1761,7 @@ void testSingleOctetPerturbation(const char             *input,
 }
 
 // This utility function perturbs each octet of each UTF-8 code point in
-// 'input' into each possible alternative code point class, making sure that
+// `input` into each possible alternative code point class, making sure that
 // the correct errors are detected.
 
 void perturbUtf8AndCheckConversionFailures(const char     *input,
@@ -2063,10 +2067,10 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     }
 }
 
-// Utility function validating that a 'utf8ToUtf16' conversion has the expected
+// Utility function validating that a `utf8ToUtf16` conversion has the expected
 // results.  The function will also test to make sure that insufficient
-// 'dstCapacity' arguments for the conversion function return an
-// 'OUTPUT_BUFFER_TOO_SMALL' result.
+// `dstCapacity` arguments for the conversion function return an
+// `OUTPUT_BUFFER_TOO_SMALL` result.
 
 void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                              unsigned short *expected_output,
@@ -2144,12 +2148,12 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                  codePointsWritten * sizeof *outputBuffer));
 }
 
-// This utility function for testing 'utf8ToUtf16' will *recursively* build up
-// input strings in 'inputBuffer' and output strings in 'outputBuffer', and
-// call 'checkForExpectedConversionResultsU8ToU2' to make sure that the results
-// match.  'inputCursor' and 'outputCursor' point to the "current position" in
+// This utility function for testing `utf8ToUtf16` will *recursively* build up
+// input strings in `inputBuffer` and output strings in `outputBuffer`, and
+// call `checkForExpectedConversionResultsU8ToU2` to make sure that the results
+// match.  `inputCursor` and `outputCursor` point to the "current position" in
 // the respective buffers where this level of the recursion will operate.  The
-// recursion terminates once 'depth <= 0'.
+// recursion terminates once `depth <= 0`.
 
 void buildUpAndTestStringsU8ToU2(int             idx,
                                  int             depth,
@@ -2214,85 +2218,85 @@ int runPlainTextPerformanceTest(void);
 //  integers [ 0 .. N ).  For not-very-small N, this can take a very
 //  long time.
 
+/// How this works: A recursive algorithm for generating the permutation is
+/// flattened by an odometer-like data structure.
+///
+/// The recursive procedure, which returns in the middle, works like this:
+///      Given a set containing N items (the integers 0 .. (N - 1), loop
+///      through the set, selecting each one in turn as the first element
+///      of the sequence.  In each loop, recurse, using the unselected
+///      elements to create the set for the recursion.  Thus, as the
+///      recursion proceeds downward, the top level has the first value of
+///      the permutation, the second level has the second value, and so
+///      forth.  When you recurse into an empty set, you must force the
+///      printing of all the values held by all the levels above.
+///
+/// How we actually do the permuting:
+///      The set is stored in an array (`val[]`).  Each level of recursion
+///      R is represented by the elements 0 .. R .  Thus at the top
+///      recursion level the selected value is in `val[0]`, at the first
+///      the selected value is in `val[1]`, and so forth.
+///      The initial selection, then, is with the values in numerical order.
+///
+///      Advancing to the next selection, then, means having the lowest
+///      recursion level realize that it does not have another value to try
+///      (since it had only one to begin with) and `returning` to the
+///      previous level, which selects a different value in turn and
+///      recurses again.  When that second-to-last level has exhausted all
+///      the values it has in its working set, it too returns, to be called.
+///      again with a slightly different set.
+///
+///      We keep track of the state at each level of recursion with a set
+///      of wheels that make up a "conical odometer" whose first wheel has
+///      N positions, whose second wheel has N - 1 positions, and so forth.
+///      The position of the wheel indicates which value has been selected
+///      from the array of positions at and to the right of the wheel.  To
+///      select a value, we swap it from place P (wheel place) + N
+///      (wheel position) into place N, and swap the value at place N
+///      up into place N + P.  To de-select that element of the set
+///      available to the wheel at place P, we reverse (repeat) the swap.
+///      Then we advance the wheel in preparation for selecting the next
+///      element at that place.
+///
+///      If we have returned to wheel position zero, we have exhausted the
+///      elements available in this set.  We must un-recurse (move left to
+///      place P - 1), de-select, advance the wheel, and select again,
+///      before moving right (recursing) once more.
+///
+/// How it is all implemented:
+///      Start with the set of values in order, 0 through (N - 1).  (Any
+///      order will do, actually.)  Start with all the wheels at position
+///      zero.  (This is necessary.)  We are now at the first permutation.
+///
+///      To advance, start at place P = N - 2.  (The wheel at N - 1 is
+///      always at position zero.)  First (un)swap the values at positions
+///      P and P + `wheels`[P].  Then turn the wheel (add one, mod N - P).
+///      If the wheel has not returned to zero, swap the values at P
+///      and P + `wheels`[P] (which is now one greater than it was).  We
+///      are done; the advance is successful and we have a new permutation.
+///      Return `true`.
+///
+///      If the wheel has returned to zero, "recurse" by moving to the
+///      left (P -= 1).  If we move below zero (if we were at wheel zero
+///      to start with) we have exhausted the permutations; return `false`.
+///      Otherwise, go back and continue at "To advance, start", above.
+///      After we have done all our moves-to-the-left, we might be expected
+///      to move right to select values, but since all the wheels to the
+///      right of P are at position zero, there are no swaps to be done.
+///
+/// So ... There are two data structures involved.  One is an "odometer"
+/// with decreasing wheel size (from N to zero).  Turning the odometers in
+/// this `d_wheel` array directs the swapping of values in the `d_val`
+/// array.  `d_val[]` contains every value from `[0 .. N)`.  (These could be
+/// letters, names, colors, foods, whatever.)  The swaps and wheel advances
+/// are carried out as above.
+///
+/// As coded, `Permuter` does NOT provide a stable end-of-sequence
+/// indication.
 template<bsl::size_t N>
 struct Permuter {
-    // How this works: A recursive algorithm for generating the permutation is
-    // flattened by an odometer-like data structure.
-    //
-    // The recursive procedure, which returns in the middle, works like this:
-    //      Given a set containing N items (the integers 0 .. (N - 1), loop
-    //      through the set, selecting each one in turn as the first element
-    //      of the sequence.  In each loop, recurse, using the unselected
-    //      elements to create the set for the recursion.  Thus, as the
-    //      recursion proceeds downward, the top level has the first value of
-    //      the permutation, the second level has the second value, and so
-    //      forth.  When you recurse into an empty set, you must force the
-    //      printing of all the values held by all the levels above.
-    //
-    // How we actually do the permuting:
-    //      The set is stored in an array ('val[]').  Each level of recursion
-    //      R is represented by the elements 0 .. R .  Thus at the top
-    //      recursion level the selected value is in 'val[0]', at the first
-    //      the selected value is in 'val[1]', and so forth.
-    //      The initial selection, then, is with the values in numerical order.
-    //
-    //      Advancing to the next selection, then, means having the lowest
-    //      recursion level realize that it does not have another value to try
-    //      (since it had only one to begin with) and 'returning' to the
-    //      previous level, which selects a different value in turn and
-    //      recurses again.  When that second-to-last level has exhausted all
-    //      the values it has in its working set, it too returns, to be called.
-    //      again with a slightly different set.
-    //
-    //      We keep track of the state at each level of recursion with a set
-    //      of wheels that make up a "conical odometer" whose first wheel has
-    //      N positions, whose second wheel has N - 1 positions, and so forth.
-    //      The position of the wheel indicates which value has been selected
-    //      from the array of positions at and to the right of the wheel.  To
-    //      select a value, we swap it from place P (wheel place) + N
-    //      (wheel position) into place N, and swap the value at place N
-    //      up into place N + P.  To de-select that element of the set
-    //      available to the wheel at place P, we reverse (repeat) the swap.
-    //      Then we advance the wheel in preparation for selecting the next
-    //      element at that place.
-    //
-    //      If we have returned to wheel position zero, we have exhausted the
-    //      elements available in this set.  We must un-recurse (move left to
-    //      place P - 1), de-select, advance the wheel, and select again,
-    //      before moving right (recursing) once more.
-    //
-    // How it is all implemented:
-    //      Start with the set of values in order, 0 through (N - 1).  (Any
-    //      order will do, actually.)  Start with all the wheels at position
-    //      zero.  (This is necessary.)  We are now at the first permutation.
-    //
-    //      To advance, start at place P = N - 2.  (The wheel at N - 1 is
-    //      always at position zero.)  First (un)swap the values at positions
-    //      P and P + 'wheels'[P].  Then turn the wheel (add one, mod N - P).
-    //      If the wheel has not returned to zero, swap the values at P
-    //      and P + 'wheels'[P] (which is now one greater than it was).  We
-    //      are done; the advance is successful and we have a new permutation.
-    //      Return 'true'.
-    //
-    //      If the wheel has returned to zero, "recurse" by moving to the
-    //      left (P -= 1).  If we move below zero (if we were at wheel zero
-    //      to start with) we have exhausted the permutations; return 'false'.
-    //      Otherwise, go back and continue at "To advance, start", above.
-    //      After we have done all our moves-to-the-left, we might be expected
-    //      to move right to select values, but since all the wheels to the
-    //      right of P are at position zero, there are no swaps to be done.
-    //
-    // So ... There are two data structures involved.  One is an "odometer"
-    // with decreasing wheel size (from N to zero).  Turning the odometers in
-    // this 'd_wheel' array directs the swapping of values in the 'd_val'
-    // array.  'd_val[]' contains every value from '[0 .. N)'.  (These could be
-    // letters, names, colors, foods, whatever.)  The swaps and wheel advances
-    // are carried out as above.
-    //
-    // As coded, 'Permuter' does NOT provide a stable end-of-sequence
-    // indication.
 
-    unsigned d_wheel[N]; // The 'odometer position' of the wheels
+    unsigned d_wheel[N]; // The `odometer position` of the wheels
     unsigned d_val[N];   // The values array.  Each value in [ 0 .. N ) must
                          // occur exactly once.
 
@@ -2310,11 +2314,11 @@ struct Permuter {
         return d_val[i];
     }
 
+    /// Returns true if the movement of the permuter that it has just
+    /// executed has NOT returned the permuter to the starting position,
+    /// false otherwise.  (In other words, keep going while `advance()`
+    /// returns true.)
     int advance()
-        // Returns true if the movement of the permuter that it has just
-        // executed has NOT returned the permuter to the starting position,
-        // false otherwise.  (In other words, keep going while 'advance()'
-        // returns true.)
     {
         for (int n = N - 1 - 1; n >= 0; --n)
         {
@@ -2327,16 +2331,15 @@ struct Permuter {
 
     ostream& print(ostream&) const;
 
-    // Advance wheel N one position.  Return false if it has returned to its
-    // original position (position zero).
-    //
-    //   With wheel n in position zero, there is a value V at that position.
-    //   As it advances upwards, that value advances upwards, and the value
-    //   it replaces (at n + wheel[n]) replaces it at n.  This is restored
-    //   before we make the next advance.  Also, once we advance a wheel, we
-    //   don't advance it again until everything at and above its position has
-    //   returned to the state in which that wheel was last advanced.
-
+    /// Advance wheel N one position.  Return false if it has returned to its
+    /// original position (position zero).
+    ///
+    ///   With wheel n in position zero, there is a value V at that position.
+    ///   As it advances upwards, that value advances upwards, and the value
+    ///   it replaces (at n + wheel[n]) replaces it at n.  This is restored
+    ///   before we make the next advance.  Also, once we advance a wheel, we
+    ///   don't advance it again until everything at and above its position has
+    ///   returned to the state in which that wheel was last advanced.
     int adv_wh(int n)
     {
         exch(n, n + d_wheel[n]);
@@ -2346,7 +2349,8 @@ struct Permuter {
         return 0 != d_wheel[n];
     }
 
-    void exch(int i, int j)  // Exchange the values at 'val[i]' and 'val[j]'
+    /// Exchange the values at `val[i]` and `val[j]`
+    void exch(int i, int j)
     {
         int t = d_val[i];
         d_val[i] = d_val[j];
@@ -2361,11 +2365,11 @@ ostream& operator<<(ostream& os, const Permuter<N>& p)
     return p.print(os);
 }
 
-//  'u8OneByteCases', 'u8TwoByteCases', 'u8ThreeByteHdrCases',
+//  `u8OneByteCases`, `u8TwoByteCases`, `u8ThreeByteHdrCases`,
 //  u8FourByteHdrCases', and u8ContinByteCases' provide selected instances of
 //  various UTF-8 octet types for building UTF-8 code sequences.  They are used
-//  by several tests.  The enums 'THREE_BYTE_ZERO_NEEDS',
-//  'FOUR_BYTE_ZERO_NEEDS', and 'FOUR_BYTE_ZERO_MAX' are also provided (and
+//  by several tests.  The enums `THREE_BYTE_ZERO_NEEDS`,
+//  `FOUR_BYTE_ZERO_NEEDS`, and `FOUR_BYTE_ZERO_MAX` are also provided (and
 //  explained) in this group.
 
 const
@@ -2386,27 +2390,27 @@ unsigned char u8ThreeByteHdrCases[] ={ '\x0', '\x1', '\x3', '\x6',
    // only selective coverage, to test that the function calls and calling
    // sequences are well-behaved.)
 
+/// If the first continuation is at least this, the content part of the
+/// three-byte header may be zero.
 enum { THREE_BYTE_ZERO_NEEDS = 0x20 };
-    // If the first continuation is at least this, the content part of the
-    // three-byte header may be zero.
 
+/// The Four-byte header can hold three bits, but for iso10646 the maximum
+/// value is four, and at that maximum the first continuation octet's
+/// content must be less than 0x10.
 const
 unsigned char u8FourByteHdrCases[] ={ '\x0', '\x1', '\x2', '\x3', '\x4' };
-    // The Four-byte header can hold three bits, but for iso10646 the maximum
-    // value is four, and at that maximum the first continuation octet's
-    // content must be less than 0x10.
 
 BSLA_MAYBE_UNUSED
 const
 unsigned char u8InvalidFourByteHdrCases[] ={ '\x5', '\x6', '\x7', };
 
+/// If the first continuation is at least this, the content part of the
+/// four-byte header may be zero.
 enum { FOUR_BYTE_ZERO_NEEDS = 0x10 };
-    // If the first continuation is at least this, the content part of the
-    // four-byte header may be zero.
 
+/// If the first continuation is no greater than this, the content part of
+/// the four-byte header may be two.
 enum { FOUR_BYTE_FOUR_MAX = 0xf };
-    // If the first continuation is no greater than this, the content part of
-    // the four-byte header may be two.
 
 BSLA_MAYBE_UNUSED
 const
@@ -2424,6 +2428,9 @@ const
 unsigned char u8ContinInvalidFourByteMaxCases[] ={ '\x10', '\x1e', '\x3c',
                                                    '\x3a', '\x3f', };
 
+/// Used as the first continuation octet content with 0xd in the three-
+/// octet header, these will produce code points in the (forbidden) lower
+/// reserved range.
 BSLA_MAYBE_UNUSED
 const
 unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
@@ -2431,10 +2438,10 @@ unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
                                               '\x28', '\x29', '\x2a', '\x2b',
                                               '\x2c', '\x2d', '\x2e', '\x2f',
                                             };
-    // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce code points in the (forbidden) lower
-    // reserved range.
 
+/// Used as the first continuation octet content with 0xd in the three-
+/// octet header, these will produce code points in the (forbidden) upper
+/// reserved range.
 BSLA_MAYBE_UNUSED
 const
 unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
@@ -2442,10 +2449,9 @@ unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
                                               '\x38', '\x39', '\x3a', '\x3b',
                                               '\x3c', '\x3d', '\x3e', '\x3f',
                                             };
-    // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce code points in the (forbidden) upper
-    // reserved range.
 
+/// Used as the content part of the upper and lower words of 2-word UTF-16
+/// code points.
 BSLA_MAYBE_UNUSED
 const
 unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
@@ -2454,21 +2460,19 @@ unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x70, 0x80, 0xc0, 0xd0, 0x100, 0x180,
                                      0x1c0, 0x200, 0x300, 0x380, 0x3ff,
                                    };
-    // Used as the content part of the upper and lower words of 2-word UTF-16
-    // code points.
 
+/// `AvCharList` provides an stl-like iterator to walk the lists of octet
+/// contents for various tests.  (Using `unsigned char` avoids sign
+/// extension problems.)
 typedef ArrayRange<const unsigned char> AvCharList;
-    // 'AvCharList' provides an stl-like iterator to walk the lists of octet
-    // contents for various tests.  (Using 'unsigned char' avoids sign
-    // extension problems.)
 
+/// `avWordList` provides an stl-like iterator to walk the lists of 16-bit
+/// word contents for various tests.
 typedef ArrayRange<const unsigned short> avWordList;
-    // 'avWordList' provides an stl-like iterator to walk the lists of 16-bit
-    // word contents for various tests.
 
 namespace {
     // The test number and the verbosity level are out here so that they are
-    // visible to all functions.  They are set at the beginning of 'main()'.
+    // visible to all functions.  They are set at the beginning of `main()`.
     int test;           // The number of the test being executed (from argv)
     int verbose;        // Nonzero iff one or more args after the test number
     int veryVerbose;    // Nonzero iff two or more args after the test number
@@ -2477,26 +2481,41 @@ namespace {
     int veryVeryVeryVeryVerbose;    // " " five or more args after the test no.
 }  // close unnamed namespace
 
+/// * `line`: `__LINE__` where this function is invoked
+/// * `toBuf`, fromBuf: Workspaces provided by our caller.  We depend on
+///   the value of `fromBuf.size()`
+/// * `fillCheck`: Source of the octet or word sequence under test.
+///
+/// The `testOneErrorCharConversion` function is the common part of all the
+/// subtests in test 4.  It verifies that the error conversion occurs as
+/// expected (using the `RUN_AND_CHECK` macro, which also verifies that the
+/// data surrounding the output buffer are unchanged) and that the source
+/// buffer is unchanged.  It performs this verification for the error
+/// sequence alone in a string and for the sequence surrounded by two
+/// single-octet code points, and with and without error replacement
+/// code points (a total of four tests).  It returns `true` if all the tests
+/// succeed, or `false` if any test or tests fail.
 template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
 bool testOneErrorCharConversion(int                          line,
                                 ArrayRange<TO_CHAR> const&   toBuf,
                                 ArrayRange<FROM_CHAR> const& fromBuf,
                                 FILL_CHECK&                  fillCheck);
-    //: o 'line': '__LINE__' where this function is invoked
-    //: o 'toBuf', fromBuf: Workspaces provided by our caller.  We depend on
-    //:   the value of 'fromBuf.size()'
-    //: o 'fillCheck': Source of the octet or word sequence under test.
-    //
-    // The 'testOneErrorCharConversion' function is the common part of all the
-    // subtests in test 4.  It verifies that the error conversion occurs as
-    // expected (using the 'RUN_AND_CHECK' macro, which also verifies that the
-    // data surrounding the output buffer are unchanged) and that the source
-    // buffer is unchanged.  It performs this verification for the error
-    // sequence alone in a string and for the sequence surrounded by two
-    // single-octet code points, and with and without error replacement
-    // code points (a total of four tests).  It returns 'true' if all the tests
-    // succeed, or 'false' if any test or tests fail.
 
+/// * `line`: `__LINE__` of this call
+/// * `toBuf`: Destination workspace
+/// * `toFillCheck`: Reference for checking the output string.
+/// * `fromBuf`: Source workspace buffer
+/// * `fromFillCheck`: Source and reference for checking the input string.
+/// * `expected`: The expected set of return values from the conversion
+///   function.
+///
+/// The `oneStringConversion` templated function invokes the conversions for
+/// test 5.  It verifies that the conversion returns with the expected
+/// values (using the `RUN_AND_CHECK` macro, which also verifies that the
+/// data surrounding the output buffer are unchanged) and that the source
+/// buffer is unchanged.  It verifies that the output buffer contains the
+/// expected result.  It returns `true` if all the tests succeed, or `false`
+/// if any have failed.
 template<class TO_CHAR,
          class TO_FILL_CHECK,
          class FR_CHAR,
@@ -2507,21 +2526,6 @@ bool oneStringConversion(int                      line,
                          ArrayRange<FR_CHAR>&     fromBuf,
                          FR_FILL_CHECK&           fromFillCheck,
                          const ConvRslt&          expected);
-    //: o 'line': '__LINE__' of this call
-    //: o 'toBuf': Destination workspace
-    //: o 'toFillCheck': Reference for checking the output string.
-    //: o 'fromBuf': Source workspace buffer
-    //: o 'fromFillCheck': Source and reference for checking the input string.
-    //: o 'expected': The expected set of return values from the conversion
-    //:   function.
-    //
-    // The 'oneStringConversion' templated function invokes the conversions for
-    // test 5.  It verifies that the conversion returns with the expected
-    // values (using the 'RUN_AND_CHECK' macro, which also verifies that the
-    // data surrounding the output buffer are unchanged) and that the source
-    // buffer is unchanged.  It verifies that the output buffer contains the
-    // expected result.  It returns 'true' if all the tests succeed, or 'false'
-    // if any have failed.
 
 template <class UTF16_CHAR, unsigned UTF16_CHAR_SIZE>
 bool swappedEquals(UTF16_CHAR lhs, UTF16_CHAR rhs);
@@ -2575,7 +2579,7 @@ bool swappedRangeEquals(const UTF16_CHAR *lhsBegin,
 }
 
 // Functions to get pointers to begin and end of containers.  The normal
-// 'begin' and 'end' member functions may return some iterator type that isn't
+// `begin` and `end` member functions may return some iterator type that isn't
 // really a pointer.
 
 
@@ -4568,11 +4572,11 @@ bsl::size_t localUtf16Len(const UTF16_WORD *str)
     return pws - str;
 }
 
+/// Return another string that is a human-readable version of the specified
+/// `str`, with non-printable characters translated at `\x??` where '?' is
+/// `[0-9]`.
 static
 bsl::string displayUtf8(const bsl::string& str)
-    // Return another string that is a human-readable version of the specified
-    // 'str', with non-printable characters translated at '\x??' where '?' is
-    // '[0-9]'.
 {
     bsl::string ret("\"");
 
@@ -4602,13 +4606,13 @@ bsl::string displayUtf8(const bsl::string& str)
     return ret;
 }
 
+/// Return a bsl::string that is a human-readable version of the specified
+/// `utf16Str`, with non-printable characters translated at `\x<hex><hex>`
+/// where `<hex>` is a hex digit.
 template <class UTF16_WORD>
 static
 bsl::string displayUtf16(const UTF16_WORD       *utf16Str,
                          bdlde::ByteOrder::Enum  byteOrder)
-    // Return a bsl::string that is a human-readable version of the specified
-    // 'utf16Str', with non-printable characters translated at '\x<hex><hex>'
-    // where '<hex>' is a hex digit.
 {
     bsl::string ret("\"");
 
@@ -4676,18 +4680,18 @@ class TestDriver {
     enum {
         // In functions where we are making a random choice between
         // possibilities, which happens frequently in test cases 14-16, when we
-        // are choosing between 'N' possibilities where 'N' is not a power of
-        // two, we take 'M > N' when 'M' is the next higher power of two than
-        // N, where 'M == (1 << BITS)' and then calculate
-        // 'k_RAND_NUM_BITS == BITS + k_RAND_FUDGE_BITS' that when we calculate
-        //..
+        // are choosing between `N` possibilities where `N` is not a power of
+        // two, we take `M > N` when `M` is the next higher power of two than
+        // N, where `M == (1 << BITS)` and then calculate
+        // `k_RAND_NUM_BITS == BITS + k_RAND_FUDGE_BITS` that when we calculate
+        // ```
         // x = s_randGen.bits(k_RAND_NUM_BITS) % N;
-        //..
+        // ```
         // and we get roughly equal probability of each choice in the range
-        // '[ 0 .. N-1 ]'.  We can test that our fudge factor is adequate with
-        //..
+        // `[ 0 .. N-1 ]`.  We can test that our fudge factor is adequate with
+        // ```
         // BSLMF_ASSERT(N * k_RAND_FUDGE_MULTIPE < (1 << K_RAND_NUM_BITS));
-        //..
+        // ```
 
         k_RAND_FUDGE_BITS     = 3,
         k_RAND_FUDGE_MULTIPLE = 1u << k_RAND_FUDGE_BITS
@@ -4695,10 +4699,10 @@ class TestDriver {
 
     enum { k_LO_SURROGATE_BASE = 0xd800u,    // low UTF-16 surrogates are in
                                              // the range
-                                             // '[ 0xd800 .. 0xdbff ]'
+                                             // `[ 0xd800 .. 0xdbff ]`
            k_HI_SURROGATE_BASE = 0xdc00u,    // high UTF-16 surrogates are in
                                              // the range
-                                             // '[ 0xdc00 .. 0xdfff ]'
+                                             // `[ 0xdc00 .. 0xdfff ]`
            k_SURROGATE_CEILING = 0xe000u,
 
            k_SURROGATE_RAND_BITS = 10u };
@@ -4714,50 +4718,51 @@ class TestDriver {
     static RandGen s_randGen;                // Random number generator
 
     // PRIVATE CLASS METHODS
+
+    /// Copy the specified UTF-16 sequence from `utf16In` to the specified
+    /// `wStr`, interpret the byte order of both input and output as the
+    /// specified `byteOrder`.  This is useful when we've created invalid
+    /// UTF-16 in a `vector<unsigned short>` with `randomInvalidUtf16Vector`
+    /// (below) and we want to also test on a `wstring` without having to
+    /// templatize `randomInvalidUtf16Vector` or create another version of
+    /// it that operates on a `wstring` instead of a `vector`.
     static void copyUtf16ToWstring(
                                 bsl::wstring                       *wStr,
                                 const bsl::vector<unsigned short>&  utf16In,
                                 bdlde::ByteOrder::Enum              byteOrder);
-        // Copy the specified UTF-16 sequence from 'utf16In' to the specified
-        // 'wStr', interpret the byte order of both input and output as the
-        // specified 'byteOrder'.  This is useful when we've created invalid
-        // UTF-16 in a 'vector<unsigned short>' with 'randomInvalidUtf16Vector'
-        // (below) and we want to also test on a 'wstring' without having to
-        // templatize 'randomInvalidUtf16Vector' or create another version of
-        // it that operates on a 'wstring' instead of a 'vector'.
 
+    /// Return the number of bits in the specified `value` that are set.
     static unsigned numBitsSet(unsigned value);
-        // Return the number of bits in the specified 'value' that are set.
 
+    /// Calculate a random number of octets with the following
+    /// probabilities: 1 octet: 12.5%, 2 octets: 37.5%, 3 octets: 37.5%, 4
+    /// octets: 12.5%.  Note that single-octet sequences are not very
+    /// interesting for testing, and quad octets are normally extremely rare
+    /// in UTF-8.
     static unsigned calculateRandomNumOctets();
-        // Calculate a random number of octets with the following
-        // probabilities: 1 octet: 12.5%, 2 octets: 37.5%, 3 octets: 37.5%, 4
-        // octets: 12.5%.  Note that single-octet sequences are not very
-        // interesting for testing, and quad octets are normally extremely rare
-        // in UTF-8.
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in a
+    /// single octet of UTF-8, and `false` otherwise.
     static
     bool fitsInSingleOctet(UnicodeCodePoint uc);
-        // Return 'true' if the specified Unicode code point 'uc' will fit in a
-        // single octet of UTF-8, and 'false' otherwise.
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in
+    /// two octets of UTF-8, and `false` otherwise.
     static
     bool fitsInTwoOctets(UnicodeCodePoint uc);
-        // Return 'true' if the specified Unicode code point 'uc' will fit in
-        // two octets of UTF-8, and 'false' otherwise.
 
+    /// Return `true` if the specified Unicode code point `uc` will fit in
+    /// three octets of UTF-8, and `false` otherwise.
     static
     bool fitsInThreeOctets(UnicodeCodePoint uc);
-        // Return 'true' if the specified Unicode code point 'uc' will fit in
-        // three octets of UTF-8, and 'false' otherwise.
 
     // The functions:
     //
-    //: 1 'encodeTwoOctets',
-    //:
-    //: 2 'encodeThreeOctets', and
-    //:
-    //: 3 'encodeFourOctets'
+    // 1. `encodeTwoOctets`,
+    //
+    // 2. `encodeThreeOctets`, and
+    //
+    // 3. `encodeFourOctets`
     //
     // encode the iso10646 code point passed as their second argument into the
     // specified number of octets in the UTF-8 byte array addressed by their
@@ -4768,148 +4773,149 @@ class TestDriver {
     // single-byte encoding is accomplished by a direct copy, for which no
     // function is provided here.
 
+    /// Assume the specified `isoBuf` will fit in 2 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeTwoOctets(char *octBuf, UnicodeCodePoint isoBuf);
-        // Assume the specified 'isoBuf' will fit in 2 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
 
+    /// Assume the specified `isoBuf` will fit in 3 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeThreeOctets(char *octBuf, UnicodeCodePoint isoBuf);
-        // Assume the specified 'isoBuf' will fit in 3 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
 
+    /// Assume the specified `isoBuf` will fit in 4 octets of UTF-8 and
+    /// encode it at the position indicated by the specified `octBuf`.
     static
     void encodeFourOctets(char *octBuf, UnicodeCodePoint isoBuf);
-        // Assume the specified 'isoBuf' will fit in 4 octets of UTF-8 and
-        // encode it at the position indicated by the specified 'octBuf'.
 
+    /// Return `true` if the specified `c` is a continuation byte and
+    /// `false` otherwise.
     static
     bool isContinuation(char c);
-        // Return 'true' if the specified 'c' is a continuation byte and
-        // 'false' otherwise.
 
+    /// Append a random invalid single byte to the specified `*string`.
+    /// Note that the byte appended may be legal if it is a continuation
+    /// byte and the preceding contents `*string` is a truncated sequence.
     static
     void appendRandomInvalidSingleOctet(bsl::string *string);
-        // Append a random invalid single byte to the specified '*string'.
-        // Note that the byte appended may be legal if it is a continuation
-        // byte and the preceding contents '*string' is a truncated sequence.
 
+    /// Append a random invalid two-octet code point to the specified
+    /// `*string`.
     static
     void appendRandomInvalidTwoOctets(bsl::string *string);
-        // Append a random invalid two-octet code point to the specified
-        // '*string'.
 
+    /// Append a random invalid three-octet code point to the specified
+    /// `*string`.
     static
     void appendRandomInvalidThreeOctets(bsl::string *string);
-        // Append a random invalid three-octet code point to the specified
-        // '*string'.
 
+    /// Append a random invalid four-octet code point to the specified
+    /// `*string`.
     static
     void appendRandomInvalidFourOctets(bsl::string *string);
-        // Append a random invalid four-octet code point to the specified
-        // '*string'.
 
+    /// Append a random non-zero ASCII byte to the specified `*string`.
     static
     void appendRandomValidSingleOctet(bsl::string *string);
-        // Append a random non-zero ASCII byte to the specified '*string'.
 
+    /// Append a random valid two octet sequence to the specified `*string`.
     static
     void appendRandomValidTwoOctets(bsl::string *string);
-        // Append a random valid two octet sequence to the specified '*string'.
 
+    /// Append a random valid three octet sequence to the specified
+    /// `*string`.
     static
     void appendRandomValidThreeOctets(bsl::string *string);
-        // Append a random valid three octet sequence to the specified
-        // '*string'.
 
+    /// Append a random valid four octet sequence to the specified
+    /// `*string`.
     static
     void appendRandomValidFourOctets(bsl::string *string);
-        // Append a random valid four octet sequence to the specified
-        // '*string'.
 
+    /// Append a random valid UTF-8 code point to the specified `*string`.
+    /// Make 2 and 3 byte code points 3 times as likely as 1 or 4 byte
+    /// code points.
     static
     void appendRandomValidUtf8CodePoint(bsl::string *string);
-        // Append a random valid UTF-8 code point to the specified '*string'.
-        // Make 2 and 3 byte code points 3 times as likely as 1 or 4 byte
-        // code points.
 
+    /// Append random invalid UTF-8 to the specified `*string`.  Note that
+    /// the appended sequence will usually consistitute one code point, but
+    /// in some cases where a truncated sequence is followed by the first
+    /// char of another truncated sequence, it will consitute 2 invalid code
+    /// points.
     static void appendRandomInvalidUtf8CodePoint(bsl::string *string);
-        // Append random invalid UTF-8 to the specified '*string'.  Note that
-        // the appended sequence will usually consistitute one code point, but
-        // in some cases where a truncated sequence is followed by the first
-        // char of another truncated sequence, it will consitute 2 invalid code
-        // points.
 
+    /// Create a UTF-8 string and return it in the specified `result`
+    /// containing `numSequences` sequences, where the terminating '\0'
+    /// counts as one sequence.  If the specified `validity` is `e_VALID`
+    /// the UTF-8 will be valid.  If the specified `validity` is
+    /// `e_INVALID`, the string will be invalid.  The behavior is undefined
+    /// if `numSequences < 1` or if `numSequences < 2` and
+    /// `validity == e_INVALID`.  Note that in the case of invalid UTF-8,
+    /// the number of code points may exceed `numSequences`.
     static void randomUtf8String(bsl::string *result,
                                  unsigned     numSequences,
                                  Validity     validity);
-        // Create a UTF-8 string and return it in the specified 'result'
-        // containing 'numSequences' sequences, where the terminating '\0'
-        // counts as one sequence.  If the specified 'validity' is 'e_VALID'
-        // the UTF-8 will be valid.  If the specified 'validity' is
-        // 'e_INVALID', the string will be invalid.  The behavior is undefined
-        // if 'numSequences < 1' or if 'numSequences < 2' and
-        // 'validity == e_INVALID'.  Note that in the case of invalid UTF-8,
-        // the number of code points may exceed 'numSequences'.
 
+    /// Return a random non-zero, non-surrogate UTF-16 word.
     static unsigned short randomUtf16NonSurrogate();
-        // Return a random non-zero, non-surrogate UTF-16 word.
 
+    /// Return a random UTF-8 low-surrogate word.
     static unsigned short randomUtf16SurrogateLo();
-        // Return a random UTF-8 low-surrogate word.
 
+    /// Return a random UTF-8 high-surrogate word.
     static unsigned short randomUtf16SurrogateHi();
-        // Return a random UTF-8 high-surrogate word.
 
+    /// Populate the specified `*result` with an invalid UTF-16 sequence the
+    /// specified `numWords` long.  Note that `numWords` includes the
+    /// terminating 0, and the behavior is undefined if `numWords < 2`.
     static void randomInvalidUtf16Vector(
                                        bsl::vector<unsigned short> *result,
                                        unsigned                     numWords,
                                        bdlde::ByteOrder::Enum       byteOrder);
-        // Populate the specified '*result' with an invalid UTF-16 sequence the
-        // specified 'numWords' long.  Note that 'numWords' includes the
-        // terminating 0, and the behavior is undefined if 'numWords < 2'.
 
 
                                  // TEST CASES
 
   public:
     // PUBLIC CLASS METHODS
+
+    /// Test the calculations of length estimates for UTF-16 containing
+    /// errors translated into UTF-8.  The UTF-16 is to be of the specified
+    /// `byteOrder`.
     static void testCase16(bdlde::ByteOrder::Enum byteOrder);
-        // Test the calculations of length estimates for UTF-16 containing
-        // errors translated into UTF-8.  The UTF-16 is to be of the specified
-        // 'byteOrder'.
 
+    /// Test the calculations of length estimates for UTF-8 containing
+    /// errors translated into UTF-16.  The UTF-16 is to be of the specified
+    /// `byteOrder`.
     static void testCase15(bdlde::ByteOrder::Enum byteOrder);
-        // Test the calculations of length estimates for UTF-8 containing
-        // errors translated into UTF-16.  The UTF-16 is to be of the specified
-        // 'byteOrder'.
 
+    /// Test length methods on valid random unicode strings, both for UTF-8
+    /// translated to UTF-16, and for UTF-16 translated to UTF-8, where the
+    /// byte order of the UTF-16 is determined by the specified `byteOrder`.
     static void testCase14(bdlde::ByteOrder::Enum byteOrder);
-        // Test length methods on valid random unicode strings, both for UTF-8
-        // translated to UTF-16, and for UTF-16 translated to UTF-8, where the
-        // byte order of the UTF-16 is determined by the specified 'byteOrder'.
 
+    /// Verify backwards byte order translation for `std` cotainers.
     template <class STRING,
               class WSTRING,
               class VECTOR_C,
               class VECTOR_WC,
               class VECTOR_US>
     static void testCase13();
-        // Verify backwards byte order translation for 'std' cotainers.
 
+    /// Verify translation of strings containing embedded zeros for `std`
+    /// containers.
     template<class STRING, class WSTRING>
     static void testCase12();
-        // Verify translation of strings containing embedded zeros for 'std'
-        // containers.
 
+    /// Verify utf16 to utf8 translation.
     template <class VECTOR, class STRING, class WIDE_CHAR>
     static void testCase11();
-        // Verify utf16 to utf8 translation.
 
+    /// Verify utf8 to utf16 translation.
     template <class VECTOR,
               class WSTRING>
     static void testCase10();
-        // Verify utf8 to utf16 translation.
 };
 RandGen TestDriver::s_randGen;
 
@@ -4928,7 +4934,7 @@ inline
 unsigned TestDriver::calculateRandomNumOctets()
 {
     // By taking 3 random bits, counting the number that are set, and adding 1,
-    // we get 'P(1)' == P(4) == 12.5%' and 'P(2) == P(3) == 37%'.  Single
+    // we get `P(1) == P(4) == 12.5%` and `P(2) == P(3) == 37%`.  Single
     // octets are not very interesting, so we don't want a lot of them, and
     // quadruple octets are normally very rare in UTF-8.
 
@@ -5032,10 +5038,10 @@ void TestDriver::copyUtf16ToWstring(
     ASSERT(bsl::wcslen(wStr->c_str()) == len);        // no embedded '\0's
 }
 
+/// Append a random invalid single byte to the specified `*string`.  Note
+/// that the byte appended may be legal if it is a continuation byte and the
+/// preceding contents of `*string` is a truncated sequence.
 void TestDriver::appendRandomInvalidSingleOctet(bsl::string *string)
-    // Append a random invalid single byte to the specified '*string'.  Note
-    // that the byte appended may be legal if it is a continuation byte and the
-    // preceding contents of '*string' is a truncated sequence.
 {
     enum ErrorType { e_ILLEGAL_CHAR,
                      e_UNEXPECTED_CONTINUATION,
@@ -5049,11 +5055,11 @@ void TestDriver::appendRandomInvalidSingleOctet(bsl::string *string)
                                                   s_randGen.bits(k_RAND_BITS));
 
     const char c = e_ILLEGAL_CHAR == errorType
-                 ? // Bytes with high 5 bits all set '11111xxx' are never legal
+                 ? // Bytes with high 5 bits all set `11111xxx` are never legal
                    // characters in UTF-8.
 
                    static_cast<char>(0xf8u | s_randGen.bits(3))
-                 : // unexpected continuation '10xxxxxx'.
+                 : // unexpected continuation `10xxxxxx`.
 
                    static_cast<char>(0x80u | s_randGen.bits(6));
 
@@ -5063,8 +5069,8 @@ void TestDriver::appendRandomInvalidSingleOctet(bsl::string *string)
     *string += c;
 }
 
+/// Append a random invalid two-octet code point to the specified `*string`.
 void TestDriver::appendRandomInvalidTwoOctets(bsl::string *string)
-    // Append a random invalid two-octet code point to the specified '*string'.
 {
     enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
                                      // completes
@@ -5089,7 +5095,7 @@ void TestDriver::appendRandomInvalidTwoOctets(bsl::string *string)
       case e_END: {
         // truncated two-byte sequence
 
-        // first byte is correct start to 2-byte sequence '110xxxxx'
+        // first byte is correct start to 2-byte sequence `110xxxxx`
 
         *string += static_cast<char>(TWO_OCTET_TAG | s_randGen.bits(5));
 
@@ -5117,9 +5123,9 @@ void TestDriver::appendRandomInvalidTwoOctets(bsl::string *string)
     }
 }
 
+/// Append a random invalid three-octet code point to the specified
+/// `*string`.
 void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
-    // Append a random invalid three-octet code point to the specified
-    // '*string'.
 {
     enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
                                      // completes
@@ -5138,7 +5144,7 @@ void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
 
     BSLMF_ASSERT(k_NUM_ERROR_TYPES == (1u << k_RAND_BITS));
 
-    // '% k_NUM_ERROR_TYPES' would be redundant here
+    // `% k_NUM_ERROR_TYPES` would be redundant here
 
     const ErrorType errorType = static_cast<ErrorType>(
                                                   s_randGen.bits(k_RAND_BITS));
@@ -5148,7 +5154,7 @@ void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
       case e_END: {
         // three-byte sequence truncated before completion
 
-        // first byte is correct start to 3-byte sequence '1110xxxx'
+        // first byte is correct start to 3-byte sequence `1110xxxx`
 
         *string += static_cast<char>(0xe0u | s_randGen.bits(4));
 
@@ -5196,7 +5202,7 @@ void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
 
         BSLMF_ASSERT(k_MOD == (1u << k_RAND_UC_BITS));
 
-        // '% k_MOD' would be redundant below.
+        // `% k_MOD` would be redundant below.
 
         unsigned uc = k_FLOOR + s_randGen.bits(k_RAND_UC_BITS);
         BSLS_ASSERT_SAFE(uc >= k_MIN_SURROGATE);
@@ -5216,9 +5222,9 @@ void TestDriver::appendRandomInvalidThreeOctets(bsl::string *string)
     }
 }
 
+/// Append a random invalid four-octet code point to the specified
+/// `*string`.
 void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
-    // Append a random invalid four-octet code point to the specified
-    // '*string'.
 {
     enum ErrorType { e_TRUNC,        // wrong byte appended before sequence
                                      // completes
@@ -5236,7 +5242,7 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
 
     BSLMF_ASSERT((1u << k_RAND_BITS) == k_NUM_ERROR_TYPES);
 
-    // '% k_NUM_ERROR_TYPES' would be redundant below.
+    // `% k_NUM_ERROR_TYPES` would be redundant below.
 
     const ErrorType errorType = static_cast<ErrorType>(
                                                   s_randGen.bits(k_RAND_BITS));
@@ -5244,12 +5250,12 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
     switch (errorType) {
       case e_TRUNC:
       case e_END: {
-        // first byte of 4-byte sequence '11110xxx'
+        // first byte of 4-byte sequence `11110xxx`
 
         *string += static_cast<char>(FOUR_OCTET_TAG | s_randGen.bits(3));
 
         // Append valid continuation bytes.  The number of continuation bytes
-        // to append is random in the range '[ 0 .. 2 ]'.
+        // to append is random in the range `[ 0 .. 2 ]`.
 
         const unsigned k_CONT_MOD       = 3;
         const unsigned k_RAND_CONT_BITS = 2 + k_RAND_FUDGE_BITS;
@@ -5262,7 +5268,7 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
         ASSERT(contBytes <= 2);
 
         for (unsigned uu = 0; uu < contBytes; ++uu) {
-            // continuation byte: '10xxxxxx'
+            // continuation byte: `10xxxxxx`
 
             *string += static_cast<char>(CONTINUE_TAG | s_randGen.bits(6));
         }
@@ -5319,11 +5325,11 @@ void TestDriver::appendRandomInvalidFourOctets(bsl::string *string)
     }
 }
 
+/// Append random invalid UTF-8 to the specified `*string`.  Note that the
+/// appended sequence will usually consistitute one code point, but in some
+/// cases where a truncated sequence is followed by the first char of
+/// another truncated sequence, it will consitute 2 invalid code points.
 void TestDriver::appendRandomInvalidUtf8CodePoint(bsl::string *string)
-    // Append random invalid UTF-8 to the specified '*string'.  Note that the
-    // appended sequence will usually consistitute one code point, but in some
-    // cases where a truncated sequence is followed by the first char of
-    // another truncated sequence, it will consitute 2 invalid code points.
 {
     const unsigned numOctets = calculateRandomNumOctets();
 
@@ -5481,7 +5487,7 @@ void TestDriver::randomUtf8String(bsl::string *result,
         else {
             // We want to make an invalid UTF-8 string with multiple code
             // points, so we want a random mix of valid and invalid code
-            // points.  We always want '*result' to contain an invalid sequence
+            // points.  We always want `*result` to contain an invalid sequence
             // when this function finishes, but we may randomly not have any
             // errors, so we are ready to repeat until we get that outcome.
 
@@ -5540,7 +5546,7 @@ void TestDriver::randomUtf8String(bsl::string *result,
 unsigned short TestDriver::randomUtf16NonSurrogate()
 {
     // In UTf-16, a non-surrogate value is any non-zero 16-bit value outside
-    // the range '[ k_LO_SURROGATE_BASE .. k_SURROGATE_CEILING )'.
+    // the range `[ k_LO_SURROGATE_BASE .. k_SURROGATE_CEILING )`.
 
     unsigned short ret;
     bool           isSurrogate;
@@ -5595,7 +5601,7 @@ void TestDriver::randomInvalidUtf16Vector(
     }
     else {
         // We just generate a random sequence of UTF-16 words until we get one
-        // that has at least one error.  The variable 'errorPresent' monitors
+        // that has at least one error.  The variable `errorPresent` monitors
         // the sequence as it's created to see if any errors occurred.
 
         bool errorPresent;
@@ -5609,7 +5615,7 @@ void TestDriver::randomInvalidUtf16Vector(
                                                     // the error
 
             for (unsigned uu = 0; uu < numWords; ++uu) {
-                // This gives 'e_SINGLE_WORD' twice the probability of the
+                // This gives `e_SINGLE_WORD` twice the probability of the
                 // other 2 word types.  In real UTF-16, surrogates are pretty
                 // rare.
 
@@ -5661,42 +5667,42 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
     // UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE
     //
     // Concerns:
-    //: 1 That 'computeRequiredUtf8Bytes' (both overloads) correctly predicts
-    //:   the length of output when the unicode input has errors.
+    // 1. That `computeRequiredUtf8Bytes` (both overloads) correctly predicts
+    //    the length of output when the unicode input has errors.
     //
     // Plan:
-    //: 1 Call 'randomInvalidUtf16Vector' to create a 'vector<unsigned short>'
-    //:   contain invalid UTF-16.
-    //:
-    //: 2 Call 'computeRequiredUtf8Bytes' both ways (passing an end ptr, and
-    //:   null-terminated) on the UTF-16 vector to predict the length of the
-    //:   UTF-8.
-    //:   o observe that the values returned by both overloads match.
-    //:
-    //:   o translate back to a new UTF-8 'string' and observe that its length
-    //:     matches the predicted length, and that the string doesn't match the
-    //:     original valid UTF-8 'string'.
-    //:
-    //: 3 Copy the UTF-16 'vector<unsigned short>' to a 'wstring' using
-    //:   'copyUtf16ToWstring'.
-    //:
-    //: 4 Call 'computeRequiredUtf8Bytes' both ways (passing an end ptr, and
-    //:   null-terminated) on the UTF-16 'wstring' to predict the length of the
-    //:   UTF-8.
-    //:   o observe that the values returned by both overloads match the values
-    //:     predicted when the input was a 'vector'.
-    //:
-    //:   o translate back to a new UTF-8 'string' and observe that its length
-    //:     matches the predicted length, and that it doesn't match the
-    //:     original valid UTF-8 'string', and that the string does match the
-    //:     utf8 string translated back from a 'vector'.
+    // 1. Call `randomInvalidUtf16Vector` to create a `vector<unsigned short>`
+    //    contain invalid UTF-16.
+    //
+    // 2. Call `computeRequiredUtf8Bytes` both ways (passing an end ptr, and
+    //    null-terminated) on the UTF-16 vector to predict the length of the
+    //    UTF-8.
+    //    - observe that the values returned by both overloads match.
+    //
+    //    - translate back to a new UTF-8 `string` and observe that its length
+    //      matches the predicted length, and that the string doesn't match the
+    //      original valid UTF-8 `string`.
+    //
+    // 3. Copy the UTF-16 `vector<unsigned short>` to a `wstring` using
+    //    `copyUtf16ToWstring`.
+    //
+    // 4. Call `computeRequiredUtf8Bytes` both ways (passing an end ptr, and
+    //    null-terminated) on the UTF-16 `wstring` to predict the length of the
+    //    UTF-8.
+    //    - observe that the values returned by both overloads match the values
+    //      predicted when the input was a `vector`.
+    //
+    //    - translate back to a new UTF-8 `string` and observe that its length
+    //      matches the predicted length, and that it doesn't match the
+    //      original valid UTF-8 `string`, and that the string does match the
+    //      utf8 string translated back from a `vector`.
     //
     // Testing:
     //   computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
     //   computeRequiredUtf8Bytes(w_char_t *, w_char_t *, byteOrder);
     // ------------------------------------------------------------------------
 {
-    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // No reason to use `bslma::TestAllocator` in this test -- length
     // calculation allocates no memory, so we have no need for all the test
     // allocator's time-wasting recordkeeping.
 
@@ -5763,7 +5769,7 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(utf8CodePointsB <= RANDOM_NUM_WORDS);
         ASSERT(PREDICTED_UTF8_LEN == utf8B.length() + 1);
 
-        // Translate to 'std::string'.
+        // Translate to `std::string`.
 
         bsl::size_t utf8CodePointsC = -1;
         std::string utf8C;
@@ -5781,7 +5787,7 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(PREDICTED_UTF8_LEN == utf8C.length() + 1);
         ASSERT(utf8B == utf8C);
 
-        // Translate to 'std::string' passing input length.
+        // Translate to `std::string` passing input length.
 
         utf8CodePointsC = -1;
         utf8C.clear();
@@ -5799,13 +5805,13 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(PREDICTED_UTF8_LEN == utf8C.length() + 1);
         ASSERT(utf8B == utf8C);
 
-        // Copy UTF-16 'vector' to 'wstring utf16W'
+        // Copy UTF-16 `vector` to `wstring utf16W`
 
         bsl::wstring utf16W(alloc);
         copyUtf16ToWstring(&utf16W, utf16, byteOrder);
 
         // Run both overloads of length prediction of UTF-8, see that they
-        // match the predictions made when predicted based on 'vector'.
+        // match the predictions made when predicted based on `vector`.
 
         bsl::size_t len = Util::computeRequiredUtf8Bytes(
                                                utf16W.data(),
@@ -5819,9 +5825,9 @@ void TestDriver::testCase16(bdlde::ByteOrder::Enum byteOrder)
         ASSERTV(displayUtf16(utf16W.data(), byteOrder),
                            PREDICTED_UTF8_LEN, len, PREDICTED_UTF8_LEN == len);
 
-        // Translate 'wstring' back to UTF-8, observe that the length of the
+        // Translate `wstring` back to UTF-8, observe that the length of the
         // result matches the calculations, and the value of the UTF-8
-        // matches the value from translating the 'vector'.
+        // matches the value from translating the `vector`.
 
         utf8CodePointsC = -1;
         utf8C.clear();
@@ -5978,34 +5984,34 @@ void TestDriver::testCase15(bdlde::ByteOrder::Enum byteOrder)
     // UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE
     //
     // Concerns:
-    //: 1 That 'computeRequiredUtf16Words' called both ways (passing an end
-    //:   ptr, and null-terminated) correctly predicts the length of output
-    //:   when the input has UTF-8 errors.
+    // 1. That `computeRequiredUtf16Words` called both ways (passing an end
+    //    ptr, and null-terminated) correctly predicts the length of output
+    //    when the input has UTF-8 errors.
     //
     // Plan:
-    //: 1 Use 'randomUtf8String' to get a random substring from the
-    //:   'utf8MultiLang' example containing invalid UTF-8.
-    //:
-    //: 2 Call both overloads 'computeRequiredUtf16Words' both ways, save the
-    //:   values and make sure they match.
-    //:
-    //: 3 Translate to a 'vector<unsigned short>' containing UTF-16 with the
-    //:   error character as '?' and the specified 'byteOrder'
-    //:   o Observe that the error was detected
-    //:
-    //:   o Observe the length of the UTF-16 output matches the predictions.
-    //:
-    //: 4 Translate to a 'wstring' containing UTF-16 with the error character
-    //:   as '?' and the specified 'byteOrder'
-    //:   o Observe that the error was detected
-    //:
-    //:   o Observe the length of the UTF-16 output matches the predictions.
+    // 1. Use `randomUtf8String` to get a random substring from the
+    //    `utf8MultiLang` example containing invalid UTF-8.
+    //
+    // 2. Call both overloads `computeRequiredUtf16Words` both ways, save the
+    //    values and make sure they match.
+    //
+    // 3. Translate to a `vector<unsigned short>` containing UTF-16 with the
+    //    error character as '?' and the specified `byteOrder`
+    //    - Observe that the error was detected
+    //
+    //    - Observe the length of the UTF-16 output matches the predictions.
+    //
+    // 4. Translate to a `wstring` containing UTF-16 with the error character
+    //    as '?' and the specified `byteOrder`
+    //    - Observe that the error was detected
+    //
+    //    - Observe the length of the UTF-16 output matches the predictions.
     //
     // Testing:
     //   computeRequiredUtf16Words(char *, char *);
     // ------------------------------------------------------------------------
 {
-    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // No reason to use `bslma::TestAllocator` in this test -- length
     // calculation allocates no memory, so we have no need for all the test
     // allocator's time-wasting recordkeeping.
 
@@ -6035,10 +6041,10 @@ void TestDriver::testCase15(bdlde::ByteOrder::Enum byteOrder)
                                  Util::computeRequiredUtf16Words(utf8.c_str());
         ASSERT(PREDICTED_UTF16_LEN == PREDICTED_UTF16_LEN_B);
 
-        // translate to a UTF-16 'vector<unsigned short>'.  Note that the
-        // number of code points may be less than 'RANDOM_CODE_POINTS' due to
+        // translate to a UTF-16 `vector<unsigned short>`.  Note that the
+        // number of code points may be less than `RANDOM_CODE_POINTS` due to
         // adjacent incomplete code points merging to make single valid points,
-        // or more than 'RANDOM_CODE_POINTS' due to truncated code points being
+        // or more than `RANDOM_CODE_POINTS` due to truncated code points being
         // terminted by truncated start point.
 
         bsl::vector<unsigned short> utf16(alloc);
@@ -6057,7 +6063,7 @@ void TestDriver::testCase15(bdlde::ByteOrder::Enum byteOrder)
 
         ASSERT(utf16.size() == PREDICTED_UTF16_LEN);
 
-        // translate to a UTF-16 'wstring'
+        // translate to a UTF-16 `wstring`
 
         bsl::wstring utf16W(alloc);
         utf16W.reserve(4092);
@@ -6075,7 +6081,7 @@ void TestDriver::testCase15(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(utf16CodePoints == utf16WCodePoints);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        // Translate to 'u16string'.
+        // Translate to `u16string`.
 
         bsl::u16string utf16U16(alloc);
         utf16U16.reserve(4092);
@@ -6107,40 +6113,40 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
     // UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE
     //
     // Concerns:
-    //: 1 That 'computeRequiredUtf16Words' called both ways (passing an end
-    //:   ptr, and null-terminated) correctly predicts the length of output
-    //:   when the unicode is correct.
-    //:
-    //: 2 That 'computeRequiredUtf8Bytes' called both ways (passing an end ptr,
-    //:   and null-terminated) correctly predicts the length of output when the
-    //:   unicode is correct.
+    // 1. That `computeRequiredUtf16Words` called both ways (passing an end
+    //    ptr, and null-terminated) correctly predicts the length of output
+    //    when the unicode is correct.
+    //
+    // 2. That `computeRequiredUtf8Bytes` called both ways (passing an end ptr,
+    //    and null-terminated) correctly predicts the length of output when the
+    //    unicode is correct.
     //
     // Plan:
-    //: 1 Use 'randomUtf8String' to get a random substring from the
-    //:   'utf8MultiLang' example containing valid UTF-8.
-    //:
-    //: 2 Call both 'utf16BuferLength' both ways, save the values and make
-    //:   sure they match.
-    //:
-    //: 3 Translate to a 'vector<unsigned short>' containing UTF-16 with the
-    //:   error character as '?' and the specified 'byteOrder'.
-    //:   o Observe there were no errors from the return code.
-    //:
-    //:   o Observe the length of the UTF-16 output matches the predictions.
-    //:
-    //: 4 Call 'computeRequiredUtf8Bytes' both ways on the UTF-16 vector to
-    //:   predict the length of the UTF-8, observe that it matches the length
-    //:   of the original UTF-8.
-    //:   o translate back to a new UTF-8 'string' and observe that it matches
-    //:     the original UTF-8 'string'.
-    //:
-    //: 5 Copy the UTF-16 'vector<unsigned short>' to a 'wstring'.
-    //:
-    //: 6 Call 'computeRequiredUtf8Bytes' both ways on the UTF-16 'wstring' to
-    //:   predict the length of the UTF-8, observe that it matches the length
-    //:   of the original UTF-8.
-    //:   o translate back to a new UTF-8 'string' and observe that it matches
-    //:     the original UTF-8 'string'.
+    // 1. Use `randomUtf8String` to get a random substring from the
+    //    `utf8MultiLang` example containing valid UTF-8.
+    //
+    // 2. Call both `utf16BuferLength` both ways, save the values and make
+    //    sure they match.
+    //
+    // 3. Translate to a `vector<unsigned short>` containing UTF-16 with the
+    //    error character as '?' and the specified `byteOrder`.
+    //    - Observe there were no errors from the return code.
+    //
+    //    - Observe the length of the UTF-16 output matches the predictions.
+    //
+    // 4. Call `computeRequiredUtf8Bytes` both ways on the UTF-16 vector to
+    //    predict the length of the UTF-8, observe that it matches the length
+    //    of the original UTF-8.
+    //    - translate back to a new UTF-8 `string` and observe that it matches
+    //      the original UTF-8 `string`.
+    //
+    // 5. Copy the UTF-16 `vector<unsigned short>` to a `wstring`.
+    //
+    // 6. Call `computeRequiredUtf8Bytes` both ways on the UTF-16 `wstring` to
+    //    predict the length of the UTF-8, observe that it matches the length
+    //    of the original UTF-8.
+    //    - translate back to a new UTF-8 `string` and observe that it matches
+    //      the original UTF-8 `string`.
     //
     // Testing:
     //   computeRequiredUtf16Words(char *, char *, byteOrder);
@@ -6148,7 +6154,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
     //   computeRequiredUtf8Bytes(ushort *, ushort *, byteOrder);
     // ------------------------------------------------------------------------
 {
-    // No reason to use 'bslma::TestAllocator' in this test -- length
+    // No reason to use `bslma::TestAllocator` in this test -- length
     // calculation allocates no memory, so we have no need for all the test
     // allocator's time-wasting recordkeeping.
 
@@ -6161,7 +6167,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
 
         // Generate random correct UTF-8 string.
 
-        // 'RANDOM_CODE_POINTS' is the number of code points in the string,
+        // `RANDOM_CODE_POINTS` is the number of code points in the string,
         // including the terminating '\0'.
 
         const unsigned RANDOM_CODE_POINTS = ii < 1000
@@ -6199,7 +6205,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
                                    Util::computeRequiredUtf16Words(begin);
         ASSERT(PREDICTED_UTF16_LEN == PREDICTED_UTF16_LEN_B);
 
-        // translate to a UTF-16 'vector<unsigned short>'
+        // translate to a UTF-16 `vector<unsigned short>`
 
         bsl::vector<unsigned short> utf16(alloc);
         utf16.reserve(4092);
@@ -6448,7 +6454,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(RANDOM_CODE_POINTS == utf8CodePoints);
         ASSERTV(displayUtf8(utf8), displayUtf8(utf8B), utf8 == utf8B);
 
-        // translate 'utf8' to a 'wstring'
+        // translate `utf8` to a `wstring`
 
         bsl::wstring utf16W(alloc);
         utf16W.reserve(4092);
@@ -6461,7 +6467,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
         ASSERT(RANDOM_CODE_POINTS  == utf16CodePoints);
         ASSERT(utf16W.length() + 1 == utf16.size());
 
-        // Calculate the size to translate the 'wstring' back.
+        // Calculate the size to translate the `wstring` back.
 
         bsl::size_t len = Util::computeRequiredUtf8Bytes(
                                                utf16W.data(),
@@ -6492,7 +6498,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
         ASSERTV(displayUtf8(utf8), displayUtf8(utf8C), utf8 == utf8C);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        // translate 'utf8' to a 'u16string'
+        // translate `utf8` to a `u16string`
 
         utf16CodePoints = -1;
         bsl::u16string utf16U16(alloc);
@@ -6510,7 +6516,7 @@ void TestDriver::testCase14(bdlde::ByteOrder::Enum byteOrder)
                                                    alloc);
         ASSERT(EXP == utf16U16);
 
-        // Calculate the size to translate the 'wstring' back.
+        // Calculate the size to translate the `wstring` back.
 
         len = Util::computeRequiredUtf8Bytes(
                                            utf16U16.data(),
@@ -6923,9 +6929,9 @@ void TestDriver::testCase12()
                         ASSERT(0 == Obj::utf16ToUtf8(&utf8Out, utf16, &nc));
 
                         // TODO: Replace the following two assertions with the
-                        // single one: 'ASSERT(utf8In == utf8Out);' as soon as
-                        // 'bsl::string::operator==' overload for
-                        // 'std::pmr:string' is implemented.
+                        // single one: `ASSERT(utf8In == utf8Out);` as soon as
+                        // `bsl::string::operator==` overload for
+                        // `std::pmr:string` is implemented.
 
                         ASSERT(utf8In.length() == utf8Out.length())
                         if (utf8In.length() == utf8Out.length()) {
@@ -7551,7 +7557,7 @@ void TestDriver::testCase10()
                             ASSERT(nc2 == nc);
                             ASSERT(wDstStrB == wDstStr);
 
-                            // Don't test 'rc2', the implanted '\0' might have
+                            // Don't test `rc2`, the implanted '\0' might have
                             // inflicted invalid code points.
 
                             nc2 = (bsl::size_t)-1;
@@ -7742,7 +7748,7 @@ int main(int argc, char**argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -7760,23 +7766,23 @@ int main(int argc, char**argv)
         bslma::DefaultAllocatorGuard daGuard(&ta);
 
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::CharConvertUtf16' struct's utility functions, first converting from
+// `bdlde::CharConvertUtf16` struct's utility functions, first converting from
 // UTF-8 to UTF-16, and then converting back to make sure the round trip
 // returns the same value, translating to STL containers in both directions.
 //
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
 // and quadruple-octet code points:
-//..
+// ```
     const char utf8MultiLang[] = {
         "Hello"                                         // -- ASCII
         "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
         "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
-//..
-// Then, we declare an 'enum' summarizing the counts of code points in the
+// ```
+// Then, we declare an `enum` summarizing the counts of code points in the
 // string and verify that the counts add up to the length of the string:
-//..
+// ```
     enum { NUM_ASCII_CODE_POINTS   = 5,
            NUM_GREEK_CODE_POINTS   = 3,
            NUM_CHINESE_CODE_POINTS = 2,
@@ -7788,56 +7794,56 @@ int main(int argc, char**argv)
            3 * NUM_CHINESE_CODE_POINTS +
            3 * NUM_HINDI_CODE_POINTS +
            4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
-//..
+// ```
 // Next, we declare the vector where our UTF-16 output will go, and a variable
 // into which the number of code points (not bytes or words) written will be
-// stored.  It is not necessary to initialize 'utf16CodePointsWritten':
-//..
+// stored.  It is not necessary to initialize `utf16CodePointsWritten`:
+// ```
     bsl::vector<unsigned short> v16;
     bsl::size_t utf16CodePointsWritten;
-//..
-// Note that for performance, we should 'v16.reserve(sizeof(utf8MultiLang))',
+// ```
+// Note that for performance, we should `v16.reserve(sizeof(utf8MultiLang))`,
 // but it's not strictly necessary -- the vector will automatically be grown to
-// the correct size.  Also note that if 'v16' were not empty, that wouldn't be
+// the correct size.  Also note that if `v16` were not empty, that wouldn't be
 // a problem -- any contents will be discarded.
 //
 // Then, we do the translation to UTF-16:
-//..
+// ```
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(&v16,
                                                       utf8MultiLang,
                                                       &utf16CodePointsWritten);
 //
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v16.back());    // verify null terminated
-//..
+// ```
 // Next, we verify that the number of code points (not bytes or words) that was
 // returned is correct:
-//..
+// ```
     enum { EXPECTED_CODE_POINTS_WRITTEN =
                         NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
                         NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
                         NUM_QUAD_CODE_POINTS  + 1 };
 //
     ASSERT(EXPECTED_CODE_POINTS_WRITTEN == utf16CodePointsWritten);
-//..
+// ```
 // Then, we verify that the number of 16-bit words written was correct.  The
-// quad octet code points each require 2 'short' words of output:
-//..
+// quad octet code points each require 2 `short` words of output:
+// ```
     enum { EXPECTED_UTF16_WORDS_WRITTEN =
                         NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
                         NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
                         NUM_QUAD_CODE_POINTS * 2 + 1 };
 //
     ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
-//..
+// ```
 // Next, we calculate and confirm the difference between the number of UTF-16
 // words output and the number of bytes input.  The ASCII code points will take
 // 1 16-bit word apiece, the Greek code points are double octets that will
-// become single 'short' values, the Chinese code points are encoded as UTF-8
+// become single `short` values, the Chinese code points are encoded as UTF-8
 // triple octets that will turn into single 16-bit words, the same for the
 // Hindi code points, and the quad code points are quadruple octets that will
-// turn into double 'short' values:
-//..
+// turn into double `short` values:
+// ```
     enum { SHRINKAGE = NUM_ASCII_CODE_POINTS   * (1-1) +
                        NUM_GREEK_CODE_POINTS   * (2-1) +
                        NUM_CHINESE_CODE_POINTS * (3-1) +
@@ -7845,35 +7851,35 @@ int main(int argc, char**argv)
                        NUM_QUAD_CODE_POINTS    * (4-2) };
 //
     ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
-//..
-// Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
+// ```
+// Then, we go on to do the reverse `utf16ToUtf8` transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.  We
-// declare a 'bsl::string' for our output, and a variable to count the number
+// declare a `bsl::string` for our output, and a variable to count the number
 // of code points (not bytes or words) translated:
-//..
+// ```
     bsl::string s;
     bsl::size_t uf8CodePointsWritten;
-//..
+// ```
 // Again, note that for performance, we should ideally
-// 's.reserve(3 * v16.size())' but it's not really necessary.
+// `s.reserve(3 * v16.size())` but it's not really necessary.
 //
 // Now, we do the reverse transform:
-//..
+// ```
     retVal = bdlde::CharConvertUtf16::utf16ToUtf8(&s,
                                                   v16.begin(),
                                                   &uf8CodePointsWritten);
-//..
+// ```
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
 // number of code points translated was as expected:
-//..
+// ```
     ASSERT(0 == retVal);
     ASSERT(utf8MultiLang == s);
     ASSERT(s.length() + 1               == sizeof(utf8MultiLang));
 //
     ASSERT(EXPECTED_CODE_POINTS_WRITTEN == uf8CodePointsWritten);
     ASSERT(utf16CodePointsWritten       == uf8CodePointsWritten);
-//..
+// ```
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -7886,40 +7892,40 @@ int main(int argc, char**argv)
 // In this example, we will translate a string containing a non-ASCII code
 // point from UTF-16 to UTF-8 and back using fixed-length buffers.
 //
-// First, we create a UTF-16 string spelling 'ecole' in French, which begins
-// with '0xc9', a non-ASCII 'e' with an accent over it:
-//..
+// First, we create a UTF-16 string spelling `ecole` in French, which begins
+// with `0xc9`, a non-ASCII `e` with an accent over it:
+// ```
     unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
-//..
+// ```
 // Then, we create a byte buffer to store the UTF-8 result of the translation
 // in, and variables to monitor counts of code points and bytes translated:
-//..
+// ```
     char utf8String[7];
     bsl::size_t numCodePoints, numBytes;
     numCodePoints = numBytes = -1;    // garbage
-//..
-// Next, we call 'utf16ToUtf8' to do the translation:
-//..
+// ```
+// Next, we call `utf16ToUtf8` to do the translation:
+// ```
     int rc = bdlde::CharConvertUtf16::utf16ToUtf8(utf8String,
                                                   sizeof(utf8String),
                                                   utf16String,
                                                   &numCodePoints,
                                                   &numBytes);
-//..
+// ```
 // Then, we observe that no errors or warnings occurred, and that the numbers
-// of code points and bytes were as expected.  Note that both 'numCodePoints'
-// and 'numBytes' include the terminating 0:
-//..
+// of code points and bytes were as expected.  Note that both `numCodePoints`
+// and `numBytes` include the terminating 0:
+// ```
     ASSERT(0 == rc);
     ASSERT(6 == numCodePoints);
     ASSERT(7 == numBytes);
-//..
+// ```
 // Next, we examine the length of the translated string:
-//..
+// ```
     ASSERT(numBytes - 1 == bsl::strlen(utf8String));
-//..
+// ```
 // Then, we examine the individual bytes of the translated UTF-8:
-//..
+// ```
     ASSERT((char)0xc3 == utf8String[0]);
     ASSERT((char)0x89 == utf8String[1]);
     ASSERT('c' ==        utf8String[2]);
@@ -7927,52 +7933,52 @@ int main(int argc, char**argv)
     ASSERT('l' ==        utf8String[4]);
     ASSERT('e' ==        utf8String[5]);
     ASSERT(0   ==        utf8String[6]);
-//..
+// ```
 // Next, in preparation for translation back to UTF-16, we create a buffer of
-// 'short' values and the variable 'numWords' to track the number of UTF-16
+// `short` values and the variable `numWords` to track the number of UTF-16
 // words occupied by the result:
-//..
+// ```
     unsigned short secondUtf16String[6];
     bsl::size_t numWords;
     numCodePoints = numWords = -1;    // garbage
-//..
+// ```
 // Then, we do the reverse translation:
-//..
+// ```
     rc = bdlde::CharConvertUtf16::utf8ToUtf16(secondUtf16String,
                                               6,
                                               utf8String,
                                               &numCodePoints,
                                               &numWords);
-//..
+// ```
 // Next, we observe that no errors or warnings were reported, and that the
-// number of code points and words were as expected.  Note that 'numCodePoints'
-// and 'numWords' both include the terminating 0:
-//..
+// number of code points and words were as expected.  Note that `numCodePoints`
+// and `numWords` both include the terminating 0:
+// ```
     ASSERT(0 == rc);
     ASSERT(6 == numCodePoints);
     ASSERT(6 == numWords);
-//..
+// ```
 // Now, we observe that our output is identical to the original UTF-16 string:
-//..
+// ```
     ASSERT(0 == bsl::memcmp(utf16String,
                             secondUtf16String,
                             sizeof(utf16String)));
-//..
+// ```
 // Finally, we examine the individual words of the reverse translation:
-//..
+// ```
     ASSERT(0xc9 == secondUtf16String[0]);
     ASSERT('c'  == secondUtf16String[1]);
     ASSERT('o'  == secondUtf16String[2]);
     ASSERT('l'  == secondUtf16String[3]);
     ASSERT('e'  == secondUtf16String[4]);
     ASSERT(0    == secondUtf16String[5]);
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------
         // UTF-8 LENGTH CALCULATION TEST -- INCORRECT UNICODE
         //
-        // Documentation at start of 'void testCase16'.
+        // Documentation at start of `void testCase16`.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -7986,7 +7992,7 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
         // UTF-16 LENGTH CALCULATION TEST -- INCORRECT UNICODE
         //
-        // Documentation at start of 'void testCase15'.
+        // Documentation at start of `void testCase15`.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -8000,7 +8006,7 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
         // UTF-16 & UTF-8 LENGTH CALCULATION TEST -- CORRECT UNICODE
         //
-        // Documentation at start of 'void testCase14'.
+        // Documentation at start of `void testCase14`.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -8015,17 +8021,17 @@ int main(int argc, char**argv)
         // BACKWARDS BYTE ORDER TEST
         //
         // Concern:
-        //: o That the translators work properly when translating to or from
-        //:   the opposite of the host byte order.
+        //  - That the translators work properly when translating to or from
+        //    the opposite of the host byte order.
         //
         // Plan:
-        //: o The template functions 'swappedRangeEquals', 'sBegin', and
-        //:   'sBack' (all defined in this file) make it possible to compare
-        //:   two UTF-16 sequences and confirm that they match except that they
-        //:   are in opposite byte order.  The enum 'e_BACKWARDS' (defined in
-        //:   this file) is always defined to be opposite to the host byte
-        //:   order.  Use these tools to create byte-swapped utf16 and verify
-        //:   that it is the mirror image of known-good host byte order utf16.
+        //  - The template functions `swappedRangeEquals`, `sBegin`, and
+        //    `sBack` (all defined in this file) make it possible to compare
+        //    two UTF-16 sequences and confirm that they match except that they
+        //    are in opposite byte order.  The enum `e_BACKWARDS` (defined in
+        //    this file) is always defined to be opposite to the host byte
+        //    order.  Use these tools to create byte-swapped utf16 and verify
+        //    that it is the mirror image of known-good host byte order utf16.
         //
         // Testing:
         //    utf8ToUtf16 (all container overloads)
@@ -8086,17 +8092,17 @@ int main(int argc, char**argv)
         // EMBEDDED ZEROES TEST
         //
         // Concern:
-        //: o That the translators correctly translate sequences containing
-        //:   embedded zeroes.
-        //: o That embedded zeroes at inopportune places don't cause segfaults
-        //:   or failed asserts.
+        //  - That the translators correctly translate sequences containing
+        //    embedded zeroes.
+        //  - That embedded zeroes at inopportune places don't cause segfaults
+        //    or failed asserts.
         //
         // Plan:
-        //: o Construct some snippet sequences with valid, random sequences of
-        //:   Unicode, and randomly mix them up, with occasional zeroes in
-        //:   between.
-        //: o Insert zeroes at places all along the string, and observe whether
-        //:   segfaults or failed asserts occur.
+        //  - Construct some snippet sequences with valid, random sequences of
+        //    Unicode, and randomly mix them up, with occasional zeroes in
+        //    between.
+        //  - Insert zeroes at places all along the string, and observe whether
+        //    segfaults or failed asserts occur.
         //
         // Testing:
         //   utf8ToUtf16 (single container overload)
@@ -8136,7 +8142,7 @@ int main(int argc, char**argv)
         //   inputs, including invalid inputs.
         //
         // Plan:
-        //   The array 'DATA' contains a collection of every possible type of
+        //   The array `DATA` contains a collection of every possible type of
         //   invalid UTF-8, along with a few varieties of valid sequences.  We
         //   take every possible combination of 3 of these snippets, and
         //   concatenate them into a single input string.  We then take all
@@ -8158,9 +8164,9 @@ int main(int argc, char**argv)
         if (verbose) cout << "UTF-16 -> UTF-8: PILE OF BROKEN GLASS TEST\n"
                              "==========================================\n";
 
-        // Common concern for all static functions of 'CharConvertUtf16' is
+        // Common concern for all static functions of `CharConvertUtf16` is
         // that no additional memory is allocated from default allocator.  At
-        // the same time 'std' containers do not accept allocators for
+        // the same time `std` containers do not accept allocators for
         // construction.  To preserve common behaviour in the template test
         // function and supply bsl containers with an allocator different from
         // the default we have to create objects separately and then pass
@@ -8200,7 +8206,7 @@ int main(int argc, char**argv)
         //   inputs, including invalid inputs.
         //
         // Plan:
-        //   The array 'DATA' contains a collection of every possible type of
+        //   The array `DATA` contains a collection of every possible type of
         //   invalid UTF-8, along with a few varieties of valid sequences.  We
         //   take every possible combination of 3 of these snippets, and
         //   concatenate them into a single input string.  We then take all
@@ -8216,9 +8222,9 @@ int main(int argc, char**argv)
         if (verbose) cout << "UTF-8 -> UTF-16: PILE OF BROKEN GLASS TEST\n"
                              "==========================================\n";
 
-        // Common concern for all static functions of 'CharConvertUtf16' is
+        // Common concern for all static functions of `CharConvertUtf16` is
         // that no additional memory is allocated from default allocator.  At
-        // the same time 'std' containers do not accept allocators for
+        // the same time `std` containers do not accept allocators for
         // construction.  To preserve common behaviour in the template test
         // function and supply bsl containers with an allocator different from
         // the default we have to create objects separately and then pass
@@ -9498,11 +9504,11 @@ int main(int argc, char**argv)
         //
         // Concern:
         //   None of the other test case translated a long sequence of prose
-        //   that would really exercise UTF.  Having 'Pride and Prejudice' be
+        //   that would really exercise UTF.  Having `Pride and Prejudice` be
         //   the only long test case here is unbelievably lame.
         //
         // Plan:
-        //   The array 'utf8MultiLang' is a long sequence of UTF-8 Chinese,
+        //   The array `utf8MultiLang` is a long sequence of UTF-8 Chinese,
         //   Hindi, French, and Greek copied from the internet.  Use the tools
         //   here to see if we can translate it from UTF-8 to UTF-16 and back.
         //
@@ -9950,7 +9956,7 @@ int main(int argc, char**argv)
         // Concerns:
         //
         // Plan:
-        //   Guided by one or more 'coding-case strings' indicating the various
+        //   Guided by one or more `coding-case strings` indicating the various
         //   coding cases (single-octet, two-octet ... single-word, two-word),
         //   generate code point sequences that have all possible coding-case
         //   trigraphs--not trigraphs on the code points themselves, but on the
@@ -10005,7 +10011,7 @@ int main(int argc, char**argv)
             // respectively.
             //
             // This sequence list was generated with the aid of the manual
-            // version of the 'ng' program (ng13.cpp).  A copy of ng13.cpp is
+            // version of the `ng` program (ng13.cpp).  A copy of ng13.cpp is
             // included in comments near the end of this file.
 
             "aaabbbcccdddaddbddcdbacbdacababcbcadccbbd",
@@ -10104,24 +10110,24 @@ int main(int argc, char**argv)
                 // We fill and check a bunch of arrays.  It will get confusing.
 
                 // First, we generate a UTF-8 string and store it in the
-                // 'generator' array.  We store its UTF-16 counterpart in the
-                // 'image' array.
+                // `generator` array.  We store its UTF-16 counterpart in the
+                // `image` array.
                 //
-                // Then we call the 'oneStringConversion' templated function
-                // with 'generator', 'image', a 'source' array and a 'dest'
+                // Then we call the `oneStringConversion` templated function
+                // with `generator`, `image`, a `source` array and a `dest`
                 // array (not in that order, and the arrays are passed via
-                // wrappers).  The 'oneStringConversion' templated function
-                // will copy 'generator' to 'source', convert from 'source' to
-                // 'dest', and then verify 'source' against 'generator'
-                // (testing source array not changed) and 'dest' against
-                // 'image' (testing conversion correct).
+                // wrappers).  The `oneStringConversion` templated function
+                // will copy `generator` to `source`, convert from `source` to
+                // `dest`, and then verify `source` against `generator`
+                // (testing source array not changed) and `dest` against
+                // `image` (testing conversion correct).
                 //
-                // If this works, it is repeated in reverse, using 'dest' in
-                // place of 'generator' and 'generator' in place of 'image',
-                // supplying an 'invSource' and 'invDest'.   (Where the first
+                // If this works, it is repeated in reverse, using `dest` in
+                // place of `generator` and `generator` in place of `image`,
+                // supplying an `invSource` and `invDest`.   (Where the first
                 // call was UTF-8 to UTF-16, this will be UTF-16 to UTF-8, and
                 // we will have compared the final result to the original
-                // string stored in 'generator'.)
+                // string stored in `generator`.)
 
                 char generator[MAX_NOCTETS];
                 unsigned short image[MAX_NWORDS];
@@ -10231,8 +10237,8 @@ int main(int argc, char**argv)
                         }
                     }
 
-                    // Convert 'generator' through 'source' to 'dest' and check
-                    // against 'image'.
+                    // Convert `generator` through `source` to `dest` and check
+                    // against `image`.
 
                     enum { BUFFER_ZONE = 32     // Margin to fill and check for
                                                 // damage around output
@@ -10328,8 +10334,8 @@ int main(int argc, char**argv)
                         }
                     }
                 }
-            }  // 'OdomIter' loop over header contents
-        } while (ptx5.advance()); // 'Permuter' loop over continuation contents
+            }  // `OdomIter` loop over header contents
+        } while (ptx5.advance()); // `Permuter` loop over continuation contents
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -10482,10 +10488,10 @@ int main(int argc, char**argv)
         //   utf16ToUtf8
         // --------------------------------------------------------------------
 
+        // Totals kept on code points processed.  We'll check that we have done
+        // enough to cover the whole range.
         int nEightToSixteen = 0;
         int nSixteenToEight = 0;
-            // Totals kept on code points processed.  We'll check that we have
-            // done enough to cover the whole range.
 
         enum { BUFFER_ZONE = 128   // These tests create a space of BUFFER_ZONE
                                    // memory units (bytes or words) around the
@@ -10966,9 +10972,9 @@ int main(int argc, char**argv)
             u16[0x800 - 0x80] = 0;
 // cout << prHexRange(u16, 0x800 - 0x80 + 1) << endl ;
 
+            // Excluding the null, twice as many octets as symbols
             SrcSpec<unsigned short> source(u16, 0, 2 * Sizes::N_CHARS + 1);
             ConvRslt expected(0, Sizes::N_CHARS + 1, 2 * Sizes::N_CHARS + 1);
-                // Excluding the null, twice as many octets as symbols
 
             WorkPiece<char> wp(Sizes::TO_BUF_SIZE,
                                source.d_dstBufSize,
@@ -11858,7 +11864,7 @@ int main(int argc, char**argv)
         ASSERT(1 == INVALID_INPUT_CODE_POINT);
         ASSERT(1 == BADC);
 
-        // "...  2 if 'dstCapacity' is insufficient to hold the complete
+        // "...  2 if `dstCapacity` is insufficient to hold the complete
         // conversion, ..."
 
         ASSERT(2 == OUTPUT_BUFFER_TOO_SMALL);
@@ -12104,7 +12110,7 @@ ostream &operator <<(ostream &os, const MixedPrImpl<T> &t)
     // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
     // non-graphic code points; that's probably excessive.  Other things are
-    // restored at the end.  ('graphic' means ( 'printable' and not the space
+    // restored at the end.  (`graphic` means ( `printable` and not the space
     // code point ).)
 
 // @@@@ MaT --- should adjust width to bit-size of type.
@@ -12136,7 +12142,7 @@ ostream &operator <<(ostream &os, const MixedPrImpl<T> &t)
     return os << " ]";
 }
 
-// 'printStr' helper routines to print test strings at high verbosity levels.
+// `printStr` helper routines to print test strings at high verbosity levels.
 // @@@ Make this into an ostream-able object.
 void printStr(const char *q)
 {
@@ -12228,7 +12234,7 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runAndCheck(int bufN, int line)
 template <class TO_CHAR, class FROM_CHAR>
 bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 {
-    // A rough guide to the 'runFourWays' function:
+    // A rough guide to the `runFourWays` function:
     //   The "four ways" are (a) with valid pointers for both the number of
     //   code points and the number of memory units, (b) with a valid pointer
     //   for the number of code points and a null for the number of memory
@@ -12236,10 +12242,10 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
     //   valid pointer for the number of memory units, and (d) with nulls for
     //   both the number of code points and the number of memory units.
     //
-    //   For each of these cases, a clean copy of the expected 'ConvRslt' is
-    //   made and the 'runAndCheck' function is run, with the second parameter
+    //   For each of these cases, a clean copy of the expected `ConvRslt` is
+    //   made and the `runAndCheck` function is run, with the second parameter
     //   identifying which of four workpiece buffers and four returned
-    //   'ConvRslt''s is to be used.
+    //   `ConvRslt`'s is to be used.
     //
     //   For each case, if the conversion and check succeed, a pointer to the
     //   output buffer is pushed onto a "string set".
@@ -12248,12 +12254,12 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
     //     If the output buffer length is zero, then the strings must be
     //     identical; we have succeeded.  Otherwise all four strings are
     //     compared and sorted into equivalence classes.  If all four are in
-    //     the same class, then 'RUN_FOUR_WAYS' returns 'true'; if not,
-    //     'false'.  The tests are redundant; cmpAllStrings() returns true if
-    //     everything is in one equivalence class; the 'EXPECTED_GOT' macro
+    //     the same class, then `RUN_FOUR_WAYS` returns `true`; if not,
+    //     `false`.  The tests are redundant; cmpAllStrings() returns true if
+    //     everything is in one equivalence class; the `EXPECTED_GOT` macro
     //     tests that the first class contains four strings.  But if all four
     //     are not in the same class, it may be useful to get the output from
-    //     the 'EXPECTED_GOT' macro.
+    //     the `EXPECTED_GOT` macro.
     bool failed = false;
 // @+@+@ MaT --- should find a way to get veryVerbose checks inside
 //               RUN_FOUR_WAYS
@@ -12350,14 +12356,14 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
     eqClasses.resize(1);
     eqClasses[0].push_back(0);
 
-    // Then, for each remaining string 'n', scan the equivalence classes.
+    // Then, for each remaining string `n`, scan the equivalence classes.
     for (int n = 1; n < (int) sv.size(); ++n) {
 
-        // Check string 'n' against each existing equivalence class in turn.
+        // Check string `n` against each existing equivalence class in turn.
         for (int eqCl = 0; ; ++eqCl) {
 
             // If we have run out of existing equivalence classes in which to
-            // look for string 'n', string 'n' must go in a new equivalence
+            // look for string `n`, string `n` must go in a new equivalence
             // class.
             if (eqCl >= (int) eqClasses.size()) {
                 eqClasses.resize(eqClasses.size() + 1);
@@ -12365,8 +12371,8 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
                 break;
             }
 
-            // Otherwise if string 'n' matches a string in this-the-next
-            // equivalence class, then string 'n' belongs in that class.
+            // Otherwise if string `n` matches a string in this-the-next
+            // equivalence class, then string `n` belongs in that class.
             if (strEq(sv[n], sv[eqClasses[eqCl][0]])) {
                 eqClasses[eqCl].push_back(n);
                 break;
@@ -12513,8 +12519,8 @@ void buildUpAndTestStringsU2ToU8(int             idx,
     }
 }
 
-// This utility function for performance testing 'utf8ToUtf16' and
-// 'utf16ToUtf8' will repeatedly convert a long ASCII corpus to UTF-16 and back
+// This utility function for performance testing `utf8ToUtf16` and
+// `utf16ToUtf8` will repeatedly convert a long ASCII corpus to UTF-16 and back
 // again.  It returns 0 on success, and non-zero otherwise.
 
 int runPlainTextPerformanceTest(void)
@@ -13809,7 +13815,7 @@ ostream& operator<<(ostream&                     os,
     // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
     // non-graphic code points; that's probably excessive.  Other things are
-    // restored at the end.  ('graphic' means ( 'printable' and not the space
+    // restored at the end.  (`graphic` means ( `printable` and not the space
     // code point ).)
 
     for (const CHAR_TYPE* cp = sv.d_arrayr; *cp;) {
@@ -13836,25 +13842,25 @@ ostream& operator<<(ostream&                     os,
     return os;
 }
 
-template<class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
+/// * `line`: `__LINE__` where this function is invoked
+/// * `toBuf`, `fromBuf`: Workspaces provided by our caller.  We depend on
+///   the value of `fromBuf.size()`.
+/// * `fillCheck`: Source of the octet or word sequence being tested.
+///
+/// The `testOneErrorCharConversion` templated function is the common part of
+/// all the subtests in test 4.  It verifies that the error conversion occurs
+/// as expected (using the `RUN_AND_CHECK` macro, which also verifies that the
+/// data surrounding the output buffer are unchanged) and that the source
+/// buffer is unchanged.  It performs this verification for the error sequence
+/// alone in a string and for the sequence surrounded by two single-octet code
+/// points, and with and without error replacement code points (a total of four
+/// tests).  It returns `true` if all the tests succeed, or `false` if any have
+/// failed.
+template <class TO_CHAR, class FROM_CHAR, class FILL_CHECK>
 bool testOneErrorCharConversion(int                          line,
                                 ArrayRange<TO_CHAR> const&   toBuf,
                                 ArrayRange<FROM_CHAR> const& fromBuf,
                                 FILL_CHECK&                  fillCheck)
-    //: o 'line': '__LINE__' where this function is invoked
-    //: o 'toBuf', 'fromBuf': Workspaces provided by our caller.  We depend on
-    //:   the value of 'fromBuf.size()'.
-    //: o 'fillCheck': Source of the octet or word sequence being tested.
-    //
-    // The 'testOneErrorCharConversion' templated function is the common part
-    // of all the subtests in test 4.  It verifies that the error conversion
-    // occurs as expected (using the 'RUN_AND_CHECK' macro, which also verifies
-    // that the data surrounding the output buffer are unchanged) and that the
-    // source buffer is unchanged.  It performs this verification for the error
-    // sequence alone in a string and for the sequence surrounded by two
-    // single-octet code points, and with and without error replacement
-    // code points (a total of four tests).  It returns 'true' if all the tests
-    // succeed, or 'false' if any have failed.
 {
     enum {
         BUFFER_ZONE = 32     // Margin to fill and check on the output buffer.
@@ -14085,12 +14091,18 @@ bool testOneErrorCharConversion(int                          line,
     return !failed;
 }
 
+// The `oneStringConversion` templated function invokes the conversions for
+// test 5.  It verifies that the conversion returns with the expected values
+// (using the `RUN_AND_CHECK` macro, which also verifies that the data
+// surrounding the output buffer are unchanged) and that the source buffer is
+// unchanged.  It verifies that the output buffer contains the expected result.
+// It returns `true` if all the tests succeed, or `false` if any have failed.
 template<class TO_CHAR,
          class TO_FILL_CHECK,
          class FR_CHAR,
          class FR_FILL_CHECK>
 bool oneStringConversion(
-            int                      line,          // '__LINE__' of this call
+            int                      line,          // `__LINE__` of this call
             BufferedWPiece<TO_CHAR>& bwp,           // Destination workspace
             TO_FILL_CHECK&           toFillCheck,   // Reference for checking
                                                     //   the output string.
@@ -14101,13 +14113,6 @@ bool oneStringConversion(
             const ConvRslt&          expected)      // The expected set of
                                                     // return values from the
                                                     // conversion function.
-    // The 'oneStringConversion' templated function invokes the conversions
-    // for test 5.  It verifies that the conversion returns with the expected
-    // values (using the 'RUN_AND_CHECK' macro, which also verifies that the
-    // data surrounding the output buffer are unchanged) and that the source
-    // buffer is unchanged.  It verifies that the output buffer contains the
-    // expected result.  It returns 'true' if all the tests succeed, or 'false'
-    // if any have failed.
 {
     bool failed = false;
 

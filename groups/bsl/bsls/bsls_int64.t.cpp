@@ -9,7 +9,7 @@
 #include <cstring>     // memset(), memcmp(), strlen()
 #include <iostream>
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
-                       // include 'snprintf']
+                       // include `snprintf`]
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -106,7 +106,7 @@ void printBits(bsls_Int64::Uint64 value)
 
 #if 0
 static bool isBigEndian()
-    // Return 'true' if this machine is observed to be big endian, and 'false'
+    // Return `true` if this machine is observed to be big endian, and `false`
     // otherwise.  Internally, assert that this machine is observed to be
     // either big endian or little endian.
 {
@@ -132,8 +132,8 @@ static bool isBigEndian()
 //--------------------------------------------------------------------------
 
 static bool isLittleEndian()
-    // Return 'true' if this machine is observed to be little endian, and
-    // 'false' otherwise.  Internally, assert that this machine is observed to
+    // Return `true` if this machine is observed to be little endian, and
+    // `false` otherwise.  Internally, assert that this machine is observed to
     // be either big endian or little endian.
 {
     union U {
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
+        //   by increasing length, use `ostrstream` to write that object's
         //   value to two separate character buffers each with different
         //   initial values.  Compare the contents of these buffers with the
         //   literal expected output format and verify that the characters
@@ -352,7 +352,7 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
+        //   by increasing length, use `ostrstream` to write that object's
         //   value to two separate character buffers each with different
         //   initial values.  Compare the contents of these buffers with the
         //   literal expected output format and verify that the characters

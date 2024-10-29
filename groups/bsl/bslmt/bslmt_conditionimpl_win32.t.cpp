@@ -68,7 +68,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -184,8 +184,8 @@ enum {
 
 extern "C" void *producer(void *arg_p)
     // Receive commands from an external source, place them on the shared
-    // 'my_WorkQueue' (passed as the specified void pointer 'arg'), and return
-    // 'arg'.
+    // `my_WorkQueue` (passed as the specified void pointer `arg`), and return
+    // `arg`.
 {
     Case1* arg = (Case1*)arg_p;
     my_WorkQueue *queue = arg->d_queue;
@@ -212,8 +212,8 @@ void My_Sleep(int ms)
 }
 
 extern "C" void *consumer(void *arg_p)
-    // Consume the commands from the shared 'my_WorkQueue' (passed as the
-    // specified void pointer 'arg') and return 0.  Note that this function
+    // Consume the commands from the shared `my_WorkQueue` (passed as the
+    // specified void pointer `arg`) and return 0.  Note that this function
     // will continue processing commands until there are no commands for at
     // least one tenth of a second.
 {
@@ -280,23 +280,23 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
             My_Sleep(250);
         }
 
-        // one of them is still waiting on the last 'pong'
+        // one of them is still waiting on the last `pong`
         if (args1.d_count == k_PINGPONG_ITER) {
             ASSERT(args2.d_count == k_PINGPONG_ITER - 1);
             x.signal();
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 
     case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'timedWait'
+        // TESTING `timedWait`
         //
         // Concerns:
         //   That timedWait, before timing out, waits at least the allotted
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
         //   Do a timedWait for a substantial time on a condition that never
         //   becomes true, and verify that the time has elapsed afterward.
         //   Also verify the return value and elapsed time when the supplied
-        //   'absoluteTime' is in the past.
+        //   `absoluteTime` is in the past.
         //
         // Testing:
         //   int timedWait(bslmt::Mutex*, const bsls::TimeInterval&);

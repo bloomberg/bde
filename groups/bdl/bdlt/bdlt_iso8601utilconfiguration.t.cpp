@@ -9,8 +9,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcmp', 'strcmp'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcmp`, `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -26,34 +26,34 @@ using namespace bsl;
 // attribute class.  The Primary Manipulators and Basic Accessors are
 // therefore, respectively, the attribute setters and getters, each of which
 // follows our standard unconstrained attribute-type naming conventions:
-// 'setAttributeName' and 'attributeName'.
+// `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setFractionalSecondPrecision'
-//: o 'setOmitColonInZoneDesignator'
-//: o 'setUseCommaForDecimalSign'
-//: o 'setUseZAbbreviationForUtc'
+//  - `setFractionalSecondPrecision`
+//  - `setOmitColonInZoneDesignator`
+//  - `setUseCommaForDecimalSign`
+//  - `setUseZAbbreviationForUtc`
 //
 // Basic Accessors:
-//: o 'fractionalSecondPrecision'
-//: o 'omitColonInZoneDesignator'
-//: o 'useCommaForDecimalSign'
-//: o 'useZAbbreviationForUtc'
+//  - `fractionalSecondPrecision`
+//  - `omitColonInZoneDesignator`
+//  - `useCommaForDecimalSign`
+//  - `useZAbbreviationForUtc`
 //
 // We will therefore follow our standard 10-case approach to testing
 // value-semantic types, with the default constructor and primary manipulators
 // tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BDEX streaming is not (yet) implemented for this class.
+//  - [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [11] static Config defaultConfiguration();
@@ -89,8 +89,8 @@ using namespace bsl;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
-// [ 5] CONCERN: All accessor methods are declared 'const'.
-// [10] Reserved for 'bslx' streaming.
+// [ 5] CONCERN: All accessor methods are declared `const`.
+// [10] Reserved for `bslx` streaming.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -161,16 +161,16 @@ typedef bdlt::Iso8601UtilConfiguration Obj;
 
 struct DefaultDataRow {
     int  d_line;       // source line number
-    bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
-    int  d_precision;  // 'fractionalSecondPrecision'     "
-    bool d_useComma;   // 'useCommaForDecimalSign'        "
-    bool d_useZ;       // 'useZAbbreviationForUtc'        "
+    bool d_omitColon;  // `omitColonInZoneDesignator` attribute
+    int  d_precision;  // `fractionalSecondPrecision`     "
+    bool d_useComma;   // `useCommaForDecimalSign`        "
+    bool d_useZ;       // `useZAbbreviationForUtc`        "
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE   omit ':'   precision   use ','   use 'Z'
+    //LINE   omit ':'   precision   use ','   use `Z`
     //----   --------   ---------   -------   -------
     { L_,      false,          3,    false,    false  },
     { L_,      false,          3,    false,     true  },
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -238,13 +238,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -261,58 +261,58 @@ int main(int argc, char *argv[])
         {  // START EXAMPLE 1
 ///Example 1: Configuring ISO 8601 String Generation
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates creation of a 'bdlt::Iso8601UtilConfiguration'
+// This example demonstrates creation of a `bdlt::Iso8601UtilConfiguration`
 // object that may be used to influence the format of the output produced by a
-// hypothetical utility, 'my::Iso8601Util', that generates and parses ISO 8601
-// strings for 'bdlt' vocabulary types (see 'bdlt_iso8601util', which provides
+// hypothetical utility, `my::Iso8601Util`, that generates and parses ISO 8601
+// strings for `bdlt` vocabulary types (see `bdlt_iso8601util`, which provides
 // just such functionality).  In particular, suppose that given a sample
-// 'bdlt::TimeTz' object:
-//..
+// `bdlt::TimeTz` object:
+// ```
 //  const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 240);
-//..
-// 'my::Iso8601Util' produces, by default, the following (valid) ISO 8601
+// ```
+// `my::Iso8601Util` produces, by default, the following (valid) ISO 8601
 // string:
-//..
+// ```
 //  08:59:59.123+04:00
-//..
+// ```
 // However, we would like to produce the following (also valid) ISO 8601 string
 // instead:
-//..
+// ```
 //  08:59:59,123+0400
-//..
-// 'bdlt::Iso8601UtilConfiguration' can be used to obtain the desired result
-// assuming that 'my::Iso8601Util' uses 'bdlt::Iso8601UtilConfiguration' to
+// ```
+// `bdlt::Iso8601UtilConfiguration` can be used to obtain the desired result
+// assuming that `my::Iso8601Util` uses `bdlt::Iso8601UtilConfiguration` to
 // affect the format of generated strings in this fashion (e.g., again see
-// 'bdlt_iso8601util').
+// `bdlt_iso8601util`).
 //
-// First, we construct a 'bdlt::Iso8601UtilConfiguration' object that has the
+// First, we construct a `bdlt::Iso8601UtilConfiguration` object that has the
 // default value:
-//..
+// ```
     bdlt::Iso8601UtilConfiguration configuration;
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to indicate that we want to use ',' as the
+// ```
+// Then, we modify `configuration` to indicate that we want to use ',' as the
 // decimal sign (in fractional seconds):
-//..
+// ```
     configuration.setUseCommaForDecimalSign(true);
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
-//..
-// Finally, we modify 'configuration' to indicate that we want to omit the ':'
+// ```
+// Finally, we modify `configuration` to indicate that we want to omit the ':'
 // in zone designators:
-//..
+// ```
     configuration.setOmitColonInZoneDesignator(true);
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT( configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
-//..
-// Our 'configuration' object can now be supplied to 'my::Iso8601Util' to
+// ```
+// Our `configuration` object can now be supplied to `my::Iso8601Util` to
 // produce the desired result.
 //
         }  // END EXAMPLE 1
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 //
 // First, we retrieve the default configuration in effect at process start-up
 // and note that it has the default-constructed value:
-//..
+// ```
     bdlt::Iso8601UtilConfiguration configuration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
     ASSERT(bdlt::Iso8601UtilConfiguration() == configuration);
@@ -332,40 +332,40 @@ int main(int argc, char *argv[])
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
-//..
-// Next, we modify 'configuration' to indicate that we want to output 'Z' when
-// the zone designator is UTC (i.e., instead of '+00:00'):
-//..
+// ```
+// Next, we modify `configuration` to indicate that we want to output `Z` when
+// the zone designator is UTC (i.e., instead of `+00:00`):
+// ```
     configuration.setUseZAbbreviationForUtc(true);
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT( configuration.useZAbbreviationForUtc());
-//..
-// Then, we modify 'configuration' to display milliseconds:
-//..
+// ```
+// Then, we modify `configuration` to display milliseconds:
+// ```
     configuration.setFractionalSecondPrecision(6);
     ASSERT( configuration.fractionalSecondPrecision() == 6);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT( configuration.useZAbbreviationForUtc());
-//..
-// Now, we set the default configuration to the value of our 'configuration'
+// ```
+// Now, we set the default configuration to the value of our `configuration`
 // object:
-//..
+// ```
     bdlt::Iso8601UtilConfiguration::setDefaultConfiguration(configuration);
-//..
+// ```
 // Finally, we verify that the default configuration was updated as expected:
-//..
+// ```
     const bdlt::Iso8601UtilConfiguration newConfiguration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
     ASSERT( newConfiguration.fractionalSecondPrecision() == 6);
     ASSERT(!newConfiguration.omitColonInZoneDesignator());
     ASSERT(!newConfiguration.useCommaForDecimalSign());
     ASSERT( newConfiguration.useZAbbreviationForUtc());
-//..
+// ```
 // Note that the expected usage is that the process-wide configuration will be
-// established *once*, early in 'main', and not changed throughout the lifetime
+// established *once*, early in `main`, and not changed throughout the lifetime
 // of a process.
         }  // END EXAMPLE 2
 
@@ -377,43 +377,43 @@ int main(int argc, char *argv[])
         //   default configuration.
         //
         // Concerns:
-        //: 1 The initial value of the default configuration is the same as
-        //:   that of a default constructed 'bdlt::Iso8601UtilConfiguration'
-        //:   object.
-        //:
-        //: 2 'defaultConfiguration' returns the current value of the default
-        //:   configuration.
-        //:
-        //: 3 'setDefaultConfiguration' sets the value of the default
-        //:   configuration to that of its argument.
-        //:
-        //: 4 The value of the object passed to 'setDefaultConfiguration' is
-        //:   not modified.
+        // 1. The initial value of the default configuration is the same as
+        //    that of a default constructed `bdlt::Iso8601UtilConfiguration`
+        //    object.
+        //
+        // 2. `defaultConfiguration` returns the current value of the default
+        //    configuration.
+        //
+        // 3. `setDefaultConfiguration` sets the value of the default
+        //    configuration to that of its argument.
+        //
+        // 4. The value of the object passed to `setDefaultConfiguration` is
+        //    not modified.
         //
         // Plan:
-        //: 1 Prior to invoking 'setDefaultConfiguration', verify that the
-        //:   value initially returned by 'defaultConfiguration' has the
-        //:   default-constructed value.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 3 For each row 'R' in the table of P-2:  (C-2..4)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object 'Z' having the value from 'R', and use the
-        //:     copy constructor to create a second 'const' object 'ZZ' from
-        //:     'Z'.
-        //:
-        //:   2 Invoke 'setDefaultConfiguration' on 'Z'.
-        //:
-        //:   3 Use the equality-comparison operator to verify that: (C-2..4)
-        //:
-        //:     1 The default configuration, fetched using
-        //:       'defaultConfiguration', now has the same value as that of
-        //:       'Z'.  (C-2..3)
-        //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-4)
+        // 1. Prior to invoking `setDefaultConfiguration`, verify that the
+        //    value initially returned by `defaultConfiguration` has the
+        //    default-constructed value.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 3. For each row `R` in the table of P-2:  (C-2..4)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object `Z` having the value from `R`, and use the
+        //      copy constructor to create a second `const` object `ZZ` from
+        //      `Z`.
+        //
+        //   2. Invoke `setDefaultConfiguration` on `Z`.
+        //
+        //   3. Use the equality-comparison operator to verify that: (C-2..4)
+        //
+        //     1. The default configuration, fetched using
+        //        `defaultConfiguration`, now has the same value as that of
+        //        `Z`.  (C-2..3)
+        //
+        //     2. `Z` still has the same value as that of `ZZ`.  (C-4)
         //
         // Testing:
         //   static Config defaultConfiguration();
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   Reserved for 'bslx' streaming.
+        //   Reserved for `bslx` streaming.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -487,69 +487,69 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object 'Z' having the value from 'R1', and use the
-        //:     copy constructor to create a second 'const' object 'ZZ' from
-        //:     'Z'.
-        //:
-        //:   2 For each row 'R2' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Use the default constructor and primary manipulators to
-        //:       create a modifiable 'Obj', 'mX', having the value from 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-3 except that, this
-        //:   time, there is no inner loop (as in P-3.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are created to have the value from 'R1'.  For each
-        //:   'R1' in the table of P-2:  (C-5)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a modifiable 'Obj', 'mX', having the value from 'R1', and use
-        //:     the copy constructor to create a 'const' object 'ZZ' from 'mX'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z' ('mX'), still has the same value as that of
-        //:     'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object `Z` having the value from `R1`, and use the
+        //      copy constructor to create a second `const` object `ZZ` from
+        //      `Z`.
+        //
+        //   2. For each row `R2` in the table of P-2:  (C-1, 3..4)
+        //
+        //     1. Use the default constructor and primary manipulators to
+        //        create a modifiable `Obj`, `mX`, having the value from `R2`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-3 except that, this
+        //    time, there is no inner loop (as in P-3.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are created to have the value from `R1`.  For each
+        //    `R1` in the table of P-2:  (C-5)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a modifiable `Obj`, `mX`, having the value from `R1`, and use
+        //      the copy constructor to create a `const` object `ZZ` from `mX`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z` (`mX`), still has the same value as that of
+        //      `ZZ`.  (C-5)
         //
         // Testing:
         //   Config& operator=(const Config& rhs);
@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
                           << "==============================" << endl;
 
         if (verbose) {
-            cout << "Not implemented for 'bdlt::Iso8601UtilConfiguration'."
+            cout << "Not implemented for `bdlt::Iso8601UtilConfiguration`."
                  << endl;
         }
 
@@ -701,32 +701,32 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     two 'const' objects, 'Z' and 'ZZ', both having the value from
-        //:     'R'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X' from 'Z'.
-        //:     (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:  (C-1, 3)
-        //:
-        //:     1 'X' has the same value as that of 'Z'.  (C-1)
-        //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      two `const` objects, `Z` and `ZZ`, both having the value from
+        //      `R`.
+        //
+        //   2. Use the copy constructor to create an object `X` from `Z`.
+        //      (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:  (C-1, 3)
+        //
+        //     1. `X` has the same value as that of `Z`.  (C-1)
+        //
+        //     2. `Z` still has the same value as that of `ZZ`.  (C-3)
         //
         // Testing:
         //   Iso8601UtilConfiguration(const Config& original);
@@ -786,7 +786,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, Z,  X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERTV(LINE, ZZ, Z, ZZ == Z);
         }
@@ -795,63 +795,63 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 4 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., identity)
+        //
+        // 4. `false == (X != X)`  (i.e., identity)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-8..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..7)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object, 'W', having the value from 'R1'.
-        //:
-        //:   2 Using 'W', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-3..4)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1..2, 5..7)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Use the default constructor and primary manipulators to
-        //:       create a 'const' object, 'X', having the value from 'R1', and
-        //:       a second 'const' object, 'Y', having the value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1..2, 5..7)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-8..10)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..7)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object, `W`, having the value from `R1`.
+        //
+        //   2. Using `W`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-3..4)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1..2, 5..7)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Use the default constructor and primary manipulators to
+        //        create a `const` object, `X`, having the value from `R1`, and
+        //        a second `const` object, `Y`, having the value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1..2, 5..7)
         //
         // Testing:
         //   bool operator==(const Config& lhs, const Config& rhs);
@@ -984,75 +984,75 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the
+        //      two formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   ostream& operator<<(ostream& s, const Config& d);
-        //   CONCERN: All accessor methods are declared 'const'.
+        //   CONCERN: All accessor methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "=========================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -1335,22 +1335,22 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the three basic accessors returns the value of the
-        //:   corresponding attribute of the object.
-        //:
-        //: 2 Each basic accessor method is declared 'const'.
+        // 1. Each of the three basic accessors returns the value of the
+        //    corresponding attribute of the object.
+        //
+        // 2. Each basic accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attribute values.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a 'const' object, 'X', having the value from 'R'.
-        //:
-        //:   2 Verify that each basic accessor, invoked on 'X', returns the
-        //:     expected value.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attribute values.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..2)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a `const` object, `X`, having the value from `R`.
+        //
+        //   2. Verify that each basic accessor, invoked on `X`, returns the
+        //      expected value.  (C-1..2)
         //
         // Testing:
         //   int  fractionalSecondPrecision() const;
@@ -1399,8 +1399,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
+        // GENERATOR FUNCTION `gg`
+        //   There is no `gg` function for this component.
         //
         // Concerns:
         //   N/A
@@ -1409,15 +1409,15 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   Reserved for 'gg' generator function.
+        //   Reserved for `gg` generator function.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATOR FUNCTION 'gg'" << endl
+                          << "GENERATOR FUNCTION `gg`" << endl
                           << "=======================" << endl;
 
         if (verbose) {
-            cout << "No 'gg' function for 'bdlt::Iso8601UtilConfiguration'."
+            cout << "No `gg` function for `bdlt::Iso8601UtilConfiguration`."
                  << endl;
         }
 
@@ -1431,43 +1431,43 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 Each attribute can be set to represent any value.
-        //:
-        //: 4 Any argument can be 'const'.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. Each attribute can be set to represent any value.
+        //
+        // 4. Any argument can be `const`.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create two sets of attribute values for the object: ('D') values
-        //:   corresponding to the default-constructed object and ('A') values
-        //:   distinct from those corresponding to the default-constructed
-        //:   object.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 Use the individual (as yet unproven) salient attribute accessors
-        //:   to verify the default-constructed value.  (C-1)
-        //:
-        //: 4 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's value,
-        //:   passing a 'const' argument representing each of the two test
-        //:   values, in turn (see P-1), first to 'Ai', then back to 'Di'.
-        //:   After each transition, use the (as yet unproven) basic accessors
-        //:   to verify that only the intended attribute value changed.
-        //:   (C-3..4)
-        //:
-        //: 5 Corroborate that attributes are modifiable independently by first
-        //:   setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to it's corresponding 'D' value
-        //:   and verify after each manipulation that only that attribute's
-        //:   value changed.  (C-2)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. Create two sets of attribute values for the object: (`D`) values
+        //    corresponding to the default-constructed object and (`A`) values
+        //    distinct from those corresponding to the default-constructed
+        //    object.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. Use the individual (as yet unproven) salient attribute accessors
+        //    to verify the default-constructed value.  (C-1)
+        //
+        // 4. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's value,
+        //    passing a `const` argument representing each of the two test
+        //    values, in turn (see P-1), first to `Ai`, then back to `Di`.
+        //    After each transition, use the (as yet unproven) basic accessors
+        //    to verify that only the intended attribute value changed.
+        //    (C-3..4)
+        //
+        // 5. Corroborate that attributes are modifiable independently by first
+        //    setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to it's corresponding `D` value
+        //    and verify after each manipulation that only that attribute's
+        //    value changed.  (C-2)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   Iso8601UtilConfiguration();
@@ -1484,19 +1484,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int  D1 = 3;      // 'fractionalSecondPrecision'
-        const bool D2 = false;  // 'omitColonInZoneDesignator'
-        const bool D3 = false;  // 'useCommaForDecimalSign'
-        const bool D4 = false;  // 'useZAbbreviationForUtc'
+        const int  D1 = 3;      // `fractionalSecondPrecision`
+        const bool D2 = false;  // `omitColonInZoneDesignator`
+        const bool D3 = false;  // `useCommaForDecimalSign`
+        const bool D4 = false;  // `useZAbbreviationForUtc`
 
-        // 'A' values.
+        // `A` values.
 
-        const int  A1 = 6;      // 'fractionalSecondPrecision'
-        const bool A2 = true;   // 'omitColonInZoneDesignator'
-        const bool A3 = true;   // 'useCommaForDecimalSign'
-        const bool A4 = true;   // 'useZAbbreviationForUtc'
+        const int  A1 = 6;      // `fractionalSecondPrecision`
+        const bool A2 = true;   // `omitColonInZoneDesignator`
+        const bool A3 = true;   // `useCommaForDecimalSign`
+        const bool A4 = true;   // `useZAbbreviationForUtc`
 
         {
             Obj mX;  const Obj& X = mX;
@@ -1518,7 +1518,7 @@ int main(int argc, char *argv[])
           // Verify that each attribute is independently settable.
           // -----------------------------------------------------
 
-            // 'fractionalSecondPrecision'
+            // `fractionalSecondPrecision`
             {
                 mX.setFractionalSecondPrecision(A1);
                 ASSERT(A1 == X.fractionalSecondPrecision());
@@ -1533,7 +1533,7 @@ int main(int argc, char *argv[])
                 ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
-            // 'omitColonInZoneDesignator'
+            // `omitColonInZoneDesignator`
             {
                 mX.setOmitColonInZoneDesignator(A2);
                 ASSERT(D1 == X.fractionalSecondPrecision());
@@ -1548,7 +1548,7 @@ int main(int argc, char *argv[])
                 ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
-            // 'useCommaForDecimalSign'
+            // `useCommaForDecimalSign`
             {
                 mX.setUseCommaForDecimalSign(A3);
                 ASSERT(D1 == X.fractionalSecondPrecision());
@@ -1563,7 +1563,7 @@ int main(int argc, char *argv[])
                 ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
-            // 'useZAbbreviationForUtc'
+            // `useZAbbreviationForUtc`
             {
                 mX.setUseZAbbreviationForUtc(A4);
                 ASSERT(D1 == X.fractionalSecondPrecision());
@@ -1580,7 +1580,7 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                // Set all attributes to their 'A' values.
+                // Set all attributes to their `A` values.
 
                 mX.setOmitColonInZoneDesignator(A2);
                 mX.setUseCommaForDecimalSign(A3);
@@ -1590,7 +1590,7 @@ int main(int argc, char *argv[])
                 ASSERT(A3 == X.useCommaForDecimalSign());
                 ASSERT(A4 == X.useZAbbreviationForUtc());
 
-                // Set all attributes to their 'D' values.
+                // Set all attributes to their `D` values.
 
                 mX.setOmitColonInZoneDesignator(D2);
                 ASSERT(D2 == X.omitColonInZoneDesignator());
@@ -1629,19 +1629,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
         //
         // Testing:
         //   BREATHING TEST
@@ -1651,34 +1651,34 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        // Attribute 1 Values: 'fractionalSecondPrecision'
+        // Attribute 1 Values: `fractionalSecondPrecision`
 
         const int  D1 = 3;      // default value
         const int  A1 = 6;
 
-        // Attribute 2 Values: 'omitColonInZoneDesignator'
+        // Attribute 2 Values: `omitColonInZoneDesignator`
 
         const bool D2 = false;  // default value
         const bool A2 = true;
 
-        // Attribute 3 Values: 'useCommaForDecimalSign'
+        // Attribute 3 Values: `useCommaForDecimalSign`
 
         const bool D3 = false;  // default value
         const bool A3 = true;
 
-        // Attribute 4 Values: 'useZAbbreviationForUtc'
+        // Attribute 4 Values: `useZAbbreviationForUtc`
 
         const bool D4 = false;  // default value
         const bool A4 = true;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:D             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.fractionalSecondPrecision());
@@ -1687,18 +1687,18 @@ int main(int argc, char *argv[])
         ASSERT(D4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                  "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:D x:D         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.fractionalSecondPrecision());
@@ -1707,14 +1707,14 @@ int main(int argc, char *argv[])
         ASSERT(D4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-                   "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                   "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from `D`)."
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setFractionalSecondPrecision(A1);
@@ -1722,7 +1722,7 @@ int main(int argc, char *argv[])
         mX.setUseCommaForDecimalSign(A3);
         mX.setUseZAbbreviationForUtc(A4);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.fractionalSecondPrecision());
@@ -1731,14 +1731,14 @@ int main(int argc, char *argv[])
         ASSERT(A4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+             "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
+        if (verbose) cout << "\n 4. Create an object `y` (init. to `A`)."
                              "\t\t{ w:D x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
@@ -1747,7 +1747,7 @@ int main(int argc, char *argv[])
         mY.setUseCommaForDecimalSign(A3);
         mY.setUseZAbbreviationForUtc(A4);
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.fractionalSecondPrecision());
@@ -1756,7 +1756,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == Y.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
+             "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -1764,12 +1764,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:D x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.fractionalSecondPrecision());
@@ -1778,7 +1778,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == Z.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -1787,7 +1787,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to `D` (the default value)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setFractionalSecondPrecision(D1);
@@ -1795,7 +1795,7 @@ int main(int argc, char *argv[])
         mZ.setUseCommaForDecimalSign(D3);
         mZ.setUseZAbbreviationForUtc(D4);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.fractionalSecondPrecision());
@@ -1804,7 +1804,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == Z.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -1813,11 +1813,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.fractionalSecondPrecision());
@@ -1826,7 +1826,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -1835,11 +1835,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.fractionalSecondPrecision());
@@ -1848,7 +1848,7 @@ int main(int argc, char *argv[])
         ASSERT(D4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -1857,11 +1857,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.fractionalSecondPrecision());
@@ -1870,7 +1870,7 @@ int main(int argc, char *argv[])
         ASSERT(A4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

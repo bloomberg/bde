@@ -104,7 +104,7 @@ bslma::Allocator& ta = bslma::NewDeleteAllocator::singleton();
 
 namespace {
     // The test number and the verbosity level are out here so that they are
-    // visible to all functions.  They are set at the beginning of 'main()'.
+    // visible to all functions.  They are set at the beginning of `main()`.
     int test;           // The number of the test being executed (from argv)
     int verbose;        // Nonzero iff one or more args after the test number
     int veryVerbose;    // Nonzero iff two or more args after the test number
@@ -112,7 +112,7 @@ namespace {
     int veryVeryVeryVerbose;    // " " four or more args after the test number
 }  // close unnamed namespace
 
-// 'ArrayPrinter(pointer, length)' simplifies printing out array values from
+// `ArrayPrinter(pointer, length)` simplifies printing out array values from
 // LOOP_ASSERT failures.
 
 template <class T>
@@ -148,7 +148,7 @@ ostream &operator <<(ostream &os, const ArrayPrinter<T> &t)
     return os;
 }
 
-// 'printStr' helper routines to print test strings at high verbosity levels.
+// `printStr` helper routines to print test strings at high verbosity levels.
 
 void printStr(const char *q)
 {
@@ -196,9 +196,9 @@ void printStr(const unsigned short *p)
 ///Usage #1: C-style interface
 ///---------------------------
 // The following snippet of code illustrates a typical use of the
-// 'bdlde::CharConvertUcs2' struct's C-style utility functions, converting a
+// `bdlde::CharConvertUcs2` struct's C-style utility functions, converting a
 // simple UTF-8 string to UCS-2.
-//..
+// ```
 
 void testCFunction1()
 {
@@ -226,21 +226,21 @@ void testCFunction1()
 //                              USAGE EXAMPLE 2
 // ----------------------------------------------------------------------------
 
-///..
+/// ```
 ///Usage #2: C-style round-trip
 ///----------------------------
 // The following snippet of code illustrates another typical use of the
-// 'bdlde::CharConvertUcs2' struct's C-style utility functions, converting a
+// `bdlde::CharConvertUcs2` struct's C-style utility functions, converting a
 // simple UTF-8 string to UCS-2, then converting the UCS-2 back and making sure
 // the round-trip conversion results in the input.
-///..
+/// ```
 void testCFunction2()
 {
     unsigned short buffer[256];  // arbitrary "wide-enough" size
     bsl::size_t    buffSize = sizeof buffer / sizeof *buffer;
     bsl::size_t    charsWritten;
 
-    // "&Eacute;cole", the French word for School.  '&Eacute;' is the HTML
+    // "&Eacute;cole", the French word for School.  `&Eacute;` is the HTML
     // entity equivalent to Unicode-E WITH ACUTE, LATIN CAPITAL LETTER
     int retVal =
           BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(buffer,
@@ -278,12 +278,12 @@ void testCFunction2()
     ASSERT( 6 == charsWritten);
     ASSERT( 7 == bytesWritten);
 }
-//..
+// ```
 // In this example, a UTF-8 input string is converted then passed to another
 // function, which expects a UCS-2 buffer.
 //
 // First, we define a utility *strlen* replacement for UCS-2:
-//..
+// ```
 int wideStrlen(const unsigned short *str)
 {
     int len = 0;
@@ -294,19 +294,19 @@ int wideStrlen(const unsigned short *str)
 
     return len;
 }
-//..
-// Now, some arbitrary function that calls 'wideStrlen':
-//..
+// ```
+// Now, some arbitrary function that calls `wideStrlen`:
+// ```
 void functionRequiringUcs2(const unsigned short *str, bsl::size_t strLen)
 {
     // Would probably do something more reasonable here.
 
     ASSERT(wideStrlen(str) + 1 == static_cast<int>(strLen));
 }
-//..
+// ```
 // Finally, we can take some UTF-8 as an input and call
-// 'functionRequiringUcs2':
-//..
+// `functionRequiringUcs2`:
+// ```
 void processUtf8(const char *strU8)
 {
     unsigned short buffer[1024];  // some "large enough" size
@@ -323,13 +323,13 @@ void processUtf8(const char *strU8)
         functionRequiringUcs2(buffer, charsWritten);
     }
 }
-//..
+// ```
 ///Usage #3: C++-style interface
 ///---------------------------
 // The following snippet of code illustrates a typical use of the
-// 'bdlde::CharConvertUcs2' struct's C++-style utility functions, converting a
+// `bdlde::CharConvertUcs2` struct's C++-style utility functions, converting a
 // simple UTF-8 string to UCS-2.
-//..
+// ```
 void loadUCS2Hello(bsl::vector<unsigned short> *result)
 {
     int retVal =
@@ -345,17 +345,17 @@ void loadUCS2Hello(bsl::vector<unsigned short> *result)
     ASSERT( 0  == (*result)[5]);
     ASSERT( 6  == result->size());
 }
-//..
+// ```
 // The following snippets of code illustrate a typical use of the
-// 'bdlde::CharConvertUcs2' struct's C++-style utility functions, first
+// `bdlde::CharConvertUcs2` struct's C++-style utility functions, first
 // converting from UTF-8 to UCS-2, and then converting back to make sure the
 // round trip returns the same value.
-//..
+// ```
 void checkCppRoundTrip()
 {
     bsl::vector<unsigned short> result(&ta);
 
-    // "&Eacute;cole", the French word for School.  '&Eacute;' is the HTML
+    // "&Eacute;cole", the French word for School.  `&Eacute;` is the HTML
     // entity corresponding to "Unicode-E WITH ACUTE, LATIN CAPITAL LETTER"
     int retVal =
           BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result,
@@ -389,9 +389,9 @@ void checkCppRoundTrip()
     ASSERT( 6 == charsWritten);
     ASSERT( 6 == result2.length());
 }
-//..
+// ```
 // In this example, a UTF-8 input string is converted then returned.
-//..
+// ```
 void processUtf8(bsl::vector<unsigned short> *result, const bsl::string &strU8)
 
 {
@@ -442,15 +442,15 @@ enum {
     #define U8_10fffe "\xf7\xbf\xbf\xbe"
     #define U8_10ffff "\xf7\xbf\xbf\xbf"
 
-// We will try all combinations of the 'PRECOMPUTED_DATA' characters up to
-// 'exhaustiveSearchDepth' in length.
+// We will try all combinations of the `PRECOMPUTED_DATA` characters up to
+// `exhaustiveSearchDepth` in length.
 
 const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
                                      // are slower
 
 // Precomputed conversions for state space enumeration.  These will be
-// enumerated by 'buildUpAndTestStringsU8ToU2' and
-// 'buildUpAndTestStringsU2ToU8'.
+// enumerated by `buildUpAndTestStringsU8ToU2` and
+// `buildUpAndTestStringsU2ToU8`.
 
 const struct PrecomputedData {
     const char           *d_utf8Character;
@@ -785,11 +785,11 @@ static const struct {
 
 const int NUM_TEST_4_DATA = sizeof TEST_4_DATA / sizeof *TEST_4_DATA;
 
-// Utility function validating that a 'ucs2ToUtf8' conversion has the expected
+// Utility function validating that a `ucs2ToUtf8` conversion has the expected
 // results.  The function will also test to make sure that insufficient
-// 'dstCapacity' arguments for the conversion function return an
-// 'OUTPUT_BUFFER_TOO_SMALL' result.  The (template parameter) 'STRING'
-// specifies the type of output container, that is used in some 'ucs2ToUtf8'
+// `dstCapacity` arguments for the conversion function return an
+// `OUTPUT_BUFFER_TOO_SMALL` result.  The (template parameter) `STRING`
+// specifies the type of output container, that is used in some `ucs2ToUtf8`
 // overloads.
 
 template <class STRING>
@@ -894,13 +894,13 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                  cppBytesWritten + 1));
 }
 
-// This utility function for testing 'ucs2ToUtf8' will *recursively* build up
-// input strings in 'inputBuffer' and output strings in 'outputBuffer' (or
-// containers of the (template parameter) 'STRING' type), and call
-// 'checkForExpectedConversionResultsU2ToU8' to make sure that the results
-// match.  'inputCursor' and 'outputCursor' point to the "current position" in
+// This utility function for testing `ucs2ToUtf8` will *recursively* build up
+// input strings in `inputBuffer` and output strings in `outputBuffer` (or
+// containers of the (template parameter) `STRING` type), and call
+// `checkForExpectedConversionResultsU2ToU8` to make sure that the results
+// match.  `inputCursor` and `outputCursor` point to the "current position" in
 // the respective buffers where this level of the recursion will operate.  The
-// recursion terminates once 'depth <= 0'.
+// recursion terminates once `depth <= 0`.
 
 template <class STRING>
 void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
@@ -963,7 +963,7 @@ void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
 }
 
 // *Break* a copy of the input, manipulating the bits to make each character in
-// turn , and validating the reported 'numCharsWritten' and output string.
+// turn , and validating the reported `numCharsWritten` and output string.
 
 struct PerturbationDesc {
     unsigned char   d_octetToConvertTo;
@@ -973,8 +973,8 @@ struct PerturbationDesc {
     int             d_extraInvalidAfter;
 };
 
-// This utility function perturbs a single octet in 'input' and checks that
-// only the effects specified in the 'perturb' description occur.
+// This utility function perturbs a single octet in `input` and checks that
+// only the effects specified in the `perturb` description occur.
 
 void testSingleOctetPerturbation(const char             *input,
                                  bsl::size_t             perturbationPos,
@@ -1002,14 +1002,14 @@ void testSingleOctetPerturbation(const char             *input,
     int pos    = static_cast<int>(perturbationChar);
 
     // Increment characterCount to account for additional error characters
-    // before and after 'pos' and for the null terminator.
+    // before and after `pos` and for the null terminator.
 
     characterCount += before + after + 1;
 
     unsigned short outputBuffer[256] = { 0 };
     bsl::size_t charsWritten = 0;
 
-    // Make sure conversions where 'outputBuffer' is too small result in the
+    // Make sure conversions where `outputBuffer` is too small result in the
     // correct errors AND a null-terminated output
     int retVal = bdlde::CharConvertUcs2::utf8ToUcs2(outputBuffer,
                                                    characterCount - 1,
@@ -1059,7 +1059,7 @@ void testSingleOctetPerturbation(const char             *input,
     ASSERT ( charsWritten == characterCount );
 
     // Adjust the position in the output of the character we changed by adding
-    // 'before'.
+    // `before`.
 
     pos += before;
 
@@ -1069,7 +1069,7 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == origExpectedOutput[i]);
         }
         else if (before && i <  pos && i >= pos - before) {
-            // We have introduced 'before' new '?'(s) before 'pos'.
+            // We have introduced `before` new '?'(s) before `pos`.
 
             LOOP3_ASSERT(i, outputBuffer[i],   '?',
                             outputBuffer[i] == '?');
@@ -1081,13 +1081,13 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == perturb.d_newCharacter);
         }
         else if (after && i >  pos && i <= pos + after) {
-            // We have introduced 'after' new '?'(s) after 'pos'
+            // We have introduced `after` new '?'(s) after `pos`
 
             LOOP3_ASSERT(i, outputBuffer[i],   '?',
                             outputBuffer[i] == '?');
         }
         else {
-            // we're beyond 'pos + after':
+            // we're beyond `pos + after`:
 
             int posInOrig = i - before - after;
             LOOP4_ASSERT(i, posInOrig,
@@ -1098,7 +1098,7 @@ void testSingleOctetPerturbation(const char             *input,
 }
 
 
-// This utility function perturbs each octet of each UTF-8 character in 'input'
+// This utility function perturbs each octet of each UTF-8 character in `input`
 // into each possible alternative character class, making sure that the correct
 // errors are detected.
 
@@ -1405,10 +1405,10 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     }
 }
 
-// Utility function validating that a 'utf8ToUcs2' conversion has the expected
+// Utility function validating that a `utf8ToUcs2` conversion has the expected
 // results.  The function will also test to make sure that insufficient
-// 'dstCapacity' arguments for the conversion function return an
-// 'OUTPUT_BUFFER_TOO_SMALL' result.
+// `dstCapacity` arguments for the conversion function return an
+// `OUTPUT_BUFFER_TOO_SMALL` result.
 
 void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                              unsigned short *expected_output,
@@ -1504,12 +1504,12 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                  resultBytes));
 }
 
-// This utility function for testing 'utf8ToUcs2' will *recursively* build up
-// input strings in 'inputBuffer' and output strings in 'outputBuffer', and
-// call 'checkForExpectedConversionResultsU8ToU2' to make sure that the results
-// match.  'inputCursor' and 'outputCursor' point to the "current position" in
+// This utility function for testing `utf8ToUcs2` will *recursively* build up
+// input strings in `inputBuffer` and output strings in `outputBuffer`, and
+// call `checkForExpectedConversionResultsU8ToU2` to make sure that the results
+// match.  `inputCursor` and `outputCursor` point to the "current position" in
 // the respective buffers where this level of the recursion will operate.  The
-// recursion terminates once 'depth <= 0'.
+// recursion terminates once `depth <= 0`.
 
 void buildUpAndTestStringsU8ToU2(bsl::size_t     idx,
                                  int             depth,
@@ -1569,7 +1569,7 @@ void buildUpAndTestStringsU8ToU2(bsl::size_t     idx,
 }
 
 
-// This utility function for performance testing 'utf8ToUcs2' and 'ucs2ToUtf8'
+// This utility function for performance testing `utf8ToUcs2` and `ucs2ToUtf8`
 // will repeatedly convert a long ascii corpus to ucs2 and back again.  It
 // returns 0 on success, and non-zero otherwise.
 
@@ -2939,7 +2939,7 @@ void TestDriver::testCase3()
         }
     }
 
-    // Concern - make sure that the 'invalidCharacterPlaceholder' argument
+    // Concern - make sure that the `invalidCharacterPlaceholder` argument
     // functions correctly.
 
     {
@@ -3107,7 +3107,7 @@ int main(int argc, char**argv)
         //   - Make sure short buffers are treated right and conversion is
         //     correct for 3-byte characters at end of longer strings.
         //   - Make sure that 0 dstCapacity is handled correctly, whether or
-        //     not '&bytesWritten' and/or '&charsWritten' are passed in.
+        //     not `&bytesWritten` and/or `&charsWritten` are passed in.
         //   - Make sure that all permutations of 1-octet, 2-octet, and 3-octet
         //     characters are converted correctly or handled correctly for
         //     short output buffers.
@@ -3120,10 +3120,10 @@ int main(int argc, char**argv)
         //   - Test characters that convert to 2-octet utf-8
         //   - Test characters that convert to 3-octet utf-8
         //   - All tests will be repeated with insufficient output space
-        //   - Use 'buildUpAndTestStringsU2ToU8' to exhaustively check
+        //   - Use `buildUpAndTestStringsU2ToU8` to exhaustively check
         //     combinations of 1-octet, 2-octet, and 3-octet characters for
         //     correct conversion and correct handling of insufficient
-        //     'dstCapacity' arguments.
+        //     `dstCapacity` arguments.
         //   - Test C++-style interface for all cases where the output buffer
         //     is sufficiently wide.
         //
@@ -3132,7 +3132,7 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-           "\nTesting 'bdlde::CharConvertUcs2::ucs2ToUtf8'." << endl;
+           "\nTesting `bdlde::CharConvertUcs2::ucs2ToUtf8`." << endl;
         {
             for (int i = 0; i < NUM_TEST_4_DATA; ++i) {
                 const int             LINE    = TEST_4_DATA[i].d_lineNum;
@@ -3188,7 +3188,7 @@ int main(int argc, char**argv)
         }
 
         // Make sure that 0 dstCapacity is handled correctly, whether or not
-        // '&bytesWritten' and/or '&charsWritten' are passed in.
+        // `&bytesWritten` and/or `&charsWritten` are passed in.
 
         {
             int retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
@@ -3296,10 +3296,10 @@ int main(int argc, char**argv)
         //   - Test 3-octet utf-8 character conversions
         //   - Test invalid utf-8 character conversions
         //   - All tests will be repeated with insufficient output space
-        //   - Use 'buildUpAndTestStringsU8ToU2' to exhaustively check
+        //   - Use `buildUpAndTestStringsU8ToU2` to exhaustively check
         //     combinations of 1-octet, 2-octet, and 3-octet characters for
         //     correct conversion and correct handling of insufficient
-        //     'dstCapacity' arguments.
+        //     `dstCapacity` arguments.
         //   - Test C++-style interface for all cases where the output buffer
         //     is sufficiently wide.
         //
@@ -3308,7 +3308,7 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-          "\nTesting 'bdlde::CharConvertUcs2::utf8ToUcs2'." << endl;
+          "\nTesting `bdlde::CharConvertUcs2::utf8ToUcs2`." << endl;
         {
             for (int i = 0; i < NUM_TEST_3_DATA; ++i) {
                 const int             LINE     = TEST_3_DATA[i].d_lineNum;
@@ -3361,7 +3361,7 @@ int main(int argc, char**argv)
                 }
             }
 
-            // Concern - make sure that the 'invalidCharacterPlaceholder'
+            // Concern - make sure that the `invalidCharacterPlaceholder`
             // argument functions correctly.
 
             {
@@ -3418,7 +3418,7 @@ int main(int argc, char**argv)
             }
 
             // Concern - make sure that 0 dstCapacity is handled correctly,
-            // whether or not '&charsWritten' is passed in.
+            // whether or not `&charsWritten` is passed in.
 
             {
                 int retVal =bdlde::CharConvertUcs2::utf8ToUcs2(
@@ -3510,7 +3510,7 @@ int main(int argc, char**argv)
         ASSERT( 1 == INVALID_INPUT_CHARACTER );
         ASSERT( 1 == BADC );
 
-        // "2 if 'dstCapacity' is insufficient to hold the complete conversion"
+        // "2 if `dstCapacity` is insufficient to hold the complete conversion"
 
         ASSERT( 2 == OUTPUT_BUFFER_TOO_SMALL );
         ASSERT( 2 == OBTS );

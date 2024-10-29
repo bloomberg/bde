@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 
-// Warning: the following 'using' declarations interfere with the testing of
+// Warning: the following `using` declarations interfere with the testing of
 // the macros defined in this component.  Please do not uncomment them.
 //  using namespace BloombergLP;
 //  using namespace std;
@@ -90,7 +90,7 @@ namespace
         Optional(): d_value() {}
             // The default constructor zero initializes the object.
         explicit Optional(const TYPE& value): d_value(new TYPE(value)) {}
-            // This constructor sets the object to the specified 'value'.
+            // This constructor sets the object to the specified `value`.
         ~Optional() { delete d_value; }
             // The destructor destructs the object.
 
@@ -104,7 +104,7 @@ namespace
     template <class, bool Pred>
     struct TestMetafunction {
         enum { value = Pred };
-          // Used to construct 'void foo() noexcept(expr-with-commas)'
+          // Used to construct `void foo() noexcept(expr-with-commas)`
     };
 
     void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
@@ -120,8 +120,8 @@ namespace
                         TestMetafunction<void, false>::value)     {}
     template <class, class>
     void throws4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)       {}
-      // 'throws4<T, U>()' is used to test the operator
-      // 'noexcept(expr-with-commas)'
+      // `throws4<T, U>()` is used to test the operator
+      // `noexcept(expr-with-commas)`
 
     void throws5() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
                                                 BSLS_CPP11_PROVISIONALLY_FALSE)
@@ -241,11 +241,11 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run the usage example.
+        // 1. Run the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
             int d_value;
         public:
             explicit FinalClass(int value = 0)
-                // Initialize the object with the optionally specified 'value'.
+                // Initialize the object with the optionally specified `value`.
                 : d_value(value) {}
             int value() const { return d_value; }
                 // Returns the object's value.
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
             int d_anotherValue;
         public:
             explicit FinalClassDerived(int value)
-                // Initialize the object with the specified 'value'.
+                // Initialize the object with the specified `value`.
                 : d_anotherValue(2 * value) {
             }
             int anotherValue() const { return d_anotherValue; }
@@ -371,13 +371,13 @@ int main(int argc, char *argv[])
         // TESTING MACRO SAFETY
         //
         // Concerns:
-        //: 1 The macros should be usable outside 'namespace' 'BloombergLP' and
-        //:   'namespace' 'std'.
+        // 1. The macros should be usable outside `namespace` `BloombergLP` and
+        //    `namespace` `std`.
         //
         // Plan:
-        //: 1 The 'using' declarations at the top of the file are specifically
-        //:   commented out to test the concern.  If the concerns is violated,
-        //:   the test driver should fail to compile.
+        // 1. The `using` declarations at the top of the file are specifically
+        //    commented out to test the concern.  If the concerns is violated,
+        //    the test driver should fail to compile.
         //
         // Testing:
         //   MACRO SAFETY
@@ -404,11 +404,11 @@ int main(int argc, char *argv[])
         struct TestDerived BSLS_CPP11_FINAL
             : TestIntermediate {
             bool test()
-                // Returns 'true'.
+                // Returns `true`.
             { return true; }
             BSLS_CPP11_EXPLICIT
             operator bool() const
-                // The conversion operator always returns 'true'.
+                // The conversion operator always returns `true`.
             { return true; }
         };
 
@@ -421,22 +421,22 @@ int main(int argc, char *argv[])
         // TESTING: BSLS_CPP11_OVERRIDE
         //
         // Concerns:
-        //: 1 Marking an overriding function as 'override' using
-        //:   'BSLS_CPP11_OVERRIDE' shall compile OK both with C++03 and C++11
-        //:   mode.
+        // 1. Marking an overriding function as `override` using
+        //    `BSLS_CPP11_OVERRIDE` shall compile OK both with C++03 and C++11
+        //    mode.
         //
-        //: 2 Marking a function which isn't overriding a 'virtual' function as
-        //:   'override' using 'BSLS_CPP11_OVERRIDE' shall fail to compile when
-        //:   compiling using C++11 mode.  It may fail when using C++03 mode
-        //:   due to a warning about an overload hiding base class functions.
+        // 2. Marking a function which isn't overriding a `virtual` function as
+        //    `override` using `BSLS_CPP11_OVERRIDE` shall fail to compile when
+        //    compiling using C++11 mode.  It may fail when using C++03 mode
+        //    due to a warning about an overload hiding base class functions.
         //
         // Plan:
-        //: 1 Define a base class with a 'virtual' function and two derived
-        //:   classes which override the function correctly and incorrectly.
-        //:   In both cases use the 'BSLS_CPP11_OVERRIDE' macro and determine
-        //:   if the compilation is successful.  The incorrect use is guarded
-        //:   by a the macro 'FAIL_OVERRIDE' to restrict compilation failure to
-        //:   compilations with this macro defined.
+        // 1. Define a base class with a `virtual` function and two derived
+        //    classes which override the function correctly and incorrectly.
+        //    In both cases use the `BSLS_CPP11_OVERRIDE` macro and determine
+        //    if the compilation is successful.  The incorrect use is guarded
+        //    by a the macro `FAIL_OVERRIDE` to restrict compilation failure to
+        //    compilations with this macro defined.
         //
         // Testing:
         //   BSLS_CPP11_OVERRIDE
@@ -493,32 +493,32 @@ int main(int argc, char *argv[])
         // TESTING BSLS_CPP11_NOEXCEPT AND VARIATIONS
         //
         // Concerns:
-        //: 1 Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
-        //:   'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
-        //:   BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-        //:       BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
-        //:   successful compilation in C++03 mode.
-        //:
-        //: 2 Marking a function 'noexcept' or 'noexcept(bool)' using
-        //:   'BSLS_CPP11_NOEXCEPT' or
-        //:   'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
-        //:   BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-        //:       BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
-        //:   using BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
-        //:
-        //: 3 The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
-        //:   'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)' macros both allow commas in
-        //:   template parameter lists.
+        // 1. Marking a function `noexcept` using `BSLS_CPP11_NOEXCEPT` or
+        //    `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` or
+        //    BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //        BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
+        //    successful compilation in C++03 mode.
+        //
+        // 2. Marking a function `noexcept` or `noexcept(bool)` using
+        //    `BSLS_CPP11_NOEXCEPT` or
+        //    `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` or
+        //    BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //        BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
+        //    using BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
+        //
+        // 3. The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
+        //    `BSLS_CPP11_NOEXCEPT_OPERATOR(expr)` macros both allow commas in
+        //    template parameter lists.
         //
         // Plan:
-        //: 1 Define a function marking it 'noexcept' using the various forms
-        //:   of the macro.  Then use
-        //:   `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))` to check that the
-        //:   function's 'noexcept' specification matches the expected
-        //:   specification.
+        // 1. Define a function marking it `noexcept` using the various forms
+        //    of the macro.  Then use
+        //    `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))` to check that the
+        //    function's `noexcept` specification matches the expected
+        //    specification.
         //
         // NOTE: The test functions are called only to prevent
-        //  '-Wunused-function' warning.
+        //  `-Wunused-function` warning.
         //
         // Testing:
         //   BSLS_CPP11_NOEXCEPT
@@ -580,18 +580,18 @@ int main(int argc, char *argv[])
         // TESTING BSLS_CPP11_FINAL (fFUNCTION)
         //
         // Concerns:
-        //: 1 Marking a 'virtual' function as 'final' should compile.
-        //:
-        //: 2 Trying to override a function marked as 'final' shall fail to to
-        //:   compile when compiling with C++11 mode.  Since 'BSLS_CPP11_FINAL'
-        //:   is replaced by nothing when compiling with C++03 mode the could
-        //:   should compile in this case.
+        // 1. Marking a `virtual` function as `final` should compile.
+        //
+        // 2. Trying to override a function marked as `final` shall fail to to
+        //    compile when compiling with C++11 mode.  Since `BSLS_CPP11_FINAL`
+        //    is replaced by nothing when compiling with C++03 mode the could
+        //    should compile in this case.
         //
         // Plan:
-        //: 1 Define a base class with a 'virtual' function and mark it 'final'
-        //:   using 'BSLS_CPP11_FINAL' in a derived class.  Creating a further
-        //:   derived class which also overrides the function marked as 'final'
-        //:   should fail compilation when compiling with C++11 mode.
+        // 1. Define a base class with a `virtual` function and mark it `final`
+        //    using `BSLS_CPP11_FINAL` in a derived class.  Creating a further
+        //    derived class which also overrides the function marked as `final`
+        //    should fail compilation when compiling with C++11 mode.
         //
         // Testing:
         //   BSLS_CPP11_FINAL (function)
@@ -641,18 +641,18 @@ int main(int argc, char *argv[])
         // TESTING: BSLS_CPP11_FINAL (CLASS)
         //
         // Concerns:
-        //: 1 Marking a class 'final' using 'BSLS_CPP11_FINAL' should result in
-        //:   a successful compilation.
-        //:
-        //: 2 Trying to further derive from a function marked as 'final' shall
-        //:   fail to compile when compiling with C++11 mode.  Since
-        //:   'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
-        //:   C++03 mode the could should compile in this case.
+        // 1. Marking a class `final` using `BSLS_CPP11_FINAL` should result in
+        //    a successful compilation.
+        //
+        // 2. Trying to further derive from a function marked as `final` shall
+        //    fail to compile when compiling with C++11 mode.  Since
+        //    `BSLS_CPP11_FINAL` is replaced by nothing when compiling with
+        //    C++03 mode the could should compile in this case.
         //
         // Plan:
-        //: 1 Define a class marking it 'final' using 'BSLS_CPP11_FINAL'.
-        //:   Creating a derived class from the 'final' class should fail
-        //:   compilation when compiling with C++11 mode.
+        // 1. Define a class marking it `final` using `BSLS_CPP11_FINAL`.
+        //    Creating a derived class from the `final` class should fail
+        //    compilation when compiling with C++11 mode.
         //
         // Testing:
         //   BSLS_CPP11_FINAL (class)
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
             int d_value;
         public:
             explicit FinalClass(int value = 0)
-                // Initialize with the optionally specified 'value'.
+                // Initialize with the optionally specified `value`.
                 : d_value(value) {}
             int value() const
                 // Returns the object's value.
@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
             int d_anotherValue;
         public:
             explicit FinalClassDerived(int value)
-                // Initialize with the specified 'value'.
+                // Initialize with the specified `value`.
                 : d_anotherValue(2 * value) {
             }
             int anotherValue() const
@@ -699,19 +699,19 @@ int main(int argc, char *argv[])
         // TESTING: BSLS_CPP11_EXPLICIT
         //
         // Concerns:
-        //: 1 Marking a conversion operator 'explicit' using
-        //:   'BSLS_CPP11_EXPLICIT' needs to allow explicit conversions.
-        //:
-        //: 2 Marking a conversion operator 'explicit' using
-        //:   'BSLS_CPP11_EXPLICIT' should prevent attempts of implicit
-        //:   conversion when compiling with C++11 mode.  When compiling with
-        //:   C++03 mode compilation will succeed.
+        // 1. Marking a conversion operator `explicit` using
+        //    `BSLS_CPP11_EXPLICIT` needs to allow explicit conversions.
+        //
+        // 2. Marking a conversion operator `explicit` using
+        //    `BSLS_CPP11_EXPLICIT` should prevent attempts of implicit
+        //    conversion when compiling with C++11 mode.  When compiling with
+        //    C++03 mode compilation will succeed.
         //
         // Plan:
-        //: 1 Define a class with an explicit conversion operator and verify
-        //:   that explicit and implicit conversions succeed when using C++03
-        //:   mode.  When compiling with C++11 mode the implicit conversion
-        //:   should fail.
+        // 1. Define a class with an explicit conversion operator and verify
+        //    that explicit and implicit conversions succeed when using C++03
+        //    mode.  When compiling with C++11 mode the implicit conversion
+        //    should fail.
         //
         // Testing:
         //   BSLS_CPP11_EXPLICIT
@@ -743,24 +743,24 @@ int main(int argc, char *argv[])
         // TESTING BSLS_CPP11_CONSTEXPR
         //
         // Concerns:
-        //: 1 Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
-        //:   should result in a successful compilation.
-        //:
-        //: 2 Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
-        //:   should make the test driver not compile if the use of the
-        //:   resulting constexpr function is used illegally.
+        // 1. Marking a function `constexpr` using `BSLS_CPP11_CONSTEXPR`
+        //    should result in a successful compilation.
+        //
+        // 2. Marking a function `constexpr` using `BSLS_CPP11_CONSTEXPR`
+        //    should make the test driver not compile if the use of the
+        //    resulting constexpr function is used illegally.
         //
         // Plan:
-        //: 1 Define a struct marking its various member functions as constexpr
-        //:   functions.  Verify that if the constexpr member functions are not
-        //:   used appropriately the program will fail to compile in cpp11
-        //:   mode.
-        //:
-        //: 2 Since the correct behaviour will case the program to not compile,
-        //:   it is rather difficult to create test cases that actually tests
-        //:   the feature and still have the test driver pass.  As such, this
-        //:   tests must be manually checked to ensure that the program does
-        //:   not compile if testStruct is not used correctly.
+        // 1. Define a struct marking its various member functions as constexpr
+        //    functions.  Verify that if the constexpr member functions are not
+        //    used appropriately the program will fail to compile in cpp11
+        //    mode.
+        //
+        // 2. Since the correct behaviour will case the program to not compile,
+        //    it is rather difficult to create test cases that actually tests
+        //    the feature and still have the test driver pass.  As such, this
+        //    tests must be manually checked to ensure that the program does
+        //    not compile if testStruct is not used correctly.
         //
         // Testing:
         //   BSLS_CPP11_CONSTEXPR

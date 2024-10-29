@@ -23,7 +23,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlde::Sha1' type is a mechanism that is used to provide the SHA-1
+// The `bdlde::Sha1` type is a mechanism that is used to provide the SHA-1
 // hash.  The primary concern is to ensure that the correct hashes are
 // calculated.
 //
@@ -33,42 +33,42 @@ using namespace bsl;
 // free operators.
 //
 // The component interface represents a SHA-1 digest as 5 unsigned 32-bit
-// integers.  The SHA-1 digest is calculated in the 'update' and 'loadDigest'
+// integers.  The SHA-1 digest is calculated in the `update` and `loadDigest`
 // functions based on a sequence of data bytes and the data length.  Note that
-// the reason that the 'loadDigest' function is responsible for part of the
+// the reason that the `loadDigest` function is responsible for part of the
 // calculation is specified in the implementation file (bdlde_sha1.cpp).  We
 // need to verify that these functions calculates the checksum correctly.
-// Furthermore, we also need to verify that the 'loadDigest' function also
+// Furthermore, we also need to verify that the `loadDigest` function also
 // returns a correct SHA-1 digest.
 //
 //        Primary Constructor, Primary Manipulator, and Basic Accessor
 //        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Primary Constructor:
-//   A 'bdlde::Sha1' object is created with a default message length of 0 and
+//   A `bdlde::Sha1` object is created with a default message length of 0 and
 //   a digest of da39a3ee5e6b4b0d3255bfef95601890afd80709.  An object's
 //   white-box state is represented by a buffer of unprocessed bytes and the
 //   length of the message.  The black-box state is represented by a 160-bit
-//   digest, which can be modified using the primary manipulator 'update'.  The
+//   digest, which can be modified using the primary manipulator `update`.  The
 //   default constructor, in conjunction with the primary manipulator, is
 //   sufficient to attain any achievable white-box state.
 //
-//    o 'Sha1()'
+//    o `Sha1()`
 //
 // Primary Manipulator:
-//   The 'update' method comprises the minimal set of manipulators that can
+//   The `update` method comprises the minimal set of manipulators that can
 //   attain any achievable white-box state.
 //
-//    o 'void update(const void *data, bsl::size_t length);'
+//    o `void update(const void *data, bsl::size_t length);`
 //
 // Basic Accessor:
 //   This is the maximal set of accessors that have direct contact with the
-//   black-box representation of the object.  The 'loadDigest' method is an
+//   black-box representation of the object.  The `loadDigest` method is an
 //   obvious member of this set.  It appends the length of the current message
 //   to a copy of the current SHA-1 object and calculates the digest.  The
-//   'loadDigestAndReset' method is really a manipulator as it resets the
+//   `loadDigestAndReset` method is really a manipulator as it resets the
 //   states within the object.  Therefore, it is not included in the set.
 //
-//    o 'void loadDigest(unsigned char *result) const;'
+//    o `void loadDigest(unsigned char *result) const;`
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -203,7 +203,7 @@ const bsl::string inputMessages[6] =
     // The second, third, and fourth strings below (and their expected results)
     // are taken from NIST examples for SHA-1.  We add to this list some
     // additional cases whose hashes are obtained from the Linux command-line
-    // tool 'sha1sum': the empty string and a string containing all possible
+    // tool `sha1sum`: the empty string and a string containing all possible
     // (as these cases represent possible interesting values), as well as a
     // very long string (consisting of 1 million repetitions of the character
     // 'a'.
@@ -245,15 +245,15 @@ const char *const sha1Results[6] =
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The 'validatePassword' function below returns whether a specified password
-// has a specified hash value.  The 'assertPasswordIsExpected' function below
+// The `validatePassword` function below returns whether a specified password
+// has a specified hash value.  The `assertPasswordIsExpected` function below
 // has a sample password to hash and a hash value that matches it.  Note that
-// the output of 'loadDigest' is a binary representation.  When hashes are
+// the output of `loadDigest` is a binary representation.  When hashes are
 // displayed for human consumption, they are typically converted to hex, but
 // that would create unnecessary overhead here.  Also note that because SHA-1
 // digests are inexpensive to compute, they are vulnerable to brute force
 // attacks and should not be used for password hashing in real-world
-// applications.  A function like 'validatePassword' must only be used to
+// applications.  A function like `validatePassword` must only be used to
 // validate passwords against previously computed SHA-1 hashes, and only during
 // a transition period to a more secure password hashing function.
 
@@ -363,7 +363,7 @@ void testWithChunkSizes(
         if (veryVerbose) { T_ P_(i) P_(charsProcessed) P(chunkSize) }
         ASSERT(charsProcessed + chunkSize <= input.size());
         if (chunkSize == 0) {
-            // As a special case, test that 'update' behaves properly when
+            // As a special case, test that `update` behaves properly when
             // passed a null pointer.
             hasher.update(static_cast<void*>(0), 0);
         } else {
@@ -544,11 +544,11 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run the usage example function 'assertPasswordIsExpected'.
+        // 1. Run the usage example function `assertPasswordIsExpected`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -564,20 +564,20 @@ int main(int argc, char *argv[])
         // TESTING PRINTING AND OUTPUT (<<) OPERATOR
         //
         // Concerns:
-        //: 1 The member function 'print' outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
-        //: 2 The stream operator ('<<') outputs the digest that would be
-        //:   obtained by a call to 'loadDigest' in hex format.
+        // 1. The member function `print` outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
+        // 2. The stream operator (`<<`) outputs the digest that would be
+        //    obtained by a call to `loadDigest` in hex format.
         //
         // Plan:
-        //: 1 Construct a digest from a given message with a known hash.
-        //:   (C-1..2)
-        //: 2 Construct a 'stringstream' object and pass it to print.  Compare
-        //:   the result of the 'str()' member function with the expected
-        //:   output.  (C-1)
-        //: 3 Construct a 'stringstream' object and pass it to stream
-        //:   operator.  Compare the result of the 'str()' member function with
-        //:   the expected output.  (C-2)
+        // 1. Construct a digest from a given message with a known hash.
+        //    (C-1..2)
+        // 2. Construct a `stringstream` object and pass it to print.  Compare
+        //    the result of the `str()` member function with the expected
+        //    output.  (C-1)
+        // 3. Construct a `stringstream` object and pass it to stream
+        //    operator.  Compare the result of the `str()` member function with
+        //    the expected output.  (C-2)
         //
         // Testing:
         //   bsl::ostream& Sha1::print(bsl::ostream& stream) const;
@@ -592,30 +592,30 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'Sha1(const void *data, bsl::size_t length)'
+        // TESTING `Sha1(const void *data, bsl::size_t length)`
         //   This will test the two-argument constructor.
         //
         // Concerns:
-        //: 1 We want to ensure that the two-argument constructor from data and
-        //:   a length is equivalent to the default constructor followed by a
-        //:   call to 'update'.
+        // 1. We want to ensure that the two-argument constructor from data and
+        //    a length is equivalent to the default constructor followed by a
+        //    call to `update`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5. For
-        //:   each datum, carry out the following steps.
-        //: 2 Default construct a 'bdlde::Sha1' object and call 'update' with a
-        //:   given message.  (C-1)
-        //: 3 Construct a second 'bdlde::Sha1' object directly from the data
-        //:   and size of the message.  (C-1)
-        //: 4 Assert that the two hashers compare equal according to
-        //:   'operator=='.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5. For
+        //    each datum, carry out the following steps.
+        // 2. Default construct a `bdlde::Sha1` object and call `update` with a
+        //    given message.  (C-1)
+        // 3. Construct a second `bdlde::Sha1` object directly from the data
+        //    and size of the message.  (C-1)
+        // 4. Assert that the two hashers compare equal according to
+        //    `operator==`.  (C-1)
         //
         // Testing:
         //   Sha1::Sha1(const void *data, bsl::size_t length);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'Sha1(const void *data, bsl::size_t length)'\n"
+               << "TESTING `Sha1(const void *data, bsl::size_t length)`\n"
                << "====================================================\n";
 
         const char *const inputs[] = {"a", "a1", "abc", "a1c4", "12345"};
@@ -627,28 +627,28 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'loadDigestAndReset'
-        //   This will test the 'loadDigestAndReset' method.
+        // TESTING `loadDigestAndReset`
+        //   This will test the `loadDigestAndReset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'loadDigestAndReset' contains the same value as a default object,
-        //:   and the resulting output matches that which is given by
-        //:   'loadDigest'.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `loadDigestAndReset` contains the same value as a default object,
+        //    and the resulting output matches that which is given by
+        //    `loadDigest`.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha1' object using the fully-tested
-        //:   default constructor and 'update' member function.  Then call the
-        //:   'loadDigestAndReset' member function and ensure that the
-        //:   resulting object contains the same value as an object created
-        //:   using the default constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha1` object using the fully-tested
+        //    default constructor and `update` member function.  Then call the
+        //    `loadDigestAndReset` member function and ensure that the
+        //    resulting object contains the same value as an object created
+        //    using the default constructor.  (C-1)
         //
         // Testing:
         //   void Sha1::loadDigestAndReset(unsigned char *result);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'loadDigestAndReset'\n"
+        if (verbose) cout << "TESTING `loadDigestAndReset`\n"
                           << "============================\n";
 
         const char *const inputs[] = {"a", "a1", "abc", "a1c4", "12345"};
@@ -660,26 +660,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
-        //   This will test the 'reset' method.
+        // TESTING `reset`
+        //   This will test the `reset` method.
         //
         // Concerns:
-        //: 1 We need to make sure that the resulting object after the call to
-        //:   'reset' contains the same value as a default object.
+        // 1. We need to make sure that the resulting object after the call to
+        //    `reset` contains the same value as a default object.
         //
         // Plan:
-        //: 1 Create a set of test data with varying lengths from 1 to 5.  For
-        //:   each datum, create a 'bdlde::Sha1' object using the fully-tested
-        //:   default constructor and 'update' member function.  Then call the
-        //:   'reset' member function and ensure that the resulting object
-        //:   contains the same value as an object created using the default
-        //:   constructor.  (C-1)
+        // 1. Create a set of test data with varying lengths from 1 to 5.  For
+        //    each datum, create a `bdlde::Sha1` object using the fully-tested
+        //    default constructor and `update` member function.  Then call the
+        //    `reset` member function and ensure that the resulting object
+        //    contains the same value as an object created using the default
+        //    constructor.  (C-1)
         //
         // Testing:
         //   void Sha1::reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'reset'\n"
+        if (verbose) cout << "TESTING `reset`\n"
                           << "===============\n";
 
         const char *const inputs[] = {"a", "a1", "abc", "a1c4", "12345"};
@@ -691,38 +691,38 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'update' AND 'loadDigest'
-        //   Ensure that the 'Sha1' class computes SHA-1 digests correctly
-        //   when given input through one or more calls to 'update' followed by
-        //   a call to 'loadDigest'.
+        // TESTING `update` AND `loadDigest`
+        //   Ensure that the `Sha1` class computes SHA-1 digests correctly
+        //   when given input through one or more calls to `update` followed by
+        //   a call to `loadDigest`.
         //
         // Concerns:
-        //: 1 Hashing a particular value provides the expected hash output when
-        //:   known values.  These known values came from running the Linux
-        //:   command-line utility 'sha1sum'.
-        //: 2 Providing a message all at once through a single call to 'update'
-        //:   gives the same result as providing it incrementally through
-        //:   multiple calls to 'update'.
-        //: 3 Our hasher handles various cases of complete and incomplete
-        //:   blocks correctly.
+        // 1. Hashing a particular value provides the expected hash output when
+        //    known values.  These known values came from running the Linux
+        //    command-line utility `sha1sum`.
+        // 2. Providing a message all at once through a single call to `update`
+        //    gives the same result as providing it incrementally through
+        //    multiple calls to `update`.
+        // 3. Our hasher handles various cases of complete and incomplete
+        //    blocks correctly.
         //
         // Plan:
-        //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.  (C-1)
-        //: 2 For some small strings, pass the entire string to 'update' and
-        //:   compare the result with what is obtained from breaking it up
-        //:   into equally-sized chunks and passing them to 'update' one by
-        //:   one.  (C-2)
-        //: 3 For a large string whose length is a multiple of the SHA-1 block
-        //:   size (64 bytes), pass the entire string to 'update' and compare
-        //:   the result with what is obtained from breaking it up into
-        //:   substrings with certain sizes chosen in order to produce various
-        //:   states of the internal buffer (64 bytes).  (C-2..3)
-        //: 4 For a large string whose length is NOT a multiple of the SHA-1
-        //:   block size (64 bytes), pass the entire string to 'update' and
-        //:   compare the result with what is obtained from breaking it up into
-        //:   substrings with certain sizes chosen in order to produce various
-        //:   states of the internal buffer (64 bytes).  (C-2..3)
+        // 1. Verify a range of values with varying sizes and bytes against
+        //    known values.  (C-1)
+        // 2. For some small strings, pass the entire string to `update` and
+        //    compare the result with what is obtained from breaking it up
+        //    into equally-sized chunks and passing them to `update` one by
+        //    one.  (C-2)
+        // 3. For a large string whose length is a multiple of the SHA-1 block
+        //    size (64 bytes), pass the entire string to `update` and compare
+        //    the result with what is obtained from breaking it up into
+        //    substrings with certain sizes chosen in order to produce various
+        //    states of the internal buffer (64 bytes).  (C-2..3)
+        // 4. For a large string whose length is NOT a multiple of the SHA-1
+        //    block size (64 bytes), pass the entire string to `update` and
+        //    compare the result with what is obtained from breaking it up into
+        //    substrings with certain sizes chosen in order to produce various
+        //    states of the internal buffer (64 bytes).  (C-2..3)
         //
         // Testing:
         //   Sha1::Sha1();
@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
         //   bool operator==(const Sha1& lhs, const Sha1& rhs);
         //   bool operator!=(const Sha1& lhs, const Sha1& rhs);
         // --------------------------------------------------------------------
-        if (verbose) cout << "TESTING 'update' AND 'loadDigest'\n"
+        if (verbose) cout << "TESTING `update` AND `loadDigest`\n"
                              "=================================\n";
 
         testKnownHashes();
@@ -745,11 +745,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify that a default constructed hasher equals itself.  (C-1)
+        // 1. Verify that a default constructed hasher equals itself.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
