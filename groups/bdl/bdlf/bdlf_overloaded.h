@@ -36,9 +36,9 @@ BSLS_IDENT("$Id: $")
 // Next, Create an Overload object containing several options:
 // ```
 // bdlf::Overloaded over{
-//       [](unsigned)           {return 1;}
-//     , [](double)             {return 2;}
-//     , [](const bsl::string&) {return 3;}
+//       [] (unsigned)           {return 1;}
+//     , [] (double)             {return 2;}
+//     , [] (const bsl::string&) {return 3;}
 //     };
 // ```
 // Set the value of variant, and then call std::visit, passing the overload set
