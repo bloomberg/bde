@@ -585,7 +585,6 @@ BSLS_IDENT("$Id$")
 
 #include <bslh_hash.h>
 
-#include <bslfmt_formatparsecontext.h>
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterspecificationsplitter.h>
@@ -4390,7 +4389,6 @@ struct BslFmtFormatter_Impl {
                                            size_t             numberLength,
                                            t_FORMAT_CONTEXT&  formatContext,
                                            const FSD&         finalSpec) const;
-
   public:
     // MANIPULATORS
 

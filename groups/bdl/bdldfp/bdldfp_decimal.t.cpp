@@ -32,6 +32,7 @@
 #include <bsl_utility.h>
 
 #include <typeinfo>
+#include <format>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -537,7 +538,9 @@ void TestDriver::testCase10()
     //: 6 Direct calls to `bsl::format` work (not just `vformat` that the
     //:   `TestUtil` uses)
     //:
-    //: 7 Use of the locale flag is prohibited (throws an exception)
+    //: 7 `std::format` works as expected
+    //:
+    //: 8 Use of the locale flag is prohibited (throws an exception)
     //
     // Plan:
     //: 1 every test is repeated for all 3 supported types
@@ -1213,6 +1216,33 @@ void TestDriver::testCase10()
             ASSERTV(message.c_str(), rv);
         }
     }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    if (veryVerbose) puts("\tTesting `std::format`.");
+    { // `bdldfp::Decimal32`
+        const auto NUMBER   = BDLDFP_DECIMAL_DF(1.23400e-56);
+        const auto RESULT   = std::format("{:f}", NUMBER);
+        const auto EXPECTED =
+             "0.0000000000000000000000000000000000000000000000000000000123400";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
+    { // `bdldfp::Decimal64`
+        const auto NUMBER   = BDLDFP_DECIMAL_DD(1.23400e+56);
+        const auto RESULT   = std::format("{:f}", NUMBER);
+        const auto EXPECTED =
+                   "123400000000000000000000000000000000000000000000000000000";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
+    { // `bdldfp::Decimal128`
+        const auto NUMBER   = BDLDFP_DECIMAL_DL(1.234e3);
+        const auto RESULT   = std::format("{:#f}", NUMBER);
+        const auto EXPECTED = "1234.";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (veryVerbose) puts("\tTesting locale prohibition.");
