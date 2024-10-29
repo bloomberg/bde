@@ -24,6 +24,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_keyword.h>
+#include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
@@ -325,21 +326,6 @@ void microSleep(int microSeconds, int seconds)
     bslmt::ThreadUtil::yield();
 }
 
-/// Return `true` if the specified `value` is within the specified
-/// `windowMs` (milliseconds) of the specified `expectedValue`.
-bool withinWindow(const bsls::TimeInterval& value,
-                  const bsls::TimeInterval& expectedValue,
-                  bsls::Types::Int64        windowMs)
-{
-    bsls::TimeInterval window(0, windowMs * NANOSECS_PER_MILLISEC);
-    bool withinWindow = (expectedValue - window) <= value
-                     && (expectedValue + window) >= value;
-
-    if (!withinWindow) {
-        P_(windowMs); P_(expectedValue); P(value);
-    }
-    return withinWindow;
-}
 
                             // ===================
                             // class TestPublisher
@@ -471,6 +457,12 @@ class TestPublisher : public balm::Publisher {
     /// been invoked with a `balm::MetricSample` containing `categories`.
     const InvocationSummary *findInvocation(
                      const bsl::set<const balm::Category *>& categories) const;
+
+    /// Return the address of the non-modifiable `Invocation` corresponding to
+    /// `category`, or 0 if `publish` has not been invoked with a
+    /// `balm::MetricSample` containing `category`.
+    const InvocationSummary *findInvocation(
+                                         const balm::Category *category) const;
 
     /// Return a reference to the non-modifiable elapsed time value of the
     /// last sample passed to the `publish` method.  This method will
@@ -616,6 +608,15 @@ const TestPublisher::InvocationSummary *TestPublisher::findInvocation(
 }
 
 inline
+const TestPublisher::InvocationSummary *TestPublisher::findInvocation(
+                                          const balm::Category *category) const
+{
+    bsl::set<const balm::Category *> categories;
+    categories.insert(category);
+    return findInvocation(categories);
+}
+
+inline
 const bsls::TimeInterval& TestPublisher::lastElapsedTime() const
 {
     ASSERT(1 == d_elapsedTimes.size());
@@ -654,6 +655,69 @@ bsl::ostream& TestPublisher::print(bsl::ostream&   stream,
     return stream;
 }
 
+
+                            // ===================
+                            // class TestPublisher
+                            // ===================
+
+/// This class defines a test implementation of the `balm::Publisher`
+/// protocol that waits on a barrier for every call to `publish`.  This
+/// allows a test to synchronize with the publication scheduler's
+/// scheduling thread.
+class BarrierPublisher : public balm::Publisher {
+    bslmt::Barrier *d_barrier_p;
+    int             d_numWaits;
+
+    // NOT IMPLEMENTED
+    BarrierPublisher(const BarrierPublisher& );
+    BarrierPublisher& operator=(const BarrierPublisher& );
+
+  public:
+
+    // CREATORS
+
+    /// Create a publisher that, for the first specified `numWaits` calls to
+    /// `publish` will perform a wait at the specified `barrier`, subsequent
+    /// calls to `publish` will not wait and perform no action.
+    BarrierPublisher(bslmt::Barrier *barrier, int numWaits);
+
+    /// Destroy this barrier publisher.
+    ~BarrierPublisher() BSLS_KEYWORD_OVERRIDE;
+
+    // MANIPULATORS
+
+    /// Wait on the `barrier` supplied at construction.
+    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
+
+};
+
+                            // ----------------------
+                            // class BarrierPublisher
+                            // ----------------------
+
+// CREATORS
+inline
+BarrierPublisher::BarrierPublisher(bslmt::Barrier *barrier, int numWaits)
+: d_barrier_p(barrier)
+, d_numWaits(numWaits)
+{
+}
+
+inline
+BarrierPublisher::~BarrierPublisher()
+{
+}
+
+// MANIPULATORS
+void BarrierPublisher::publish(const balm::MetricSample& )
+{
+    if (0 < d_numWaits--) {
+        d_barrier_p->wait();
+    }
+}
+
+
+
                                 // ============
                                 // class Action
                                 // ============
@@ -683,9 +747,9 @@ class Action {
     };
 
   private:
-    Type                 d_type;        // type of action
+    Type                  d_type;        // type of action
     const balm::Category *d_category_p;  // category to schedule (or 0)
-    int                  d_interval;    // interval to schedule for
+    int                   d_interval;    // interval to schedule for
 
   public:
      // CLASS METHODS
@@ -2137,151 +2201,80 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: invocation of `publisher`" << endl
-                          << "==================================" << endl;
+                          << "TESTING: publication frequency" << endl
+                          << "==============================" << endl;
 
         balm::MetricsManager  manager(Z);
         balm::MetricRegistry& reg = manager.metricRegistry();
-        const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
+
+
+        const char *CATEGORIES[] = {"A", "B", "C", "wait"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
 
         // Initialize a list of all `balm::Category` addresses, and a collector
         // for each category (ensuring metrics to publish).
-        bsl::set<const balm::Category *> allCategories(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             manager.collectorRepository().getDefaultCollector(CATEGORIES[i],
                                                               "metric");
-            allCategories.insert(reg.getCategory(CATEGORIES[i]));
         }
+        const balm::Category *A_CAT = reg.getCategory("A");
+        const balm::Category *B_CAT = reg.getCategory("B");
+        const balm::Category *C_CAT = reg.getCategory("C");
 
         TestPublisher tp(Z);
-        PubPtr pub_p(&tp, bslstl::SharedPtrNilDeleter(), Z);
-        manager.addGeneralPublisher(pub_p);
+        manager.addGeneralPublisher(PubPtr(&tp,
+                                           bslstl::SharedPtrNilDeleter(),
+                                           Z));
 
-        // Use the time intervals '1' and '2' to make the number of
-        // expected invocations easy to compute.  Minimize test cases to keep
-        // the total running time low.
-        const char *TEST_SPECS[] = {
-            "A1",
-            "A1B2",
-            "A1X1",
-            "A1X2A2X1",
-            "A1A2X2X1",
-            "A1B2A2B2",
-            "A1B2B1A2"
-        };
-        const int NUM_SPECS = sizeof TEST_SPECS / sizeof *TEST_SPECS;
+        const int WAIT_COUNT = 2;
 
-        // This time unit was chosen experimentally, as the lowest value that
-        // was high enough to produce consistent results under heavy load.
-        const int TIME_UNIT = 100 * NANOSECS_PER_MILLISEC; // 100 milliseconds
+        bslmt::Barrier   barrier(2);
+        BarrierPublisher barrierPublisher(&barrier, WAIT_COUNT);
+        manager.addSpecificPublisher(
+                                "wait",
+                                PubPtr(&barrierPublisher, bslstl::SharedPtrNilDeleter(), Z));
 
-        for (int i = 0; i < NUM_SPECS; ++i) {
-            BALM_BEGIN_RETRY_TEST(3) {
-            bsl::vector<Action> actions(Z);
-            gg(&actions, manager.metricRegistry(), TEST_SPECS[i]);
+        bsls::TimeInterval intvl_wait(0, 2000 * NANOSECS_PER_MILLISEC);
+        bsls::TimeInterval intvl_A(0, 1900 * NANOSECS_PER_MILLISEC);
+        bsls::TimeInterval intvl_B(0, 500 * NANOSECS_PER_MILLISEC);
+        bsls::TimeInterval intvl_C(0, 1 * NANOSECS_PER_MILLISEC);
 
-            //    2. Configure a publication scheduler according to the
-            //       configuration and create a `CategoryScheduleOracle`
-            //       "oracle" (mapping category to frequency) describing the
-            //       configuration.
-            bdlmt::TimerEventScheduler timer(Z);
-            Obj mX(&manager, &timer, Z);
 
-            // Initialize the `balm::PublicationScheduler` under test and the
-            // `CategorySchedule` object `catSchedule`.
-            bsls::TimeInterval       defaultInterval(INVALID);
-            CategoryScheduleOracle  catSchedule(Z);
-            {
-                bsl::vector<Action>::const_iterator spIt = actions.begin();
-                for (; spIt != actions.end(); ++spIt) {
-                    bsls::TimeInterval interval(0, spIt->interval()*TIME_UNIT);
-                    if (spIt->type() == Action::SCHEDULE_CATEGORY) {
-                        catSchedule[spIt->category()] = interval;
-                        mX.scheduleCategory(spIt->category(), interval);
-                    }
-                    else {
-                        defaultInterval = interval;
-                        mX.setDefaultSchedule(defaultInterval);
-                    }
-                }
-            }
 
-            //    3. Convert the `CategoryScheduleOracle` "oracle" to a
-            //       `Schedule` "oracle", mapping a frequency to the set of
-            //       categories at that frequency.
-            ScheduleOracle schedule(Z);
-            {
-                bsl::set<const Category *> nonDefaultCategories(Z);
-                CategoryScheduleOracle::const_iterator csIt =
-                                                         catSchedule.begin();
-                for (; csIt != catSchedule.end(); ++csIt) {
-                    nonDefaultCategories.insert(csIt->first);
-                    schedule[csIt->second].insert(csIt->first);
-                }
-                if (defaultInterval != INVALID) {
-                    bsl::insert_iterator<bsl::set<const Category *> >
-                                        iIt(schedule[defaultInterval],
-                                            schedule[defaultInterval].begin());
-                    bsl::set_difference(allCategories.begin(),
-                                        allCategories.end(),
-                                        nonDefaultCategories.begin(),
-                                        nonDefaultCategories.end(),
-                                        iIt);
-                }
-            }
+        bdlmt::TimerEventScheduler timer(Z);
+        Obj mX(&manager, &timer, Z);
 
-            microSleep(MICROSECS_PER_MILLISEC * 10, 0);
-            manager.publishAll(); // reset all previous publication times.
-            tp.reset();
-            if (veryVeryVerbose) {
-                P_(i); P(TEST_SPECS[i]);
-                tp.print(bsl::cout, 1, 3);
-            }
+        mX.scheduleCategory("A", intvl_A);
+        mX.scheduleCategory("B", intvl_B);
+        mX.scheduleCategory("wait", intvl_wait);
+        mX.setDefaultSchedule(intvl_C);
 
-            //    4. Sleep for a multiple of `TIME_UNIT`.
-            timer.start();
+        timer.start();
 
-            // Wait 8 1/3 TIME_UNITs
-            const double TIME_UNIT_MICRO = TIME_UNIT / NANOSECS_PER_MICROSEC;
-            const int WAIT_MICRO = static_cast<int>(
-                                (TIME_UNIT_MICRO * 8) + (TIME_UNIT_MICRO / 3));
-            microSleep(WAIT_MICRO, 0);
-            timer.stop();
-
-            if (veryVeryVerbose) {
-                tp.print(bsl::cout, 1, 3);
-            }
-
-            //    5. Verify that the `publish` method was invoked correctly by
-            //       comparing the number of times that a set of categories
-            //       should have been published (determined using the "oracle"
-            //       `Schedule`) and then compare that to the actual number of
-            //       invocations reported by the `TestPublisher`.
-            ASSERT(tp.uniqueInvocations() ==
-                                            static_cast<int>(schedule.size()));
-            ScheduleOracle::const_iterator it = schedule.begin();
-            for (; it != schedule.end(); ++it) {
-                int numTimeUnits = it->first.nanoseconds() / TIME_UNIT;
-                int expInvocations = 8 / numTimeUnits;
-                const TestPublisher::InvocationSummary *invocation =
-                                                tp.findInvocation(it->second);
-
-                ASSERT(0              != expInvocations);
-
-                if (expInvocations!= invocation->d_numInvocations) {
-                    // Extra logging on failure.
-                    P_(i); P(WAIT_MICRO);
-                    tp.print(bsl::cout, 1, 3);
-                    mX.print(bsl::cout, 1, 3);
-
-                }
-                LOOP2_ASSERT(expInvocations,
-                             invocation->d_numInvocations,
-                             expInvocations == invocation->d_numInvocations);
-            }
-        } BALM_END_RETRY_TEST
+        for (int i = 0; i < WAIT_COUNT; ++i) {
+            barrier.wait();
         }
+
+        timer.stop();
+
+        ASSERT(0 != tp.findInvocation(A_CAT));
+        ASSERT(0 != tp.findInvocation(B_CAT));
+        ASSERT(0 != tp.findInvocation(C_CAT));
+
+        int countA  = tp.findInvocation(A_CAT)->d_numInvocations;
+        int countB  = tp.findInvocation(B_CAT)->d_numInvocations;
+        int countC  = tp.findInvocation(C_CAT)->d_numInvocations;
+
+        // Expected: WAIT_COUNT <= A <= B <= C
+        // Unfortunately, on loaded machines, they are often equal.
+
+        if (verbose) {
+            P_(WAIT_COUNT); P_(countA); P_(countB); P(countC);
+        }
+        ASSERTV(countA, WAIT_COUNT, WAIT_COUNT <= countA);
+        ASSERTV(countA, countB, countA <= countB);
+        ASSERTV(countB, countC, countB <= countC);
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2313,7 +2306,6 @@ int main(int argc, char *argv[])
                           << "TESTING: invocation of `publisher`" << endl
                           << "==================================" << endl;
 
-        BALM_BEGIN_RETRY_TEST(3) {
         // 1. Create a metrics manager and add a `TestPublisher` to it.
         balm::MetricsManager   manager(Z);
         balm::MetricRegistry& reg = manager.metricRegistry();
@@ -2334,20 +2326,71 @@ int main(int argc, char *argv[])
         }
 
         const char *TEST_SPECS[] = {
-            "X1", "A2", "B2", "C3", "D4", "X5", "A6",  // trivial
-            "A1B2", "A2B3", "A4B5", "A1D4", "C3A2",    // 2 categories
-            "A1B1", "A2B2", "B3C3", "B4D4", "C3D4",    // duplicate intervals
-            "X1A1", "A1X1", "B3X2", "B4X9", "D1X4",    // default
-            "A1B1X1", "X1A1B1", "A1X1B1", "C3X1D8",    // 2 cat + default
-            "A1A1", "A1A2", "A1B1B2", "A1B4A1",        // rescheduling
-            "C1C2A1", "C1C2A3", "D1D2D3D4",            // categories
-            "A1D1A2D2", "A1B1C2A2B2", "D2C1B1C3"
+            // Single Categories
+            "X1",
+            "A2",
+            "B2",
+            "C3",
+            "D4",
+            "X5",
+            "A6",
+
+            // 2 categories
+            "A1B2",
+            "A2B3",
+            "A4B5",
+            "A1D4",
+            "C3A2",
+
+            // categories with duplicate intervals
+            "A1B1",
+            "A2B2",
+            "B3C3",
+            "B4D4",
+            "C3D4",
+
+            // default schedule
+            "X1A1",
+            "A1X1",
+            "B3X2",
+            "B4X9",
+            "D1X4",
+
+            // 2 categories + a default schedule
+            "A1B1X1",
+            "X1A1B1",
+            "A1X1B1",
+            "C3X1D8",
+
+            // rescheduling a categorie
+            "A1A1",
+            "A1A2",
+            "A1B1B2",
+            "A1B4A1",
+
+            // multiple categories
+            "C1C2A1",
+            "C1C2A3",
+            "D1D2D3D4",
+            "A1D1A2D2",
+            "A1B1C2A2B2",
+            "D2C1B1C3"
             "A1B1C1D1A2B2C3D3A4B4C4D5"
             "A5B6C7D8A1B1C1D1",
             "A5B6C7D8D1C1B1A1",
-            "X1X1", "X8X8", "X1X9", "X9X3X3",          // reschedule w/ default
-            "A1X2X1", "A1X2X3", "A1X2A2", "X1A1X2",
-            "X4X6D6D4", "A1X2B2X1A2", "A2X4B5X5X6D6A6",
+
+            // multiple categories with rescheduling and a default
+            "X1X1",
+            "X8X8",
+            "X1X9",
+            "X9X3X3",
+            "A1X2X1",
+            "A1X2X3",
+            "A1X2A2",
+            "X1A1X2",
+            "X4X6D6D4",
+            "A1X2B2X1A2",
+            "A2X4B5X5X6D6A6",
             "X1A1B1C1D1X1B2C3D4X3A2D4X4X7A5B1C1X1",
             "A1B2C3D4X5",
         };
@@ -2358,6 +2401,7 @@ int main(int argc, char *argv[])
         //        and create a `CategoryScheduleOracle` "oracle" (mapping
         //        category to frequency) describing the configuration.
         for (int i = 0; i < NUM_SPECS; ++i) {
+            BALM_BEGIN_RETRY_TEST(3) {
             bsl::vector<Action> actions(Z);
             gg(&actions, manager.metricRegistry(), TEST_SPECS[i]);
 
@@ -2437,8 +2481,9 @@ int main(int argc, char *argv[])
 
             manager.publishAll(); // reset the previous publication time
             tp.reset();
+            } BALM_END_RETRY_TEST
         }
-        } BALM_END_RETRY_TEST
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3151,47 +3196,67 @@ int main(int argc, char *argv[])
         ASSERT(0 == timer.numEvents());
 
         {
-            BALM_BEGIN_RETRY_TEST(3) {
             if (veryVerbose) {
                 cout << "\tVerify callbacks are invoked\n";
             }
+            int WAIT_COUNT = 2;
+            bslmt::Barrier barrier(2);
+            BarrierPublisher barrierPublisher(&barrier, WAIT_COUNT);
+            PubPtr barrierPublisherSPtr(&barrierPublisher, bslstl::SharedPtrNilDeleter(), Z);
 
-            bsls::TimeInterval intvl_A(0, 250 * NANOSECS_PER_MILLISEC);
-            bsls::TimeInterval intvl_B(0, 550 * NANOSECS_PER_MILLISEC);
+            int rc = manager.addSpecificPublisher("wait", barrierPublisherSPtr);
+            manager.collectorRepository().getDefaultCollector("wait", "wait");
+            ASSERT(0 == rc);
+
+
+            bsls::TimeInterval intvl_A(0, 1 * NANOSECS_PER_MILLISEC);
+            bsls::TimeInterval intvl_B(0, 200 * NANOSECS_PER_MILLISEC);
+            bsls::TimeInterval intvl_wait(0, 250 * NANOSECS_PER_MILLISEC);
+
             const bsls::TimeInterval& INTVL_A = intvl_A;
             const bsls::TimeInterval& INTVL_B = intvl_B;
+            const bsls::TimeInterval& INTVL_WAIT = intvl_wait;
+
 
             Obj mX(&manager, &timer, Z);
 
             mX.scheduleCategory("A", INTVL_A);
             mX.scheduleCategory("B", INTVL_B);
-            mX.scheduleCategory("C", INTVL_A);
+            mX.scheduleCategory("C", INTVL_B);
+            mX.scheduleCategory("wait", INTVL_WAIT);
 
-            ASSERT(2 == timer.numClocks());
+            ASSERT(3 == timer.numClocks());
             ASSERT(0 == timer.numEvents());
 
-            microSleep(MICROSECS_PER_MILLISEC * 10, 0);
-            manager.publishAll();
             tp1.reset(); tp2.reset(); tp3.reset(); tp4.reset();
 
+
+            bsls::Stopwatch stopwatch;
+            stopwatch.start();
             timer.start();
 
-            microSleep(600 * MICROSECS_PER_MILLISEC, 0);
+            for (int i = 0; i < WAIT_COUNT; ++i) {
+                barrier.wait();
+            }
 
             timer.stop();
+            stopwatch.stop();
 
-            ASSERT(2 == tp1.invocations());
-            ASSERT(1 == tp2.invocations());
-            ASSERT(2 == tp3.invocations());
-            ASSERT(0 == tp4.invocations());
+            ASSERTV(tp1.invocations(), WAIT_COUNT <= tp1.invocations());
+            ASSERTV(tp2.invocations(), WAIT_COUNT <= tp2.invocations());
+            ASSERTV(tp3.invocations(), WAIT_COUNT <= tp3.invocations());
+            ASSERTV(tp4.invocations(), 0 == tp4.invocations());
 
-            // Verify publisher 1 and 3 were invoked by the same call to
+            ASSERTV(tp1.invocations(), tp2.invocations(), tp2.invocations() <= tp1.invocations());
+            ASSERTV(tp1.invocations(), tp3.invocations(), tp3.invocations() <= tp1.invocations());
+
+            // These should be equal because they should be invoked by the same clock,
+            ASSERTV(tp2.invocations(), tp3.invocations(), tp2.invocations() == tp3.invocations());
+
+            // Verify publisher 2 and 3 were invoked by the same call to
             // metrics manager publisher.
-            ASSERT(tp1.lastTimeStamp() == tp3.lastTimeStamp());
-            ASSERT(tp1.lastTimeStamp() != tp2.lastTimeStamp());
-
-            ASSERT(tp1.lastElapsedTime() == tp3.lastElapsedTime());
-            ASSERT(tp1.lastElapsedTime() != tp2.lastElapsedTime());
+            ASSERT(tp2.lastTimeStamp() == tp3.lastTimeStamp());
+            ASSERT(tp1.lastTimeStamp() != tp3.lastTimeStamp());
 
             if (veryVeryVerbose) {
                 P(tp1.lastElapsedTime());
@@ -3203,10 +3268,20 @@ int main(int argc, char *argv[])
                 P(tp3.lastTimeStamp());
             }
 
-            ASSERT(withinWindow(tp1.lastElapsedTime(), INTVL_A, 40));
-            ASSERT(withinWindow(tp2.lastElapsedTime(), INTVL_B, 40));
-            ASSERT(withinWindow(tp3.lastElapsedTime(), INTVL_A, 40));
-            } BALM_END_RETRY_TEST
+            bsls::TimeInterval ZERO, ELAPSED(stopwatch.elapsedTime());
+            ASSERTV(tp1.lastElapsedTime(), ZERO <= tp1.lastElapsedTime());
+            ASSERTV(tp1.lastElapsedTime(), ELAPSED,
+                    tp1.lastElapsedTime() <= ELAPSED);
+
+
+            ASSERTV(tp2.lastElapsedTime(), ZERO <= tp2.lastElapsedTime());
+            ASSERTV(tp2.lastElapsedTime(), ELAPSED,
+                    tp2.lastElapsedTime() <= ELAPSED);
+
+
+            ASSERTV(tp3.lastElapsedTime(), ZERO <= tp3.lastElapsedTime());
+            ASSERTV(tp3.lastElapsedTime(), ELAPSED,
+                    tp3.lastElapsedTime() <= ELAPSED);
         }
       } break;
       default: {

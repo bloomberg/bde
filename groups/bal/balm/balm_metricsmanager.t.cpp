@@ -244,25 +244,6 @@ bool recordLess(const balm::MetricRecord& lhs, const balm::MetricRecord& rhs)
     return lhs.metricId() < rhs.metricId();
 }
 
-/// Return `true` if the specified `localTime` is within the specified
-/// `windowMs` (milliseconds) of the specified `utcExpectedTime`.
-bool withinWindow(const bdlt::DatetimeTz& localTime,
-                  const bdlt::Datetime&   utcExpectedTime,
-                  bsls::Types::Int64      windowMs)
-{
-    bdlt::Datetime gmtTime = localTime.utcDatetime();
-    bdlt::Datetime begin   = utcExpectedTime;
-    bdlt::Datetime end     = utcExpectedTime;
-    begin.addMilliseconds(-windowMs);
-    end.addMilliseconds(windowMs);
-
-    bool withinWindow = begin <= gmtTime && end >= gmtTime;
-    if (!withinWindow) {
-        P_(localTime); P_(gmtTime); P(utcExpectedTime);
-    }
-    return withinWindow;
-}
-
 /// Return the `balm::Category` for the first record in `group`.  `ASSERT`
 /// if all the records in the group do not belong to the same category.  The
 /// behavior is undefined in `group.numRecords()` is 0.
@@ -279,11 +260,12 @@ const balm::Category *firstCategory(const balm::MetricSampleGroup& group)
     return value;
 }
 
+
 /// Return `true` if the specified `value` is within the specified
 /// `windowMs` (milliseconds) of the specified `expectedValue`.
 bool withinWindow(const bsls::TimeInterval& value,
                   const bsls::TimeInterval& expectedValue,
-                  bsls::Types::Int64        windowMs)
+                  int                       windowMs)
 {
     bsls::TimeInterval window(0, windowMs * NANOSECS_PER_MILLISEC);
     bool withinWindow = (expectedValue - window) <= value
@@ -293,6 +275,21 @@ bool withinWindow(const bsls::TimeInterval& value,
         P_(windowMs); P_(expectedValue); P(value);
     }
     return withinWindow;
+}
+
+/// Return `true` if the specified `value` is within the specified
+/// `utcStarTime` and `utcEndTime`.
+bool withinRange(const bdlt::DatetimeTz& value,
+                 const bdlt::Datetime&   utcStarTime,
+                 const bdlt::Datetime&   utcEndTime)
+{
+    bool withinRange = utcStarTime <= value.utcDatetime() && value.utcDatetime() <= utcEndTime;
+    if (!withinRange) {
+        P_(value);
+        P_(utcStarTime);
+        P(utcEndTime);
+    }
+    return withinRange;
 }
 
                              // ==================
@@ -983,8 +980,6 @@ void ConcurrencyTest::execute()
     Obj *mX = d_manager_p; const Obj *MX = mX;
     Registry& registry = mX->metricRegistry();
     for (int i = 0; i < 10; ++i) {
-        bdlt::Datetime iterationStartTime = bdlt::CurrentTime::utc();
-
         // Create 2 strings unique for this iteration.
 
         bsl::string iterStringA, iterStringB;
@@ -1078,7 +1073,10 @@ void ConcurrencyTest::execute()
         ASSERT(Obj::e_INVALID_HANDLE != kS1);
         ASSERT(Obj::e_INVALID_HANDLE != kS2);
 
+
         // Test `collectSample`
+        bdlt::Datetime startTime = bdlt::CurrentTime::utc();
+
         bsl::vector<balm::MetricRecord> records;
         balm::MetricSample              sample;
         mX->collectSample(&sample,
@@ -1093,12 +1091,9 @@ void ConcurrencyTest::execute()
         ASSERT(1 == s1Cb.invocations());
         ASSERT(1 == s2Cb.invocations());
 
-        bdlt::Datetime now = bdlt::CurrentTime::utc();
-        bsls::Types::Int64 milliseconds =
-            1 + (now - iterationStartTime).totalMilliseconds();
+        bdlt::Datetime endTime = bdlt::CurrentTime::utc();
 
-        ASSERTV(sample.timeStamp(), now, iterationStartTime, milliseconds,
-                withinWindow(sample.timeStamp(), now, milliseconds));
+        ASSERT(withinRange(sample.timeStamp(), startTime, endTime));
 
         // Test `publish`.
         mX->publish(allCategories.data(),
@@ -1878,7 +1873,8 @@ int main(int argc, char *argv[])
                 }
             }
 
-            bsls::TimeInterval start = bdlt::CurrentTime::now();
+            bdlt::Datetime start = bdlt::CurrentTime::utc();
+            bsls::TimeInterval startIntvl = bdlt::CurrentTime::now();
             bslmt::ThreadUtil::microSleep(100000, 0);
 
             bsl::vector<balm::MetricRecord>      recordsBsl(Z);
@@ -1889,12 +1885,12 @@ int main(int argc, char *argv[])
             mX.collectSample(&sample, &recordsBsl, false);
             sz = recordsBsl.size();
 
-            bsls::TimeInterval window = bdlt::CurrentTime::now() - start;
-            bdlt::Datetime     now    = bdlt::CurrentTime::utc();
+            bsls::TimeInterval window = bdlt::CurrentTime::now() - startIntvl;
+            bdlt::Datetime     end    = bdlt::CurrentTime::utc();
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sz);
             ASSERT(NUM_CATEGORIES * NUM_METRICS == sample.numRecords());
             ASSERT(NUM_CATEGORIES               == sample.numGroups());
-            ASSERT(withinWindow(sample.timeStamp(), now, 10));
+            ASSERT(withinRange(sample.timeStamp(), start, end));
             for (int i = 0; i < sample.numGroups(); ++i) {
                 const balm::MetricSampleGroup& group = sample.sampleGroup(i);
                 ASSERT(withinWindow(group.elapsedTime(), window, 10));
@@ -2847,7 +2843,7 @@ int main(int argc, char *argv[])
                        excludedSetBsl.size() + combIt.current().size());
 
                 // Publish the records.
-                bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+                bdlt::Datetime startTime = bdlt::CurrentTime::utc();
 
                 switch (libType) {
                   case u::e_BSL: {
@@ -2872,8 +2868,10 @@ int main(int argc, char *argv[])
                     ASSERT(0 == gPub.invocations())
                 }
                 else {
+                    bdlt::Datetime endTime = bdlt::CurrentTime::utc();
                     ASSERT(1 == gPub.invocations());
-                    ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+                    ASSERT(withinRange(
+                        gPub.lastTimeStamp(), startTime, endTime));
                     ASSERT(static_cast<int>(combIt.current().size()) ==
                            gPub.lastSample().numGroups());
                 }
@@ -2966,12 +2964,12 @@ int main(int argc, char *argv[])
 
         // Invoke `publishAll`.
         bslmt::ThreadUtil::microSleep(100000, 0);
-        bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+        bdlt::Datetime startTime = bdlt::CurrentTime::utc();
         mX.publishAll();
-
+        bdlt::Datetime endTime = bdlt::CurrentTime::utc();
         // Verify the "general" publisher has been invoked.
         ASSERT(1 == gPub.invocations());
-        ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+        ASSERT(withinRange(gPub.lastTimeStamp(), startTime, endTime));
         ASSERT(gPub.lastElapsedTimes().size() == 1);
         ASSERT(bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
 
@@ -3061,11 +3059,12 @@ int main(int argc, char *argv[])
 
             // Publish the records.
             bslmt::ThreadUtil::microSleep(100000, 0);
-            bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+            bdlt::Datetime startTime = bdlt::CurrentTime::utc();
             mX.publish(CAT);
+            bdlt::Datetime endTime = bdlt::CurrentTime::utc();
 
             ASSERT(1 == gPub.invocations());
-            ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+            ASSERT(withinRange(gPub.lastTimeStamp(), startTime, endTime));
             ASSERT(gPub.lastElapsedTimes().size() == 1);
             ASSERT(
                   bsls::TimeInterval(0, 0) < *gPub.lastElapsedTimes().begin());
@@ -3167,7 +3166,7 @@ int main(int argc, char *argv[])
                 }
                 const bsl::vector<const Category *>& categories =
                                                               combIt.current();
-                bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+                bdlt::Datetime startTime = bdlt::CurrentTime::utc();
 
                 bsl::set<const balm::Category *>      categorySetBsl(Z);
                 std::set<const balm::Category *>      categorySetStd;
@@ -3207,7 +3206,9 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ASSERT(1 == gPub.invocations());
-                    ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
+                    bdlt::Datetime endTime = bdlt::CurrentTime::utc();
+                    ASSERT(withinRange(gPub.lastTimeStamp(),
+                           startTime, endTime));
                     ASSERT(static_cast<int>(sz) ==
                                                 gPub.lastSample().numGroups());
                 }
@@ -3349,11 +3350,13 @@ int main(int argc, char *argv[])
 
             //   2. Create a unique time interval and invoke `publish`.
             const bsl::vector<const Category *>& categories = combIt.current();
-            bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
+            bdlt::Datetime startTime = bdlt::CurrentTime::utc();
             if (categories.size() > 0) {
                 mX.publish(categories.data(),
                            static_cast<int>(categories.size()));
             }
+
+            bdlt::Datetime endTime = bdlt::CurrentTime::utc();
 
             //   3. For each combination of (category, metric name) to be
             //      collected by callback: verify that, that the callback was
@@ -3398,7 +3401,8 @@ int main(int argc, char *argv[])
                     // If the publisher was invoked verify the time stamp,
                     // elapsed time, and records published.
                     if (combIt.includesElement(i)) {
-                        ASSERT(withinWindow(pub->lastTimeStamp(), tmStamp,10));
+                        ASSERT(withinRange(
+                            pub->lastTimeStamp(), startTime, endTime));
                         ASSERT(1 == pub->lastSample().numGroups());
                         ASSERT(2 * NUM_METRICS == pub->lastRecords().size());
                         for (int k = 0; k < NUM_METRICS; ++k) {
@@ -3429,7 +3433,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
                 ASSERT(1 == pub->invocations());
-                ASSERT(withinWindow(pub->lastTimeStamp(), tmStamp, 10));
+                ASSERT(withinRange(pub->lastTimeStamp(), startTime, endTime));
                 ASSERT(pub->lastSample().numGroups() ==
                        static_cast<int>(combIt.current().size()));
                 ASSERT(2 * NUM_METRICS * categories.size() ==
@@ -4462,11 +4466,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == tcbb_2.invocations());
         ASSERT(0 == tcbc_2.invocations());
 
-        // Use a 20 minute window to verify timestamps.  If the test
-        // takes longer than 10 minutes to run, there are other issues.
-        bdlt::Datetime now    = bdlt::CurrentTime::utc();
-        const int     WINDOW = 10 * 60 * MILLISECS_PER_SEC;
-
         // Reset dummy callbacks and dummy publishers
         mX.publishAll();  // Reset the prev publication time of all categories
         tcba_1.reset(); tcba_2.reset();
@@ -4555,14 +4554,13 @@ int main(int argc, char *argv[])
         ASSERT(1 == tpa_1.lastElapsedTimes().size());
         LOOP_ASSERT(*tpa_1.lastElapsedTimes().begin(),
             bsls::TimeInterval(0, 0) < *tpa_1.lastElapsedTimes().begin());
-        withinWindow(tpa_1.lastTimeStamp(), now, WINDOW);
+
         ASSERT(2 == tpa_1.lastRecords().size());
         ASSERT(tpa_1.contains(tcba_1.metricId()));
 
         ASSERT(1 == tpa_2.lastElapsedTimes().size());
         LOOP_ASSERT(*tpa_2.lastElapsedTimes().begin(),
             bsls::TimeInterval(0, 0) < *tpa_2.lastElapsedTimes().begin());
-        withinWindow(tpa_2.lastTimeStamp(), now, WINDOW);
         ASSERT(2 == tpa_2.lastRecords().size());
         ASSERT(tpa_2.contains(tcba_2.metricId()));
 
@@ -4651,7 +4649,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == tpa_1.lastElapsedTimes().size());
         LOOP_ASSERT(*tpa_1.lastElapsedTimes().begin(),
             bsls::TimeInterval(0, 0) < *tpa_1.lastElapsedTimes().begin());
-        withinWindow(tpa_1.lastTimeStamp(), now, WINDOW);
 
         ASSERT(2 == tpa_1.lastRecords().size());
         ASSERT(2 == tpa_2.lastRecords().size());
