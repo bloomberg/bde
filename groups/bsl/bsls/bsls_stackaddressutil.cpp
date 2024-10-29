@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <bsls_stackaddressutil_plinktimestamp.h>
 #include <bsls_types.h>
@@ -65,6 +64,18 @@ BSLS_IDENT("$Id$ $CSID$")
 #pragma optimize("", off)
 
 #endif
+
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
+#   if defined(BSLS_PLATFORM_CMP_MSVC)
+#       define BSLS_STACKADDRESSUTIL_FORMAT_PADDED "%016llX"
+#   else
+#       define BSLS_STACKADDRESSUTIL_FORMAT_PADDED "%016lX"
+#   endif
+#else
+#  define BSLS_STACKADDRESSUTIL_FORMAT_PADDED "%08X"
+#endif
+    // BSLS_STACKADDRESSUTIL_FORMAT_PADDED provides the `printf` format
+    // specifier for printing `uintptr_t` with zero padding.
 
 namespace {
 
@@ -714,7 +725,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
     if (stackOffset != 0) {
         printed = snprintf(out,
                            rem,
-                           "-o 0x" BSLS_BSLTESTUTIL_FORMAT_PTR " ",
+                           "-o 0x" BSLS_STACKADDRESSUTIL_FORMAT_PADDED " ",
                            stackOffset);
         out += printed;
         rem -= printed;
@@ -757,7 +768,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
 
         printed = snprintf(out,
                            rem,
-                           " " BSLS_BSLTESTUTIL_FORMAT_PTR,
+                           " " BSLS_STACKADDRESSUTIL_FORMAT_PADDED,
                            stackValue);
 
         rem -= printed;
