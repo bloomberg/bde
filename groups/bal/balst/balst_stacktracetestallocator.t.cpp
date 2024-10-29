@@ -605,22 +605,38 @@ void my_assertHandlerLongJmp(const char *,  // text
     longjmp(my_setJmpBuf, true);
 }
 
-void my_failureHandlerLongJmp()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    // setjmp / longjmp is flaky on Windows
+struct my_FailureHandlerLongJmp {
+    // The Solaris GNU compiler, when optimized in C++11 or beyond, somehow
+    // corrupts memory if 'longjmp' is called from a d'tor.  For reasons I
+    // don't understand, the problem goes away if this handler is a functor and
+    // not a free function.
+    //
+    // It was very hard to narrow down, but if the handler is a free function
+    // in a 'bsl::function<void()>', it somehow corrupts the 'bsl::function'
+    // object such that the next assignment to that 'bsl::function' object
+    // results in either a segfault or an illegal instruction.  The problem
+    // mysteriously comes and goes as debug traces are added and removed.  If
+    // the 'bsl::function' contains a functor and not a ptr to a free function,
+    // the problem somehow doesn't happen.
 
-    ASSERT(0);
+    void operator()() {
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // setjmp / longjmp is flaky on Windows
+
+        ASSERT(0);
 #endif
 
-    longjmp(my_setJmpBuf, true);
-}
+        longjmp(my_setJmpBuf, true);
+    }
+};
 
 bool my_failureHandlerFlag = false;
-void my_failureHandlerSetFlag()
-{
-    my_failureHandlerFlag = true;
-}
+struct my_FailureHandlerSetFlag {
+    void operator()()
+    {
+        my_failureHandlerFlag = true;
+    }
+};
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 enum { ABORT_LIMIT = 1 };
@@ -1966,9 +1982,14 @@ int main(int argc, char *argv[])
                             ASSERT(ABORT);
                         }
                         else {
-                            ta.setFailureHandler(ABORT
-                                                 ? &my_failureHandlerLongJmp
-                                                 : &my_failureHandlerSetFlag);
+                            if (ABORT) {
+                                ta.setFailureHandler(
+                                                   my_FailureHandlerLongJmp());
+                            }
+                            else {
+                                ta.setFailureHandler(
+                                                   my_FailureHandlerSetFlag());
+                            }
                             my_failureHandlerFlag = false;
 
                             ta.deallocate(ptr);
@@ -2029,9 +2050,14 @@ int main(int argc, char *argv[])
                             ASSERT(ABORT);
                         }
                         else {
-                            ta.setFailureHandler(ABORT
-                                                 ? &my_failureHandlerLongJmp
-                                                 : &my_failureHandlerSetFlag);
+                            if (ABORT) {
+                                ta.setFailureHandler(
+                                                   my_FailureHandlerLongJmp());
+                            }
+                            else {
+                                ta.setFailureHandler(
+                                                   my_FailureHandlerSetFlag());
+                            }
 
                             my_failureHandlerFlag = false;
 
@@ -2161,8 +2187,14 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    tba.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                                : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                        tba.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                        tba.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     void *ptr = tba.allocate(6);
 
@@ -2209,8 +2241,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss. str().empty());
                     ASSERT(oss2.str().empty());
@@ -2263,8 +2299,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss.str().empty());
 
@@ -2307,8 +2347,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss.str().empty());
 
@@ -2351,8 +2395,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss.str().empty());
 
@@ -2397,8 +2445,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss.str().empty());
 
@@ -2443,8 +2495,12 @@ int main(int argc, char *argv[])
                     ASSERT(ABORT);
                 }
                 else {
-                    ta.setFailureHandler(ABORT ? &my_failureHandlerLongJmp
-                                               : &my_failureHandlerSetFlag);
+                    if (ABORT) {
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
+                    }
+                    else {
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
+                    }
 
                     ASSERT(oss.str().empty());
 
@@ -2493,8 +2549,12 @@ int main(int argc, char *argv[])
                         ASSERT(ABORT);
                     }
                     else {
-                        ta.setFailureHandler(ABORT ?&my_failureHandlerLongJmp
-                                                   :&my_failureHandlerSetFlag);
+                        if (ABORT) {
+                            ta.setFailureHandler(my_FailureHandlerLongJmp());
+                        }
+                        else {
+                            ta.setFailureHandler(my_FailureHandlerSetFlag());
+                        }
 
                         ASSERT(oss.str().empty());
 
@@ -2657,15 +2717,6 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         break;
 #endif
-#if defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GNU) &&    \
-    defined(BDE_BUILD_TARGET_OPT)
-        // There seems to be a compiler bug in Solaris GNU compilers where,
-        // with the optimizer on, the `longjmp` here corrupts a nearby
-        // automatic variable.  Let's face it -- doing a `longjmp` out of a
-        // d'tor is not a very important test.
-
-        break;
-#endif
 
         if (verbose) Q(Longjmp on destruction with blocks outstanding);
         {
@@ -2710,7 +2761,7 @@ int main(int argc, char *argv[])
                     ASSERT(pta->numBlocksInUse() == numAllocs);
                 }
                 else {
-                    pta->setFailureHandler(&my_failureHandlerLongJmp);
+                    pta->setFailureHandler(my_FailureHandlerLongJmp());
 
                     if (veryVerbose) P(staBlocks);
 
@@ -3378,10 +3429,10 @@ int main(int argc, char *argv[])
                 }
                 else {
                     if (FAILURE_LONGJMP) {
-                        ta.setFailureHandler(&my_failureHandlerLongJmp);
+                        ta.setFailureHandler(my_FailureHandlerLongJmp());
                     }
                     else {
-                        ta.setFailureHandler(&my_failureHandlerSetFlag);
+                        ta.setFailureHandler(my_FailureHandlerSetFlag());
                     }
 
                     my_failureHandlerFlag = false;
