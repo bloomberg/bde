@@ -140,9 +140,12 @@ BSLS_IDENT("$Id: $")
 ///Valid Use, Limitations, and Caveats
 ///------------------------------------
 // Each of the functions implemented in this component are well behaved for all
-// non-negative values of `relTol` and `absTol`.  If either `relTol` or
-// `absTol` is negative the behavior is undefined.  Note that this includes
-// negative zero!
+// non-negative numeric values of `relTol` and `absTol`.  If either `relTol`
+// or `absTol` is NaN, infinioty, or negative the behavior is undefined.  (Note
+// that this includes negative zero!)  If either `relTol` or `absTol` is
+// (positive) zero, that aspect of "fuzzy comparison" is suppressed; if both
+// are zero, each of the six fuzzy-comparison operations behave as
+// runtime-intensive versions of their non-fuzzy counterparts.
 //
 // Note that the definition of fuzzy equality used in this component does have
 // one intermediate singularity: When `(fabs(a - b) > absTol && (a == -b))` is
@@ -163,7 +166,6 @@ BSLS_IDENT("$Id: $")
 // become increasingly unreliable.  The user is responsible for determining
 // the limits of applicability of this component to a given calculation, and
 // for coding accordingly.
-//
 //
 ///Usage
 ///-----
@@ -255,14 +257,13 @@ struct DoubleCompareUtil {
     /// is `true`, the actual relative difference is effectively infinite,
     /// and no value of `relTol` can imply fuzzy equality (although a
     /// sufficiently large value of `absTol` can).  Note that if either
-    /// `absTol` or `relTol` is non-positive, that aspect of fuzzy
-    /// comparison is effectively suppressed, but the behavior of this
-    /// function is defined (i.e., the behavior is the same as if the
-    /// tolerance were 0.0).  The behavior is undefined unless both 'relTol`
-    /// and `absTol` are non-negative, finite numbers (which excludes NaN).
-    /// Note also that the primary purpose of this public static comparison
-    /// method is to implement the six fuzzy equality and relational functions
-    /// also defined within this utility `struct` (see `fuzzyEq`, `fuzzyNe`,
+    /// `absTol` or `relTol` is 0.0, that aspect of fuzzy comparison is
+    /// effectively suppressed, but the behavior of this function is defined.
+    /// The behavior is undefined unless both 'relTol` and `absTol` are
+    /// non-negative, finite numbers (which excludes NaN and infinity).  Note
+    /// also that the primary purpose of this public static comparison method
+    /// is to implement the six fuzzy equality and relational functions also
+    /// defined within this utility `struct` (see `fuzzyEq`, `fuzzyNe`,
     /// `fuzzyLt`, `fuzzyLe`, `fuzzyGt`, and `fuzzyGe`).
     static CompareResult fuzzyCompare(double a, double b);
     static CompareResult fuzzyCompare(double a, double b, double relTol);
@@ -280,9 +281,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy equality.  If an optional tolerance argument is
     /// not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyEq(double a, double b);
     static bool fuzzyEq(double a, double b, double relTol);
     static bool fuzzyEq(double a, double b, double relTol, double absTol);
@@ -297,9 +300,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy inequality.  If an optional tolerance argument is
     /// not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyNe(double a, double b);
     static bool fuzzyNe(double a, double b, double relTol);
     static bool fuzzyNe(double a, double b, double relTol, double absTol);
@@ -313,9 +318,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy less-than.  If an optional tolerance argument is
     /// not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyLt(double a, double b);
     static bool fuzzyLt(double a, double b, double relTol);
     static bool fuzzyLt(double a, double b, double relTol, double absTol);
@@ -330,9 +337,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy less-equal.  If an optional tolerance argument is
     /// not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyLe(double a, double b);
     static bool fuzzyLe(double a, double b, double relTol);
     static bool fuzzyLe(double a, double b, double relTol, double absTol);
@@ -347,9 +356,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy greater-than.  If an optional tolerance argument is
     /// not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyGt(double a, double b);
     static bool fuzzyGt(double a, double b, double relTol);
     static bool fuzzyGt(double a, double b, double relTol, double absTol);
@@ -364,9 +375,11 @@ struct DoubleCompareUtil {
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy greater-equal.  If an optional tolerance argument
     /// is not specified, a reasonable (implementation-dependent) default
-    /// value for that tolerance is used.  The behavior is undefined unless
-    /// both 'relTol` and `absTol` are non-negative, finite numbers (which
-    /// excludes NaN values).
+    /// value for that tolerance is used.  Note that if either `absTol` or
+    /// `relTol` is 0.0, that aspect of fuzzy comparison is effectively
+    /// suppressed, but the behavior of this function is defined.  The behavior
+    /// is undefined unless both 'relTol` and `absTol` are non-negative, finite
+    /// numbers (which excludes NaN and infinity).
     static bool fuzzyGe(double a, double b);
     static bool fuzzyGe(double a, double b, double relTol);
     static bool fuzzyGe(double a, double b, double relTol, double absTol);

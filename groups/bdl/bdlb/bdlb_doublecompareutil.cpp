@@ -40,6 +40,15 @@ DoubleCompareUtil::fuzzyCompare(double a,
     BSLS_ASSERT(bdlb::Float::isFinite(absTol));
     BSLS_ASSERT(bdlb::Float::signBit(absTol) == false);
 
+    // Note that a previous iteration of this component allowed for negative
+    // tolerance values, but the expressions for evaluating the comparison
+    // meant that supplying a negative tolerance had the same behavior as
+    // supplying 0, and suppresses that aspect of fuzzy comparison.
+    //
+    // Be aware: the HSL intrinsic FUZZY functions rely on 0.0 tolerances
+    // suppressing that element of fuzzy comparison when negative tolerance is
+    // specified for either or both parameters.
+
     // First check for the *very* special case of NaNs.
     if (a != a || b != b) {
         return e_NON_COMPARABLE;                                      // RETURN
