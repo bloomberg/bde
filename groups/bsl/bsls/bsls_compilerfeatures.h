@@ -21,9 +21,11 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: `[[nodiscard]]`
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: `[[noreturn]]` attribute
 //  BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: C++20 core language concepts
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20: `consteval` specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: `constexpr` specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: C++14 `constexpr` spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: C++17 `constexpr` spec.
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20: C++20 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_COROUTINE: core & lib C++20 coroutine support
 //  BSLS_COMPILERFEATURES_SUPPORT_CTAD: flag for template argument deduction
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for `decltype`
@@ -228,6 +230,10 @@ BSLS_IDENT("$Id: $")
 //   > supported by the current compiler settings for this platform, as
 //   > defined by ISO C++20.
 //
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20`
+//   > This macro is defined if `consteval`, as defined by ISO C++20, is
+//   > supported by the current compiler settings for this platform.
+//
 // * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR`
 //   > This macro is defined if `constexpr` is supported by the current
 //   > compiler settings for this platform.
@@ -243,6 +249,11 @@ BSLS_IDENT("$Id: $")
 //   > This macro is defined if `constexpr` with C++17 semantics is supported
 //   > by the current compiler settings for this platform.  In particular,
 //   > this allows lambda functions to be defined in a `constexpr` function.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20`
+//   > This macro is defined if 'constexpr' with C++20 semantics is supported
+//   > by the current compiler settings for this platform.  In particular,
+//   > this allows transient allocations.
 //
 // * `BSLS_COMPILERFEATURES_SUPPORT_COROUTINE`
 //   > This macro is defined if coroutines with C++20 (or later) semantics are
@@ -1112,6 +1123,19 @@ BSLS_IDENT("$Id: $")
   #if defined(__cpp_lib_three_way_comparison) &&                             \
                                       __cpp_lib_three_way_comparison >= 201907L
     #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
+  #endif
+#endif
+
+#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
+  // We test against 201907L instead of the published 202002L.
+  #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
+    #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
+                                       __cpp_constexpr_dynamic_alloc >= 201907L
+      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
+    #endif
+  #endif
+  #if defined(__cpp_consteval) && __cpp_consteval >= 201811L
+      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20                   1
   #endif
 #endif
 

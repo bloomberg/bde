@@ -10,11 +10,13 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
+//  BSLS_KEYWORD_CONSTEVAL_CPP20: C++20 `consteval` keyword
 //  BSLS_KEYWORD_CONSTEXPR: C++11 `constexpr` keyword
 //  BSLS_KEYWORD_CONSTEXPR_MEMBER: for `constexpr` data members (Deprecated)
 //  BSLS_KEYWORD_CONSTEXPR_RELAXED: C++14 `constexpr` keyword (Deprecated)
 //  BSLS_KEYWORD_CONSTEXPR_CPP14: C++14 `constexpr` keyword
 //  BSLS_KEYWORD_CONSTEXPR_CPP17: C++17 `constexpr` keyword
+//  BSLS_KEYWORD_CONSTEXPR_CPP20: C++20 `constexpr` keyword
 //  BSLS_KEYWORD_DELETED: C++11 `= delete` function definition
 //  BSLS_KEYWORD_EXPLICIT: C++11 `explicit` for conversion operators
 //  BSLS_KEYWORD_FINAL: C++11 `final` keyword
@@ -40,7 +42,11 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The following are the macros provided by this component.
 //
-//: `BSLS_KEYWORD_CONSTEXPR`:
+//: `BSLS_KEYWORD_CONSTEVAL_CPP20`:
+//:     This macro inserts the keyword `consteval` when compiling with C++20
+//:     or later mode and inserts nothing when compiling with earlier modes.
+//:
+// `BSLS_KEYWORD_CONSTEXPR`:
 //:     This macro inserts the keyword `constexpr` when compiling with C++11
 //:     or later mode and inserts nothing when compiling with C++03 mode.
 //:
@@ -66,6 +72,11 @@ BSLS_IDENT("$Id: $")
 //:     or later mode and inserts nothing when compiling with C++03/C++11/C++14
 //:     mode.  See Example 2 below for a better description of the differences
 //:     between `constexpr` between C++11, C++14, and C++17.
+//:
+//: `BSLS_KEYWORD_CONSTEXPR_CPP20`:
+//:     This macro inserts the keyword `constexpr` when compiling with C++20
+//:     or later mode and inserts nothing when compiling with
+//:     C++03/C++11/C++14/C++17 mode.
 //:
 //: `BSLS_KEYWORD_DELETED`:
 //:     This macro inserts the text `= delete` when compiling with C++11
@@ -529,6 +540,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20
+# define BSLS_KEYWORD_CONSTEVAL_CPP20  consteval
+#else
+# define BSLS_KEYWORD_CONSTEVAL_CPP20
+#endif
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 # define BSLS_KEYWORD_CONSTEXPR        constexpr
 # define BSLS_KEYWORD_CONSTEXPR_MEMBER constexpr
@@ -549,6 +566,12 @@ BSLS_IDENT("$Id: $")
 # define BSLS_KEYWORD_CONSTEXPR_CPP17 constexpr
 #else
 # define BSLS_KEYWORD_CONSTEXPR_CPP17
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
+#define BSLS_KEYWORD_CONSTEXPR_CPP20 constexpr
+#else
+#define BSLS_KEYWORD_CONSTEXPR_CPP20
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
