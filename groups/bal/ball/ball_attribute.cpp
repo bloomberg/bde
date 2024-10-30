@@ -23,7 +23,8 @@ struct ValueHashVisitor {
     /// Return the hash value for the specified `string`.
     unsigned int operator()(const bsl::string& string) const
     {
-        return bdlb::HashUtil::hash1(string.data(), string.size());
+        return bdlb::HashUtil::hash1(string.data(),
+                                     static_cast<int>(string.size()));
     }
 
     /// Return the hash value for the specified `guid`.
@@ -58,9 +59,10 @@ int Attribute::hash(const Attribute& attribute, int size)
 
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
         const unsigned int hash =
-                  bdlb::HashUtil::hash1(attribute.d_name.data(),
-                                        bsl::ssize(attribute.d_name)) +
-                  attribute.d_value.applyRaw<unsigned int>(ValueHashVisitor());
+            bdlb::HashUtil::hash1(attribute.d_name.data(),
+                                  static_cast<int>(
+                                               bsl::ssize(attribute.d_name))) +
+            attribute.d_value.applyRaw<unsigned int>(ValueHashVisitor());
 
         attribute.d_hashValue = hash % size;
         attribute.d_hashSize  = size;
