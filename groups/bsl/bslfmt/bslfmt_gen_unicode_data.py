@@ -92,54 +92,38 @@ namespace bslfmt {{
 
 // ----------------------------------------------------------------------------
 //
-// The data herein is generated from Unicode data files.
+// The data herein is generated from Unicode Data Files which are
+// Copyright 1991-2024 Unicode, Inc. and subject to the
+// following license agreement:
 //
-// UNICODE, INC. LICENSE AGREEMENT - DATA FILES AND SOFTWARE
+// UNICODE, INC. LICENSE AGREEMENT V3 - DATA FILES AND SOFTWARE
 //
 // See Terms of Use <https://www.unicode.org/copyright.html>
 // for definitions of Unicode Inc.'s Data Files and Software.
 //
-// NOTICE TO USER: Carefully read the following legal agreement.
-// BY DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING UNICODE INC.'S
-// DATA FILES ("DATA FILES"), AND/OR SOFTWARE ("SOFTWARE"),
-// YOU UNEQUIVOCALLY ACCEPT, AND AGREE TO BE BOUND BY, ALL OF THE
-// TERMS AND CONDITIONS OF THIS AGREEMENT.
-// IF YOU DO NOT AGREE, DO NOT DOWNLOAD, INSTALL, COPY, DISTRIBUTE OR USE
-// THE DATA FILES OR SOFTWARE.
+// Disclaimer
 //
-// COPYRIGHT AND PERMISSION NOTICE
+// The Unicode Character Database is provided as is by Unicode, Inc. No
+// claims are made as to fitness for any particular purpose. No warranties
+// of any kind are expressed or implied. The recipient agrees to determine
+// applicability of information provided. If this file has been purchased
+// on magnetic or optical media from Unicode, Inc., the sole remedy for any
+// claim will be exchange of defective media within 90 days of receipt.
 //
-// Copyright (c) 1991-2024 Unicode, Inc. All rights reserved.
-// Distributed under the Terms of Use in https://www.unicode.org/copyright.html.
+// This disclaimer is applicable for all other data files accompanying the
+// Unicode Character Database, some of which have been compiled by the
+// Unicode Consortium, and some of which have been supplied by other sources.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of the Unicode data files and any associated documentation
-// (the "Data Files") or Unicode software and any associated documentation
-// (the "Software") to deal in the Data Files or Software
-// without restriction, including without limitation the rights to use,
-// copy, modify, merge, publish, distribute, and/or sell copies of
-// the Data Files or Software, and to permit persons to whom the Data Files
-// or Software are furnished to do so, provided that either
-// (a) this copyright and permission notice appear with all copies
-// of the Data Files or Software, or
-// (b) this copyright and permission notice appear in associated
-// Documentation.
+// Limitations on Rights to Redistribute This Data
 //
-// THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
-// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-// WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT OF THIRD PARTY RIGHTS.
-// IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS
-// NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL
-// DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-// DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-// TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-// PERFORMANCE OF THE DATA FILES OR SOFTWARE.
-//
-// Except as contained in this notice, the name of a copyright holder
-// shall not be used in advertising or otherwise to promote the sale,
-// use or other dealings in these Data Files or Software without prior
-// written authorization of the copyright holder.
+// Recipient is granted the right to make copies in any form for internal
+// distribution and to freely use the information supplied in the creation
+// of products supporting the UnicodeTM Standard. The files in the Unicode
+// Character Database can be redistributed to third parties or other
+// organizations (whether for profit or not) as long as this notice and the
+// disclaimer notice are retained. Information can be extracted from these
+// files and used in documentation or programs, as long as there is an
+// accompanying notice indicating the source.
 //
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

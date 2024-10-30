@@ -110,7 +110,41 @@ struct Formatter_UnicodeData {
 #endif  // INCLUDED_BSLFMT_FORMATTERUNICODEDATA
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// The data herein is generated from Unicode Data Files which are
+// Copyright 1991-2024 Unicode, Inc. and subject to the
+// following license agreement:
+//
+// UNICODE, INC. LICENSE AGREEMENT V3 - DATA FILES AND SOFTWARE
+//
+// See Terms of Use <https://www.unicode.org/copyright.html>
+// for definitions of Unicode Inc.'s Data Files and Software.
+//
+// Disclaimer
+//
+// The Unicode Character Database is provided as is by Unicode, Inc. No
+// claims are made as to fitness for any particular purpose. No warranties
+// of any kind are expressed or implied. The recipient agrees to determine
+// applicability of information provided. If this file has been purchased
+// on magnetic or optical media from Unicode, Inc., the sole remedy for any
+// claim will be exchange of defective media within 90 days of receipt.
+//
+// This disclaimer is applicable for all other data files accompanying the
+// Unicode Character Database, some of which have been compiled by the
+// Unicode Consortium, and some of which have been supplied by other sources.
+//
+// Limitations on Rights to Redistribute This Data
+//
+// Recipient is granted the right to make copies in any form for internal
+// distribution and to freely use the information supplied in the creation
+// of products supporting the UnicodeTM Standard. The files in the Unicode
+// Character Database can be redistributed to third parties or other
+// organizations (whether for profit or not) as long as this notice and the
+// disclaimer notice are retained. Information can be extracted from these
+// files and used in documentation or programs, as long as there is an
+// accompanying notice indicating the source.
+//
+// ----------------------------------------------------------------------------
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
