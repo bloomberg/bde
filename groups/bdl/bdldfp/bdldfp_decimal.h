@@ -588,10 +588,10 @@ BSLS_IDENT("$Id$")
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterspecificationsplitter.h>
-#include <bslfmt_formatterspecificationstandard.h>
 
-#include <bslma_deallocatorproctor.h>
+#include <bslma_deallocatebytesproctor.h>
 #include <bslma_default.h>
+#include <bslma_polymorphicallocator.h>
 
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -4280,7 +4280,7 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
              // ============================================
 
 template <class t_CHAR>
-struct FormatterSpecificationDecimal {
+struct Decimal_FormatterSpecification {
 
     // PUBLIC TYPES
     enum FormatType {
@@ -4288,13 +4288,13 @@ struct FormatterSpecificationDecimal {
         e_TYPE_UNASSIGNED,
 
         // Decimal floating point types
-        e_DECIMAL_FLOATING_DEFAULT,     // none
-        e_DECIMAL_FLOATING_DECEXP,      // `e`
-        e_DECIMAL_FLOATING_DECEXP_UC,   // `E`
-        e_DECIMAL_FLOATING_DECIMAL,     // `f`
-        e_DECIMAL_FLOATING_DECIMAL_UC,  // `F`
-        e_DECIMAL_FLOATING_GENERAL,     // `g`
-        e_DECIMAL_FLOATING_GENERAL_UC,  // `g`
+        e_FORMAT_DEFAULT,        // none
+        e_FORMAT_SCIENTIFIC,     // `e`
+        e_FORMAT_SCIENTIFIC_UC,  // `E`
+        e_FORMAT_FIXED,          // `f`
+        e_FORMAT_FIXED_UC,       // `F`
+        e_FORMAT_GENERAL,        // `g`
+        e_FORMAT_GENERAL_UC,     // `g`
     };
 
   private:
@@ -4310,7 +4310,7 @@ struct FormatterSpecificationDecimal {
 
     // PRIVATE CLASS METHODS
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
-                             FormatterSpecificationDecimal         *outSpec,
+                             Decimal_FormatterSpecification         *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString);
 
     // PRIVATE ACCESSORS
@@ -4319,16 +4319,16 @@ struct FormatterSpecificationDecimal {
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationDecimal();
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Decimal_FormatterSpecification();
 
     // CLASS METHODS
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
-                                       FormatterSpecificationDecimal *outSpec,
+                                       Decimal_FormatterSpecification *outSpec,
                                        t_PARSE_CONTEXT               *context);
 
     template <typename t_FORMAT_CONTEXT>
-    static void postprocess(FormatterSpecificationDecimal *outSpec,
+    static void postprocess(Decimal_FormatterSpecification *outSpec,
                             const t_FORMAT_CONTEXT&        context);
 
     // ACCESSORS
@@ -4355,6 +4355,7 @@ struct FormatterSpecificationDecimal {
     postprocessedPrecision() const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
+
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
 };
 
@@ -4363,22 +4364,24 @@ struct FormatterSpecificationDecimal {
               // ============================================
 
 template <class t_VALUE, class t_CHAR>
-struct BslFmtFormatter_Impl {
+struct Decimal_BslFmtFormatterImpl {
   private:
     // PRIVATE CLASS TYPES
 
     /// A type alias for the `FormatterSpecificationDecimal<t_CHAR>`.
-    typedef FormatterSpecificationDecimal<t_CHAR> FSD;
+    typedef Decimal_FormatterSpecification<t_CHAR> FSD;
 
     // DATA
-    FSD d_spec;  // Parsed specification.
+    FSD d_spec;  /// Parsed specification.
+
+    // PRIVATE CONSTANTS
 
     /// A constant representing the case when a position is not found in a
     /// string-search.
     static const size_t k_NO_POS = (size_t)(-1);
 
   private:
-    // PRIVATE CLASS METHODS
+    // PRIVATE MANIPULATORS
 
     /// Copy the specified `numberBuffer` of size `numberLength` aligned with
     /// fills according to the specified `finalSpec` to the output iterator of
@@ -4402,7 +4405,7 @@ struct BslFmtFormatter_Impl {
                                         t_FORMAT_CONTEXT& formatContext) const;
 
     /// Parse the specified `parseContext` and return an iterator, pointing to
-    /// the beginning of the format string.
+    /// the beginning of the unparsed section of the format string.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20
     typename t_PARSE_CONTEXT::iterator
@@ -6561,13 +6564,13 @@ STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
 // PRIVATE CLASS METHODS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationDecimal<t_CHAR>::parseType(
-                             FormatterSpecificationDecimal         *outSpec,
+void Decimal_FormatterSpecification<t_CHAR>::parseType(
+                             Decimal_FormatterSpecification        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString)
 {
     // Handle empty string or empty specification.
     if (typeString.empty()) {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_DEFAULT;
+        outSpec->d_formatType = e_FORMAT_DEFAULT;
         return;                                                       // RETURN
     }
 
@@ -6587,22 +6590,22 @@ void FormatterSpecificationDecimal<t_CHAR>::parseType(
 
     switch (typeChar) {
       case 'e': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_DECEXP;
+        outSpec->d_formatType = e_FORMAT_SCIENTIFIC;
       } break;
       case 'E': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_DECEXP_UC;
+        outSpec->d_formatType = e_FORMAT_SCIENTIFIC_UC;
       } break;
       case 'f': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_DECIMAL;
+        outSpec->d_formatType = e_FORMAT_FIXED;
       } break;
       case 'F': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_DECIMAL_UC;
+        outSpec->d_formatType = e_FORMAT_FIXED_UC;
       } break;
       case 'g': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_GENERAL;
+        outSpec->d_formatType = e_FORMAT_GENERAL;
       } break;
       case 'G': {
-        outSpec->d_formatType = e_DECIMAL_FLOATING_GENERAL_UC;
+        outSpec->d_formatType = e_FORMAT_GENERAL_UC;
       } break;
       default: {
         outSpec->d_formatType = e_TYPE_UNASSIGNED;
@@ -6622,7 +6625,7 @@ void FormatterSpecificationDecimal<t_CHAR>::parseType(
 // PRIVATE ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationDecimal<t_CHAR>::ensureItWasParsed() const
+void Decimal_FormatterSpecification<t_CHAR>::ensureItWasParsed() const
 {
     if (d_parsingStatus == FSS::e_PARSING_UNINITIALIZED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
@@ -6632,7 +6635,7 @@ void FormatterSpecificationDecimal<t_CHAR>::ensureItWasParsed() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationDecimal<t_CHAR>::ensureItWasPostprocessed() const
+void Decimal_FormatterSpecification<t_CHAR>::ensureItWasPostprocessed() const
 {
     if (d_parsingStatus != FSS::e_PARSING_COMPLETE) {
         BSLS_THROW(bsl::format_error(                                  // THROW
@@ -6643,7 +6646,7 @@ void FormatterSpecificationDecimal<t_CHAR>::ensureItWasPostprocessed() const
 // CREATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecificationDecimal<t_CHAR>::FormatterSpecificationDecimal()
+Decimal_FormatterSpecification<t_CHAR>::Decimal_FormatterSpecification()
 : d_parsingStatus(FSS::e_PARSING_UNINITIALIZED)
 , d_basicSplitter()
 , d_formatType(e_TYPE_UNASSIGNED)
@@ -6655,7 +6658,7 @@ FormatterSpecificationDecimal<t_CHAR>::FormatterSpecificationDecimal()
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const t_CHAR * FormatterSpecificationDecimal<t_CHAR>::filler() const
+const t_CHAR * Decimal_FormatterSpecification<t_CHAR>::filler() const
 {
     ensureItWasPostprocessed();
     return d_basicSplitter.filler();
@@ -6663,7 +6666,7 @@ const t_CHAR * FormatterSpecificationDecimal<t_CHAR>::filler() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatterSpecificationDecimal<t_CHAR>::fillerCharacters() const
+int Decimal_FormatterSpecification<t_CHAR>::fillerCharacters() const
 {
     ensureItWasPostprocessed();
     return d_basicSplitter.fillerCharacters();
@@ -6671,7 +6674,7 @@ int FormatterSpecificationDecimal<t_CHAR>::fillerCharacters() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatterSpecificationDecimal<t_CHAR>::fillerCodePointDisplayWidth() const
+int Decimal_FormatterSpecification<t_CHAR>::fillerCodePointDisplayWidth() const
 {
     ensureItWasPostprocessed();
     return d_basicSplitter.fillerCodePointDisplayWidth();
@@ -6679,8 +6682,8 @@ int FormatterSpecificationDecimal<t_CHAR>::fillerCodePointDisplayWidth() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename FormatterSpecificationDecimal<t_CHAR>::FSS::Alignment
-FormatterSpecificationDecimal<t_CHAR>::alignment() const
+typename Decimal_FormatterSpecification<t_CHAR>::FSS::Alignment
+Decimal_FormatterSpecification<t_CHAR>::alignment() const
 {
     ensureItWasParsed();
     return d_basicSplitter.alignment();
@@ -6688,8 +6691,8 @@ FormatterSpecificationDecimal<t_CHAR>::alignment() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename FormatterSpecificationDecimal<t_CHAR>::FSS::Sign
-FormatterSpecificationDecimal<t_CHAR>::sign() const
+typename Decimal_FormatterSpecification<t_CHAR>::FSS::Sign
+Decimal_FormatterSpecification<t_CHAR>::sign() const
 {
     ensureItWasParsed();
     return d_basicSplitter.sign();
@@ -6697,7 +6700,7 @@ FormatterSpecificationDecimal<t_CHAR>::sign() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecificationDecimal<t_CHAR>::alternativeFlag() const
+bool Decimal_FormatterSpecification<t_CHAR>::alternativeFlag() const
 {
     ensureItWasParsed();
     return d_basicSplitter.alternativeFlag();
@@ -6705,7 +6708,7 @@ bool FormatterSpecificationDecimal<t_CHAR>::alternativeFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecificationDecimal<t_CHAR>::zeroPaddingFlag() const
+bool Decimal_FormatterSpecification<t_CHAR>::zeroPaddingFlag() const
 {
     ensureItWasParsed();
     return d_basicSplitter.zeroPaddingFlag();
@@ -6714,7 +6717,7 @@ bool FormatterSpecificationDecimal<t_CHAR>::zeroPaddingFlag() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const bslfmt::FormatterSpecification_NumericValue
-FormatterSpecificationDecimal<t_CHAR>::postprocessedWidth() const
+Decimal_FormatterSpecification<t_CHAR>::postprocessedWidth() const
 {
     ensureItWasPostprocessed();
     return d_basicSplitter.postprocessedWidth();
@@ -6723,7 +6726,7 @@ FormatterSpecificationDecimal<t_CHAR>::postprocessedWidth() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const bslfmt::FormatterSpecification_NumericValue
-FormatterSpecificationDecimal<t_CHAR>::postprocessedPrecision() const
+Decimal_FormatterSpecification<t_CHAR>::postprocessedPrecision() const
 {
     ensureItWasPostprocessed();
     return d_basicSplitter.postprocessedPrecision();
@@ -6731,7 +6734,7 @@ FormatterSpecificationDecimal<t_CHAR>::postprocessedPrecision() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecificationDecimal<t_CHAR>::localeSpecificFlag() const
+bool Decimal_FormatterSpecification<t_CHAR>::localeSpecificFlag() const
 {
     ensureItWasParsed();
     return d_basicSplitter.localeSpecificFlag();
@@ -6739,8 +6742,8 @@ bool FormatterSpecificationDecimal<t_CHAR>::localeSpecificFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename FormatterSpecificationDecimal<t_CHAR>::FormatType
-FormatterSpecificationDecimal<t_CHAR>::formatType() const
+typename Decimal_FormatterSpecification<t_CHAR>::FormatType
+Decimal_FormatterSpecification<t_CHAR>::formatType() const
 {
     ensureItWasParsed();
     return d_formatType;
@@ -6750,9 +6753,9 @@ FormatterSpecificationDecimal<t_CHAR>::formatType() const
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationDecimal<t_CHAR>::parse(
-                                       FormatterSpecificationDecimal *outSpec,
-                                       t_PARSE_CONTEXT               *context)
+void Decimal_FormatterSpecification<t_CHAR>::parse(
+                                       Decimal_FormatterSpecification *outSpec,
+                                       t_PARSE_CONTEXT                *context)
 {
     BSLMF_ASSERT((
         bsl::is_same<typename bsl::iterator_traits<
@@ -6789,9 +6792,9 @@ void FormatterSpecificationDecimal<t_CHAR>::parse(
 
 template <class t_CHAR>
 template <typename t_FORMAT_CONTEXT>
-void FormatterSpecificationDecimal<t_CHAR>::postprocess(
-                                        FormatterSpecificationDecimal *outSpec,
-                                        const t_FORMAT_CONTEXT&        context)
+void Decimal_FormatterSpecification<t_CHAR>::postprocess(
+                                       Decimal_FormatterSpecification *outSpec,
+                                       const t_FORMAT_CONTEXT&        context)
 {
     outSpec->ensureItWasParsed();
 
@@ -6835,7 +6838,7 @@ void FormatterSpecificationDecimal<t_CHAR>::postprocess(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
+Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
                                             const char        *numberBuffer,
                                             size_t             numberLength,
                                             t_FORMAT_CONTEXT&  formatContext,
@@ -6947,7 +6950,8 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::alignAndCopy(
 template <class t_VALUE, class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-BslFmtFormatter_Impl<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
+Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::parse(
+                                                 t_PARSE_CONTEXT& parseContext)
 {
     FSD::parse(&d_spec, &parseContext);
 
@@ -6962,7 +6966,7 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
+Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
                                          const t_VALUE&    value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
@@ -6983,26 +6987,26 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
     bool upperCase = false;
 
     switch (finalSpec.formatType()) {
-      case FSD::e_DECIMAL_FLOATING_DECEXP_UC:
+      case FSD::e_FORMAT_SCIENTIFIC_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_DECIMAL_FLOATING_DECEXP: {
+      case FSD::e_FORMAT_SCIENTIFIC: {
         cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
       } break;
 
-      case FSD::e_DECIMAL_FLOATING_DECIMAL_UC:
+      case FSD::e_FORMAT_FIXED_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_DECIMAL_FLOATING_DECIMAL: {
+      case FSD::e_FORMAT_FIXED: {
           cfg.setStyle(DecimalFormatConfig::e_FIXED);
       } break;
 
       // These are all the default "natural" format
-      case FSD::e_DECIMAL_FLOATING_GENERAL_UC:
+      case FSD::e_FORMAT_GENERAL_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_DECIMAL_FLOATING_DEFAULT: BSLA_FALLTHROUGH;
-      case FSD::e_DECIMAL_FLOATING_GENERAL: break;
+      case FSD::e_FORMAT_DEFAULT: BSLA_FALLTHROUGH;
+      case FSD::e_FORMAT_GENERAL: break;
 
       default: {
         BSLS_THROW(bsl::format_error("Unknown decimal floating point format"));
@@ -7043,15 +7047,15 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
                                  ? precision
                                  : Limits::max_precision;
 
-    const size_t k_STACK_BUF_LEN = 1                          // sign
-                                 + 1 + Limits::max_exponent10 // integer part
-                                 + 1                          // decimal point
-                                 + Limits::max_precision;     // partial part
+    const int k_STACK_BUF_LEN = 1                          // sign
+                              + 1 + Limits::max_exponent10 // integer part
+                              + 1                          // decimal point
+                              + Limits::max_precision;     // partial part
 
-    const size_t k_BUFFER_SIZE = 1                            // sign
-                               + 1 + Limits::max_exponent10 // integer part
-                               + 1                          // decimal point
-                               + effectivePrecision;        // partial part
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + effectivePrecision;        // partial part
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type,
         // or the requested precision if it is larger than the maximum.
@@ -7060,15 +7064,15 @@ BslFmtFormatter_Impl<t_VALUE, t_CHAR>::format(
     char *dbuf = 0;
     char *buffer = sbuf;
 
-    bslma::Allocator* allocator = bslma::Default::allocator();
+    bsl::polymorphic_allocator<char> allocator;
     if (k_BUFFER_SIZE > k_STACK_BUF_LEN) {
-        dbuf = (char*)allocator->allocate(k_BUFFER_SIZE);
+        dbuf = allocator.allocate(k_BUFFER_SIZE);
         buffer = dbuf;
     }
-    bslma::DeallocatorProctor<bslma::Allocator> proctor(dbuf, allocator);
-    if (0 == dbuf) {
-        proctor.release();
-    }
+    bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
+                                                     allocator,
+                                                     dbuf,
+                                                     dbuf ? k_BUFFER_SIZE : 0);
 
     const int len = DecimalImpUtil::format(buffer,
                                            k_BUFFER_SIZE,
@@ -8847,21 +8851,21 @@ namespace bsl {
 
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal32, t_CHAR>
-: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+: BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<
                                                 BloombergLP::bdldfp::Decimal32,
                                                 t_CHAR>
 { };
 
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal64, t_CHAR>
-: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+: BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<
                                                 BloombergLP::bdldfp::Decimal64,
                                                 t_CHAR>
 { };
 
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal128, t_CHAR>
-: BloombergLP::bdldfp::BslFmtFormatter_Impl<
+: BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<
                                                BloombergLP::bdldfp::Decimal128,
                                                t_CHAR>
 { };

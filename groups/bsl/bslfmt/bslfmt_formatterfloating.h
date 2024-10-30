@@ -536,8 +536,8 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatFixedImpl(
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be decimal format
-    BSLS_ASSERT(FSS::e_FLOATING_DECIMAL    == finalSpec.formatType() ||
-                FSS::e_FLOATING_DECIMAL_UC == finalSpec.formatType());
+    BSLS_ASSERT(FSS::e_FLOATING_FIXED    == finalSpec.formatType() ||
+                FSS::e_FLOATING_FIXED_UC == finalSpec.formatType());
 
     // Determine the precision
     typedef FormatterSpecification_NumericValue FSNVAlue;
@@ -674,8 +674,8 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexImpl(
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be hexfloat format
-    BSLS_ASSERT(FSS::e_FLOATING_HEXEXP    == finalSpec.formatType() ||
-                FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType());
+    BSLS_ASSERT(FSS::e_FLOATING_HEX    == finalSpec.formatType() ||
+                FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must not have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
@@ -694,7 +694,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexImpl(
         numberLength = applyScientificAlternate('p', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType()) {
+    if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
     }
 
@@ -712,8 +712,8 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be hexfloat format
-    BSLS_ASSERT(FSS::e_FLOATING_HEXEXP    == finalSpec.formatType() ||
-                FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType());
+    BSLS_ASSERT(FSS::e_FLOATING_HEX    == finalSpec.formatType() ||
+                FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() !=
@@ -747,7 +747,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
         numberLength = applyScientificAlternate('p', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_HEXEXP_UC == finalSpec.formatType()) {
+    if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
     }
 
@@ -765,8 +765,8 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be scientific format
-    BSLS_ASSERT(FSS::e_FLOATING_DECEXP    == finalSpec.formatType() ||
-                FSS::e_FLOATING_DECEXP_UC == finalSpec.formatType());
+    BSLS_ASSERT(FSS::e_FLOATING_SCIENTIFIC    == finalSpec.formatType() ||
+                FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType());
 
     // Determine the precision
     typedef FormatterSpecification_NumericValue FSNVAlue;
@@ -802,7 +802,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
         numberLength = applyScientificAlternate('e', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_DECEXP_UC == finalSpec.formatType()) {
+    if (FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
     }
 
@@ -835,8 +835,8 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::format(
         }
       } break;
 
-      case FSS::e_FLOATING_HEXEXP: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_HEXEXP_UC: {
+      case FSS::e_FLOATING_HEX: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_HEX_UC: {
         if (isDefaultPrecision) {
             return formatHexImpl(value, formatContext, finalSpec);
         }
@@ -845,13 +845,13 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::format(
         }
       } break;
 
-      case FSS::e_FLOATING_DECEXP: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_DECEXP_UC: {
+      case FSS::e_FLOATING_SCIENTIFIC: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_SCIENTIFIC_UC: {
         return formatScientificImpl(value, formatContext, finalSpec);
       } break;
 
-      case FSS::e_FLOATING_DECIMAL: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_DECIMAL_UC: {
+      case FSS::e_FLOATING_FIXED: BSLA_FALLTHROUGH;
+      case FSS::e_FLOATING_FIXED_UC: {
         return formatFixedImpl(value, formatContext, finalSpec);
       } break;
 

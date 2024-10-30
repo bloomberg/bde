@@ -335,7 +335,7 @@ int main(int argc, char **argv)
                       FSValue(98, FSValue::e_VALUE),
                       FSValue(96, FSValue::e_VALUE),
                       false,
-                      FSC::e_FLOATING_DECIMAL_UC);
+                      FSC::e_FLOATING_FIXED_UC);
 
         checkStandard(parseStandard(L"",
                       FSW::e_CATEGORY_STRING),
@@ -371,7 +371,7 @@ int main(int argc, char **argv)
                       FSValue(99, FSValue::e_VALUE),
                       FSValue(96, FSValue::e_VALUE),
                       false,
-                      FSW::e_FLOATING_DECIMAL);
+                      FSW::e_FLOATING_FIXED);
 
       } break;
       default: {

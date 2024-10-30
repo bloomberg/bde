@@ -10,6 +10,7 @@
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslfmt_formattertestutil.h> // Testing only
+#include <bslfmt_format.h>            // Testing only
 
 #include <bslim_testutil.h>
 
@@ -32,7 +33,9 @@
 #include <bsl_utility.h>
 
 #include <typeinfo>
-#include <format>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    #include <format>  // Testing only
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -543,11 +546,17 @@ void TestDriver::testCase10()
     //: 8 Use of the locale flag is prohibited (throws an exception)
     //
     // Plan:
-    //: 1 every test is repeated for all 3 supported types
-    //: 2 most concerns are tested using table based tests
-    //: 3 `bsl::formatter`s are instantiated for both supported character types
-    //: 4 compile time format string compilation tests using `TestUtil`
-    //: 5 locale prohibition is tested using the `TestUtil` as well
+    //: 1 all of the tests below will be repeated for each of
+    //:   `bdldfp::Decimal32`, `bdldfp::Decimal64`, and `bdldfp::Decimal128`
+    //:
+    //: 2 formatting concerns are tested using table based tests
+    //:
+    //: 3 instantiate `bsl::formatter`s for both supported character types
+    //:
+    //: 4 perform compile time format string compilation tests using
+    //:   `Formatter_TestUtil`
+    //:
+    //: 5 perform locale prohibition tests using `Formatter_TestUtil`
     //
     // Testing:
     //   BSLFMT FORMATTING
@@ -1243,6 +1252,31 @@ void TestDriver::testCase10()
         ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
     }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
+    if (veryVerbose) puts("\tTesting `bsl::format`.");
+    { // `bdldfp::Decimal32`
+        const bdldfp::Decimal32 NUMBER   = BDLDFP_DECIMAL_DF(1.23400e-56);
+        const bsl::string       RESULT   = bsl::format("{:f}", NUMBER);
+        const bsl::string_view  EXPECTED =
+             "0.0000000000000000000000000000000000000000000000000000000123400";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
+    { // `bdldfp::Decimal64`
+        const bdldfp::Decimal64 NUMBER   = BDLDFP_DECIMAL_DD(1.23400e+56);
+        const bsl::string       RESULT   = bsl::format("{:f}", NUMBER);
+        const bsl::string_view  EXPECTED =
+                   "123400000000000000000000000000000000000000000000000000000";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
+    { // `bdldfp::Decimal128`
+        const bdldfp::Decimal128 NUMBER   = BDLDFP_DECIMAL_DL(1.234e3);
+        const bsl::string        RESULT   = bsl::format("{:#f}", NUMBER);
+        const bsl::string_view   EXPECTED = "1234.";
+
+        ASSERTV(RESULT, EXPECTED, RESULT == EXPECTED);
+    }
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (veryVerbose) puts("\tTesting locale prohibition.");

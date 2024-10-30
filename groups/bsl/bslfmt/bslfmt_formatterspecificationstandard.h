@@ -93,15 +93,15 @@ class FormatterSpecificationStandard_Enums
         e_BOOLEAN_STRING,       // none or `s`
 
         // Floating point types
-        e_FLOATING_DEFAULT,     // none
-        e_FLOATING_HEXEXP,      // `a`
-        e_FLOATING_HEXEXP_UC,   // `A`
-        e_FLOATING_DECEXP,      // `e`
-        e_FLOATING_DECEXP_UC,   // `E`
-        e_FLOATING_DECIMAL,     // `f`
-        e_FLOATING_DECIMAL_UC,  // `F`
-        e_FLOATING_GENERAL,     // `g`
-        e_FLOATING_GENERAL_UC,  // `g`
+        e_FLOATING_DEFAULT,       // none
+        e_FLOATING_HEX,           // `a`
+        e_FLOATING_HEX_UC,        // `A`
+        e_FLOATING_SCIENTIFIC,    // `e`
+        e_FLOATING_SCIENTIFIC_UC, // `E`
+        e_FLOATING_FIXED,         // `f`
+        e_FLOATING_FIXED_UC,      // `F`
+        e_FLOATING_GENERAL,       // `g`
+        e_FLOATING_GENERAL_UC,    // `g`
 
         // Pointer types
         e_POINTER_HEX,     // none or `p`
@@ -575,22 +575,22 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
       case e_CATEGORY_FLOATING: {
         switch (typeChar) {
           case 'a': {
-            outSpec->d_formatType = e_FLOATING_HEXEXP;
+            outSpec->d_formatType = e_FLOATING_HEX;
           } break;
           case 'A': {
-            outSpec->d_formatType = e_FLOATING_HEXEXP_UC;
+            outSpec->d_formatType = e_FLOATING_HEX_UC;
           } break;
           case 'e': {
-            outSpec->d_formatType = e_FLOATING_DECEXP;
+            outSpec->d_formatType = e_FLOATING_SCIENTIFIC;
           } break;
           case 'E': {
-            outSpec->d_formatType = e_FLOATING_DECEXP_UC;
+            outSpec->d_formatType = e_FLOATING_SCIENTIFIC_UC;
           } break;
           case 'f': {
-            outSpec->d_formatType = e_FLOATING_DECIMAL;
+            outSpec->d_formatType = e_FLOATING_FIXED;
           } break;
           case 'F': {
-            outSpec->d_formatType = e_FLOATING_DECIMAL_UC;
+            outSpec->d_formatType = e_FLOATING_FIXED_UC;
           } break;
           case 'g': {
             outSpec->d_formatType = e_FLOATING_GENERAL;
