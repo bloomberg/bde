@@ -4,21 +4,47 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 
-#include <bdlb_bitutil.h>
-#include <bdlb_guidutil.h>
 #include <bdlb_hashutil.h>
-
-#include <bdlma_localsequentialallocator.h>
 
 #include <bslim_printer.h>
 
 #include <bsls_assert.h>
-#include <bsls_types.h>
 
-#include <bsl_functional.h>
 #include <bsl_ostream.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
+
+namespace {
+
+/// This visitor, when invoked as a non-modifiable function object returns the
+/// hash value for the value supplied to the function call operator.
+struct ValueHashVisitor {
+    /// Return the hash value for the specified `string`.
+    unsigned int operator()(const bsl::string& string) const
+    {
+        return bdlb::HashUtil::hash1(string.data(), string.size());
+    }
+
+    /// Return the hash value for the specified `guid`.
+    unsigned int operator()(const bdlb::Guid& guid) const
+    {
+        return bdlb::HashUtil::hash1(
+                                   reinterpret_cast<const char *>(guid.data()),
+                                   bdlb::Guid::k_GUID_NUM_BYTES);
+    }
+
+    /// Return the hash value for the specified `value` of the parameterized
+    /// `t_TYPE`.
+    template <class t_TYPE>
+    unsigned int operator()(const t_TYPE& value) const
+    {
+        return bdlb::HashUtil::hash1(value);
+    }
+};
+
+}  // close unnamed namespace
+
 namespace ball {
 
                         // ---------------
@@ -31,46 +57,10 @@ int Attribute::hash(const Attribute& attribute, int size)
     BSLS_ASSERT(0 < size);
 
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
-
-        unsigned int hash = bdlb::HashUtil::hash1(
-                              attribute.d_name,
-                              static_cast<int>(bsl::strlen(attribute.d_name)));
-
-        if (attribute.d_value.is<int>()) {
-            hash += bdlb::HashUtil::hash1(attribute.d_value.the<int>());
-        } else if (attribute.d_value.is<long>()) {
-            hash += bdlb::HashUtil::hash1(attribute.d_value.the<long>());
-        } else if (attribute.d_value.is<long long>()) {
-            hash += bdlb::HashUtil::hash1(attribute.d_value.the<long long>());
-        } else if (attribute.d_value.is<unsigned int>()) {
-            hash += bdlb::HashUtil::hash1(
-                                       attribute.d_value.the<unsigned int>());
-        } else if (attribute.d_value.is<unsigned long>()) {
-            hash += bdlb::HashUtil::hash1(
-                                       attribute.d_value.the<unsigned long>());
-        } else if (attribute.d_value.is<unsigned long long>()) {
-            hash += bdlb::HashUtil::hash1(
-                                  attribute.d_value.the<unsigned long long>());
-        }
-        else if (attribute.d_value.is<bdlb::Guid>()) {
-            hash += bdlb::HashUtil::hash1(
-                reinterpret_cast<const char *>(
-                                   attribute.d_value.the<bdlb::Guid>().data()),
-                bdlb::Guid::k_GUID_NUM_BYTES);
-        }
-        else if (attribute.d_value.is<bsl::string>()) {
-            hash += bdlb::HashUtil::hash1(
-                attribute.d_value.the<bsl::string>().c_str(),
-                static_cast<int>(
-                               attribute.d_value.the<bsl::string>().length()));
-        }
-        else  if (attribute.d_value.is<const void *>()) {
-            hash += bdlb::HashUtil::hash1(
-                                        attribute.d_value.the<const void *>());
-        }
-        else {
-            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
-        }
+        const unsigned int hash =
+                  bdlb::HashUtil::hash1(attribute.d_name.data(),
+                                        bsl::ssize(attribute.d_name)) +
+                  attribute.d_value.applyRaw<unsigned int>(ValueHashVisitor());
 
         attribute.d_hashValue = hash % size;
         attribute.d_hashSize  = size;
@@ -97,10 +87,9 @@ bsl::ostream& Attribute::print(bsl::ostream& stream,
         printer.printHexAddr(d_value.the<const void *>(), 0);
     }
     else if (d_value.is<bdlb::Guid>()) {
-        bdlma::LocalSequentialAllocator<64> lsa;
-        bsl::string str(&lsa);
-        bdlb::GuidUtil::guidToString(&str, d_value.the<bdlb::Guid>());
-        printer.printValue(str);
+        char buffer[bdlb::Guid::k_GUID_NUM_CHARS];
+        d_value.the<bdlb::Guid>().format(buffer);
+        printer.printValue(bsl::string_view(buffer, bsl::size(buffer)));
     }
     else {
         printer.printValue(d_value);

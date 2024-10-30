@@ -139,6 +139,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_cstring.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -167,14 +168,15 @@ class Attribute {
 
   private:
     // DATA
-    const char  *d_name;       // attribute name
+    bsl::string_view d_name;       // attribute name
 
-    Value        d_value;      // attribute value
+    Value            d_value;      // attribute value
 
-    mutable int  d_hashValue;  // hash value (-1 indicates it is unset)
+    mutable int      d_hashValue;  // hash value (-1 indicates it is unset)
 
-    mutable int  d_hashSize;   // hash size from which the hash value was
-                               // calculated (0 indicates hash value is unset)
+    mutable int      d_hashSize;   // hash size from which the hash value was
+                                   // calculated (0 indicates hash value is
+                                   // unset)
 
     // FRIENDS
     friend bool operator==(const Attribute&, const Attribute&);
@@ -364,7 +366,7 @@ Attribute::Attribute(const char              *name,
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<bsl::string>(bsl::string(value));
+    d_value.createInPlace<bsl::string>(value);
 }
 
 inline
@@ -376,7 +378,7 @@ Attribute::Attribute(const char            *name,
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<bsl::string>(value);
+    d_value.createInPlace<bsl::string>(value);
 }
 
 inline
@@ -384,11 +386,10 @@ Attribute::Attribute(const char            *name,
                      int                    value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<int>(value);
 }
 
 inline
@@ -396,11 +397,10 @@ Attribute::Attribute(const char            *name,
                      long                   value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<long>(value);
 }
 
 inline
@@ -408,11 +408,10 @@ Attribute::Attribute(const char            *name,
                      long long              value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<long long>(value);
 }
 
 inline
@@ -420,11 +419,10 @@ Attribute::Attribute(const char            *name,
                      unsigned int           value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<unsigned int>(value);
 }
 
 inline
@@ -432,11 +430,10 @@ Attribute::Attribute(const char            *name,
                      unsigned long          value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<unsigned long>(value);
 }
 
 inline
@@ -444,24 +441,21 @@ Attribute::Attribute(const char            *name,
                      unsigned long long     value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<unsigned long long>(value);
 }
-
 
 inline
 Attribute::Attribute(const char            *name,
                      bdlb::Guid             value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<bdlb::Guid>(value);
 }
 
 inline
@@ -469,11 +463,10 @@ Attribute::Attribute(const char            *name,
                      const void            *value,
                      const allocator_type&  allocator)
 : d_name(name)
-, d_value(allocator.mechanism())
+, d_value(value, allocator.mechanism())
 , d_hashValue(-1)
 , d_hashSize(0)
 {
-    d_value.assign<const void *>(value);
 }
 
 inline
@@ -511,84 +504,84 @@ Attribute& Attribute::operator=(const Attribute& rhs)
 inline
 void Attribute::setName(const char *name)
 {
-    d_name = name;
+    d_name      = name;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(const Value& value)
 {
-    d_value = value;
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(int value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(long value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(long long value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(unsigned int value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(unsigned long value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(unsigned long long value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(bdlb::Guid value)
 {
-    d_value.assign(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(const bsl::string_view& value)
 {
-    d_value.assign(bsl::string(value));
+    d_value.createInPlace<bsl::string>(value);
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(const char *value)
 {
-    d_value.assign<bsl::string>(value);
+    d_value.createInPlace<bsl::string>(value);
     d_hashValue = -1;
 }
 
 inline
 void Attribute::setValue(const void *value)
 {
-    d_value.assign<const void *>(value);
+    d_value     = value;
     d_hashValue = -1;
 }
 
@@ -596,7 +589,9 @@ void Attribute::setValue(const void *value)
 inline
 const char *Attribute::name() const
 {
-    return d_name;
+    // guaranteed to be zero-terminated due to the constructors and `setValue`
+    // taking name by `const char*`
+    return d_name.data();
 }
 
 inline
@@ -611,7 +606,7 @@ inline
 Attribute::allocator_type Attribute::get_allocator() const
 {
     // Until bdlb::variant is converted to new allocator model.
-    return allocator_type(d_value.getAllocator());
+    return d_value.getAllocator();
 }
 
 }  // close package namespace
@@ -620,8 +615,7 @@ Attribute::allocator_type Attribute::get_allocator() const
 inline
 bool ball::operator==(const Attribute& lhs, const Attribute& rhs)
 {
-    return 0 == bsl::strcmp(lhs.d_name, rhs.d_name)
-        && lhs.d_value == rhs.d_value;
+    return lhs.d_name == rhs.d_name && lhs.d_value == rhs.d_value;
 }
 
 inline

@@ -766,8 +766,6 @@ struct HashUtil {
                               int         stringLength,
                               int         modulus);
 
-    static unsigned int hash1(const char *data, int length);
-
     /// Return an unsigned integer hash value corresponding to the specified
     /// `data` of the specified `length` (in bytes).  The behavior is
     /// undefined unless `0 <= length`.  Note that if `data` is 0, then
@@ -779,6 +777,7 @@ struct HashUtil {
     /// assumed to be independent (i.e., there are no known correlations
     /// between the results of the two hash functions given the same input
     /// data).
+    static unsigned int hash1(const char *data, int length);
     static unsigned int hash2(const char *data, int length);
 
     /// Return an unsigned integer hash value corresponding to the specified
