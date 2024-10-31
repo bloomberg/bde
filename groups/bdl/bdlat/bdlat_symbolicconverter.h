@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //                                         assignment operator from the
 //                                         destination to the source.  This is
 //                                         determined using
-//                                         'bslmf_isconvertible'.
+//                                         `bslmf_isconvertible`.
 // ```
 // Any other combination of destination and source categories will fail to
 // convert.
@@ -840,7 +840,7 @@ int bdlat_SymbolicConverter_Imp::convert(
     enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        // ignore the value and let '*lhs' contain its *default* value
+        // ignore the value and let `*lhs` contain its *default* value
         return k_SUCCESS;                                             // RETURN
     }
 
@@ -859,7 +859,7 @@ int bdlat_SymbolicConverter_Imp::convert(
     enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(rhs)) {
-        // ignore the value and let '*lhs' contain its *default* value
+        // ignore the value and let `*lhs` contain its *default* value
         return k_SUCCESS;                                             // RETURN
     }
 

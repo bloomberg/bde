@@ -30,37 +30,40 @@ BSLS_IDENT("$Id: $")
 // of the type being plugged into the framework.
 // ```
 // // MANIPULATORS
+//
+// /// Invoke the specified `manipulator` on the address of the element at
+// /// the specified `index` of the specified `array`.  Return the value
+// /// from the invocation of `manipulator`.  The behavior is undefined
+// /// unless `0 <= index` and `index < bdlat_arraySize(*array)`.
 // template <class MANIPULATOR>
 // int bdlat_arrayManipulateElement(YOUR_TYPE    *array,
 //                                  MANIPULATOR&  manipulator,
 //                                  int           index);
-//     // Invoke the specified 'manipulator' on the address of the element at
-//     // the specified 'index' of the specified 'array'.  Return the value
-//     // from the invocation of 'manipulator'.  The behavior is undefined
-//     // unless '0 <= index' and 'index < bdlat_arraySize(*array)'.
 //
+// /// Set the size of the specified modifiable `array` to the specified
+// /// `newSize`.  If `newSize > bdlat_arraySize(*array)`, then
+// /// `newSize - bdlat_arraySize(*array)` elements with default values
+// /// (i.e., `ElementType()`) are appended to `array`.  If
+// /// `newSize < bdlat_arraySize(*array)`, then the
+// /// `bdlat_arraySize(*array) - newSize` elements at the end of `array`
+// /// are destroyed.  The behavior is undefined unless `0 <= newSize`.
 // void resize(YOUR_TYPE *array, int newSize);
-//     // Set the size of the specified modifiable 'array' to the specified
-//     // 'newSize'.  If 'newSize > bdlat_arraySize(*array)', then
-//     // 'newSize - bdlat_arraySize(*array)' elements with default values
-//     // (i.e., 'ElementType()') are appended to 'array'.  If
-//     // 'newSize < bdlat_arraySize(*array)', then the
-//     // 'bdlat_arraySize(*array) - newSize' elements at the end of 'array'
-//     // are destroyed.  The behavior is undefined unless '0 <= newSize'.
 //
 // // ACCESSORS
+//
+// /// Invoke the specified `accessor` on a `const`-reference to the
+// /// element at the specified `index` of the specified `array`.  Return
+// /// the value from the invocation of `accessor`.  The behavior is
+// /// undefined unless `0 <= index` and `index < bdlat_arraySize(array)`.
 // template <class ACCESSOR>
 // int bdlat_arrayAccessElement(const YOUR_TYPE& array,
 //                              ACCESSOR&        accessor,
 //                              int              index);
-//     // Invoke the specified 'accessor' on a 'const'-reference to the
-//     // element at the specified 'index' of the specified 'array'.  Return
-//     // the value from the invocation of 'accessor'.  The behavior is
-//     // undefined unless '0 <= index' and 'index < bdlat_arraySize(array)'.
 //
+// /// Return the number of elements in the specified `array`.
 // bsl::size_t bdlat_arraySize(const YOUR_TYPE& array);
-//     // Return the number of elements in the specified 'array'.
 // ```
+//
 // The "array" type must also define two meta-functions in the
 // `bdlat_ArrayFunctions` namespace:
 //
@@ -156,6 +159,7 @@ BSLS_IDENT("$Id: $")
 // }  // close namespace mine
 // }  // close enterprise namespace
 // ```
+//
 // We can now make `mine::MyIntArray` expose "array" behavior by implementing
 // the necessary `bdlat_ArrayFunctions` for `MyIntArray` inside the `mine`
 // namespace and defining the required meta-functions withing the
@@ -168,40 +172,43 @@ BSLS_IDENT("$Id: $")
 // namespace mine {
 //
 // // MANIPULATORS
+//
+// /// Invoke the specified `manipulator` on the address of the element at
+// /// the specified `index` of the specified `array`.  Return the value
+// /// from the invocation of `manipulator`.  The behavior is undefined
+// /// unless `0 <= index` and `index < bdlat_arraySize(*array)`.
 // template <class MANIPULATOR>
 // int bdlat_arrayManipulateElement(MyIntArray   *array,
 //                                  MANIPULATOR&  manipulator,
 //                                  int           index);
-//     // Invoke the specified 'manipulator' on the address of the element at
-//     // the specified 'index' of the specified 'array'.  Return the value
-//     // from the invocation of 'manipulator'.  The behavior is undefined
-//     // unless '0 <= index' and 'index < bdlat_arraySize(*array)'.
 //
+// /// Set the size of the specified modifiable `array` to the specified
+// /// `newSize`.  If `newSize > bdlat_arraySize(*array)`, then
+// /// `newSize - bdlat_arraySize(*array)` elements with default values
+// /// (i.e., `ElementType()`) are appended to `array`.  If
+// /// `newSize < bdlat_arraySize(*array)`, then the
+// /// `bdlat_arraySize(*array) - newSize` elements at the end of `array`
+// /// are destroyed.  The behavior is undefined unless `0 <= newSize`.
 // void bdlat_arrayResize(MyIntArray *array, int newSize);
-//     // Set the size of the specified modifiable 'array' to the specified
-//     // 'newSize'.  If 'newSize > bdlat_arraySize(*array)', then
-//     // 'newSize - bdlat_arraySize(*array)' elements with default values
-//     // (i.e., 'ElementType()') are appended to 'array'.  If
-//     // 'newSize < bdlat_arraySize(*array)', then the
-//     // 'bdlat_arraySize(*array) - newSize' elements at the end of 'array'
-//     // are destroyed.  The behavior is undefined unless '0 <= newSize'.
 //
 // // ACCESSORS
+//
+// /// Invoke the specified `accessor` on a `const`-reference to the
+// /// element at the specified `index` of the specified `array`.  Return
+// /// the value from the invocation of `accessor`.  The behavior is
+// /// undefined unless `0 <= index` and `index < bdlat_arraySize(array)`.
 // template <class ACCESSOR>
 // int bdlat_arrayAccessElement(const MyIntArray& array,
 //                              ACCESSOR&         accessor,
 //                              int               index);
-//     // Invoke the specified 'accessor' on a 'const'-reference to the
-//     // element at the specified 'index' of the specified 'array'.  Return
-//     // the value from the invocation of 'accessor'.  The behavior is
-//     // undefined unless '0 <= index' and 'index < bdlat_arraySize(array)'.
 //
+// /// Return the number of elements in the specified `array`.
 // bsl::size_t bdlat_arraySize(const MyIntArray& array);
-//     // Return the number of elements in the specified 'array'.
 //
 // }  // close namespace mine
 // }  // close enterprise namespace
 // ```
+//
 // Then, we will implement these functions.  Recall that the two (non-template)
 // functions should be defined in some `.cpp` file, unless you choose to make
 // them `inline` functions.
@@ -270,6 +277,7 @@ BSLS_IDENT("$Id: $")
 // }  // close namespace bdlat_ArrayFunctions
 // }  // close enterprise namespace
 // ```
+//
 // This completes the `bdlat` infrastructure for `mine::MyIntArray` and
 // allows the generic software to recognize the type as an array abstraction.
 //
@@ -366,7 +374,7 @@ BSLS_IDENT("$Id: $")
 //         assert(0 == value)
 //     }
 //
-//     // Set element 'index * 10' as its value;
+//     // Set element `index * 10` as its value;
 //
 //     for (int index = 0; index < 4; ++index) {
 //         SetElementManipulator<int> manipulator(index * 10);
@@ -401,18 +409,19 @@ BSLS_IDENT("$Id: $")
 // struct ArrayUtil {
 //
 //     // CLASS METHODS
+//
+//     /// Load to the specified `value` the element at the specified
+//     /// `index` of the specified `object` array.  Return 0 if the
+//     /// element is successfully loaded to `value`, and a non-zero value
+//     /// otherwise.  This function template requires that the specified
+//     /// `ARRAY_TYPE` is a `bdlat` "array" type.  The behavior is
+//     /// undefined unless `0 <= index` and
+//     /// `index < bdlat_ArrayFunctions::size(object)`.
 //     template <class ARRAY_TYPE>
 //     static int getElement(typename bdlat_ArrayFunctions
 //                                    ::ElementType<ARRAY_TYPE>::Type *value,
 //                         const ARRAY_TYPE&                           object,
 //                         int                                         index)
-//         // Load to the specified 'value' the element at the specified
-//         // 'index' of the specified 'object' array.  Return 0 if the
-//         // element is successfully loaded to 'value', and a non-zero value
-//         // otherwise.  This function template requires that the specified
-//         // 'ARRAY_TYPE' is a 'bdlat' "array" type.  The behavior is
-//         // undefined unless '0 <= index' and
-//         // 'index < bdlat_ArrayFunctions::size(object)'.
 //     {
 //         BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 //
@@ -426,19 +435,19 @@ BSLS_IDENT("$Id: $")
 //                                                    index);
 //     }
 //
+//     /// Assign the specified `value` to the element of the specified
+//     /// `object` array at the specified `index`.  Return 0 if the
+//     /// element is successfully assigned to `value`, and a non-zero
+//     /// value otherwise.  This function template requires that the
+//     /// specified `ARRAY_TYPE` is a `bdlat` "array" type.  The behavior
+//     /// is undefined unless `0 <= index` and
+//     /// `index < bdlat_ArrayFunctions::size(*object)`.
 //     template <class ARRAY_TYPE>
 //     static int setElement(
 //      ARRAY_TYPE                                                    *object,
 //      int                                                            index,
 //      const typename bdlat_ArrayFunctions::ElementType<ARRAY_TYPE>
 //                                                            ::Type&  value)
-//         // Assign the specified 'value' to the element of the specified
-//         // 'object' array at the specified 'index'.  Return 0 if the
-//         // element is successfully assigned to 'value', and a non-zero
-//         // value otherwise.  This function template requires that the
-//         // specified 'ARRAY_TYPE' is a 'bdlat' "array" type.  The behavior
-//         // is undefined unless '0 <= index' and
-//         // 'index < bdlat_ArrayFunctions::size(*object)'.
 //     {
 //         BSLMF_ASSERT(bdlat_ArrayFunctions::IsArray<ARRAY_TYPE>::value);
 //
@@ -572,7 +581,7 @@ BSLS_IDENT("$Id: $")
 //         assert(0.0 == value);
 //     }
 //
-//     // Set element 'index * 10' as its value;
+//     // Set element `index * 10` as its value;
 //
 //     for (int index = 0; index < 4; ++index) {
 //         float value = static_cast<float>(index * 10);
@@ -590,6 +599,7 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 // ```
+//
 // Notice that syntax and order of `bdlat_ArrayFunctions` function
 // calls have not been changed.  The only difference is that the element
 // type has changed from `int` to `float`.
@@ -615,7 +625,7 @@ BSLS_IDENT("$Id: $")
 //         assert("" == value);
 //     }
 //
-//     // Set element 'index * 10' as its value;
+//     // Set element `index * 10` as its value;
 //
 //     for (int index = 0; index < 4; ++index) {
 //         bsl::ostringstream oss; oss << (index * 10);
@@ -653,10 +663,10 @@ namespace BloombergLP {
                        // namespace bdlat_ArrayFunctions
                        // ==============================
 
+/// This `namespace` provides functions that expose "array" behavior for
+/// "array" types.  Specializations are provided for `bsl::vector<TYPE>`.
+/// See the component-level documentation for more information.
 namespace bdlat_ArrayFunctions {
-    // This 'namespace' provides functions that expose "array" behavior for
-    // "array" types.  Specializations are provided for 'bsl::vector<TYPE>'.
-    // See the component-level documentation for more information.
 
     // META-FUNCTIONS
 
@@ -713,10 +723,10 @@ namespace bdlat_ArrayFunctions {
                           // bsl::vector declarations
                           // ========================
 
+/// This namespace declaration adds the implementation of the "array" traits
+/// for `bsl::vector` to `bdlat_ArrayFunctions`.  Note that `bsl::vector` is
+/// the canonical "array" type.
 namespace bdlat_ArrayFunctions {
-    // This namespace declaration adds the implementation of the "array" traits
-    // for 'bsl::vector' to 'bdlat_ArrayFunctions'.  Note that 'bsl::vector' is
-    // the canonical "array" type.
 
     // META-FUNCTIONS
     template <class TYPE, class ALLOC>

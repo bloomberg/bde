@@ -71,21 +71,15 @@ struct bdlat_EnumeratorInfo {
 
     // CREATORS
 
-    // The following methods are not defined by design:
-    //..
-    //   bdlat_EnumeratorInfo();
-    //   bdlat_EnumeratorInfo(const bdlat_EnumeratorInfo& original);
-    //   ~bdlat_EnumeratorInfo();
-    //..
-    // The corresponding methods supplied by the compiler are sufficient.
+    /// Compiler-generated methods.
+    //! bdlat_EnumeratorInfo() = default;
+    //! bdlat_EnumeratorInfo(const bdlat_EnumeratorInfo& original) = default;
+    //! ~bdlat_EnumeratorInfo() = default;
 
     // MANIPULATORS
 
-    // The following method is not defined by design:
-    //..
-    //   bdlat_EnumeratorInfo& operator=(const bdlat_EnumeratorInfo& rhs);
-    //..
-    // The assignment operator supplied by the compiler is sufficient.
+    /// Compiler-generated methods.
+    //! bdlat_EnumeratorInfo& operator=(const bdlat_EnumeratorInfo& rhs);
 
     /// Return a reference to the modifiable annotation of this enumerator
     /// info object.

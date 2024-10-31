@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // e_ATTRIBUTE             Use attribute formatting (for XSD attributes).
 // e_SIMPLE_CONTENT        Use simple content formatting (for XSD simple
 //                         content types).
-// e_NILLABLE              Use nillable formatting (for XSD 'nillable'
+// e_NILLABLE              Use nillable formatting (for XSD `nillable`
 //                         option).
 // e_LIST                  Use the list format (this is used for arrays).
 // ```
