@@ -114,11 +114,11 @@ class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
   private:
     // CLASS TYPES
-    typedef FormatterSpecification_Splitter<t_CHAR> FSS;
+    typedef FormatterSpecification_Splitter<t_CHAR> Splitter;
 
     // DATA
     ParsingStatus d_parsingStatus;
-    FSS           d_basicSplitter;
+    Splitter      d_basicSplitter;
     FormatType    d_formatType;
     int           d_widthArgId;
     int           d_precisionArgId;
@@ -184,10 +184,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
 {
-    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error("Format standard specification "
-                                     "'.postprocess' not called"));   // RETURN
-
     return d_basicSplitter.filler();
 }
 
@@ -195,10 +191,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatterSpecificationStandard<t_CHAR>::fillerCharacters() const
 {
-    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error("Format standard specification "
-                                     "'.postprocess' not called"));   // RETURN
-
     return d_basicSplitter.fillerCharacters();
 }
 
@@ -206,10 +198,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatterSpecificationStandard<t_CHAR>::fillerCodePointDisplayWidth() const
 {
-    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error("Format standard specification "
-                                     "'.postprocess' not called"));   // RETURN
-
     return d_basicSplitter.fillerCodePointDisplayWidth();
 }
 
@@ -219,11 +207,6 @@ typename
 FormatterSpecificationStandard<t_CHAR>::Alignment
 FormatterSpecificationStandard<t_CHAR>::alignment() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
     return d_basicSplitter.alignment();
 }
 
@@ -233,11 +216,6 @@ typename
 FormatterSpecificationStandard<t_CHAR>::Sign
 FormatterSpecificationStandard<t_CHAR>::sign() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
     return d_basicSplitter.sign();
 }
 
@@ -245,11 +223,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::alternativeFlag() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
     return d_basicSplitter.alternativeFlag();
 }
 
@@ -257,11 +230,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
     return d_basicSplitter.zeroPaddingFlag();
 }
 
@@ -270,10 +238,6 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 {
-    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error("Format standard specification "
-                                     "'.postprocess' not called"));   // RETURN
-
     return d_basicSplitter.postprocessedWidth();
 }
 
@@ -282,10 +246,6 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 const FormatterSpecification_NumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedPrecision() const
 {
-    if (d_parsingStatus != FormatterSpecificationStandard::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error("Format standard specification "
-                                     "'.postprocess' not called"));   // RETURN
-
     return d_basicSplitter.postprocessedPrecision();
 }
 
@@ -293,11 +253,6 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationStandard<t_CHAR>::localeSpecificFlag() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
     return d_basicSplitter.localeSpecificFlag();
 }
 
@@ -306,8 +261,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 typename FormatterSpecificationStandard<t_CHAR>::FormatType
 FormatterSpecificationStandard<t_CHAR>::formatType() const
 {
-    if (d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error(
               "Format standard specification '.parse' not called"));  // RETURN
 
@@ -329,7 +283,9 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    outSpec->d_parsingStatus = e_PARSING_PREPARSED;
+    typedef FormatterSpecification_NumericValue NumericValue;
+
+    outSpec->d_parsingStatus = e_PARSING_PARSED;
 
     const Sections sect = static_cast<Sections>(
             e_SECTIONS_FILL_ALIGN |
@@ -344,6 +300,15 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
     FormatterSpecification_Splitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
                                                    context,
                                                    sect);
+
+    if (NumericValue::e_DEFAULT !=
+            outSpec->d_basicSplitter.rawPrecision().valueType() &&
+        e_CATEGORY_STRING != category &&
+        e_CATEGORY_FLOATING != category) {
+        BSLS_THROW(bsl::format_error("Standard specification parse failure "
+                                     "(precision is used with inappropriate "
+                                     "type)"));                       // RETURN
+    }
 
     parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
 
@@ -361,12 +326,11 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
                                        FormatterSpecificationStandard *outSpec,
                                        const t_FORMAT_CONTEXT&         context)
 {
-    if (outSpec->d_parsingStatus ==
-        FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
+    if (outSpec->d_parsingStatus == e_PARSING_UNINITIALIZED)
         BSLS_THROW(bsl::format_error(
               "Format standard specification '.parse' not called"));  // RETURN
 
-    FSS::postprocess(&outSpec->d_basicSplitter, context);
+    Splitter::postprocess(&outSpec->d_basicSplitter, context);
 
     switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
       case FormatterSpecification_NumericValue::e_DEFAULT: {
@@ -396,8 +360,7 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
       }
     }
 
-    outSpec->d_parsingStatus =
-                            FormatterSpecificationStandard::e_PARSING_COMPLETE;
+    outSpec->d_parsingStatus = e_PARSING_POSTPROCESSED;
 }
 
 // PRIVATE CLASS FUNCTIONS

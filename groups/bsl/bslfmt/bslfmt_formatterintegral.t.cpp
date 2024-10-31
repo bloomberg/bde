@@ -651,7 +651,6 @@ int main(int argc, char **argv)
             ASSERTV(message.c_str(), rv);
         }
 
-
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\tTesting locale prohibition.\n");
         {
@@ -669,6 +668,33 @@ int main(int argc, char **argv)
                                                                       &message,
                                                                       false,
                                                                       "{:L}");
+                ASSERTV(message.c_str(), !rv);
+            }
+            catch(const bsl::format_error& err) {
+                ASSERTV(err.what(),
+                        "Exception should have been caught by the "
+                        "`Formatter_TestUtil`",
+                        false);
+            }
+        }
+
+        if (verbose)
+            printf("\tTesting prohibition of the `precision` option.\n");
+        {
+            try {
+                bsl::string message;
+                bool        rv =
+                       bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
+                           &message,
+                           false,
+                           "{:6d}");
+
+                ASSERTV(message.c_str(), rv);
+
+                rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
+                                                                    &message,
+                                                                    false,
+                                                                    "{:6.5d}");
                 ASSERTV(message.c_str(), !rv);
             }
             catch(const bsl::format_error& err) {

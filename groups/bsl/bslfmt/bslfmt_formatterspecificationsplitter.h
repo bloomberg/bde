@@ -141,8 +141,8 @@ struct FormatterSpecification_SplitterEnums {
     // CLASS TYPES
     enum ParsingStatus {
         e_PARSING_UNINITIALIZED,
-        e_PARSING_PREPARSED,
-        e_PARSING_COMPLETE
+        e_PARSING_PARSED,
+        e_PARSING_POSTPROCESSED
     };
 
     enum Alignment {
@@ -520,15 +520,13 @@ FormatterSpecification_Splitter<t_CHAR>::FormatterSpecification_Splitter()
 
 // ACCESSORS
 
-
-
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR *FormatterSpecification_Splitter<t_CHAR>::filler() const
 {
-    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error(
-                 "Format specification '.postprocess' not called"));  // RETURN
+            "Format specification '.parse' not called (`filler`)"));  // RETURN
 
     return d_filler;
 }
@@ -537,9 +535,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatterSpecification_Splitter<t_CHAR>::fillerCharacters() const
 {
-    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                 "Format specification '.postprocess' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(
+                  bsl::format_error("Format specification '.parse' not called "
+                                    "(`fillerCharacters`)"));         // RETURN
 
     return d_fillerCharacters;
 }
@@ -548,9 +547,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 int
 FormatterSpecification_Splitter<t_CHAR>::fillerCodePointDisplayWidth() const
 {
-    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                 "Format specification '.postprocess' not called"));  // RETURN
+    if (e_PARSING_POSTPROCESSED != d_parsingStatus)
+        BSLS_THROW(
+            bsl::format_error("Format specification '.postprocess' not called "
+                              "(`fillerCodePointDisplayWidth`)"));    // RETURN
 
     return d_fillerCodePointDisplayWidth;
 }
@@ -561,11 +561,9 @@ typename
 FormatterSpecification_Splitter<t_CHAR>::Alignment
 FormatterSpecification_Splitter<t_CHAR>::alignment() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`alignment`)"));        // RETURN
 
     return d_alignment;
 }
@@ -576,11 +574,9 @@ typename
 FormatterSpecification_Splitter<t_CHAR>::Sign
 FormatterSpecification_Splitter<t_CHAR>::sign() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+              "Format specification '.parse' not called (`sign`)"));  // RETURN
 
     return d_sign;
 }
@@ -589,11 +585,9 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecification_Splitter<t_CHAR>::alternativeFlag() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`alternativeFlag`)"));  // RETURN
 
     return d_alternativeFlag;
 }
@@ -602,11 +596,9 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecification_Splitter<t_CHAR>::zeroPaddingFlag() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`zeroPaddingFlag`)"));  // RETURN
 
     return d_zeroPaddingFlag;
 }
@@ -615,9 +607,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
 FormatterSpecification_Splitter<t_CHAR>::postprocessedWidth() const
 {
-    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                 "Format specification '.postprocess' not called"));  // RETURN
+    if (e_PARSING_POSTPROCESSED != d_parsingStatus)
+        BSLS_THROW(
+            bsl::format_error("Format specification '.postprocess' not called "
+                              "(`postprocessedWidth`)"));             // RETURN
 
     return d_postprocessedWidth;
 }
@@ -626,11 +619,9 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
 FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`rawWidth`)"));         // RETURN
 
     return d_rawWidth;
 }
@@ -639,9 +630,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
 FormatterSpecification_Splitter<t_CHAR>::postprocessedPrecision() const
 {
-    if (d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                 "Format specification '.postprocess' not called"));  // RETURN
+    if (e_PARSING_POSTPROCESSED != d_parsingStatus)
+        BSLS_THROW(
+            bsl::format_error("Format specification '.postprocess' not called "
+                              "(`postprocessedPrecision`)"));         // RETURN
 
     return d_postprocessedPrecision;
 }
@@ -650,11 +642,9 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
 FormatterSpecification_Splitter<t_CHAR>::rawPrecision() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`rawPrecision`)"));     // RETURN
 
     return d_rawPrecision;
 }
@@ -663,11 +653,10 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecification_Splitter<t_CHAR>::localeSpecificFlag() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus != FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(
+                  bsl::format_error("Format specification '.parse' not called "
+                                    "(`localeSpecificFlag`)"));       // RETURN
 
     return d_localeSpecificFlag;
 }
@@ -677,12 +666,9 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 const bsl::basic_string_view<t_CHAR>
 FormatterSpecification_Splitter<t_CHAR>::finalSpec() const
 {
-    if (d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_PREPARSED &&
-        d_parsingStatus !=
-            FormatterSpecification_Splitter::e_PARSING_COMPLETE)
-        BSLS_THROW(bsl::format_error(
-                       "Format specification '.parse' not called"));  // RETURN
+    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+        BSLS_THROW(bsl::format_error("Format specification '.parse' not "
+                                     "called (`finalSpec`)"));        // RETURN
 
     return d_spec;
 }
@@ -736,7 +722,7 @@ FormatterSpecification_Splitter<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    outSpec->d_parsingStatus = e_PARSING_PREPARSED;
+    outSpec->d_parsingStatus = e_PARSING_PARSED;
 
     typename t_PARSE_CONTEXT::const_iterator current = pc->begin();
     typename t_PARSE_CONTEXT::const_iterator end     = pc->end();
@@ -791,7 +777,7 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
                              t_CHAR>::value));
 
-    outSpec->d_sections      = sections;
+    outSpec->d_sections = sections;
 
     // Reasonable defaults for early exit.
     outSpec->d_filler[0]                   = ' ';
@@ -817,18 +803,14 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
     }
 
     if (0 != (sections & e_SECTIONS_ALTERNATE_FLAG)) {
-        parseAlternateOption(outSpec,
-                                      start,
-                                      end);
+        parseAlternateOption(outSpec, start, end);
 
         if (*start == end || **start == '}')
             return;                                                   // RETURN
     }
 
     if (0 != (sections & e_SECTIONS_ZERO_PAD_FLAG)) {
-        parseZeroPaddingFlag(outSpec,
-                                      start,
-                                      end);
+        parseZeroPaddingFlag(outSpec, start, end);
 
         if (*start == end || **start == '}')
             return;                                                   // RETURN
@@ -1204,7 +1186,7 @@ void FormatterSpecification_Splitter<t_CHAR>::postprocess(
                                                 context);
     }
 
-    out->d_parsingStatus = FormatterSpecification_Splitter::e_PARSING_COMPLETE;
+    out->d_parsingStatus = e_PARSING_POSTPROCESSED;
 }
 
 

@@ -225,6 +225,7 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL FSSW parseStandard(
 }
 
 void checkStandard(
+       int                                              line,
        const FSSC&                                      splitter,
        bsl::basic_string_view<char>                     filler,
        FormatterSpecificationStandard<char>::Alignment  alignment,
@@ -241,19 +242,20 @@ void checkStandard(
     bslfmt::Formatter_MockFormatContext<char> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<char>::postprocess(&fs, mfc);
 
-    ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
+    ASSERTV(line, filler == bsl::basic_string_view<char>(fs.filler(),
                                                   fs.fillerCharacters()));
-    ASSERT(alignment == fs.alignment());
-    ASSERT(sign == fs.sign());
-    ASSERT(alternativeFlag == fs.alternativeFlag());
-    ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(postprocessedWidth == fs.postprocessedWidth());
-    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
-    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
-    ASSERT(formatType == fs.formatType());
+    ASSERTV(line, alignment == fs.alignment());
+    ASSERTV(line, sign == fs.sign());
+    ASSERTV(line, alternativeFlag == fs.alternativeFlag());
+    ASSERTV(line, zeroPaddingFlag == fs.zeroPaddingFlag());
+    ASSERTV(line, postprocessedWidth == fs.postprocessedWidth());
+    ASSERTV(line, postprocessedPrecision == fs.postprocessedPrecision());
+    ASSERTV(line, localeSpecificFlag == fs.localeSpecificFlag());
+    ASSERTV(line, formatType == fs.formatType());
 }
 
 void checkStandard(
+    int                                                 line,
     const FSSW&                                         splitter,
     bsl::basic_string_view<wchar_t>                     filler,
     FormatterSpecificationStandard<wchar_t>::Alignment  alignment,
@@ -270,16 +272,17 @@ void checkStandard(
     bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97, 96);
     FormatterSpecificationStandard<wchar_t>::postprocess(&fs, mfc);
 
-    ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),
-                                                     fs.fillerCharacters()));
-    ASSERT(alignment == fs.alignment());
-    ASSERT(sign == fs.sign());
-    ASSERT(alternativeFlag == fs.alternativeFlag());
-    ASSERT(zeroPaddingFlag == fs.zeroPaddingFlag());
-    ASSERT(postprocessedWidth == fs.postprocessedWidth());
-    ASSERT(postprocessedPrecision == fs.postprocessedPrecision());
-    ASSERT(localeSpecificFlag == fs.localeSpecificFlag());
-    ASSERT(formatType == fs.formatType());
+    ASSERTV(line,
+            filler == bsl::basic_string_view<wchar_t>(fs.filler(),
+                                                      fs.fillerCharacters()));
+    ASSERTV(line, alignment == fs.alignment());
+    ASSERTV(line, sign == fs.sign());
+    ASSERTV(line, alternativeFlag == fs.alternativeFlag());
+    ASSERTV(line, zeroPaddingFlag == fs.zeroPaddingFlag());
+    ASSERTV(line, postprocessedWidth == fs.postprocessedWidth());
+    ASSERTV(line, postprocessedPrecision == fs.postprocessedPrecision());
+    ASSERTV(line, localeSpecificFlag == fs.localeSpecificFlag());
+    ASSERTV(line, formatType == fs.formatType());
 }
 
 //=============================================================================
@@ -302,7 +305,8 @@ int main(int argc, char **argv)
         typedef FormatterSpecificationStandard<wchar_t> FSW;
         typedef FormatterSpecification_NumericValue     FSValue;
 
-        checkStandard(parseStandard("", FSC::e_CATEGORY_STRING),
+        checkStandard(L_,
+                      parseStandard("", FSC::e_CATEGORY_STRING),
                       " ",
                       FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
@@ -313,19 +317,32 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_STRING_DEFAULT);
 
-        checkStandard(parseStandard("*<06.3d",
-                      FSC::e_CATEGORY_INTEGRAL),
-                      "*",
-                      FSC::e_ALIGN_LEFT,
+        checkStandard(L_,
+                      parseStandard("2.3s", FSC::e_CATEGORY_STRING),
+                      " ",
+                      FSC::e_ALIGN_DEFAULT,
                       FSC::e_SIGN_DEFAULT,
                       false,
-                      true,
-                      FSValue(6, FSValue::e_VALUE),
+                      false,
+                      FSValue(2, FSValue::e_VALUE),
                       FSValue(3, FSValue::e_VALUE),
                       false,
-                      FSC::e_INTEGRAL_DECIMAL);
+                      FSC::e_STRING_DEFAULT);
 
-        checkStandard(parseStandard("*<{1}.{3}F",
+        checkStandard(L_,
+                      parseStandard("{3}.{2}", FSC::e_CATEGORY_STRING),
+                      " ",
+                      FSC::e_ALIGN_DEFAULT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSValue(96, FSValue::e_VALUE),
+                      FSValue(97, FSValue::e_VALUE),
+                      false,
+                      FSC::e_STRING_DEFAULT);
+
+        checkStandard(L_,
+                      parseStandard("*<{1}.{3}F",
                       FSC::e_CATEGORY_FLOATING),
                       "*",
                       FSC::e_ALIGN_LEFT,
@@ -337,7 +354,8 @@ int main(int argc, char **argv)
                       false,
                       FSC::e_FLOATING_FIXED_UC);
 
-        checkStandard(parseStandard(L"",
+        checkStandard(L_,
+                      parseStandard(L"",
                       FSW::e_CATEGORY_STRING),
                       L" ",
                       FSW::e_ALIGN_DEFAULT,
@@ -349,19 +367,32 @@ int main(int argc, char **argv)
                       false,
                       FSW::e_STRING_DEFAULT);
 
-        checkStandard(parseStandard(L"*<06.3d",
-                      FSW::e_CATEGORY_INTEGRAL),
-                      L"*",
-                      FSW::e_ALIGN_LEFT,
-                      FSW::e_SIGN_DEFAULT,
+        checkStandard(L_,
+                      parseStandard(L"2.3s", FSC::e_CATEGORY_STRING),
+                      L" ",
+                      FSC::e_ALIGN_DEFAULT,
+                      FSC::e_SIGN_DEFAULT,
                       false,
-                      true,
-                      FSValue(6, FSValue::e_VALUE),
+                      false,
+                      FSValue(2, FSValue::e_VALUE),
                       FSValue(3, FSValue::e_VALUE),
                       false,
-                      FSW::e_INTEGRAL_DECIMAL);
+                      FSC::e_STRING_DEFAULT);
 
-        checkStandard(parseStandard(L"*<{0}.{3}f",
+        checkStandard(L_,
+                      parseStandard(L"{2}.{1}", FSC::e_CATEGORY_STRING),
+                      L" ",
+                      FSC::e_ALIGN_DEFAULT,
+                      FSC::e_SIGN_DEFAULT,
+                      false,
+                      false,
+                      FSValue(97, FSValue::e_VALUE),
+                      FSValue(98, FSValue::e_VALUE),
+                      false,
+                      FSC::e_STRING_DEFAULT);
+
+        checkStandard(L_,
+                      parseStandard(L"*<{0}.{3}f",
                       FSW::e_CATEGORY_FLOATING),
                       L"*",
                       FSW::e_ALIGN_LEFT,
