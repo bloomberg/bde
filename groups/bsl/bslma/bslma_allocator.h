@@ -380,6 +380,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_enableif.h>
 
 #include <bsls_keyword.h>
 #include <bsls_nullptr.h>
@@ -688,6 +689,21 @@ void operator delete(void                           *address,
 {
     basicAllocator.deallocate(address);
 }
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+template <class t_TYPE,
+          class = typename bsl::enable_if<bsl::is_same<
+                                  t_TYPE,
+                                  BloombergLP::bslma::Allocator>::value>::type>
+void *operator new[](std::size_t size, t_TYPE& basicAllocator)
+{
+    BSLMF_ASSERT(sizeof(t_TYPE) == 0);
+    // This assert fires if you have tried to allocate an array using
+    // `operator new[]` with also specifying an allocator (on MSVC).  Without
+    // this overload, the Microsoft compiler would just use the non-array
+    // `operator new` and not give an error as other compilers do.
+}
+#endif
 
 #endif
 
