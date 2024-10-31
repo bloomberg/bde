@@ -692,17 +692,16 @@ void operator delete(void                           *address,
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
 template <class t_TYPE,
-          class t_DUMMY = typename bsl::enable_if<bsl::is_same<
-                                                  t_TYPE,
-                                                  BloombergLP::bslma::Allocator
-                                                 >::value>::type>
+          class = typename bsl::enable_if<bsl::is_same<
+                                  t_TYPE,
+                                  BloombergLP::bslma::Allocator>::value>::type>
 void *operator new[](std::size_t size, t_TYPE& basicAllocator)
 {
     BSLMF_ASSERT(sizeof(t_TYPE) == 0);
     // This assert fires if you have tried to allocate an array using
     // `operator new[]` with also specifying an allocator (on MSVC).  Without
-    // this overload Microsoft would just use the non-array `operator new` and
-    // not give an error as other compilers do.
+    // this overload, the Microsoft compiler would just use the non-array
+    // `operator new` and not give an error as other compilers do.
 }
 #endif
 
