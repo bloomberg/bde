@@ -22,21 +22,24 @@ BSLS_IDENT("$Id: $")
 //
 // `bsl::is_trivially_default_constructible` has the same syntax as the
 // `is_trivially_default_constructible` template from the C++11 standard
-// [meta.unary.prop].  However, unlike the template defined in the C++11
-// standard, which can determine the correct value for all types without
-// requiring specialization, `bsl::is_trivially_default_constructible` can, by
-// default, determine the value for the following type categories only:
+// [meta.unary.prop] and in C++11 or later build modes it delegates to the
+// `std::is_trivially_default_constructible` which may use compiler intrinsics
+// and otherwise depend on the compiler to determine the proper value.  In
+// C++03, unlike the template defined in the C++11 standard, which can
+// determine the correct value for all types without requiring specialization,
+// `bsl::is_trivially_default_constructible` can, by default, determine the
+// value for the following type categories only:
 // ```
 // Type Category        Has Trivial Default Constructor
 // -------------------  -------------------------------
 // reference types      false
 // fundamental types    true
-// enums                true
+// `enum`s              true
 // pointers             true
 // pointers to members  true
 // ```
-// For all other types, `bsl::is_trivially_default_constructible` returns
-// `false`, unless the type is explicitly specified to be trivially
+// In C++03, `bsl::is_trivially_default_constructible` returns `false` for all
+// other types, unless the type is explicitly specified to be trivially
 // default-constructible, which can be done in two ways:
 //
 // 1. Define a template specialization for
