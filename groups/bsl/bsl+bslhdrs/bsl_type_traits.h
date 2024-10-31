@@ -508,9 +508,15 @@ using std::is_nothrow_convertible;
 using std::is_nothrow_convertible_v;
 
 // 20.15.7.6, other transformations
+using std::remove_cvref;
+using std::remove_cvref_t;
 using std::common_reference;
 using std::common_reference_t;
 using std::basic_common_reference;
+using std::unwrap_reference;
+using std::unwrap_reference_t;
+using std::unwrap_ref_decay;
+using std::unwrap_ref_decay_t;
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
@@ -531,6 +537,11 @@ using std::is_pointer_interconvertible_with_class;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
 // 20.15.9, member relationships
 using std::is_corresponding_member;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+// 20.15.10, constant evaluation context
+using std::is_constant_evaluated;
 #endif
 
 #if 0

@@ -1005,23 +1005,33 @@ int main(int argc, char *argv[])
         //    - `bsl::is_bounded_array`
         //    - `bsl::is_unbounded_array`
         //    - `bsl::is_nothrow_convertible`
+        //    - `bsl::is_constant_evaluated`
         //    - `bsl::is_layout_compatible`
         //    - `bsl::is_pointer_interconvertible_base_of`
         //    - `bsl::common_reference`
         //    - 'bsl::basic_common_reference
         //    - `bsl::is_pointer_interconvertible_with_class`
         //    - `bsl::is_corresponding_member`
+        //    - `bsl::remove_cvref`
+        //    - `bsl::unwrap_reference`
+        //    - `bsl::unwrap_ref_decay`
         //
         // 2. When the trait has a `*_v` form, that trait has the same value
         //   as the  non-`*_v` form.
         //
-        // 3. The feature test macros defined in `<version>` for the imported
+        // 3. When the trait has a `*_t` form, that trait has the same value
+        //   as the  non-`*_t` form.
+        //
+        // 4. The feature test macros defined in `<version>` for the imported
         //    features are available and have appropriate values.
         //
         // Plan:
         // 1. Verify that:
         //     o `__cpp_lib_is_layout_compatible        >= 201907L`
         //     o `__cpp_lib_is_pointer_interconvertible >= 201907L`
+        //     o `__cpp_lib_unwrap_ref                  >= 201811L`
+        //     o `__cpp_lib_remove_cvref                >= 201711L`
+        //     o `__cpp_lib_is_constant_evaluated       >= 201811L`
         //
         // 2. Verify that `__cpp_lib_is_layout_compatible` also also determines
         //    the availability of
@@ -1086,6 +1096,43 @@ int main(int argc, char *argv[])
 
             bool result = bsl::is_same<TU, UT>:: value;
             ASSERT(false == result);
+        }
+
+        if (veryVerbose) {
+            Q('bsl::remove_cvref');
+        }
+        {
+            using T   = const int &;
+            using RET = int;
+
+            ASSERT(__cpp_lib_remove_cvref >= 201711L)
+            ASSERT((bsl::is_same_v<bsl::remove_cvref<T>::type, RET>));
+            ASSERT((bsl::is_same_v<bsl::remove_cvref_t<T>,     RET>));
+        }
+
+        if (veryVerbose) {
+            Q('bsl::unwrap_reference');
+            Q('bsl::unwrap_ref_decay');
+        }
+        {
+            using T    = bsl::reference_wrapper<int>;
+            using RET1 = int &;
+            using RET2 = int &;
+
+            ASSERT(__cpp_lib_unwrap_ref >= 201811L);
+            ASSERT((bsl::is_same_v<bsl::unwrap_reference<T>::type, RET1>));
+            ASSERT((bsl::is_same_v<bsl::unwrap_reference_t<T>,     RET1>));
+
+            ASSERT((bsl::is_same_v<bsl::unwrap_ref_decay<T>::type, RET2>));
+            ASSERT((bsl::is_same_v<bsl::unwrap_ref_decay_t<T>,     RET2>));
+        }
+        if (veryVerbose) {
+            Q('bsl::is_constant_evaluated');
+        }
+        {
+            ASSERT(__cpp_lib_is_constant_evaluated >= 201811L);
+            const bool b = bsl::is_constant_evaluated();
+            (void) b;
         }
 #else
         if (veryVerbose) {
