@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a type for constructing overload sets.
 //
 //@CLASSES:
-//  Overloaded: template for overload sets
+//  bdlf::Overloaded: template for overload sets
 //
 //@SEE_ALSO: bslstl_variant, bdljsn_json
 //
