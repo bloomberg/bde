@@ -2,7 +2,10 @@
 #include <bslfmt_formatterfloating.h>
 
 #include <bslfmt_formatargs.h>
-#include <bslfmt_formattertestutil.h> // Testing only
+#include <bslfmt_formattertestutil.h>    // Testing only
+
+#include <bslma_testallocator.h>         // Testing only
+#include <bslma_defaultallocatorguard.h> // Testing only
 
 #include <bsls_bsltestutil.h>
 
@@ -153,12 +156,20 @@ bool testRuntimeFormat(int           line,
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-    const int  test            = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose         = argc > 2;
-    const bool veryVerbose     = argc > 3;
-    const bool veryVeryVerbose = argc > 4;
+    const int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose             = argc > 2;
+    const bool veryVerbose         = argc > 3;
+    const bool veryVeryVerbose     = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 4;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
+
+    // CONCERN: No memory is leaked from the default allocator.
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) {  case 0:
       case 1: {
@@ -1743,6 +1754,11 @@ int main(int argc, char **argv)
         testStatus = -1;
       }
     }
+
+    // CONCERN: No memory came from the global allocator.
+
+    LOOP2_ASSERT(test, globalAllocator.numBlocksTotal(),
+                 0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);
