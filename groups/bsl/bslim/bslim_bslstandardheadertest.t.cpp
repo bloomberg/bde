@@ -124,6 +124,7 @@
 #include <bsl_deque.h>
 #include <bsl_exception.h>
 #include <bsl_execution.h>
+#include <bsl_format.h>           // C++20 header
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
@@ -242,6 +243,8 @@ using namespace BloombergLP;
 // defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
+// [40] CONCERN: `bsl::format` is available and usable
+// [39] HARDWARE INTERFERENCE
 // [38] CONCERN: `copy_n` function is usable from `bsl`.
 // [37] C++20 `bsl_type_traits.h` ADDITIONS
 // [36] C++20 `std::ranges` interop with `bsl::array`
@@ -952,6 +955,30 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 40: {
+        // --------------------------------------------------------------------
+        // C++20 `bsl_format.h`
+        //
+        // Concerns:
+        // 1. The `format` function exists in the `bsl` namespace.
+        //
+        // Plan:
+        // 1. Attempt to call the `format` function and verify the result.
+        //
+        // Testing
+        //   CONCERN: `bsl::format` is available and usable.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            puts("\nC++20 `bsl_format.h`"
+                 "\n====================");
+
+        int value = 5;
+        bsl::string result = bsl::format("{:d}", value);
+
+        ASSERT("5" == result);
+
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // HARDWARE_INTERFERENCE
