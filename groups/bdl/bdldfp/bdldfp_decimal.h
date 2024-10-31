@@ -6637,7 +6637,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void Decimal_FormatterSpecification<t_CHAR>::ensureItWasPostprocessed() const
 {
-    if (d_parsingStatus != FSS::e_PARSING_COMPLETE) {
+    if (d_parsingStatus != FSS::e_PARSING_POSTPROCESSED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
               "Decimal format specification '.postprocess()' was not called"));
     }
@@ -6762,7 +6762,7 @@ void Decimal_FormatterSpecification<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    outSpec->d_parsingStatus = FSS::e_PARSING_PREPARSED;
+    outSpec->d_parsingStatus = FSS::e_PARSING_PARSED;
 
     const typename FSS::Sections sect = static_cast<typename FSS::Sections>(
             FSS::e_SECTIONS_FILL_ALIGN     |
@@ -6827,7 +6827,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
       }
     }
 
-    outSpec->d_parsingStatus = FSS::e_PARSING_COMPLETE;
+    outSpec->d_parsingStatus = FSS::e_PARSING_POSTPROCESSED;
 }
 
         // ---------------------------------------------------
@@ -7052,10 +7052,10 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
                               + 1                          // decimal point
                               + Limits::max_precision;     // partial part
 
-    const int k_BUFFER_SIZE = 1                          // sign
-                            + 1 + Limits::max_exponent10 // integer part
-                            + 1                          // decimal point
-                            + effectivePrecision;        // partial part
+    const int reqdBufferSize = 1                          // sign
+                             + 1 + Limits::max_exponent10 // integer part
+                             + 1                          // decimal point
+                             + effectivePrecision;        // partial part
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type,
         // or the requested precision if it is larger than the maximum.
@@ -7065,20 +7065,20 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
     char *buffer = sbuf;
 
     bsl::polymorphic_allocator<char> allocator;
-    if (k_BUFFER_SIZE > k_STACK_BUF_LEN) {
-        dbuf = allocator.allocate(k_BUFFER_SIZE);
+    if (reqdBufferSize > k_STACK_BUF_LEN) {
+        dbuf = allocator.allocate(reqdBufferSize);
         buffer = dbuf;
     }
     bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
-                                                     allocator,
-                                                     dbuf,
-                                                     dbuf ? k_BUFFER_SIZE : 0);
+                                                    allocator,
+                                                    dbuf,
+                                                    dbuf ? reqdBufferSize : 0);
 
     const int len = DecimalImpUtil::format(buffer,
-                                           k_BUFFER_SIZE,
+                                           reqdBufferSize,
                                            *value.data(),
                                            cfg);
-    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+    BSLS_ASSERT(len <= reqdBufferSize);
 
     return alignAndCopy(buffer, len, formatContext, finalSpec);
 }

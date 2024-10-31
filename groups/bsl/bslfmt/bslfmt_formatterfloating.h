@@ -19,14 +19,18 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_numericformatterutil.h>
 
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
-#include <bslmf_issame.h>
-
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterspecificationstandard.h>
 #include <bslfmt_formatterunicodeutils.h>
+
+#include <bslma_deallocatebytesproctor.h>
+#include <bslma_default.h>
+#include <bslma_polymorphicallocator.h>
+
+#include <bslmf_integralconstant.h>
+#include <bslmf_isarithmetic.h>
+#include <bslmf_issame.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
@@ -35,7 +39,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
-#include <bslstl_vector.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -550,17 +553,24 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatFixedImpl(
     const size_t k_STACK_BUF_LEN =   // Max useful precision 17 - dflt 6 => 11
               NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_FIXED>::k_VALUE + 11;
     char sbuf[k_STACK_BUF_LEN];
-    bsl::vector<char> dbuf;
+    char *dbuf = 0;
+
+    size_t  bufLen = k_STACK_BUF_LEN;
+    char   *buf = sbuf;
+
     const size_t reqdBufLen =
         NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_FIXED,
                                                          precision);
-    char   *buf = sbuf;
-    size_t  bufLen = k_STACK_BUF_LEN;
+    bsl::polymorphic_allocator<char> allocator;
     if (reqdBufLen > k_STACK_BUF_LEN) {
+        dbuf   = allocator.allocate(reqdBufLen);
+        buf    = dbuf;
         bufLen = reqdBufLen;
-        dbuf.resize(bufLen);
-        buf = &dbuf[0];
     }
+    bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
+                                                        allocator,
+                                                        dbuf,
+                                                        dbuf ? reqdBufLen : 0);
     char *end = NFUtil::toChars(buf,
                                 buf + bufLen,
                                 value,
@@ -632,18 +642,25 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatGeneralImpl(
     // Converting to string
     const size_t k_STACK_BUF_LEN =       // max useful prec 17 - deflt 6 => 11
             NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_GENERAL>::k_VALUE + 11;
-    char sbuf[k_STACK_BUF_LEN];
-    bsl::vector<char> dbuf;
+    char  sbuf[k_STACK_BUF_LEN];
+    char *dbuf = 0;
+
+    size_t  bufLen = k_STACK_BUF_LEN;
+    char   *buf = sbuf;
+
     const size_t reqdBufLen =
             NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_GENERAL,
                                                              precision);
-    char   *buf = sbuf;
-    size_t  bufLen = k_STACK_BUF_LEN;
+    bsl::polymorphic_allocator<char> allocator;
     if (reqdBufLen > k_STACK_BUF_LEN) {
+        dbuf   = allocator.allocate(reqdBufLen);
+        buf    = dbuf;
         bufLen = reqdBufLen;
-        dbuf.resize(bufLen);
-        buf = &dbuf[0];
     }
+    bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
+                                                        allocator,
+                                                        dbuf,
+                                                        dbuf ? reqdBufLen : 0);
     char *end = NFUtil::toChars(buf,
                                 buf + bufLen,
                                 value,
@@ -723,18 +740,25 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
     const size_t k_STACK_BUF_LEN =
                      NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_HEX>::k_VALUE;
     char sbuf[k_STACK_BUF_LEN];
-    bsl::vector<char> dbuf;
+    char *dbuf = 0;
+
+    size_t  bufLen = k_STACK_BUF_LEN;
+    char   *buf = sbuf;
+
     const size_t reqdBufLen =
         NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(
                                    NFUtil::e_HEX,
                                    finalSpec.postprocessedPrecision().value());
-    char   *buf = sbuf;
-    size_t  bufLen = k_STACK_BUF_LEN;
+    bsl::polymorphic_allocator<char> allocator;
     if (reqdBufLen > k_STACK_BUF_LEN) {
+        dbuf   = allocator.allocate(reqdBufLen);
+        buf    = dbuf;
         bufLen = reqdBufLen;
-        dbuf.resize(bufLen);
-        buf = &dbuf[0];
     }
+    bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
+                                                        allocator,
+                                                        dbuf,
+                                                        dbuf ? reqdBufLen : 0);
     char *end = NFUtil::toChars(buf,
                                 buf + bufLen,
                                 value,
@@ -778,18 +802,25 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
     // Converting to string
     const size_t k_STACK_BUF_LEN =       // max useful prec 17 - deflt 6 => 11
          NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_SCIENTIFIC>::k_VALUE + 11;
-    char sbuf[k_STACK_BUF_LEN];
-    bsl::vector<char> dbuf;
+    char  sbuf[k_STACK_BUF_LEN];
+    char *dbuf = 0;
+
+    size_t  bufLen = k_STACK_BUF_LEN;
+    char   *buf = sbuf;
+
     const size_t reqdBufLen =
         NFUtil::PrecisionMaxBufferLength<t_VALUE>::value(NFUtil::e_SCIENTIFIC,
                                                          precision);
-    char   *buf = sbuf;
-    size_t  bufLen = k_STACK_BUF_LEN;
+    bsl::polymorphic_allocator<char> allocator;
     if (reqdBufLen > k_STACK_BUF_LEN) {
+        dbuf   = allocator.allocate(reqdBufLen);
+        buf    = dbuf;
         bufLen = reqdBufLen;
-        dbuf.resize(bufLen);
-        buf = &dbuf[0];
     }
+    bslma::DeallocateBytesProctor<bsl::polymorphic_allocator<char> > proctor(
+                                                        allocator,
+                                                        dbuf,
+                                                        dbuf ? reqdBufLen : 0);
     char *end = NFUtil::toChars(buf,
                                 buf + bufLen,
                                 value,
