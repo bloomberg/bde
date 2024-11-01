@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 15:18:45 2024
+// Generated on Fri Nov  1 20:56:35 2024
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -1301,7 +1301,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must be inlined inplace because the use
-        // of 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // of `enable_if` will otherwise break the MSVC 2010 compiler.
         //
         // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
@@ -3629,7 +3629,7 @@ struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
 }  //  close package namespace
 }  //  close enterprise namespace
 
-// Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+// Undo `BSLS_ASSERT` filename fix -- See {`bsls_assertimputil`}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
 #undef BSLS_ASSERTIMPUTIL_FILE
 #define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE

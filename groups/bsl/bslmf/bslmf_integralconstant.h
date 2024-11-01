@@ -203,6 +203,7 @@ struct integral_constant {
 
   public:
     // CREATORS
+
     //! integral_constant() = default;
     //! integral_constant(const integral_constant&) = default;
     //! integral_constant operator=(const integral_constant&) = default;
@@ -225,6 +226,7 @@ template <bool t_VAL>
 struct integral_constant<bool, t_VAL> {
   public:
     // CREATORS
+
     //! integral_constant() = default;
     //! integral_constant(const integral_constant&) = default;
     //! integral_constant operator=(const integral_constant&) = default;
@@ -279,8 +281,8 @@ using bool_constant = integral_constant<bool, t_VALUE>;
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 // STATIC MEMBER VARIABLE DEFINITIONS
-// Note that these definitions are deprecated under C++17, when 'constexpr'
-// data members are implicitly 'inline'.
+// Note that these definitions are deprecated under C++17, when `constexpr`
+// data members are implicitly `inline`.
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // This variable will be supplied by the platform header, when available.
 template <class t_TYPE, t_TYPE t_VAL>

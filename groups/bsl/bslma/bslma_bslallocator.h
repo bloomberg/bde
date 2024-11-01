@@ -283,8 +283,8 @@ BSLS_IDENT("$Id: $")
 //         d_length = rhs.d_length;
 //         d_array  = Traits::allocate(d_allocator, d_length);
 //
-//         // Construct each element of the 'lhs' array from the corresponding
-//         // 'rhs' element.
+//         // Construct each element of the `lhs` array from the corresponding
+//         // `rhs` element.
 //         for (int i = 0; i < d_length; ++i) {
 //             Traits::construct(d_allocator, &d_array[i], rhs.d_array[i]);
 //         }
@@ -483,7 +483,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
-#include <bsls_util.h>     // 'addressof'
+#include <bsls_util.h>     // `addressof`
 
 #include <cstddef>
 
@@ -504,8 +504,9 @@ namespace BloombergLP {
 namespace bslma {
 
 // FORWARD DECLARATIONS
+
+/// Object type that will be placeholder for 'void'
 struct BslAllocator_Voidish;
-    // Object type that will be placeholder for 'void'
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -599,9 +600,9 @@ class allocator : public polymorphic_allocator<TYPE> {
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
 
+    /// Destroy this object.  Note that this destructor does not delete the
+    /// object pointed to by `mechanism()`.
     //! ~allocator() = default;
-        // Destroy this object.  Note that this destructor does not delete the
-        // object pointed to by 'mechanism()'.
 
     // MANIPULATORS
     BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN
@@ -758,11 +759,6 @@ class allocator<void>
     /// ```
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT = default;
-#else
-    allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT;
-#endif
     /// Create a proxy object sharing the same mechanism object as the
     /// specified `original`.  The newly constructed allocator will compare
     /// equal to `original`, even though they may be instantiated on
@@ -770,6 +766,11 @@ class allocator<void>
     /// ```
     /// this->mechanism() == original.mechanism();
     /// ```
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT = default;
+#else
+    allocator(const allocator& original) BSLS_KEYWORD_NOEXCEPT;
+#endif
     template <class ANY_TYPE>
     allocator(const allocator<ANY_TYPE>& original) BSLS_KEYWORD_NOEXCEPT;
 
@@ -779,6 +780,8 @@ class allocator<void>
     //! ~allocator();
 
     // MANIPULATORS
+
+    /// Compiler-generated assign operator.
     //! allocator& operator=(const allocator& rhs) = default;
 
     // ACCESSORS
@@ -1060,8 +1063,8 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR inline
 typename allocator<TYPE>::size_type allocator<TYPE>::max_size() const
 {
-    // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
-    // 'size_type'.
+    // Return the largest value, `v`, such that `v * sizeof(T)` fits in a
+    // `size_type`.
 
     BSLS_KEYWORD_CONSTEXPR
         const size_type MAX_NUM_BYTES    = ~size_type(0);
@@ -1084,7 +1087,6 @@ allocator<TYPE> allocator<TYPE>::select_on_container_copy_construction() const
 {
     return allocator();
 }
-
 
                            // ---------------------
                            // class allocator<void>
@@ -1129,20 +1131,20 @@ allocator<void> allocator<void>::select_on_container_copy_construction() const
 
 #if BSLS_PLATFORM_CMP_MSVC
 // As of MSVC 19.30.30709 (2022), the following workaround is still needed.
-// When a fix is released, the above '#if' condition should be updated to apply
+// When a fix is released, the above `#if` condition should be updated to apply
 // only to versions before the fixed one.
 
 // These equality and inequality operators should be unnecessary because they
-// automatically fall back on 'polymoprhic_allocator'.  However an odd bug in
-// MSVC causes it, in the presence of '<bslma_convertibleallocator.h>' to
-// include the 'bslma::ConvertibleAllocator' "hidden friend" equality operators
-// in the the lookup set even if neither argument is 'ConvertibleAllocator',
-// thus making 'operator==' ambiguous when comparing 'bsl::allocator' to
-// 'bslma::Allocator *'.  Strangely 'using namespace bslma' suppresses this
+// automatically fall back on `polymoprhic_allocator`.  However an odd bug in
+// MSVC causes it, in the presence of `<bslma_convertibleallocator.h>` to
+// include the `bslma::ConvertibleAllocator` "hidden friend" equality operators
+// in the the lookup set even if neither argument is `ConvertibleAllocator`,
+// thus making `operator==` ambiguous when comparing `bsl::allocator` to
+// `bslma::Allocator *`.  Strangely `using namespace bslma` suppresses this
 // bug, but it is not practical to require clients to do that.  The operators
 // below quash this ambiguity.  Although harmless for other platforms, they are
 // compiled only for affected versions of MSVC and are considered an
-// implementation detail (not part of the interface for 'bsl::allocator').
+// implementation detail (not part of the interface for `bsl::allocator`).
 
 template <class TYPE>
 inline

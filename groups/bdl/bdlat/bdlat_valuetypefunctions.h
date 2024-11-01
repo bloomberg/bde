@@ -33,17 +33,18 @@ BSLS_IDENT("$Id: $")
 // the framework:
 // ```
 // // MANIPULATORS
+//
+// /// Assign to the specified `lhs` the value if the specified `rhs`.
+// /// Return 0 on success and a non-zero value otherwise.  If setting
+// /// `lhs` to `rhs` would violate any preconditions, a non-zero value is
+// /// returned.  If (template parameter) `RHS_TYPE` cannot be used to set
+// /// the value of `lhs`, a non-zero value is returned.
 // template <class RHS_TYPE>
 // int bdlat_valueTypeAssign(YOUR_TYPE *lhs, const RHS_TYPE& rhs);
-//     // Assign to the specified 'lhs' the value if the specified 'rhs'.
-//     // Return 0 on success and a non-zero value otherwise.  If setting
-//     // 'lhs' to 'rhs' would violate any preconditions, a non-zero value is
-//     // returned.  If (template parameter) 'RHS_TYPE' cannot be used to set
-//     // the value of 'lhs', a non-zero value is returned.
 //
+// /// Reset the specified `object` to that of its default state (i.e., to
+// /// `YOUR_TYPE()`).
 // void bdlat_valueTypeReset(YOUR_TYPE *object);
-//     // Reset the specified 'object' to that of its default state (i.e., to
-//     // 'YOUR_TYPE()').
 // ```
 // Notice that, unlike other `bdlat` type infrastructures, the `bdlat` "value"
 // infrastructure does *not* require the setting of any traits, or definition
@@ -368,7 +369,7 @@ BSLS_IDENT("$Id: $")
 //     return 0;
 // }
 //
-// // Overload for any other 'RHS_TYPE' to return an error.
+// // Overload for any other `RHS_TYPE` to return an error.
 // template <class RHS_TYPE>
 // int bdlat_valueTypeAssign(TheirValueType  *lhs,
 //                           const RHS_TYPE&  rhs)
@@ -475,10 +476,10 @@ namespace BloombergLP {
                       // namespace bdlat_ValueTypeFunctions
                       // ==================================
 
+/// The functions provided in this `namespace` may be applied to value
+/// types.  See the component-level documentation for what is meant by
+/// "value type".
 namespace bdlat_ValueTypeFunctions {
-    // The functions provided in this 'namespace' may be applied to value
-    // types.  See the component-level documentation for what is meant by
-    // "value type".
 
     // MANIPULATORS
 
@@ -498,11 +499,11 @@ namespace bdlat_ValueTypeFunctions {
                             // default declarations
                             // ====================
 
+/// This namespace declaration adds the default implementations of the
+/// "value type" customization-point functions to
+/// `bdlat_ValueTypeFunctions`.  These default implementations are provided
+/// for a variety of types.
 namespace bdlat_ValueTypeFunctions {
-    // This namespace declaration adds the default implementations of the
-    // "value type" customization-point functions to
-    // 'bdlat_ValueTypeFunctions'.  These default implementations are provided
-    // for a variety of types.
 
     // MANIPULATORS
     template <class LHS_TYPE, class RHS_TYPE>

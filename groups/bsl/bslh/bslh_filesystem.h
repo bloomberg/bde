@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // equivalent, they must yield the same hash value.
 //
 // First, we define our `HashCrossReference` template class, with the two type
-// parameters `TYPE` (the type being referenced') and `HASHER`, which defaults
+// parameters `TYPE` (the type being referenced) and `HASHER`, which defaults
 // to `bslh::Hash<TYPE>`.  This component provides the specialization of
 // `bslh::Hash` for `std::filesystem::path`:
 // ```
@@ -272,9 +272,9 @@ struct Hash<std::filesystem::path> {
 
     // MANIPULATORS
 
-    /// Assign to this object the value of the specified 'rhs' object, and
+    /// Assign to this object the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this object.  Note
-    /// that as 'hash' is an empty (stateless) type, this operation has no
+    /// that as `hash` is an empty (stateless) type, this operation has no
     /// observable effect.
     //! hash& operator=(const hash& rhs) = default;
 

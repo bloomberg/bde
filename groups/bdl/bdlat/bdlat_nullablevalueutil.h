@@ -83,14 +83,15 @@ BSLS_IDENT("$Id: $")
 // struct MyNullableValueUtil {
 //
 //     // CLASS METHODS
+//
+//     /// Load the value `true` to the specified `isArray` if the value
+//     /// stored in the specified `object` has the "array" type category,
+//     /// and load the value `false` otherwise.  Return 0 on success,
+//     /// and a non-zero value otherwise.  If a non-zero value is
+//     /// returned, the value loaded to `isArray` is unspecified.  The
+//     /// behavior is undefined if `object` contains a null value.
 //     template <class TYPE>
 //     static int isValueAnArray(bool *isArray, const TYPE& object)
-//         // Load the value 'true' to the specified 'isArray' if the value
-//         // stored in the specified 'object' has the "array" type category,
-//         // and load the value 'false' otherwise.  Return 0 on success,
-//         // and a non-zero value otherwise.  If a non-zero value is
-//         // returned, the value loaded to 'isArray' is unspecified.  The
-//         // behavior is undefined if 'object' contains a null value.
 //     {
 //         BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(object) ==
 //                     bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY);

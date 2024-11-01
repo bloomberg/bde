@@ -777,8 +777,8 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     typedef RET Invoker(const Function_Rep *,
                         typename bslmf::ForwardingType<ARGS>::Type...);
 
-    // 'protected' to workaround a Sun bug when instantiating 'bsl::function'
-    // implicitly from an 'extern "C"' function pointer, e.g. in a 'bind'
+    // `protected` to workaround a Sun bug when instantiating `bsl::function`
+    // implicitly from an `extern "C"` function pointer, e.g. in a `bind`
     // expression.
   protected:
     // DATA
@@ -806,8 +806,8 @@ class Function_Variadic<RET(ARGS...)> : public Function_ArgTypes<RET(ARGS...)>
     /// address of a `bslma::Allocator`) to supply memory.
     Function_Variadic(const allocator_type& allocator);
 
+    /// Destroy this object and its target object.
     //! ~Function_Variadic() = default;
-    //    // Destroy this object and its target object.
 
     // MANIPULATORS
 
@@ -1001,7 +1001,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
         ///Implementation Note
         ///- - - - - - - - - -
         // The body of this constructor must be inlined inplace because the use
-        // of 'enable_if' will otherwise break the MSVC 2010 compiler.
+        // of `enable_if` will otherwise break the MSVC 2010 compiler.
         //
         // The `! bsl::is_function<FUNC>::value` constraint is required in
         // C++03 mode when using the IBM XL C++ compiler.  In C++03,
@@ -1870,7 +1870,7 @@ struct Function_InvokerUtilNullCheck<bsl::function<PROTO> > {
 }  //  close package namespace
 }  //  close enterprise namespace
 
-// Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+// Undo `BSLS_ASSERT` filename fix -- See {`bsls_assertimputil`}
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
 #undef BSLS_ASSERTIMPUTIL_FILE
 #define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE

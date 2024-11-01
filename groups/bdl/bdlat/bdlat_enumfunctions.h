@@ -17,17 +17,17 @@ BSLS_IDENT("$Id: $")
 // for "enumeration" types.  See the package-level documentation for a full
 // description of "enumeration" types.  The functions in this namespace allow
 // users to:
-// ```
-//     o load an enumeration value from an integer value ('fromInt').
-//     o load an enumeration value from a string value ('fromString').
-//     o load an integer value from an enumeration value ('toInt').
-//     o load a string value from an enumeration value ('toString').
-//     o set an enumeration to its fallback value ('makeFallback').
-//     o check whether an enumeration supports a fallback value
-//       ('hasFallback').
-//     o test whether an enumeration is equal to the fallback value
-//       ('isFallback').
-// ```
+//
+// * load an enumeration value from an integer value (`fromInt`).
+// * load an enumeration value from a string value (`fromString`).
+// * load an integer value from an enumeration value (`toInt`).
+// * load a string value from an enumeration value (`toString`).
+// * set an enumeration to its fallback value (`makeFallback`).
+// * check whether an enumeration supports a fallback value
+//   (`hasFallback`).
+// * test whether an enumeration is equal to the fallback value
+//   (`isFallback`).
+//
 // The meta-functions `IsEnumeration` and `HasFallbackEnumerator` indicate
 // whether a type supports the above functions.  If the compile-time constant
 // `IsEnumeration<TYPE>::value` is declared to be nonzero, the type must
@@ -76,41 +76,41 @@ BSLS_IDENT("$Id: $")
 // ```
 // // MANIPULATORS
 //
+// /// Load into the specified `result` the enumerator matching the
+// /// specified `number`.  Return 0 on success, and a non-zero value
+// /// with no effect on `result` if `number` does not match any
+// /// enumerator.
 // int bdlat_enumFromInt(ImageType* result, int number);
-//     // Load into the specified 'result' the enumerator matching the
-//     // specified 'number'.  Return 0 on success, and a non-zero value
-//     // with no effect on 'result' if 'number' does not match any
-//     // enumerator.
 //
+// /// Load into the specified `result` the enumerator matching the
+// /// specified `string` of the specified `stringLength`.  Return 0 on
+// /// success, and a non-zero value with no effect on `result` if
+// /// `string` and `stringLength` do not match any enumerator.
 // int bdlat_enumFromString(ImageType  *result,
 //                          const char *string,
 //                          int         stringLength);
-//     // Load into the specified 'result' the enumerator matching the
-//     // specified 'string' of the specified 'stringLength'.  Return 0 on
-//     // success, and a non-zero value with no effect on 'result' if
-//     // 'string' and 'stringLength' do not match any enumerator.
 //
+// /// Load into the specified `result` the fallback enumerator value and
+// /// return 0 to indicate success.
 // int bdlat_enumMakeFallback(ImageType *result);
-//     // Load into the specified 'result' the fallback enumerator value and
-//     // return 0 to indicate success.
 //
 // // ACCESSORS
 //
+// /// Load into the specified `result` the integer representation of the
+// /// enumerator value held by the specified `value`.
 // void bdlat_enumToInt(int *result, const ImageType& value);
-//     // Load into the specified 'result' the integer representation of the
-//     // enumerator value held by the specified 'value'.
 //
+// /// Load into the specified `result` the string representation of the
+// /// enumerator value held by the specified `value`.
 // void bdlat_enumToString(bsl::string *result, const ImageType& value);
-//     // Load into the specified 'result' the string representation of the
-//     // enumerator value held by the specified 'value'.
 //
+// /// Return `true` to indicate that this type supports a fallback
+// /// enumerator.
 // bool bdlat_enumHasFallback(const ImageType&);
-//     // Return 'true' to indicate that this type supports a fallback
-//     // enumerator.
 //
+// /// Return `true` if the specified `value` equals the fallback
+// /// enumerator, and `false` otherwise.
 // bool bdlat_enumIsFallback(const ImageType& value);
-//     // Return 'true' if the specified 'value' equals the fallback
-//     // enumerator, and 'false' otherwise.
 //
 // }  // close namespace mine
 // ```
@@ -346,10 +346,10 @@ namespace BloombergLP {
                       // namespace bdlat_EnumFunctions
                       // =============================
 
+/// This `namespace` provides functions that expose "enumeration" behavior
+/// for "enumeration" types.  See the component-level documentation for more
+/// information.
 namespace bdlat_EnumFunctions {
-    // This 'namespace' provides functions that expose "enumeration" behavior
-    // for "enumeration" types.  See the component-level documentation for more
-    // information.
 
     // META-FUNCTIONS
 
@@ -425,14 +425,15 @@ namespace bdlat_EnumFunctions {
                     // struct bdlat_EnumFunctions_ImplUtil
                     // ===================================
 
-/// # Implementation Notes
-/// The below functions use tag dispatch to provide an implementation of the
-/// fallback-related operations that either delegate to the associated
-/// customization points or immediately return a non-zero value to indicate
-/// failure, depending on whether the type does or does not satisfy the
-/// `HasFallbackEnumerator` trait, respectively.  The purpose of doing this
-/// is so that the fallback-related operations can be used on any type, even
-/// enumeration types that do not have fallback enumerators.
+// Implementation Notes
+// --------------------
+// The below functions use tag dispatch to provide an implementation of the
+// fallback-related operations that either delegate to the associated
+// customization points or immediately return a non-zero value to indicate
+// failure, depending on whether the type does or does not satisfy the
+// `HasFallbackEnumerator` trait, respectively.  The purpose of doing this
+// is so that the fallback-related operations can be used on any type, even
+// enumeration types that do not have fallback enumerators.
 struct bdlat_EnumFunctions_ImplUtil {
 
     // CLASS METHODS
@@ -456,29 +457,29 @@ struct bdlat_EnumFunctions_ImplUtil {
                             // default declarations
                             // ====================
 
+/// This namespace declaration adds the default implementations of the
+/// "enumeration" customization-point functions to `bdlat_EnumFunctions`.
+/// These default implementations assume the type of the acted-upon object
+/// is a basic-enumeration type.  For more information about
+/// basic-enumeration types, see {`bdlat_typetraits`}.
+///
+/// In order to use a type as a `bdlat` enumeration type that is *not* a
+/// basic-enumeration type, you must implement the below customization
+/// points for that type as overloads in the namespace that the type belongs
+/// to.  Overloading the `bdlat_enumMakeFallback`, `bdlat_enumHasFallback`,
+/// and `bdlat_enumIsFallback` functions is required only if
+/// `HasFallbackEnumerator` is `true` for your type or class of types.  In
+/// that case, the three functions` behaviors must be consistent with each
+/// other, which means that the following axioms must hold for a non-const
+/// lvalue `x`:
+/// 1. Whenever `bdlat_enumHasFallback(x)` is `false`,
+///    `bdlat_enumMakeFallback(&x)` would fail by leaving `x` unchanged and
+///    returning a nonzero value, and `bdlat_enumIsFallback(x)` is `false`;
+/// 2. Whenever `bdlat_enumHasFallback(x)` is `true`,
+///    `bdlat_enumMakeFallback(&x)` would succeed by returning 0 and a
+///    call to `bdlat_enumIsFallback(x)` immediately afterward would return
+///    `true`.
 namespace bdlat_EnumFunctions {
-    // This namespace declaration adds the default implementations of the
-    // "enumeration" customization-point functions to 'bdlat_EnumFunctions'.
-    // These default implementations assume the type of the acted-upon object
-    // is a basic-enumeration type.  For more information about
-    // basic-enumeration types, see {'bdlat_typetraits'}.
-    //
-    // In order to use a type as a 'bdlat' enumeration type that is *not* a
-    // basic-enumeration type, you must implement the below customization
-    // points for that type as overloads in the namespace that the type belongs
-    // to.  Overloading the 'bdlat_enumMakeFallback', 'bdlat_enumHasFallback',
-    // and 'bdlat_enumIsFallback' functions is required only if
-    // 'HasFallbackEnumerator' is 'true' for your type or class of types.  In
-    // that case, the three functions' behaviors must be consistent with each
-    // other, which means that the following axioms must hold for a non-const
-    // lvalue 'x':
-    //: 1 Whenever 'bdlat_enumHasFallback(x)' is 'false',
-    //:   'bdlat_enumMakeFallback(&x)' would fail by leaving 'x' unchanged and
-    //:   returning a nonzero value, and 'bdlat_enumIsFallback(x)' is 'false';
-    //: 2 Whenever 'bdlat_enumHasFallback(x)' is 'true',
-    //:   'bdlat_enumMakeFallback(&x)' would succeed by returning 0 and a
-    //:   call to 'bdlat_enumIsFallback(x)' immediately afterward would return
-    //:   'true'.
 
     // MANIPULATORS
     template <class TYPE>

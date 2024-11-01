@@ -415,7 +415,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //     for (bsl::list<Event>::iterator it = eventList->begin();
 //          it != eventList->end();
 //          ++it) {
-//         // Push each event onto the queue as an alias of the 'eventList'
+//         // Push each event onto the queue as an alias of the `eventList`
 //         // shared pointer.  When all the alias references have been
 //         // released, the event list will be destroyed deleting all the
 //         // events at once.
@@ -729,7 +729,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //     static MyUser *systemUserSingleton;
 //     if (!systemUserSingleton) {
 //         // instantiate singleton in a thread-safe manner passing
-//         // 'basicAllocator'
+//         // `basicAllocator`
 //
 //         // . . .
 //     }
@@ -1481,15 +1481,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
+#include <bsls_util.h>          // `forward<T>(V)`
 
-#include <functional>           // use 'std::less' to order pointers
+#include <functional>           // use `std::less` to order pointers
 
-#include <memory>               // 'std::auto_ptr', 'std::unique_ptr'
+#include <memory>               // `std::auto_ptr`, `std::unique_ptr`
 
-#include <ostream>              // 'std::basic_ostream'
+#include <ostream>              // `std::basic_ostream`
 
-#include <stddef.h>             // 'size_t', 'ptrdiff_t'
+#include <stddef.h>             // `size_t`, `ptrdiff_t`
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <type_traits>          // std::extent
@@ -1509,8 +1509,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #else
 
 #if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-        // Here and throughout the file wherever 'auto_ptr' is used, suspend
-        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
+        // Here and throughout the file wherever `auto_ptr` is used, suspend
+        // GCC reporting of deprecated declarations since the use of `auto_ptr`
         // in this standard interface is required.
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -1528,14 +1528,14 @@ BSLS_IDENT("$Id$ $CSID$")
 # undef BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
 #endif
 
-// If the macro 'BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS' is defined, then a
+// If the macro `BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS` is defined, then a
 // conforming C++11 compiler will define the constructors in this component in
 // such a way that they will not be selected during overload resolution unless
 // they would instantiate correctly.  This means that code depending on the
-// result of 'is_constructible' and similar traits will have the expected
+// result of `is_constructible` and similar traits will have the expected
 // behavior.  There is no attempt to support this feature in C++03.
 //
-// Support for SFINAE-queries on the constructability of a 'shared_ptr' depend
+// Support for SFINAE-queries on the constructability of a `shared_ptr` depend
 // on a variety of C++11 language features, including "expression-SFINAE".
 // However, the main language feature that enables SFINAE elimination of a
 // constructor is the ability to use default template arguments in a function
@@ -1543,7 +1543,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // rather than add additional default arguments to the constructor signatures,
 // as there are so many constructor overloads in this component that there is a
 // real risk of introducing ambiguities that would need to be worked around.
-// Therefore, the 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS' macro
+// Therefore, the `BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS` macro
 // serves as our proxy for whether SFINAE-constructors are enabled in this
 // component.  Note that the MSVC 2015 compiler almost supported
 // "expression-SFINAE", to the extent that it works for this component, unlike
@@ -4262,7 +4262,7 @@ namespace bslstl {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
     defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
     BSLS_PLATFORM_CMP_VERSION >= 1936 && BSLS_PLATFORM_CMP_VERSION <= 1937
-// Microsoft needs a workaround to correctly handle calling 'sizeof' on an
+// Microsoft needs a workaround to correctly handle calling `sizeof` on an
 // unevaluated expression.  This compiler bug was introduced in Visual Studio
 // 2022 version 17.6 (cl 19.36, released May 2022).  The report to Microsoft is
 // https://developercommunity.visualstudio.com/t/C-templates:-new-compiler-error-in-MSV/10381900
@@ -4285,8 +4285,8 @@ struct SharedPtr_TestIsCallable {
         char d_padding[17];
     };
 
-    // The two structs 'TrueType' and 'FalseType' are guaranteed to have
-    // distinct sizes, so that a 'sizeof(expression)' query, where 'expression'
+    // The two structs `TrueType` and `FalseType` are guaranteed to have
+    // distinct sizes, so that a `sizeof(expression)` query, where `expression`
     // returns one of these two types, will give different answers depending on
     // which type is returned.
 
@@ -4372,7 +4372,7 @@ struct SharedPtr_TestIsCallable<RESULT(&)(PARAM)>
 // MSVC 2017 expression-SFINAE has a regression that is failing in two
 // additional cases:
 //  1) for pointers to object types
-//  2) where '0' is used for a null pointer literal, deducing as 'int'.
+//  2) where `0` is used for a null pointer literal, deducing as `int`.
 // We resolve those issues with a couple more specializations below.
 
 template <class TYPE>

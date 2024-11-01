@@ -1097,23 +1097,23 @@ class deque : public  Deque_Base<VALUE_TYPE>
     /// deque (see {Requirements on `VALUE_TYPE`}).
     deque& operator=(const deque& rhs);
 
+    /// Assign to this object the value of the specified `rhs` object,
+    /// propagate to this object the allocator of `rhs` if the `ALLOCATOR`
+    /// type has trait `propagate_on_container_move_assignment`, and return
+    /// a reference providing modifiable access to this object.  The
+    /// contents of `rhs` are moved (in constant time) to this deque if
+    /// `get_allocator() == rhs.get_allocator()` (after accounting for the
+    /// aforementioned trait); otherwise, all elements in this deque are
+    /// either destroyed or move-assigned to and each additional element in
+    /// `rhs` is move-inserted into this deque.  `rhs` is left in a valid
+    /// but unspecified state, and if an exception is thrown, `*this` is
+    /// left in a valid but unspecified state.  This method requires that
+    /// the (template parameter) `VALUE_TYPE` be `move-assignable` and
+    /// `move-insertable` into this deque (see {Requirements on
+    /// `VALUE_TYPE`}).
     deque& operator=(BloombergLP::bslmf::MovableRef<deque> rhs)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                       AllocatorTraits::is_always_equal::value);
-        // Assign to this object the value of the specified 'rhs' object,
-        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
-        // type has trait 'propagate_on_container_move_assignment', and return
-        // a reference providing modifiable access to this object.  The
-        // contents of 'rhs' are moved (in constant time) to this deque if
-        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
-        // aforementioned trait); otherwise, all elements in this deque are
-        // either destroyed or move-assigned to and each additional element in
-        // 'rhs' is move-inserted into this deque.  'rhs' is left in a valid
-        // but unspecified state, and if an exception is thrown, '*this' is
-        // left in a valid but unspecified state.  This method requires that
-        // the (template parameter) 'VALUE_TYPE' be 'move-assignable' and
-        // 'move-insertable' into this deque (see {Requirements on
-        // 'VALUE_TYPE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this object the value resulting from first clearing this
@@ -1286,8 +1286,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
     /// method requires that the (template parameter) `VALUE_TYPE` be
     /// `copy-insertable` into this deque (see {Requirements on
     /// `VALUE_TYPE`}).  The behavior is undefined unless `position` is an
-    /// iterator in the range '[cbegin() .. cend()] (both endpoints
-    /// included)'.
+    /// iterator in the range `[cbegin() .. cend()]` (both endpoints
+    /// included).
     iterator insert(const_iterator position, const VALUE_TYPE& value);
 
     /// Insert at the specified `position` in this deque the specified
@@ -1376,23 +1376,23 @@ class deque : public  Deque_Base<VALUE_TYPE>
     /// `[first .. cend()]` (both endpoints included).
     iterator erase(const_iterator first, const_iterator last);
 
+    /// Exchange the value of this object with that of the specified `other`
+    /// object; also exchange the allocator of this object with that of
+    /// `other` if the (template parameter) type `ALLOCATOR` has the
+    /// `propagate_on_container_swap` trait, and do not modify either
+    /// allocator otherwise.  This method provides the no-throw
+    /// exception-safety guarantee.  This operation has `O[1]` complexity if
+    /// either this object was created with the same allocator as `other` or
+    /// `ALLOCATOR` has the `propagate_on_container_swap` trait; otherwise,
+    /// it has `O[n + m]` complexity, where `n` and `m` are the number of
+    /// elements in this object and `other`, respectively.  Note that this
+    /// method`s support for swapping objects created with different
+    /// allocators when `ALLOCATOR` does not have the
+    /// `propagate_on_container_swap` trait is a departure from the
+    /// C++ Standard.
     void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                       AllocatorTraits::is_always_equal::value);
-        // Exchange the value of this object with that of the specified 'other'
-        // object; also exchange the allocator of this object with that of
-        // 'other' if the (template parameter) type 'ALLOCATOR' has the
-        // 'propagate_on_container_swap' trait, and do not modify either
-        // allocator otherwise.  This method provides the no-throw
-        // exception-safety guarantee.  This operation has 'O[1]' complexity if
-        // either this object was created with the same allocator as 'other' or
-        // 'ALLOCATOR' has the 'propagate_on_container_swap' trait; otherwise,
-        // it has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-        // elements in this object and 'other', respectively.  Note that this
-        // method's support for swapping objects created with different
-        // allocators when 'ALLOCATOR' does not have the
-        // 'propagate_on_container_swap' trait is a departure from the
-        // C++ Standard.
 
     /// Remove all elements from this deque making its size 0.  Note that
     /// although this deque is empty after this method returns, it preserves
@@ -1499,17 +1499,17 @@ bool operator==(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE, ALLOCATOR>& rhs);
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `deque` objects `lhs` and `rhs`
+/// do not have the same value if they do not have the same number of
+/// elements, or some element in the ordered sequence of elements of `lhs`
+/// does not have the same value as the corresponding element in the ordered
+/// sequence of elements of `rhs`.  This method requires that the (template
+/// parameter) type `VALUE_TYPE` be `equality-comparable` (see {Requirements
+/// on `VALUE_TYPE`}).
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'deque' objects 'lhs' and 'rhs'
-    // do not have the same value if they do not have the same number of
-    // elements, or some element in the ordered sequence of elements of 'lhs'
-    // does not have the same value as the corresponding element in the ordered
-    // sequence of elements of 'rhs'.  This method requires that the (template
-    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
-    // on 'VALUE_TYPE'}).
 #endif
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
@@ -1524,53 +1524,53 @@ BloombergLP::bslalg::SynthThreeWayUtil::Result<VALUE_TYPE> operator<=>(
 
 #else
 
+/// Return `true` if the value of the specified `lhs` deque is
+/// lexicographically less than that of the specified `rhs` deque, and
+/// `false` otherwise.  Given iterators `i` and `j` over the respective
+/// sequences `[lhs.begin() .. lhs.end())` and `[rhs.begin() .. rhs.end())`,
+/// the value of deque `lhs` is lexicographically less than that of deque
+/// `rhs` if `true == *i < *j` for the first pair of corresponding iterator
+/// positions where `*i < *j` and `*j < *i` are not both `false`.  If no
+/// such corresponding iterator position exists, the value of `lhs` is
+/// lexicographically less than that of `rhs` if `lhs.size() < rhs.size()`.
+/// This method requires that `operator<`, inducing a total order, be
+/// defined for `value_type`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                const deque<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' deque is
-    // lexicographically less than that of the specified 'rhs' deque, and
-    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
-    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
-    // the value of deque 'lhs' is lexicographically less than that of deque
-    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
-    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
-    // such corresponding iterator position exists, the value of 'lhs' is
-    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
-    // This method requires that 'operator<', inducing a total order, be
-    // defined for 'value_type'.
 
+/// Return `true` if the value of the specified `lhs` deque is
+/// lexicographically greater than that of the specified `rhs` deque, and
+/// `false` otherwise.  The value of deque `lhs` is lexicographically
+/// greater than that of deque `rhs` if `rhs` is lexicographically less than
+/// `lhs` (see `operator<`).  This method requires that `operator<`,
+/// inducing a total order, be defined for `value_type`.  Note that this
+/// operator returns `rhs < lhs`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                const deque<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' deque is
-    // lexicographically greater than that of the specified 'rhs' deque, and
-    // 'false' otherwise.  The value of deque 'lhs' is lexicographically
-    // greater than that of deque 'rhs' if 'rhs' is lexicographically less than
-    // 'lhs' (see 'operator<').  This method requires that 'operator<',
-    // inducing a total order, be defined for 'value_type'.  Note that this
-    // operator returns 'rhs < lhs'.
 
+/// Return `true` if the value of the specified `lhs` deque is
+/// lexicographically less than or equal to that of the specified `rhs`
+/// deque, and `false` otherwise.  The value of deque `lhs` is
+/// lexicographically less than or equal to that of deque `rhs` if `rhs` is
+/// not lexicographically less than `lhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(rhs < lhs)`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator<=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' deque is
-    // lexicographically less than or equal to that of the specified 'rhs'
-    // deque, and 'false' otherwise.  The value of deque 'lhs' is
-    // lexicographically less than or equal to that of deque 'rhs' if 'rhs' is
-    // not lexicographically less than 'lhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
 
+/// Return `true` if the value of the specified `lhs` deque is
+/// lexicographically greater than or equal to that of the specified `rhs`
+/// deque, and `false` otherwise.  The value of deque `lhs` is
+/// lexicographically greater than or equal to that of deque `rhs` if `lhs`
+/// is not lexicographically less than `rhs` (see `operator<`).  This method
+/// requires that `operator<`, inducing a total order, be defined for
+/// `value_type`.  Note that this operator returns `!(lhs < rhs)`.
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
                 const deque<VALUE_TYPE, ALLOCATOR>& rhs);
-    // Return 'true' if the value of the specified 'lhs' deque is
-    // lexicographically greater than or equal to that of the specified 'rhs'
-    // deque, and 'false' otherwise.  The value of deque 'lhs' is
-    // lexicographically greater than or equal to that of deque 'rhs' if 'lhs'
-    // is not lexicographically less than 'rhs' (see 'operator<').  This method
-    // requires that 'operator<', inducing a total order, be defined for
-    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
@@ -1588,23 +1588,23 @@ template <class VALUE_TYPE, class ALLOCATOR, class PREDICATE>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 erase_if(deque<VALUE_TYPE, ALLOCATOR>& deq, PREDICATE predicate);
 
+/// Exchange the value of the specified `a` object with that of the
+/// specified `b` object; also exchange the allocator of `a` with that of
+/// `b` if the (template parameter) type `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait, and do not modify either allocator
+/// otherwise.  This function provides the no-throw exception-safety
+/// guarantee.  This operation has `O[1]` complexity if either `a` was
+/// created with the same allocator as `b` or `ALLOCATOR` has the
+/// `propagate_on_container_swap` trait; otherwise, it has `O[n + m]`
+/// complexity, where `n` and `m` are the number of elements in `a` and `b`,
+/// respectively.  Note that this function`s support for swapping objects
+/// created with different allocators when `ALLOCATOR` does not have the
+/// `propagate_on_container_swap` trait is a departure from the C++
+/// Standard.
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                                                    a.swap(b)));
-    // Exchange the value of the specified 'a' object with that of the
-    // specified 'b' object; also exchange the allocator of 'a' with that of
-    // 'b' if the (template parameter) type 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait, and do not modify either allocator
-    // otherwise.  This function provides the no-throw exception-safety
-    // guarantee.  This operation has 'O[1]' complexity if either 'a' was
-    // created with the same allocator as 'b' or 'ALLOCATOR' has the
-    // 'propagate_on_container_swap' trait; otherwise, it has 'O[n + m]'
-    // complexity, where 'n' and 'm' are the number of elements in 'a' and 'b',
-    // respectively.  Note that this function's support for swapping objects
-    // created with different allocators when 'ALLOCATOR' does not have the
-    // 'propagate_on_container_swap' trait is a departure from the C++
-    // Standard.
 
                       // ========================
                       // class Deque_BlockCreator
