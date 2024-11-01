@@ -737,8 +737,7 @@ class basic_string_view {
     /// Return `true` if this view contains with the specified
     /// `characterString`, and `false` otherwise.
     BSLS_KEYWORD_CONSTEXPR_CPP17
-    bool contains(const CHAR_TYPE* characterString)
-                                                   const BSLS_KEYWORD_NOEXCEPT;
+    bool contains(const CHAR_TYPE* characterString) const;
 
     /// Return `true` if this view starts with the specified `subview`, and
     /// `false` otherwise.  See {Lexicographical Comparisons}.
@@ -1943,7 +1942,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP17
 bool basic_string_view<CHAR_TYPE, CHAR_TRAITS>::contains(
-                  const CHAR_TYPE* characterString) const BSLS_KEYWORD_NOEXCEPT
+                                        const CHAR_TYPE* characterString) const
 {
     BSLS_ASSERT_SAFE(characterString);
     return npos != find(characterString);

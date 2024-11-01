@@ -2901,8 +2901,7 @@ class basic_string
 
     /// Return `true` if this view contains with the specified
     /// `characterString`, and `false` otherwise.
-    bool contains(const CHAR_TYPE* characterString)
-                                                   const BSLS_KEYWORD_NOEXCEPT;
+    bool contains(const CHAR_TYPE* characterString) const;
 
     /// Return `true` if the length of this string is equal to or greater
     /// than the length of the specified `characterString` and the first
@@ -7161,7 +7160,7 @@ bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
-                  const CHAR_TYPE* characterString) const BSLS_KEYWORD_NOEXCEPT
+                                        const CHAR_TYPE* characterString) const
 {
     BSLS_ASSERT_SAFE(characterString);
     return npos != find(characterString);
