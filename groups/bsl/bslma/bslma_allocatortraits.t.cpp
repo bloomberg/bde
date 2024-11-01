@@ -1057,28 +1057,47 @@ bool operator!=(const BslmaAllocator<TYPE_1>& lhs,
                              // class FunkyPointer
                              // ==================
 
+/// Pointer-like class for testing use of non-raw pointers in allocators.
 template <class TYPE>
 class FunkyPointer
 {
-    // Pointer-like class for testing use of non-raw pointers in allocators.
+    // PRIVATE TYPES
+
+    /// Private `struct` to use as an argument for uncallable functions.
+    struct Uncallable { };
+
+    /// If `TYPE` is const, then `FunkyPointerToMutable` will be a
+    /// `FunkyPointer` to the mutable version of `TYPE`, otherwise
+    /// `FunkyPointerToMutable` will be the useless `Uncallable` `struct`.
+    typedef typename bsl::conditional<
+        bsl::is_const<TYPE>::value,
+        FunkyPointer<typename bsl::remove_cv<TYPE>::type>,
+        Uncallable>::type FunkyPointerToMutable;
+
+    // PRIVATE DATA
     TYPE* d_imp;
 
   public:
+    // CREATORS
+
+    /// Construct a null `FunkyPointer`
     FunkyPointer() : d_imp(0) { }
-    FunkyPointer(TYPE* p, int) : d_imp(p) { }
-    FunkyPointer(const FunkyPointer<typename bsl::remove_cv<TYPE>::type>&
-                                                             other) // IMPLICIT
+
+    /// Create a `FunkyPointer` pointing to `*p`.
+    FunkyPointer(TYPE *p, int) : d_imp(p) { }
+
+    // Construct from pointer-to-nonconst (only if `TYPE` is const).
+    FunkyPointer(const FunkyPointerToMutable& other)                // IMPLICIT
         : d_imp(other.operator->()) { }
 
-    // Construct from null pointer
+    /// Construct from null pointer (C++03-friendly -- no `nullptr`).
     FunkyPointer(int FunkyPointer::*) : d_imp(0) { }                // IMPLICIT
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    FunkyPointer& operator=(const FunkyPointer& rhs) = default;
-        // Assign to this object the value of the specified `rhs`, and return a
-        // reference providing modifiable access to this object.
-#endif
+    //! FunkyPointer(const FunkyPointer& original) = default;
+    //! FunkyPointer& operator=(const FunkyPointer& rhs) = default;
+    //! ~FunkyPointer() = default;
 
+    // ACCESSORS
     TYPE& operator*() const { return *d_imp; }
     TYPE* operator->() const { return d_imp; }
 };

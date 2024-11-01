@@ -1249,6 +1249,7 @@ void testNewObj(int line)
 
         MyAlloc() { }
         MyAlloc(bslma::Allocator *allocPtr) : d_imp(allocPtr) { }   // IMPLICIT
+        MyAlloc(const MyAlloc& other) : d_imp(other.d_imp) { }
         template <class U>
         MyAlloc(const MyAlloc<U>& other) : d_imp(other.d_imp) { }
 
