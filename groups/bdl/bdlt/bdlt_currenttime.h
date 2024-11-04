@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 // First, we create a sample application.  For this example, we simply have it
 // retrieve the current time in several formats:
 // ```
-// /// Retrieve versions of the current time into the specified `local`,
-// /// `utc`, and `now` parameters.
+// /// Retrieve versions of the current time into the specified `local`, `utc`,
+// /// and `now` parameters.
 // void sampleApplication(bdlt::Datetime     *local,
 //                        bdlt::Datetime     *utc,
 //                        bsls::TimeInterval *now)
@@ -52,9 +52,9 @@ BSLS_IDENT("$Id: $")
 // Then, we create a method to test whether the application is producing the
 // expected results:
 // ```
-// // Return `true` iff `sampleApplication` returns values matching the
-// // specified expected values `expectedLocal`, `expectedUtc`, and
-// // `expectedNow`.
+// /// Return `true` iff `sampleApplication` returns values matching the
+// /// specified expected values `expectedLocal`, `expectedUtc`, and
+// /// `expectedNow`.
 // bool checkApplication(bdlt::Datetime     expectedLocal,
 //                       bdlt::Datetime     expectedUtc,
 //                       bsls::TimeInterval expectedNow)

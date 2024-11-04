@@ -137,6 +137,13 @@ namespace bblb {
 struct ScheduleGenerationUtil {
 
     // CLASS METHODS
+
+    /// Load, into the specified `schedule`, the chronologically increasing
+    /// sequence of unique dates that are integral multiples of the
+    /// specified `intervalInDays` away from the specified `example` date,
+    /// and within the specified closed-interval `[earliest, latest]`.  The
+    /// behavior is undefined unless `earliest <= latest` and
+    /// `1 <= intervalInDays`.
     static void generateFromDayInterval(
                                  bsl::vector<bdlt::Date>      *schedule,
                                  const bdlt::Date&             earliest,
@@ -157,13 +164,19 @@ struct ScheduleGenerationUtil {
                                  const bdlt::Date&             example,
                                  int                           intervalInDays);
 #endif
-        // Load, into the specified 'schedule', the chronologically increasing
-        // sequence of unique dates that are integral multiples of the
-        // specified 'intervalInDays' away from the specified 'example' date,
-        // and within the specified closed-interval '[earliest, latest]'.  The
-        // behavior is undefined unless 'earliest <= latest' and
-        // '1 <= intervalInDays'.
 
+    /// Load, into the specified `schedule`, the chronologically increasing
+    /// sequence of unique dates that are on the specified
+    /// `targetDayOfMonth` (or the last day of the month if
+    /// `targetDayOfMonth` would be past the end of the month), integral
+    /// multiples of the specified `intervalInMonths` away from the
+    /// specified `exampleYear` and `exampleMonth`, and within the specified
+    /// closed-interval `[earliest, latest]`.  Optionally specify
+    /// `targetDayOfFeb` to replace `targetDayOfMonth` whenever the month of
+    /// a `schedule` entry is February.  The behavior is undefined unless
+    /// `earliest <= latest`, `1 <= exampleYear <= 9999`,
+    /// `1 <= exampleMonth <= 12`, `1 <= intervalInMonths`,
+    /// `1 <= targetDayOfMonth <= 31`, and `0 <= targetDayOfFeb <= 29`.
     static void generateFromDayOfMonth(
                              bsl::vector<bdlt::Date>      *schedule,
                              const bdlt::Date&             earliest,
@@ -193,19 +206,25 @@ struct ScheduleGenerationUtil {
                              int                           targetDayOfMonth,
                              int                           targetDayOfFeb = 0);
 #endif
-        // Load, into the specified 'schedule', the chronologically increasing
-        // sequence of unique dates that are on the specified
-        // 'targetDayOfMonth' (or the last day of the month if
-        // 'targetDayOfMonth' would be past the end of the month), integral
-        // multiples of the specified 'intervalInMonths' away from the
-        // specified 'exampleYear' and 'exampleMonth', and within the specified
-        // closed-interval '[earliest, latest]'.  Optionally specify
-        // 'targetDayOfFeb' to replace 'targetDayOfMonth' whenever the month of
-        // a 'schedule' entry is February.  The behavior is undefined unless
-        // 'earliest <= latest', '1 <= exampleYear <= 9999',
-        // '1 <= exampleMonth <= 12', '1 <= intervalInMonths',
-        // '1 <= targetDayOfMonth <= 31', and '0 <= targetDayOfFeb <= 29'.
 
+    /// Load, into the specified `schedule`, the chronologically increasing
+    /// sequence of unique dates that are on the specified
+    /// `targetBusinessDayOfMonth` (or the highest count possible in the
+    /// resulting month), integral multiples of the specified
+    /// `intervalInMonths` away from the specified `exampleYear` and
+    /// `exampleMonth`, and within the specified closed-interval
+    /// `[earliest, latest]`.  Business days, as per the specified
+    /// `calendar`, are counted, if `targetBusinessDayOfMonth` is positive,
+    /// from and including the chronologically earliest business day to
+    /// chronologically later business days, and if
+    /// `targetBusinessDayOfMonth` is negative, from and including the
+    /// chronologically latest business day to chronologically earlier
+    /// business days.  If any of the months required for the schedule do
+    /// not have a business day, return an empty `schedule`.  The behavior
+    /// is undefined unless `earliest <= latest`,
+    /// `1 <= exampleYear <= 9999`, `1 <= exampleMonth <= 12`,
+    /// `1 <= intervalInMonths`, and
+    /// `1 <= abs(targetBusinessDayOfMonth) <= 31`.
     static void generateFromBusinessDayOfMonth(
                        bsl::vector<bdlt::Date>      *schedule,
                        const bdlt::Date&             earliest,
@@ -235,25 +254,17 @@ struct ScheduleGenerationUtil {
                        const bdlt::Calendar&         calendar,
                        int                           targetBusinessDayOfMonth);
 #endif
-        // Load, into the specified 'schedule', the chronologically increasing
-        // sequence of unique dates that are on the specified
-        // 'targetBusinessDayOfMonth' (or the highest count possible in the
-        // resulting month), integral multiples of the specified
-        // 'intervalInMonths' away from the specified 'exampleYear' and
-        // 'exampleMonth', and within the specified closed-interval
-        // '[earliest, latest]'.  Business days, as per the specified
-        // 'calendar', are counted, if 'targetBusinessDayOfMonth' is positive,
-        // from and including the chronologically earliest business day to
-        // chronologically later business days, and if
-        // 'targetBusinessDayOfMonth' is negative, from and including the
-        // chronologically latest business day to chronologically earlier
-        // business days.  If any of the months required for the schedule do
-        // not have a business day, return an empty 'schedule'.  The behavior
-        // is undefined unless 'earliest <= latest',
-        // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
-        // '1 <= intervalInMonths', and
-        // '1 <= abs(targetBusinessDayOfMonth) <= 31'.
 
+    /// Load, into the specified `schedule`, the chronologically increasing
+    /// sequence of unique dates that are on the specified `dayOfWeek` on or
+    /// after the specified `dayOfMonth`, integral multiples of the
+    /// specified `intervalInMonths` away from the specified `exampleYear`
+    /// and `exampleMonth`, and within the specified closed-interval
+    /// `[earliest, latest]`.  If any of the months required for the
+    /// schedule have fewer than `dayOfMonth` days, return an empty
+    /// `schedule`.  The behavior is undefined unless `earliest <= latest`,
+    /// `1 <= exampleYear <= 9999`, `1 <= exampleMonth <= 12`,
+    /// `1 <= intervalInMonths`, and `1 <= dayOfMonth <= 31`.
     static void generateFromDayOfWeekAfterDayOfMonth(
                                 bsl::vector<bdlt::Date>      *schedule,
                                 const bdlt::Date&             earliest,
@@ -283,17 +294,16 @@ struct ScheduleGenerationUtil {
                                 bdlt::DayOfWeek::Enum         dayOfWeek,
                                 int                           dayOfMonth);
 #endif
-        // Load, into the specified 'schedule', the chronologically increasing
-        // sequence of unique dates that are on the specified 'dayOfWeek' on or
-        // after the specified 'dayOfMonth', integral multiples of the
-        // specified 'intervalInMonths' away from the specified 'exampleYear'
-        // and 'exampleMonth', and within the specified closed-interval
-        // '[earliest, latest]'.  If any of the months required for the
-        // schedule have fewer than 'dayOfMonth' days, return an empty
-        // 'schedule'.  The behavior is undefined unless 'earliest <= latest',
-        // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
-        // '1 <= intervalInMonths', and '1 <= dayOfMonth <= 31'.
 
+    /// Load, into the specified `schedule`, the chronologically increasing
+    /// sequence of unique dates that are on the specified `dayOfWeek` of
+    /// the specified `occurrenceWeek` of the month, integral multiples of
+    /// the specified `intervalInMonths` away from the specified
+    /// `exampleYear` and `exampleMonth`, and within the specified
+    /// closed-interval `[earliest, latest]`.  The behavior is undefined
+    /// unless `earliest <= latest`, `1 <= exampleYear <= 9999`,
+    /// `1 <= exampleMonth <= 12`, `1 <= intervalInMonths`, and
+    /// `1 <= occurrenceWeek <= 4`.
     static void generateFromDayOfWeekInMonth(
                                 bsl::vector<bdlt::Date>      *schedule,
                                 const bdlt::Date&             earliest,
@@ -323,15 +333,6 @@ struct ScheduleGenerationUtil {
                                 bdlt::DayOfWeek::Enum         dayOfWeek,
                                 int                           occurrenceWeek);
 #endif
-        // Load, into the specified 'schedule', the chronologically increasing
-        // sequence of unique dates that are on the specified 'dayOfWeek' of
-        // the specified 'occurrenceWeek' of the month, integral multiples of
-        // the specified 'intervalInMonths' away from the specified
-        // 'exampleYear' and 'exampleMonth', and within the specified
-        // closed-interval '[earliest, latest]'.  The behavior is undefined
-        // unless 'earliest <= latest', '1 <= exampleYear <= 9999',
-        // '1 <= exampleMonth <= 12', '1 <= intervalInMonths', and
-        // '1 <= occurrenceWeek <= 4'.
 };
 
 }  // close package namespace

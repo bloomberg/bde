@@ -47,12 +47,14 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     my_DayCountConvention() { }
 //     virtual ~my_DayCountConvention();
+//
+//     /// Return the (signed) number of days between the specified ...
 //     virtual int daysDiff(const bdlt::Date& beginDate,
 //                          const bdlt::Date& endDate) const;
-//         // Return the (signed) number of days between the specified ...
+//
+//     /// Return the (signed fractional) number of years between the ...
 //     virtual double yearsDiff(const bdlt::Date& beginDate,
 //                              const bdlt::Date& endDate) const;
-//         // Return the (signed fractional) number of years between the ...
 // };
 // ```
 // Then, implement the destructor.  Note, however, that we always implement a

@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 // pushes a couple of extra elements to make sure that the pop thread group
 // will not hang on an empty queue:
 // ```
+// /// Cleanup function.
 // void myCleanup()
-//     // Cleanup function.
 // {
 //     bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);
 //     for (int i = 0; i < 10; ++i) {
@@ -149,51 +149,51 @@ class ThroughputBenchmark {
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Run the main part of the benchmark having the specified
+    /// /// `threadIndex`.  The behavior is undefined unless `threadIndex` is
+    /// /// in the range `[0, numThreadsInGroup)`, where `numThreadsInGroup` is
+    /// /// the number of threads in a thread group for the associated
+    /// /// throughput benchmark.
     /// void runTest(int threadIndex);
-    ///     // Run the main part of the benchmark having the specified
-    ///     // 'threadIndex'.  The behavior is undefined unless
-    ///     // 'threadIndex' is in the range '[0, numThreadsInGroup)',
-    ///     // where 'numThreadsInGroup' is the number of threads in a
-    ///     // thread group for the associated throughput benchmark.
     /// ```
     typedef bsl::function<void(int)> RunFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Initialize the sample run.  If the specified `isFirst` is `true`,
+    /// /// this is the first sample run.
     /// void initializeSample(bool isFirst);
-    ///     // Initialize the sample run.  If the specified 'isFirst' is
-    ///     // 'true', this is the first sample run.
     /// ```
     typedef bsl::function<void(bool)> InitializeSampleFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Clean up at the end of the sample run, before threads have been
+    /// /// joined.  If the specified `isLast` is `true`, this is the last
+    /// /// sample run.
     /// void shutdownSample(bool isLast);
-    ///     // Clean up at the end of the sample run, before threads have
-    ///     // been joined.  If the specified 'isLast' is 'true', this is
-    ///     // the last sample run.
     /// ```
     typedef bsl::function<void(bool)> ShutdownSampleFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Clean up after the sample run.  If the specified `isLast` is
+    /// /// `true`, this is the last sample run.
     /// void cleanupSample(bool isLast);
-    ///     // Clean up after the sample run.  If the specified 'isLast' is
-    ///     // 'true', this is the last sample run.
     /// ```
     typedef bsl::function<void(bool)> CleanupSampleFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Initialize each thread in a sample run.
     /// void initializeThread();
-    ///     // Initialize each thread in a sample run.
     /// ```
     typedef bsl::function<void()> InitializeThreadFunction;
 
     /// An alias to a function meeting the following contract:
     /// ```
+    /// /// Clean up after each thread in a sample run.
     /// void cleanupThread();
-    ///     // Clean up after each thread in a sample run.
     /// ```
     typedef bsl::function<void()> CleanupThreadFunction;
 
@@ -253,44 +253,43 @@ class ThroughputBenchmark {
     // CLASS METHODS
 
     /// Return the value calculated by `busyWork`.  Note that this method is
-    /// provided to prevent the compiler from optimizing the simulated
-    /// workload away.
+    /// provided to prevent the compiler from optimizing the simulated workload
+    /// away.
     static unsigned int antiOptimization();
 
     /// Perform arithmetic operations to consume an amount of time in linear
-    /// relation to the specified `busyWorkAmount`.  Note that the duration
-    /// of `busyWork` invoked with a particular `busyWorkAmount` will vary
-    /// with system load.
+    /// relation to the specified `busyWorkAmount`.  Note that the duration of
+    /// `busyWork` invoked with a particular `busyWorkAmount` will vary with
+    /// system load.
     static void busyWork(bsls::Types::Int64 busyWorkAmount);
 
-    /// Return an estimate of the work amount so that `busyWork` invoked
-    /// with the returned work amount executes, approximately, for the
-    /// specified `duration`.  Note that this estimate varies with system
-    /// load.
+    /// Return an estimate of the work amount so that `busyWork` invoked with
+    /// the returned work amount executes, approximately, for the specified
+    /// `duration`.  Note that this estimate varies with system load.
     static bsls::Types::Int64 estimateBusyWorkAmount(
                                                   bsls::TimeInterval duration);
 
     // CREATORS
 
     /// Create an empty `ThroughputBenchmark` object.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit ThroughputBenchmark(bslma::Allocator *basicAllocator = 0);
 
     // MANIPULATORS
 
-    /// Create a set of threads, with cardinality the specified
-    /// `numThreads`, that will repeatedly execute the specified
-    /// `runFunction` followed by the specified `busyWork`, with the
-    /// specified `busyWorkAmount` as its argument.  Return the index for
-    /// the thread group.  Optionally specify `initializeFunctor`, which is
-    /// run at the beginning of each thread of the sample and accepts a
-    /// boolean flag `isFirst`, that is set to `true` on the first sample,
-    /// and `false` otherwise.  Optionally specify `cleanupFunctor`, which
-    /// is run at the end of each thread of the sample and accepts a boolean
-    /// flag `isLast`, that is set to `true` on the last sample, and `false`
-    /// otherwise.  Return an id for the added thread group.  The behavior
-    /// is undefined unless `0 < numThreads` and `0 <= busyWorkAmount`.
+    /// Create a set of threads, with cardinality the specified `numThreads`,
+    /// that will repeatedly execute the specified `runFunction` followed by
+    /// the specified `busyWork`, with the specified `busyWorkAmount` as its
+    /// argument.  Return the index for the thread group.  Optionally specify
+    /// `initializeFunctor`, which is run at the beginning of each thread of
+    /// the sample and accepts a boolean flag `isFirst`, that is set to `true`
+    /// on the first sample, and `false` otherwise.  Optionally specify
+    /// `cleanupFunctor`, which is run at the end of each thread of the sample
+    /// and accepts a boolean flag `isLast`, that is set to `true` on the last
+    /// sample, and `false` otherwise.  Return an id for the added thread
+    /// group.  The behavior is undefined unless `0 < numThreads` and
+    /// `0 <= busyWorkAmount`.
     int addThreadGroup(const RunFunction& runFunction,
                        int                numThreads,
                        bsls::Types::Int64 busyWorkAmount);
@@ -301,21 +300,20 @@ class ThroughputBenchmark {
                        const CleanupThreadFunction&    cleanupFunctor);
 
     /// Run the tests previously added with calls to the `addThreadGroup`
-    /// method.  The tests are run for the specified `numSamples` times.
-    /// Each sample is run for the specified `millisecondsPerSample`
-    /// duration.  The results are stored in the specified `result` object.
-    /// Optionally specify `initializeFunctor`, which is run at the
-    /// beginning of the sample and accepts a boolean flag `isFirst`, that
-    /// is set to `true` on the first sample, and `false` otherwise.
-    /// Optionally specify `shutdownFunctor`, which is run at the end of
-    /// each sample before threads have been joined, and accepts a boolean
-    /// flag `isLast`, that is set to `true` on the last sample, and `false`
-    /// otherwise.  Optionally specify `cleanupFunctor`, which is run at the
-    /// end of each sample after threads have been joined, and accepts a
-    /// boolean flag `isLast`, that is set to `true` on the last sample, and
-    /// `false` otherwise.  The behavior is undefined unless
-    /// `0 < millisecondsPerSample`, `0 < numSamples`, and
-    /// `0 < numThreadGroups()`.  Also see {Structure of a Test}.
+    /// method.  The tests are run for the specified `numSamples` times.  Each
+    /// sample is run for the specified `millisecondsPerSample` duration.  The
+    /// results are stored in the specified `result` object.  Optionally
+    /// specify `initializeFunctor`, which is run at the beginning of the
+    /// sample and accepts a boolean flag `isFirst`, that is set to `true` on
+    /// the first sample, and `false` otherwise.  Optionally specify
+    /// `shutdownFunctor`, which is run at the end of each sample before
+    /// threads have been joined, and accepts a boolean flag `isLast`, that is
+    /// set to `true` on the last sample, and `false` otherwise.  Optionally
+    /// specify `cleanupFunctor`, which is run at the end of each sample after
+    /// threads have been joined, and accepts a boolean flag `isLast`, that is
+    /// set to `true` on the last sample, and `false` otherwise.  The behavior
+    /// is undefined unless `0 < millisecondsPerSample`, `0 < numSamples`, and
+    /// `0 < numThreadGroups()`.  Also see [](#Structure of a Test).
     void execute(ThroughputBenchmarkResult       *result,
                  int                              millisecondsPerSample,
                  int                              numSamples);
@@ -416,8 +414,8 @@ class ThroughputBenchmark_WorkFunction {
     explicit ThroughputBenchmark_WorkFunction(
                                            ThroughputBenchmark_WorkData& data);
 
+    /// Destroy this object.
     //! ~ThroughputBenchmark_WorkFunction() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
@@ -443,8 +441,8 @@ class ThroughputBenchmark_TestUtil {
     /// the specified `data`.
     explicit ThroughputBenchmark_TestUtil(ThroughputBenchmark& data);
 
+    /// Destroy this object.
     //! ~ThroughputBenchmark_TestUtil() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
