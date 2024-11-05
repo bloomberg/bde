@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         // in the directory.
 
         bsl::system("rm -rf `find . -mtime +1 -a"
-                                  " -name `tmp.resolver_dwarfreader.case_*``");
+                                  " -name 'tmp.resolver_dwarfreader.case_*'`");
     }
 
     bsl::string origWorkingDirectory;

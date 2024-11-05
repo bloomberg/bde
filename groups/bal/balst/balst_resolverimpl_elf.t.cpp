@@ -179,6 +179,23 @@ int funcStaticInlineOne(int k)
     return static_cast<int>(ret & mask32);
 }
 
+struct S {
+    static
+    int funcGlobalMethod(int k);
+};
+
+int S::funcGlobalMethod(int k)
+{
+    Uint64 ret = L_;
+    unsigned i = k;
+    for (unsigned j = 0; j < 5; ++j) {
+        i = 75 * i * i + i / (j + 1);
+    }
+
+    ret |= (5 * i) << 14;
+    return static_cast<int>(ret & mask32);
+}
+
 /// Given a function pointer stored in a `UintPtr`, add an offset to the
 /// pointer and return it as a `const void *`.
 static
@@ -333,20 +350,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << "balst::ResolverImpl<Elf> breathing test\n"
                              "=======================================\n";
 
-        // There seems to be a problem with taking a pointer to an function in
-        // a shared library.  We'll leave the testing of symbols in shared
-        // libraries to 'balst_stacktraceprintutil.t.cpp.
+        // On some platforms, taking a ptr to a function in a shared library
+        // gives you a ptr to a thunk that will load the lib and jump to the
+        // function.  On gcc-13 C++20, taking a ptr to a global in another
+        // module apparently does that same thing.  We'll leave the testing of
+        // symbols in shared libraries and other components to
+        // 'balst_stacktraceprintutil.t.cpp and balst_stacktraceutil.t.cpp.
 
         typedef bsls::Types::UintPtr UintPtr;
 
         Int64 lineResults[5];
         {
             const Int64 lineResultsMask = (1 << 14) - 1;
-            lineResults[0] = funcGlobalOne(3) & lineResultsMask;
-            lineResults[1] = funcStaticOne(3) & lineResultsMask;
+            lineResults[0] = funcGlobalOne(3)       & lineResultsMask;
+            lineResults[1] = funcStaticOne(3)       & lineResultsMask;
             lineResults[2] = funcStaticInlineOne(3) & lineResultsMask;
-            lineResults[3] = -5000;
-            lineResults[4] = Obj::test() & lineResultsMask;
+            lineResults[3] = S::funcGlobalMethod(3) & lineResultsMask;
+            lineResults[4] = Obj::test()            & lineResultsMask;
         }
 
         for (int demangle = 0; demangle < 2; ++demangle) {
@@ -390,7 +410,18 @@ int main(int argc, char *argv[])
             stackTrace[3].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
 #endif
 
+#if 0
+            // Testing '&Obj::resolve' doesn't work on gcc-13 C++20, apparently
+            // applying '&' to a global function in another source file yields
+            // a pointer to a 'thunk' rather than directly to the function
+            // itself, so we have replaced this test with a pointer to
+            // 'S::funcGlobalMethod'.
+
             stackTrace[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
+#endif
+
+            stackTrace[3].setAddress(addFixedOffset(
+                                              (UintPtr) &S::funcGlobalMethod));
             stackTrace[4].setAddress(addFixedOffset((UintPtr) &Obj::test));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
@@ -472,8 +503,8 @@ int main(int argc, char *argv[])
 
                 if (e_IS_DWARF) {
                     if (3 == i) {
-                        ASSERTV(line, 1000 < line);
-                        ASSERTV(line, line < 10 * 1000);
+                        ASSERTV(line, 50 < line);
+                        ASSERTV(line, line < 300);
                     }
                     else {
                         const int fudge = 4 == i ? 4 : 2;
@@ -493,9 +524,8 @@ int main(int argc, char *argv[])
 
                     ASSERTV(i, pc, !bsl::strcmp(
                          pc,
-                           3 == i ? "balst_resolverimpl_elf.cpp"
-                         : 4 == i ? "balst_resolverimpl_elf.h"
-                         :          "balst_resolverimpl_elf.t.cpp"));
+                         4 == i ? "balst_resolverimpl_elf.h"
+                                : "balst_resolverimpl_elf.t.cpp"));
                 }
             }
 
@@ -510,7 +540,7 @@ int main(int argc, char *argv[])
             SM(0, "funcGlobalOne");
             SM(1, "funcStaticOne");
             SM(2, "funcStaticInlineOne");
-            SM(3, "resolve");
+            SM(3, "funcGlobalMethod");
             SM(4, "test");
 #undef  SM
 
@@ -529,35 +559,18 @@ int main(int argc, char *argv[])
                 }
 
                 SM(0, "funcGlobalOne(int)");
+                SM(3, "S::funcGlobalMethod(int)");
+                SM(4, "BloombergLP::balst::ResolverImpl"
+                      "<BloombergLP::balst::ObjectFileFormat::Elf>::"
+                      "test()");
                 if (!e_IS_LINUX || !e_IS_CLANG) {
                     // The linux clang demangler has a bug where it fails on
                     // file-scope statics.
 
                     SM(1, "funcStaticOne(int)");
                     SM(2, "funcStaticInlineOne(int)");
-                    SM(4, "BloombergLP::balst::ResolverImpl"
-                          "<BloombergLP::balst::ObjectFileFormat::Elf>::"
-                          "test()");
                 }
 #undef  SM
-                const char resName[] = { "BloombergLP::"
-                                         "balst::ResolverImpl"
-                                         "<BloombergLP::"
-                                         "balst::ObjectFileFormat::Elf>::"
-                                         "resolve("
-                                         "BloombergLP::balst::StackTrace" };
-                enum { k_RES_NAME_LEN = sizeof(resName) - 1 };
-                ASSERT(!bsl::strchr(resName, ' '));
-                const char *name3 = stackTrace[3].symbolName().c_str();
-                {
-                    const char *pc = bsl::strchr(name3, ' ');
-                    if (pc && pc - name3 < k_RES_NAME_LEN) {
-                        name3 = pc + 1;
-                    }
-                }
-
-                ASSERTV(name3, resName,
-                                      safeCmp(name3, resName, k_RES_NAME_LEN));
             }
         }
 
