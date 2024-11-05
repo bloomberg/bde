@@ -855,6 +855,10 @@ int main(int argc, char *argv[])
 
         // Function types are not object types, nor cv-qualifiable.
 
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
 #if defined(_MSC_VER) && _MSC_VER == 1941
     // MSVC gets confused with `void(..)` somehow in the macros, so we have
     // to use a typedef for the function types.
