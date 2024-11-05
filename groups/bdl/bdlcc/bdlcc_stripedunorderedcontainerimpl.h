@@ -112,6 +112,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_rawdeleterproctor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -123,15 +124,17 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>   // BSLS_PLATFORM_CPU_X86_64
+#include <bsls_platform.h>  // BSLS_PLATFORM_CPU_X86_64
 
 #include <bsl_algorithm.h>
-#include <bsl_cstddef.h>     // 'NULL'
+#include <bsl_cstddef.h>  // 'NULL'
 #include <bsl_functional.h>
-#include <bsl_list.h>
-#include <bsl_vector.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
+#include <bsl_list.h>
+#include <bsl_optional.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #include <vector>
 
@@ -143,6 +146,59 @@ template <class KEY,
           class HASH  = bsl::hash<KEY>,
           class EQUAL = bsl::equal_to<KEY> >
 class StripedUnorderedContainerImpl;
+
+               // =============================================
+               // class StripedUnorderedContainerImpl_Constants
+               // =============================================
+
+/// This class defines constant values used to represent the state of a
+/// `StripedUnorderedContainerImpl` object.
+struct StripedUnorderedContainerImpl_Constants {
+    // PUBLIC CLASS DATA
+    static const int k_REHASH_IN_PROGRESS = 1;  // state bit 0
+    static const int k_REHASH_ENABLED     = 2;  // state bit 1
+};
+
+           // =====================================================
+           // class StripedUnorderedContainerImpl_RehashBitSetGuard
+           // =====================================================
+
+/// This class defines a proctor type that attempts to set the rehash bit of a
+/// state object, and if successful, clears that bit upon destruction.
+class StripedUnorderedContainerImpl_RehashBitSetGuard {
+
+  private:
+    // DATA
+    bsls::AtomicInt *const d_state_p;        // Points to bitfield to set
+    const bool             d_lockSucceeded;  // True if bit was set
+
+    // PRIVATE CLASS METHODS
+
+    /// Attempt to atomically set the value pointed to by the specified
+    /// 'state_p' from 'k_REHASH_ENABLED' to
+    /// 'k_REHASH_ENABLED | k_REHASH_IN_PROGRESS', returning true on success
+    /// and false on failure.
+    static bool trySetRehashBit(bsls::AtomicInt *state_p);
+
+  public:
+    // CREATORS
+
+    /// Create a `StripedUnorderedContainerImpl_RehashBitSetGuard` object that
+    /// attempts to set the rehash bit of the object pointed to by the
+    /// specified `state_p` argument.  If successful, the rehash bit will be
+    /// cleared during destruction.
+    explicit StripedUnorderedContainerImpl_RehashBitSetGuard(
+                                                     bsls::AtomicInt *state_p);
+
+    /// Unset the rehash bit previously set by this object and destroy this
+    /// `StripedUnorderedContainerImpl_RehashBitSetGuard` object.
+    ~StripedUnorderedContainerImpl_RehashBitSetGuard();
+
+    // ACCESSORS
+
+    /// Returns true if the constructor successfully set the rehash bit.
+    bool holdsLock() const;
+};
 
                  // ========================================
                  // class StripedUnorderedContainerImpl_Node
@@ -407,6 +463,11 @@ class StripedUnorderedContainerImpl_LockElement;
 class StripedUnorderedContainerImpl_LockElementReadGuard;
 class StripedUnorderedContainerImpl_LockElementWriteGuard;
 
+/// This struct is a constructor flag used to select the contructor that takes
+/// a `maxLoadFactor` value.
+struct StripedUnorderedContainerImplMaxLoadFactorFlag {
+};
+
                      // ===================================
                      // class StripedUnorderedContainerImpl
                      // ===================================
@@ -414,7 +475,7 @@ class StripedUnorderedContainerImpl_LockElementWriteGuard;
 /// This class implements the logic for a striped hash multimap with logic
 /// that supports a (unique) map as a special case.
 template <class KEY, class VALUE, class HASH, class EQUAL>
-class StripedUnorderedContainerImpl {
+class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
 
   public:
     // TYPES
@@ -463,10 +524,6 @@ class StripedUnorderedContainerImpl {
     typedef bsl::function<bool(const VALUE&)> EraseIfValuePredicate;
 
   private:
-    // PRIVATE CONSTANTS
-    static const int k_REHASH_IN_PROGRESS = 1; // d_state bit 0
-    static const int k_REHASH_ENABLED     = 2; // d_state bit 1
-
     // PRIVATE TYPES
     enum {
     #if BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64
@@ -506,21 +563,29 @@ class StripedUnorderedContainerImpl {
     typedef StripedUnorderedContainerImpl_LockElementReadGuard  LERGuard;
     typedef StripedUnorderedContainerImpl_LockElementWriteGuard LEWGuard;
 
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    typedef bsls::AtomicUint   AtomicSizeT;
+#else
+    typedef bsls::AtomicUint64 AtomicSizeT;
+#endif
+    BSLMF_ASSERT(sizeof(AtomicSizeT) == sizeof(bsl::size_t));
+    BSLMF_ASSERT(!bsl::numeric_limits<bsl::size_t>::is_signed);
+
     // DATA
 
     // number of stripes
-    bsl::size_t                       d_numStripes;
+    const bsl::size_t                       d_numStripes;
 
     // number of buckets
-    bsl::size_t                       d_numBuckets;
+    AtomicSizeT                             d_numBuckets;
 
     // d_numStripes - 1; this value is used to provide an efficient modulo
     // (using bit-wise `&`) of d_numStripes (where d_numStripes must be a
     // power of 2).
-    bsl::size_t                       d_hashMask;
+    const bsl::size_t                       d_hashMask;
 
     // maxLoadFactor (defaults to 1.0)
-    float                             d_maxLoadFactor;
+    const float                             d_maxLoadFactor;
 
     // hashing function for keys
     HASH                              d_hasher;
@@ -765,6 +830,23 @@ class StripedUnorderedContainerImpl {
                    bsl::size_t       numStripes        = k_DEFAULT_NUM_STRIPES,
                    bslma::Allocator *basicAllocator = 0);
 
+    /// Create an empty `StripedUnorderedContainerImpl` object, a fully
+    /// thread-safe hash map where access is divided into "stripes" (a group of
+    /// buckets protected by a reader-write mutex).  Specify `maxLoadFactor`
+    /// which defines the maximum ratio of elements to buckets.  The behavior
+    /// is undefined unless `maxLoadFactor > 0`.  Optionally specify
+    /// `numInitialBuckets` and `numStripes` which define the minimum number of
+    /// buckets and the (fixed) number of stripes in this map.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.  The hash map
+    /// has rehash enabled.
+    explicit StripedUnorderedContainerImpl(
+                   StripedUnorderedContainerImplMaxLoadFactorFlag,
+                   float             maxLoadFactor     = 1.0,
+                   bsl::size_t       numInitialBuckets = k_DEFAULT_NUM_BUCKETS,
+                   bsl::size_t       numStripes        = k_DEFAULT_NUM_STRIPES,
+                   bslma::Allocator *basicAllocator = 0);
+
     /// Destroy this hash map.  This method is *not* thread-safe.
     ~StripedUnorderedContainerImpl();
 
@@ -881,14 +963,6 @@ class StripedUnorderedContainerImpl {
     /// as a copy.  Note that the return value equals the number of elements
     /// inserted.
     bsl::size_t insertUnique(const KEY& key, bslmf::MovableRef<VALUE> value);
-
-    /// Set the maximum load factor of this hash map to the specified
-    /// `newMaxLoadFactor`.  If `newMaxLoadFactor < loadFactor()`, this
-    /// operation will cause an immediate rehash; otherwise, this operation
-    /// has a constant-time cost.  The rehash will increase the number of
-    /// buckets by a power of 2.  The behavior is undefined unless
-    /// `0 < newMaxLoadFactor`.
-    void maxLoadFactor(float newMaxLoadFactor);
 
     /// Recreate this hash map to one having at least the specified
     /// `numBuckets`.  This operation is a no-op if *any* of the following
@@ -1118,7 +1192,7 @@ class StripedUnorderedContainerImpl {
 
     /// Serially call the specified `visitor` on each element (if one
     /// exists) in this hash map having the specified `key` until every such
-    /// element has been visitd or `visitor` returns `false`.  That is, for
+    /// element has been visited or `visitor` returns `false`.  That is, for
     /// `(key, value)`, invoke:
     /// ```
     /// bool visitor(value, key);
@@ -1310,6 +1384,47 @@ class StripedUnorderedContainerImpl_LockElementWriteGuard {
     void release();
 };
 
+         // ==========================================================
+         // class StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard
+         // ==========================================================
+
+/// This class holds locks on an array of locks, established in sequential
+/// order, and unlocks them upon destruction in the RAII pattern.
+class StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard {
+
+  private:
+    // DATA
+
+    // points to the first of a contiguous array of locks to be managed
+    StripedUnorderedContainerImpl_LockElement * const d_firstLock_p;
+
+    // the number of locks currently owned, offset of next expected lock
+    unsigned                                          d_numLocked;
+
+  public:
+    // CREATORS
+
+    /// Create a guard object
+    /// 'StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard' to lock and
+    /// unlock elements in an array beginning with the lock pointed to by
+    /// the specified 'firstLock'.  Note that this lock is *not* locked on
+    /// construction.
+    StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard(
+                       StripedUnorderedContainerImpl_LockElement *firstLock_p);
+
+    // Release all guarded locks.
+    ~StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard();
+
+    // MANIPULATORS
+
+    /// Lock the specified `*lock_p` and add it to the collection of locks to
+    /// be unlocked upon destruction of this object.  The behavior is undefined
+    /// unless 'lock_p' is adjacent to the previously locked lock, or the same
+    /// lock profided to the constructor in the case of no previously locks
+    /// locked.
+    void lock(StripedUnorderedContainerImpl_LockElement *lock_p);
+};
+
 /// A vector element needed for efficient sorting for the `insertBulk` and
 /// `eraseBulk` methods.
 struct StripedUnorderedContainerImpl_SortItem {
@@ -1330,6 +1445,63 @@ bool operator<(const StripedUnorderedContainerImpl_SortItem& lhs,
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
+
+           // =====================================================
+           // class StripedUnorderedContainerImpl_RehashBitSetGuard
+           // =====================================================
+
+// CREATORS
+inline
+StripedUnorderedContainerImpl_RehashBitSetGuard::
+    StripedUnorderedContainerImpl_RehashBitSetGuard(bsls::AtomicInt *state_p)
+: d_state_p(state_p)
+, d_lockSucceeded(trySetRehashBit(d_state_p))
+{
+}
+
+inline
+StripedUnorderedContainerImpl_RehashBitSetGuard::
+    ~StripedUnorderedContainerImpl_RehashBitSetGuard()
+{
+    const int k_REHASH_IN_PROGRESS =
+                 StripedUnorderedContainerImpl_Constants::k_REHASH_IN_PROGRESS;
+    const int k_REHASH_ENABLED =
+                     StripedUnorderedContainerImpl_Constants::k_REHASH_ENABLED;
+
+    if (d_lockSucceeded) {
+        int expected = k_REHASH_ENABLED | k_REHASH_IN_PROGRESS;
+        for (;;) {
+            int previous = d_state_p->testAndSwap(
+                                             expected,
+                                             expected & ~k_REHASH_IN_PROGRESS);
+            if (previous == expected) {
+                break;
+            }
+            expected = previous;
+        }
+    }
+}
+
+inline
+bool StripedUnorderedContainerImpl_RehashBitSetGuard::holdsLock() const
+{
+    return d_lockSucceeded;
+}
+
+inline
+bool StripedUnorderedContainerImpl_RehashBitSetGuard::trySetRehashBit(
+                                                      bsls::AtomicInt *state_p)
+{
+    const int k_REHASH_IN_PROGRESS =
+                 StripedUnorderedContainerImpl_Constants::k_REHASH_IN_PROGRESS;
+    const int k_REHASH_ENABLED =
+                     StripedUnorderedContainerImpl_Constants::k_REHASH_ENABLED;
+
+    BSLS_ASSERT(state_p);
+    return k_REHASH_ENABLED ==
+           state_p->testAndSwap(k_REHASH_ENABLED,
+                                k_REHASH_ENABLED | k_REHASH_IN_PROGRESS);
+}
 
                 // ----------------------------------------
                 // class StripedUnorderedContainerImpl_Node
@@ -1384,9 +1556,9 @@ StripedUnorderedContainerImpl_Node<KEY, VALUE>::
 template <class KEY, class VALUE>
 StripedUnorderedContainerImpl_Node<KEY, VALUE>::
     StripedUnorderedContainerImpl_Node(
-        const KEY&                          key,
-        StripedUnorderedContainerImpl_Node *nextPtr,
-        bslma::Allocator                   *basicAllocator)
+                            const KEY&                          key,
+                            StripedUnorderedContainerImpl_Node *nextPtr,
+                            bslma::Allocator                   *basicAllocator)
 : d_next_p(nextPtr)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1809,6 +1981,42 @@ void StripedUnorderedContainerImpl_LockElementWriteGuard::release()
         d_lockElement_p->unlockW();
         d_lockElement_p = NULL;
     }
+}
+
+         // ==========================================================
+         // class StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard
+         // ==========================================================
+
+// CREATORS
+inline
+StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard::
+    StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard(
+                        StripedUnorderedContainerImpl_LockElement *firstLock_p)
+: d_firstLock_p(firstLock_p)
+, d_numLocked(0)
+{
+    BSLS_ASSERT(firstLock_p);
+}
+
+inline
+StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard::
+    ~StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard()
+{
+    for (unsigned i = d_numLocked; i > 0; --i)
+    {
+        d_firstLock_p[i - 1].unlockW();
+    }
+}
+
+// MANIPULATORS
+inline
+void StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard::lock(
+                             StripedUnorderedContainerImpl_LockElement *lock_p)
+{
+    BSLS_ASSERT(lock_p == (d_firstLock_p + d_numLocked));
+
+    lock_p->lockW();
+    ++d_numLocked;
 }
 
                       // -----------------------------------
@@ -2273,8 +2481,8 @@ template <class VECTOR>
 inline
 bsl::size_t
 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::getValueImpl(
-                                                        VECTOR     *valuesPtr,
-                                                        const KEY&   key) const
+                                                          VECTOR    *valuesPtr,
+                                                          const KEY& key) const
 {
     static const bool isVector =
                            bsl::is_same<bsl::vector<VALUE>, VECTOR>::value
@@ -2355,6 +2563,37 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::lockWrite(
 }
 
 // CREATORS
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
+                                                 StripedUnorderedContainerImpl(
+                                StripedUnorderedContainerImplMaxLoadFactorFlag,
+                                float             maxLoadFactor,
+                                bsl::size_t       numInitialBuckets,
+                                bsl::size_t       numStripes,
+                                bslma::Allocator *basicAllocator)
+: d_numStripes(powerCeil(numStripes))
+, d_numBuckets(adjustBuckets(numInitialBuckets, d_numStripes))
+, d_hashMask(d_numStripes - 1)
+, d_maxLoadFactor(maxLoadFactor)
+, d_hasher()
+, d_comparator()
+, d_statePad()
+, d_numElementsPad()
+, d_buckets(d_numBuckets, basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_state       = k_REHASH_ENABLED; // Rehash enabled, not in progress
+    d_numElements = 0; // Hash empty
+
+    // Allocate array of 'LockElement' objects, and construct them.
+    d_locks_p = reinterpret_cast<LockElement*>(
+                  d_allocator_p->allocate(d_numStripes * sizeof(LockElement)));
+    for (bsl::size_t i = 0; i < d_numStripes; ++i) {
+        bslma::ConstructionUtil::construct(&d_locks_p[i], d_allocator_p);
+    }
+}
+
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::
@@ -2564,17 +2803,6 @@ StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::insertUnique(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-inline
-void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::maxLoadFactor(
-                                                        float newMaxLoadFactor)
-{
-    BSLS_ASSERT(0 < newMaxLoadFactor);
-
-    d_maxLoadFactor = newMaxLoadFactor;
-    checkRehash();
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
 void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
                                                         bsl::size_t numBuckets)
 {
@@ -2588,7 +2816,7 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
     }
     numBuckets = powerCeil(numBuckets);
 
-    if (numBuckets == d_numBuckets) { // Skip if no change in # of buckets
+    if (numBuckets <= d_numBuckets) { // Skip if no change in # of buckets
         return;                                                       // RETURN
     }
     if (!canRehash()) { // Skip if can't rehash
@@ -2596,10 +2824,8 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
     }
 
     // Set state to rehash
-    int oldState = d_state.testAndSwap(
-                                      k_REHASH_ENABLED,
-                                      k_REHASH_ENABLED | k_REHASH_IN_PROGRESS);
-    if (oldState != k_REHASH_ENABLED) { // State changed under our feet
+    StripedUnorderedContainerImpl_RehashBitSetGuard rehashGuard(&d_state);
+    if (!rehashGuard.holdsLock() || numBuckets <= d_numBuckets.loadRelaxed()) {
         return;                                                       // RETURN
     }
 
@@ -2608,9 +2834,11 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
                                                                 numBuckets,
                                                                 d_allocator_p);
 
+    StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard locksGuard(d_locks_p);
     // Main loop on stripes: lock a stripe and process all buckets in it
     for (bsl::size_t i = 0; i < d_numStripes; ++i) {
-        d_locks_p[i].lockW();
+        locksGuard.lock(d_locks_p + i);
+
         // Loop on the buckets of the current stripe.  This is simple, as the
         // stripe is the last bits in a bucket index.  We start with the
         // current stripe as the first bucket, and add 'd_numStripes' for the
@@ -2642,15 +2870,6 @@ void StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::rehash(
 
     // Update number of buckets.
     d_numBuckets = numBuckets;
-
-    // Unlock all stripes.  This could not be done on the spot, as we store the
-    /// rehashed data in a new set of buckets.
-    for (bsl::size_t i = 0; i < d_numStripes; ++i) {
-        d_locks_p[i].unlockW();
-    }
-
-    // Rehash no longer in progress
-    d_state = d_state & ~k_REHASH_IN_PROGRESS;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
