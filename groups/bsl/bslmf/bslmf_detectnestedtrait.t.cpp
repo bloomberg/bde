@@ -858,10 +858,10 @@ int main(int argc, char *argv[])
 #if defined(_MSC_VER) && _MSC_VER == 1941
     // MSVC gets confused with `void(..)` somehow in the macros, so we have
     // to use a typedef for the function types.
-    #define MSVC_CHOKES_ON_VOID_ELLIPSIS
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
 #endif
 
-#ifndef MSVC_CHOKES_ON_VOID_ELLIPSIS
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...),                  false);
 #else
         {
@@ -879,7 +879,7 @@ int main(int argc, char *argv[])
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) volatile &&,      false);
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-#ifndef MSVC_CHOKES_ON_VOID_ELLIPSIS
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...) noexcept,         false);
 #else
         {
