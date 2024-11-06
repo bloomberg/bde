@@ -94,6 +94,33 @@ struct FormatterIntegral_Category<bool> {
     category();
 };
 
+/// This is a specialization of `FormatterIntegral_Category` template for
+/// `void *`.
+template <>
+struct FormatterIntegral_Category<void *> {
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+    category();
+};
+
+/// This is a specialization of `FormatterIntegral_Category` template for
+/// `const void *`.
+template <>
+struct FormatterIntegral_Category<const void *> {
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+    category();
+};
+
+/// This is a specialization of `FormatterIntegral_Category` template for
+/// `bsl::nullptr_t`.
+template <>
+struct FormatterIntegral_Category<bsl::nullptr_t> {
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+    category();
+};
+
                          // ============================
                          // struct FormatterIntegralBase
                          // ============================
@@ -113,7 +140,7 @@ struct FormatterIntegralBase {
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
 
     // DATA
-    FSS    d_spec;  // format specification.
+    FSS d_spec;  // format specification.
 
     // PRIVATE ACCESSORS
 
@@ -133,9 +160,6 @@ struct FormatterIntegralBase {
 
   protected:
     // PROTECTED ACCESSORS
-
-    /// Return a reference to the specification of this formatter.
-    const FormatterSpecificationStandard<t_CHAR>& specification() const ;
 
     /// Create the prefix for output of the specified `value` and write it into
     /// the character buffer starting a the specified `prefixStorage` and
@@ -172,6 +196,9 @@ struct FormatterIntegralBase {
                                        const t_CHAR      *valueBegin,
                                        const t_CHAR      *valueEnd,
                                        t_FORMAT_CONTEXT&  formatContext) const;
+
+    /// Return a reference to the specification of this formatter.
+    const FormatterSpecificationStandard<t_CHAR>& specification() const ;
 };
 
                          // =======================
@@ -288,12 +315,34 @@ FormatterIntegral_Category<bool>::category()
     return FormatterSpecificationStandard_Enums::e_CATEGORY_BOOLEAN;
 }
 
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+FormatterIntegral_Category<void *>::category()
+{
+    return FormatterSpecificationStandard_Enums::e_CATEGORY_POINTER;
+}
+
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+FormatterIntegral_Category<const void *>::category()
+{
+    return FormatterSpecificationStandard_Enums::e_CATEGORY_POINTER;
+}
+
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+FormatterIntegral_Category<bsl::nullptr_t>::category()
+{
+    return FormatterSpecificationStandard_Enums::e_CATEGORY_POINTER;
+}
+
                          // ---------------------------
                          // class FormatterIntegralBase
                          // ---------------------------
 
 template <class t_VALUE, class t_CHAR>
 template <class t_ACTUAL_VALUE_TYPE>
+inline
 bool FormatterIntegralBase<t_VALUE, t_CHAR>::isInRange(
                                         const t_ACTUAL_VALUE_TYPE& value) const
 {
@@ -322,14 +371,6 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
     }
 
     return parseContext.begin();
-}
-
-template <class t_VALUE, class t_CHAR>
-inline
-const FormatterSpecificationStandard<t_CHAR>&
-FormatterIntegralBase<t_VALUE, t_CHAR>::specification() const
-{
-    return d_spec;
 }
 
 template <class t_VALUE, class t_CHAR>
@@ -564,17 +605,18 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
                 rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
               } break;
               case FSS::e_ALIGN_DEFAULT: {
-                // Different types have different default alignment.
+                // Left alignment is default for non-arithmetic presentation
+                // types.
 
                 typedef FormatterSpecificationStandard_Enums FSSEnums;
-                if (FSSEnums::e_CATEGORY_INTEGRAL ==
-                    FormatterIntegral_Category<t_VALUE>::category()) {
-                    leftPadFillerCopiesNum  = totalPadDisplayWidth;
-                    rightPadFillerCopiesNum = 0;
-                }
-                else {
+                if (FSSEnums::e_INTEGRAL_CHARACTER == d_spec.formatType() ||
+                    FSSEnums::e_BOOLEAN_STRING     == d_spec.formatType()) {
                     leftPadFillerCopiesNum  = 0;
                     rightPadFillerCopiesNum = totalPadDisplayWidth;
+                }
+                else {
+                    leftPadFillerCopiesNum  = totalPadDisplayWidth;
+                    rightPadFillerCopiesNum = 0;
                 }
               } break;
               case FSS::e_ALIGN_RIGHT: {
@@ -628,6 +670,18 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
 
     return outIterator;
 }
+
+template <class t_VALUE, class t_CHAR>
+inline
+const FormatterSpecificationStandard<t_CHAR>&
+FormatterIntegralBase<t_VALUE, t_CHAR>::specification() const
+{
+    return d_spec;
+}
+
+                         // -----------------------
+                         // class FormatterIntegral
+                         // -----------------------
 
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>

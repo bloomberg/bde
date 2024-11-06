@@ -66,21 +66,21 @@ class FormatterSpecificationStandard_Enums
         // Default value
         e_TYPE_UNASSIGNED,
 
-        // String types
-        e_STRING_DEFAULT,  // none or `n`
-        e_STRING_ESCAPED,  // `?`
+        // String presentation types
+        e_STRING_DEFAULT,      // `n` (default for strings)
+        e_STRING_ESCAPED,      // `?`
 
-        // Integer types
+        // Integer presentation types
         e_INTEGRAL_BINARY,     // `b`
         e_INTEGRAL_BINARY_UC,  // `B`
         e_INTEGRAL_CHARACTER,  // `c`
-        e_INTEGRAL_DECIMAL,    // none or `d`
+        e_INTEGRAL_DECIMAL,    // `d` (default for integers)
         e_INTEGRAL_OCTAL,      // `o`
-        e_INTEGRAL_HEX,        // `x`
-        e_INTEGRAL_HEX_UC,     // `X`
+        e_INTEGRAL_HEX,        // `x` or `p` for pointers (default for ptrs)
+        e_INTEGRAL_HEX_UC,     // `X` or `P` for pointers
 
-        // Character types
-        e_CHARACTER_CHARACTER,  // none or `c`
+        // Character presentation types
+        e_CHARACTER_CHARACTER,  // `c` (default for characters)
         e_CHARACTER_BINARY,     // `b`
         e_CHARACTER_BINARY_UC,  // `B`
         e_CHARACTER_DECIMAL,    // `d`
@@ -89,11 +89,11 @@ class FormatterSpecificationStandard_Enums
         e_CHARACTER_HEX_UC,     // `X`
         e_CHARACTER_ESCAPED,    // `?`
 
-        // Boolean types
-        e_BOOLEAN_STRING,       // none or `s`
+        // Boolean presentation type
+        e_BOOLEAN_STRING,       // `s` (default for booleans)
 
         // Floating point types
-        e_FLOATING_DEFAULT,       // none
+        e_FLOATING_DEFAULT,       // none (default for floating points)
         e_FLOATING_HEX,           // `a`
         e_FLOATING_HEX_UC,        // `A`
         e_FLOATING_SCIENTIFIC,    // `e`
@@ -102,10 +102,6 @@ class FormatterSpecificationStandard_Enums
         e_FLOATING_FIXED_UC,      // `F`
         e_FLOATING_GENERAL,       // `g`
         e_FLOATING_GENERAL_UC,    // `g`
-
-        // Pointer types
-        e_POINTER_HEX,     // none or `p`
-        e_POINTER_HEX_UC,  // `P`
     };
 };
 
@@ -396,7 +392,7 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
             outSpec->d_formatType = e_FLOATING_DEFAULT;
           } break;
           case e_CATEGORY_POINTER: {
-            outSpec->d_formatType = e_POINTER_HEX;
+            outSpec->d_formatType = e_INTEGRAL_HEX;
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;
@@ -571,10 +567,10 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
       case e_CATEGORY_POINTER: {
         switch (typeChar) {
           case 'p': {
-            outSpec->d_formatType = e_POINTER_HEX;
+            outSpec->d_formatType = e_INTEGRAL_HEX;
           } break;
           case 'P': {
-            outSpec->d_formatType = e_POINTER_HEX_UC;
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
           } break;
           default: {
             outSpec->d_formatType = e_TYPE_UNASSIGNED;

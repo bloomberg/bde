@@ -68,6 +68,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nullptr.h>
 #include <bsls_unspecifiedbool.h>
 #include <bsls_util.h>
 
@@ -336,11 +337,9 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// then held by value.
     explicit basic_format_arg(const void *value) BSLS_KEYWORD_NOEXCEPT;
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
     /// Construct a `basic_format_arg` which holds
     /// `static_cast<const void *>(nullptr)`.
-    explicit basic_format_arg(std::nullptr_t) BSLS_KEYWORD_NOEXCEPT;
-#endif
+    explicit basic_format_arg(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT;
 
     // HIDDEN FRIENDS
 
@@ -865,15 +864,18 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 {
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 template <class t_OUT, class t_CHAR>
 inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
-                                          std::nullptr_t) BSLS_KEYWORD_NOEXCEPT
+                                          bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 : d_value(static_cast<const void *>(nullptr))
+#else
+: d_value(static_cast<const void *>(0))
+#endif
 {
 }
-#endif
 
 // CREATORS
 template <class t_OUT, class t_CHAR>

@@ -1,12 +1,13 @@
 // bslstl_formatterpointer.t.cpp                                      -*-C++-*-
 #include <bslfmt_formatterpointer.h>
 
+#include <bslfmt_formattertestutil.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
 
 #include <stdio.h>
-#include <string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -87,16 +88,454 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Use test contexts to format a single string.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Example: Formatting a pointer
+///- - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test pointer formatter's ability to a substring with
+// padding.
+//
+//..
+    bslfmt::Formatter_MockParseContext<char> mpc("*<6p", 1);
+
+    bsl::formatter<const void *, char> f;
+    mpc.advance_to(f.parse(mpc));
+
+    const void *value = 0;
+
+    bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+
+    mfc.advance_to(bsl::as_const(f).format(value, mfc));
+
+    ASSERT("0x0***" == mfc.finalString());
+//..
+//
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bsl::formatter<const void *, char> dummy1;
-        (void)dummy1;
+        void           *ptr        = reinterpret_cast<void *>(0x13579BDF);
+        void           *nullPtr    = 0;
+        bsl::nullptr_t  nullptrObj = bsl::nullptr_t();
 
-        ASSERT(true);  // placeholder
+        static const struct {
+            int         d_line;        // source line number
+            const char *d_format_p;    // format spec
+            const char *d_expected_p;  // format
+            void       *d_value_p;     // value to be formatted
+        } CHAR_DATA[] = {
+            //LINE  FORMAT         EXPECTED            VALUE
+            //----  -----------    ---------------     -------
+            { L_,   "{:}",         "0x0",              nullPtr   },
+            { L_,   "{0:}",        "0x0",              nullPtr   },
+            { L_,   "{:p}",        "0x0",              nullPtr   },
+            { L_,   "{0:p}",       "0x0",              nullPtr   },
+      //    { L_,   "{:01}",       "0x0",              nullPtr   },  // gcc bug
+      //    { L_,   "{:012}",      "0x0000000000",     nullPtr   },  // gcc bug
+            { L_,   "{:<12}",      "0x0         ",     nullPtr   },
+            { L_,   "{:>12}",      "         0x0",     nullPtr   },
+            { L_,   "{:^12}",      "    0x0     ",     nullPtr   },
+      //    { L_,   "{:<012}",     "0x0         ",     nullPtr   },  // gcc bug
+      //    { L_,   "{:>012}",     "         0x0",     nullPtr   },  // gcc bug
+      //    { L_,   "{:^012}",     "    0x0     ",     nullPtr   },  // gcc bug
+            { L_,   "{:*<12}",     "0x0*********",     nullPtr   },
+            { L_,   "{:*>12}",     "*********0x0",     nullPtr   },
+            { L_,   "{:*^12}",     "****0x0*****",     nullPtr   },
+            { L_,   "{:*<12p}",    "0x0*********",     nullPtr   },
+            { L_,   "{:*>12p}",    "*********0x0",     nullPtr   },
+            { L_,   "{:*^12p}",    "****0x0*****",     nullPtr   },
 
+            { L_,   "{:}",         "0x13579bdf",       ptr       },
+            { L_,   "{0:}",        "0x13579bdf",       ptr       },
+            { L_,   "{:p}",        "0x13579bdf",       ptr       },
+            { L_,   "{0:p}",       "0x13579bdf",       ptr       },
+      //    { L_,   "{:01}",       "0x13579bdf",       ptr       },  // gcc bug
+      //    { L_,   "{:012}",      "0x0013579bdf",     ptr       },  // gcc bug
+            { L_,   "{:<12}",      "0x13579bdf  ",     ptr       },
+            { L_,   "{:>12}",      "  0x13579bdf",     ptr       },
+            { L_,   "{:^12}",      " 0x13579bdf ",     ptr       },
+      //    { L_,   "{:<012}",     "0x13579bdf  ",     ptr       },  // gcc bug
+      //    { L_,   "{:>012}",     "  0x13579bdf",     ptr       },  // gcc bug
+      //    { L_,   "{:^012}",     " 0x13579bdf ",     ptr       },  // gcc bug
+            { L_,   "{:*<12}",     "0x13579bdf**",     ptr       },
+            { L_,   "{:*>12}",     "**0x13579bdf",     ptr       },
+            { L_,   "{:*^12}",     "*0x13579bdf*",     ptr       },
+            { L_,   "{:*<12p}",    "0x13579bdf**",     ptr       },
+            { L_,   "{:*>12p}",    "**0x13579bdf",     ptr       },
+            { L_,   "{:*^12p}",    "*0x13579bdf*",     ptr       },
+        };
+
+        enum { NUM_CHAR_DATA = sizeof CHAR_DATA / sizeof *CHAR_DATA };
+
+
+        static const struct {
+            int            d_line;        // source line number
+            const wchar_t *d_format_p;    // format spec
+            const wchar_t *d_expected_p;  // format
+            void          *d_value_p;     // value to be formatted
+        } WCHAR_DATA[] = {
+            //LINE  FORMAT          EXPECTED             VALUE
+            //----  -----------     ---------------      -------
+            { L_,   L"{:}",         L"0x0",              nullPtr   },
+            { L_,   L"{0:}",        L"0x0",              nullPtr   },
+            { L_,   L"{:p}",        L"0x0",              nullPtr   },
+            { L_,   L"{0:p}",       L"0x0",              nullPtr   },
+      //    { L_,   L"{:01}",       L"0x0",              nullPtr   },// gcc bug
+      //    { L_,   L"{:012}",      L"0x0000000000",     nullPtr   },// gcc bug
+            { L_,   L"{:<12}",      L"0x0         ",     nullPtr   },
+            { L_,   L"{:>12}",      L"         0x0",     nullPtr   },
+            { L_,   L"{:^12}",      L"    0x0     ",     nullPtr   },
+      //    { L_,   L"{:<012}",     L"0x0         ",     nullPtr   },// gcc bug
+      //    { L_,   L"{:>012}",     L"         0x0",     nullPtr   },// gcc bug
+      //    { L_,   L"{:^012}",     L"    0x0     ",     nullPtr   },// gcc bug
+            { L_,   L"{:*<12}",     L"0x0*********",     nullPtr   },
+            { L_,   L"{:*>12}",     L"*********0x0",     nullPtr   },
+            { L_,   L"{:*^12}",     L"****0x0*****",     nullPtr   },
+            { L_,   L"{:*<12p}",    L"0x0*********",     nullPtr   },
+            { L_,   L"{:*>12p}",    L"*********0x0",     nullPtr   },
+            { L_,   L"{:*^12p}",    L"****0x0*****",     nullPtr   },
+
+            { L_,   L"{:}",         L"0x13579bdf",       ptr       },
+            { L_,   L"{0:}",        L"0x13579bdf",       ptr       },
+            { L_,   L"{:p}",        L"0x13579bdf",       ptr       },
+            { L_,   L"{0:p}",       L"0x13579bdf",       ptr       },
+      //    { L_,   L"{:01}",       L"0x13579bdf",       ptr       },// gcc bug
+      //    { L_,   L"{:012}",      L"0x0013579bdf",     ptr       },// gcc bug
+            { L_,   L"{:<12}",      L"0x13579bdf  ",     ptr       },
+            { L_,   L"{:>12}",      L"  0x13579bdf",     ptr       },
+            { L_,   L"{:^12}",      L" 0x13579bdf ",     ptr       },
+      //    { L_,   L"{:<012}",     L"0x13579bdf  ",     ptr       },// gcc bug
+      //    { L_,   L"{:>012}",     L"  0x13579bdf",     ptr       },// gcc bug
+      //    { L_,   L"{:^012}",     L" 0x13579bdf ",     ptr       },// gcc bug
+            { L_,   L"{:*<12}",     L"0x13579bdf**",     ptr       },
+            { L_,   L"{:*>12}",     L"**0x13579bdf",     ptr       },
+            { L_,   L"{:*^12}",     L"*0x13579bdf*",     ptr       },
+            { L_,   L"{:*<12p}",    L"0x13579bdf**",     ptr       },
+            { L_,   L"{:*>12p}",    L"**0x13579bdf",     ptr       },
+            { L_,   L"{:*^12p}",    L"*0x13579bdf*",     ptr       },
+        };
+
+        enum { NUM_WCHAR_DATA = sizeof WCHAR_DATA / sizeof *WCHAR_DATA };
+
+        if (verbose) printf("\tTesting runtime processing.\n");
+
+        for (int i = 0; i < NUM_CHAR_DATA; ++i) {
+            const int   LINE     = CHAR_DATA[i].d_line;
+            const char *FORMAT   = CHAR_DATA[i].d_format_p;
+            const char *EXPECTED = CHAR_DATA[i].d_expected_p;
+                  void *VALUE    = CHAR_DATA[i].d_value_p;
+            const void *CVALUE   = CHAR_DATA[i].d_value_p;
+
+            bsl::string message;
+
+            bool rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<
+                const void *>(&message, false, FORMAT);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            int dummyArg = 0;
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     EXPECTED,
+                                                                     true,
+                                                                     FORMAT,
+                                                                     VALUE,
+                                                                     dummyArg,
+                                                                     dummyArg);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     EXPECTED,
+                                                                     true,
+                                                                     FORMAT,
+                                                                     CVALUE,
+                                                                     dummyArg,
+                                                                     dummyArg);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            if (!VALUE) {
+                // We expect the same result for the `nullptr_t` object as for
+                // a pointer having null value.
+
+                rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
+                                                                    &message,
+                                                                    EXPECTED,
+                                                                    true,
+                                                                    FORMAT,
+                                                                    nullptrObj,
+                                                                    dummyArg,
+                                                                    dummyArg);
+                ASSERTV(LINE, FORMAT, message.c_str(), rv);
+            }
+        }
+
+        for (int i = 0; i < NUM_WCHAR_DATA; ++i) {
+            const int      LINE     = WCHAR_DATA[i].d_line;
+            const wchar_t *FORMAT   = WCHAR_DATA[i].d_format_p;
+            const wchar_t *EXPECTED = WCHAR_DATA[i].d_expected_p;
+                  void    *VALUE    = WCHAR_DATA[i].d_value_p;
+            const void    *CVALUE   = WCHAR_DATA[i].d_value_p;
+
+            bsl::string message;
+
+            bool rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<
+                const void *>(&message, false, FORMAT);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            int dummyArg = 0;
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     EXPECTED,
+                                                                     true,
+                                                                     FORMAT,
+                                                                     VALUE,
+                                                                     dummyArg,
+                                                                     dummyArg);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
+                                                                     &message,
+                                                                     EXPECTED,
+                                                                     true,
+                                                                     FORMAT,
+                                                                     CVALUE,
+                                                                     dummyArg,
+                                                                     dummyArg);
+            ASSERTV(LINE, FORMAT, message.c_str(), rv);
+
+            if (!VALUE) {
+                // We expect the same result for the `nullptr_t` object as for
+                // a pointer having null value.
+
+                rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
+                                                                    &message,
+                                                                    EXPECTED,
+                                                                    true,
+                                                                    FORMAT,
+                                                                    nullptrObj,
+                                                                    dummyArg,
+                                                                    dummyArg);
+                ASSERTV(LINE, FORMAT, message.c_str(), rv);
+            }
+        }
+
+        if (verbose) printf("\tTesting compile-time processing.\n");
+        {
+            bsl::string message;
+
+            // `parse`
+
+            bool rv =
+                     bslfmt::Formatter_TestUtil<char>::testParseFormat<void *>(
+                         &message,
+                         true,
+                         "{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+                const void *>(&message, true, "{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+                bsl::nullptr_t>(&message, true, "{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<void *>(
+                                                                      &message,
+                                                                      true,
+                                                                      L"{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
+                const void *>(&message, true, L"{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
+                bsl::nullptr_t>(&message, true, L"{0:}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+                void *>(&message, true, "{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+                const void *>(&message, true, "{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+                bsl::nullptr_t>(&message, true, "{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
+                void *>(&message, true, L"{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
+                const void *>(&message, true, L"{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
+                bsl::nullptr_t>(&message, true, L"{:*<6}");
+            ASSERTV(message.c_str(), rv);
+
+            // `format`
+
+            void       * const VALUE  = 0;
+            const void * const CVALUE = 0;
+            const int          DUMMY_ARG = 0;
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0",
+                                                                    true,
+                                                                    "{:}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0",
+                                                                    true,
+                                                                    "{:}",
+                                                                    CVALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0",
+                                                                    true,
+                                                                    "{:}",
+                                                                    nullptrObj,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0",
+                                                                    true,
+                                                                    L"{:}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0",
+                                                                    true,
+                                                                    L"{:}",
+                                                                    CVALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0",
+                                                                    true,
+                                                                    L"{:}",
+                                                                    nullptrObj,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0***",
+                                                                    true,
+                                                                    "{:*<6}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0***",
+                                                                    true,
+                                                                    "{:*<6}",
+                                                                    CVALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+                                                                    &message,
+                                                                    "0x0***",
+                                                                    true,
+                                                                    "{:*<6}",
+                                                                    nullptrObj,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0***",
+                                                                    true,
+                                                                    L"{:*<6}",
+                                                                    VALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0***",
+                                                                    true,
+                                                                    L"{:*<6}",
+                                                                    CVALUE,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+
+            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+                                                                    &message,
+                                                                    L"0x0***",
+                                                                    true,
+                                                                    L"{:*<6}",
+                                                                    nullptrObj,
+                                                                    DUMMY_ARG,
+                                                                    DUMMY_ARG);
+            ASSERTV(message.c_str(), rv);
+        }
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
