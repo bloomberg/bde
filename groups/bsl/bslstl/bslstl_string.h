@@ -1901,7 +1901,7 @@ class basic_string
     /// Note that the capacity of a string is the maximum length it can
     /// accommodate without reallocation.  The actual storage allocated may
     /// be higher.
-    void reserve(size_type newCapacity = 0);
+    void reserve(size_type newCapacity);
 
     /// Request the removal of unused capacity by causing reallocation.
     /// Note that this method has no effect if the capacity is equal to the
