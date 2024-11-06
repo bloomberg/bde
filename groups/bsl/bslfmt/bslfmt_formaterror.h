@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // `vformat` functions. However, as this is at the very bottom of the
 // dependency hierarchy the usage example cannot accurately reflect that case.
 //
-//..
+// ```
 //   try
 //   {
 //     throw bsl::format_error("Error message");
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //   {
 //     assert(true); // Successful catch.
 //   }
-//..
+// ```
 //
 
 #include <bslscm_version.h>
@@ -73,9 +73,9 @@ class format_error : public std::runtime_error {
     BSLS_KEYWORD_EXPLICIT format_error(const char *what_arg);
 
     /// Create an object of this type holding the error message given by the
-    /// specified `what_arg` Note that if a 'bsl::string' is passed to the
-    /// 'std::string' constructor, two copies occur (one to initialize
-    /// 'what_arg', and one to initialize the internal reference-counted
+    /// specified `what_arg` Note that if a `bsl::string` is passed to the
+    /// `std::string` constructor, two copies occur (one to initialize
+    /// `what_arg`, and one to initialize the internal reference-counted
     /// string).  This constructor ensures that only a single copy needs to be
     /// performed.
     BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& what_arg);
@@ -131,8 +131,8 @@ format_error::format_error(const char *what_arg)
 {
 }
 
-// If a 'bsl::string' is passed to the 'std::string' constructor, two copies
-// occur (one to initialize 'what_arg', and one to initialize the internal
+// If a `bsl::string` is passed to the `std::string` constructor, two copies
+// occur (one to initialize `what_arg`, and one to initialize the internal
 // reference-counted string).  This constructor ensures that only a single copy
 // needs to be performed.
 inline

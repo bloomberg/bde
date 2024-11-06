@@ -455,7 +455,7 @@ void FormatterSpecification_NumericValue::finalize(
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         // Depending on the type of t_FORMAT_CONTEXT we may need to use
-        // 'visit_format_arg' from 'bslfmt' or from 'std'.
+        // `visit_format_arg` from `bslfmt` or from `std`.
         using namespace std;
 #endif
         visit_format_arg(visitor, context.arg(out->d_value));
@@ -925,7 +925,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parseFillAndAlignment(
 
     if (aligner != end) {
         if (alignmentFromChar(*aligner) != e_ALIGN_DEFAULT) {
-            // '{' and '}' are invalid fill characters per the C++ spec. As
+            // `{` and `}` are invalid fill characters per the C++ spec. As
             // they are ASCII we can check **start without decoding the code
             // point.
             if ('{' == **start || '}' == **start)
@@ -998,7 +998,7 @@ FormatterSpecification_Splitter<t_CHAR>::postprocessFiller(
                                                       sizeof(t_CHAR))
         BSLS_THROW(bsl::format_error("Invalid unicode code point"));  // RETURN
 
-    // '{' and '}' are invalid fill characters per the C++ spec
+    // `{` and `}` are invalid fill characters per the C++ spec
     if ('{' == cp.codePointValue || '}' == cp.codePointValue)
         BSLS_THROW(
           bsl::format_error("Invalid fill character ('{' or '}')"));  // RETURN

@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // all functionality supported by the C++20 `std::formatter` string type
 // specializations with the following exceptions:
 // * No support for escaped strings.
-// * No support for non-'C' locales.
+// * No support for non-`C` locales.
 //
 ///Usage
 ///-----
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to test this formatter's ability to a substring with padding
 // and minimum width.
 //
-//..
+// ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<5.3s", 1);
 //
 //  bsl::formatter<const char *, char> f;
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
 //  assert("abc**" == mfc.finalString());
-//..
+// ```
 //
 
 #include <bslscm_version.h>

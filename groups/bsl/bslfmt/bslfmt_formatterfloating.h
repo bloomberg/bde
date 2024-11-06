@@ -101,8 +101,8 @@ struct Formatter_FloatingBase {
     /// one right before the specified `expChar` position and return
     /// `numberLength + 1`.  If no `expChar` is present in `buf` (assume that
     /// the value is not numeric but NaN or infinity) do nothing and return
-    /// `numberLength`.  The behavior is undefined unless `expChar` is 'e' when
-    /// `buf` contains a number in scientific format, or 'p' when it is a
+    /// `numberLength`.  The behavior is undefined unless `expChar` is `e` when
+    /// `buf` contains a number in scientific format, or `p` when it is a
     /// number in hexfloat format.  The behavior is also undefined unless the
     /// buffer is long enough to contain the additional (dot) character.
     static
@@ -248,7 +248,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyDefaultAlternate(
     }
 
     if (dotPos == k_NO_POS) {
-        // When here, we need to insert the decimal point before the 'e'
+        // When here, we need to insert the decimal point before the `e`
         // if present, or at the end if we printed fixed-form.
 
         size_t ePos = k_NO_POS;
@@ -303,7 +303,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyGeneralAlternate(
 {
     // This method adds a decimal point if it is not present and re-adds the
     // removed trailing zeros up to the specified `precision` as required
-    // for the alternate format of the generic ('g' and 'G') formats.  Note
+    // for the alternate format of the generic (`g` and `G`) formats.  Note
     // that this method has to work with 3 substantially different-looking
     // formats: scientific, fixed, and the special value (NaN, infinity).
 
@@ -331,7 +331,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyGeneralAlternate(
     }
 
     if (dotPos == k_NO_POS) {
-        // When here, we need to insert the decimal point before the 'e'
+        // When here, we need to insert the decimal point before the `e`
         // if present, or at the end if we printed fixed-form.
 
         if (k_NO_POS == ePos) {

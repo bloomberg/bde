@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we have a function that takes a format string and requires that the
 // string be constant evaluated under C++20:
 //
-//..
+// ```
 // #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&
 //     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 //   template <class t_ARG>
@@ -65,14 +65,14 @@ BSLS_IDENT("$Id: $")
 //     assert(fmtstr.get() == "{:}");
 //   }
 // #endif
-//..
+// ```
 //
 // We can then invoke our function:
 //
-//..
+// ```
 //   int value = 5;
 //   myFormatLikeFunction("{:}", value);
-//..
+// ```
 //
 
 #include <bslscm_version.h>

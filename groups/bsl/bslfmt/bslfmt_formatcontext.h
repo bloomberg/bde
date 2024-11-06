@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we have a user-defined formatter and want to test its `format`
 // method:
 //
-//..
+// ```
 //  struct MyCharFormatter {
 //      template <class t_FORMAT_CONTEXT>
 //      typename t_FORMAT_CONTEXT::iterator format(
@@ -50,14 +50,14 @@ BSLS_IDENT("$Id: $")
 //          return out;
 //      }
 //  };
-//..
+// ```
 //
 // We can then write a test function. Note that it is not possible for users to
 // construct a context directly, so we are forced to abuse the
 // internal-use-only types `Format_OutputIteratorRef` and
 // `Format_FormatContextFactory` in order to write this usage example.
 //
-//..
+// ```
 //  struct MyCharFormatterTestVisitor {
 //      char value;
 //
@@ -86,16 +86,16 @@ BSLS_IDENT("$Id: $")
 //      bslfmt::visit_format_arg(visitor, fc.arg(0));
 //      f.format(visitor.value, fc);
 //      assert(result.size() == 1);
-//      assert(result.front() == 'x');
+//      assert(result.front() == `x`);
 //  }
-//..
+// ```
 //
 // Then we perform the test itself:
 //
-//..
-//   char value = 'x';
+// ```
+//   char value = `x`;
 //   testFormatter(bslfmt::make_format_args(value));
-//..
+// ```
 //
 
 #include <bslscm_version.h>

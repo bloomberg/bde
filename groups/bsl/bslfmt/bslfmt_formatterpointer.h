@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to test pointer formatter's ability to a substring with
 // padding.
 //
-//..
+// ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<6p", 1);
 //
 //  bsl::formatter<const void *, char> f;
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
 //  assert("0x0***" == mfc.finalString());
-//..
+// ```
 //
 
 #include <bslscm_version.h>

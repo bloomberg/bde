@@ -200,10 +200,11 @@ int main(int argc, char **argv)
         const double k_DBL_NEG_NAN = -k_DBL_NAN;
 
         const double k_DBL_SNAN     = DblLim::signaling_NaN();
+
+        // This probably won't be a signaling NaN as changing the sign may
+        // actually count as a read, which (optionally signals and) turns
+        // it into a quiet NaN.
         const double k_DBL_NEG_SNAN = -DblLim::signaling_NaN();
-            // This probably won't be a signaling NaN as changing the sign may
-            // actually count as a read, which (optionally signals and) turns
-            // it into a quiet NaN.
 
         static struct {
             int            d_line;
@@ -934,10 +935,11 @@ int main(int argc, char **argv)
         const float k_FLT_NEG_NAN = -k_DBL_NAN;
 
         const float k_FLT_SNAN     = FltLim::signaling_NaN();
+
+        // This probably won't be a signaling NaN as changing the sign may
+        // actually count as a read, which (optionally signals and) turns
+        // it into a quiet NaN.
         const float k_FLT_NEG_SNAN = -FltLim::signaling_NaN();
-            // This probably won't be a signaling NaN as changing the sign may
-            // actually count as a read, which (optionally signals and) turns
-            // it into a quiet NaN.
 
         static struct {
             int            d_line;

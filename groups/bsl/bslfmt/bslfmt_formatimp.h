@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 // to be compatible with both implementations, there are specific requirements,
 // notably:
 //
-// - If you will define a formatter for your type 'T', do so in the same
-//   component header that defines 'T' itself.  This avoids issues due to
+// - If you will define a formatter for your type `T`, do so in the same
+//   component header that defines `T` itself.  This avoids issues due to
 //   users forgetting to include the header for the formatter.
 // - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
 //   template arguments for the format context and parse context
@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Simple integer formatting
 /// - - - - - - - - - - - - - - - - - -
 //
-//..
+// ```
 // #include <bslfmt_format.h>
 // #include <bsl_iostring.h>
 //
@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //     bsl::cout << doFormat(99) << bsl::endl;
 //     return 0;
 // }
-//..
+// ```
 //
 
 #include <bslscm_version.h>

@@ -24,19 +24,19 @@ BSLS_IDENT("$Id: $")
 // constructed `basic_format_args` type. This means that, for example, the
 // following code results in Undefined Behavior, in both the standard library
 // and the `bslfmt` versions:
-// ..
+// ```
 //     int value = 5;
 //     format_args args = make_format_args(value);
 //     // args now holds a reference to a temporary whose lifetime has ended.
 //     do_something_with(args);
-// ..
+// ```
 //
 ///Usage
 ///-----
 // In this section we show the intended use of this component.
 //
 ///Example: 1 Construct a `basic_format_args` object
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
 // are only a very limited number of public methods so this example is
@@ -44,13 +44,13 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose we want to construct a `basic_format_args` containing a single int.
 //
-//..
+// ```
 //   int                 value = 5;
 //   bslfmt::format_args args(bslfmt::make_format_args(value));
 //
 //   assert( args.get(0));
 //   assert(!args.get(1));
-//..
+// ```
 //
 ///Example 2: Non-default construction and value verification
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // that it contains that int. Note the use of a function to workaround the
 // lifetime issues specified above.
 //
-//..
+// ```
 //   struct UsageExampleVisitor {
 //
 //     void operator()(bsl::monostate) const
@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //
 //   int value2 = 99;
 //   UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
-//..
+// ```
 
 #include <bslscm_version.h>
 
@@ -292,9 +292,9 @@ class Format_FormatArgs_ImpUtil {
     static Format_FormatArgStore<t_CONTEXT, t_ARGS...> makeFormatArgs(
                                                           t_ARGS&... fmt_args);
 
-    /// Call 'size()' on the specified 'args' parameter and return the result.
-    /// This is to permit access to the private 'size' accessor of
-    /// 'basic_format_args' without requiring long distance friendship.
+    /// Call `size()` on the specified `args` parameter and return the result.
+    /// This is to permit access to the private `size` accessor of
+    /// `basic_format_args` without requiring long distance friendship.
     template <class t_CONTEXT>
     static size_t formatArgsSize(const basic_format_args<t_CONTEXT>& args);
 };

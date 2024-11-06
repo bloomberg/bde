@@ -47,12 +47,11 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to construct a default-constructed `basic_format_arg` and
 // verify that it contains no value.
 //
-//..
+// ```
 //   bslfmt::format_args args;
 //
 //   assert(!args.get(0));
-//..
-//
+// ```
 
 #include <bslscm_version.h>
 
@@ -343,7 +342,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     // HIDDEN FRIENDS
 
-    /// Exchange the values of the specified 'lhs' and 'rhs'.
+    /// Exchange the values of the specified `lhs` and `rhs`.
     friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
     {
         lhs.d_value.swap(rhs.d_value);
@@ -716,7 +715,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                    int>::type) BSLS_KEYWORD_NOEXCEPT
 {
     if (static_cast<t_TYPE>(-1) < static_cast<t_TYPE>(0)) {
-        // 't_TYPE' is signed
+        // `t_TYPE` is signed
         if (sizeof(t_TYPE) <= sizeof(int)) {
             d_value.template emplace<int>(static_cast<int>(value));
         }
@@ -725,7 +724,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
         }
     }
     else {
-        // 't_TYPE' is unsigned
+        // `t_TYPE` is unsigned
         if (sizeof(t_TYPE) <= sizeof(int)) {
             d_value.template emplace<unsigned int>(
                                              static_cast<unsigned int>(value));

@@ -61,18 +61,18 @@ enum {
     k_MIN_UTF16_SURROGATE = 0xd800,  // min surrogate value
 };
 
+/// Return `true` if the specified `value` is NOT a UTF-8 continuation byte,
+/// and `false` otherwise.
 static inline
 bool isNotUtf8Continuation(unsigned char value)
-    // Return 'true' if the specified 'value' is NOT a UTF-8 continuation byte,
-    // and 'false' otherwise.
 {
     return 0x80 != (value & 0xc0);
 }
 
+/// Return `true` if the specified `value` is a surrogate value, and `false`
+/// otherwise.
 static inline
 bool isSurrogateValue(unsigned int value)
-    // Return 'true' if the specified 'value' is a surrogate value, and 'false'
-    // otherwise.
 {
     // Mask is      1111 1111 1111 1111 1111 1000 0000 0000
     // Test against                     1101 1000 0000 0000
@@ -80,10 +80,10 @@ bool isSurrogateValue(unsigned int value)
            k_UTF16_HIGH_SURROGATE_START;
 }
 
+/// Return `true` if the specified `value` is a high surrogate value, and
+/// `false` otherwise.
 static inline
 bool isHighSurrogateValue(unsigned int value)
-    // Return 'true' if the specified 'value' is a high surrogate value, and
-    // 'false' otherwise.
 {
     // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
     // Test against                     1101 1000 0000 0000
@@ -91,10 +91,10 @@ bool isHighSurrogateValue(unsigned int value)
            k_UTF16_HIGH_SURROGATE_START;
 }
 
+/// Return `true` if the specified `value` is a high surrogate value, and
+/// `false` otherwise.
 static inline
 bool isLowSurrogateValue(unsigned int value)
-    // Return 'true' if the specified 'value' is a high surrogate value, and
-    // 'false' otherwise.
 {
     // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
     // Test against                     1101 1100 0000 0000
@@ -102,44 +102,44 @@ bool isLowSurrogateValue(unsigned int value)
            k_UTF16_LOW_SURROGATE_START;
 }
 
+/// Return the integral value of the single code point represented by the
+/// 2-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 2 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get2ByteUtf8Value(const unsigned char *pc)
-    // Return the integral value of the single code point represented by the
-    // 2-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 2 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0x1f) << 6) | ((pc[1] & k_UTF8_CONT_VALUE_MASK));
 }
 
+/// Return the integral value of the single code point represented by the
+/// 3-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 3 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get3ByteUtf8Value(const unsigned char *pc)
-    // Return the integral value of the single code point represented by the
-    // 3-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 3 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0xf) << 12) | ((pc[1] & k_UTF8_CONT_VALUE_MASK) << 6) |
            ((pc[2] & k_UTF8_CONT_VALUE_MASK));
 }
 
+/// Return the integral value of the single code point represented by the
+/// 4-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 4 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get4ByteUtf8Value(const unsigned char *pc)
-    // Return the integral value of the single code point represented by the
-    // 4-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 4 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0x7) << 18) | ((pc[1] & k_UTF8_CONT_VALUE_MASK) << 12) |
            ((pc[2] & k_UTF8_CONT_VALUE_MASK) << 6) |
            ((pc[3] & k_UTF8_CONT_VALUE_MASK));
 }
 
+/// Determine whether the start of the specified array `bytes`, up to a
+/// maximum length of the specified `maxBytes` contains a UTF Byte Order
+/// Marker, and return the result.
 static inline
 bool isByteOrderMarker(const void *bytes, size_t maxBytes)
-    // Determine whether the start of the specified array `bytes`, up to a
-    // maximum length of the specified `maxBytes` contains a UTF Byte Order
-    // Marker, and return the result.
 {
     if (maxBytes < 2)
         return false;                                                 // RETURN
@@ -184,24 +184,24 @@ bool isByteOrderMarker(const void *bytes, size_t maxBytes)
 }
 
 
+/// Component-private comparator class to facilitate range searches using
+/// standard algorithms.
 template <class e_RANGE_TYPE>
 struct Formatter_UnicodeData_EndCompare
-    // Component-private comparator class to facilitate range searches using
-    // standard algorithms.
 {
+    /// Return true if the `d_end` member of the specified `range` is less
+    /// than the specified `value`, false otherwise.
     bool operator()(const e_RANGE_TYPE& range, const unsigned long int value)
-        // Return true if the `d_end` member of the specified `range` is less
-        // than the specified `value`, false otherwise.
     {
         return range.d_end < value;
     }
 };
 
+/// Find and return the Unicode Grapheme Break category for the specified
+/// `codepoint` if one exists, otherwise return `e_UNASSIGNED`.
 static inline
 bslfmt::Formatter_UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
                                                    unsigned long int codepoint)
-    // Find and return the Unicode Grapheme Break category for the specified
-    // `codepoint` if one exists, otherwise return `e_UNASSIGNED`.
 {
     // Early exit for the common (ascii) case
     if (codepoint <= 0xff) {
@@ -283,11 +283,11 @@ bool getExtendedPictogramValue(unsigned long int codepoint)
     return true;
 }
 
+/// Determine the width of the specified `codepoint` per the rules in the
+/// C++ standard in [format.string.std]. Note that this width may differ
+/// from that specified by the Unicode standard.
 static inline
 int getCodepointWidth(unsigned long int codepoint)
-    // Determine the width of the specified `codepoint` per the rules in the
-    // C++ standard in [format.string.std]. Note that this width may differ
-    // from that specified by the Unicode standard.
 {
     const bslfmt::Formatter_UnicodeData::BooleanRange *first =
                        bslfmt::Formatter_UnicodeData::s_doubleFieldWidthRanges;
@@ -646,9 +646,9 @@ extractUtf32(const void *bytes, size_t maxBytes)
     return result;                                                    // RETURN
 }
 
+/// A component-private state machine required to detect emoji modifier
+/// sequences per https://www.unicode.org/reports/tr29/#GB11
 class Formatter_UnicodeData_StartCompare_GB11_LH_Regex
-    // A component-private state machine required to detect emoji modifier
-    // sequences per https://www.unicode.org/reports/tr29/#GB11
 {
   private:
     // PRIVATE TYPES
@@ -668,20 +668,21 @@ class Formatter_UnicodeData_StartCompare_GB11_LH_Regex
   public:
     // CREATORS
 
+    /// Construct an object in `e_START` state.
     Formatter_UnicodeData_StartCompare_GB11_LH_Regex();
-        // Construct an object in `e_START` state.
 
     // MANIPULATORS
+
+    /// Return true for the ZWJ codepoint (determined by the specified
+    /// `left_gbp` being `e_ZERO_WIDTH_JOINER`) and the function was
+    /// previously called for an Extended_Pictogram codepoint (determined by
+    /// the specified `left_epv` being true) followed by zero or more Extend
+    /// codepoints (determined by the specified `left_gbp` being
+    /// `e_EXTEND`). Update the internal state to enable correct
+    /// calculations on subsequent calls.
     bool
     match(const bslfmt::Formatter_UnicodeData::GraphemeBreakCategory left_gbp,
           bool left_epv)
-        // Return true for the ZWJ codepoint (determined by the specified
-        // `left_gbp` being `e_ZERO_WIDTH_JOINER`) and the function was
-        // previously called for an Extended_Pictogram codepoint (determined by
-        // the specified `left_epv` being true) followed by zero or more Extend
-        // codepoints (determined by the specified `left_gbp` being
-        // `e_EXTEND`). Update the internal state to enable correct
-        // calculations on subsequent calls.
     {
         switch (d_state) {
           case e_START:

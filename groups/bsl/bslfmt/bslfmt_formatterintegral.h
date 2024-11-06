@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to test this formatter's ability to a substring with padding
 //  padding.
 //
-//..
+// ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
 //
 //  bsl::formatter<int, char> f;
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
 //  assert("2a***" == mfc.finalString());
-//..
+// ```
 //
 
 #include <bslscm_version.h>
@@ -125,7 +125,7 @@ struct FormatterIntegral_Category<bsl::nullptr_t> {
                          // struct FormatterIntegralBase
                          // ============================
 
-/// This struct is a base class for 'bsl::formatter' specializations for
+/// This struct is a base class for `bsl::formatter` specializations for
 /// integer types as well as for other types that can be represented as integer
 /// (i.e. `bool`, character and pointer types).  This is a private class and
 /// should not be used directly. The formatting of variables of a certain type
