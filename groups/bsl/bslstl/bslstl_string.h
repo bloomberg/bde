@@ -661,6 +661,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_isaccessiblebaseof.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
@@ -901,8 +902,32 @@ typename bsl::enable_if<0 != sizeof(STRING_VIEW_LIKE_TYPE),                   \
                BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
      && !String_IsConvertibleToCString<                                       \
               CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value,  \
-         basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&>::type
+              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
+     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
+              bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
+              STRING_VIEW_LIKE_TYPE>::value                                   \
+     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
+              std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
+              STRING_VIEW_LIKE_TYPE>::value                                   \
+         , basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&>::type
+
+#define                                                                       \
+   BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE   \
+    typename bsl::enable_if<                                                  \
+        bsl::String_IsConvertibleToStringView<                                \
+               CHAR_TYPE,                                                     \
+               CHAR_TRAITS,                                                   \
+               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
+     && !bsl::String_IsConvertibleToCString<                                  \
+              CHAR_TYPE,                                                      \
+              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
+     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
+              bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
+              STRING_VIEW_LIKE_TYPE>::value                                   \
+     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
+              std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
+              STRING_VIEW_LIKE_TYPE>::value                                   \
+        , bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >::type
 
 #define BSLSTL_STRING_DECLARE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID ,          \
     typename bsl::enable_if<                                                  \
@@ -3547,6 +3572,38 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> &&  lhs,
           CHAR_TYPE                                                rhs);
+#endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &    lhs,
+          const STRING_VIEW_LIKE_TYPE                         &    rhs);
+#ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+operator+(      basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &&   lhs,
+          const STRING_VIEW_LIKE_TYPE                         &    rhs);
+#endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+operator+(const STRING_VIEW_LIKE_TYPE                         &    lhs,
+          const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &    rhs);
+#ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+operator+(const STRING_VIEW_LIKE_TYPE                         &    lhs,
+                basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &&   rhs);
 #endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
 
 /// Write the string specified by `str` into the output stream specified by
@@ -8150,6 +8207,68 @@ bsl::operator+(bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> && lhs,
 }
 #endif
 
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+bsl::operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> & lhs,
+               const STRING_VIEW_LIKE_TYPE                              & rhs)
+{
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
+        allocator_traits<ALLOCATOR>::
+            select_on_container_copy_construction(lhs.get_allocator()));
+    result.reserve(lhs.length() + rhs.length());
+    result.append(lhs);
+    result.append(rhs);
+    return result;
+}
+
+#ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+bsl::operator+(      bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> && lhs,
+               const STRING_VIEW_LIKE_TYPE                              &  rhs)
+{
+    lhs.append(rhs);
+    return std::move(lhs);
+}
+#endif
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+bsl::operator+(const STRING_VIEW_LIKE_TYPE                              & lhs,
+               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> & rhs)
+{
+    basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> result(
+        bsl::allocator_traits<ALLOCATOR>::
+            select_on_container_copy_construction(rhs.get_allocator()));
+    result.reserve(lhs.length() + rhs.length());
+    result.append(lhs);
+    result.append(rhs);
+    return result;
+}
+
+#ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
+template <class CHAR_TYPE,
+          class CHAR_TRAITS,
+          class ALLOCATOR,
+          class STRING_VIEW_LIKE_TYPE>
+inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+bsl::operator+(const STRING_VIEW_LIKE_TYPE                              &  lhs,
+                     bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> && rhs)
+{
+    rhs.insert(0, lhs);
+    return std::move(rhs);
+}
+#endif
+
 /// Do not use, for internal use by `operator<<` only.
 template <class CHAR_TYPE, class CHAR_TRAITS>
 bool bslstl_string_fill(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&   os,
@@ -8409,6 +8528,7 @@ extern template class bsl::basic_string<char32_t>;
 
 #undef BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE
 #undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+#undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
 #undef BSLSTL_STRING_DECLARE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
 #undef BSLSTL_STRING_DEFINE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
 #undef BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
