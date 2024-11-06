@@ -38,6 +38,7 @@ bslma_managedptr_members
 bslma_managedptr_pairproxy
 bslma_managedptrdeleter
 bslma_memoryresource
+bslma_memoryresourceimpsupport
 bslma_newdeleteallocator
 bslma_polymorphicallocator
 bslma_polymorphicallocator_cpp03

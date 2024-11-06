@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_memoryresourceimpsupport.h>
+
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_keyword.h>
@@ -35,11 +37,27 @@ Allocator::~Allocator()
 // PROTECTED MANIPULATORS
 void *Allocator::do_allocate(std::size_t bytes, std::size_t)
 {
-    return this->allocate(bytes);
+    void *p = this->allocate(bytes);
+
+    if (0 == bytes && 0 == p) {
+        // `do_allocate` is not allowed to return null, so return special ptr.
+        return bslma::MemoryResourceImpSupport::singularPointer();
+    }
+
+    return p;
 }
 
-void Allocator::do_deallocate(void *p, std::size_t, std::size_t)
+void Allocator::do_deallocate(void *p, std::size_t bytes, std::size_t)
 {
+    (void) bytes;  // Not used in an OPT build
+
+    if (bslma::MemoryResourceImpSupport::singularPointer() == p) {
+        // Special pointer indicates zero-byte `memory_resource` allocation.
+        BSLS_ASSERT(0 == bytes);
+        p = 0;  // Change pointer to zero-byte expected value for `Allocator`.
+    }
+
+    // Forward to `Allocator` interface.
     this->deallocate(p);
 }
 

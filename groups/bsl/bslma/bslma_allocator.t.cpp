@@ -208,7 +208,7 @@ class my_Allocator : public bslma::Allocator {
         d_fun = 1;
         d_arg = s;
         ++d_allocateCount;
-        return this;
+        return s ? this : 0;
     }
 
     // MANIPULATORS
@@ -246,21 +246,31 @@ class my_NewDeleteAllocator : public bslma::Allocator {
     ~my_NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE { }
 
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE {
+        ++d_count;
+
+        if (0 == size) {
+            return 0;
+        }
+
         unsigned *p = (unsigned *) operator new(
                                size + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         *p = MAGIC;
 
-        ++d_count;
         return (char *) p + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
     }
 
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE {
+        ++d_count;
+
+        if (0 == address) {
+            return;
+        }
+
         unsigned *p = (unsigned *)
                          ((bsls::AlignmentUtil::MaxAlignedType *) address - 1);
         ASSERT(MAGIC == *p);
         *p = DELETED;
 
-        ++d_count;
         operator delete(p);
     }
 
@@ -1130,6 +1140,32 @@ int main(int argc, char *argv[])
         BSLS_PROTOCOLTEST_ASSERT(testIndirect, Base::deallocate(p, 2, 1));
         // The default implementation of `do_is_equal` cannot be tested because
         // it does call a virtual function that we can intercept.
+
+        // Test zero-byte allocations.
+        // TBD: This is a very basic and undocumented test.  A more
+        // sophisticated test will be added as part of the fix for DRQS
+        // 176364960.
+        my_NewDeleteAllocator myA;
+
+        // Zero-byte allocation through `bslma::Allocator` interface.
+        void *p1 = myA.allocate(0);
+        ASSERT(0 == p1);
+        ASSERT(1 == myA.getCount());    // Increments even for zero bytes
+
+        myA.deallocate(p1);             // Can deallocate null pointer
+        ASSERT(2 == myA.getCount());    // Increments even for zero bytes
+
+        // Zero-byte allocation through `bsl::memory_resource` interface.
+        bsl::memory_resource& myR = myA;
+        void *p2 = myR.allocate(0);
+        ASSERT(0 != p2);                // Non-zero return
+        ASSERT(3 == myA.getCount());    // Increments even for zero bytes
+
+        ASSERT(myR.allocate(0) == p2);  // Returns same pointer every time
+        ASSERT(4 == myA.getCount());
+
+        myR.deallocate(p2, 0);          // Can deallocate zero-size block
+        ASSERT(5 == myA.getCount());    // Increments even for zero bytes
 
       } break;
 
