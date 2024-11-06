@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::ObjectCatalog: templatized, thread-safe, indexed object container
 // bdlcc::ObjectCatalogIter: thread-safe iterator for `bdlcc::ObjectCatalog`
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component provides a thread-safe and efficient templatized
 // catalog of objects.  A `bdlcc::ObjectCatalog` supports efficient insertion
 // of objects through the `add` method, which returns a handle that can be used
@@ -515,14 +513,14 @@ class ObjectCatalog {
     /// this catalog.
     int length() const;
 
-    BSLS_DEPRECATE_FEATURE("bde", "ObjectCataloog::value(handle)",
-                                    "use 'ObjectCatalogIter::value()' instead")
     /// Return a `const` reference to the object having the specified
     /// `handle`.  The behavior is undefined unless `handle` is contained in
     /// this catalog.
     ///
     /// This method is *DEPRECATED* because it is not thread-safe.  Use
     /// `find`, `isMember`, or access the object through an iterator.
+    BSLS_DEPRECATE_FEATURE("bde", "ObjectCataloog::value(handle)",
+                                    "use 'ObjectCatalogIter::value()' instead")
     const TYPE& value(int handle) const;
 
     // FOR TESTING PURPOSES ONLY

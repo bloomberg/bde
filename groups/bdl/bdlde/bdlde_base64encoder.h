@@ -538,9 +538,6 @@ class Base64Encoder {
     static bsl::size_t encodedLength(const EncoderOptions& options,
                                      bsl::size_t           inputLength);
 
-    BSLS_DEPRECATE_FEATURE("bdl",
-                           "encodedLength",
-                           "use overload with 'options'")
     /// Return the exact number of encoded bytes that would result from an
     /// input byte sequence of the specified `inputLength` provided to the
     /// `convert` method of an encoder with the maximum allowable
@@ -549,12 +546,12 @@ class Base64Encoder {
     /// `0 <= inputLength`.
     ///
     /// @DEPRECATED: use the overload with `options` instead.
-    static
-    int encodedLength(int inputLength);
-
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLength",
                            "use overload with 'options'")
+    static
+    int encodedLength(int inputLength);
+
     /// Return the exact number of encoded bytes that would result from an
     /// input byte sequence of the specified `inputLength` provided to the
     /// `convert` method of an encoder configured with the specified
@@ -565,6 +562,9 @@ class Base64Encoder {
     /// *output* bytes.
     ///
     /// @DEPRECATED: use the overload with `options` instead.
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLength",
+                           "use overload with 'options'")
     static
     int encodedLength(int inputLength, int maxLineLength);
 
@@ -576,9 +576,6 @@ class Base64Encoder {
     static bsl::size_t encodedLines(const EncoderOptions& options,
                                     bsl::size_t           inputLength);
 
-    BSLS_DEPRECATE_FEATURE("bdl",
-                           "encodedLines",
-                           "use overload with 'options'")
     /// Return the exact number of encoded lines that would result from an
     /// input byte sequence of the specified `inputLength` provided to the
     /// `convert` method of an encoder with the maximum allowable
@@ -588,12 +585,12 @@ class Base64Encoder {
     /// not be the number of *output* bytes.
     ///
     /// @DEPRECATED: use the overload with `options` instead.
-    static
-    int encodedLines(int inputLength);
-
     BSLS_DEPRECATE_FEATURE("bdl",
                            "encodedLines",
                            "use overload with 'options'")
+    static
+    int encodedLines(int inputLength);
+
     /// Return the exact number of encoded lines that would result from an
     /// input byte sequence of the specified `inputLength` provided to the
     /// `convert` method of an encoder configured with the specified
@@ -604,6 +601,9 @@ class Base64Encoder {
     /// *output* bytes.
     ///
     /// @DEPRECATED: use the overload with `options` instead.
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "encodedLines",
+                           "use overload with 'options'")
     static
     int encodedLines(int inputLength, int maxLineLength);
 
@@ -615,9 +615,6 @@ class Base64Encoder {
     explicit
     Base64Encoder(const EncoderOptions& options = EncoderOptions::mime());
 
-    BSLS_DEPRECATE_FEATURE("bdl",
-                           "Base64Encoder",
-                           "use overload with 'options'")
     /// Create a Base64 encoder in the initial state, defaulting the maximum
     /// allowable line-length of the output to 76 (as recommended by the
     /// MIME standard).  Optionally specify an alphabet used to encode
@@ -627,12 +624,12 @@ class Base64Encoder {
     /// each line of the output from exceeding 76 characters.
     ///
     /// @DEPRECATED: Create and pass an `options` object instead.
-    explicit
-    Base64Encoder(Alphabet alphabet);
-
     BSLS_DEPRECATE_FEATURE("bdl",
                            "Base64Encoder",
                            "use overload with 'options'")
+    explicit
+    Base64Encoder(Alphabet alphabet);
+
     /// Create a Base64 encoder in the initial state, setting the maximum
     /// allowable line-length of the output to the specified
     /// `maxLineLength`.  Specifying 0 for `maxLineLength` will result in a
@@ -645,6 +642,9 @@ class Base64Encoder {
     /// output from exceeding `maxLineLength`.
     ///
     /// @DEPRECATED: Create and pass an `options` object instead.
+    BSLS_DEPRECATE_FEATURE("bdl",
+                           "Base64Encoder",
+                           "use overload with 'options'")
     explicit
     Base64Encoder(int maxLineLength, Alphabet alphabet = e_BASIC);
 

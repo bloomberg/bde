@@ -547,7 +547,6 @@ class Base64Decoder {
     explicit
     Base64Decoder(const Base64DecoderOptions& options);
 
-    BSLS_DEPRECATE_FEATURE("bdl", "Base64Decoder", "use options c'tor")
     /// Create a Base64 decoder in the initial state.  Unrecognized
     /// characters (i.e., non-base64 characters other than whitespace) will
     /// be treated as errors if the specified
@@ -557,6 +556,7 @@ class Base64Decoder {
     /// alphabet, "base64", is used.  Padded input is assumed.
     ///
     /// @DEPRECATED: Use the overload that takes `options` instead.
+    BSLS_DEPRECATE_FEATURE("bdl", "Base64Decoder", "use options c'tor")
     explicit
     Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,
                   Alphabet alphabet = e_BASIC);
@@ -661,13 +661,13 @@ class Base64Decoder {
     /// `false` otherwise.
     bool isPadded() const;
 
-    BSLS_DEPRECATE_FEATURE("bdl", "isUnrecognizedAnError", "use ignoreMode")
     /// Return `true` if this mechanism is currently configured to report an
     /// error when an unrecognized character (i.e., a character other than
     /// one of the 64 "numeric" base-64 characters, `=`, or whitespace) is
     /// encountered, and `false` otherwise.
     ///
     /// @DEPRECATED: use the `ignoreMode` accessor instead.
+    BSLS_DEPRECATE_FEATURE("bdl", "isUnrecognizedAnError", "use ignoreMode")
     bool isUnrecognizedAnError() const;
 
     /// Return a `Base64DecoderOptions` object representing the
