@@ -75,6 +75,7 @@ bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_nthparameter
 bslmf_nthparameter_cpp03
+bslmf_referencewrapper
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
@@ -89,6 +90,8 @@ bslmf_switch
 bslmf_tag
 bslmf_typeidentity
 bslmf_typelist
+bslmf_unwraprefdecay
+bslmf_unwrapreference
 bslmf_usesallocator
 bslmf_usesallocatorargt
 bslmf_util

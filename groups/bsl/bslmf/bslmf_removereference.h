@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits> // 'std::remove_reference', 'std_remove_reference_t'
+#include <type_traits> // 'std::remove_reference', 'std::remove_reference_t'
 #endif
 
                          // =======================
