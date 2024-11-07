@@ -99,6 +99,13 @@ BSLS_IDENT("$Id: $")
 //                               int *&>::value));
 //
 //  // Not wrapped types decay
+//  assert((true == bsl::is_same<
+//                      bsl::unwrap_ref_decay<NotWrappedTypeArray>::type,
+//                      NotWrappedType *>::value));
+//  assert((true == bsl::is_same<
+//                      bsl::unwrap_ref_decay<NotWrappedTypePointer>::type,
+//                      NotWrappedTypePointer>::value));
+//
 //  assert((true == bsl::is_same<bsl::unwrap_ref_decay<NotWrappedType>::type,
 //                               NotWrappedType>::value));
 //  assert((true == bsl::is_same<
@@ -128,7 +135,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_decay.h>
 #include <bslmf_referencewrapper.h>
+#include <bslmf_unwrapreference.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
@@ -157,8 +166,10 @@ using std::unwrap_ref_decay_t;
 template <class t_TYPE>
 struct unwrap_ref_decay {
 
-    /// This `typedef` is an alias to the template parameter `t_TYPE`.
-    typedef t_TYPE type;
+    /// This `typedef` is an alias to the reference-unwrapped type of the
+    /// decayed `t_TYPE` template parameter.
+    typedef typename bsl::unwrap_reference<
+                                typename bsl::decay<t_TYPE>::type >::type type;
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES

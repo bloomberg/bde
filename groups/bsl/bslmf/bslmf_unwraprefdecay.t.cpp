@@ -215,6 +215,13 @@ int main(int argc, char *argv[])
                         WrappedTypePointer>::value));
 
     // Not wrapped types decay
+    ASSERT((true == bsl::is_same<
+                        bsl::unwrap_ref_decay<NotWrappedTypeArray>::type,
+                        NotWrappedType *>::value));
+    ASSERT((true == bsl::is_same<
+                        bsl::unwrap_ref_decay<NotWrappedTypePointer>::type,
+                        NotWrappedTypePointer>::value));
+
     ASSERT((true == bsl::is_same<bsl::unwrap_ref_decay<NotWrappedType>::type,
                                  NotWrappedType>::value));
     ASSERT((true == bsl::is_same<
