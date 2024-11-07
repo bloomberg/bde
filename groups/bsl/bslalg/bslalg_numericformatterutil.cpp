@@ -4,6 +4,19 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+///NOTICE
+///------
+//
+// This file contains modified parts of Microsoft STL.
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
+
 ///IMPLEMENTATION NOTES
 ///--------------------
 //
@@ -20,7 +33,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Note that the 'toChars' overloads with 'precision' parameter are not
 // supported either.  Adding those would require substantial design work that
-// we will avoid until it is proven absolutely necessary.  (It is substantial
+// we will avoid until it is proved absolutely necessary.  (It is substantial
 // work because we need a second non-type parameter to 'ToCharsMaxLength', we
 // need to extend Ryu to support 'precision' for all formats, and because
 // 'precision' is more likely to be a runtime value (than 'format') we might
@@ -876,9 +889,19 @@ bool floatingHandleNanInf(char *       first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 
                      // Hex-float Conversion Functions
 
+// The function below is modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/charconv
 // Function `_Floating_to_chars_hex_precision`
@@ -887,6 +910,14 @@ bool floatingHandleNanInf(char *       first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 template <class t_FLOATING>
 BSLA_NODISCARD
 char *toCharsHexPrecisionImp(char *       first,
@@ -1161,6 +1192,8 @@ char *toCharsHexPrecisionImp(char *       first,
     return bslalg::NumericFormatterUtil::toChars(first, last, absExponent);
 }
 
+// The functions below are modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/charconv
 // Function `_Floating_to_chars_hex_shortest`
@@ -1169,6 +1202,14 @@ char *toCharsHexPrecisionImp(char *       first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 template <class t_FLOATING>
 BSLA_NODISCARD
 char *floatingToCharsHexShortestImp(char       *first,
@@ -1383,6 +1424,9 @@ char *floatingToCharsGeneralImp(char       *first,
 }
 
                       // PRECISION RELATED DATA TABLES
+
+// The data tables below are modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/xcharconv_tables.h
 // Function `_Floating_to_chars_hex_precision`
@@ -1391,6 +1435,14 @@ char *floatingToCharsGeneralImp(char       *first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 
 // For general precision, we can use lookup tables to avoid performing trial
 // formatting.
@@ -1494,6 +1546,8 @@ struct GeneralPrecisionTables<double> {
 const int GeneralPrecisionTables<double>::k_MaxSpecialP;
 const int GeneralPrecisionTables<double>::k_MaxP;
 
+// The data tables below are modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/src/xcharconv_tables_double.cpp
 //
@@ -1501,6 +1555,14 @@ const int GeneralPrecisionTables<double>::k_MaxP;
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 const uint64_t GeneralPrecisionTables<double>::specialXtable[195] = {
     0x3F18E757928E0C9Du, 0x3F4F212D77318FC5u, 0x3F8374BC6A7EF9DBu,
     0x3FB851EB851EB851u, 0x3FEE666666666666u, 0x4022FFFFFFFFFFFFu,
@@ -1678,6 +1740,8 @@ const uint64_t GeneralPrecisionTables<double>::ordinaryXtable[314] = {
     0x7FE1CCF385EBC89Fu, 0x7FEFFFFFFFFFFFFFu
 };
 
+// The data tables below are modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/src/xcharconv_tables_float.cpp
 //
@@ -1685,6 +1749,14 @@ const uint64_t GeneralPrecisionTables<double>::ordinaryXtable[314] = {
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 const uint32_t GeneralPrecisionTables<float>::specialXtable[63] = {
     0x38C73ABCu, 0x3A79096Bu, 0x3C1BA5E3u, 0x3DC28F5Cu, 0x3F733333u,
     0x4117FFFFu, 0x38D0AAA7u, 0x3A826AA8u, 0x3C230553u, 0x3DCBC6A7u,
@@ -1724,6 +1796,14 @@ const uint32_t GeneralPrecisionTables<float>::ordinaryXtable[44] = {
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 template <class t_FLOATING>
 BSLA_NODISCARD
 inline
@@ -1901,6 +1981,8 @@ toCharsGeneralPrecisionImp(char *       first,
 
              // Floating-Point Scientific Notation with Precision
 
+// The function below is modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/xcharconv_ryu.h
 // Function `_Floating_to_chars_scientific_precision`
@@ -1909,6 +1991,14 @@ toCharsGeneralPrecisionImp(char *       first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 template <class t_FLOATING>
 BSLA_NODISCARD
 inline
@@ -1945,6 +2035,8 @@ toCharsScientificPrecisionImp(char *           first,
 
            // Floating-Point Fixed/Decimal Notation with Precision
 
+// The function below is modified source code from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/xcharconv_ryu.h
 // Function `_Floating_to_chars_fixed_precision`
@@ -1953,6 +2045,14 @@ toCharsScientificPrecisionImp(char *           first,
 //
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 template <class t_FLOATING>
 BSLA_NODISCARD
 inline

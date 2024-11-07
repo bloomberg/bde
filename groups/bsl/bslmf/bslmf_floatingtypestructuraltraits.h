@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::FloatingTypeStructuralTraits: traits for float.pt. type structure info
 //
-//@SEE_ALSO:
-//
 //@DESCRIPTION: This component provides a traits class type that describes the
 // structure of the IEEE-754 based `float`, and `double` types for code that
 // intends to interpret or manipulate the representation directly.
@@ -44,8 +42,18 @@ namespace BloombergLP {
 namespace bslmf {
 
 
+// The following section contains modified test data from Microsoft STL
+//
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/type_traits
+//
+// Legally bound documents (NOTICE.txt, LICENSE.txt, and README.md) from the
+// original Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
+//
+// - thirdparty/Microsoft-SLT-LICENSE.txt
+// - thirdparty/Microsoft-SLT-NOTICE.txt
+// - thirdparty/Microsoft-SLT-README.md
 
 // vvvvvvvvvv DERIVED FROM corecrt_internal_fltintrn.h vvvvvvvvvv
 
