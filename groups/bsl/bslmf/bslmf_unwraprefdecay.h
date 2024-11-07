@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::unwrap_ref_decay: standard meta-function to unwrap decayed ref wrapper
 //  bsl::unwrap_ref_decay_t: alias to the return type of the meta-function
 //
+//@CANONICAL_HEADER: bsl_functional.h, bsl_type_traits.h
+//
 //@SEE_ALSO: bslmf_addreference
 //
 //@DESCRIPTION: This component defines a meta-function `bsl::unwrap_ref_decay`

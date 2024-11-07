@@ -656,6 +656,8 @@ using std::void_t;
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
 #include <bslmf_typeidentity.h>
+#include <bslmf_unwraprefdecay.h>
+#include <bslmf_unwrapreference.h>
 #include <bslmf_voidtype.h>
 
 #endif

@@ -130,6 +130,8 @@ namespace bsl {
 #include <bslstl_function.h>
 #include <bslstl_hash.h>
 #include <bslmf_referencewrapper.h>
+#include <bslmf_unwraprefdecay.h>
+#include <bslmf_unwrapreference.h>
 
 
 #endif // INCLUDED_BSL_FUNCTIONAL
