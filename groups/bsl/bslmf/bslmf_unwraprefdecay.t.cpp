@@ -317,8 +317,6 @@ int main(int argc, char *argv[])
         if (verbose) puts("\nTESTING `bsl::unwrap_ref_decay::type`"
                           "\n=====================================");
 
-        // C-1
-
 #define ASSERT_UNWRAP_REF_(TYPE, RESULT)                                    \
         ASSERT((true == bsl::is_same<bsl::unwrap_ref_decay<TYPE>::type,      \
                                                                RESULT>::value))
