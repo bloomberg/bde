@@ -89,13 +89,13 @@ struct unwrap_reference {
     typedef t_TYPE type;
 };
 
-/// This partial specialization of `bsl::remove_reference`, for when the
+/// This partial specialization of `bsl::unwrap_reference`, for when the
 /// template parameter `t_TYPE` is a `bsl::reference_wrapper`, provides a
 /// `typedef`, `type`, that is `t_TYPE::type`.
-template <class t_TYPE>
-struct remove_reference<t_TYPE&> {
+template <>
+struct unwrap_reference<bsl::reference_wrapper<t_TYPE> > {
 
-    typedef t_TYPE type;
+    typedef t_TYPE& type;
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
