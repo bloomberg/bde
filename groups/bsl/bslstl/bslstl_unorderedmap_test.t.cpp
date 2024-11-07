@@ -9923,8 +9923,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 printf("\tTesting mutable transparent map.\n");
             }
-            testTransparentComparator       (mXT,  true, KEY);
-            testTransparentComparatorMutable(mXNT, true, KEY);
+            testTransparentComparator       (mXT, true, KEY);
+            testTransparentComparatorMutable(mXT, true, KEY);
         }
       } break;
       case 39: {
