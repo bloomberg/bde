@@ -118,21 +118,30 @@ namespace BloombergLP {
                                                           referredSymbol)     \
         _Pragma("GCC diagnostic push")                                        \
         _Pragma("GCC diagnostic ignored \"-Wattributes\"")                    \
+        static type *dummyAcCeSs##refName() {                                 \
+            return &referredSymbol;                                           \
+        }                                                                     \
         static type *refName __attribute__((retain,used,section("coercion"))) \
-                                                           = &referredSymbol; \
+                                         = dummyAcCeSs##refName();            \
         _Pragma("GCC diagnostic pop")
     #else
         #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,               \
                                                           refName,            \
                                                           referredSymbol)     \
-        static type *refName __attribute__((used)) = &referredSymbol;
+        static type *dummyAcCeSs##refName() {                                 \
+            return &referredSymbol;                                           \
+        }                                                                     \
+        static type *refName __attribute__((used)) = dummyAcCeSs##refName();
     #endif
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,                   \
                                                       refName,                \
                                                       referredSymbol)         \
-    static type *refName __attribute__((used)) = &referredSymbol;
+    static type *dummyAcCeSs##refName() {                                     \
+        return &referredSymbol;                                               \
+    }                                                                         \
+    static type *refName __attribute__((used)) = dummyAcCeSs##refName();
 #elif defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,                   \
                                                       refName,                \
