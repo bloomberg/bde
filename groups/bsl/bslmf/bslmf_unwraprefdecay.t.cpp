@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<bsl::unwrap_ref_decay_t<T>,
                              std::unwrap_ref_decay_t<T> >::value));
 #else
-        if (veryVerbose) put("\tSkipped: standard types aren't available");
+        if (veryVerbose) puts("\tSkipped: standard types aren't available");
 #endif
       } break;
       case 1: {
