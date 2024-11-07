@@ -338,8 +338,8 @@ BSLS_IDENT("$Id: $")
 // several `Holder` objects.  Each non-empty `Holder` allocates one block of
 // memory, which is reflected in the outstanding block count.  Note that the
 // address of the resource can be passed directly to the constructors because
-// `PolymorphicAllocator` is implicitly convertible from 'bsl::memory_resource
-// *':
+// `PolymorphicAllocator` is implicitly convertible from
+// `bsl::memory_resource *`:
 // ```
 // int main()
 // {
@@ -362,7 +362,6 @@ BSLS_IDENT("$Id: $")
 //     assert(0 == rsrc.blocksOutstanding());  // Destructors freed memory
 // }
 // ```
-
 
 #include <bslscm_version.h>
 
