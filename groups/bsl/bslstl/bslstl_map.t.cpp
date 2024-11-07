@@ -268,6 +268,8 @@
 // [39] CONCERN: `lower_bound` properly handles transparent comparators.
 // [39] CONCERN: `upper_bound` properly handles transparent comparators.
 // [39] CONCERN: `equal_range` properly handles transparent comparators.
+// [39] CONCERN: `operator []` properly handles transparent comparators.
+// [39] CONCERN: `at`          properly handles transparent comparators.
 // [44] CONCERN: `map` IS A C++20 RANGE
 
 // ============================================================================

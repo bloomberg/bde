@@ -910,6 +910,75 @@ void testTransparentComparator(Container& container,
     ASSERT(NON_EXISTING_LB         == NON_EXISTING_ER.first);
     ASSERT(NON_EXISTING_UB         == NON_EXISTING_ER.second);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing `at`.
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    try {
+        ASSERT(existingKey.value() == container.at(existingKey));
+    }
+    catch (const std::out_of_range &) {
+        ASSERT(false);
+    }
+
+    try {
+        (void) container.at(nonExistingKey);
+        ASSERT(false);
+    }
+    catch (const std::out_of_range &) {
+    }
+
+    ASSERTV(expectedConversionCount, existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
+    ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
+                  expectedConversionCount == nonExistingKey.conversionCount());
+}
+
+/// Search for a value equal to the specified `initKeyValue` in the
+/// specified `container`, and count the number of conversions expected
+/// based on the specified `isTransparent`.  Unlike `testTransparentComparator`
+/// above, this method tests methods that may modify the container, so it
+/// takes the container by value.
+template <class Container>
+void testTransparentComparatorMutable(Container container,
+                                      bool      isTransparent,
+                                      int       initKeyValue)
+{
+    typedef typename Container::size_type      Count;
+
+    int expectedConversionCount = 0;
+    const Count size = container.size();
+    
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    // Testing `operator []`.
+
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    // with an existing key
+    ASSERT(existingKey.value() == container[existingKey]);
+    ASSERT(size == container.size());
+    ASSERTV(expectedConversionCount, existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
+
+    // with a non-existing key
+    
+    // Note: We always get a conversion here; if we don't have a transparent
+    // comparator, then the value gets converted, and when the lookup fails,
+    // it gets inserted into the map.  If we do have a transparent comparator,
+    // the lookup is done w/o conversion, but then the value gets converted
+    // in order to put it into the map.
+    (void) container[nonExistingKey];
+    ASSERT(size + 1 == container.size());
+    ASSERTV(1 == nonExistingKey.conversionCount());
 }
 
               // ====================================================
@@ -6233,6 +6302,8 @@ int main(int argc, char *argv[])
         //   CONCERN: `lower_bound` properly handles transparent comparators.
         //   CONCERN: `upper_bound` properly handles transparent comparators.
         //   CONCERN: `equal_range` properly handles transparent comparators.
+        //   CONCERN: `operator []` properly handles transparent comparators.
+        //   CONCERN: `at`          properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -6263,31 +6334,32 @@ int main(int argc, char *argv[])
         ASSERT(NUM_DATA == XT.size() );
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int VALUE = DATA[i];
+            const int KEY = DATA[i];
             if (veryVerbose) {
-                printf("Testing transparent comparators with a value of %d\n",
-                       VALUE);
+                printf("Testing transparent comparators with a key of %d\n",
+                       KEY);
             }
 
             if (veryVerbose) {
                 printf("\tTesting const non-transparent map.\n");
             }
-            testTransparentComparator( XNT, false, VALUE);
+            testTransparentComparator( XNT, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting mutable non-transparent map.\n");
             }
-            testTransparentComparator(mXNT, false, VALUE);
-
+            testTransparentComparator       (mXNT, false, KEY);
+            testTransparentComparatorMutable(mXNT, false, KEY);
             if (veryVerbose) {
                 printf("\tTesting const transparent map.\n");
             }
-            testTransparentComparator( XT,  true,  VALUE);
+            testTransparentComparator( XT,  true,  KEY);
 
             if (veryVerbose) {
                 printf("\tTesting mutable transparent map.\n");
             }
-            testTransparentComparator(mXT,  true,  VALUE);
+            testTransparentComparator       (mXT,  true,  KEY);
+            testTransparentComparatorMutable(mXT,  true,  KEY);
         }
       } break;
       case 38: {
