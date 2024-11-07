@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    for(test=1;testStatus!=-1&&printf("TESTING: %d\n", test);++test)
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
