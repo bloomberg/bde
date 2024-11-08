@@ -143,6 +143,7 @@
 #include <bsl_numbers.h>          // C++20 header
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
+#include <bsl_optional.h>
 #include <bsl_queue.h>
 #include <bsl_ranges.h>
 #include <bsl_semaphore.h>        // C++20 header
@@ -242,6 +243,8 @@ using namespace BloombergLP;
 // defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
+// [40] BSLS_LIBRARYFEATURES_FORCE_ABI_CPP*
+// [39] HARDWARE_INTERFERENCE
 // [38] CONCERN: `copy_n` function is usable from `bsl`.
 // [37] C++20 `bsl_type_traits.h` ADDITIONS
 // [36] C++20 `std::ranges` interop with `bsl::array`
@@ -952,6 +955,87 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING: BSLS_LIBRARYFEATURES_FORCE_ABI_CPP*
+        //
+        // Concerns:
+        //  1 That the when the force ABI flag is set, the expected
+        //    `bsl` types are, and are not, type aliases to the platform
+        //    standard library
+        //
+        // Plan:
+        //
+        // Testing
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'BSLS_LIBRARYFEATURES_FORCE_ABI_CPP*'"
+                            "\n=====================================\n");
+
+        //  +--------------------+------------------------------------+
+        //  | Feature            | Minimum Language Version For Alias |
+        //  +====================+====================================+
+        //  | span               | C++20                              |
+        //  +--------------------+------------------------------------+
+        //  | string_view        | C++20 [1]                          |
+        //  +--------------------+------------------------------------+
+        //  | array              | C++17 [1]                          |
+        //  +--------------------+------------------------------------+
+        //  | optional           | C++17                              |
+        //  +--------------------+------------------------------------+
+        //  | uncaught_exception | C++17                              |
+        //  +--------------------+------------------------------------+
+        //
+        // See `bsls_libraryfeatures` documentation for more details.
+
+        bool spanIsAlias              = false;
+        bool stringViewIsAlias        = false;
+        bool arrayIsAlias             = false;
+        bool optionalInherits         = false;
+        bool uncaughtExceptionIsAlias = false;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+        spanIsAlias = bsl::is_same<bsl::span<int>, std::span<int> >::value;
+#endif
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        stringViewIsAlias =
+                       bsl::is_same<bsl::string_view, std::string_view>::value;
+        arrayIsAlias =
+                  bsl::is_same<bsl::array<int, 1>, std::array<int, 1> >::value;
+        optionalInherits =
+               bsl::is_base_of<std::optional<int>, bsl::optional<int> >::value;
+        uncaughtExceptionIsAlias = (&bsl::uncaught_exceptions ==
+                                    &std::uncaught_exceptions);
+#endif
+        if (veryVerbose) {
+            P(spanIsAlias);
+            P(stringViewIsAlias);
+            P(arrayIsAlias);
+            P(optionalInherits);
+            P(uncaughtExceptionIsAlias);
+        }
+
+#if defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP11)
+        ASSERT(!spanIsAlias);
+        ASSERT(!stringViewIsAlias);
+        ASSERT(!arrayIsAlias);
+        ASSERT(!optionalInherits);
+        ASSERT(!uncaughtExceptionIsAlias);
+#elif defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP17)
+        ASSERT(!spanIsAlias);
+        ASSERT(!stringViewIsAlias);
+        ASSERT(arrayIsAlias);
+        ASSERT(optionalInherits);
+        ASSERT(uncaughtExceptionIsAlias);
+#elif defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP20)
+        ASSERT(spanIsAlias);
+        ASSERT(stringViewIsAlias);
+        ASSERT(arrayIsAlias);
+        ASSERT(optionalInherits);
+        ASSERT(uncaughtExceptionIsAlias);
+#endif
+      } break;
       case 39: {
         // --------------------------------------------------------------------
         // HARDWARE_INTERFERENCE
@@ -1259,7 +1343,7 @@ int main(int argc, char *argv[])
                 const bool res_v = bsl::is_pointer_interconvertible_base_of_v
                                                             < Bar, Baz>;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1937
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1941
                 // Known Windows bug.   Hopefully fixed in future release.
 
                 const bool expected = false;
@@ -3756,7 +3840,7 @@ int main(int argc, char *argv[])
 
         ASSERT(bsl::dynamic_extent == size_t(-1));
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLSTL_SPAN_IS_ALIASED
         ASSERT((bsl::is_same_v<std::span<int, 99>, bsl::span<int, 99> >));
         ASSERT((bsl::is_same_v<std::span<int>,     bsl::span<int>     >));
         ASSERT((bsl::is_same_v<decltype(bsl::dynamic_extent),

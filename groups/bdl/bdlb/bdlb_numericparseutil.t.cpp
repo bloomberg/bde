@@ -3143,7 +3143,7 @@ namespace FromCharsAssumptions {
 const bool k_OVER  = true;
 const bool k_UNDER = false;
 
-void verifyLwg3081(const std::string_view& toParse,
+void verifyLwg3081(const bsl::string_view& toParse,
                    bool                    isOverflow,
                    bsl::chars_format       fmt)
 {

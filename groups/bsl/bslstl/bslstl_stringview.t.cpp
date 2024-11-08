@@ -749,7 +749,7 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
 //              HELPER CLASSES FOR TESTING ITERATOR INTERFACES
 // ----------------------------------------------------------------------------
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
                         // ==================
                         // class TestIterator
@@ -1403,11 +1403,16 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             const ObjC::value_type *STRING   = TestDriver<char>::s_testString;
             const ObjC::value_type *NULL_PTR = 0;
 
-            ASSERT_SAFE_PASS(operator ""_sv(STRING, 0));
-            ASSERT_SAFE_PASS(operator ""_sv(STRING, 5));
+			// afeher: for some reason the using directive above does not work
+            ASSERT_SAFE_PASS(
+			             bsl::string_view_literals::operator ""_sv(STRING, 0));
+            ASSERT_SAFE_PASS(
+			             bsl::string_view_literals::operator ""_sv(STRING, 5));
 
-            ASSERT_SAFE_PASS(operator ""_sv(NULL_PTR, 0));
-            ASSERT_SAFE_FAIL(operator ""_sv(NULL_PTR, 5));
+            ASSERT_SAFE_PASS(
+			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
+            ASSERT_SAFE_FAIL(
+			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
         }
 #endif
     }
@@ -1490,11 +1495,16 @@ void TestDriver<TYPE,TRAITS>::testCase22()
                                              TestDriver<wchar_t>::s_testString;
             const ObjW::value_type *NULL_PTR = 0;
 
-            ASSERT_SAFE_PASS(operator ""_sv(STRING, 0));
-            ASSERT_SAFE_PASS(operator ""_sv(STRING, 5));
+			// afeher: for some reason the using directive above does not work
+            ASSERT_SAFE_PASS(
+			             bsl::string_view_literals::operator ""_sv(STRING, 0));
+            ASSERT_SAFE_PASS(
+			             bsl::string_view_literals::operator ""_sv(STRING, 5));
 
-            ASSERT_SAFE_PASS(operator ""_sv(NULL_PTR, 0));
-            ASSERT_SAFE_FAIL(operator ""_sv(NULL_PTR, 5));
+            ASSERT_SAFE_PASS(
+			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
+            ASSERT_SAFE_FAIL(
+			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
         }
 #endif
     }
@@ -1570,7 +1580,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
 #define STRING_VIEW_HAS_CONTAINS
 #endif
 
-#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if   defined(BSLSTL_STRING_VIEW_IS_ALIASED)
         ASSERT(( bsl::is_same<Obj,
                               std::basic_string_view<TYPE, TRAITS> >::value));
 #elif defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
@@ -6968,7 +6978,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     if (verbose) printf("Validate `TestIterator` and `TestSentinel`.\n");
 
     {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
 
         ASSERT((true ==std::is_same<bsl::string_view,  // confirm alias
                                     std::string_view>::value));

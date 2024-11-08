@@ -58,11 +58,11 @@
 # include <bsl_tuple.h>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 # include <optional>
 # include <string>
 # include <variant>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -622,10 +622,10 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
     typedef bsl::optional< FIRST_TYPE>        FIRST_BO_TYPE;
     typedef bsl::optional<SECOND_TYPE>        SECOND_BO_TYPE;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     typedef std::optional< FIRST_TYPE>        FIRST_SO_TYPE;
     typedef std::optional<SECOND_TYPE>        SECOND_SO_TYPE;
-#endif
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
     testRelationalOperationsNonNull<FIRST_TYPE,    SECOND_NV_TYPE>(lesserVal,
                                                                    greaterVal);
@@ -648,7 +648,7 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
     testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_BO_TYPE>();
     testRelationalOperationsBothNull<FIRST_BO_TYPE, SECOND_NV_TYPE>();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     testRelationalOperationsNonNull<FIRST_SO_TYPE, SECOND_NV_TYPE>(lesserVal,
                                                                    greaterVal);
     testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_SO_TYPE>(lesserVal,
@@ -659,10 +659,11 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
 
     testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_SO_TYPE>();
     testRelationalOperationsBothNull<FIRST_SO_TYPE, SECOND_NV_TYPE>();
-#endif
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
-    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS &&                        \
+	defined BSLSTL_OPTIONAL_USES_STD_ALIASES
 
     ASSERTV((
         bsl::three_way_comparable_with<FIRST_TYPE, SECOND_NV_TYPE> ==
@@ -6789,7 +6790,8 @@ struct Foo {
 template <class t_TYPE>
 void Foo::foo()
 {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) && \
+    defined(BSLSTL_OPTIONAL_USES_STD_ALIASES)
     // Even more weirdly, the issue goes away if `NullableValue` is
     // instantiated with `t_TYPE` instead of a fixed type.
     bdlb::NullableValue<int> nv = 1;
@@ -7802,7 +7804,7 @@ int main(int argc, char *argv[])
          << "TEST `operator<<` FOR `std::optional` AND `std::variant`" << endl
          << "========================================================" << endl;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 
         bsl::ostringstream oss;
 
@@ -7871,7 +7873,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) cout << "SKIP: Not Available: "
                              "`std::optional`, `std::variant`" << endl;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
       } break;
       case 32: {
         // --------------------------------------------------------------------

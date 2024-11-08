@@ -123,22 +123,21 @@ void aSsErT(bool condition, const char *message, int line)
 // only if we're not using `std::span`, because all three implementations of
 // std::span add `noexcept` to `front`, `back`, `first`, `last`, and `subspan`,
 // as well as the `(pointer, pointer)` and `(pointer, size)` constructors.
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#ifndef BSLSTL_SPAN_IS_ALIASED
     #define NOEXCEPT_TEST_ONLY_BSL_SPAN                                       1
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define ASSERT_NOEXCEPT(...)       BSLS_ASSERT( noexcept(__VA_ARGS__))
-#define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(!noexcept(__VA_ARGS__))
+#define ASSERT_NOEXCEPT(...)       ASSERT( noexcept(__VA_ARGS__))
+#define ASSERT_NOT_NOEXCEPT(...)   ASSERT(!noexcept(__VA_ARGS__))
 #else
-#define ASSERT_NOEXCEPT(...)       BSLS_ASSERT(true)
-#define ASSERT_NOT_NOEXCEPT(...)   BSLS_ASSERT(true)
+#define ASSERT_NOEXCEPT(...)
+#define ASSERT_NOT_NOEXCEPT(...)
 #endif
 
 // We want to test `span::at` only if we're using our own implementation or we
 // have a C++26 compliant standard library.
-// are using our own implementation.
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) ||              \
+#if !defined(BSLSTL_SPAN_IS_ALIASED) ||                                      \
      defined(BSLS_LIBRARYFEATURES_HAS_CPP26_BASELINE_LIBRARY)
     #define TEST_BSL_SPAN_AT                                                  1
 #endif

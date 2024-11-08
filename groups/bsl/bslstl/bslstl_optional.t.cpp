@@ -8475,7 +8475,7 @@ void TestDriver<TYPE>::testCase15()
             P(    bslmf::IsBitwiseMoveable<Obj>::value);
             T_ P_(bslmf::IsBitwiseCopyable<ValueType>::value);
             P(    bslmf::IsBitwiseCopyable<Obj>::value);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
             T_ P_(bslmf::IsBitwiseMoveable_v<std::optional<ValueType>>);
             P(    bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>);
             T_ P( std::is_trivially_copyable_v<std::optional<ValueType>>);
@@ -8495,7 +8495,7 @@ void TestDriver<TYPE>::testCase15()
                                                                      >::value);
             BSLMF_ASSERT(!bslma::UsesBslmaAllocator<bsl::allocator<char>
                                                                      >::value);
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
             BSLMF_ASSERT(!bslmf::IsBitwiseCopyable_v<
                                          std::optional<bsl::allocator<char>>>);
 #endif
@@ -8515,7 +8515,7 @@ void TestDriver<TYPE>::testCase15()
             (void) bslmf::IsTriviallyCopyableCheck<Obj>::value;
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
         if (bslmf::IsBitwiseCopyable_v<ValueType>
                      == bslmf::IsBitwiseCopyable_v<std::optional<ValueType>>) {
             ASSERTV(valueTypeName, usesAllocatorObj,
@@ -9866,12 +9866,12 @@ void TestDriver<TYPE>::testCase10b()
     testCase10b_imp<bsl::optional<const TYPE> >();
     testCase10b_imp<bsl::optional<const int> >();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     testCase10b_imp<std::optional<TYPE> >();
     testCase10b_imp<std::optional<int> >();
     testCase10b_imp<std::optional<TYPE> >();
     testCase10b_imp<std::optional<int> >();
-#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  //BSLSTL_OPTIONAL_USES_STD_ALIASES
 }
 
 /// Perform the 10b test between optionals of UDTs
@@ -9883,12 +9883,12 @@ void testCase10b_udts_imp()
     TestDriver<DEST_TYPE>::template
         testCase10b_imp<bsl::optional<const SRC_TYPE> >();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     TestDriver<DEST_TYPE>::template
         testCase10b_imp<std::optional<SRC_TYPE> >();
     TestDriver<DEST_TYPE>::template
         testCase10b_imp<std::optional<const SRC_TYPE> >();
-#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  //BSLSTL_OPTIONAL_USES_STD_ALIASES
 }
 
 /// Perform the 10b test between optionals of UDTs. Note that, unlike the
@@ -10100,7 +10100,7 @@ void testCase9()
     testCase9_imp<bsl::optional<Swappable>,
                    bsl::optional<Swappable> >();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     // swap between bsl::optional and std::optional works only for non-AA
     // types
 
@@ -10235,7 +10235,7 @@ void TestDriver<TYPE>::testCase7b_imp()
             TEST_EXT_COPY_FROM_ENGAGED_OPT(MoveUtil::move(csource));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
         {
             typedef std::optional<SRC_TYPE>                SRC_OPT_TYPE;
             typedef bslalg::ConstructorProxy<SRC_OPT_TYPE> SourceWithAllocator;
@@ -10257,7 +10257,7 @@ void TestDriver<TYPE>::testCase7b_imp()
             // should trigger a copy constructor
             TEST_EXT_COPY_FROM_ENGAGED_OPT(MoveUtil::move(csource));
         }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
     }
 }
 
@@ -10375,7 +10375,7 @@ void TestDriver<TYPE>::testCase7a_imp()
             TEST_COPY_FROM_ENGAGED_OPT(MoveUtil::move(csource));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
         {
             typedef std::optional<SRC_TYPE>                SRC_OPT_TYPE;
             typedef bslalg::ConstructorProxy<SRC_OPT_TYPE> SourceWithAllocator;
@@ -10398,7 +10398,7 @@ void TestDriver<TYPE>::testCase7a_imp()
             // should trigger a copy constructor
             TEST_COPY_FROM_ENGAGED_OPT(MoveUtil::move(csource));
         }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
     }
 }
 template <class TYPE>
@@ -10420,7 +10420,7 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
             source.emplace(3);
             TEST_MOVE_FROM_ENGAGED_OPT(source, PROPAGATE_ON_MOVE);
         }
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
         {
             typedef std::optional<SRC_TYPE>                SRC_OPT_TYPE;
             typedef bslalg::ConstructorProxy<SRC_OPT_TYPE> SourceWithAllocator;
@@ -10430,11 +10430,11 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
             source.emplace(3);
             TEST_MOVE_FROM_ENGAGED_OPT(source, false);
         }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
     }
 }
 
-#if BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if (BSLS_LIBRARYFEATURES_STDCPP_GNU &&                                       \
      (!defined(_GLIBCXX_RELEASE) ||                                           \
@@ -10447,7 +10447,7 @@ void TestDriver<TYPE>::testCase7a_imp_constmovebug()
 #define STD_OPTIONAL_CONST_MOVE_BUG 1
 #endif
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class TYPE>
 void TestDriver<TYPE>::testCase7a()
@@ -10861,7 +10861,7 @@ void testCase6()
 
         testCase6_imp_a<bsl::optional<MyClass2>, bsl::optional<int> >();
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
         testCase6_imp_a<std::optional<int>, bsl::optional<int> >();
 
         testCase6_imp_a<bsl::optional<int>, std::optional<int> >();
@@ -10877,7 +10877,7 @@ void testCase6()
         testCase6_imp_a<std::optional<MyClass2>, bsl::optional<int> >();
 
         testCase6_imp_a<bsl::optional<int>, std::optional<MyClass2> >();
-#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  //BSLSTL_OPTIONAL_USES_STD_ALIASES
     }
     if (veryVerbose)
         printf("\tComparison with a non `optional` .\n");
@@ -13618,7 +13618,7 @@ int main(int argc, char **argv)
         if (verbose) printf("TEST bsl::optional<bslma::ManagedPtr<void>>\n"
                             "===========================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+#if defined(BSLSTL_OPTIONAL_USES_STD_ALIASES) && \
    !defined(BSLS_PLATFORM_CMP_CLANG)
         typedef bsl::optional<bslma::ManagedPtr<void>> Obj;
 

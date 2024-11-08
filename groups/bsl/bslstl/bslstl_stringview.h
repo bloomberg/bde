@@ -222,18 +222,27 @@ BSLS_IDENT("$Id: $")
 # include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-#define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)     \
+&&  (!defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) || \
+     (defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+     (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20)))
+    /// `bsl` and `std::string_view`s coexist when we have at least C++17
+    /// standard library available, but C++20 library is not available, or it
+    /// is disabled due to ABI compatibility reasons.
+# define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 #endif
 
-// 'BDE_DISABLE_CPP17_ABI' is intended for CI builds only, to allow simulation
-// of Sun/AIX builds on Linux hosts.  It is an error to define this symbol in
-// Bloomberg production builds.
-#ifndef BDE_DISABLE_CPP17_ABI
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20))
 
-#   include <string_view>
+    /// `BSLSTL_STRING_VIEW_IS_ALIASED` is defined when `bsl::string_view` and
+    /// its accompanying symbols are aliases to their `std` equivalents.  Note
+    /// that `std::string` may coexist with `bsl::string_view` that is *not* an
+    /// alias of it; see `BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST`.
+# define BSLSTL_STRING_VIEW_IS_ALIASED
+
+# include <string_view>
 
     namespace bsl {
 
@@ -241,9 +250,9 @@ using std::basic_string_view;
 using std::string_view;
 using std::wstring_view;
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
 using std::u8string_view;
-#   endif
+# endif
 
 using std::u16string_view;
 using std::u32string_view;
@@ -258,9 +267,7 @@ using std::operator>;
 using std::operator>=;
 
 }
-# define BSLSTL_STRING_VIEW_IS_ALIASED
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#endif  // BDE_DISABLE_CPP17_ABI
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY & not disabled
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
