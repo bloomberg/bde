@@ -5,6 +5,8 @@
 
 #include <bslstl_string.h>
 
+#include <bslfmt_formatterspecificationstandard.h> // Testing only
+
 #include <stdio.h>
 #include <string.h>
 
@@ -90,53 +92,27 @@ void check(const std::string&, const char *) {
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
-      defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-#    define BSLFMT_FORMAT_STRING_PARAMETER                                    \
-       bslfmt::format_string<bsl::decay_t<t_ARGS>...>
-#    define BSLFMT_FORMAT_WSTRING_PARAMETER                                   \
-       bslfmt::wformat_string<bsl::decay_t<t_ARGS>...>
-#  else
-// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
-// have to use non-template versions instead.
-#    define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
-#    define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
-#  endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
 template <class... t_ARGS>
-bool doTestWithOracle(string_view              result,
+bool doTestWithOracle(string_view                   result,
                       std::format_string<t_ARGS...> fmtstr,
-                      t_ARGS&&...              args)
+                      t_ARGS&&...                   args)
 {
     typedef string RT;
 
-    // Work around for the fact we cannot construct a bslfmt::format_string
-    // from non-consteval fmtstr.
-    BSLFMT_FORMAT_STRING_PARAMETER          bslfmt("");
-    bslfmt::Format_FormatString_Test_Updater<char> tu;
-
-    tu.update(&bslfmt, fmtstr.get());
-
-    RT res_bde = bslfmt::format(bslfmt, std::forward<t_ARGS>(args)...);
+    RT res_bde = bsl::format(fmtstr, std::forward<t_ARGS>(args)...);
     RT res_std = std::format(fmtstr, std::forward<t_ARGS>(args)...);
 
     return (result == res_bde && result == res_std);
 }
+
 template <class... t_ARGS>
-bool doTestWithOracle(wstring_view              result,
+bool doTestWithOracle(wstring_view                   result,
                       std::wformat_string<t_ARGS...> fmtstr,
-                      t_ARGS&&...              args)
+                      t_ARGS&&...                    args)
 {
     typedef wstring RT;
 
-    // Work around for the fact we cannot construct a bslfmt::format_string
-    // from non-consteval fmtstr.
-    BSLFMT_FORMAT_WSTRING_PARAMETER             bslfmt(L"");
-    bslfmt::Format_FormatString_Test_Updater<wchar_t>  tu;
-
-    tu.update(&bslfmt, fmtstr.get());
-
-    RT res_bde = bslfmt::format(bslfmt, std::forward<t_ARGS>(args)...);
+    RT res_bde = bsl::format(fmtstr, std::forward<t_ARGS>(args)...);
     RT res_std = std::format(fmtstr, std::forward<t_ARGS>(args)...);
 
     return (result == res_bde && result == res_std);
@@ -191,16 +167,14 @@ struct formatter<FormattableType, t_CHAR> {
 
         FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
-        const char                          name[] = "FormattableType";
+        static const char                   name[] = "FormattableType";
         typename t_FORMAT_CONTEXT::iterator out    = fc.out();
 
         out  = std::copy(name, name + strlen(name), out);
-        *out = '{';
-        ++out;
+        *out++ = '{';
         fc.advance_to(out);
         out  = d_formatter_bsl.format(value.x, fc);
-        *out = '}';
-        ++out;
+        *out++ = '}';
         return out;
     }
 };
@@ -317,17 +291,21 @@ int main(int argc, char **argv)
             FormattableType ft;
             ft.x = 37;
 
-            check(bslfmt::format("The value of {1:{0}} is {0}", ft.x, ft),
+            check(bsl::format("The value of {1:{0}} is {0}", ft.x, ft),
                   "The value of FormattableType{37} is 37");
-            check(bslfmt::vformat("The value of {1:{0}} is {0}",
-                                  bslfmt::make_format_args(ft.x, ft)),
+            check(bsl::vformat("The value of {1:{0}} is {0}",
+                                  bsl::make_format_args(ft.x, ft)),
                   "The value of FormattableType{37} is 37");
 
             check(bsl::format("The value of {1:{0}} is {0}", ft.x, ft),
                "The value of FormattableType{37} is 37");
-             check(bsl::vformat("The value of {1:{0}} is {0}",
+            check(bsl::vformat("The value of {1:{0}} is {0}",
                                 bsl::make_format_args(ft.x, ft)),
                 "The value of FormattableType{37} is 37");
+
+            std::size_t len =
+                  bsl::formatted_size("The value of {1:{0}} is {0}", ft.x, ft);
+            ASSERTV(len, 38 == len);
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
              ASSERT((std::format("The value of {1:{0}} is {0}", ft.x, ft) ==

@@ -123,9 +123,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_exceptionutil.h>
 #include <bsls_libraryfeatures.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslfmt_formaterror.h>
 
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslfmt_formatarg.h>
 #include <bslfmt_formatargs.h>
 #include <bslfmt_formatcontext.h>
@@ -133,15 +133,16 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatstring.h>
 
 #include <bslfmt_formatimp.h>
+#endif
 
 #include <bslfmt_formatterbase.h>
+
 #include <bslfmt_formatterbool.h>
 #include <bslfmt_formattercharacter.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterfloating.h>
 #include <bslfmt_formatterpointer.h>
 #include <bslfmt_formatterstring.h>
-#endif
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bsls_util.h>
