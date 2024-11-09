@@ -764,7 +764,17 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_20)    );
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_21)    );
 
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
 
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         TEST_MEMFUN(bsl::is_member_object_pointer, int  (X::*)(...)      );
         TEST_MEMFUN(bsl::is_member_object_pointer, void (X::*)(...)      );
         TEST_MEMFUN(bsl::is_member_object_pointer, int  (X::*)(int...)   );
@@ -782,9 +792,67 @@ int main(int argc, char *argv[])
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_17...) );
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_18...) );
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_19...) );
-#endif
+#endif  // not DO_FEWER_TESTS
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_20...) );
         TEST_MEMFUN(bsl::is_member_object_pointer, int (X::*)(INT_21...) );
+#else  // not MSVC_FAILS_ON_VOID_ELLIPSIS
+
+// Unfortunately because MSVC macros fail, we have to reimplement the
+// macros to finally use a `typedef`; and to achieve that we have to
+// split up the member function pointer type in the macro parameters so
+// the last macro can insert the typedef name in the right place.
+#define MSVC_ASSERT_MEMFUNC_TYPE(META_FUNC, RET, CLASS, ARGS, QUAL) \
+    do {                                                            \
+        typedef RET (CLASS::*MemFuncType)ARGS QUAL;                 \
+        TYPE_ASSERT(META_FUNC, MemFuncType, false);                 \
+        TEST_OBJECT(META_FUNC, Identity<MemFuncType>::type *);      \
+        TEST_ARRAY (META_FUNC, Identity<MemFuncType>::type);        \
+    } while(false)
+
+#define MSVC_TEST_MEMFUN_NOEXCEPT(META_FUNC, RET, CLASS, ARGS, QUAL)       \
+    MSVC_ASSERT_MEMFUNC_TYPE(META_FUNC, RET, CLASS, ARGS, QUAL         );  \
+    MSVC_ASSERT_MEMFUNC_TYPE(META_FUNC, RET, CLASS, ARGS, QUAL noexcept)
+
+# define MSVC_TEST_MEMFUN_REF(META_FUNC, RET, CLASS, ARGS, QUAL)     \
+    MSVC_TEST_MEMFUN_NOEXCEPT(META_FUNC, RET, CLASS, ARGS, QUAL   ); \
+    MSVC_TEST_MEMFUN_NOEXCEPT(META_FUNC, RET, CLASS, ARGS, QUAL  &); \
+    MSVC_TEST_MEMFUN_NOEXCEPT(META_FUNC, RET, CLASS, ARGS, QUAL &&)
+
+# define MSVC_TEST_MEMFUN(META_FUNC, RET, CLASS, ARGS)                 \
+    MSVC_TEST_MEMFUN_REF(META_FUNC, RET, CLASS, ARGS, );               \
+    MSVC_TEST_MEMFUN_REF(META_FUNC, RET, CLASS, ARGS, const);          \
+    MSVC_TEST_MEMFUN_REF(META_FUNC, RET, CLASS, ARGS,       volatile); \
+    MSVC_TEST_MEMFUN_REF(META_FUNC, RET, CLASS, ARGS, const volatile)
+
+        // int (X::*)(...)
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, int,  X, (...));
+
+        // void (X::*)(...)
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (...));
+
+        // int (X::*)(int...)
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, int,  X, (int...));
+
+        // void (X::*)(int...)
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (int...));
+
+        // int (X::*)(INT_09...)
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_09...));
+#if !DO_FEWER_TESTS
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_10...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_11...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_12...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_13...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_14...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_15...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_16...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_17...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_18...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_19...));
+#endif  // not DO_FEWER_TESTS
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_20...));
+        MSVC_TEST_MEMFUN(bsl::is_member_object_pointer, void, X, (INT_21...));
+#endif  // MSVC_FAILS_ON_VOID_ELLIPSIS
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

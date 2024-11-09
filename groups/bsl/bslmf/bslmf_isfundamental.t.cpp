@@ -290,6 +290,16 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
@@ -415,7 +425,14 @@ int main(int argc, char *argv[])
 
         // C-4
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int  (),                0);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, void (char...),         0);
+#else
+        {
+            typedef void FuncType(char...);
+            LEGACY_ASSERT_CVQP(bslmf::IsFundamental, FuncType,           0);
+        }
+#endif
 
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[5],                 0);
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, int[5][42],             0);
@@ -511,7 +528,14 @@ int main(int argc, char *argv[])
 
         // C-4
         TYPE_ASSERT_CVQP(bsl::is_fundamental, int  (),                false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         TYPE_ASSERT_CVQP(bsl::is_fundamental, void (char...),         false);
+#else
+        {
+            typedef void FuncType(char...);
+            TYPE_ASSERT_CVQP(bsl::is_fundamental, FuncType,           false);
+        }
+#endif
 
         TYPE_ASSERT_CVQP(bsl::is_fundamental, int[5],                 false);
         TYPE_ASSERT_CVQP(bsl::is_fundamental, int[5][42],             false);

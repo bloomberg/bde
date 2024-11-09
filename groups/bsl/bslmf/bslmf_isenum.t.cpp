@@ -257,6 +257,17 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
@@ -387,8 +398,15 @@ int main(int argc, char *argv[])
         ASSERT(! bslmf::IsEnum<ConvertToAnyType const &>::value);
 
         // C-6
-        TYPE_ASSERT_CVQP(bslmf::IsEnum, int(int),  0);
-        TYPE_ASSERT_CVQP(bslmf::IsEnum, void(...), 0);
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, int(int),     0);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
+        TYPE_ASSERT_CVQP(bslmf::IsEnum, void(...),    0);
+#else
+        {
+            typedef void FuncType(...);
+            TYPE_ASSERT_CVQP(bslmf::IsEnum, FuncType, 0);
+        }
+#endif
 
         typedef int MultiParameterFunction(char, float...);
         TYPE_ASSERT_CVQP(bslmf::IsEnum, MultiParameterFunction, 0);
@@ -522,8 +540,15 @@ int main(int argc, char *argv[])
         ASSERT_V_SAME(ConvertToAnyType const &);
 
         // C-6
-        TYPE_ASSERT_CVQP(bsl::is_enum, int(int),  false);
-        TYPE_ASSERT_CVQP(bsl::is_enum, void(...), false);
+        TYPE_ASSERT_CVQP(bsl::is_enum, int(int),     false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
+        TYPE_ASSERT_CVQP(bsl::is_enum, void(...),    false);
+#else
+        {
+            typedef void FuncType(...);
+            TYPE_ASSERT_CVQP(bsl::is_enum, FuncType, false);
+        }
+#endif
         TYPE_ASSERT_CVQP(bsl::is_enum, MultiParameterFunction, false);
 
         // C-7

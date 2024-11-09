@@ -1016,11 +1016,35 @@ int main(int argc, char *argv[])
         ASSERT_IS_NOTHROW_SWAPPABLE_OBJECT_TYPE(const volatile void*,
                                                                 true, true);
 
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
+
         // C-5 : Function types are not object types, nor cv-qualifiable.
-        ASSERT_IS_NOTHROW_SWAPPABLE_TYPE(void(),               false);
-        ASSERT_IS_NOTHROW_SWAPPABLE_TYPE(int(float,double...), false);
-        ASSERT_IS_NOTHROW_SWAPPABLE(void() const,              false);
-        ASSERT_IS_NOTHROW_SWAPPABLE(int(float,double...) const,false);
+        ASSERT_IS_NOTHROW_SWAPPABLE_TYPE(void(),                 false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
+        ASSERT_IS_NOTHROW_SWAPPABLE_TYPE(int(float,double...),   false);
+#else
+        {
+            typedef int FuncType(float, double...);
+            ASSERT_IS_NOTHROW_SWAPPABLE_TYPE(FuncType,           false);
+        }
+#endif
+        ASSERT_IS_NOTHROW_SWAPPABLE(void() const,                false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
+        ASSERT_IS_NOTHROW_SWAPPABLE(int(float, double...) const, false);
+#else
+        {
+            typedef int FuncType(float, double...) const;
+            ASSERT_IS_NOTHROW_SWAPPABLE(FuncType,                false);
+        }
+#endif
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d` NOT FOUND.\n", test);
