@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
 #define MSVC_ASSERT_MEMFUNC_TYPE(META_FUNC, RET, CLASS, ARGS, QUAL) \
     do {                                                            \
         typedef RET (CLASS::*MemFuncType)ARGS QUAL;                 \
-        TYPE_ASSERT(META_FUNC, MemFuncType, false);                 \
+        TYPE_ASSERT(META_FUNC, MemFuncType, true);                  \
         TEST_OBJECT(META_FUNC, Identity<MemFuncType>::type *);      \
         TEST_ARRAY (META_FUNC, Identity<MemFuncType>::type);        \
     } while(false)
