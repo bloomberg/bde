@@ -938,21 +938,52 @@ int main(int argc, char *argv[])
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(MemberDataTestType, true);
         ASSERT_IS_BITWISE_COMPARABLE_OBJECT_TYPE(MethodPtrTestType, true);
 
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
+
         // C-5 : Function types are neither object types nor cv-qualifiable, so
         // must use the simplest test macro.  Abominable function types support
         // neither references nor pointers, so must be tested directly.
 
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(void(), false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(bool(float, double...), false);
+#else
+        {
+            typedef bool FuncType(float, double...);
+            ASSERT_IS_BITWISE_COMPARABLE_TYPE(FuncType, false);
+        }
+#endif
 #if !defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS)
         ASSERT(!bslmf::IsBitwiseEqualityComparable<void() volatile>::value);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT(!bslmf::IsBitwiseEqualityComparable<void(...) const>::value);
+#else
+        {
+            typedef void FuncType(...) const;
+            ASSERT(!bslmf::IsBitwiseEqualityComparable<FuncType>::value);
+        }
+#endif
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(void() noexcept, false);
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_IS_BITWISE_COMPARABLE_TYPE(
                                        bool(float, double...) noexcept, false);
+#else
+        {
+            typedef bool FuncType(float, double...) noexcept;
+            ASSERT_IS_BITWISE_COMPARABLE_TYPE(FuncType, false);
+        }
+#endif
         ASSERT(
             !bslmf::IsBitwiseEqualityComparable<void() const noexcept>::value);
 #endif
