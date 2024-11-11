@@ -12,7 +12,7 @@
 //                              Overview
 //                              --------
 // The component under test is a legacy, backwards compatibility component that
-// simply `#include`s `<bslmf_reference_wrapper>`.  In this test driver we
+// simply `#include`s `<bslmf_referencewrapper.h>`.  In this test driver we
 // simply verify that the names in `bsl` exist, and that the
 // `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` macro is defined when expected.
 //
@@ -93,7 +93,11 @@ int main(int argc, char *argv[])
         //
         // 2. Get the address of the free functions.
         //
-        // 3. Use the wrappers' explicit and implicit accessors.  (C-1..3)
+        // 3. Use the wrappers' explicit and implicit accessors.  (C-1)
+        //
+        // 4. Verify that `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` is defined when
+        //    `BSLLMF_REFRENCEWRAPPER_IS_ALIASED` is defined, and othwerwise
+        //    it is not defined.
         //
         // Testing:
         //   reference_wrapper;
@@ -101,6 +105,7 @@ int main(int argc, char *argv[])
         //   reference_wrapper<T> cref(reference_wrapper<T>);
         //   reference_wrapper<T> ref(T&);
         //   reference_wrapper<T> ref(reference_wrapper<T>);
+        //   BSLSTL_REFRENCEWRAPPER_IS_ALIASED
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nVERIFY EXISTENCE OF NAMES"
@@ -108,6 +113,7 @@ int main(int argc, char *argv[])
 
         int i = 42;
         bsl::reference_wrapper<int> irw(i);
+        ASSERT(&irw.operator int& () == &i);
 
         bsl::reference_wrapper<int> irw2 = bsl::ref(i);
         ASSERT(&irw.operator int& () == &irw2.operator int& ());

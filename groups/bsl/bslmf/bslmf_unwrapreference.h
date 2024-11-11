@@ -13,13 +13,13 @@ BSLS_IDENT("$Id: $")
 //
 //@CANONICAL_HEADER: bsl_functional.h, bsl_type_traits.h
 //
-//@SEE_ALSO: bslmf_addreference
+//@SEE_ALSO: bslmf_referencewrapper, bslmf_uwrap_ref_decay
 //
 //@DESCRIPTION: This component defines a meta-function `bsl::unwrap_reference`
-// that may be used to unwrap a `bsl::reference_wrapper` or a
-// `std::reference_wrapper` of some type `U`, resulting in `U&`.  In case the
-// specified type template argument is not an specialization of either
-// `reference_wrapper` the result is the type itself.
+// that may be used to unwrap a `bsl::reference_wrapper` (which is an alias of
+// `std::reference_wrapper` when that exists) of some type `U`, resulting in
+// `U&`.  In case the specified type template argument is not an specialization
+// of `bsl::reference_wrapper` the result is the type itself.
 //
 // `bsl::unwrap_reference` meets the requirements of the `unwrap_reference`
 // template defined in the C++20 standard [meta.trans.other].
@@ -38,19 +38,19 @@ BSLS_IDENT("$Id: $")
 // First, we create types that represent both reference-wrapped, and normal
 // type parameters:
 // ```
-//  typedef bsl::reference_wrapper<int *>  WrappedType;
-//  typedef int                           *NotWrappedType;
+// typedef bsl::reference_wrapper<int *>  WrappedType;
+// typedef int                           *NotWrappedType;
 // ```
 // Next, we create types that are references if they were wrapped:
 // ```
-//  typedef bsl::unwrap_reference<WrappedType>::type    UnwrappedWrapped;
-//  typedef bsl::unwrap_reference<NotWrappedType>::type UnwrappedNotWrapped;
+// typedef bsl::unwrap_reference<WrappedType>::type    UnwrappedWrapped;
+// typedef bsl::unwrap_reference<NotWrappedType>::type UnwrappedNotWrapped;
 // ```
 // Finally we can verify that the wrapped type became a reference, while the
 // other type is unchanged:
 // ```
-//  assert((true == bsl::is_same<UnwrappedWrapped,    int *&>::value));
-//  assert((true == bsl::is_same<UnwrappedNotWrapped, int *>::value));
+// assert((true == bsl::is_same<UnwrappedWrapped,    int *&>::value));
+// assert((true == bsl::is_same<UnwrappedNotWrapped, int *>::value));
 // ```
 // Note, that (when available) the `bsl::unwrap_reference_t` avoids the
 // `::type` suffix and `typename` prefix when we want to use the result of the
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-  #include <type_traits> // 'std::unwrap_reference', 'std::unwrap_reference_t'
+  #include <type_traits>  // 'std::unwrap_reference', 'std::unwrap_reference_t'
 #endif
 
                          // ======================
@@ -80,37 +80,39 @@ using std::unwrap_reference_t;
 
 /// This `struct` template implements the `unwrap_reference` meta-function
 /// defined in the C++20 standard [meta.trans.other], providing an alias,
-/// `type`, that returns the result.  `type` has the same type as the
+/// `type`, that returns the result.  `type` denotes the same type as the
 /// (template parameter) `t_TYPE` unless `t_TYPE` is a specialization of
-/// `bsl::reference_wrapper` or `std::reference_wrapper<U>` for a type U, in
-/// which case `type` shall be `U&`.
+/// `bsl::reference_wrapper` (which is an alias of `std::reference_wrapper<U>`
+/// if that exists) for a type `U`, in which case `type` is `U&`.
 template <class t_TYPE>
 struct unwrap_reference {
+    // TYPES
 
     /// This `typedef` is an alias to the template parameter `t_TYPE`.
     typedef t_TYPE type;
 };
 
-/// This partial specialization of `bsl::unwrap_reference`, for when the
-/// template parameter `t_TYPE` is a `bsl::reference_wrapper`, provides a
-/// `typedef`, `type`, that is `t_TYPE::type`.
+/// This partial specialization is chosen when the template parameter `t_TYPE`
+/// is a `bsl::reference_wrapper`.
 template <class t_WRAPPED_TYPE>
 struct unwrap_reference<bsl::reference_wrapper<t_WRAPPED_TYPE> > {
 
+    // TYPES
+
+    /// This `typedef` is an alias to the template parameter `t_WRAPPED_TYPE&`.
     typedef t_WRAPPED_TYPE& type;
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 // ALIASES
+
+/// `unwrap_reference_t` is an alias to the return type of the
+/// `bsl::unwrap_reference` meta-function.
 template <class t_TYPE>
 using unwrap_reference_t = typename unwrap_reference<t_TYPE>::type;
-    // 'unwrap_reference_t' is an alias to the return type of the
-    // 'bsl::unwrap_reference' meta-function.  Note, that the
-    // 'unwrap_reference_t' avoids the '::type' suffix and 'typename' prefix
-    // when we want to use the result of the meta-function in templates.
-#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-#endif // else of BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif  // else of BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 }  // close namespace bsl
 

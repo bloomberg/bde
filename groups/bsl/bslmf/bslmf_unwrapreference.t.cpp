@@ -1,7 +1,7 @@
 // bslmf_unwrapreference.t.cpp                                        -*-C++-*-
 #include <bslmf_unwrapreference.h>
 
-#include <bslmf_issame.h>  // for testing only
+#include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -27,10 +27,10 @@ using namespace BloombergLP;
 //                                --------
 // The component under test defines a meta-function `bsl::unwrap_reference`
 // that unwraps a reference wrapper specialization `bsl::reference_wrapper<U>`
-// or `std::reference_wrapper<U>` template `TYPE` argument by providing a
-// `type` member with the type `U&`.  If the specified `TYPE` is not a
-// specialization of either reference wrapper the member `type` shall be
-// `TYPE`.
+// (which is an alias to `std::reference_wrapper<U>` when that exists) template
+// `TYPE` argument by providing a `type` member with the type `U&`.  If the
+// specified `TYPE` is not a specialization of either reference wrapper the
+// member `type` shall be `TYPE`.
 //
 // The component also defines an alias to the result type of the
 // `bsl::unwrap_reference` meta-function.  Thus, we need to ensure that the
@@ -42,7 +42,6 @@ using namespace BloombergLP;
 // standard meta functions are available from the native library.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC TYPES
 // [ 1] bsl::unwrap_reference::type
 // [ 1] bsl::unwrap_reference_t
 //
@@ -176,16 +175,16 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. The meta functions `bsl::unwrap_reference` and
         //    `bsl::unwrap_reference_t` should be aliased to their standard
-        //    library analogs when the latter is available from the native
+        //    library analogs when the latter are available from the native
         //    library.
         //
         // Plan:
         // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is defined
         //    1. Use `bsl::is_same` to compare `bsl::unwrap_reference` to
-        //       `std::unwrap_reference` using a representative type.
+        //       `std::unwrap_reference` using a representative type.  (C-1)
         //
         //    2. Use `bsl::is_same` to compare `bsl::unwrap_reference_t` to
-        //       `std::unwrap_reference_t` using a representative type.
+        //       `std::unwrap_reference_t` using a representative type.  (C-1)
         //
         // Testing:
         //   CONCERN: Aliased to standard types when available.
@@ -266,6 +265,11 @@ int main(int argc, char *argv[])
 
         ASSERT_UNWRAP_REF(int Class::*, int Class::*);
 
+        ASSERT_UNWRAP_REF(void(int), void(int));
+        ASSERT_UNWRAP_REF(void(*)(int), void(*)(int));
+
+        ASSERT_UNWRAP_REF(void, void);
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
   #define ASSERT_UNWRAP_REF_WRAPPED(TYPE, RESULT)                  \
           ASSERT_UNWRAP_REF(bsl::reference_wrapper<TYPE >, RESULT); \
@@ -284,6 +288,8 @@ int main(int argc, char *argv[])
         ASSERT_UNWRAP_REF_WRAPPED(Class,  Class&);
 
         ASSERT_UNWRAP_REF_WRAPPED(int Class::*, int Class::*&);
+
+        ASSERT_UNWRAP_REF_WRAPPED(void(int), void(&)(int));
 
       } break;
       default: {

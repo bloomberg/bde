@@ -277,8 +277,8 @@ int main(int argc, char *argv[])
 #if  BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L
 #ifndef BSLMF_REFERENCEWRAPPER_IS_ALIASED
         BSLMF_ASSERT(false && "reference_wrapper not aliased in C++14");
-#endif  // BSLMF_REFERENCEWRAPPER_IS_ALIASED
-#endif  // At least C++14
+#endif
+#endif
 
 #ifdef BSLMF_REFERENCEWRAPPER_IS_ALIASED
         if (verbose) puts("\tverify `reference_wrapper` is an alias to std");

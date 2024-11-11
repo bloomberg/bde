@@ -1,7 +1,7 @@
 // bslmf_unwraprefdecay.t.cpp                                         -*-C++-*-
 #include <bslmf_unwraprefdecay.h>
 
-#include <bslmf_issame.h>  // for testing only
+#include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -25,26 +25,26 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function `bsl::unwrap_reference`
-// that unwraps a reference wrapper specialization `bsl::reference_wrapper<U>`
-// or `std::reference_wrapper<U>` template `TYPE` argument by providing a
-// `type` member with the type `U&`.  If the specified `TYPE` is not a
-// specialization of either reference wrapper the member `type` shall be
-// `TYPE`.
+// The component under test defines a meta-function `bsl::unwrap_ref_decay`
+// that decays its template `TYPE` argument then it unwraps it if it is a
+// reference wrapper specialization `bsl::reference_wrapper<U>` (which is an
+// alias to `std::reference_wrapper<U>` when that exists) by providing a `type`
+// member with the type `U&`.  If the specified `TYPE` does not decay into a
+// specialization of either reference wrapper the member `type` shall be the
+// decayed `TYPE`.
 //
 // The component also defines an alias to the result type of the
-// `bsl::unwrap_reference` meta-function.  Thus, we need to ensure that the
+// `bsl::unwrap_ref_decay` meta-function.  Thus, we need to ensure that the
 // value returned by the meta-function is correct for each possible category of
 // types.
 //
-// `bsl::unwrap_reference` and `bsl::unwrap_reference_t` should be aliased to
-// `std::unwrap_reference` and `std::unwrap_reference_t`, respectively when the
+// `bsl::unwrap_ref_decay` and `bsl::unwrap_ref_decay_t` should be aliased to
+// `std::unwrap_ref_decay` and `std::unwrap_ref_decay_t`, respectively when the
 // standard meta functions are available from the native library.
 //
 // ----------------------------------------------------------------------------
-// PUBLIC TYPES
-// [ 1] bsl::unwrap_reference::type
-// [ 1] bsl::unwrap_reference_t
+// [ 1] bsl::unwrap_ref_decay::type
+// [ 1] bsl::unwrap_ref_decay_t
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
@@ -144,12 +144,15 @@ int main(int argc, char *argv[])
 ///Example 1: Unwrap Reference Wrapped Argument Types
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we work in a programming environment where function argument
-// types may be presented as is, or wrapped in a `bsl::reference_wrapper` or
-// its `std` equivalent and we would like to create a member or local variable
-// while obeying the request for reference-wrapping.  So when the argument type
-// decays into a reference wrapper we would like to use a reference to the
-// wrapped type, and simply use the decayed variations of the unwrapped types.
-// This is a use case for `bsl::unwrap_ref_decay`.
+// types may be presented as is, or wrapped in a `bsl::reference_wrapper` and
+// we would like to create a member or local variable while obeying the request
+// for the reference-wrapper represents.  As arguments may come potentially
+// cv-qualified, as well as references we need to first decay them to remove
+// cv-qualification, reference and/or turn arrays into a pointer etc. (see
+// `bsl::decay`).  When the argument type decays into a reference wrapper we
+// want to use a reference to the wrapped type, and simply use the decayed
+// variations of the unwrapped types.  This is a use case for
+// `bsl::unwrap_ref_decay`.
 //
 // First, we create types that may be the bases for reference-wrapped, and
 // normal type parameters:
@@ -260,16 +263,16 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. The meta functions `bsl::unwrap_ref_decay` and
         //    `bsl::unwrap_ref_decay_t` should be aliased to their standard
-        //    library analogs when the latter is available from the native
+        //    library analogs when the latter are available from the native
         //    library.
         //
         // Plan:
         // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is defined
         //    1. Use `bsl::is_same` to compare `bsl::remove_ref_decay` to
-        //       `std::remove_ref_decay` using a representative type.
+        //       `std::remove_ref_decay` using a representative type.  (C-1)
         //
         //    2. Use `bsl::is_same` to compare `bsl::remove_reference_t` to
-        //       `std::remove_reference_t` using a representative type.
+        //       `std::remove_reference_t` using a representative type.  (C-1)
         //
         // Testing:
         //   CONCERN: Aliased to standard types when available.
@@ -406,8 +409,7 @@ int main(int argc, char *argv[])
 
         ASSERT_UNWRAP_REF_WRAPPED(void*,              void*&);
         ASSERT_UNWRAP_REF_WRAPPED(int,                int&);
-        ASSERT_UNWRAP_REF_WRAPPED(int&,               int&);
-        ASSERT_UNWRAP_REF_WRAPPED(const int&,         const int&);
+        ASSERT_UNWRAP_REF_WRAPPED(const int,          const int&);
         ASSERT_UNWRAP_REF_WRAPPED(const volatile int, const volatile int&);
         ASSERT_UNWRAP_REF_WRAPPED(Enum,               Enum&);
         ASSERT_UNWRAP_REF_WRAPPED(Struct,             Struct&);
