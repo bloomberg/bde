@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:09 2024
+// Generated on Tue Nov  5 07:45:21 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -2821,6 +2821,33 @@ class HashTable {
     /// Return the index of the bucket that would contain all the elements
     /// having the specified `key`.
     SizeType bucketIndexForKey(const KeyType& key) const;
+
+    /// Return the index of the bucket that would contain all the elements
+    /// equivalent to the specified `key`.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
+                  SizeType>::type
+    bucketIndexForKey(const LOOKUP_KEY& key) const
+    {
+        typedef typename
+            HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
+                                                                      SizeType;
+
+        // The following cast will not discard any useful bits, unless
+        // 'SizeType' is larger than 'size_t', as the bucket computation takes
+        // a mod on the supplied number of buckets.  We use the following
+        // 'BSLMF_ASSERT' to assert that assumption at compile time.
+
+        BSLMF_ASSERT(sizeof(SizeType) <= sizeof(size_t));
+
+        size_t hashCode = this->d_parameters.hashCodeForKey(key);
+        return static_cast<SizeType>(
+	        bslalg::HashTableImpUtil::computeBucketIndex(
+                                                  hashCode,
+                                                  d_anchor.bucketArraySize()));
+    }
 
     /// Return a reference providing non-modifiable access to the
     /// key-equality comparison functor used by this hash table.

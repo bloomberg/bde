@@ -1575,8 +1575,9 @@ void testTransparentComparator(Container& container,
                                bool       isTransparent,
                                int        initKeyValue)
 {
-    typedef typename Container::const_iterator Iterator;
-    typedef typename Container::size_type      Count;
+    typedef typename Container::const_local_iterator LocalIterator;
+    typedef typename Container::const_iterator       Iterator;
+    typedef typename Container::size_type            Count;
 
     int expectedConversionCount = 0;
 
@@ -1651,6 +1652,43 @@ void testTransparentComparator(Container& container,
                                          container.equal_range(nonExistingKey);
     ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing `bucket`.
+    const Count bucketFound    = container.bucket(existingKey);
+    const Count bucketNotFound = container.bucket(nonExistingKey);
+
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERTV(expectedConversionCount,    existingKey.conversionCount(),
+                  expectedConversionCount ==    existingKey.conversionCount());
+    ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
+                  expectedConversionCount == nonExistingKey.conversionCount());
+
+    // check that we found the right bucket
+    bool                                found_it;
+    const typename Container::key_equal c_eq = container.key_eq();
+
+    found_it = false;
+    for (LocalIterator it  = container.begin(bucketFound);
+                       it != container.end(bucketFound);
+                       ++it) {
+        if (c_eq(*it, existingKey)) {
+            found_it = true;
+        }
+    }
+    ASSERT(found_it);
+
+    found_it = false;
+    for (LocalIterator it  = container.begin(bucketNotFound);
+                       it != container.end(bucketNotFound);
+                       ++it) {
+        if (c_eq(*it, nonExistingKey)) {
+            found_it = true;
+        }
+    }
+    ASSERT(!found_it);
 }
 
 }  // close unnamed namespace
