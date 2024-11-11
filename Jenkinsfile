@@ -1,9 +1,7 @@
 pipeline {
 
-    agent {                                     //pick a build agent with label BLDLNX.
-        label 'BDEBLL'                          //Sandbox can use BLDLNX/BLDIBM/BLDSUN,
-                                                //GNRLD/GNRIBM/GNRSUN
-
+    agent {           
+        label 'BDEBLL'                          //pick a build agent with label
     }
     options {
         disableConcurrentBuilds()               //this job never build concurrently
