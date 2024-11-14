@@ -738,6 +738,9 @@ struct TransparentComparator
 
 class TransparentlyComparable {
     // DATA
+#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+    mutable
+#endif
     int d_conversionCount;  // number of times `operator int` has been called
     int d_value;            // the value
 
@@ -760,6 +763,9 @@ class TransparentlyComparable {
 
     /// Return the current value of this object.
     operator int()
+#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+    const
+#endif
     {
         ++d_conversionCount;
         return d_value;
