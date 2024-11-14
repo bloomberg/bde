@@ -495,8 +495,8 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
 // several `Holder` objects.  Each non-empty `Holder` allocates one block of
 // memory, which is reflected in the outstanding block count.  Note that the
 // address of the resource can be passed directly to the constructors because
-// `PolymorphicAllocator` is implicitly convertible from 'bsl::memory_resource
-// *':
+// `PolymorphicAllocator` is implicitly convertible from
+// `bsl::memory_resource *`:
 // ```
     void usageExample2()
     {

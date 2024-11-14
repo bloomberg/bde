@@ -1617,10 +1617,7 @@ struct Iso8601Util {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED METHODS
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
+
     /// Parse the specified initial `length` characters of the specified
     /// "relaxed" ISO 8601 `string` as a `Datetime` value, and load the
     /// value into the specified `result`.  Return 0 on success, and a
@@ -1646,14 +1643,14 @@ struct Iso8601Util {
     /// "24:00:00", then the fractional second must be absent or 0, and the
     /// zone designator must be absent or indicate UTC.  The behavior is
     /// undefined unless `0 <= length`.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(Datetime   *result,
                             const char *string,
                             ssize_t     length);
 
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
     /// Parse the specified initial `length` characters of the specified
     /// "relaxed" ISO 8601 `string` as a `DatetimeTz` value, and load the
     /// value into the specified `result`.  Return 0 on success, and a
@@ -1677,14 +1674,14 @@ struct Iso8601Util {
     /// "hh:mm:ss" portion of `string` is "24:00:00", then the fractional
     /// second must be absent or 0, and the zone designator must be absent
     /// or indicate UTC.  The behavior is undefined unless `0 <= length`.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeTz *result,
                             const char *string,
                             ssize_t     length);
 
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
     /// Parse the specified initial `length` characters of the specified
     /// "relaxed" ISO 8601 `string` as a `Datetime` or `DatetimeTz` value,
     /// depending on the presence of a zone designator, and load the value
@@ -1710,14 +1707,14 @@ struct Iso8601Util {
     /// "hh:mm:ss" portion of `string` is "24:00:00", then the fractional
     /// second must be absent or 0, and the zone designator must be absent
     /// or indicate UTC.  The behavior is undefined unless `0 <= length`.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeOrDatetimeTz *result,
                             const char           *string,
                             ssize_t               length);
 
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
     /// Parse the specified "relaxed" ISO 8601 `string` as a `Datetime`
     /// value, and load the value into the specified `result`.  Return 0 on
     /// success, and a non-zero value (with no effect) otherwise.  `string`
@@ -1743,12 +1740,12 @@ struct Iso8601Util {
     /// second must be absent or 0, and the zone designator must be absent
     /// or indicate UTC.  The behavior is undefined unless `string.data()`
     /// is non-null.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(Datetime *result, const bsl::string_view& string);
 
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
     /// Parse the specified "relaxed" ISO 8601 `string` as a `DatetimeTz`
     /// value, and load the value into the specified `result`.  Return 0 on
     /// success, and a non-zero value (with no effect) otherwise.  `string`
@@ -1772,13 +1769,13 @@ struct Iso8601Util {
     /// "24:00:00", then the fractional second must be absent or 0, and the
     /// zone designator must be absent or indicate UTC.  The behavior is
     /// undefined unless `string.data()` is non-null.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeTz              *result,
                             const bsl::string_view&  string);
 
-    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
-    /// **DEPRECATED**: Use `parse` with `configuration.relaxed() == true`
-    /// instead.
-    ///
     /// Parse the specified "relaxed" ISO 8601 `string` as a `Datetime` or
     /// `DatetimeTz` value, depending on the presence of a zone designator,
     /// and load the value into the specified `result`.  Return 0 on
@@ -1804,9 +1801,15 @@ struct Iso8601Util {
     /// "24:00:00", then the fractional second must be absent or 0, and the
     /// zone designator must be absent or indicate UTC.  The behavior is
     /// undefined unless `string.data()` is non-null.
+    ///
+    /// @DEPRECATED: Use `parse` with `configuration.relaxed() == true`
+    /// instead.
+    BDLT_ISO8601UTIL_DEPRECATE_PARSERELAXED
     static int parseRelaxed(DatetimeOrDatetimeTz    *result,
                             const bsl::string_view&  string);
 
+    /// @DEPRECATED: Use the overloads taking the `bufferLength` argument
+    /// *before* the `object` argument instead.
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
     static int generate(char              *buffer,
                         const Date&        object,
@@ -1828,12 +1831,12 @@ struct Iso8601Util {
                         const TimeTz&      object,
                         ssize_t            bufferLength);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE_ORDER
-    /// **DEPRECATED**: Use the overloads taking the `bufferLength` argument
-    /// *before* the `object` argument instead.
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ssize_t            bufferLength);
 
+    /// @DEPRECATED: Use the overloads taking an `Iso8601UtilConfiguration`
+    /// object instead.
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static int generate(char              *buffer,
                         const DateTz&      object,
@@ -1845,13 +1848,13 @@ struct Iso8601Util {
                         ssize_t            bufferLength,
                         bool               useZAbbreviationForUtc);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
-    /// **DEPRECATED**: Use the overloads taking an `Iso8601UtilConfiguration`
-    /// object instead.
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
                         ssize_t            bufferLength,
                         bool               useZAbbreviationForUtc);
 
+    /// @DEPRECATED: Use the overloads taking an `Iso8601UtilConfiguration`
+    /// object instead.
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DateTz&     object,
@@ -1861,12 +1864,12 @@ struct Iso8601Util {
                                   const TimeTz&     object,
                                   bool              useZAbbreviationForUtc);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATE
-    /// **DEPRECATED**: Use the overloads taking an `Iso8601UtilConfiguration`
-    /// object instead.
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DatetimeTz& object,
                                   bool              useZAbbreviationForUtc);
 
+    /// @DEPRECATED: Use the overloads taking an `Iso8601UtilConfiguration`
+    /// object instead.
     BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW
     static int generateRaw(char              *buffer,
                            const DateTz&      object,
@@ -1876,8 +1879,6 @@ struct Iso8601Util {
                            const TimeTz&      object,
                            bool               useZAbbreviationForUtc);
     BDLT_ISO8601UTIL_DEPRECATE_GENERATERAW
-    /// **DEPRECATED**: Use the overloads taking an `Iso8601UtilConfiguration`
-    /// object instead.
     static int generateRaw(char              *buffer,
                            const DatetimeTz&  object,
                            bool               useZAbbreviationForUtc);

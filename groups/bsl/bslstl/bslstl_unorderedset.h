@@ -1407,6 +1407,21 @@ class unordered_set {
     /// inserted.
     size_type bucket(const key_type& key) const;
 
+    /// Return the index of the bucket, in the array of buckets of this
+    /// container, where a value equivalent to the specified `key` would be
+    /// inserted.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    bucket(const LOOKUP_KEY& key) const
+    {
+        return d_impl.bucketIndexForKey(key);
+    }
+
     /// Return a local iterator providing non-modifiable access to the first
     /// `value_type` object (in the sequence of `value_type` objects) of the
     /// bucket having the specified `index` in the array of buckets

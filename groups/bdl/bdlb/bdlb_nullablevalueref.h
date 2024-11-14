@@ -329,19 +329,19 @@ class NullableValueRef {
     TYPE& makeValueInplace(ARGS&&... args);
 #endif
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOr",
-                                                      "Use 'value_or' instead")
     /// Return the value of the underlying object of a (template parameter)
     /// `TYPE` if this object is non-null, and the specified `otherValue`
     /// otherwise.  Note that this method returns *by* *value*, so may be
     /// inefficient in some contexts.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOr",
+                                                      "Use 'value_or' instead")
     TYPE valueOr(const TYPE& otherValue) const;
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOrNull",
-                                 "Use 'has_value() ? &value() : NULL' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and 0 otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOrNull",
+                                 "Use 'has_value() ? &value() : NULL' instead")
     const TYPE *valueOrNull() const;
 };
 

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 18:48:19 2024
+// Generated on Thu Nov  7 07:41:40 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
@@ -1104,6 +1104,21 @@ class unordered_set {
     /// container, where a value equivalent to the specified `key` would be
     /// inserted.
     size_type bucket(const key_type& key) const;
+
+    /// Return the index of the bucket, in the array of buckets of this
+    /// container, where a value equivalent to the specified `key` would be
+    /// inserted.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    bucket(const LOOKUP_KEY& key) const
+    {
+        return d_impl.bucketIndexForKey(key);
+    }
 
     /// Return a local iterator providing non-modifiable access to the first
     /// `value_type` object (in the sequence of `value_type` objects) of the

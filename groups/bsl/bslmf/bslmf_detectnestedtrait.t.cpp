@@ -854,7 +854,25 @@ int main(int argc, char *argv[])
                                                                         false);
 
         // Function types are not object types, nor cv-qualifiable.
+
+// The following conditional uses exact equality on the compiler version so we
+// can see if a compiler upgrade has fixed the issue or not.  In case you get
+// a compilation error please update the conditional to contain the new version
+// as well as 1941.
+#if defined(_MSC_VER) && _MSC_VER == 1941
+    // MSVC gets confused with `void(..)` somehow in the macros, so we have
+    // to use a typedef for the function types.
+    #define MSVC_FAILS_ON_VOID_ELLIPSIS
+#endif
+
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...),                  false);
+#else
+        {
+            typedef void FuncVoidAny(...);
+            ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(FuncVoidAny,            false);
+        }
+#endif
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(int (float,double),         false);
 #if !defined(BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES)
         ASSERT_DETECT_NESTED_TRAIT(void(...) const,                     false);
@@ -865,7 +883,14 @@ int main(int argc, char *argv[])
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) volatile &&,      false);
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...) noexcept,         false);
+#else
+        {
+            typedef void FuncVoidAnyNoexcept(...) noexcept;
+            ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(FuncVoidAnyNoexcept,    false);
+        }
+#endif
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) & noexcept,       false);
         ASSERT_DETECT_NESTED_TRAIT(void(...) const noexcept,            false);
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) const && noexcept,false);

@@ -582,7 +582,10 @@ STREAM& DatetimeTz::bdexStreamIn(STREAM& stream, int version)
             Datetime localDatetime;
             localDatetime.bdexStreamIn(stream, version);
 
-            int offset;
+            // Note that we have to initialize 'offset' to a value in order to
+            // silence potential -Wmaybe-uninitialized.
+
+            int offset = 0;
             stream.getInt32(offset);
 
             if (stream && isValid(localDatetime, offset)) {

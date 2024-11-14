@@ -2,8 +2,12 @@
 
 #include <bdlmt_multiqueuethreadpool.h>
 
+#include <bdlf_bind.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bslmf_movableref.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_latch.h>
@@ -13,14 +17,16 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
-#include <bsls_systemtime.h>
 
+#include <bsls_atomic.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_rawdeleterproctor.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_systemtime.h>
@@ -28,10 +34,10 @@
 #include <bsls_timeutil.h>  // For CachePerformance
 #include <bsls_types.h>     // For `BloombergLP::bsls::Types::Int64`
 
-#include <bdlf_bind.h>
-
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cmath.h>   // `sqrt`
+#include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
@@ -44,8 +50,6 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-#include <bsl_cmath.h>   // `sqrt`
-#include <bsl_cstdlib.h>
 
 using bsl::cout;
 using bsl::cerr;
@@ -115,7 +119,8 @@ using namespace BloombergLP;
 // [31] DRQS 140403279: pause can deadlock with delete and create
 // [32] DRQS 143578129: `numElements` stress test
 // [34] DRQS 176332566: external threadpool shutdown race
-// [35] USAGE EXAMPLE 1
+// [35] MOVING JOBS
+// [36] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -489,6 +494,173 @@ void deferredDeleteQueue(Obj *pObj, int id, bslmt::Latch *waitLatch)
 double now() {
     return bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
 }
+
+                     // ==========================
+                     // struct CopyAndMoveDetector
+                     // ==========================
+
+/// This `struct` is a very specific testing tool to determine if a created
+/// `Job` (a `bsl::function<void()>`) is moved all the way until it's executed.
+/// This type is used as a callable wrapped in a `bsl::function<void()>` to
+/// verify that:
+///   * The "value" (`d_ident`) is propagated all the way to the call site
+///   * No moved-from objects are moved or copied
+///   * Every single object is either moved, and one is called
+///   * Only one call happens
+///   * The type allows testing both cases of:
+///     * When the initial job is moved into the queue
+///     * When the initial job is copied into the queue (one copy is allowed)
+///
+/// For simplicity, this type supports *one* instance that is not a copy or a
+/// move, and it is called the root instance with its identity (address) stored
+/// in a class data member.  Every object knows if it is the root, and if it
+/// has been moved or called.  Copies, moves, and calls are also counted in
+/// class data members.
+struct CopyAndMoveDetector {
+    // CLASS DATA
+    static bsls::AtomicInt                 s_copies;
+    static bsls::AtomicInt                 s_moves;
+    static bsls::AtomicInt                 s_calls;
+    static bsls::AtomicPointer<const CopyAndMoveDetector> s_rootIdent;
+
+    const CopyAndMoveDetector *d_ident;
+    bool                       d_iamGroot;
+    bool                       d_moved;
+    mutable bool               d_copied;
+    mutable bool               d_called;
+
+    CopyAndMoveDetector()
+    : d_ident(this)
+    , d_iamGroot(0 == s_rootIdent)
+    , d_moved(false)
+    , d_copied(false)
+    , d_called(false)
+    {
+        if (d_iamGroot) {
+            s_rootIdent = d_ident;
+        }
+    }
+
+    ~CopyAndMoveDetector()
+    {
+        if (d_iamGroot) {
+            s_rootIdent = 0;
+        }
+
+        if (d_called) {
+            // A called job must not be moved or copied
+            ASSERTV(d_copied, d_moved, !d_copied && !d_moved);
+            ASSERTV(s_calls, 1 == s_calls);
+        }
+        else if (d_moved) {
+            // A moved job must not be copied or called
+            ASSERTV(d_copied, d_called, !d_copied && !d_called);
+        }
+        else if (d_copied) {
+// In C++03 we get an extra copy that is not eliminated and not called either
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            // This is the root object, we only allow that to be copied
+            ASSERTV(d_moved, d_called, !d_moved&& !d_called);
+            ASSERTV(s_calls, 1 == s_calls);
+#endif
+        }
+        else {
+            // An job must be copied, moved, or called
+            ASSERTV(d_moved, d_copied,
+                    d_called, d_moved || d_copied || d_called);
+        }
+    }
+
+    CopyAndMoveDetector(const CopyAndMoveDetector& other)
+    : d_ident(other.d_ident)
+    , d_iamGroot(false)
+    , d_moved(false)
+    , d_copied(false)
+    , d_called(false)
+    {
+        ASSERT(!other.d_moved);
+        ASSERT(!other.d_called);
+
+        other.d_copied = true;
+
+        ++s_copies;
+    }
+
+    CopyAndMoveDetector(bslmf::MovableRef<CopyAndMoveDetector> other)
+    : d_ident(bslmf::MovableRefUtil::access(other).d_ident)
+    , d_iamGroot(false)
+    , d_moved(false)
+    , d_copied(false)
+    , d_called(false)
+    {
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_moved);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_copied);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_called);
+
+        bslmf::MovableRefUtil::access(other).d_moved = true;
+        ++s_moves;
+    }
+
+    CopyAndMoveDetector& operator=(const CopyAndMoveDetector& other)
+    {
+        ASSERT(!other.d_moved);
+        ASSERT(!other.d_copied);
+        ASSERT(!other.d_called);
+
+        other.d_copied = true;
+
+        d_moved  = other.d_moved;
+        d_ident  = other.d_ident;
+        ++s_copies;
+        return *this;
+    }
+
+    CopyAndMoveDetector&operator=(bslmf::MovableRef<CopyAndMoveDetector> other)
+    {
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_moved);
+        ASSERT(!bslmf::MovableRefUtil::access(other).d_called);
+
+        d_ident = bslmf::MovableRefUtil::access(other).d_ident;
+        bslmf::MovableRefUtil::access(other).d_moved = true;
+        d_moved = false;
+        ++s_moves;
+        return *this;
+    }
+
+    void operator()() const
+    {
+        ASSERT(!d_moved);
+        ASSERT(!d_copied);
+        ASSERT(!d_called);
+
+        ASSERTV(s_calls, 0 == s_calls);
+
+        ++s_calls;
+        d_called = true;
+
+        ASSERT(d_ident == s_rootIdent);
+    }
+
+    const void *ident() const
+    {
+        return d_ident;
+    }
+
+    static void resetCounters()
+    {
+        ASSERTV(s_rootIdent, 0 == s_rootIdent);
+
+        s_copies = 0;
+        s_moves  = 0;
+        s_calls  = 0;
+    }
+};
+
+bsls::AtomicInt                           CopyAndMoveDetector::s_copies(0);
+bsls::AtomicInt                           CopyAndMoveDetector::s_moves(0);
+bsls::AtomicInt                           CopyAndMoveDetector::s_calls(0);
+bsls::AtomicPointer<const CopyAndMoveDetector>
+                                          CopyAndMoveDetector::s_rootIdent(0);
 
 // ============================================================================
 //      CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
@@ -1515,7 +1687,7 @@ int main(int argc, char *argv[]) {
     bslma::DefaultAllocatorGuard dGuard(&da);
 
     switch (test) { case 0:
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1595,6 +1767,124 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // MOVING JOBS
+        //
+        // Concerns:
+        // 1. If a job is added to a queue using a move it does not get copied
+        //    until it gets executed.
+        //
+        // Plan:
+        // 1. Use a specially designed functor that keeps track of its copies,
+        //    moves, and calls to verify C-1.
+        //
+        // Testing:
+        //   MOVING JOBS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MOVING JOBS\n"
+                          << "===========\n";
+
+        if (verbose) cout << "\nTesting `enqueueJob` with move.\n";
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+
+            const int queueId = mX.createQueue();
+
+            CopyAndMoveDetector::resetCounters();
+            // On C++11 onwards we could simply call `detector` `job` and
+            // `move` that into the queue, but unfortunately that is too much
+            // for Solaris Studio C++03, so we have to spell out every move
+            // individually.
+            CopyAndMoveDetector detector;
+            Obj::Job job(bslmf::MovableRefUtil::move(detector));
+            mX.enqueueJob(queueId, bslmf::MovableRefUtil::move(job));
+            mX.drain();
+
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    0 == CopyAndMoveDetector::s_copies);
+            ASSERTV(CopyAndMoveDetector::s_moves,
+                    CopyAndMoveDetector::s_moves > 0);
+        }
+
+        if (verbose) cout << "\nTesting `enqueueJob` with copy.\n";
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+
+            const int queueId = mX.createQueue();
+
+            CopyAndMoveDetector::resetCounters();
+            const CopyAndMoveDetector job;
+            mX.enqueueJob(queueId, job);
+            mX.drain();
+
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    1 == CopyAndMoveDetector::s_copies);
+#else
+            // In C++03 we get an extra, uneliminated temporary
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    2 == CopyAndMoveDetector::s_copies);
+#endif
+            ASSERTV(CopyAndMoveDetector::s_moves,
+                    0 == CopyAndMoveDetector::s_moves);
+        }
+
+        if (verbose) cout << "\nTesting `addJobAtFront` with move.\n";
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+
+            const int queueId = mX.createQueue();
+
+            CopyAndMoveDetector::resetCounters();
+            // On C++11 onwards we could simply call `detector` `job` and
+            // `move` that into the queue, but unfortunately that is too much
+            // for Solaris Studio C++03, so we have to spell out every move
+            // individually.
+            CopyAndMoveDetector detector;
+            Obj::Job job(bslmf::MovableRefUtil::move(detector));
+            mX.addJobAtFront(queueId, bslmf::MovableRefUtil::move(job));
+            mX.drain();
+
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    0 == CopyAndMoveDetector::s_copies);
+            ASSERTV(CopyAndMoveDetector::s_moves,
+                    CopyAndMoveDetector::s_moves > 0);
+        }
+
+        if (verbose) cout << "\nTesting `addJobAtFront` with copy.\n";
+        {
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+
+            const int queueId = mX.createQueue();
+
+            CopyAndMoveDetector::resetCounters();
+            const CopyAndMoveDetector job;
+            mX.addJobAtFront(queueId, job);
+            mX.drain();
+
+
+#if BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    1 == CopyAndMoveDetector::s_copies);
+#else
+            // In C++03 we get an extra, uneliminated temporary
+            ASSERTV(CopyAndMoveDetector::s_copies,
+                    2 == CopyAndMoveDetector::s_copies);
+#endif
+            ASSERTV(CopyAndMoveDetector::s_moves,
+                    0 == CopyAndMoveDetector::s_moves);
+        }
       }  break;
       case 34: {
         // --------------------------------------------------------------------
