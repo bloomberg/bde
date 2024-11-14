@@ -4,21 +4,19 @@
 
 #include <stdint.h>
 
-static inline int xsd_non_numerical_mapping(char       *result,
-                                            const bool  isNegative,
-                                            const bool  nonZeroMantissa)
+static inline int non_numerical_mapping(char       *result,
+                                        const bool  isNegative,
+                                        const bool  nonZeroMantissa)
     // Write the textual representation of a non-numeric IEE-754 special value
     // described by the specified 'isNegative' and 'nonZeroMantissa' into the
     // specified 'result' and return the number of characters written.
 {
-  if (nonZeroMantissa) {
-    memcpy(result, "NaN", 3);
-    return 3;
+  if (isNegative) {
+      *result = '-';
+      ++result;
   }
-
-  *result = (isNegative ? '-' : '+');
-  memcpy(result + 1, "INF", 3);
-  return 4;
+  memcpy(result, nonZeroMantissa ? "nan" : "inf", 3);
+  return isNegative + 3;
 }
 
 static inline bool needs_decimal_notation_m(uint32_t olength, int32_t exponent)
