@@ -736,6 +736,12 @@ struct TransparentComparator
                     // class TransparentlyComparable
                     // =============================
 
+// When one of these is passed to an `emplace`-like method, it is passed by
+// universal reference, and can (and should) be converted to int as a non-const
+// object.  However, C++03 doesn't have universal references, and instead we
+// pass the object as a const lvalue.  This causes the creation of the object
+// in the container to fail (at compile time), because `operator int()` is
+// non-const.  So, for C++03, we make the conversion work with a const source.
 class TransparentlyComparable {
     // DATA
 #if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
