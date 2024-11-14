@@ -9,9 +9,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // This file contains modified parts of Microsoft STL.
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -890,9 +890,9 @@ bool floatingHandleNanInf(char *       first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -911,9 +911,9 @@ bool floatingHandleNanInf(char *       first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1203,9 +1203,9 @@ char *toCharsHexPrecisionImp(char *       first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1436,9 +1436,9 @@ char *floatingToCharsGeneralImp(char       *first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1556,9 +1556,9 @@ const int GeneralPrecisionTables<double>::k_MaxP;
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1750,9 +1750,9 @@ const uint64_t GeneralPrecisionTables<double>::ordinaryXtable[314] = {
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1797,9 +1797,9 @@ const uint32_t GeneralPrecisionTables<float>::ordinaryXtable[44] = {
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -1992,9 +1992,9 @@ toCharsGeneralPrecisionImp(char *       first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
@@ -2046,9 +2046,9 @@ toCharsScientificPrecisionImp(char *           first,
 // Copyright (c) Microsoft Corporation.
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt

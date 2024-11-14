@@ -47,9 +47,9 @@ namespace bslmf {
 // Original source:
 // https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/type_traits
 //
-// Certain documents that are required to be distributed along with the above 
-// code from the Microsoft STL repository may be found in the "thirdparty"
-// folder of this BDE distribution under the names:
+// Certain documents that are required to be distributed along with the code
+// from the Microsoft STL repository may be found in the "thirdparty" folder of
+// this BDE distribution under the names:
 //
 // - thirdparty/Microsoft-STL-LICENSE.txt
 // - thirdparty/Microsoft-STL-NOTICE.txt
