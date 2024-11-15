@@ -1033,7 +1033,7 @@ class TimeQueue {
     void removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer = 0);
 
     /// Remove all the items from this queue for which `predicate` returns
-    /// `true`.  Optionally specifyd `newLength`, in which to load the number
+    /// `true`.  Optionally specify `newLength`, in which to load the number
     /// of items remaining in this queue.  Optionally specify `newMinTime`,
     /// in which to load the lowest remaining time value in this queue.
     /// Optionally specify a `buffer` in which to load the removed items.
@@ -1833,10 +1833,10 @@ void TimeQueue<DATA>::removeAll(
         Node        *prevNode = 0;
         do {
             // Iterate through the doubly linked list of nodes
-            Node *nextNode         = node->d_next_p;
+            Node *nextNode = node->d_next_p;
 
             if (predicate(node->d_data.object())) {
-                // This element should be erased.
+                // The predicate is `true`, this element should be erased.
                 if (buffer) {
                     buffer->push_back(TimeQueueItem<DATA>(
                                                          it->first,

@@ -72,6 +72,7 @@ using namespace bsl;
 // [7 ] void popLE(const bsls::TimeInterval& time,...
 // [4 ] int remove(Handle timeId, bsls::TimeInterval *newMinTime=0,...
 // [5 ] void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buf=0);
+// [16] void removeAll(const bsl::function&  predicate, ...);
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
@@ -89,7 +90,7 @@ using namespace bsl;
 // [13] CONCERN: Memory Pooling
 // [14] CONCERN: ORDER PRESERVATION
 // [15] CONCERN: OVERFLOW OF INDEX GENERATION COUNT
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -423,7 +424,9 @@ void gg(bdlcc::TimeQueue<char> *result, const bsl::string_view& input)
         bsl::string_view node = it.token();
         int timeSecs;
 
-        bsl::from_chars_result rc = bsl::from_chars(node.begin(), node.end(), timeSecs);
+        bsl::from_chars_result rc = bsl::from_chars(node.begin(),
+                                                    node.end(),
+                                                    timeSecs);
 
         // Validate that the first part of the token is a number.
         BSLS_ASSERT_OPT(rc.ptr == &node.back());
@@ -1602,6 +1605,9 @@ int main(int argc, char *argv[])
         // 4. That if `buffer` is supplied, it is loaded with all the removed
         //    elements.
         //
+        // 5. That if an optional argument is not supplied, the output argument
+        //    is ignored and the `removeAll` function behaves as expected.
+        //
         // 5. That after calling `removeAll` the time queue is left in a valid
         //    state.
         //
@@ -1610,16 +1616,20 @@ int main(int argc, char *argv[])
         //
         // 2. Using a table based testing approach, using `gg`, initialize
         //    a `TimeQueue<char>` into a series of states, and use `removeAll`
-        //    to remove all lower case characters.
-        //    ascii characters.  Use a table based test t
+        //    to remove all lower case characters.  Verify the removed items
+        //    and resulting time queue state with expectations. (C1-4)
         //
-        //   and assert that all the handles are indeed de-registered and that
-        //   the time queue is empty.  For the version that gets a copy of the
-        //   removed items into a local buffer, assert that the items are as
-        //   expected.
+        // 3. Call `removeAll` with different sets of optional arguments, and
+        //    verify its basic behavior does not change.  (C-5)
+        //
+        // 4. Using a table based testing approach, using `gg`, initialize
+        //    a `TimeQueue<char>` into a series of states, use `removeAll`
+        //    to remove lower case letters, then use use `gg` again to
+        //    add additional elements.  Verify the resulting state is
+        //    the expected state. (C-5).
         //
         // Testing:
-        //   void removeAll(bsl::function predicate, ...);
+        //   void removeAll(const bsl::function& predicate, ...);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
