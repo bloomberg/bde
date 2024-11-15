@@ -619,6 +619,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
+#include <bsl_functional.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
@@ -1030,6 +1031,16 @@ class TimeQueue {
     /// equivalent time interval have arbitrary ordering.  Note that the
     /// allocator of the `buffer` vector is used to supply memory.
     void removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer = 0);
+
+    /// Remove all the items from this queue for which `predicate` returns
+    /// `true`.  Optionally specifyd `newLength`, in which to load the number
+    /// of items remaining in this queue.  Optionally specify `newMinTime`,
+    /// in which to load the lowest remaining time value in this queue.
+    /// Optionally specify a `buffer` in which to load the removed items.
+    void removeAll(const bsl::function<bool(const DATA&)>&  predicate,
+                   int                                     *newLength  = 0,
+                   bsls::TimeInterval                      *newMinTime = 0,
+                   bsl::vector<TimeQueueItem<DATA> >       *buffer     = 0);
 
     /// Update the time value of the item having the specified `handle` to
     /// the specified `newTime` and optionally load into the optionally
@@ -1771,6 +1782,7 @@ void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
         Node *const last  = first->d_prev_p;
         Node *node = first;
 
+
         do {
             if (buffer) {
                 buffer->push_back(TimeQueueItem<DATA>(
@@ -1795,6 +1807,79 @@ void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
 
     lock.release()->unlock();
     putFreeNodeList(begin);
+}
+
+template <class DATA>
+void TimeQueue<DATA>::removeAll(
+                           const bsl::function<bool(const DATA&)>&  predicate,
+                           int                                     *newLength,
+                           bsls::TimeInterval                      *newMinTime,
+                           bsl::vector<TimeQueueItem<DATA> >       *buffer)
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    MapIter                        it = d_map.begin();
+
+    Node *freeNodeList = 0;
+    while (d_map.end() != it) {
+        // We cache the next iterator, in case we erase this element because
+        // its linked list of nodes is empty.
+
+        MapIter nextIt = it;
+        ++nextIt;
+
+        Node *const  first    = it->second;
+        Node *const  last     = first->d_prev_p;
+        Node        *node     = first;
+        Node        *prevNode = 0;
+        do {
+            // Iterate through the doubly linked list of nodes
+            Node *nextNode         = node->d_next_p;
+
+            if (predicate(node->d_data.object())) {
+                // This element should be erased.
+                if (buffer) {
+                    buffer->push_back(TimeQueueItem<DATA>(
+                                                         it->first,
+                                                         node->d_data.object(),
+                                                         node->d_index,
+                                                         node->d_key,
+                                                         d_allocator_p));
+                }
+                if (node->d_next_p != node) {
+                    // There is more than one node left in the list of nodes,
+                    // unlink it.
+
+                    node->d_prev_p->d_next_p = node->d_next_p;
+                    node->d_next_p->d_prev_p = node->d_prev_p;
+
+                    if (it->second == node) {
+                        it->second = node->d_next_p;
+                    }
+                }
+                else {
+                    // There is only one node left.  Erase the map element.
+                    d_map.erase(it);
+                }
+                freeNode(node);
+                --d_length;
+                node->d_next_p = freeNodeList;
+                freeNodeList   = node;
+            }
+            prevNode = node;
+            node     = nextNode;
+        } while (prevNode != last);
+        it = nextIt;
+    }
+    if (newLength) {
+        *newLength = d_length;
+    }
+    if (d_length && newMinTime) {
+        BSLS_ASSERT(! d_map.empty());
+
+        *newMinTime = d_map.begin()->first;
+    }
+    lock.release()->unlock();
+    putFreeNodeList(freeNodeList);
 }
 
 template <class DATA>
