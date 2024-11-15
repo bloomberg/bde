@@ -1626,6 +1626,27 @@ class basic_string
                           const CHAR_TYPE *other,
                           size_type        otherNumChars) const;
 
+    // NOT IMPLEMENTED
+
+    /// This method signature is defined as private, unimplemented, and (if
+    /// that is supported) deleted to avoid calls like `string.insert(0, 'x')`
+    /// to be picked up by the wrong insert function because the 0 converts
+    /// into a null pointer that is then treated as an iterator.  The faulty
+    /// call is an honest attempt to insert at the beginning of the string,
+    /// assuming that an insert with position first argument exists.
+    void insert(size_type zero, CHAR_TYPE) BSLS_KEYWORD_DELETED;
+
+    /// This method signature is defined as private, unimplemented, and (if
+    /// that is supported) deleted to avoid calls like
+    /// `string.replace(0, 0, sv.begin(), sv.end())` to be picked up by the
+    /// wrong replace function because the 0 converts into a null pointer that
+    /// is then treated as an iterator.  The faulty call is an honest
+    /// (although convoluted) attempt to insert at the beginning of the string,
+    /// assuming that a replace method with position arguments exists.
+    template <class INPUT_ITER>
+    void replace(size_type zero1, size_type zero2, INPUT_ITER, INPUT_ITER)
+                                                          BSLS_KEYWORD_DELETED;
+
     // INVARIANTS
     BSLMF_ASSERT((bsl::is_same<CHAR_TYPE,
                                typename ALLOCATOR::value_type>::value));
