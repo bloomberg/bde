@@ -1,5 +1,39 @@
-bsl-internal (4.16.0.0) unstable; urgency=low
+bsl-internal (4.17.0.0) unstable; urgency=low
 
+  * 44553fbef Bumped version to 4.17.0.0
+  * 5a0857be4 Merge pull request #4985 from afeher/drqs-176816660-floating-point-tochars
+  * ef07cc398 Add transparent 'bucket' to HashTable and unordered_map (#5072)
+  * 8727e7cb3 Merge pull request #5085 from afeher/drqs-177261342-fix-bslmf-test-drivers-for-latest-msvc
+  * 58e1ae919 Fix minor doc issue (#5077)
+  * f62386f84 Fix the link coercion implementation (#5073)
+  * acb0240dd Change `bslma::Allocator` to return non-null ptr when using `memory_resource` interface - DRQS 175442282 (#5030)
+  * fc82e2813 remove zero-argument 'reserve' from bsl::string (#5036)
+  * 23c6a91c2 Implement P2591: Concatenation of strings and string_views (#5027)
+  * dc3c96d45 Merge pull request #5075 from afeher/drqs-175968161-add-moveing-jobs-to-threadpool-reinstating
+  * 77fe72676 bdlt_datetimetz.h: silence -Wmaybe-uninitialized (#5065)
+  * b07159965 Merge pull request #5071 from afeher/drqs-177209252-fix-msvc-compilation-error
+  * afd55c3b9 Bdlcc stripedunorderedimpl data race fix (#4989)
+  * 73d591190 balst: clean up test driver failures on g++13 C++20 (#5068)
+  * a542ae505 Remove extraneous 'noexcept' on string_view::contains(char *) (#5069)
+  * af64533c7 Fix C++20 compiler warnings per DRQS 176211490 (#5067)
+  * d5cad2453 Clean up asynchfileobserver intermittent failures (#5062)
+  * 683479324 Add more C++20 type traits {DRQS 177082446} (#5060)
+  * e2a1b3f9e Merge pull request #5049 from afeher/drqs-140477040-fail-allocator-array-new-on-msvc
+  * d7c0124bd Fix bslmf_istriviallydefaultconstructible documentation. (#5059)
+  * 7b3614ced Supress conversion warnings
+  * e84a9dd4a Add C++20 constexpr and consteval macros (#5048)
+  * d08e955d9 Avoid allocations in ball::Attribute (#5040)
+  * ad9958aef bsls_stackaddressutil zero padding for stack addresses (#5057)
+  * 0d783d310 Merge pull request #5053 from afeher/drqs-177136864-explain-zero-tolerance-behavior-instead-of-negativce-tolerance
+  * ca7597d07 balst_stacktracetestallocator: sun gcc opt bug workaround - use functor not func ptr (#5051)
+  * 5d339be3a Fix PublicationScheduler (#5047)
+  * 2a1788ab7 Revert "Add move for jobs in bdlmt_multiqueuethreadpool." (#5050)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Nov 2024 12:29:25 -0500
+
+bsl-internal (4.16.0.0) git; urgency=low
+
+  * fb73e2dc5 Changelog for version 4.16.0.0
   * 1b2d839ad Bumped version to 4.16.0.0
   * 36dbb983e Add bdlb::DoubleCompareUtil from bdeimp_Fuzzy. (#5042)
   * 0cb390fa5 Adjust windows (#5046)
@@ -28,7 +62,7 @@ bsl-internal (4.16.0.0) unstable; urgency=low
   * d252584e0 Implement bdlf_overloaded (#4928)
   * 37d3b2f27 No char_traits<NON_CHAR_TYPE> (#4995)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Oct 2024 18:43:37 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Oct 2024 18:47:29 -0400
 
 bsl-internal (4.15.0.0) git; urgency=low
 
