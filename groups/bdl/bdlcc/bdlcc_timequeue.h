@@ -1025,22 +1025,24 @@ class TimeQueue {
                bsls::TimeInterval  *newMinTime = 0,
                TimeQueueItem<DATA> *item = 0);
 
-    /// Remove all the items from this queue.  Optionally specify a `buffer`
-    /// in which to load the removed items.  The resultant items in the
-    /// `buffer` are ordered by increasing time interval; items of
-    /// equivalent time interval have arbitrary ordering.  Note that the
-    /// allocator of the `buffer` vector is used to supply memory.
-    void removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer = 0);
+    /// Remove all the items from this queue.  Optionally specify a
+    /// `removedItems` vector in which to load the removed items.  The
+    /// resultant items in the `buffer` are ordered by increasing time
+    /// interval; items of equivalent time interval have arbitrary ordering.
+    /// Note that the allocator of the `removedItems` vector is used to supply
+    /// memory.
+    void removeAll(bsl::vector<TimeQueueItem<DATA> > *removedItems = 0);
 
     /// Remove all the items from this queue for which `predicate` returns
-    /// `true`.  Optionally specify `newLength`, in which to load the number
-    /// of items remaining in this queue.  Optionally specify `newMinTime`,
-    /// in which to load the lowest remaining time value in this queue.
-    /// Optionally specify a `buffer` in which to load the removed items.
-    void removeAll(const bsl::function<bool(const DATA&)>&  predicate,
-                   int                                     *newLength  = 0,
-                   bsls::TimeInterval                      *newMinTime = 0,
-                   bsl::vector<TimeQueueItem<DATA> >       *buffer     = 0);
+    /// `true`.  Optionally specify `newLength`, in which to load the number of
+    /// items remaining in this queue.  Optionally specify `newMinTime`, in
+    /// which to load the lowest remaining time value in this queue.
+    /// Optionally specify a vector of `removedItems` in which to load the
+    /// removed items.
+    void removeIf(const bsl::function<bool(const DATA&)>&  predicate,
+                  int                                     *newLength    = 0,
+                  bsls::TimeInterval                      *newMinTime   = 0,
+                  bsl::vector<TimeQueueItem<DATA> >       *removedItems = 0);
 
     /// Update the time value of the item having the specified `handle` to
     /// the specified `newTime` and optionally load into the optionally
@@ -1771,7 +1773,7 @@ int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
 }
 
 template <class DATA>
-void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
+void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *removedItems)
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     MapIter it = d_map.begin();
@@ -1782,10 +1784,9 @@ void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
         Node *const last  = first->d_prev_p;
         Node *node = first;
 
-
         do {
-            if (buffer) {
-                buffer->push_back(TimeQueueItem<DATA>(
+            if (removedItems) {
+                removedItems->push_back(TimeQueueItem<DATA>(
                                                          it->first,
                                                          node->d_data.object(),
                                                          node->d_index,
@@ -1810,16 +1811,16 @@ void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
 }
 
 template <class DATA>
-void TimeQueue<DATA>::removeAll(
+void TimeQueue<DATA>::removeIf(
                            const bsl::function<bool(const DATA&)>&  predicate,
                            int                                     *newLength,
                            bsls::TimeInterval                      *newMinTime,
-                           bsl::vector<TimeQueueItem<DATA> >       *buffer)
+                           bsl::vector<TimeQueueItem<DATA> >       *removedItems)
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    MapIter                        it = d_map.begin();
 
-    Node *freeNodeList = 0;
+    MapIter  it           = d_map.begin();
+    Node    *freeNodeList = 0;
     while (d_map.end() != it) {
         // We cache the next iterator, in case we erase this element because
         // its linked list of nodes is empty.
@@ -1837,8 +1838,8 @@ void TimeQueue<DATA>::removeAll(
 
             if (predicate(node->d_data.object())) {
                 // The predicate is `true`, this element should be erased.
-                if (buffer) {
-                    buffer->push_back(TimeQueueItem<DATA>(
+                if (removedItems) {
+                    removedItems->push_back(TimeQueueItem<DATA>(
                                                          it->first,
                                                          node->d_data.object(),
                                                          node->d_index,

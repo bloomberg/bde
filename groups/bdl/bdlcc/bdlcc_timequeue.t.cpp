@@ -72,7 +72,7 @@ using namespace bsl;
 // [7 ] void popLE(const bsls::TimeInterval& time,...
 // [4 ] int remove(Handle timeId, bsls::TimeInterval *newMinTime=0,...
 // [5 ] void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buf=0);
-// [16] void removeAll(const bsl::function&  predicate, ...);
+// [16] void removeIf(const bsl::function&  predicate, ...);
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
@@ -134,8 +134,8 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 #define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 
 // ============================================================================
@@ -1591,10 +1591,10 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TEST REMOVEALL MANIPULATOR W/ PREDICATE
+        // TEST REMOVEIF MANIPULATOR W/ PREDICATE
         //
         // Concerns:
-        // 1. `removeAll` removes only those items for which the supplied
+        // 1. `removeIf` removes only those items for which the supplied
         //    predicate function is `true`.
         //
         // 2. That if `newLength` is supplied, it is loaded with the new length.
@@ -1606,34 +1606,34 @@ int main(int argc, char *argv[])
         //    elements.
         //
         // 5. That if an optional argument is not supplied, the output argument
-        //    is ignored and the `removeAll` function behaves as expected.
+        //    is ignored and the `removeIf` function behaves as expected.
         //
-        // 5. That after calling `removeAll` the time queue is left in a valid
+        // 5. That after calling `removeIf` the time queue is left in a valid
         //    state.
         //
         // Plan:
         // 1. Test the `gg` function using a series of hand chosen input strings.
         //
         // 2. Using a table based testing approach, using `gg`, initialize
-        //    a `TimeQueue<char>` into a series of states, and use `removeAll`
+        //    a `TimeQueue<char>` into a series of states, and use `removeIf`
         //    to remove all lower case characters.  Verify the removed items
         //    and resulting time queue state with expectations. (C1-4)
         //
-        // 3. Call `removeAll` with different sets of optional arguments, and
+        // 3. Call `removeIf` with different sets of optional arguments, and
         //    verify its basic behavior does not change.  (C-5)
         //
         // 4. Using a table based testing approach, using `gg`, initialize
-        //    a `TimeQueue<char>` into a series of states, use `removeAll`
+        //    a `TimeQueue<char>` into a series of states, use `removeIf`
         //    to remove lower case letters, then use use `gg` again to
         //    add additional elements.  Verify the resulting state is
         //    the expected state. (C-5).
         //
         // Testing:
-        //   void removeAll(const bsl::function& predicate, ...);
+        //   void removeIf(const bsl::function& predicate, ...);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing `removeAll` manipulator" << endl
+                          << "Testing `removeIf` manipulator" << endl
                           << "===============================" << endl;
 
         using namespace TIMEQUEUE_TEST_CASE_16;
@@ -1643,7 +1643,7 @@ int main(int argc, char *argv[])
 
         cout << "\tTesting `gg` generator langauge." << endl;
         {
-            typedef bdlcc::TimeQueue<char> Obj;
+            typedef bdlcc::TimeQueue<char>                   Obj;
             typedef bsl::vector<bdlcc::TimeQueueItem<char> > Contents;
 
             // Testing valid inputs
@@ -1698,18 +1698,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        cout << "\tTesting `removeAll` removes correct items." << endl;
+        cout << "\tTesting `removeIf` removes correct items." << endl;
         {
             struct {
-                int         d_lineNum;
+                int         d_line;
 
-                const char *d_ggInput;    // A `gg` expression for the
-                                          // initial queue
+                const char *d_ggInput;    // A `gg` generator expression for
+                                          // the initial queue
 
                 const char *d_removed;    // Sequence of characters removed
                                           // (ordered by time)
 
-                const char *d_remaining;  // sequence of characters ramining
+                const char *d_remaining;  // sequence of characters remaining
                                           // (ordered by time)
             } DATA[] = {
                 // Note that we will use `isLower` as the predicate for
@@ -1729,7 +1729,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE      = DATA[i].d_lineNum;
+                const int   LINE      = DATA[i].d_line;
                 const char *INPUT     = DATA[i].d_ggInput;
                 const char *REMOVED   = DATA[i].d_removed;
                 const char *REMAINING = DATA[i].d_remaining;
@@ -1746,7 +1746,7 @@ int main(int argc, char *argv[])
                 bsl::vector<bdlcc::TimeQueueItem<char> > removed, remaining;
 
                 // Call the function under test.
-                mX.removeAll(&bdlb::CharType::isLower,
+                mX.removeIf(&bdlb::CharType::isLower,
                              &newLength,
                              &newMinTime,
                              &removed);
@@ -1786,7 +1786,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        cout << "\tTesting  behavior for default optional parameters." << endl;
+        cout << "\tTesting behavior for default optional parameters." << endl;
 
         {
             const char *INPUT      = "1a 2b 3C 4d 5E 6g";
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
 
                 bsl::vector<bdlcc::TimeQueueItem<char> > remain;
                 gg(&mX, INPUT);
-                mX.removeAll(&bdlb::CharType::isLower);
+                mX.removeIf(&bdlb::CharType::isLower);
 
                 bsls::TimeInterval minTime;
                 ASSERTV(0 == X.minTime(&minTime));
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
 
                 bsl::vector<bdlcc::TimeQueueItem<char> > remain;
                 gg(&mX, INPUT);
-                mX.removeAll(&bdlb::CharType::isLower, &newLength);
+                mX.removeIf(&bdlb::CharType::isLower, &newLength);
 
                 bsls::TimeInterval minTime;
                 ASSERTV(0 == X.minTime(&minTime));
@@ -1857,7 +1857,7 @@ int main(int argc, char *argv[])
 
                 bsl::vector<bdlcc::TimeQueueItem<char> > remain;
                 gg(&mX, INPUT);
-                mX.removeAll(&bdlb::CharType::isLower, &newLength, &minTime);
+                mX.removeIf(&bdlb::CharType::isLower, &newLength, &minTime);
 
 
                 ASSERTV(NEW_LENGTH, newLength, NEW_LENGTH == newLength);
@@ -1878,7 +1878,7 @@ int main(int argc, char *argv[])
 
         }
 
-        cout << "\tTesting `add` afer `removeAll`." << endl;
+        cout << "\tTesting `add` afer `removeIf`." << endl;
         {
             struct {
                 int         d_lineNum;
@@ -1918,10 +1918,10 @@ int main(int argc, char *argv[])
 
                 bsl::vector<bdlcc::TimeQueueItem<char> > remaining;
 
-                // Add initial items, call removeAll, then insert additional items.
+                // Add initial items, call removeIf, then insert additional items.
 
                 gg(&mX, INPUT_1);
-                mX.removeAll(&bdlb::CharType::isLower);
+                mX.removeIf(&bdlb::CharType::isLower);
                 gg(&mX, INPUT_2);
 
                 mX.removeAll(&remaining);
