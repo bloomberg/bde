@@ -9,6 +9,7 @@
 #include <bdlt_datetime.h>
 
 #include <bdlb_chartype.h>
+#include <bdlb_numericparseutil.h>
 #include <bdlb_tokenizer.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -422,20 +423,17 @@ void gg(bdlcc::TimeQueue<char> *result, const bsl::string_view& input)
     bdlb::Tokenizer it(input, " ");
     for (; it.isValid(); ++it) {
         bsl::string_view node = it.token();
+
         int timeSecs;
+        bsl::string_view remainder;
 
-        bsl::from_chars_result rc = bsl::from_chars(node.begin(),
-                                                    node.end(),
-                                                    timeSecs);
+        int rc = bdlb::NumericParseUtil::parseInt(&timeSecs, &remainder, node);
 
-        // Validate that the first part of the token is a number.
-        BSLS_ASSERT_OPT(rc.ptr == &node.back());
-        BSLS_ASSERT_OPT(bsl::errc() == rc.ec);
+        BSLS_ASSERT_OPT(0 == rc);
+        BSLS_ASSERT_OPT(1 == remainder.size());
+        BSLS_ASSERT_OPT(bdlb::CharType::isAlpha(remainder.front()));
 
-        // Validate the second part is a single character.
-        BSLS_ASSERT_OPT(bdlb::CharType::isAlpha(*rc.ptr));
-
-        result->add(bsls::TimeInterval(timeSecs,0), *rc.ptr);
+        result->add(bsls::TimeInterval(timeSecs, 0), remainder.front());
     }
 
 }
@@ -1591,7 +1589,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TEST REMOVEIF MANIPULATOR W/ PREDICATE
+        // TEST REMOVEIF MANIPULATOR
         //
         // Concerns:
         // 1. `removeIf` removes only those items for which the supplied
@@ -1694,7 +1692,6 @@ int main(int argc, char *argv[])
                 ASSERT_OPT_FAIL(gg(&mX, "1.0a"));
                 ASSERT_OPT_FAIL(gg(&mX, "1aa"));
                 ASSERT_OPT_FAIL(gg(&mX, "1a 1aa"));
-
             }
         }
 
@@ -1747,9 +1744,9 @@ int main(int argc, char *argv[])
 
                 // Call the function under test.
                 mX.removeIf(&bdlb::CharType::isLower,
-                             &newLength,
-                             &newMinTime,
-                             &removed);
+                            &newLength,
+                            &newMinTime,
+                            &removed);
 
                 // Cache values for the length and minTime after the call.
                 expLength = X.length();
