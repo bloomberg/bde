@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // and the container has *space* *available* if it is not full.  The high-water
 // mark is set at construction and cannot be changed afterward.  If no
 // high-water mark is specified, the high-water mark of the container is
-// effectively inifinite.  Some of the variants of push operations (described
+// effectively infinite.  Some of the variants of push operations (described
 // below) may fail, and the return status of those operations indicates whether
 // the operation succeeded, failed, or partially succeeded (which may happen,
 // for example, when pushing a range of values).
