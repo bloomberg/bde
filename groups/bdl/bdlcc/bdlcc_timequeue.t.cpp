@@ -8,6 +8,10 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 
+#include <bdlb_chartype.h>
+#include <bdlb_numericparseutil.h>
+#include <bdlb_tokenizer.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
@@ -21,11 +25,15 @@
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_keyword.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
+#include <bsl_charconv.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_ctime.h>
@@ -65,6 +73,7 @@ using namespace bsl;
 // [7 ] void popLE(const bsls::TimeInterval& time,...
 // [4 ] int remove(Handle timeId, bsls::TimeInterval *newMinTime=0,...
 // [5 ] void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buf=0);
+// [16] void removeIf(const bsl::function&  predicate, ...);
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
@@ -82,7 +91,7 @@ using namespace bsl;
 // [13] CONCERN: Memory Pooling
 // [14] CONCERN: ORDER PRESERVATION
 // [15] CONCERN: OVERFLOW OF INDEX GENERATION COUNT
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -117,6 +126,18 @@ void aSsErT(int c, const char *s, int i)
 #define L_  BSLMT_TESTUTIL_L_  // current Line number
 
 #define OUTPUT_GUARD BSLMT_TESTUTIL_GUARD
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -359,6 +380,65 @@ void populate(Container               *container_p,
 }
 
 }  // close namespace TIMEQUEUE_TEST_CASE_ORDER_PRESERVATION
+
+// ============================================================================
+//                         CASE 16 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace TIMEQUEUE_TEST_CASE_16 {
+
+//=============================================================================
+//       GENERATOR FUNCTIONS `gg` FOR TESTING LISTS `renoveAll`
+//-----------------------------------------------------------------------------
+// The `gg` family of functions generate a `TimeQueue<char>` object for
+// testing.  They interpret a given `spec` (from left to right) to configure
+// time queue
+//
+// LANGUAGE SPECIFICATION:
+// -----------------------
+//
+// <SPEC>       ::= (<INTERVAL> <ELEMENT> ' ')*
+//
+// <INTERVAL>   ::= ['0' - '9']+   %% the time interval for the element
+//                                 %% containers to add
+//
+// <ELEMENT>    ::= ['a'-'z''A'-'Z']
+//                                 %% the character the timequeue element
+//                                 %% will have
+//
+// Spec String      Description
+// -----------      -----------------------------------------------------------
+// ""               Has no effect; leaves the time queue unaltered
+//
+// "1A"             add's (TimeInterval(1), 'A') to the time queue
+//
+// "42z"            add's (TimeInterval(42), 'z') to the time queue
+//
+// "1A 42z"         add's (TimeInterval(1), 'A') then (TimeInterval(1), 'z') to
+//                   the time queue
+//-----------------------------------------------------------------------------
+
+void gg(bdlcc::TimeQueue<char> *result, const bsl::string_view& input)
+{
+    bdlb::Tokenizer it(input, " ");
+    for (; it.isValid(); ++it) {
+        bsl::string_view node = it.token();
+
+        int timeSecs;
+        bsl::string_view remainder;
+
+        int rc = bdlb::NumericParseUtil::parseInt(&timeSecs, &remainder, node);
+
+        BSLS_ASSERT_OPT(0 == rc);
+        BSLS_ASSERT_OPT(1 == remainder.size());
+        BSLS_ASSERT_OPT(bdlb::CharType::isAlpha(remainder.front()));
+
+        result->add(bsls::TimeInterval(timeSecs, 0), remainder.front());
+    }
+
+}
+
+}  // close namespace TIMEQUEUE_TEST_CASE_16
 
 // ============================================================================
 //                         CASE 11 RELATED ENTITIES
@@ -1476,7 +1556,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1506,6 +1586,352 @@ int main(int argc, char *argv[])
             usageExample(verbose);
         }
 
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TEST REMOVEIF MANIPULATOR
+        //
+        // Concerns:
+        // 1. `removeIf` removes only those items for which the supplied
+        //    predicate function is `true`.
+        //
+        // 2. That if `newLength` is supplied, it is loaded with the new length.
+        //
+        // 3. That if `newMinTime` is supplied, it is loaded with the new
+        //    minimum time in the queue
+        //
+        // 4. That if `buffer` is supplied, it is loaded with all the removed
+        //    elements.
+        //
+        // 5. That if an optional argument is not supplied, the output argument
+        //    is ignored and the `removeIf` function behaves as expected.
+        //
+        // 5. That after calling `removeIf` the time queue is left in a valid
+        //    state.
+        //
+        // Plan:
+        // 1. Test the `gg` function using a series of hand chosen input strings.
+        //
+        // 2. Using a table based testing approach, using `gg`, initialize
+        //    a `TimeQueue<char>` into a series of states, and use `removeIf`
+        //    to remove all lower case characters.  Verify the removed items
+        //    and resulting time queue state with expectations. (C1-4)
+        //
+        // 3. Call `removeIf` with different sets of optional arguments, and
+        //    verify its basic behavior does not change.  (C-5)
+        //
+        // 4. Using a table based testing approach, using `gg`, initialize
+        //    a `TimeQueue<char>` into a series of states, use `removeIf`
+        //    to remove lower case letters, then use use `gg` again to
+        //    add additional elements.  Verify the resulting state is
+        //    the expected state. (C-5).
+        //
+        // Testing:
+        //   void removeIf(const bsl::function& predicate, ...);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Testing `removeIf` manipulator" << endl
+                          << "===============================" << endl;
+
+        using namespace TIMEQUEUE_TEST_CASE_16;
+
+        typedef bsl::vector<bdlcc::TimeQueueItem<char> >::const_iterator
+            ItemIter;
+
+        cout << "\tTesting `gg` generator langauge." << endl;
+        {
+            typedef bdlcc::TimeQueue<char>                   Obj;
+            typedef bsl::vector<bdlcc::TimeQueueItem<char> > Contents;
+
+            // Testing valid inputs
+            {
+                Obj mX; const Obj& X = mX;
+                gg(&mX, "");
+
+                ASSERTV(0 == X.length());
+            }
+
+            {
+                Contents c; const Contents& C = c;
+                Obj mX; const Obj& X = mX;
+                gg(&mX, "1a");
+
+                ASSERTV(1 == X.length());
+
+                mX.removeAll(&c);
+                ASSERTV(1 == C.size());
+                ASSERTV('a' == C[0].data());
+                ASSERTV(bsls::TimeInterval(1) == C[0].time());
+            }
+
+            {
+                Contents c; const Contents& C = c;
+                Obj mX; const Obj& X = mX;
+                gg(&mX, "10a 1Z");
+
+                ASSERTV(2 == X.length());
+
+                mX.removeAll(&c);
+                ASSERTV(2 == C.size());
+
+                ASSERTV('Z' == C[0].data());
+                ASSERTV(bsls::TimeInterval(1) == C[0].time());
+                ASSERTV('a' == C[1].data());
+                ASSERTV(bsls::TimeInterval(10) == C[1].time());
+            }
+
+            // testing invalid inuts
+            {
+                cout << "\t\tnegative testing" << endl;
+                bsls::AssertTestHandlerGuard hG;
+                Obj mX;
+                (void)mX;
+                ASSERT_OPT_FAIL(gg(&mX, "a"));
+                ASSERT_OPT_FAIL(gg(&mX, "a1"));
+                ASSERT_OPT_FAIL(gg(&mX, "1.0a"));
+                ASSERT_OPT_FAIL(gg(&mX, "1aa"));
+                ASSERT_OPT_FAIL(gg(&mX, "1a 1aa"));
+            }
+        }
+
+        cout << "\tTesting `removeIf` removes correct items." << endl;
+        {
+            struct {
+                int         d_line;
+
+                const char *d_ggInput;    // A `gg` generator expression for
+                                          // the initial queue
+
+                const char *d_removed;    // Sequence of characters removed
+                                          // (ordered by time)
+
+                const char *d_remaining;  // sequence of characters remaining
+                                          // (ordered by time)
+            } DATA[] = {
+                // Note that we will use `isLower` as the predicate for
+                // removing items
+
+                {L_, "", "", ""},
+                {L_, "1a", "a", ""},
+                {L_, "1A", "", "A"},
+                {L_, "1a 1a", "aa", ""},
+                {L_, "1A 1A", "", "AA"},
+                {L_, "1a 1A 1a", "aa", "A"},
+                {L_, "1a 1A 1a 1A", "aa", "AA"},
+                {L_, "1a 1a 2B 2B", "aa", "BB"},
+
+            };
+
+            const int NUM_VALUES = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const int   LINE      = DATA[i].d_line;
+                const char *INPUT     = DATA[i].d_ggInput;
+                const char *REMOVED   = DATA[i].d_removed;
+                const char *REMAINING = DATA[i].d_remaining;
+
+                bdlcc::TimeQueue<char> mX(&ta);
+
+                const bdlcc::TimeQueue<char>& X = mX;
+
+                gg(&mX, INPUT);
+
+                int                newLength, expLength;
+                bsls::TimeInterval newMinTime, expMinTime;
+
+                bsl::vector<bdlcc::TimeQueueItem<char> > removed, remaining;
+
+                // Call the function under test.
+                mX.removeIf(&bdlb::CharType::isLower,
+                            &newLength,
+                            &newMinTime,
+                            &removed);
+
+                // Cache values for the length and minTime after the call.
+                expLength = X.length();
+                X.minTime(&expMinTime);
+
+                // Remvoe any remaining items
+                mX.removeAll(&remaining);
+
+                ASSERTV(LINE, expLength, newLength, expLength == newLength);
+                if (X.length() > 0) {
+                        ASSERTV(LINE,
+                                expMinTime,
+                                newMinTime,
+                                expMinTime == newMinTime);
+                }
+
+                bsl::string removedStr, remainingStr;
+                for (ItemIter it = removed.begin(); it != removed.end();
+                     ++it) {
+                        removedStr.append(1, it->data());
+                }
+                for (ItemIter it = remaining.begin(); it != remaining.end();
+                     ++it) {
+                        remainingStr.append(1, it->data());
+                }
+
+                ASSERTV(LINE, REMOVED, removedStr, REMOVED == removedStr);
+                ASSERTV(LINE,
+                        REMAINING,
+                        remainingStr,
+                        REMAINING == remainingStr);
+
+                mX.removeAll(&remaining);
+            }
+        }
+
+        cout << "\tTesting behavior for default optional parameters." << endl;
+
+        {
+            const char *INPUT      = "1a 2b 3C 4d 5E 6g";
+            const char *REMAINING  = "CE";
+            const int   NEW_LENGTH = 2;
+
+            const bsls::TimeInterval MIN_TIME(3);
+
+            // No optional parameters supplied
+
+            {
+                bdlcc::TimeQueue<char> mX(&ta);
+                const bdlcc::TimeQueue<char>& X = mX;
+
+                bsl::vector<bdlcc::TimeQueueItem<char> > remain;
+                gg(&mX, INPUT);
+                mX.removeIf(&bdlb::CharType::isLower);
+
+                bsls::TimeInterval minTime;
+                ASSERTV(0 == X.minTime(&minTime));
+
+                ASSERTV(NEW_LENGTH, X.length(), NEW_LENGTH == X.length());
+                ASSERTV(MIN_TIME, minTime, MIN_TIME == minTime);
+
+                mX.removeAll(&remain);
+                bsl::string result;
+                for (ItemIter it = remain.begin(); it != remain.end(); ++it) {
+                        result.append(1, it->data());
+                }
+
+                ASSERTV(REMAINING, result, REMAINING == result);
+            }
+
+            // One optional parameter supplied
+
+            {
+                int newLength;
+                bdlcc::TimeQueue<char> mX(&ta);
+                const bdlcc::TimeQueue<char>& X = mX;
+
+                bsl::vector<bdlcc::TimeQueueItem<char> > remain;
+                gg(&mX, INPUT);
+                mX.removeIf(&bdlb::CharType::isLower, &newLength);
+
+                bsls::TimeInterval minTime;
+                ASSERTV(0 == X.minTime(&minTime));
+
+                ASSERTV(NEW_LENGTH, newLength, NEW_LENGTH == newLength);
+                ASSERTV(NEW_LENGTH, X.length(), NEW_LENGTH == X.length());
+                ASSERTV(MIN_TIME, minTime, MIN_TIME == minTime);
+
+                mX.removeAll(&remain);
+                bsl::string result;
+                for (ItemIter it = remain.begin(); it != remain.end(); ++it) {
+                        result.append(1, it->data());
+                }
+
+                ASSERTV(REMAINING, result, REMAINING == result);
+            }
+
+            // Two optional parameter supplied
+
+            {
+                bsls::TimeInterval minTime;
+                int newLength;
+                bdlcc::TimeQueue<char> mX(&ta);
+                const bdlcc::TimeQueue<char>& X = mX;
+
+                bsl::vector<bdlcc::TimeQueueItem<char> > remain;
+                gg(&mX, INPUT);
+                mX.removeIf(&bdlb::CharType::isLower, &newLength, &minTime);
+
+
+                ASSERTV(NEW_LENGTH, newLength, NEW_LENGTH == newLength);
+                ASSERTV(NEW_LENGTH, X.length(), NEW_LENGTH == X.length());
+                ASSERTV(MIN_TIME, minTime, MIN_TIME == minTime);
+
+                mX.removeAll(&remain);
+                bsl::string result;
+                for (ItemIter it = remain.begin(); it != remain.end(); ++it) {
+                        result.append(1, it->data());
+                }
+
+                ASSERTV(REMAINING, result, REMAINING == result);
+            }
+
+            // Note that supplying all optional parameters is the
+            // base case we have already tested.
+
+        }
+
+        cout << "\tTesting `add` afer `removeIf`." << endl;
+        {
+            struct {
+                int         d_lineNum;
+
+                const char *d_ggInput1;   // A `gg` expression for the
+                                          // initial queue
+
+                const char *d_ggInput2;   // A `gg` second expression for the
+                                          // initial queue
+
+                const char *d_remaining;  // sequence of characters ramining
+                                          // (ordered by time)
+            } DATA[] = {
+                // Note that we will use `isLower` as the predicate for
+                // removing items
+
+                {L_, "", "", ""},
+                {L_, "", "2b", "b"},
+                {L_, "1a", "2b", "b"},
+                {L_, "1A", "2b", "Ab"},
+                {L_, "1a 1a", "2b", "b"},
+                {L_, "1A 1A", "2b", "AAb"},
+                {L_, "2a 2a", "1b", "b"},
+                {L_, "2A 2A", "1b", "bAA"},
+            };
+
+            const int NUM_VALUES = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+
+                const int   LINE      = DATA[i].d_lineNum;
+                const char *INPUT_1   = DATA[i].d_ggInput1;
+                const char *INPUT_2   = DATA[i].d_ggInput2;
+                const char *REMAINING = DATA[i].d_remaining;
+
+                bdlcc::TimeQueue<char> mX(&ta);
+
+                bsl::vector<bdlcc::TimeQueueItem<char> > remaining;
+
+                // Add initial items, call removeIf, then insert additional items.
+
+                gg(&mX, INPUT_1);
+                mX.removeIf(&bdlb::CharType::isLower);
+                gg(&mX, INPUT_2);
+
+                mX.removeAll(&remaining);
+
+                bsl::string result;
+                for (ItemIter it = remaining.begin(); it != remaining.end();
+                     ++it) {
+                        result.append(1, it->data());
+                }
+
+                ASSERTV(LINE, REMAINING, result, REMAINING == result);
+            }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
