@@ -12,12 +12,11 @@ BSLS_IDENT_RCSID(bdls_tempdirectoryguard_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdls {
 
-TempDirectoryGuard::TempDirectoryGuard(const bsl::string&  prefix,
-                                       bslma::Allocator   *basicAllocator)
+TempDirectoryGuard::TempDirectoryGuard(const bsl::string_view&  prefix,
+                                       bslma::Allocator        *basicAllocator)
 : d_dirName(bslma::Default::allocator(basicAllocator))
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    bsl::string tmpPath(d_allocator_p);
+    bsl::string tmpPath;
 
     int rc = FilesystemUtil::getSystemTemporaryDirectory(&tmpPath);
     if (0 != rc) {
@@ -34,12 +33,22 @@ TempDirectoryGuard::TempDirectoryGuard(const bsl::string&  prefix,
     if (0 != rc) {
         BSLS_ASSERT_INVOKE("Unable to create temporary directory");
     }
+    BSLS_ASSERT_OPT(!d_dirName.empty());
 }
 
 TempDirectoryGuard::~TempDirectoryGuard()
 {
-    bdls::FilesystemUtil::remove(d_dirName, true);
+    if (!d_dirName.empty()) {
+        bdls::FilesystemUtil::remove(d_dirName, true);
+    }
 }
+
+// ACCESSORS
+void TempDirectoryGuard::release()
+{
+    d_dirName.clear();
+}
+
 
 // ACCESSORS
 const bsl::string& TempDirectoryGuard::getTempDirName() const

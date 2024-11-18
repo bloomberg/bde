@@ -71,8 +71,7 @@ namespace bdls {
 class TempDirectoryGuard {
 
     // DATA
-    bsl::string       d_dirName;      // path to the created directory
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+    bsl::string d_dirName;      // path to the created directory
 
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
@@ -89,18 +88,25 @@ class TempDirectoryGuard {
     /// system-wide temp or current directory.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
     /// currently installed default allocator is used.
-    explicit TempDirectoryGuard(const bsl::string&  prefix,
-                                bslma::Allocator   *basicAllocator = 0);
+    explicit TempDirectoryGuard(const bsl::string_view&  prefix,
+                                bslma::Allocator        *basicAllocator = 0);
 
     /// Destroy this object and remove the temporary directory (recursively)
     /// created at construction.
     ~TempDirectoryGuard();
 
+    /// Remove the created temporary directory from management so that, upon this guards
+    /// destruction,  the created directory is not removed.  Calling `release` on a guard
+    /// that has previously been released has no effect.
+    void release();
+
     // ACCESSORS
 
     /// Return a `const` reference to the name of the created temporary
-    /// directory.
+    /// directory, or an empty string if the directory was released
+    /// from management.
     const bsl::string& getTempDirName() const;
+
 };
 
 }  // close package namespace
