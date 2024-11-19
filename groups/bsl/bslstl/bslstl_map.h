@@ -2637,6 +2637,10 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, key, temp.object());
 #endif
     }
@@ -2668,6 +2672,10 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, lvalue, temp.object());
 #endif
     }
