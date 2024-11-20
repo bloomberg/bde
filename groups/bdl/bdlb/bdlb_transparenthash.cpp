@@ -4,6 +4,31 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_transparenthash_cpp,"$Id$ $CSID$")
 
+namespace BloombergLP {
+namespace bdlb {
+
+std::size_t TransparentStringHash::operator()(const char *str) const
+{
+    bsl::string_view sv(str);
+    return this->operator()(sv);
+}
+
+std::size_t TransparentStringHash::operator()(const bsl::string& str) const
+{
+    return bsl::hash<bsl::string>().operator()(str);
+}
+
+std::size_t TransparentStringHash::operator()(
+                                             const bsl::string_view& str) const
+{
+    return bsl::hash<bsl::string_view>().operator()(str);
+}
+
+
+
+}  // close package namespace
+}  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
 // Copyright 2021 Bloomberg Finance L.P.
 //

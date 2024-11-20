@@ -45,6 +45,10 @@ using namespace bsl;
 // [ 2] TransparentHash(const bdlb::TransparentHash&)
 // [ 2] ~TransparentHash()
 // [ 2] TransparentHash& operator=(const bdlb::TransparentHash&)
+// [ 2] TransparentStringHash()
+// [ 2] TransparentStringHash(const TransparentStringHash&)
+// [ 2] ~TransparentStringHash()
+// [ 2] TransparentStringHash& operator=(const TransparentStringHash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -110,7 +114,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlb::TransparentHash Obj;
+typedef bdlb::TransparentHash       Obj;
+typedef bdlb::TransparentStringHash StrObj;
 
 //=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -142,6 +147,10 @@ void testHashInt()
 
 /// Verify the correctness of the function call operator for values of the
 /// (template parameter) `STRING` type.
+///
+/// Also verify that the `TransparentStringHash` function call operator returns
+/// the same hash value for three different 'kinds' of string containing the
+/// same characters.
 template<class STRING>
 void testHashString()
 {
@@ -192,8 +201,14 @@ void testHashString()
         // and a const reference to that object, and use the reference.
         Obj hash;
         const Obj& hasher = hash;
-
+        
         ASSERTV(i, EXPECTED == hasher(STR));
+
+        StrObj        strHash;
+        const StrObj& strHasher = strHash;
+        ASSERTV(i, EXPECTED == strHasher(SPEC));
+        ASSERTV(i, EXPECTED == strHasher(bsl::string(SPEC, &ta)));
+        ASSERTV(i, EXPECTED == strHasher(bsl::string_view(SPEC)));
     }
 }
 
@@ -405,7 +420,8 @@ int main(int argc, char *argv[])
                           << "TESTING TYPEDEF" << endl
                           << "===============" << endl;
 
-        ASSERT((bsl::is_same<void, Obj::is_transparent>::value));
+        ASSERT((bsl::is_same<void,    Obj::is_transparent>::value));
+        ASSERT((bsl::is_same<void, StrObj::is_transparent>::value));
 
       } break;
       case 3: {
@@ -517,6 +533,10 @@ int main(int argc, char *argv[])
         //   TransparentHash(const bdlb::TransparentHash&)
         //   ~TransparentHash()
         //   TransparentHash& operator=(const bdlb::TransparentHash&)
+        //   TransparentStringHash()
+        //   TransparentStringHash(const TransparentStringHash&)
+        //   ~TransparentStringHash()
+        //   TransparentStringHash& operator=(const TransparentStringHash&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -531,15 +551,20 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "Value initialization" << endl;
-            const bdlb::TransparentHash obj1 = bdlb::TransparentHash();
+            const bdlb::TransparentHash       obj1  = bdlb::TransparentHash();
+            const bdlb::TransparentStringHash obj1s =
+                                                 bdlb::TransparentStringHash();
 
 
             if (verbose) cout << "Copy initialization" << endl;
-            bdlb::TransparentHash obj2 = obj1;
+            bdlb::TransparentHash       obj2  = obj1;
+            bdlb::TransparentStringHash obj2s = obj1s;
 
             if (verbose) cout << "Copy assignment" << endl;
-            obj2 = obj1;
-            obj2 = obj2 = obj1;
+            obj2  = obj1;
+            obj2  = obj2  = obj1;
+            obj2s = obj1s;
+            obj2s = obj2s = obj1s;
         }
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());

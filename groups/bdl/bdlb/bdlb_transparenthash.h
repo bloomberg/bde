@@ -102,6 +102,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bslstl_string.h>
+#include <bslstl_stringview.h>
+
 #include <bsl_functional.h>
 
 namespace BloombergLP {
@@ -151,6 +154,51 @@ struct TransparentHash {
     std::size_t operator()(const TYPE &value) const;
 };
 
+                    // ============================
+                    // struct TransparentStringHash
+                    // ============================
+
+/// This `struct` defines a hash operation for different string types, enabling
+/// them for use for heterogeneous lookup in the standard associative
+/// containers such as `bsl::unordered_map`.  Note that this class is an
+/// empty POD type.
+struct TransparentStringHash {
+
+    // TYPES
+
+    /// Type alias indicating this is a transparent hash functor.
+    typedef void is_transparent;
+
+    // CREATORS
+
+    /// Create a `TransparentStringHash` object.
+    //! TransparentStringHash() = default;
+
+    /// Create a `TransparentStringHash` object.  Note that as
+    /// `TransparentStringHash` is an empty (stateless) type, this operation
+    /// has no observable effect.
+    //! TransparentStringHash(const TransparentStringHash& original) = default;
+
+    /// Destroy this object.
+    //! ~TransparentStringHash() = default;
+
+    // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    /// Note that as `TransparentStringHash` is an empty (stateless) type, this
+    /// operation has no observable effect.
+    //! TransparentStringHash& operator=(const TransparentStringHash& rhs) = default;
+
+    // ACCESSORS
+
+    /// Return a hash code generated from the contents of the specified
+    /// `value`.
+    std::size_t operator()(const char *            str) const;
+    std::size_t operator()(const bsl::string&      str) const;
+    std::size_t operator()(const bsl::string_view& str) const;
+};
+
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
@@ -166,6 +214,7 @@ std::size_t TransparentHash::operator()(const TYPE& value) const
 {
     return bsl::hash<TYPE>().operator()(value);
 }
+
 
 }  // close package namespace
 }  // close enterprise namespace
