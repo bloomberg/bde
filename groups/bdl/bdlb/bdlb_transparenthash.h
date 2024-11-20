@@ -154,57 +154,6 @@ struct TransparentHash {
     std::size_t operator()(const TYPE &value) const;
 };
 
-                    // ============================
-                    // struct TransparentStringHash
-                    // ============================
-
-/// This `struct` defines a hash operation for different string types, enabling
-/// them for use for heterogeneous lookup in the standard associative
-/// containers such as `bsl::unordered_map`.  Note that this class is an
-/// empty POD type.
-struct TransparentStringHash {
-
-    // TYPES
-
-    /// Type alias indicating this is a transparent hash functor.
-    typedef void is_transparent;
-
-    // CREATORS
-
-    /// Create a `TransparentStringHash` object.
-    //! TransparentStringHash() = default;
-
-    /// Create a `TransparentStringHash` object.  Note that as
-    /// `TransparentStringHash` is an empty (stateless) type, this operation
-    /// has no observable effect.
-    //! TransparentStringHash(const TransparentStringHash& original) = default;
-
-    /// Destroy this object.
-    //! ~TransparentStringHash() = default;
-
-    // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object, and
-    /// return a reference providing modifiable access to this object.
-    /// Note that as `TransparentStringHash` is an empty (stateless) type, this
-    /// operation has no observable effect.
-    //! TransparentStringHash& operator=(const TransparentStringHash& rhs) = default;
-
-    // ACCESSORS
-
-    /// Return a hash code generated from the contents of the specified
-    /// `str`.
-    template <class CHAR>
-    std::size_t operator()(const CHAR *str) const;
-    
-    template <class CHAR, class TRAITS, class ALLOCATOR>
-    std::size_t operator()(
-                  const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;
-
-    template <class CHAR, class TRAITS>
-    std::size_t operator()(
-                        const bsl::basic_string_view<CHAR, TRAITS>& str) const;
-};
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -220,35 +169,6 @@ inline
 std::size_t TransparentHash::operator()(const TYPE& value) const
 {
     return bsl::hash<TYPE>().operator()(value);
-}
-
-                    // ----------------------------
-                    // struct TransparentStringHash
-                    // ----------------------------
-
-template <class CHAR>
-inline std::size_t
-TransparentStringHash::operator()(const CHAR *str) const
-{
-    bsl::basic_string_view<CHAR> sv(str);
-    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
-}
-
-template <class CHAR, class TRAITS, class ALLOCATOR>
-inline std::size_t
-TransparentStringHash::operator()(
-                   const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const
-{
-    return 
-      bsl::hash<bsl::basic_string<CHAR, TRAITS, ALLOCATOR> >().operator()(str);
-}
-
-template <class CHAR, class TRAITS>
-inline std::size_t
-TransparentStringHash::operator()(
-                         const bsl::basic_string_view<CHAR, TRAITS>& str) const
-{
-    return bsl::hash<bsl::basic_string_view<CHAR, TRAITS> >().operator()(str);
 }
 
 }  // close package namespace
