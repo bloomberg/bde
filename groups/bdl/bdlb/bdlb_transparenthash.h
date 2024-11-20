@@ -193,10 +193,17 @@ struct TransparentStringHash {
     // ACCESSORS
 
     /// Return a hash code generated from the contents of the specified
-    /// `value`.
-    std::size_t operator()(const char *            str) const;
-    std::size_t operator()(const bsl::string&      str) const;
-    std::size_t operator()(const bsl::string_view& str) const;
+    /// `str`.
+    template <class CHAR>
+    std::size_t operator()(const CHAR *str) const;
+    
+    template <class CHAR, class TRAITS, class ALLOCATOR>
+    std::size_t operator()(
+                  const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;
+
+    template <class CHAR, class TRAITS>
+    std::size_t operator()(
+                        const bsl::basic_string_view<CHAR, TRAITS>& str) const;
 };
 
 // ============================================================================
@@ -215,6 +222,34 @@ std::size_t TransparentHash::operator()(const TYPE& value) const
     return bsl::hash<TYPE>().operator()(value);
 }
 
+                    // ----------------------------
+                    // struct TransparentStringHash
+                    // ----------------------------
+
+template <class CHAR>
+inline std::size_t
+TransparentStringHash::operator()(const CHAR *str) const
+{
+    bsl::basic_string_view<CHAR> sv(str);
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
+}
+
+template <class CHAR, class TRAITS, class ALLOCATOR>
+inline std::size_t
+TransparentStringHash::operator()(
+                   const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const
+{
+    return 
+      bsl::hash<bsl::basic_string<CHAR, TRAITS, ALLOCATOR> >().operator()(str);
+}
+
+template <class CHAR, class TRAITS>
+inline std::size_t
+TransparentStringHash::operator()(
+                         const bsl::basic_string_view<CHAR, TRAITS>& str) const
+{
+    return bsl::hash<bsl::basic_string_view<CHAR, TRAITS> >().operator()(str);
+}
 
 }  // close package namespace
 }  // close enterprise namespace
