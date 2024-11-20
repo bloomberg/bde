@@ -1,5 +1,5 @@
-// bdlb_transparenthash.t.cpp                                         -*-C++-*-
-#include <bdlb_transparenthash.h>
+// bdlb_transparentstringhash.t.cpp                                   -*-C++-*-
+#include <bdlb_transparentstringhash.h>
 
 #include <bslalg_constructorproxy.h>
 #include <bslalg_typetraits.h>
@@ -14,6 +14,9 @@
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+
+#include <bslstl_string.h>
+#include <bslstl_stringview.h>
 
 #include <bsl_cstddef.h>  // `bsl::size_t`
 #include <bsl_cstring.h>  // `bsl::strcmp`
@@ -41,10 +44,10 @@ using namespace bsl;
 //  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(const TYPE& value) const
-// [ 2] TransparentHash()
-// [ 2] TransparentHash(const bdlb::TransparentHash&)
-// [ 2] ~TransparentHash()
-// [ 2] TransparentHash& operator=(const bdlb::TransparentHash&)
+// [ 2] TransparentStringHash()
+// [ 2] TransparentStringHash(const TransparentStringHash&)
+// [ 2] ~TransparentStringHash()
+// [ 2] TransparentStringHash& operator=(const TransparentStringHash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -110,7 +113,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlb::TransparentHash Obj;
+typedef bdlb::TransparentStringHash Obj;
 
 //=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -119,30 +122,11 @@ typedef bdlb::TransparentHash Obj;
 namespace {
 
 /// Verify the correctness of the function call operator for values of the
-/// (template parameter) `VALUE` integer type.
-template<class VALUE>
-void testHashInt()
-{
-    int MIN_VALUE = -10;
-    int MAX_VALUE =  10;
-    for (int i = MIN_VALUE; i < MAX_VALUE; ++i) {
-        const VALUE       VAL      = i;
-        const std::size_t EXPECTED = bsl::hash<VALUE>().operator()(VAL);
-
-        // XLC version 16.1 (on AIX) complains about creating a const object
-        // that does not have an "initializer or user-defined default
-        // constructor".  To work around that, we create a non-const object,
-        // and a const reference to that object, and use the reference.
-        Obj hash;
-        const Obj& hasher = hash;
-
-        ASSERTV(i, EXPECTED == hasher(VAL));
-    }
-}
-
-/// Verify the correctness of the function call operator for values of the
 /// (template parameter) `STRING` type.
-template<class STRING>
+///
+/// Also verify that the `TransparentStringHash` function call operator returns
+/// the same hash value for three different 'kinds' of string containing the
+/// same characters.
 void testHashString()
 {
     static const struct {
@@ -181,10 +165,10 @@ void testHashString()
 
     for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
         const char                       *SPEC     = DATA[i].d_str_p;
-        bslalg::ConstructorProxy<STRING>  proxy(SPEC, &ta);
-        const STRING&                     STR      = proxy.object();
+        bsl::string                       STR(SPEC, &ta);
+        bsl::string_view                  VIEW(SPEC);
         const std::size_t                 EXPECTED =
-                                           bsl::hash<STRING>().operator()(STR);
+                                      bsl::hash<bsl::string>().operator()(STR);
 
         // XLC version 16.1 (on AIX) complains about creating a const object
         // that does not have an "initializer or user-defined default
@@ -192,8 +176,10 @@ void testHashString()
         // and a const reference to that object, and use the reference.
         Obj hash;
         const Obj& hasher = hash;
-
-        ASSERTV(i, EXPECTED == hasher(STR));
+       
+        ASSERTV(i, EXPECTED == hasher(SPEC));
+        ASSERTV(i, EXPECTED == hasher(STR ));
+        ASSERTV(i, EXPECTED == hasher(VIEW));
     }
 }
 
@@ -309,7 +295,7 @@ int main(int argc, char *argv[])
 // transparent comparator defined above to avoid implicit conversions:
 // ```
     typedef bsl::unordered_set<bsl::string,
-                               bdlb::TransparentHash,
+                               bdlb::TransparentStringHash,
                                TestTransparentEqualTo> TransparentHashSet;
 
     TransparentHashSet transparentSet;
@@ -333,7 +319,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING QOI: `TransparentHash` IS AN EMPTY TYPE
+        // TESTING QOI: `TransparentStringHash` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -359,16 +345,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << endl
-               << "TESTING QOI: `TransparentHash` IS AN EMPTY TYPE" << endl
-               << "===============================================" << endl;
+             << endl
+             << "TESTING QOI: `TransparentStringHash` IS AN EMPTY TYPE" << endl
+             << "=====================================================" << endl;
 
         struct TwoInts {
             int d_a;
             int d_b;
         };
 
-        struct DerivedInts : bdlb::TransparentHash {
+        struct DerivedInts : bdlb::TransparentStringHash {
             int d_a;
             int d_b;
         };
@@ -405,7 +391,7 @@ int main(int argc, char *argv[])
                           << "TESTING TYPEDEF" << endl
                           << "===============" << endl;
 
-        ASSERT((bsl::is_same<void, Obj::is_transparent>::value));
+        ASSERT((bsl::is_same<void,    Obj::is_transparent>::value));
 
       } break;
       case 3: {
@@ -451,16 +437,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\tTesting operator with integer types." << endl;
-
-        testHashInt<int>();
-        testHashInt<long int>();
-        testHashInt<long long int>();
-
-        if (verbose) cout << "\tTesting operator with string types." << endl;
-
-        testHashString<bsl::string>();
-        testHashString<bsl::string_view>();
+        testHashString();
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
@@ -513,10 +490,10 @@ int main(int argc, char *argv[])
         //    allocator.  (C-7)
         //
         // Testing:
-        //   TransparentHash()
-        //   TransparentHash(const bdlb::TransparentHash&)
-        //   ~TransparentHash()
-        //   TransparentHash& operator=(const bdlb::TransparentHash&)
+        //   TransparentStringHash()
+        //   TransparentStringHash(const TransparentStringHash&)
+        //   ~TransparentStringHash()
+        //   TransparentStringHash& operator=(const TransparentStringHash&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -531,15 +508,14 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) cout << "Value initialization" << endl;
-            const bdlb::TransparentHash obj1 = bdlb::TransparentHash();
-
+            const Obj       obj1  = Obj();
 
             if (verbose) cout << "Copy initialization" << endl;
-            bdlb::TransparentHash       obj2  = obj1;
+            Obj  obj2  = obj1;
 
             if (verbose) cout << "Copy assignment" << endl;
-            obj2 = obj1;
-            obj2 = obj2 = obj1;
+            obj2  = obj1;
+            obj2  = obj2  = obj1;
         }
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -569,9 +545,9 @@ int main(int argc, char *argv[])
         typedef bsl::hash<bsl::string>      StringHash;
         typedef bsl::hash<bsl::string_view> StringViewHash;
 
-        bdlb::TransparentHash hasher;
-        bsl::string           aStr("A");
-        bsl::string_view      zStrView("z");
+        bdlb::TransparentStringHash hasher;
+        bsl::string                 aStr("A");
+        bsl::string_view            zStrView("z");
 
         ASSERT(StringHash().operator()(aStr)         == hasher(aStr));
         ASSERT(StringViewHash().operator()(zStrView) == hasher(zStrView));

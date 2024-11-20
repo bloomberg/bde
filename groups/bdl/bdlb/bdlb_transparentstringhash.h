@@ -1,6 +1,6 @@
-// bdlb_transparenthash.h                                             -*-C++-*-
-#ifndef INCLUDED_BDLB_TRANSPARENTHASH
-#define INCLUDED_BDLB_TRANSPARENTHASH
+// bdlb_transparentstringhash.h                                       -*-C++-*-
+#ifndef INCLUDED_BDLB_TRANSPARENTSTRINGHASH
+#define INCLUDED_BDLB_TRANSPARENTSTRINGHASH
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -102,20 +102,23 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bslstl_string.h>
+#include <bslstl_stringview.h>
+
 #include <bsl_functional.h>
 
 namespace BloombergLP {
 namespace bdlb {
 
-                    // ======================
-                    // struct TransparentHash
-                    // ======================
+                    // ============================
+                    // struct TransparentStringHash
+                    // ============================
 
-/// This `struct` defines a hash operation for different types, enabling
+/// This `struct` defines a hash operation for different string types, enabling
 /// them for use for heterogeneous lookup in the standard associative
 /// containers such as `bsl::unordered_map`.  Note that this class is an
 /// empty POD type.
-struct TransparentHash {
+struct TransparentStringHash {
 
     // TYPES
 
@@ -124,47 +127,72 @@ struct TransparentHash {
 
     // CREATORS
 
-    /// Create a `TransparentHash` object.
-    //! TransparentHash() = default;
+    /// Create a `TransparentStringHash` object.
+    //! TransparentStringHash() = default;
 
-    /// Create a `TransparentHash` object.  Note that as `TransparentHash`
-    /// is an empty (stateless) type, this operation has no observable
-    /// effect.
-    //! TransparentHash(const TransparentHash& original) = default;
+    /// Create a `TransparentStringHash` object.  Note that as
+    /// `TransparentStringHash` is an empty (stateless) type, this operation
+    /// has no observable effect.
+    //! TransparentStringHash(const TransparentStringHash& original) = default;
 
     /// Destroy this object.
-    //! ~TransparentHash() = default;
+    //! ~TransparentStringHash() = default;
 
     // MANIPULATORS
 
     /// Assign to this object the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this object.
-    /// Note that as `TransparentHash` is an empty (stateless) type, this
+    /// Note that as `TransparentStringHash` is an empty (stateless) type, this
     /// operation has no observable effect.
-    //! TransparentHash& operator=(const TransparentHash& rhs) = default;
+    //! TransparentStringHash& operator=(const TransparentStringHash& rhs) = default;
 
     // ACCESSORS
 
     /// Return a hash code generated from the contents of the specified
-    /// `value`.
-    template <class TYPE>
-    std::size_t operator()(const TYPE &value) const;
+    /// `str`.
+    template <class CHAR>
+    std::size_t operator()(const CHAR *str) const;
+    
+    template <class CHAR, class TRAITS, class ALLOCATOR>
+    std::size_t operator()(
+                  const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;
+
+    template <class CHAR, class TRAITS>
+    std::size_t operator()(
+                        const bsl::basic_string_view<CHAR, TRAITS>& str) const;
 };
 
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                          // ---------------------
-                          // struct TransparentHash
-                          // ---------------------
+                    // ----------------------------
+                    // struct TransparentStringHash
+                    // ----------------------------
 
-// ACCESSORS
-template <class TYPE>
-inline
-std::size_t TransparentHash::operator()(const TYPE& value) const
+template <class CHAR>
+inline std::size_t
+TransparentStringHash::operator()(const CHAR *str) const
 {
-    return bsl::hash<TYPE>().operator()(value);
+    bsl::basic_string_view<CHAR> sv(str);
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
+}
+
+template <class CHAR, class TRAITS, class ALLOCATOR>
+inline std::size_t
+TransparentStringHash::operator()(
+                   const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const
+{
+    return 
+      bsl::hash<bsl::basic_string<CHAR, TRAITS, ALLOCATOR> >().operator()(str);
+}
+
+template <class CHAR, class TRAITS>
+inline std::size_t
+TransparentStringHash::operator()(
+                         const bsl::basic_string_view<CHAR, TRAITS>& str) const
+{
+    return bsl::hash<bsl::basic_string_view<CHAR, TRAITS> >().operator()(str);
 }
 
 }  // close package namespace
@@ -173,7 +201,7 @@ std::size_t TransparentHash::operator()(const TYPE& value) const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
