@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
 
 
             if (verbose) cout << "Copy initialization" << endl;
-            bdlb::TransparentHash       obj2  = obj1;
+            bdlb::TransparentHash obj2 = obj1;
 
             if (verbose) cout << "Copy assignment" << endl;
             obj2 = obj1;

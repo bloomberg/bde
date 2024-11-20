@@ -8,21 +8,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a transparent hash functor.
 //
 //@CLASSES:
-//  bdlb::TransparentHash: a transparent hash functor
+//  bdlb::TransparentStringHash: a transparent hash functor for strings
 //
 //@SEE_ALSO: bsl_map, bsl_set
 //
-//@DESCRIPTION: This component provides a `struct`, `bdlb::TransparentHash`,
-// that defines a functor to generate a hash code for different types and can
-// be used as transparent hash functor for heterogeneous lookup.
+//@DESCRIPTION: This component provides a `struct`, 
+// `bdlb::TransparentStringHash`, that defines a functor to generate a hash
+// code for different 'string-like' types and can be used as transparent hash
+// functor for heterogeneous lookup.
 //
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of `bdlb::TransparentHash`
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Basic Use of `bdlb::TransparentStringHash`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of `bsl::string` unique objects.
 // `bsl::unordered_set` is designed exactly for this purpose.  But imagine that
 // we want to use `bsl::string_view` objects for search operations within our
@@ -33,8 +34,8 @@ BSLS_IDENT("$Id: $")
 // compilation fails, because there is no such implicit conversion.  In
 // addition, implicit conversions where they are available, may lead to
 // additional memory allocation for temporary objects.  The following code
-// illustrates how to use `bdlb::TransparentHash` as a hash functor for the
-// standard container `unordered_set`, in this case to allow a
+// illustrates how to use `bdlb::TransparentStringHash` as a hash functor for
+// the standard container `unordered_set`, in this case to allow a
 // `bsl::unordered_set<bsl::string>` to be searched with a `bsl::string_view`.
 //
 // First, we define a transparent equality predicate, that is required by the
@@ -70,11 +71,11 @@ BSLS_IDENT("$Id: $")
 // BDE components.  In real code for these purposes it is recommended to use
 // `bdlb::TransparentEqualTo`.
 //
-// Then, we create a container that uses `bdlb::TransparentHash`.  We use the
-// transparent comparator defined above to avoid implicit conversions:
+// Then, we create a container that uses `bdlb::TransparentStringHash`.  We use
+// the transparent comparator defined above to avoid implicit conversions:
 // ```
 // typedef bsl::unordered_set<bsl::string,
-//                            bdlb::TransparentHash,
+//                            bdlb::TransparentStringHash,
 //                            TestTransparentEqualTo> TransparentHashSet;
 //
 // TransparentHashSet transparentSet;
@@ -87,9 +88,9 @@ BSLS_IDENT("$Id: $")
 // Finally, we observe that the container allows to use `bsl::string_view`
 // objects as a key and does not make any implicit conversions:
 // ```
-// bsl::string_view newYork     ("NY");
-// bsl::string_view losAngeles  ("LA");
-// bsl::string_view sanFrancisco("SF");
+// bsl::string_view  newYork       ("NY");
+// bsl::string_view  losAngeles    ("LA");
+// const char       *sanFrancisco = "SF";
 //
 // assert(transparentSet.end() != transparentSet.find(newYork     ));
 // assert(transparentSet.end() != transparentSet.find(losAngeles  ));
@@ -98,14 +99,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslmf_nestedtraitdeclaration.h>
+#include <bslstl_string.h>     // 'bsl::basic_string'
+#include <bslstl_stringview.h> // 'bsl::basic_string_view'
 
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-#include <bsl_functional.h>
+#include <bsl_functional.h>    // 'bsl::hash'
 
 namespace BloombergLP {
 namespace bdlb {

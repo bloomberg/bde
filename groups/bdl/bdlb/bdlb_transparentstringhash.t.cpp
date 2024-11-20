@@ -176,7 +176,7 @@ void testHashString()
         // and a const reference to that object, and use the reference.
         Obj hash;
         const Obj& hasher = hash;
-       
+
         ASSERTV(i, EXPECTED == hasher(SPEC));
         ASSERTV(i, EXPECTED == hasher(STR ));
         ASSERTV(i, EXPECTED == hasher(VIEW));
@@ -193,8 +193,8 @@ void testHashString()
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of `bdlb::TransparentHash`
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Basic Use of `bdlb::TransparentStringHash`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of `bsl::string` unique objects.
 // `bsl::unordered_set` is designed exactly for this purpose.  But imagine that
 // we want to use `bsl::string_view` objects for search operations within our
@@ -205,8 +205,8 @@ void testHashString()
 // compilation fails, because there is no such implicit conversion.  In
 // addition, implicit conversions where they are available, may lead to
 // additional memory allocation for temporary objects.  The following code
-// illustrates how to use `bdlb::TransparentHash` as a hash functor for the
-// standard container `unordered_set`, in this case to allow a
+// illustrates how to use `bdlb::TransparentStringHash` as a hash functor for
+// the standard container `unordered_set`, in this case to allow a
 // `bsl::unordered_set<bsl::string>` to be searched with a `bsl::string_view`.
 //
 // First, we define a transparent equality predicate, that is required by the
@@ -308,9 +308,9 @@ int main(int argc, char *argv[])
 // Finally, we observe that the container allows to use `bsl::string_view`
 // objects as a key and does not make any implicit conversions:
 // ```
-    bsl::string_view newYork     ("NY");
-    bsl::string_view losAngeles  ("LA");
-    bsl::string_view sanFrancisco("SF");
+    bsl::string_view  newYork       ("NY");
+    bsl::string_view  losAngeles    ("LA");
+    const char       *sanFrancisco = "SF";
 
     ASSERT(transparentSet.end() != transparentSet.find(newYork     ));
     ASSERT(transparentSet.end() != transparentSet.find(losAngeles  ));
