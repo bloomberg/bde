@@ -17,13 +17,13 @@ BSLS_IDENT("$Id: $")
 // The functions in this namespace allow users to:
 //
 // * `assign` values to "value type" objects (ie., as if by using the
-//   assignment operator `*lhs = rhs`), and
+//   assignment operator `*lhs = rhs`).
 // * `reset` "value type" objects to their default state (i.e., as if each
 //   object was just constructed using its default constructor).
 //
 // Types in the `bdlat` "value type" framework are required to have:
-// * a default constructor
-// * a copy assignment operator
+// * a default constructor.
+// * a copy assignment operator.
 // * the free function template and the free function described below.
 //
 // Types in the `bdlat` "value type" framework must define in the namespace
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // Notice that, unlike other `bdlat` type infrastructures, the `bdlat` "value"
 // infrastructure does *not* require the setting of any traits, or definition
 // of meta-functions, or creation of any `typedef`s.  For example, see
-// {`bdlat_arrayfunctions`} and {`bdlat_nullablevaluefunctions`}.
+// `bdlat_arrayfunctions` and `bdlat_nullablevaluefunctions`.
 //
 // There are two significant implications of the contract for
 // `bdlat_valueTypeAssign`:
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // This component provides "value type" support for the following types:
 //
 // * All types with a default constructor and copy assignment operator.
-// * Types having any of the following traits (see {`bdlat_typetraits`}):
+// * Types having any of the following traits (see `bdlat_typetraits`):
 //   - `bdlat_TypeTraitBasicSequence`
 //   - `bdlat_TypeTraitBasicChoice`
 //   - `bdlat_TypeTraitBasicCustomizedType`
@@ -95,8 +95,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void f()
 // {
-//     using namespace BloombergLP;
-//
 //     mine::MyValueType a = { 1, 1.0 };  // aggregate braced initialization
 //     mine::MyValueType b(a);            // implicit copy constructor
 //
@@ -119,8 +117,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void myUsageScenario()
 // {
-//     using namespace BloombergLP;
-//
 //     mine::MyValueType x = {  7, 10.0 };
 //     mine::MyValueType y = { 99, -1.0 };
 //
@@ -193,8 +189,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void g()
 // {
-//     using namespace BloombergLP;
-//
 //     your::YourValueType a(1, 1.0);     // value initialization
 //     your::YourValueType b(a);          // implicit copy constructor
 //
@@ -223,7 +217,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void yourUsageScenario()
 // {
-//     using namespace BloombergLP;
 //     int rc;
 //
 //     your::YourValueType x( 7, 10.0);
@@ -320,8 +313,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void h()
 // {
-//     using namespace BloombergLP;
-//
 //     their::TheirValueType a;               // default constructor
 //
 //     assert(0   == a.   intValue());
@@ -411,8 +402,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void theirUsageScenario()
 // {
-//     using namespace BloombergLP;
-//
 //     their::TheirValueType x;
 //     their::TheirValueType y;
 //
@@ -476,11 +465,9 @@ namespace BloombergLP {
                       // namespace bdlat_ValueTypeFunctions
                       // ==================================
 
-/// The functions provided in this `namespace` may be applied to value
-/// types.  See the component-level documentation for what is meant by
-/// "value type".
+/// The functions provided in this `namespace` may be applied to value types.
+/// See the component-level documentation for what is meant by "value type".
 namespace bdlat_ValueTypeFunctions {
-
     // MANIPULATORS
 
     /// Assign the value of the specified `rhs` to the object specified its
@@ -492,7 +479,6 @@ namespace bdlat_ValueTypeFunctions {
     /// Reset the value of the specified `object` to its default value.
     template <class TYPE>
     void reset(TYPE *object);
-
 }  // close namespace bdlat_ValueTypeFunctions
 
                             // ====================
@@ -500,18 +486,15 @@ namespace bdlat_ValueTypeFunctions {
                             // ====================
 
 /// This namespace declaration adds the default implementations of the
-/// "value type" customization-point functions to
-/// `bdlat_ValueTypeFunctions`.  These default implementations are provided
-/// for a variety of types.
+/// "value type" customization-point functions to `bdlat_ValueTypeFunctions`.
+/// These default implementations are provided for a variety of types.
 namespace bdlat_ValueTypeFunctions {
-
     // MANIPULATORS
     template <class LHS_TYPE, class RHS_TYPE>
     int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
     template <class TYPE>
     void bdlat_valueTypeReset(TYPE *object);
-
 }  // close namespace bdlat_ValueTypeFunctions
 
                     // ===================================
@@ -521,7 +504,6 @@ namespace bdlat_ValueTypeFunctions {
 /// This `struct` contains functions used by the implementation of this
 /// component.
 struct bdlat_ValueTypeFunctions_Imp {
-
     // TYPES
     struct IsConvertible    { };
     struct IsNotConvertible { };

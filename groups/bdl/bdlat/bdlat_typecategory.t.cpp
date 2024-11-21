@@ -401,7 +401,7 @@ struct MyAccessor {
 
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Compile-Time Dispatch by Category Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -420,226 +420,226 @@ struct MyAccessor {
 // First, we declare a `printCategoryAndValue` function that has a template
 // parameter `TYPE`:
 // ```
-    namespace BloombergLP {
-    namespace mine {
+   namespace BloombergLP {
+   namespace mine {
 
-    /// Print the category of the specified `object` followed by the value
-    /// of `object` to the specified output `stream`.
-    template <class TYPE>
-    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
+   /// Print the category of the specified `object` followed by the value
+   /// of `object` to the specified output `stream`.
+   template <class TYPE>
+   void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
 // ```
 // Then, to implement this function, we will use a set of helper functions that
 // are overloaded based on the category tag.  The first set of helper functions
 // address the category aspect of our assigned goal:
 // ```
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
-    {
-        stream << "Array";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
+   {
+       stream << "Array";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
-    {
-        stream << "Choice";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
+   {
+       stream << "Choice";
+   }
 
-    void printCategory(bsl::ostream& stream,
-                       bdlat_TypeCategory::CustomizedType)
-    {
-        stream << "CustomizedType";
-    }
+   void printCategory(bsl::ostream& stream,
+                      bdlat_TypeCategory::CustomizedType)
+   {
+       stream << "CustomizedType";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
-    {
-        stream << "DynamicType";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
+   {
+       stream << "DynamicType";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
-    {
-        stream << "Enumeration";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
+   {
+       stream << "Enumeration";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
-    {
-        stream << "NullableValue";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
+   {
+       stream << "NullableValue";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
-    {
-        stream << "Sequence";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
+   {
+       stream << "Sequence";
+   }
 
-    void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
-    {
-        stream << "Simple";
-    }
+   void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
+   {
+       stream << "Simple";
+   }
 // ```
 // Next, we implement another helper function template to handle the value
 // aspect of our goal:
 // ```
-    template <class TYPE, class CATEGORY>
-    void printValue(bsl::ostream& stream,
-                    const TYPE&   object,
-                    CATEGORY      )
-    {
-        bdlb::PrintMethods::print(stream, object, 0, -1);
-    }
+   template <class TYPE, class CATEGORY>
+   void printValue(bsl::ostream& stream,
+                   const TYPE&   object,
+                   CATEGORY      )
+   {
+       bdlb::PrintMethods::print(stream, object, 0, -1);
+   }
 
-    template <class TYPE>
-    void printValue(bsl::ostream&                   stream,
-                    const TYPE&                     ,
-                    bdlat_TypeCategory::DynamicType )
-    {
-        stream << "Printing dynamic types requires extra work.";
-    }
+   template <class TYPE>
+   void printValue(bsl::ostream&                   stream,
+                   const TYPE&                     ,
+                   bdlat_TypeCategory::DynamicType )
+   {
+       stream << "Printing dynamic types requires extra work.";
+   }
 // ```
 // Notice that a partial specialization was created for objects falling into
 // the "dynamic" category.  Determining the value of such objects will be
-// explored in {Example 3}.
+// explored in [](#Example 3).
 //
 // Now, we can implement the `printCategoryAndValue` function in terms of the
 // `printCategory` and `printValue` helper functions:
 // ```
+   template <class TYPE>
+   void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
+   {
+       typedef typename
+       bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    template <class TYPE>
-    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
-    {
-        typedef typename
-        bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
+       printCategory(stream, TypeCategory());
 
-        printCategory(stream, TypeCategory());
+       stream << ": ";
 
-        stream << ": ";
+       printValue(stream, object, TypeCategory());
+   }
 
-        printValue(stream, object, TypeCategory());
-    }
-
-    }  // close package namespace
-    }  // close enterprise namespace
+   }  // close package namespace
+   }  // close enterprise namespace
 // ```
 // Finally, we can exercise the `printCategoryAndValue` function on objects
 // that fall in different (non-dynamic) type categories.
 // ```
-    using namespace BloombergLP;
+   using namespace BloombergLP;
 
-    void runUsageExample1()
-    {
-        bsl::ostringstream oss;
+   void runUsageExample1()
+   {
+       bsl::ostringstream oss;
 
-        int intVal = 123;
+       int intVal = 123;
 
-        mine::printCategoryAndValue(oss, intVal);
-        ASSERT("Simple: 123" == oss.str());
-        oss.str("");
+       mine::printCategoryAndValue(oss, intVal);
+       ASSERT("Simple: 123" == oss.str());
+       oss.str("");
 
-        bdlb::NullableValue<int> nullableInt;
+       bdlb::NullableValue<int> nullableInt;
 
-        mine::printCategoryAndValue(oss, nullableInt);
-        ASSERT("NullableValue: NULL" == oss.str());
-        oss.str("");
+       mine::printCategoryAndValue(oss, nullableInt);
+       ASSERT("NullableValue: NULL" == oss.str());
+       oss.str("");
 
-        nullableInt = 321;
+       nullableInt = 321;
 
-        mine::printCategoryAndValue(oss, nullableInt);
-        ASSERT("NullableValue: 321" == oss.str());
-        oss.str("");
+       mine::printCategoryAndValue(oss, nullableInt);
+       ASSERT("NullableValue: 321" == oss.str());
+       oss.str("");
 
-        bsl::vector<int> vec;
+       bsl::vector<int> vec;
 
-        vec.push_back(123);
-        vec.push_back(345);
-        vec.push_back(987);
+       vec.push_back(123);
+       vec.push_back(345);
+       vec.push_back(987);
 
-        mine::printCategoryAndValue(oss, vec);
-        ASSERT("Array: [ 123 345 987 ]" == oss.str());
-    }
+       mine::printCategoryAndValue(oss, vec);
+       ASSERT("Array: [ 123 345 987 ]" == oss.str());
+   }
 // ```
 //
 ///Example 2: Run-Time Dispatch by `bdlat_TypeCategoryUtil`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For run-time dispatching we can use the utility functions provided by
 // `bdlat_TypeCategoryUtil`.  Suppose we wish to examine the type category and
-// value of an arbitrary `bdlat` compatible object, as we did in {Example 1}.
+// value of an arbitrary `bdlat` compatible object, as we did in
+// [](#Example 1).
 //
 // First, we define `mine::PrintAccessor`, a functor that encapsulates the
 // action to be taken:
 // ```
-    namespace BloombergLP {
-    namespace mine {
+   namespace BloombergLP {
+   namespace mine {
 
-    class PrintAccessor {
+   class PrintAccessor {
 
-        bsl::ostream  *d_stream_p;
+       bsl::ostream  *d_stream_p;
 
-      public:
-        PrintAccessor(bsl::ostream *stream)
-        : d_stream_p(stream) { ASSERT(stream); }
+     public:
+       PrintAccessor(bsl::ostream *stream)
+       : d_stream_p(stream) { ASSERT(stream); }
 
-        template <class TYPE>
-        int operator()(const TYPE& , bslmf::Nil )
-        {
-            *d_stream_p << "Nil";
-            return -1;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& , bslmf::Nil )
+       {
+           *d_stream_p << "Nil";
+           return -1;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::Array)
-        {
-            *d_stream_p << "Array" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::Array)
+       {
+           *d_stream_p << "Array" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::Choice)
-        {
-            *d_stream_p << "Choice" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::Choice)
+       {
+           *d_stream_p << "Choice" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::CustomizedType)
-        {
-            *d_stream_p << "CustomizedType" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::CustomizedType)
+       {
+           *d_stream_p << "CustomizedType" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::Enumeration)
-        {
-            *d_stream_p << "Enumeration" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::Enumeration)
+       {
+           *d_stream_p << "Enumeration" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
-        {
-            *d_stream_p << "NullableValue" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::NullableValue)
+       {
+           *d_stream_p << "NullableValue" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::Sequence)
-        {
-            *d_stream_p << "Sequence" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::Sequence)
+       {
+           *d_stream_p << "Sequence" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
 
-        template <class TYPE>
-        int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
-        {
-            *d_stream_p << "Simple" << ": ";
-            bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
-            return 0;
-        }
-    };
+       template <class TYPE>
+       int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
+       {
+           *d_stream_p << "Simple" << ": ";
+           bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
+           return 0;
+       }
+   };
 
-    }  // close package namespace
-    }  // close enterprise namespace
+   }  // close package namespace
+   }  // close enterprise namespace
 // ```
 // Notice that this overload set for `operator()` includes an overload for
 // `bslmf::Nil` (as required) but does *not* include an overload for
@@ -650,87 +650,87 @@ struct MyAccessor {
 // given object dispatch control to the corresponding overload of the accessor
 // functor:
 // ```
-    using namespace BloombergLP;
+   using namespace BloombergLP;
 
-    void runUsageExample2()
-    {
-        bsl::ostringstream oss;
-        mine::PrintAccessor accessor(&oss);
+   void runUsageExample2()
+   {
+       bsl::ostringstream oss;
+       mine::PrintAccessor accessor(&oss);
 
-        int intVal = 123;
+       int intVal = 123;
 
-        bdlat_TypeCategoryUtil::accessByCategory(intVal, accessor);
-        ASSERT("Simple: 123" == oss.str());
-        oss.str("");
+       bdlat_TypeCategoryUtil::accessByCategory(intVal, accessor);
+       ASSERT("Simple: 123" == oss.str());
+       oss.str("");
 
-        bdlb::NullableValue<int> nullableInt;
+       bdlb::NullableValue<int> nullableInt;
 
-        bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
-        ASSERT("NullableValue: NULL" == oss.str());
-        oss.str("");
+       bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
+       ASSERT("NullableValue: NULL" == oss.str());
+       oss.str("");
 
-        nullableInt = 321;
+       nullableInt = 321;
 
-        bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
-        ASSERT("NullableValue: 321" == oss.str());
-        oss.str("");
+       bdlat_TypeCategoryUtil::accessByCategory(nullableInt, accessor);
+       ASSERT("NullableValue: 321" == oss.str());
+       oss.str("");
 
-        bsl::vector<int> vec;
+       bsl::vector<int> vec;
 
-        vec.push_back(123);
-        vec.push_back(345);
-        vec.push_back(987);
+       vec.push_back(123);
+       vec.push_back(345);
+       vec.push_back(987);
 
-        bdlat_TypeCategoryUtil::accessByCategory(vec, accessor);
-        LOOP_ASSERT(oss.str(), "Array: [ 123 345 987 ]" == oss.str());
-        oss.str("");
-    }
+       bdlat_TypeCategoryUtil::accessByCategory(vec, accessor);
+       LOOP_ASSERT(oss.str(), "Array: [ 123 345 987 ]" == oss.str());
+       oss.str("");
+   }
 // ```
 //
 ///Example 3: Dynamic (Run-Time) Typing and Dispatch
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we introduce a class that is the `bdlat` "dyanmic" type
+// In this example, we introduce a class that is the `bdlat` "dynamic" type
 // category and show how its behavior is a generalization of what we have seen
 // for the "static" `bdlat` types.
 //
 // First, we define a class, `mine::MyDynamicType`, that can hold one of two
 // value types: either a `bsl::vector<char>` or a `bsl::string`.
 // ```
-    namespace BloombergLP {
-    namespace mine {
+   namespace BloombergLP {
+   namespace mine {
 
-    /// This class can represent data in two forms: either a `bsl::string`
-    /// or as a `bsl::vector` of `char` values.
-    class MyDynamicType {
+   /// This class can represent data in two forms: either a `bsl::string`
+   /// or as a `bsl::vector` of `char` values.
+   class MyDynamicType {
 
-        // PRIVATE DATA MEMBERS
-        bsl::vector<char> d_vectorChar;  // Note: Production code should use a
-        bsl::string       d_string;      //       union of object buffers.
-        int               d_selector;    // 0 = vectorChar, 1 = string
+       // PRIVATE DATA MEMBERS
+       bsl::vector<char> d_vectorChar;  // Note: Production code should use a
+       bsl::string       d_string;      //       union of object buffers.
+       int               d_selector;    // 0 = vectorChar, 1 = string
 
-      public:
-        // MANIPULATORS
-        void makeVectorChar() { d_selector = 0; }
-        void makeString()     { d_selector = 1; }
+     public:
+       // MANIPULATORS
+       void makeVectorChar() { d_selector = 0; }
+       void makeString()     { d_selector = 1; }
 
-        bsl::vector<char>& theVectorChar()
-                               { ASSERT(isVectorChar()); return d_vectorChar; }
-        bsl::string& theString()
-                               { ASSERT(isString());     return d_string;     }
+       bsl::vector<char>& theVectorChar()
+                              { ASSERT(isVectorChar()); return d_vectorChar; }
+       bsl::string& theString()
+                              { ASSERT(isString());     return d_string;     }
 
-        // ACCESSORS
-        bool isVectorChar() const { return 0 == d_selector; }
-        bool isString()     const { return 1 == d_selector; }
+       // ACCESSORS
+       bool isVectorChar() const { return 0 == d_selector; }
+       bool isString()     const { return 1 == d_selector; }
 
-        const bsl::vector<char>& theVectorChar() const
-                               { ASSERT(isVectorChar()); return d_vectorChar; }
-        const bsl::string& theString() const
-                               { ASSERT(isString());     return d_string;     }
+       const bsl::vector<char>& theVectorChar() const
+                              { ASSERT(isVectorChar()); return d_vectorChar; }
+       const bsl::string& theString() const
+                              { ASSERT(isString());     return d_string;     }
 
-    };
+   };
 
-    }  // close package namespace
-    }  // close enterprise namespace
+   }  // close package namespace
+   }  // close enterprise namespace
 // ```
 // When acting as a vector this class is a `bdlat` "array" type and when
 // holding a string, the class is a `bdlat` "simple" type.  Since this type can
@@ -741,14 +741,14 @@ struct MyAccessor {
 // `bdlat_TypeCategoryDeclareDynamic` meta-function in the `BloombergLP`
 // namespace:
 // ```
-    namespace BloombergLP {
+   namespace BloombergLP {
 
-        template <>
-        struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType>
-        : public bsl::true_type {
-        };
+       template <>
+       struct bdlat_TypeCategoryDeclareDynamic<mine::MyDynamicType>
+       : bsl::true_type {
+       };
 
-    }  // close enterprise namespace
+   }  // close enterprise namespace
 // ```
 // Now, we define bdlat_typeCategorySelect', and a suite of four functions,
 // `bdlat_typeCategory(Manipulate|Access)(Array|Simple)`, each overloaded for
@@ -829,69 +829,69 @@ struct MyAccessor {
 // Notice that the customization points were implemented for just the two type
 // categories that `MyDynamicType` can achieve: "array" and "simple".
 //
-// Finally, we can see how the facilities we developed in {Example 1} and
-// {Example 2} behave when given a "dynamic" type;
+// Finally, we can see how the facilities we developed in [](#Example 1) and
+// [](#Example 2) behave when given a "dynamic" type;
 // ```
-    void runUsageExample3()
-    {
+   void runUsageExample3()
+   {
 // ```
 // We see that the `Select` meta-function returns the expected value:
 // ```
-        ASSERT(bdlat_TypeCategory::e_DYNAMIC_CATEGORY
-            == static_cast<bdlat_TypeCategory::Value>(
-               bdlat_TypeCategory::Select<mine::MyDynamicType>::e_SELECTION));
+       ASSERT(bdlat_TypeCategory::e_DYNAMIC_CATEGORY
+           == static_cast<bdlat_TypeCategory::Value>(
+              bdlat_TypeCategory::Select<mine::MyDynamicType>::e_SELECTION));
 // ```
 // We create an object of our dynamic type and observe that the specialization
 // we created for printing the values (actually, for *not* printing the value
 // of) "dynamic" types is invoked:
 // ```
-        bsl::ostringstream  oss;
-        mine::MyDynamicType object;
+       bsl::ostringstream  oss;
+       mine::MyDynamicType object;
 
-        mine::printCategoryAndValue(oss, object);
-        ASSERT("DynamicType: Printing dynamic types requires extra work."
-               == oss.str());
-        oss.str("");
+       mine::printCategoryAndValue(oss, object);
+       ASSERT("DynamicType: Printing dynamic types requires extra work."
+              == oss.str());
+       oss.str("");
 // ```
 // We instruct object to behave as a vector and see that the `bdlat` framework
 // treats the object as a member of the "array" category and the
-// `PrintAccessor` we defined in {Example 2} treats `object` as a member of the
-// "array" category:
+// `PrintAccessor` we defined in [](#Example 2) treats `object` as a member of
+// the "array" category:
 // ```
-        object.makeVectorChar();
+       object.makeVectorChar();
 
-        ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
-            == bdlat_TypeCategoryFunctions::select(object));
+       ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
+           == bdlat_TypeCategoryFunctions::select(object));
 
-        object.theVectorChar().push_back('H');
-        object.theVectorChar().push_back('e');
-        object.theVectorChar().push_back('l');
-        object.theVectorChar().push_back('l');
-        object.theVectorChar().push_back('o');
+       object.theVectorChar().push_back('H');
+       object.theVectorChar().push_back('e');
+       object.theVectorChar().push_back('l');
+       object.theVectorChar().push_back('l');
+       object.theVectorChar().push_back('o');
 
-        mine::PrintAccessor accessor(&oss);
-        int                 ret;
+       mine::PrintAccessor accessor(&oss);
+       int                 ret;
 
-        ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
-        ASSERT(0 == ret);
-        LOOP_ASSERT(oss.str(), "Array: \"Hello\"" == oss.str());
-        oss.str("");
+       ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
+       ASSERT(0 == ret);
+       LOOP_ASSERT(oss.str(), "Array: \"Hello\"" == oss.str());
+       oss.str("");
 // ```
 // Lastly, we instruct `object` to behave as a string and find that the `bdlat`
 // framework now considers `object` to be the "simple" category:
 // ```
-        object.makeString();
+       object.makeString();
 
-        ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
-            == bdlat_TypeCategoryFunctions::select(object));
+       ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
+           == bdlat_TypeCategoryFunctions::select(object));
 
-        object.theString() = "World";
+       object.theString() = "World";
 
-        ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
-        ASSERT(0 == ret);
-        ASSERT("Simple: World" == oss.str());
-        oss.str("");
-    }
+       ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
+       ASSERT(0 == ret);
+       ASSERT("Simple: World" == oss.str());
+       oss.str("");
+   }
 // ```
 // Notice that the output of the accessor matches the state of the object,
 // reporting an "array" type when the object `isVector` and a "simple" type

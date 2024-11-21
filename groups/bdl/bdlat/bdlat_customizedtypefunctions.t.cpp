@@ -4,6 +4,8 @@
 #include <bdlat_typetraits.h>
 
 #include <bdlb_printmethods.h>
+#include <bdlb_string.h>
+
 #include <bslalg_typetraits.h>
 #include <bslim_testutil.h>
 #include <bslma_allocator.h>
@@ -83,257 +85,393 @@ void aSsErT(bool condition, const char *message, int line)
 
 static int globalFlag = 0;
 
-// mine_cusip.h   -*-C++-*-
-#ifndef INCLUDED_GEOM_CUSIP
-#define INCLUDED_GEOM_CUSIP
-
-//@PURPOSE: TBD: provide purpose.
-//
-//@CLASSES:
-//  Cusip: cusip class
-//
-//@DESCRIPTION:
-//  Identification number for the US and Canada.  `Cusip` is a 9-digit number
-//  consisting of 8 digits and a check digit.  The Bloomberg ID will be
-//  returned for Corp, Govt, Pfd if a CUSIP is not available.
-
-namespace BloombergLP {
-
-namespace mine {
-
-class Cusip {
-
-  private:
-    // PRIVATE DATA MEMBERS
-    bsl::string d_value;  // stored value
-
-    // FRIENDS
-    friend bool operator==(const Cusip& lhs, const Cusip& rhs);
-    friend bool operator!=(const Cusip& lhs, const Cusip& rhs);
-
-  public:
-    // TYPES
-    typedef bsl::string BaseType;
-
-    // CREATORS
-
-    /// Create an object of type `Cusip` having the default value.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator
-    /// is used.
-    explicit Cusip(bslma::Allocator *basicAllocator = 0);
-
-    /// Create an object of type `Cusip` having the value of the specified
-    /// `original` object.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
-    Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
-
-    /// Create an object of type `Cusip` having the specified `value`.
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator
-    /// is used.
-    explicit Cusip(const bsl::string&  value,
-                   bslma::Allocator   *basicAllocator = 0);
-
-    /// Destroy this object.
-    ~Cusip();
-
-    // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    Cusip& operator=(const Cusip& rhs);
-
-    /// Reset this object to the default value (i.e., its value upon default
-    /// construction).
-    void reset();
-
-    /// Convert from the specified `value` to this type.  Return 0 if
-    /// successful and non-zero otherwise.
-    int fromString(const bsl::string& value);
-
-    // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const;
-
-    /// Convert this value to `bsl::string`.
-    const bsl::string& toString() const;
-};
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const Cusip& lhs, const Cusip& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const Cusip& lhs, const Cusip& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and return a
-/// reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-// CREATORS
-
-inline
-Cusip::Cusip(bslma::Allocator *basicAllocator)
-: d_value(basicAllocator)
-{
-}
-
-inline
-Cusip::Cusip(const Cusip& original, bslma::Allocator *basicAllocator)
-: d_value(original.d_value, basicAllocator)
-{
-}
-
-inline
-Cusip::Cusip(const bsl::string& value, bslma::Allocator *basicAllocator)
-: d_value(value, basicAllocator)
-{
-}
-
-inline
-Cusip::~Cusip()
-{
-}
-
-// MANIPULATORS
-
-inline
-Cusip& Cusip::operator=(const Cusip& rhs)
-{
-    d_value = rhs.d_value;
-    return *this;
-}
-
-inline
-void Cusip::reset()
-{
-    d_value.erase();
-}
-
-inline
-int Cusip::fromString(const bsl::string& value)
-{
-    enum { SUCCESS = 0, FAILURE = -1 };
-
-    globalFlag = 1;
-
-    if (9 < value.size()) {
-        return FAILURE;                                               // RETURN
-    }
-
-    d_value = value;
-
-    return SUCCESS;
-}
-
-// ACCESSORS
-
-inline
-bsl::ostream& Cusip::print(bsl::ostream& stream,
-                           int           level,
-                           int           spacesPerLevel) const
-{
-    return bdlb::PrintMethods::print(stream, d_value, level, spacesPerLevel);
-}
-
-inline
-const bsl::string& Cusip::toString() const
-{
-    globalFlag = 2;
-
-    return d_value;
-}
-
-}  // close namespace mine
-
-// TRAITS
-
-BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(mine::Cusip)
-
-// FREE OPERATORS
-
-inline
-bool mine::operator==(const mine::Cusip& lhs, const mine::Cusip& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-inline
-bool mine::operator!=(const mine::Cusip& lhs, const mine::Cusip& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
-
-inline
-bsl::ostream& mine::operator<<(bsl::ostream& stream, const mine::Cusip& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-}  // close enterprise namespace
-
-#endif
-
-// ----------------------------------------------------------------------------
-//                       *End-of-File Block removed.*
-// ----------------------------------------------------------------------------
-
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 namespace Obj = bdlat_CustomizedTypeFunctions;
-typedef BloombergLP::mine::Cusip Cusip;
 
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-namespace BloombergLP {
-namespace bdlat_CustomizedTypeFunctions {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// Suppose we have a customized type called `Cusip`, holding an object of type
+// `bsl::string` with a restriction that the length of the string cannot be
+// longer than nine characters.  We can obtain the value of the string using
+// the following code:
+// ```
+// mine::Cusip myCusip("281C82UE");
+// bsl::string base = bdlat_CustomizedTypeFunctions::convertToBaseType(
+//                                                                    myCusip);
+//
+// assert("281C82UE" == base);
+// ```
+// Attempting to assign a string longer than nine characters will not succeed:
+// ```
+// bsl::string invalidCusip = "1234567890";
+//
+// int retCode = bdlat_CustomizedTypeFunctions::convertFromBaseType(
+//                                                               &myCusip,
+//                                                               invalidCusip);
+// assert(0 != retCode);
+// ```
+// For the purpose of this example, the class definition is as follows:
+// ```
+// #include <bdlat_customizedtypefunctions.h>
+// #include <bdlb_string.h>
+// #include <bsls_assert.h>
+// #include <sstream>
+// #include <string>
 
-    template <>
-    struct IsCustomizedType<mine::Cusip> : public bsl::true_type {
-    };
+   namespace BloombergLP {
+   namespace mine {
 
-}  // close namespace bdlat_CustomizedTypeFunctions
-}  // close enterprise namespace
+   /// Identification number for the US and Canada.  It is a 9-digit number
+   /// consisting of 8 digits and a check digit.  The Bloomberg ID will be
+   /// returned for Corp, Govt, Pfd if a CUSIP is not available.
+   class Cusip {
+     private:
+       // PRIVATE DATA MEMBERS
+       bsl::string d_value;  // stored value
 
-template <class TYPE>
-int readCusip(bsl::istream& stream, TYPE *object)
-{
-    bsl::string value;
-    stream >> value;
+       // FRIENDS
+       friend bool operator==(const Cusip& lhs, const Cusip& rhs);
+       friend bool operator!=(const Cusip& lhs, const Cusip& rhs);
+     public:
+       // TYPES
+       typedef bsl::string BaseType;
 
-    return bdlat_CustomizedTypeFunctions::convertFromBaseType(object, value);
-}
+       // CREATORS
+
+       /// Create an object of type `Cusip` having the default value.
+       /// Optionally specify a `basicAllocator` used to supply memory.  If
+       /// `basicAllocator` is 0, the currently installed default allocator is
+       /// used.
+       explicit Cusip(bslma::Allocator *basicAllocator = 0);
+
+       /// Create an object of type `Cusip` having the value of the specified
+       /// `original` object.  Optionally specify a `basicAllocator` used to
+       /// supply memory.  If `basicAllocator` is 0, the currently installed
+       /// default allocator is used.
+       Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
+
+       /// Create an object of type `Cusip` having the specified `value`.
+       /// Optionally specify a `basicAllocator` used to supply memory.  If
+       /// `basicAllocator` is 0, the currently installed default allocator is
+       /// used.
+       explicit Cusip(const bsl::string&  value,
+                      bslma::Allocator   *basicAllocator = 0);
+
+       /// Destroy this object.
+       ~Cusip();
+
+       // MANIPULATORS
+
+       /// Assign to this object the value of the specified `rhs` object.
+       Cusip& operator=(const Cusip& rhs);
+
+       /// Reset this object to the default value (i.e., its value upon default
+       /// construction).
+       void reset();
+
+       /// Convert from the specified `value` to this type.  Return 0 if
+       /// successful and non-zero otherwise.
+       int fromString(const bsl::string& value);
+
+       // ACCESSORS
+
+       /// Format this object to the specified output `stream` at the
+       /// optionally specified indentation `level` and return a reference to
+       /// the modifiable `stream`.  If `level` is specified, optionally
+       /// specify `spacesPerLevel`, the number of spaces per indentation level
+       /// for this and all of its nested objects.  Each line is indented by
+       /// the absolute value of `level * spacesPerLevel`.  If `level` is
+       /// negative, suppress indentation of the first line.  If
+       /// `spacesPerLevel` is negative, suppress line breaks and format the
+       /// entire output on one line.  If `stream` is initially invalid, this
+       /// operation has no effect.  Note that a trailing newline is provided
+       /// in multiline mode only.
+       bsl::ostream& print(bsl::ostream& stream,
+                           int           level = 0,
+                           int           spacesPerLevel = 4) const;
+
+       /// Convert this value to `bsl::string`.
+       const bsl::string& toString() const;
+   };
+
+   // FREE OPERATORS
+
+   /// Return `true` if the specified `lhs` and `rhs` attribute objects have
+   /// the same value, and `false` otherwise.  Two attribute objects have the
+   /// same value if each respective attribute has the same value.
+   bool operator==(const Cusip& lhs, const Cusip& rhs);
+
+   /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+   /// have the same value, and `false` otherwise.  Two attribute objects do
+   /// not have the same value if one or more respective attributes differ in
+   /// values.
+   bool operator!=(const Cusip& lhs, const Cusip& rhs);
+
+   /// Format the specified `rhs` to the specified output `stream` and return a
+   /// reference to the modifiable `stream`.
+   bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
+// ```
+// The class implementation is straightforward and is deferred to the end of
+// this usage example.
+//
+// We can now make `Cusip` expose "customized type" behavior by implementing
+// `bdlat_CustomizedTypeFunctions` for `Cusip`.  The first method (the longer
+// one) overloads all the `bdlat_customizedType*` functions.  In the second
+// method, we show how to bypass this by simply declaring the class
+// `mine::Cusip` to have the `bdlat_TypeTraitBasicCustomizedType` trait.
+//
+///Longer Usage
+/// - - - - - -
+// First, we should forward declare all the functions that we will implement
+// inside the `mine` namespace:
+// ```
+   // MANIPULATORS
+
+   /// Convert from the specified `value` to the specified customized `object`.
+   ///  Return 0 if successful and non-zero otherwise.
+   int bdlat_customizedTypeConvertFromBaseType(Cusip              *object,
+                                               const bsl::string&  value);
+
+   // ACCESSORS
+
+   /// Load into the specified `result` the value of the specified `object`.
+   const bsl::string& bdlat_customizedTypeConvertToBaseType(
+                                                          const Cusip& object);
+// ```
+// Next, we provide the definitions for each of these functions:
+// ```
+   // MANIPULATORS
+   int bdlat_customizedTypeConvertFromBaseType(Cusip              *object,
+                                               const bsl::string&  value)
+   {
+       return object->fromString(value);
+   }
+
+   // ACCESSORS
+   const bsl::string& bdlat_customizedTypeConvertToBaseType(
+                                                           const Cusip& object)
+   {
+       return object.toString();
+   }
+
+   }  // close namespace mine
+// ```
+// Finally, we need to specialize the `IsCustomizedType` meta-function in the
+// `bdlat_CustomizedTypeFunctions` namespace for the `mine::Cusip` type.  This
+// makes the `bdlat` infrastructure recognize `mine::Cusip` as a customized
+// type abstraction:
+// ```
+   namespace bdlat_CustomizedTypeFunctions {
+
+       template <>
+       struct IsCustomizedType<mine::Cusip> : bsl::true_type {
+       };
+
+       template <>
+       struct BaseType<mine::Cusip> {
+           typedef bsl::string Type;
+       };
+
+   }  // close namespace bdlat_CustomizedTypeFunctions
+   }  // close namespace BloombergLP
+// ```
+// The `bdlat` infrastructure (and any component that uses this infrastructure)
+// will now recognize `mine::Cusip` as a "customized" type.
+//
+///Shorter Usage
+///- - - - - - -
+// We can bypass all the code from the longer usage example by simply
+// declaring `mine::Cusip` to have the `bdlat_TypeTraitBasicCustomizedType`
+// trait as follows:
+// ```
+   namespace BloombergLP {
+
+   // TRAITS
+
+   BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(mine::Cusip)
+
+   }  // close namespace BloombergLP
+// ```
+// Again, the `bdlat` infrastructure (and any component that uses this
+// infrastructure) will now recognize `mine::Cusip` as a "customized" type.
+//
+// For example, suppose we have the following XML data:
+// ```
+// <?xml version='1.0' encoding='UTF-8' ?>
+// <Cusip>
+//     <value>"281C82UE"</value>
+// </Cusip>
+// ```
+// Using the `balxml_decoder` component, we can load this XML data into a
+// `mine::Cusip` object:
+// ```
+// #include <balxml_decoder.h>
+//
+// void decodeMyCustomizedTypeFromXML(bsl::istream& inputData)
+// {
+//     Cusip object;
+//
+//     balxml::DecoderOptions options;
+//     balxml::MiniReader     reader;
+//     balxml::ErrorInfo      errInfo;
+//
+//     balxml::Decoder decoder(&options, &reader, &errInfo);
+//     int result = decoder.decode(inputData, &object);
+//
+//     assert(0          == result);
+//     assert("281C82UE" == object.toString());
+// }
+// ```
+// Note that the `bdlat` framework can be used for functionality other than
+// encoding/decoding into XML.  When `mine::Cusip` is plugged into the
+// framework, then it will be automatically usable within the framework.  For
+// example, the following snippets of code will convert a string from a stream
+// and load it into a `Cusip` object:
+// ```
+   int readCusip(bsl::istream& stream, mine::Cusip *cusip)
+   {
+       bsl::string value;
+       stream >> value;
+
+       return bdlat_CustomizedTypeFunctions::convertFromBaseType(cusip, value);
+   }
+// ```
+// Now we have a generic function that takes an input stream and a `Cusip`
+// object, and inputs its value.  We can use this generic function as follows:
+// ```
+   void usageExample()
+   {
+       bsl::stringstream ss;
+       mine::Cusip object;
+
+       ss << "281C82UE\n1234567890\n";
+
+       ASSERT(0          == readCusip(ss, &object));
+       ASSERT("281C82UE" == object.toString());
+
+       ASSERT(0          != readCusip(ss, &object));
+   }
+// ```
+// This concludes the usage example.
+//
+// For completeness, we finish by providing the straightforward details of the
+// implementation of the class `Cusip`:
+// ```
+   namespace BloombergLP {
+   namespace mine {
+
+   // CREATORS
+
+   inline
+   Cusip::Cusip(bslma::Allocator *basicAllocator)
+   : d_value(basicAllocator)
+   {
+   }
+
+   inline
+   Cusip::Cusip(const Cusip& original, bslma::Allocator *basicAllocator)
+   : d_value(original.d_value, basicAllocator)
+   {
+   }
+
+   inline
+   Cusip::Cusip(const bsl::string& value, bslma::Allocator *basicAllocator)
+   : d_value(value, basicAllocator)
+   {
+   }
+
+   inline
+   Cusip::~Cusip()
+   {
+   }
+
+   // MANIPULATORS
+
+   inline
+   Cusip& Cusip::operator=(const Cusip& rhs)
+   {
+       d_value = rhs.d_value;
+       return *this;
+   }
+
+   inline
+   void Cusip::reset()
+   {
+       // bdlat_ValueTypeFunctions::reset(&d_value);
+       d_value.erase();
+   }
+
+   inline
+   int Cusip::fromString(const bsl::string& value)
+   {
+       enum { SUCCESS = 0, FAILURE = -1 };
+
+       globalFlag = 1;
+
+       if (9 < value.size()) {
+           return FAILURE;
+       }
+
+       d_value = value;
+
+       return SUCCESS;
+   }
+
+   // ACCESSORS
+
+   inline
+   bsl::ostream& Cusip::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
+   {
+       return bdlb::PrintMethods::print(stream,
+                                       d_value,
+                                       level,
+                                       spacesPerLevel);
+   }
+
+   inline
+   const bsl::string& Cusip::toString() const
+   {
+       globalFlag = 2;
+
+       return d_value;
+   }
+
+   // FREE OPERATORS
+
+   inline
+   bool operator==(const Cusip& lhs, const Cusip& rhs)
+   {
+       return lhs.d_value == rhs.d_value;
+   }
+
+   inline
+   bool operator!=(const Cusip& lhs, const Cusip& rhs)
+   {
+       return lhs.d_value != rhs.d_value;
+   }
+
+   inline
+   bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs)
+   {
+       return rhs.print(stream, 0, -1);
+   }
+
+   }  // close namespace mine
+   }  // close namespace BloombergLP
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -345,6 +483,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
 //  int veryVerbose = argc > 3;
 //  int veryVeryVerbose = argc > 4;
+
+    using BloombergLP::mine::Cusip;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -366,17 +506,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-        {
-          bsl::stringstream ss;
-          mine::Cusip object;
+// ```
+   mine::Cusip myCusip("281C82UE");
+   bsl::string base = bdlat_CustomizedTypeFunctions::convertToBaseType(
+                                                                      myCusip);
 
-          ss << "281C82UE\n1234567890\n";
+   ASSERT("281C82UE" == base);
+// ```
+// Attempting to assign a string longer than nine characters will not succeed:
+// ```
+   bsl::string invalidCusip = "1234567890";
 
-          ASSERT(0          == readCusip(ss, &object));
-          ASSERT("281C82UE" == object.toString());
+   int retCode = bdlat_CustomizedTypeFunctions::convertFromBaseType(
+                                                                 &myCusip,
+                                                                 invalidCusip);
+   ASSERT(0 != retCode);
+// ```
 
-          ASSERT(0          != readCusip(ss, &object));
-        }
+        usageExample();
       } break;
       case 2: {
         // --------------------------------------------------------------------

@@ -14,16 +14,16 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The `bdlat_SequenceFunctions` `namespace` provided in this
 // component defines parameterized functions that expose "sequence" behavior
-// for "sequence" types.  See the {`bdlat`} package-level documentation for a
-// full description of "sequence" types.
+// for "sequence" types.  See the `bdlat` package-level documentation for a
+// brief description of "sequence" types.
 //
 // The functions in this namespace allow users to:
 // * manipulate an attribute by attribute id or attribute name using a
-//   parameterized manipulator (`manipulateAttribute`),
+//   parameterized manipulator (`manipulateAttribute`).
 // * manipulate all attributes sequentially using a parameterized manipulator
-//   (`manipulateAttributes`),
+//   (`manipulateAttributes`).
 // * access an attribute by attribute id or attribute name using a
-//   parameterized accessor (`accessAttribute`), and
+//   parameterized accessor (`accessAttribute`).
 // * access all attributes sequentially using a parameterized accessor
 //   (`accessAttributes`).
 //
@@ -37,98 +37,94 @@ BSLS_IDENT("$Id: $")
 // Types that do not have the `bdlat_TypeTraitBasicSequence` trait can be
 // plugged into the `bdlat` framework.  This is done by overloading the
 // `bdlat_sequence*` functions inside the namespace of the plugged in type.
-// For example, suppose there is a type called `mine::MySequence`.  In order to
-// plug this type into the `bdlat` framework as a "sequence", the following
-// functions must be declared and implemented in the `mine` namespace:
+// Note that the placeholder `YOUR_TYPE` is not a template argument and should
+// be replaced with the name of the type being plugged into the framework.
 // ```
-// namespace mine {
-//
 // // MANIPULATORS
-// template <typename MANIPULATOR>
-// int bdlat_sequenceManipulateAttribute(
-//                                     MySequence   *object,
-//                                     MANIPULATOR&  manipulator,
-//                                     const char   *attributeName,
-//                                     int           attributeNameLength);
-//     // Invoke the specified 'manipulator' on the address of the
-//     // (modifiable) attribute indicated by the specified 'attributeName'
-//     // and 'attributeNameLength' of the specified 'object', supplying
-//     // 'manipulator' with the corresponding attribute information
-//     // structure.  Return non-zero value if the attribute is not found, and
-//     // the value returned from the invocation of 'manipulator' otherwise.
 //
+// /// Invoke the specified `manipulator` on the address of the (modifiable)
+// /// attribute indicated by the specified `attributeName` and
+// /// `attributeNameLength` of the specified `object`, supplying `manipulator`
+// /// with the corresponding attribute information structure.  Return non-zero
+// /// value if the attribute is not found, and the value returned from the
+// /// invocation of `manipulator` otherwise.
 // template <typename MANIPULATOR>
-// int bdlat_sequenceManipulateAttribute(MySequence   *object,
+// int bdlat_sequenceManipulateAttribute(YOUR_TYPE    *object,
+//                                       MANIPULATOR&  manipulator,
+//                                       const char   *attributeName,
+//                                       int           attributeNameLength);
+//
+// /// Invoke the specified `manipulator` on the address of the (modifiable)
+// /// attribute indicated by the specified `attributeId` of the specified
+// /// `object`, supplying `manipulator` with the corresponding attribute
+// /// information structure.  Return non-zero value if the attribute is not
+// /// found, and the value returned from the invocation of `manipulator`
+// /// otherwise.
+// template <typename MANIPULATOR>
+// int bdlat_sequenceManipulateAttribute(YOUR_TYPE    *object,
 //                                       MANIPULATOR&  manipulator,
 //                                       int           attributeId);
-//     // Invoke the specified 'manipulator' on the address of the
-//     // (modifiable) attribute indicated by the specified 'attributeId' of
-//     // the specified 'object', supplying 'manipulator' with the
-//     // corresponding attribute information structure.  Return non-zero
-//     // value if the attribute is not found, and the value returned from the
-//     // invocation of 'manipulator' otherwise.
 //
+// /// Invoke the specified `manipulator` sequentially on the address of each
+// /// (modifiable) attribute of the specified `object`, supplying
+// /// `manipulator` with the corresponding attribute information structure
+// /// until such invocation returns non-zero value.  Return the value from the
+// /// last invocation of `manipulator` (i.e., the invocation that terminated
+// /// the sequence).
 // template <typename MANIPULATOR>
-// int bdlat_sequenceManipulateAttributes(MySequence   *object,
+// int bdlat_sequenceManipulateAttributes(YOUR_TYPE    *object,
 //                                        MANIPULATOR&  manipulator);
-//     // Invoke the specified 'manipulator' sequentially on the address of
-//     // each (modifiable) attribute of the specified 'object', supplying
-//     // 'manipulator' with the corresponding attribute information structure
-//     // until such invocation returns non-zero value.  Return the value from
-//     // the last invocation of 'manipulator' (i.e., the invocation that
-//     // terminated the sequence).
 //
 // // ACCESSORS
-// template <typename ACCESSOR>
-// int bdlat_sequenceAccessAttribute(const MySequence&  object,
-//                                   ACCESSOR&          accessor,
-//                                   const char        *attributeName,
-//                                   int                attributeNameLength);
-//     // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-//     // the specified 'object' indicated by the specified 'attributeName'
-//     // and 'attributeNameLength', supplying 'accessor' with the
-//     // corresponding attribute information structure.  Return non-zero
-//     // value if the attribute is not found, and the value returned from the
-//     // invocation of 'accessor' otherwise.
 //
+// /// Invoke the specified `accessor` on the (non-modifiable) attribute of the
+// /// specified `object` indicated by the specified `attributeName` and
+// /// `attributeNameLength`, supplying `accessor` with the corresponding
+// /// attribute information structure.  Return non-zero value if the attribute
+// /// is not found, and the value returned from the invocation of `accessor`
+// /// otherwise.
 // template <typename ACCESSOR>
-// int bdlat_sequenceAccessAttribute(const MySequence& object,
+// int bdlat_sequenceAccessAttribute(const YOUR_TYPE&  object,
 //                                   ACCESSOR&         accessor,
-//                                   int               attributeId);
-//     // Invoke the specified 'accessor' on the attribute of the specified
-//     // 'object' with the given 'attributeId', supplying 'accessor' with the
-//     // corresponding attribute information structure.  Return non-zero if
-//     // the attribute is not found, and the value returned from the
-//     // invocation of 'accessor' otherwise.
+//                                   const char       *attributeName,
+//                                   int               attributeNameLength);
 //
+// /// Invoke the specified `accessor` on the attribute of the specified
+// /// `object` with the given `attributeId`, supplying `accessor` with the
+// /// corresponding attribute information structure.  Return non-zero if the
+// /// attribute is not found, and the value returned from the invocation of
+// /// `accessor` otherwise.
 // template <typename ACCESSOR>
-// int bdlat_sequenceAccessAttributes(const MySequence& object,
-//                                    ACCESSOR&         accessor);
-//     // Invoke the specified 'accessor' sequentially on each attribute of
-//     // the specified 'object', supplying 'accessor' with the corresponding
-//     // attribute information structure until such invocation returns a
-//     // non-zero value.  Return the value from the last invocation of
-//     // 'accessor' (i.e., the invocation that terminated the sequence).
+// int bdlat_sequenceAccessAttribute(const YOUR_TYPE& object,
+//                                   ACCESSOR&        accessor,
+//                                   int              attributeId);
 //
-// bool bdlat_sequenceHasAttribute(const MySequence&  object,
-//                                 const char        *attributeName,
-//                                 int                attributeNameLength);
-//     // Return true if the specified 'object' has an attribute with the
-//     // specified 'attributeName' of the specified 'attributeNameLength',
-//     // and false otherwise.
+// /// Invoke the specified `accessor` sequentially on each attribute of the
+// /// specified `object`, supplying `accessor` with the corresponding
+// /// attribute information structure until such invocation returns a non-zero
+// /// value.  Return the value from the last invocation of `accessor` (i.e.,
+// /// the invocation that terminated the sequence).
+// template <typename ACCESSOR>
+// int bdlat_sequenceAccessAttributes(const YOUR_TYPE& object,
+//                                    ACCESSOR&        accessor);
 //
-// bool bdlat_sequenceHasAttribute(const MySequence& object,
-//                                 int               attributeId);
-//     // Return true if the specified 'object' has an attribute with the
-//     // specified 'attributeId', and false otherwise.
+// /// Return true if the specified `object` has an attribute with the
+// /// specified `attributeName` of the specified `attributeNameLength`, and
+// /// false otherwise.
+// bool bdlat_sequenceHasAttribute(const YOUR_TYPE&  object,
+//                                 const char       *attributeName,
+//                                 int               attributeNameLength);
 //
-// }  // close namespace mine
+// /// Return true if the specified `object` has an attribute with the
+// /// specified `attributeId`, and false otherwise.
+// bool bdlat_sequenceHasAttribute(const YOUR_TYPE& object,
+//                                 int              attributeId);
 // ```
 // Also, the `IsSequence` meta-function must be specialized for the
 // `mine::MySequence` type in the `bdlat_SequenceFunctions` namespace.
 //
 // An example of plugging in a user-defined sequence type into the `bdlat`
-// framework is shown in the {`Usage`} section of this document.
+// framework is shown in the [](#Usage) section of this document.
 //
 ///Usage
 ///-----
@@ -142,10 +138,9 @@ BSLS_IDENT("$Id: $")
 //
 // namespace mine {
 //
+// /// This struct represents a sequence containing a `string` member, an `int`
+// /// member, and a `float` member.
 // struct MySequence {
-//     // This struct represents a sequence containing a 'string' member, an
-//     // 'int' member, and a 'float' member.
-//
 //     // CONSTANTS
 //     enum {
 //         NAME_ATTRIBUTE_ID   = 1,
@@ -502,8 +497,6 @@ BSLS_IDENT("$Id: $")
 //
 // void decodeMySequenceFromXML(bsl::istream& inputData)
 // {
-//     using namespace BloombergLP;
-//
 //     mine::MySequence object;
 //
 //     balxml::DecoderOptions options;
@@ -525,9 +518,8 @@ BSLS_IDENT("$Id: $")
 // example, the following snippets of code will print out all the attributes of
 // a sequence object:
 // ```
+// /// Print each visited object to the bound `d_stream_p` object.
 // struct PrintAttribute {
-//     // Print each visited object to the bound 'd_stream_p' object.
-//
 //     // DATA MEMBERS
 //     bsl::ostream *d_stream_p;
 //
@@ -592,11 +584,10 @@ namespace BloombergLP {
                       // namespace bdlat_SequenceFunctions
                       // =================================
 
+/// This `namespace` provides methods that expose "sequence" behavior for
+/// "sequence" types.  See the component-level documentation for more
+/// information.
 namespace bdlat_SequenceFunctions {
-    // This 'namespace' provides methods that expose "sequence" behavior for
-    // "sequence" types.  See the component-level documentation for more
-    // information.
-
     // META-FUNCTIONS
 
     /// This `struct` should be specialized for third-party types that need
@@ -695,13 +686,12 @@ namespace bdlat_SequenceFunctions {
                             // default declarations
                             // ====================
 
+/// This namespace declaration adds the default implementations of the
+/// "sequence" customization-point functions to `bdlat_SequenceFunctions`.
+/// These default implementations assume the type of the acted-upon object is a
+/// basic-sequence type.  For more information about basic-sequence types, see
+/// `bdlat_typetraits`.
 namespace bdlat_SequenceFunctions {
-    // This namespace declaration adds the default implementations of the
-    // "sequence" customization-point functions to 'bdlat_SequenceFunctions'.
-    // These default implementations assume the type of the acted-upon object
-    // is a basic-sequence type.  For more information about basic-sequence
-    // types, see {'bdlat_typetraits'}.
-
     // MANIPULATORS
     template <class TYPE, class MANIPULATOR>
     int bdlat_sequenceManipulateAttribute(TYPE         *object,

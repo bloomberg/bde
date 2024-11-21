@@ -782,16 +782,25 @@ bool MyEnumWithFallback::isFallback(MyEnumWithFallback::Value value)
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-namespace BloombergLP {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// Suppose you have a C++ `enum` type called `ImageType` whose enumerators
+// represent supported formats for image files:
+// ```
+   namespace BloombergLP {
 
-namespace mine {
+   namespace mine {
 
-enum ImageType {
-    JPG     = 0,
-    PNG     = 1,
-    GIF     = 2,
-    UNKNOWN = 100
-};
+   enum ImageType {
+       JPG     = 0,
+       PNG     = 1,
+       GIF     = 2,
+       UNKNOWN = 100
+   };
 // ```
 // We can now make `ImageType` expose "enumeration" behavior by implementing
 // all the necessary `bdlat_enum*` functions for `ImageType` inside the `mine`
@@ -799,153 +808,164 @@ enum ImageType {
 // the `bdlat_EnumFunctions` namespace).  First we should forward declare all
 // the functions that we will implement inside the `mine` namespace:
 // ```
-// MANIPULATORS
+   // MANIPULATORS
 
-/// Load into the specified `result` the enumerator matching the specified
-/// `number`.  Return 0 on success, and a non-zero value with no effect on
-/// `result` if `number` does not match any enumerator.
-int bdlat_enumFromInt(ImageType *result, int number);
+   /// Load into the specified `result` the enumerator matching the
+   /// specified `number`.  Return 0 on success, and a non-zero value
+   /// with no effect on `result` if `number` does not match any
+   /// enumerator.
+   int bdlat_enumFromInt(ImageType* result, int number);
 
-/// Load into the specified `result` the enumerator matching the specified
-/// `string` of the specified `stringLength`.  Return 0 on success, and a
-/// non-zero value with no effect on `result` if `string` and `stringLength`
-/// do not match any enumerator.
-int bdlat_enumFromString(ImageType  *result,
-                         const char *string,
-                         int         stringLength);
+   /// Load into the specified `result` the enumerator matching the
+   /// specified `string` of the specified `stringLength`.  Return 0 on
+   /// success, and a non-zero value with no effect on `result` if
+   /// `string` and `stringLength` do not match any enumerator.
+   int bdlat_enumFromString(ImageType  *result,
+                            const char *string,
+                            int         stringLength);
 
-/// Load into the specified `result` the fallback enumerator value and
-/// return 0 to indicate success.
-int bdlat_enumMakeFallback(ImageType *result);
+   /// Load into the specified `result` the fallback enumerator value and
+   /// return 0 to indicate success.
+   int bdlat_enumMakeFallback(ImageType *result);
 
-// ACCESSORS
+   // ACCESSORS
 
-/// Load into the specified `result` the integer representation of the
-/// enumerator value held by the specified `value`.
-void bdlat_enumToInt(int *result, const ImageType& value);
+   /// Load into the specified `result` the integer representation of the
+   /// enumerator value held by the specified `value`.
+   void bdlat_enumToInt(int *result, const ImageType& value);
 
-/// Load into the specified `result` the string representation of the
-/// enumerator value held by the specified `value`.
-void bdlat_enumToString(bsl::string *result, const ImageType& value);
+   /// Load into the specified `result` the string representation of the
+   /// enumerator value held by the specified `value`.
+   void bdlat_enumToString(bsl::string *result, const ImageType& value);
 
-/// Return `true` to indicate that this type supports a fallback enumerator.
-bool bdlat_enumHasFallback(const ImageType&);
+   /// Return `true` to indicate that this type supports a fallback
+   /// enumerator.
+   bool bdlat_enumHasFallback(const ImageType&);
 
-/// Return `true` if the specified `value` equals the fallback enumerator,
-/// and `false` otherwise.
-bool bdlat_enumIsFallback(const ImageType& value);
-}  // close namespace mine
+   /// Return `true` if the specified `value` equals the fallback
+   /// enumerator, and `false` otherwise.
+   bool bdlat_enumIsFallback(const ImageType& value);
+
+   }  // close namespace mine
 // ```
 // Next, we provide the definitions for each of these functions:
 // ```
-// MANIPULATORS
+   // MANIPULATORS
 
-inline
-int mine::bdlat_enumFromInt(ImageType *result, int number)
-{
-    enum { SUCCESS = 0, NOT_FOUND = -1 };
+   inline
+   int mine::bdlat_enumFromInt(ImageType *result, int number)
+   {
+       enum { SUCCESS = 0, NOT_FOUND = -1 };
 
-    switch (number) {
-      case JPG: {
-        *result = JPG;
-        return SUCCESS;                                               // RETURN
-      }
-      case PNG: {
-        *result = PNG;
-        return SUCCESS;                                               // RETURN
-      }
-      case GIF: {
-        *result = GIF;
-        return SUCCESS;                                               // RETURN
-      }
-      case UNKNOWN: {
-        *result = UNKNOWN;
-        return SUCCESS;                                               // RETURN
-      }
-      default: {
-        return NOT_FOUND;                                             // RETURN
-      }
-    }
-}
+       switch (number) {
+         case JPG: {
+           *result = JPG;
+           return SUCCESS;
+         }
+         case PNG: {
+           *result = PNG;
+           return SUCCESS;
+         }
+         case GIF: {
+           *result = GIF;
+           return SUCCESS;
+         }
+         case UNKNOWN: {
+           *result = UNKNOWN;
+           return SUCCESS;
+         }
+         default: {
+           return NOT_FOUND;
+         }
+       }
+   }
 
-inline
-int mine::bdlat_enumFromString(ImageType  *result,
-                               const char *string,
-                               int         stringLength)
-{
-    enum { SUCCESS = 0, NOT_FOUND = -1 };
+   inline
+   int mine::bdlat_enumFromString(ImageType  *result,
+                                  const char *string,
+                                  int         stringLength)
+   {
+       enum { SUCCESS = 0, NOT_FOUND = -1 };
 
-    if (bdlb::String::areEqualCaseless("jpg", string, stringLength)) {
-        *result = JPG;
-        return SUCCESS;                                               // RETURN
-    }
+       if (bdlb::String::areEqualCaseless("jpg",
+                                          string,
+                                          stringLength)) {
+           *result = JPG;
+           return SUCCESS;
+       }
 
-    if (bdlb::String::areEqualCaseless("png", string, stringLength)) {
-        *result = PNG;
-        return SUCCESS;                                               // RETURN
-    }
+       if (bdlb::String::areEqualCaseless("png",
+                                          string,
+                                          stringLength)) {
+           *result = PNG;
+           return SUCCESS;
+       }
 
-    if (bdlb::String::areEqualCaseless("gif", string, stringLength)) {
-        *result = GIF;
-        return SUCCESS;                                               // RETURN
-    }
+       if (bdlb::String::areEqualCaseless("gif",
+                                          string,
+                                          stringLength)) {
+           *result = GIF;
+           return SUCCESS;
+       }
 
-    if (bdlb::String::areEqualCaseless("unknown", string, stringLength)) {
-        *result = UNKNOWN;
-        return SUCCESS;                                               // RETURN
-    }
+       if (bdlb::String::areEqualCaseless("unknown",
+                                          string,
+                                          stringLength)) {
+           *result = UNKNOWN;
+           return SUCCESS;
+       }
 
-    return NOT_FOUND;
-}
+       return NOT_FOUND;
+   }
 
-inline
-int mine::bdlat_enumMakeFallback(ImageType *result)
-{
-    *result = UNKNOWN;
-    return 0;
-}
+   inline
+   int mine::bdlat_enumMakeFallback(ImageType *result)
+   {
+       *result = UNKNOWN;
+       return 0;
+   }
 
-// ACCESSORS
+   // ACCESSORS
 
-inline
-void mine::bdlat_enumToInt(int *result, const ImageType& value)
-{
-    *result = static_cast<int>(value);
-}
+   inline
+   void mine::bdlat_enumToInt(int *result, const ImageType& value)
+   {
+       *result = static_cast<int>(value);
+   }
 
-inline
-void mine::bdlat_enumToString(bsl::string *result, const ImageType& value)
-{
-    switch (value) {
-      case JPG: {
-        *result = "JPG";
-      } break;
-      case PNG: {
-        *result = "PNG";
-      } break;
-      case GIF: {
-        *result = "GIF";
-      } break;
-      case UNKNOWN: {
-        *result = "UNKNOWN";
-      } break;
-      default: {
-        *result = "INVALID";
-      } break;
-    }
-}
+   inline
+   void mine::bdlat_enumToString(bsl::string *result, const ImageType& value)
+   {
+       switch (value) {
+         case JPG: {
+           *result = "JPG";
+         } break;
+         case PNG: {
+           *result = "PNG";
+         } break;
+         case GIF: {
+           *result = "GIF";
+         } break;
+         case UNKNOWN: {
+           *result = "UNKNOWN";
+         } break;
+         default: {
+           *result = "INVALID";
+         } break;
+       }
+   }
 
-inline
-bool mine::bdlat_enumHasFallback(const ImageType&)
-{
-    return true;
-}
+   inline
+   bool mine::bdlat_enumHasFallback(const ImageType&)
+   {
+       return true;
+   }
 
-inline
-bool mine::bdlat_enumIsFallback(const ImageType& value)
-{
-    return value == UNKNOWN;
-}
+   inline
+   bool mine::bdlat_enumIsFallback(const ImageType& value)
+   {
+       return value == UNKNOWN;
+   }
 // ```
 // Finally, we need to specialize the `IsEnumeration` and
 // `HasFallbackEnumerator` meta-functions in the `bdlat_EnumFunctions`
@@ -953,88 +973,86 @@ bool mine::bdlat_enumIsFallback(const ImageType& value)
 // infrastructure recognize `ImageType` as an enumeration abstraction with a
 // fallback enumerator:
 // ```
-namespace bdlat_EnumFunctions {
-template <>
-struct IsEnumeration<mine::ImageType> : public bsl::true_type {
-};
-template <>
-struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
-};
-}  // close namespace bdlat_EnumFunctions
-}  // close enterprise namespace
+   namespace bdlat_EnumFunctions {
+   template <>
+   struct IsEnumeration<mine::ImageType> : public bsl::true_type {
+   };
+   template <>
+   struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
+   };
+   }  // close namespace bdlat_EnumFunctions
+   }  // close namespace BloombergLP
 // ```
 // The `bdlat` infrastructure (and any component that uses this infrastructure)
 // will now recognize `ImageType` as an "enumeration" type with a fallback
 // enumerator.  For example, suppose we have the following XML data:
 // ```
-//  <?xml version='1.0' encoding='UTF-8' ?>
-//  <ImageType>PNG</ImageType>
+// <?xml version='1.0' encoding='UTF-8' ?>
+// <ImageType>PNG</ImageType>
 // ```
 // Using the `balxml_decoder` component, we can load this XML data into a
 // `ImageType` object:
 // ```
-//  #include <balxml_decoder.h>
+// #include <balxml_decoder.h>
 //
-//  void decodeImageTypeFromXML(bsl::istream& inputData)
-//  {
-//      using namespace BloombergLP;
+// void decodeImageTypeFromXML(bsl::istream& inputData)
+// {
+//     ImageType object = 0;
 //
-//      ImageType object = 0;
+//     balxml::DecoderOptions options;
+//     balxml::MiniReader     reader;
+//     balxml::ErrorInfo      errInfo;
 //
-//      balxml::DecoderOptions options;
-//      balxml::MiniReader     reader;
-//      balxml::ErrorInfo      errInfo;
+//     balxml::Decoder decoder(&options, &reader, &errInfo);
+//     int result = decoder.decode(inputData, &object);
 //
-//      balxml::Decoder decoder(&options, &reader, &errInfo);
-//      int result = decoder.decode(inputData, &object);
-//
-//      assert(0   == result);
-//      assert(PNG == object);
-//  }
+//     assert(0   == result);
+//     assert(PNG == object);
+// }
 // ```
 // Note that the `bdlat` framework can be used for functionality other than
 // encoding/decoding into XML.  When `mine::ImageType` is plugged into the
-// framework, then it will be automatically usable within the framework. For
+// framework, then it will be automatically usable within the framework.  For
 // example, consider the following generic functions that read a string from a
 // stream and decode its value into a `bdlat` "enumeration" object:
 // ```
-template <class TYPE>
-int readEnum(bsl::istream& stream, TYPE *object)
-{
-    bsl::string value;
-    stream >> value;
+   template <class TYPE>
+   int readEnum(bsl::istream& stream, TYPE *object)
+   {
+       bsl::string value;
+       stream >> value;
 
-    return bdlat_EnumFunctions::fromString(
-        object, value.c_str(), static_cast<int>(value.length()));
-}
+       return bdlat_EnumFunctions::fromString(
+                                             object,
+                                             value.c_str(),
+                                             static_cast<int>(value.length()));
+   }
 
-template <class TYPE>
-int readEnumOrFallback(bsl::istream& stream, TYPE *object)
-{
-    const int rc = readEnum(stream, object);
-    return (0 == rc) ? rc : bdlat_EnumFunctions::makeFallback(object);
-}
+   template <class TYPE>
+   int readEnumOrFallback(bsl::istream& stream, TYPE *object)
+   {
+       const int rc = readEnum(stream, object);
+       return (0 == rc) ? rc : bdlat_EnumFunctions::makeFallback(object);
+   }
 // ```
 // We can use these generic functions with `mine::ImageType` as follows:
 // ```
-void usageExample()
-{
-    using namespace BloombergLP;
+   void usageExample()
+   {
+       bsl::stringstream ss;
+       mine::ImageType   object;
 
-    bsl::stringstream ss;
-    mine::ImageType   object;
+       ss << "JPG\nWEBP\nWEBP\n";
 
-    ss << "JPG\nWEBP\nWEBP\n";
+       ASSERT(0             == readEnum(ss, &object));
+       ASSERT(mine::JPG     == object);
 
-    ASSERT(0             == readEnum(ss, &object));
-    ASSERT(mine::JPG     == object);
+       ASSERT(0             != readEnum(ss, &object));
+       ASSERT(mine::JPG     == object);
 
-    ASSERT(0             != readEnum(ss, &object));
-    ASSERT(mine::JPG     == object);
-
-    ASSERT(0             == readEnumOrFallback(ss, &object));
-    ASSERT(mine::UNKNOWN == object);
-}
+       ASSERT(0             == readEnumOrFallback(ss, &object));
+       ASSERT(mine::UNKNOWN == object);
+   }
 // ```
 
 // ============================================================================

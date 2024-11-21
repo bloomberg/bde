@@ -14,19 +14,17 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The `bdlat_EnumFunctions` `namespace` provided in this
 // component defines parameterized functions that expose "enumeration" behavior
-// for "enumeration" types.  See the package-level documentation for a full
-// description of "enumeration" types.  The functions in this namespace allow
-// users to:
+// for "enumeration" types.  See the package-level documentation for a brief
+// description of "enumeration" types.
 //
+// The functions in this namespace allow users to:
 // * load an enumeration value from an integer value (`fromInt`).
 // * load an enumeration value from a string value (`fromString`).
 // * load an integer value from an enumeration value (`toInt`).
 // * load a string value from an enumeration value (`toString`).
 // * set an enumeration to its fallback value (`makeFallback`).
-// * check whether an enumeration supports a fallback value
-//   (`hasFallback`).
-// * test whether an enumeration is equal to the fallback value
-//   (`isFallback`).
+// * check whether an enumeration supports a fallback value (`hasFallback`).
+// * test whether an enumeration is equal to the fallback value (`isFallback`).
 //
 // The meta-functions `IsEnumeration` and `HasFallbackEnumerator` indicate
 // whether a type supports the above functions.  If the compile-time constant
@@ -263,8 +261,6 @@ BSLS_IDENT("$Id: $")
 //
 // void decodeImageTypeFromXML(bsl::istream& inputData)
 // {
-//     using namespace BloombergLP;
-//
 //     ImageType object = 0;
 //
 //     balxml::DecoderOptions options;
@@ -290,9 +286,10 @@ BSLS_IDENT("$Id: $")
 //     bsl::string value;
 //     stream >> value;
 //
-//     return bdlat_EnumFunctions::fromString(object,
-//                                            value.c_str(),
-//                                            value.length())) {
+//     return bdlat_EnumFunctions::fromString(
+//                                           object,
+//                                           value.c_str(),
+//                                           static_cast<int>(value.length()));
 // }
 //
 // template <class TYPE>
@@ -306,8 +303,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void usageExample()
 // {
-//     using namespace BloombergLP;
-//
 //     bsl::stringstream ss;
 //     mine::ImageType   object;
 //
