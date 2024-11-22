@@ -1631,9 +1631,8 @@ class basic_string
     /// This method signature is defined as private, unimplemented, and (if
     /// that is supported) deleted to avoid calls like `string.insert(0, 'x')`
     /// to be picked up by the wrong insert function because the 0 converts
-    /// into a null pointer that is then treated as an iterator.  The faulty
-    /// call is an honest attempt to insert at the beginning of the string,
-    /// assuming that an insert with position first argument exists.
+    /// into a null pointer that is then treated as an iterator.  If the intent
+    /// is to insert at the beginning use `s.insert(s.begin(), 'x')`.
     void insert(size_type zero, CHAR_TYPE) BSLS_KEYWORD_DELETED;
 
     // INVARIANTS
