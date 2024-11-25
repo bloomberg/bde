@@ -63,18 +63,18 @@ BSLS_IDENT("$Id: $")
 //
 ///Assertion Semantics
 ///-------------------
-// There are three important aspects of assertions: (1) **Every** **assertion**
-// **is** **redundant**; it is essential that if all assertions are compiled out of
-// a program that is defect-free, apart from improved runtime performance, the
-// program behaves identically.  Hence, (2) **each** !boolean-valued! **assert**
-// **argument** **must** **have** **no** !side-effects!.  Finally, (3) **assertions**
-// **do** **not** **affect** **binary** **compatibility**; hence, translation units with
-// different assertion levels (but not necessarily build targets) can safely be
-// combined into a single program (see "Build Modes" and "Assertions in Header
-// Files" below).  Note that the build target `BDE_BUILD_TARGET_SAFE_2` does
-// permit binary incompatibility for conditionally compiled source code, but
-// there is no corresponding `BSLS_ASSERT_SAFE_2` assertion macro (see {Usage}
-// below).
+// There are three important aspects of assertions: (1) **Every assertion
+// is redundant**; it is essential that if all assertions are compiled
+// out of a program that is defect-free, apart from improved runtime
+// performance, the program behaves identically.  Hence, (2) **each**
+// !boolean-valued! **assert argument must have no**
+// !side-effects!.  Finally, (3) **assertions do not affect binary
+// compatibility**; hence, translation units with different
+// assertion levels (but not necessarily build targets) can safely be combined
+// into a single program (see "Build Modes" and "Assertions in Header Files"
+// below).  Note that the build target `BDE_BUILD_TARGET_SAFE_2` does permit
+// binary incompatibility for conditionally compiled source code, but there is
+// no corresponding `BSLS_ASSERT_SAFE_2` assertion macro (see [](#Usage)).
 //
 ///Assertion Modes
 ///---------------
@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 // threshold than what they currently have deployed are being triggered
 // (without terminating the application).  It is intended as an interim step
 // towards lowering the assertion level threshold for an existing application.
-// See {`bsls_review`} for a more detailed description of the behavior of
+// See `bsls_review` for a more detailed description of the behavior of
 // assertions in review mode and suggested workflows for using this behavior.
 //
 ///Detailed Behavior
@@ -287,7 +287,7 @@ BSLS_IDENT("$Id: $")
 // method and passing it (the address of) a function whose signature conforms
 // to the `bsls::Assert::ViolationHandler` `typedef`.  This handler may be one
 // of the other handler methods provided in `bsls::Assert`, or a new "custom"
-// function, written by the user (see {Usage} below).
+// function, written by the user (see [](#Usage)).
 //
 ///Exception-Throwing Failure Handlers and `bsls::AssertFailureHandlerGuard`
 ///-------------------------------------------------------------------------
@@ -303,7 +303,7 @@ BSLS_IDENT("$Id: $")
 // Note that an object of type `bsls::AssertFailureHandlerGuard` can be used to
 // temporarily set an exception-throwing handler within a `try` block,
 // automatically restoring the previous handler when the `try` block exits (see
-// {Usage} below).
+// [](#Usage)).
 //
 ///Assertion Handler Policy
 ///------------------------
