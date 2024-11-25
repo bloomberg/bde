@@ -263,6 +263,7 @@ typedef bdlt::DayOfWeek::Enum  DayOfWeek;
 typedef bdlt::Time             Time;
 
 typedef bsls::Types::Int64     Int64;
+typedef bsls::Types::Uint64    Uint64;
 
 typedef bslx::TestInStream     In;
 typedef bslx::TestOutStream    Out;
@@ -1294,10 +1295,26 @@ int main(int argc, char *argv[])
             const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
             const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
+            const Int64 int64Max = ~static_cast<Uint64>(0) >> 1;
+            const Int64 int64Min = ~int64Max;
+
             if (veryVerbose) cout << "\t'addTimeIfValid'" << endl;
             {
                 Obj x0(startOfEpoch);
                 ASSERT(0 != x0.addTimeIfValid(0, 0, 0, 0, -1));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(0, 0, 0, 0, int64Max));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(0, 0, 0, int64Max, 0));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(0, 0, int64Max, 0, 0));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(0, int64Max, 0, 0, 0));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(int64Max, 0, 0, 0, 0));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addTimeIfValid(int64Max, int64Max, int64Max,
+                                                          int64Max, int64Max));
                 ASSERT(x0 == startOfEpoch);
                 Obj x1(startOfEpoch);
                 ASSERT(0 == x1.addTimeIfValid(0, 0, 0, 0,  0));
@@ -1311,12 +1328,27 @@ int main(int argc, char *argv[])
                 Obj y2(endOfEpoch);
                 ASSERT(0 != y2.addTimeIfValid(0,0,0,0,  1));
                 ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(0,0,0,0,  int64Min));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(0,0,0,  int64Min, 0));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(0,0,  int64Min, 0,0));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(0,  int64Min, 0,0,0));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(  int64Min, 0,0,0,0));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addTimeIfValid(int64Min, int64Min, int64Min,
+                                                          int64Min, int64Min));
+                ASSERT(y2 == endOfEpoch);
             }
 
             if (veryVerbose) cout << "\t'addHoursIfValid'" << endl;
             {
                 Obj x0(startOfEpoch);
                 ASSERT(0 != x0.addHoursIfValid(-1));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addHoursIfValid(int64Max));
                 ASSERT(x0 == startOfEpoch);
                 Obj x1(startOfEpoch);
                 ASSERT(0 == x1.addHoursIfValid( 0));
@@ -1330,12 +1362,16 @@ int main(int argc, char *argv[])
                 Obj y2(  endOfEpoch);
                 ASSERT(0 != y2.addHoursIfValid( 1));
                 ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addHoursIfValid( int64Min));
+                ASSERT(y2 == endOfEpoch);
             }
 
             if (veryVerbose) cout << "\t'addMinutesIfValid'" << endl;
             {
                 Obj x0(startOfEpoch);
                 ASSERT(0 != x0.addMinutesIfValid(-1));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addMinutesIfValid(int64Max));
                 ASSERT(x0 == startOfEpoch);
                 Obj x1(startOfEpoch);
                 ASSERT(0 == x1.addMinutesIfValid( 0));
@@ -1349,12 +1385,16 @@ int main(int argc, char *argv[])
                 Obj y2(  endOfEpoch);
                 ASSERT(0 != y2.addMinutesIfValid( 1));
                 ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addMinutesIfValid(int64Min));
+                ASSERT(y2 == endOfEpoch);
             }
 
             if (veryVerbose) cout << "\t'addSecondsIfValid'" << endl;
             {
                 Obj x0(startOfEpoch);
                 ASSERT(0 != x0.addSecondsIfValid(-1));
+                ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addSecondsIfValid(int64Max));
                 ASSERT(x0 == startOfEpoch);
                 Obj x1(startOfEpoch);
                 ASSERT(0 == x1.addSecondsIfValid( 0));
@@ -1367,6 +1407,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == y1.addSecondsIfValid( 0));
                 Obj y2(  endOfEpoch);
                 ASSERT(0 != y2.addSecondsIfValid( 1));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addSecondsIfValid(int64Min));
                 ASSERT(y2 == endOfEpoch);
             }
 
@@ -1394,6 +1436,8 @@ int main(int argc, char *argv[])
                 Obj x0(startOfEpoch);
                 ASSERT(0 != x0.addMicrosecondsIfValid(-1));
                 ASSERT(x0 == startOfEpoch);
+                ASSERT(0 != x0.addMicrosecondsIfValid(int64Max));
+                ASSERT(x0 == startOfEpoch);
                 Obj x1(startOfEpoch);
                 ASSERT(0 == x1.addMicrosecondsIfValid( 0));
                 Obj x2(startOfEpoch);
@@ -1405,6 +1449,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == y1.addMicrosecondsIfValid( 0));
                 Obj y2(  endOfEpoch);
                 ASSERT(0 != y2.addMicrosecondsIfValid( 1));
+                ASSERT(y2 == endOfEpoch);
+                ASSERT(0 != y2.addMicrosecondsIfValid(int64Min));
                 ASSERT(y2 == endOfEpoch);
             }
         }

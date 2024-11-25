@@ -1808,17 +1808,17 @@ Datetime& Datetime::addTime(bsls::Types::Int64 hours,
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    BSLS_ASSERT_SAFE( days <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(days <=  static_cast<bsls::Types::Int64>
                                      ((k_MAX_US_FROM_EPOCH - totalMicroseconds)
                                                  / TimeUnitRatio::k_US_PER_D));
-    BSLS_ASSERT_SAFE(-days <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(days >= -static_cast<bsls::Types::Int64>
                               (totalMicroseconds / TimeUnitRatio::k_US_PER_D));
 
     totalMicroseconds += days * TimeUnitRatio::k_US_PER_D;
 
-    BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(microseconds <=  static_cast<bsls::Types::Int64>
                                     (k_MAX_US_FROM_EPOCH - totalMicroseconds));
-    BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(microseconds >= -static_cast<bsls::Types::Int64>
                                                           (totalMicroseconds));
 
     totalMicroseconds += microseconds;
@@ -1880,19 +1880,19 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    if (!(  days <= static_cast<bsls::Types::Int64>
+    if (!( days <=  static_cast<bsls::Types::Int64>
                                      ((k_MAX_US_FROM_EPOCH - totalMicroseconds)
                                                    / TimeUnitRatio::k_US_PER_D)
-        && -days <= static_cast<bsls::Types::Int64>
+        && days >= -static_cast<bsls::Types::Int64>
                             (totalMicroseconds / TimeUnitRatio::k_US_PER_D))) {
         return k_FAILURE;                                             // RETURN
     }
 
     totalMicroseconds += days * TimeUnitRatio::k_US_PER_D;
 
-    if (!(  microseconds <= static_cast<bsls::Types::Int64>
+    if (!( microseconds <=  static_cast<bsls::Types::Int64>
                                       (k_MAX_US_FROM_EPOCH - totalMicroseconds)
-        && -microseconds <= static_cast<bsls::Types::Int64>
+        && microseconds >= -static_cast<bsls::Types::Int64>
                                                         (totalMicroseconds))) {
         return k_FAILURE;                                             // RETURN
     }
@@ -1908,10 +1908,10 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
 inline
 Datetime& Datetime::addHours(bsls::Types::Int64 hours)
 {
-    BSLS_ASSERT_SAFE( hours <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(hours <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_H));
-    BSLS_ASSERT_SAFE(-hours <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(hours >= -static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_H));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
@@ -1927,10 +1927,10 @@ int Datetime::addHoursIfValid(bsls::Types::Int64 hours)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (    hours <= static_cast<bsls::Types::Int64>
+    if (   hours <= static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                    / TimeUnitRatio::k_US_PER_H)
-        && -hours <= static_cast<bsls::Types::Int64>
+        && hours >= -static_cast<bsls::Types::Int64>
                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_H)) {
         addHours(hours);
         return k_SUCCESS;                                             // RETURN
@@ -1941,10 +1941,10 @@ int Datetime::addHoursIfValid(bsls::Types::Int64 hours)
 inline
 Datetime& Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-    BSLS_ASSERT_SAFE( minutes <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(minutes <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_M));
-    BSLS_ASSERT_SAFE(-minutes <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(minutes >= -static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_M));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
@@ -1959,10 +1959,10 @@ int Datetime::addMinutesIfValid(bsls::Types::Int64 minutes)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (    minutes <= static_cast<bsls::Types::Int64>
+    if (   minutes <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_M)
-        && -minutes <= static_cast<bsls::Types::Int64>
+        && minutes >= -static_cast<bsls::Types::Int64>
                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_M)) {
         addMinutes(minutes);
         return k_SUCCESS;                                             // RETURN
@@ -1973,10 +1973,10 @@ int Datetime::addMinutesIfValid(bsls::Types::Int64 minutes)
 inline
 Datetime& Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
-    BSLS_ASSERT_SAFE( seconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(seconds <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_S));
-    BSLS_ASSERT_SAFE(-seconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(seconds >= -static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_S));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
@@ -1991,10 +1991,10 @@ int Datetime::addSecondsIfValid(bsls::Types::Int64 seconds)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (    seconds <= static_cast<bsls::Types::Int64>
+    if (   seconds <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                    / TimeUnitRatio::k_US_PER_S)
-        && -seconds <= static_cast<bsls::Types::Int64>
+        && seconds >= -static_cast<bsls::Types::Int64>
                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_S)) {
         addSeconds(seconds);
         return k_SUCCESS;                                             // RETURN
@@ -2005,10 +2005,10 @@ int Datetime::addSecondsIfValid(bsls::Types::Int64 seconds)
 inline
 Datetime& Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    BSLS_ASSERT_SAFE( milliseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(milliseconds <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                 / TimeUnitRatio::k_US_PER_MS));
-    BSLS_ASSERT_SAFE(-milliseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(milliseconds >= -static_cast<bsls::Types::Int64>
                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_MS));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
@@ -2023,10 +2023,10 @@ int Datetime::addMillisecondsIfValid(bsls::Types::Int64 milliseconds)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (    milliseconds <= static_cast<bsls::Types::Int64>
+    if (   milliseconds <=  static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
                                                   / TimeUnitRatio::k_US_PER_MS)
-        && -milliseconds <= static_cast<bsls::Types::Int64>
+        && milliseconds >= -static_cast<bsls::Types::Int64>
                       (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_MS)) {
         addMilliseconds(milliseconds);
         return k_SUCCESS;                                             // RETURN
@@ -2037,9 +2037,9 @@ int Datetime::addMillisecondsIfValid(bsls::Types::Int64 milliseconds)
 inline
 Datetime& Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
 {
-    BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(microseconds <=  static_cast<bsls::Types::Int64>
                               (k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
-    BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
+    BSLS_ASSERT_SAFE(microseconds >= -static_cast<bsls::Types::Int64>
                                                     (microsecondsFromEpoch()));
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
@@ -2054,9 +2054,9 @@ int Datetime::addMicrosecondsIfValid(bsls::Types::Int64 microseconds)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (    microseconds <= static_cast<bsls::Types::Int64>
+    if (   microseconds <=  static_cast<bsls::Types::Int64>
                                 (k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
-        && -microseconds <= static_cast<bsls::Types::Int64>
+        && microseconds >= -static_cast<bsls::Types::Int64>
                                                    (microsecondsFromEpoch())) {
         addMicroseconds(microseconds);
         return k_SUCCESS;                                             // RETURN
