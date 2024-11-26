@@ -3811,15 +3811,6 @@ void testSetTransparentComparator(Container& container,
     TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
                                                         : -100);
 
-// not tested here: count, contains, at
-
-//     bslalg::BidirectionalLink *>::type tryEmplace(       -- not const; maps only
-//     bucketIndexForKey(const LOOKUP_KEY& key) const
-//     find(const LOOKUP_KEY& key) const
-//     findRange(bslalg::BidirectionalLink **first,
-//     hashCodeForTransparentKey(const LOOKUP_KEY &key) const {
-//
-
     {
         // Testing `find`.
         existingKey.resetConversionCount();
@@ -3828,7 +3819,8 @@ void testSetTransparentComparator(Container& container,
         const Link EXISTING_F = container.find(existingKey);
 
         ASSERT(NULL                          !=  EXISTING_F);
-        ASSERT(existingKey.value()           == static_cast<bslalg::BidirectionalNode<Value> *>(EXISTING_F)->value());
+        ASSERT(existingKey.value()           ==
+         static_cast<bslalg::BidirectionalNode<Value> *>(EXISTING_F)->value());
         ASSERT(existingKey.conversionCount() == expectedConversionCount);
 
         const Link NON_EXISTING_F = container.find(nonExistingKey);
@@ -3848,7 +3840,8 @@ void testSetTransparentComparator(Container& container,
         ASSERT(expectedConversionCount == existingKey.conversionCount());
         ASSERT(first != last);
         for (Link it = first; it != last; it = it->nextLink()) {
-            ASSERT(existingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(it)->value());
+            ASSERT(existingKey.value() ==
+                 static_cast<bslalg::BidirectionalNode<Value> *>(it)->value());
         }
 
         container.findRange(&first, &last, nonExistingKey);
@@ -3865,36 +3858,10 @@ void testSetTransparentComparator(Container& container,
         const Count bucketFound    = container.bucketIndexForKey(existingKey);
         const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
 
-        ASSERTV(expectedConversionCount,    existingKey.conversionCount(),
-                      expectedConversionCount ==    existingKey.conversionCount());
-        ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
-                      expectedConversionCount == nonExistingKey.conversionCount());
-
-    #if 0
-        // check that we found the right bucket
-        bool                                found_it;
-        const typename Container::key_equal c_eq = container.key_eq();
-
-        found_it = false;
-        for (LocalIterator it  = container.begin(bucketFound);
-                           it != container.end(bucketFound);
-                           ++it) {
-            if (c_eq(*it, existingKey)) {
-                found_it = true;
-            }
-        }
-        ASSERT(found_it);
-
-        found_it = false;
-        for (LocalIterator it  = container.begin(bucketNotFound);
-                           it != container.end(bucketNotFound);
-                           ++it) {
-            if (c_eq(*it, nonExistingKey)) {
-                found_it = true;
-            }
-        }
-        ASSERT(!found_it);
-    #endif
+        ASSERTV(expectedConversionCount,        existingKey.conversionCount(),
+                  expectedConversionCount ==    existingKey.conversionCount());
+        ASSERTV(expectedConversionCount,     nonExistingKey.conversionCount(),
+                  expectedConversionCount == nonExistingKey.conversionCount());
     }
 }
 
@@ -3919,15 +3886,6 @@ void testMapTransparentComparator(Container& container,
     TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
                                                         : -100);
 
-// not tested here: count, contains, at
-
-//     bslalg::BidirectionalLink *>::type tryEmplace(       -- not const; maps only
-//     bucketIndexForKey(const LOOKUP_KEY& key) const
-//     find(const LOOKUP_KEY& key) const
-//     findRange(bslalg::BidirectionalLink **first,
-//     hashCodeForTransparentKey(const LOOKUP_KEY &key) const {
-//
-
     {
         // Testing `find`.
         existingKey.resetConversionCount();
@@ -3936,7 +3894,9 @@ void testMapTransparentComparator(Container& container,
         const Link EXISTING_F = container.find(existingKey);
 
         ASSERT(NULL                          !=  EXISTING_F);
-        ASSERT(existingKey.value()           == static_cast<bslalg::BidirectionalNode<Value> *>(EXISTING_F)->value().first);
+        ASSERT(existingKey.value()           ==
+               static_cast<bslalg::BidirectionalNode<Value> *>
+                                                  (EXISTING_F)->value().first);
         ASSERT(existingKey.conversionCount() == expectedConversionCount);
 
         const Link NON_EXISTING_F = container.find(nonExistingKey);
@@ -3956,7 +3916,9 @@ void testMapTransparentComparator(Container& container,
         ASSERT(expectedConversionCount == existingKey.conversionCount());
         ASSERT(first != last);
         for (Link it = first; it != last; it = it->nextLink()) {
-            ASSERT(existingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(it)->value().first);
+            ASSERT(existingKey.value() ==
+                static_cast<bslalg::BidirectionalNode<Value> *>
+                                                          (it)->value().first);
         }
 
         container.findRange(&first, &last, nonExistingKey);
@@ -3973,36 +3935,10 @@ void testMapTransparentComparator(Container& container,
         const Count bucketFound    = container.bucketIndexForKey(existingKey);
         const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
 
-        ASSERTV(expectedConversionCount,    existingKey.conversionCount(),
-                      expectedConversionCount ==    existingKey.conversionCount());
-        ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
-                      expectedConversionCount == nonExistingKey.conversionCount());
-
-    #if 0
-        // check that we found the right bucket
-        bool                                found_it;
-        const typename Container::key_equal c_eq = container.key_eq();
-
-        found_it = false;
-        for (LocalIterator it  = container.begin(bucketFound);
-                           it != container.end(bucketFound);
-                           ++it) {
-            if (c_eq(*it, existingKey)) {
-                found_it = true;
-            }
-        }
-        ASSERT(found_it);
-
-        found_it = false;
-        for (LocalIterator it  = container.begin(bucketNotFound);
-                           it != container.end(bucketNotFound);
-                           ++it) {
-            if (c_eq(*it, nonExistingKey)) {
-                found_it = true;
-            }
-        }
-        ASSERT(!found_it);
-    #endif
+        ASSERTV(expectedConversionCount,        existingKey.conversionCount(),
+                  expectedConversionCount ==    existingKey.conversionCount());
+        ASSERTV(expectedConversionCount,     nonExistingKey.conversionCount(),
+                  expectedConversionCount == nonExistingKey.conversionCount());
     }
 }
 
@@ -4015,49 +3951,7 @@ void testSetTransparentComparatorMutable(const Container& container,
                                       bool             isTransparent,
                                       int              initKeyValue)
 {
-//     bslalg::BidirectionalLink *>::type tryEmplace(
-
-    typedef typename bslalg::BidirectionalLink      *Link;
-    typedef typename Container::SizeType             Count;
-    typedef typename Container::ValueType            Value;
-
-    int expectedConversionCount = isTransparent ? 0 : 1;
-    const Count size = container.size();
-
-    TransparentlyComparable existingKey(initKeyValue);
-    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
-                                                        : -100);
-#if 0
-    {
-        // Testing `tryEmplace`.
-
-        Container c(container);
-        bool      wasInserted;
-        Link      link;
-
-        // with an existing key
-        link = c.tryEmplace(&wasInserted, NULL, existingKey);
-        ASSERT(!wasInserted);
-        ASSERT(size == c.size());
-        ASSERT(existingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(link)->value());
-        ASSERTV(isTransparent,
-                expectedConversionCount,   existingKey.conversionCount(),
-                expectedConversionCount == existingKey.conversionCount());
-
-        // with a non-existing key
-
-        // Note: We always get a conversion here; if we don't have a transparent
-        // comparator, then the value gets converted, and when the lookup fails,
-        // it gets inserted into the map.  If we do have a transparent comparator,
-        // the lookup is done w/o conversion, but then the value gets converted
-        // in order to put it into the map.
-        link = c.tryEmplace(&wasInserted, NULL, nonExistingKey);
-        ASSERT( wasInserted);
-        ASSERT(size + 1 == c.size());
-        ASSERT(nonExistingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(link)->value());
-        ASSERT(1 == nonExistingKey.conversionCount());
-    }
-#endif
+    // No transparent modifying operations on sets.
 }
 
 /// Search for a value equal to the specified `initKeyValue` in the
@@ -4095,22 +3989,24 @@ void testMapTransparentComparatorMutable(const Container& container,
         link = c.tryEmplace(&wasInserted, NULL, existingKey);
         ASSERT(!wasInserted);
         ASSERT(size == c.size());
-        ASSERT(existingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(link)->value().first);
+        ASSERT(existingKey.value() ==
+         static_cast<bslalg::BidirectionalNode<Value> *>(link)->value().first);
         ASSERTV(isTransparent,
                 expectedConversionCount,   existingKey.conversionCount(),
                 expectedConversionCount == existingKey.conversionCount());
 
         // with a non-existing key
 
-        // Note: We always get a conversion here; if we don't have a transparent
-        // comparator, then the value gets converted, and when the lookup fails,
-        // it gets inserted into the map.  If we do have a transparent comparator,
-        // the lookup is done w/o conversion, but then the value gets converted
-        // in order to put it into the map.
+        // Note: We always get a conversion here; if we don't have a
+        // transparent comparator, then the value gets converted, and when the
+        // lookup fails, it gets inserted into the map.  If we do have a
+        // transparent comparator, the lookup is done w/o conversion, but then
+        // the value gets converted in order to put it into the map.
         link = c.tryEmplace(&wasInserted, NULL, nonExistingKey);
         ASSERT( wasInserted);
         ASSERT(size + 1 == c.size());
-        ASSERT(nonExistingKey.value() == static_cast<bslalg::BidirectionalNode<Value> *>(link)->value().first);
+        ASSERT(nonExistingKey.value() ==
+         static_cast<bslalg::BidirectionalNode<Value> *>(link)->value().first);
         ASSERT(1 == nonExistingKey.conversionCount());
     }
 

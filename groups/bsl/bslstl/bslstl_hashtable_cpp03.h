@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov 14 08:33:27 2024
+// Generated on Mon Nov 25 22:33:57 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1783,7 +1783,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -1852,7 +1852,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -1925,7 +1925,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2002,7 +2002,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2083,7 +2083,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2168,7 +2168,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2257,7 +2257,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2350,7 +2350,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2447,7 +2447,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2548,7 +2548,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2653,7 +2653,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(
@@ -2759,7 +2759,7 @@ class HashTable {
 
         const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         if (!hint
             || !d_parameters.comparator()(

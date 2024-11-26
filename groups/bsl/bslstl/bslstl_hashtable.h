@@ -2472,8 +2472,10 @@ class HashTable {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const LOOKUP_KEY& lvalue = key;
+//         const std::size_t hashCode =
+//                           this->d_parameters.hashCodeForTransparentKey(lvalue);
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(lvalue);
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         // Use the hint, if we can
         if (!hint
