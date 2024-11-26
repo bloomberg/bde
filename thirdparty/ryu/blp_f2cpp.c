@@ -34,6 +34,12 @@
 //            `FLOAT_BIAS` macros to the same header as two of them are used in
 //            the functions move there.
 //
+// 2024.10.02 Change XSD mapping of non-numeric values (INF/NaN) to `to_chars`
+//            mapping (inf/nan) as `bsl::to_chars` and `bsl::format` require
+//            that spelling while we generally do not send non-numeric values
+//            in XML messages.  Also changed the name of the function in
+//            `blp_common.h`.
+//
 // See README.BDE.md for further explanations.
 
 #include "ryu/blp_ryu.h"
@@ -589,9 +595,9 @@ int blp_f2m_buffered_n(float f, char* result) {
   // Case distinction; exit early for NaN and Infinities.  Original Ryu code
   // also wrote zero values here.  We write them even earlier.
   if (ieeeExponent == ((1u << FLOAT_EXPONENT_BITS) - 1u)) {
-    // Calling our own function here that uses the XSD 1.1 specification for
-    // the special values of INF, -INF, and NaN.
-    return xsd_non_numerical_mapping(result, ieeeSign, ieeeMantissa);
+    // Calling our own function here that uses the `std::to_chars` format for
+    // the special values: "inf", "-inf", "nan", and "-nan".
+    return non_numerical_mapping(result, ieeeSign, ieeeMantissa);
   }
 
   // Same as the original code, the magic that determines how many decimal
@@ -658,9 +664,9 @@ int blp_f2d_buffered_n(float f, char* result) {
   // Case distinction; exit early for NaN and Infinities.  Original Ryu code
   // also wrote zero values here.  We write them even earlier.
   if (ieeeExponent == ((1u << FLOAT_EXPONENT_BITS) - 1u)) {
-    // Calling our own function here that uses the XSD 1.1 specification for
-    // the special values of INF, -INF, and NaN.
-    return xsd_non_numerical_mapping(result, ieeeSign, ieeeMantissa);
+    // Calling our own function here that uses the `std::to_chars` format for
+    // the special values: "inf", "-inf", "nan", and "-nan".
+    return non_numerical_mapping(result, ieeeSign, ieeeMantissa);
   }
 
   // Integers are printed precisely in decimal notation
@@ -716,9 +722,9 @@ int blp_f2s_buffered_n(float f, char* result) {
   // Case distinction; exit early for NaN and Infinities.  Original Ryu code
   // also wrote zero values here.  We write them even earlier.
   if (ieeeExponent == ((1u << FLOAT_EXPONENT_BITS) - 1u)) {
-    // Calling our own function here that uses the XSD 1.1 specification for
-    // the special values of INF, -INF, and NaN.
-    return xsd_non_numerical_mapping(result, ieeeSign, ieeeMantissa);
+    // Calling our own function here that uses the `std::to_chars` format for
+    // the special values: "inf", "-inf", "nan", and "-nan".
+    return non_numerical_mapping(result, ieeeSign, ieeeMantissa);
   }
 
   // Same as the original code, the magic that determines how many decimal

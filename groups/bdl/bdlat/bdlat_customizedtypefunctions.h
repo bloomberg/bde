@@ -15,12 +15,13 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: The `bdlat_CustomizedTypeFunctions` `namespace` provided in
 // this component defines parameterized functions that expose
 // "customized type" behavior for "customized type" types.  See the
-// package-level documentation for a full description of "customized type"
-// types.  The functions in this namespace allow users to:
-// ```
-//     o convert from base type to customized type ('convertFromBaseType').
-//     o convert from customized type to base type ('convertToBaseType').
-// ```
+// package-level documentation for a brief description of "customized type"
+// types.
+//
+// The functions in this namespace allow users to:
+// * convert from base type to customized type (`convertFromBaseType`).
+// * convert from customized type to base type (`convertToBaseType`).
+//
 // Also, the meta-function `IsCustomizedType` contains a compile-time constant
 // `value` that is non-zero if the parameterized `TYPE` exposes
 // "customized type" behavior through the `bdlat_CustomizedTypeFunctions`
@@ -34,28 +35,27 @@ BSLS_IDENT("$Id: $")
 //
 // Types that do not have the `bdlat_TypeTraitBasicCustomizedType` trait can be
 // plugged into the `bdlat` framework.  This is done by overloading the
-// `bdlat_choice*` functions inside the namespace of the plugged in type.  For
-// example, suppose there is a type called `mine::Cusip` (defined in the
-// example below).  In order to plug this type into the `bdlat` framework as a
-// "CustomizedType", the following functions must be declared and implemented
-// in the `mine` namespace:
+// `bdlat_customizedType*` functions inside the namespace of the plugged in
+// type.  Note that the placeholders `YOUR_TYPE` and `BASE_TYPE` are not
+// template arguments.  The former should be replaced with the name of the type
+// being plugged into the framework.  The latter is a type defined by the
+// above-mentioned `BaseType` meta-function for `YOUR_TYPE`.
 // ```
-//     // MANIPULATORS
-//     template <typename TYPE, typename BASE_TYPE>
-//     int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
-//                                                 const BASE_TYPE&  value);
-//         // Convert from the specified 'value' to the specified customized
-//         // 'object'.  Return 0 if successful and non-zero otherwise.
+// // MANIPULATORS
 //
-//     // ACCESSORS
-//     template <typename TYPE>
-//     const typename BaseType<TYPE>::Type&
-//     bdlat_customizedTypeConvertToBaseType(const TYPE& object);
-//         // Load into the specified 'result' the value of the specified
-//         // 'object'.
+// /// Convert from the specified `value` to the specified customized `object`.
+// /// Return 0 if successful and non-zero otherwise.
+// int bdlat_customizedTypeConvertFromBaseType(YOUR_TYPE        *object,
+//                                             const BASE_TYPE&  value);
+//
+// // ACCESSORS
+//
+// /// Load into the specified `result` the value of the specified `object`.
+// const BASE_TYPE& bdlat_customizedTypeConvertToBaseType(
+//                                                    const YOUR_TYPE& object);
 // ```
 // Also, the `IsCustomizedType` meta-function must be specialized for the
-// `mine::Cusip` type in the `bdlat_CustomizedTypeFunctions` namespace.
+// `YOUR_TYPE` type in the `bdlat_CustomizedTypeFunctions` namespace.
 //
 ///Usage
 ///-----
@@ -68,21 +68,20 @@ BSLS_IDENT("$Id: $")
 // longer than nine characters.  We can obtain the value of the string using
 // the following code:
 // ```
-//   Cusip       myCusip = "281C82UE";
-//   bsl::string base    = bdlat_CustomizedTypeFunctions::convertToBaseType(
-//                                                                   myCusip);
+// mine::Cusip myCusip("281C82UE");
+// bsl::string base = bdlat_CustomizedTypeFunctions::convertToBaseType(
+//                                                                    myCusip);
 //
-//   assert("281C82UE" == base);
+// assert("281C82UE" == base);
 // ```
 // Attempting to assign a string longer than nine characters will not succeed:
 // ```
-//   bsl::string invalidCusip = "1234567890";
+// bsl::string invalidCusip = "1234567890";
 //
-//   int retCode = bdlat_CustomizedTypeFunctions::convertFromBaseType(
-//                                                              &myCusip,
-//                                                              invalidCusip);
-//
-//   assert(0 != retCode);
+// int retCode = bdlat_CustomizedTypeFunctions::convertFromBaseType(
+//                                                               &myCusip,
+//                                                               invalidCusip);
+// assert(0 != retCode);
 // ```
 // For the purpose of this example, the class definition is as follows:
 // ```
@@ -93,14 +92,12 @@ BSLS_IDENT("$Id: $")
 // #include <string>
 //
 // namespace BloombergLP {
-//
 // namespace mine {
 //
+// /// Identification number for the US and Canada.  It is a 9-digit number
+// /// consisting of 8 digits and a check digit.  The Bloomberg ID will be
+// /// returned for Corp, Govt, Pfd if a CUSIP is not available.
 // class Cusip {
-//    //  Identification number for the US and Canada.  It is a 9-digit number
-//    //  consisting of 8 digits and a check digit.  The Bloomberg ID will be
-//    // returned for Corp, Govt, Pfd if a CUSIP is not available.
-//
 //   private:
 //     // PRIVATE DATA MEMBERS
 //     bsl::string d_value;  // stored value
@@ -113,81 +110,79 @@ BSLS_IDENT("$Id: $")
 //     typedef bsl::string BaseType;
 //
 //     // CREATORS
+//
+//     /// Create an object of type `Cusip` having the default value.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator is
+//     /// used.
 //     explicit Cusip(bslma::Allocator *basicAllocator = 0);
-//         // Create an object of type 'Cusip' having the default value.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Create an object of type `Cusip` having the value of the specified
+//     /// `original` object.  Optionally specify a `basicAllocator` used to
+//     /// supply memory.  If `basicAllocator` is 0, the currently installed
+//     /// default allocator is used.
 //     Cusip(const Cusip& original, bslma::Allocator *basicAllocator = 0);
-//         // Create an object of type 'Cusip' having the value
-//         // of the specified 'original' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an object of type `Cusip` having the specified `value`.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator is
+//     /// used.
 //     explicit Cusip(const bsl::string&  value,
 //                    bslma::Allocator   *basicAllocator = 0);
-//         // Create an object of type 'Cusip' having the specified 'value'.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Destroy this object.
 //     ~Cusip();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Assign to this object the value of the specified `rhs` object.
 //     Cusip& operator=(const Cusip& rhs);
-//         // Assign to this object the value of the specified 'rhs' object.
 //
+//     /// Reset this object to the default value (i.e., its value upon default
+//     /// construction).
 //     void reset();
-//         // Reset this object to the default value (i.e., its value upon
-//         // default construction).
 //
+//     /// Convert from the specified `value` to this type.  Return 0 if
+//     /// successful and non-zero otherwise.
 //     int fromString(const bsl::string& value);
-//        // Convert from the specified 'value' to this type.  Return 0 if
-//         // successful and non-zero otherwise.
 //
 //     // ACCESSORS
+//
+//     /// Format this object to the specified output `stream` at the
+//     /// optionally specified indentation `level` and return a reference to
+//     /// the modifiable `stream`.  If `level` is specified, optionally
+//     /// specify `spacesPerLevel`, the number of spaces per indentation level
+//     /// for this and all of its nested objects.  Each line is indented by
+//     /// the absolute value of `level * spacesPerLevel`.  If `level` is
+//     /// negative, suppress indentation of the first line.  If
+//     /// `spacesPerLevel` is negative, suppress line breaks and format the
+//     /// entire output on one line.  If `stream` is initially invalid, this
+//     /// operation has no effect.  Note that a trailing newline is provided
+//     /// in multiline mode only.
 //     bsl::ostream& print(bsl::ostream& stream,
 //                         int           level = 0,
 //                         int           spacesPerLevel = 4) const;
-//         // Format this object to the specified output 'stream' at the
-//         // optionally specified indentation 'level' and return a reference
-//         // to the modifiable 'stream'.  If 'level' is specified, optionally
-//         // specify 'spacesPerLevel', the number of spaces per indentation
-//         // level for this and all of its nested objects.  Each line is
-//         // indented by the absolute value of 'level * spacesPerLevel'.
-//         // If 'level' is negative, suppress indentation of the first
-//         // line.  If 'spacesPerLevel' is negative, suppress line breaks
-//         // and format the entire output on one line.  If 'stream' is
-//         // initially invalid, this operation has no effect.  Note that a
-//         // trailing newline is provided in multiline mode only.
 //
+//     /// Convert this value to `bsl::string`.
 //     const bsl::string& toString() const;
-//         // Convert this value to 'bsl::string'.
 // };
 //
 // // FREE OPERATORS
-// inline
+//
+// /// Return `true` if the specified `lhs` and `rhs` attribute objects have
+// /// the same value, and `false` otherwise.  Two attribute objects have the
+// /// same value if each respective attribute has the same value.
 // bool operator==(const Cusip& lhs, const Cusip& rhs);
 //
-//     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
-//     // have the same value, and 'false' otherwise.  Two attribute objects
-//     // have the same value if each respective attribute has the same
-//     // value.
-//
-// inline
+// /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+// /// have the same value, and `false` otherwise.  Two attribute objects do
+// /// not have the same value if one or more respective attributes differ in
+// /// values.
 // bool operator!=(const Cusip& lhs, const Cusip& rhs);
 //
-//     // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
-//     // do not have the same value, and 'false' otherwise.  Two attribute
-//     // objects do not have the same value if one or more respective
-//     // attributes differ in values.
-//
-// inline
+// /// Format the specified `rhs` to the specified output `stream` and return a
+// /// reference to the modifiable `stream`.
 // bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
-//     // Format the specified 'rhs' to the specified output 'stream' and
-//     // return a reference to the modifiable 'stream'.
 // ```
 // The class implementation is straightforward and is deferred to the end of
 // this usage example.
@@ -203,39 +198,36 @@ BSLS_IDENT("$Id: $")
 // First, we should forward declare all the functions that we will implement
 // inside the `mine` namespace:
 // ```
-//     // MANIPULATORS
-//     template <typename TYPE, typename BASE_TYPE>
-//     int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
-//                                                 const BASE_TYPE&  value);
-//         // Convert from the specified 'value' to the specified customized
-//         // 'object'.  Return 0 if successful and non-zero otherwise.
+// // MANIPULATORS
 //
-//     // ACCESSORS
-//     template <typename TYPE>
-//     const typename BaseType<TYPE>::Type&
-//     bdlat_customizedTypeConvertToBaseType(const TYPE& object);
-//         // Load into the specified 'result' the value of the specified
-//         // 'object'.
+// /// Convert from the specified `value` to the specified customized `object`.
+// ///  Return 0 if successful and non-zero otherwise.
+// int bdlat_customizedTypeConvertFromBaseType(Cusip              *object,
+//                                             const bsl::string&  value);
 //
-// } // close namespace mine
+// // ACCESSORS
+//
+// /// Load into the specified `result` the value of the specified `object`.
+// const bsl::string& bdlat_customizedTypeConvertToBaseType(
+//                                                        const Cusip& object);
 // ```
 // Next, we provide the definitions for each of these functions:
 // ```
 // // MANIPULATORS
-// template <typename TYPE, typename BASE_TYPE>
-// int mine::bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
-//                                                   const BASE_TYPE&  value);
+// int bdlat_customizedTypeConvertFromBaseType(Cusip              *object,
+//                                             const bsl::string&  value)
 // {
 //     return object->fromString(value);
 // }
 //
 // // ACCESSORS
-// template <typename TYPE>
-// const typename BaseType<TYPE>::Type&
-// mine::bdlat_customizedTypeConvertToBaseType(const TYPE& object);
+// const bsl::string& bdlat_customizedTypeConvertToBaseType(
+//                                                         const Cusip& object)
 // {
 //     return object.toString();
 // }
+//
+// }  // close namespace mine
 // ```
 // Finally, we need to specialize the `IsCustomizedType` meta-function in the
 // `bdlat_CustomizedTypeFunctions` namespace for the `mine::Cusip` type.  This
@@ -248,8 +240,13 @@ BSLS_IDENT("$Id: $")
 //     struct IsCustomizedType<mine::Cusip> : bsl::true_type {
 //     };
 //
-// } // close namespace bdlat_CustomizedTypeFunctions
-// } // close namespace BloombergLP
+//     template <>
+//     struct BaseType<mine::Cusip> {
+//         typedef bsl::string Type;
+//     };
+//
+// }  // close namespace bdlat_CustomizedTypeFunctions
+// }  // close namespace BloombergLP
 // ```
 // The `bdlat` infrastructure (and any component that uses this infrastructure)
 // will now recognize `mine::Cusip` as a "customized" type.
@@ -260,9 +257,13 @@ BSLS_IDENT("$Id: $")
 // declaring `mine::Cusip` to have the `bdlat_TypeTraitBasicCustomizedType`
 // trait as follows:
 // ```
+// namespace BloombergLP {
+//
 // // TRAITS
 //
 // BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(mine::Cusip)
+//
+// }  // close namespace BloombergLP
 // ```
 // Again, the `bdlat` infrastructure (and any component that uses this
 // infrastructure) will now recognize `mine::Cusip` as a "customized" type.
@@ -281,8 +282,6 @@ BSLS_IDENT("$Id: $")
 //
 // void decodeMyCustomizedTypeFromXML(bsl::istream& inputData)
 // {
-//     using namespace BloombergLP;
-//
 //     Cusip object;
 //
 //     balxml::DecoderOptions options;
@@ -302,13 +301,12 @@ BSLS_IDENT("$Id: $")
 // example, the following snippets of code will convert a string from a stream
 // and load it into a `Cusip` object:
 // ```
-// template <typename TYPE>
-// int readCusip(bsl::istream& stream, TYPE *object)
+// int readCusip(bsl::istream& stream, mine::Cusip *cusip)
 // {
 //     bsl::string value;
 //     stream >> value;
 //
-//     return bdlat_CustomizedType::convertFromBaseType(cusip, value);
+//     return bdlat_CustomizedTypeFunctions::convertFromBaseType(cusip, value);
 // }
 // ```
 // Now we have a generic function that takes an input stream and a `Cusip`
@@ -316,8 +314,6 @@ BSLS_IDENT("$Id: $")
 // ```
 // void usageExample()
 // {
-//     using namespace BloombergLP;
-//
 //     bsl::stringstream ss;
 //     mine::Cusip object;
 //
@@ -334,6 +330,9 @@ BSLS_IDENT("$Id: $")
 // For completeness, we finish by providing the straightforward details of the
 // implementation of the class `Cusip`:
 // ```
+// namespace BloombergLP {
+// namespace mine {
+//
 // // CREATORS
 //
 // inline
@@ -415,25 +414,25 @@ BSLS_IDENT("$Id: $")
 // // FREE OPERATORS
 //
 // inline
-// bool geom::operator==(const geom::Cusip& lhs,
-//                                  const geom::Cusip& rhs)
+// bool operator==(const Cusip& lhs, const Cusip& rhs)
 // {
 //     return lhs.d_value == rhs.d_value;
 // }
 //
 // inline
-// bool geom::operator!=(const geom::Cusip& lhs,
-//                                  const geom::Cusip& rhs)
+// bool operator!=(const Cusip& lhs, const Cusip& rhs)
 // {
 //     return lhs.d_value != rhs.d_value;
 // }
 //
 // inline
-// bsl::ostream& geom::operator<<(bsl::ostream& stream,
-//                                           const geom::Cusip& rhs)
+// bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs)
 // {
 //     return rhs.print(stream, 0, -1);
 // }
+//
+// }  // close namespace mine
+// }  // close namespace BloombergLP
 // ```
 
 #include <bdlscm_version.h>
@@ -464,11 +463,10 @@ namespace BloombergLP {
                   // namespace bdlat_CustomizedTypeFunctions
                   // =======================================
 
+/// This `namespace` provides functions that expose "customized type" behavior
+/// for "customized type" types.  See the component-level documentation for
+/// more information.
 namespace bdlat_CustomizedTypeFunctions {
-    // This 'namespace' provides functions that expose "customized type"
-    // behavior for "customized type" types.  See the component-level
-    // documentation for more information.
-
     // META-FUNCTIONS
 
     /// This `struct` should be specialized for third-party types that need
@@ -485,7 +483,6 @@ namespace bdlat_CustomizedTypeFunctions {
     /// the default base type for the parameterized `TYPE`.
     template <class TYPE>
     struct BaseType {
-
         BSLMF_ASSERT(
           (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::value));
 
@@ -501,8 +498,7 @@ namespace bdlat_CustomizedTypeFunctions {
 
     // ACCESSORS
 
-    /// Load into the specified `result` the value of the specified
-    /// `object`.
+    /// Load into the specified `result` the value of the specified `object`.
     template <class TYPE>
     const typename BaseType<TYPE>::Type& convertToBaseType(const TYPE& object);
 
@@ -512,13 +508,12 @@ namespace bdlat_CustomizedTypeFunctions {
                             // default declarations
                             // ====================
 
+/// This namespace declaration adds the default implementations of the
+/// "customized type" customization-point functions to
+/// `bdlat_CustomizedTypeFunctions`.  These default implementations assume the
+/// type of the acted-upon object has member functions to convert to and from
+/// "simple" types.
 namespace bdlat_CustomizedTypeFunctions {
-    // This namespace declaration adds the default implementations of the
-    // "customized type" customization-point functions to
-    // 'bdlat_CustomizedTypeFunctions'.  These default implementations assume
-    // the type of the acted-upon object has member functions to convert to and
-    // from "simple" types.
-
     // MANIPULATORS
     template <class TYPE, class BASE_TYPE>
     int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,

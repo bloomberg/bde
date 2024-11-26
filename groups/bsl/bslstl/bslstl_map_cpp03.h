@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov  7 07:33:41 2024
+// Generated on Tue Nov 26 06:40:32 2024
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -4717,6 +4717,10 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, key, temp.object());
 #endif
     }
@@ -4748,6 +4752,10 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
+        // Unfortunately, in C++03, there are user types where a MovableRef
+        // will not safely degrade to a lvalue reference when a move
+        // constructor is not available, so 'move' cannot be used directly on a
+        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, lvalue, temp.object());
 #endif
     }

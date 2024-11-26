@@ -12,14 +12,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The `bdlat_ArrayFunctions` `namespace` provided in this
 // component defines parameterized functions that expose "array" behavior for
-// "array" types.  See the {`bdlat`} package-level documentation for a full
+// "array" types.  See the `bdlat` package-level documentation for a brief
 // description of "array" types.
 //
 // The functions in this namespace allow users to:
 // * obtain the number of elements in an array (`size`).
 // * set the number of elements in an array (`resize`).
 // * manipulate an element in an array using a parameterized manipulator
-//   (`manipulateElement`). and
+//   (`manipulateElement`).
 // * access an element in an array using a parameterized accessor
 //   (`accessElement`).
 //
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // `bdlat_ArrayFunctions` namespace:
 //
 // * the meta-function `IsArray` contains a compile-time constant `value` that
-//   is non-zero if the parameterized `TYPE` exposes "array" behavior, and
+//   is non-zero if the parameterized `TYPE` exposes "array" behavior.
 // * the `ElementType` meta-function contains a `typedef` `Type` that
 //   specifies the type of the element stored in the parameterized "array"
 //   type.
@@ -374,7 +374,7 @@ BSLS_IDENT("$Id: $")
 //         assert(0 == value)
 //     }
 //
-//     // Set element `index * 10` as its value;
+//     // Set element `index * 10` as its value.
 //
 //     for (int index = 0; index < 4; ++index) {
 //         SetElementManipulator<int> manipulator(index * 10);
@@ -479,7 +479,7 @@ BSLS_IDENT("$Id: $")
 //         assert(0 == value);
 //     }
 //
-//     // Set element 'index * 10' as its value;
+//     // Set element `index * 10` as its value.
 //
 //     for (int index = 0; index < 4; ++index) {
 //         int value = index * 10;
@@ -505,7 +505,7 @@ BSLS_IDENT("$Id: $")
 // namespace BloombergLP {
 // namespace your {
 //
-// class MyFloatArray {
+// class YourFloatArray {
 //
 //     float       *d_data_p;
 //     bsl::size_t  d_size;
@@ -513,13 +513,13 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     MyFloatArray()
+//     YourFloatArray()
 //     : d_data_p(0)
 //     , d_size(0)
 //     {
 //     }
 //
-//     ~MyFloatArray()
+//     ~YourFloatArray()
 //     {
 //         delete[] d_data_p;
 //     }
@@ -552,6 +552,9 @@ BSLS_IDENT("$Id: $")
 //         return d_capacity;
 //     }
 // };
+//
+// }  // close namespace your
+// }  // close enterprise namespace
 // ```
 // Notice that while there are many similarities to `mine::MyIntArray`, there
 // are also significant differences:
@@ -581,7 +584,7 @@ BSLS_IDENT("$Id: $")
 //         assert(0.0 == value);
 //     }
 //
-//     // Set element `index * 10` as its value;
+//     // Set element `index * 10` as its value.
 //
 //     for (int index = 0; index < 4; ++index) {
 //         float value = static_cast<float>(index * 10);
@@ -625,7 +628,7 @@ BSLS_IDENT("$Id: $")
 //         assert("" == value);
 //     }
 //
-//     // Set element `index * 10` as its value;
+//     // Set element `index * 10` as its value.
 //
 //     for (int index = 0; index < 4; ++index) {
 //         bsl::ostringstream oss; oss << (index * 10);

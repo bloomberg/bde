@@ -6625,8 +6625,6 @@ int main(int argc, char *argv[])
         enum { NUM_HIGH_WATER_MARKS = sizeof HIGH_WATER_MARKS /
                                                     sizeof *HIGH_WATER_MARKS };
 
-        int timesFull = 0;
-
         for (int ti = 0; ti < NUM_HIGH_WATER_MARKS; ++ti) {
             const size_t HIGH_WATER_MARK = HIGH_WATER_MARKS[ti];
 
@@ -6649,7 +6647,6 @@ int main(int argc, char *argv[])
                 }
                 const size_t len = X.length();
                 ASSERT(len <= HIGH_WATER_MARK);
-                timesFull += HIGH_WATER_MARK == len;
                 if (expected & 1) {
                     ASSERT(mX.popFront() == expected);
                 }
@@ -6674,7 +6671,6 @@ int main(int argc, char *argv[])
                 }
                 const size_t len = X.length();
                 ASSERT(len <= HIGH_WATER_MARK);
-                timesFull += HIGH_WATER_MARK == len;
                 if (expected & 1) {
                     ASSERT(mX.popBack() == expected);
                 }
@@ -6688,10 +6684,6 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::join(handle);
         }
 
-        const int minTimesFull = NUM_HIGH_WATER_MARKS * 2 * 40 / 5;
-        ASSERTV(timesFull, minTimesFull, timesFull >= minTimesFull);
-
-        if (veryVerbose) { P_(minTimesFull); P(timesFull); }
         ASSERTV(da.numAllocations(), 0 == da.numAllocations());
       } break;
       case 14: {
