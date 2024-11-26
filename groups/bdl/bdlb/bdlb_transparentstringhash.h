@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // TYPES
 //
-//     // Type alias indicating this is a transparent comparator.
+//     /// Type alias indicating this is a transparent comparator.
 //     typedef void is_transparent;
 //
 //     // ACCESSORS

@@ -159,11 +159,12 @@ void testHashString()
         { L_,   "CBADEABCDABCDEABCBADEABCDABCDEABCBADEABCDABCDEABCBADEABABC" }
     };
 
-    bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+    const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-    bslma::TestAllocator ta("test");
+    bslma::TestAllocator ta("string");
 
     for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+        const int                         LINE     = DATA[i].d_lineNum;
         const char                       *SPEC     = DATA[i].d_str_p;
         bsl::string                       STR(SPEC, &ta);
         bsl::string_view                  VIEW(SPEC);
@@ -177,9 +178,9 @@ void testHashString()
         Obj hash;
         const Obj& hasher = hash;
 
-        ASSERTV(i, EXPECTED == hasher(SPEC));
-        ASSERTV(i, EXPECTED == hasher(STR ));
-        ASSERTV(i, EXPECTED == hasher(VIEW));
+        ASSERTV(LINE, EXPECTED == hasher(SPEC));
+        ASSERTV(LINE, EXPECTED == hasher(STR ));
+        ASSERTV(LINE, EXPECTED == hasher(VIEW));
     }
 }
 
@@ -287,9 +288,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============\n";
 
 // Then, we create a container that uses `bdlb::TransparentHash`.  We use the
 // transparent comparator defined above to avoid implicit conversions:
@@ -345,9 +345,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-             << endl
-             << "TESTING QOI: `TransparentStringHash` IS AN EMPTY TYPE" << endl
-             << "=====================================================" << endl;
+             << "\nTESTING QOI: `TransparentStringHash` IS AN EMPTY TYPE"
+             << "\n=====================================================\n";
 
         struct TwoInts {
             int d_a;
@@ -387,11 +386,10 @@ int main(int argc, char *argv[])
         //  TESTING TYPEDEF
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING TYPEDEF" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "\nTESTING TYPEDEF"
+                          << "\n===============\n";
 
-        ASSERT((bsl::is_same<void,    Obj::is_transparent>::value));
+        ASSERT((bsl::is_same<void, Obj::is_transparent>::value));
 
       } break;
       case 3: {
@@ -430,9 +428,8 @@ int main(int argc, char *argv[])
         //   operator()(const TYPE& value) const
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "FUNCTION CALL OPERATOR" << endl
-                          << "======================" << endl;
+        if (verbose) cout << "\nFUNCTION CALL OPERATOR"
+                          << "\n======================\n";
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -496,24 +493,23 @@ int main(int argc, char *argv[])
         //   TransparentStringHash& operator=(const TransparentStringHash&)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "IMPLICITLY DEFINED OPERATIONS" << endl
-                          << "=============================" << endl;
+        if (verbose) cout << "\nIMPLICITLY DEFINED OPERATIONS"
+                          << "\n=============================\n";
 
-        if (verbose) cout <<
-            "\nCreate a test allocator and install it as the default." << endl;
+        if (veryVerbose) cout <<
+            "\tCreate a test allocator and install it as the default.\n";
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
         {
-            if (verbose) cout << "Value initialization" << endl;
+            if (veryVerbose) cout << "\tValue initialization\n";
             const Obj       obj1  = Obj();
 
-            if (verbose) cout << "Copy initialization" << endl;
+            if (veryVerbose) cout << "\tCopy initialization\n";
             Obj  obj2  = obj1;
 
-            if (verbose) cout << "Copy assignment" << endl;
+            if (veryVerbose) cout << "\tCopy assignment\n";
             obj2  = obj1;
             obj2  = obj2  = obj1;
         }
@@ -538,9 +534,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) cout << "\nBREATHING TEST"
+                          << "\n==============\n";
 
         typedef bsl::hash<bsl::string>      StringHash;
         typedef bsl::hash<bsl::string_view> StringViewHash;
@@ -572,7 +567,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
