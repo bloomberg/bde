@@ -23,6 +23,8 @@
 #include <bsl_string_view.h> // 'bsl::basic_string_view'
 #include <bsl_unordered_set.h>
 
+#include <bslstl_stringref.h> // 'bslstl::StringRef'
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -167,6 +169,7 @@ void testHashString()
         const char                       *SPEC     = DATA[i].d_str_p;
         bsl::string                       STR(SPEC, &ta);
         bsl::string_view                  VIEW(SPEC);
+        bslstl::StringRef                 REF(SPEC);
         const std::size_t                 EXPECTED =
                                       bsl::hash<bsl::string>().operator()(STR);
 
@@ -180,6 +183,7 @@ void testHashString()
         ASSERTV(LINE, EXPECTED == hasher(SPEC));
         ASSERTV(LINE, EXPECTED == hasher(STR ));
         ASSERTV(LINE, EXPECTED == hasher(VIEW));
+        ASSERTV(LINE, EXPECTED == hasher(REF));
     }
 }
 
