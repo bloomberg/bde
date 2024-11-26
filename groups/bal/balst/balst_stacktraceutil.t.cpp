@@ -837,10 +837,11 @@ void topOfTheStack(void *, void *, void *, int numRecurses)
 
     // On Windows, apparently if ANY stack addresses were returned, then
     // everything's fine.
+
+    ++analyzed;
 # endif
 
 #if defined(BALST_STACKTRACEUTIL_TEST_10_SYMBOLS)
-    ++analyzed;
     const int         len  = st.length();
     const bsl::size_t npos = bsl::string::npos;
 
