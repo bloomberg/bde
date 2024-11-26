@@ -837,9 +837,9 @@ void topOfTheStack(void *, void *, void *, int numRecurses)
 
     // On Windows, apparently if ANY stack addresses were returned, then
     // everything's fine.
+# endif
 
     ++analyzed;
-# endif
 
 #if defined(BALST_STACKTRACEUTIL_TEST_10_SYMBOLS)
     const int         len  = st.length();
@@ -2525,7 +2525,8 @@ int main(int argc, char *argv[])
         tg.addThreads(&TC::loopForSevenSeconds, TC::k_NUM_THREADS);
         tg.joinAll();
 
-        ASSERT(TC::numZeroStacks * 100 < TC::analyzed);
+        ASSERTV(TC::numZeroStacks, TC::analyzed,
+                                       TC::numZeroStacks * 100 < TC::analyzed);
         ASSERT(! TC::mainFound);
 
         if (verbose) {
