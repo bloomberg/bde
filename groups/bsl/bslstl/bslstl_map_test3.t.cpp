@@ -950,13 +950,12 @@ void testTransparentComparator(Container& container,
 
 /// Search for a value equal to the specified `initKeyValue` in the
 /// specified `container`, and count the number of conversions expected
-/// based on the specified `isTransparent`.  Unlike `testTransparentComparator`
-/// above, this method tests methods that may modify the container, so it
-/// takes the container by value.
+/// based on the specified `isTransparent`.  Since these tests can modify
+/// the container, we make a copy of it for each test.
 template <class Container>
-void testTransparentComparatorMutable(Container container,
-                                      bool      isTransparent,
-                                      int       initKeyValue)
+void testTransparentComparatorMutable(const Container& container,
+                                      bool             isTransparent,
+                                      int              initKeyValue)
 {
     typedef typename Container::size_type      Count;
 
@@ -969,28 +968,31 @@ void testTransparentComparatorMutable(Container container,
 
     ASSERT(existingKey.conversionCount() == expectedConversionCount);
 
+    {
     // Testing `operator []`.
 
-    if (!isTransparent) {
-        ++expectedConversionCount;
-    }
+        if (!isTransparent) {
+            ++expectedConversionCount;
+        }
 
-    // with an existing key
-    ASSERT(existingKey.value() == container[existingKey]);
-    ASSERT(size == container.size());
-    ASSERTV(expectedConversionCount, existingKey.conversionCount(),
+        Container c(container);
+        // with an existing key
+        ASSERT(existingKey.value() == c[existingKey]);
+        ASSERT(size == c.size());
+        ASSERTV(expectedConversionCount, existingKey.conversionCount(),
                   expectedConversionCount == existingKey.conversionCount());
 
-    // with a non-existing key
+        // with a non-existing key
     
-    // Note: We always get a conversion here; if we don't have a transparent
-    // comparator, then the value gets converted, and when the lookup fails,
-    // it gets inserted into the map.  If we do have a transparent comparator,
-    // the lookup is done w/o conversion, but then the value gets converted
-    // in order to put it into the map.
-    (void) container[nonExistingKey];
-    ASSERT(size + 1 == container.size());
-    ASSERTV(1 == nonExistingKey.conversionCount());
+        // Note: We always get a conversion here; if we don't have a transparent
+        // comparator, then the value gets converted, and when the lookup fails,
+        // it gets inserted into the map.  If we do have a transparent comparator,
+        // the lookup is done w/o conversion, but then the value gets converted
+        // in order to put it into the map.
+        (void) c[nonExistingKey];
+        ASSERT(size + 1 == c.size());
+        ASSERTV(1 == nonExistingKey.conversionCount());
+    }
 }
 
               // ====================================================
