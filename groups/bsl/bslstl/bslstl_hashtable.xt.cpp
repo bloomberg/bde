@@ -73,7 +73,7 @@ using namespace BloombergLP;
 //@# documentation can be found by running:
 //@#    bde_xt_cpp_splitter --help usage-guide
 //@
-//@  CASES: 1, 24..25
+//@  CASES: 1, 24..26
 //@  CASES: 2.SLICES
 //@  CASES: 3.SLICES
 //@  CASES: 4.SLICES, 5
@@ -254,7 +254,7 @@ using namespace BloombergLP;
 // [  ] size_t predictNumBuckets(size_t length, float maxLoadFactor)
 //
 // [  ] CONCERN: The type employs the expected size optimizations.
-// [  ] CONCERN: The type has the necessary type traits.
+// [25] CONCERN: The type has the necessary type traits.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
