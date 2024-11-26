@@ -15,13 +15,12 @@
 
 #include <bsls_assert.h>
 
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-#include <bsl_cstddef.h>  // `bsl::size_t`
-#include <bsl_cstring.h>  // `bsl::strcmp`
-#include <bsl_functional.h>
+#include <bsl_cstddef.h>     // `bsl::size_t`
+#include <bsl_cstring.h>     // `bsl::strcmp`
+#include <bsl_functional.h>  // 'bsl::hash'
 #include <bsl_iostream.h>
+#include <bsl_string.h>      // 'bsl::basic_string'
+#include <bsl_string_view.h> // 'bsl::basic_string_view'
 #include <bsl_unordered_set.h>
 
 using namespace BloombergLP;

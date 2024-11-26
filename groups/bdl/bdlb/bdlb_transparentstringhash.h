@@ -99,8 +99,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslstl_string.h>     // 'bsl::basic_string'
-#include <bslstl_stringview.h> // 'bsl::basic_string_view'
+#include <bsl_string.h>      // 'bsl::basic_string'
+#include <bsl_string_view.h> // 'bsl::basic_string_view'
 
 #include <bsl_functional.h>    // 'bsl::hash'
 
