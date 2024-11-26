@@ -28,6 +28,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_windows_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 #include <windows.h>
+#include <WinError.h>
 #include <intrin.h>
 #include <dbghelp.h>
 
@@ -425,11 +426,10 @@ BOOL DbgHelpRecord::symGetLineFromAddr64(HANDLE           hProcess,
 void reportError(const char *string)
     // If an environment variable is set, report the result of 'GetLastError'
     // to 'cerr', but only do it a limited number of times (test case 2 causes
-    // a huge number of these errors).
+    // a huge number of these errors).  Usually we don't want this output to
+    // show in front of clients, so 'reportTimes' defaults to 0.
 {
-    DWORD lastError = GetLastError();
-
-    static int reportTimes = 0;
+    static int  reportTimes = 0;
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
@@ -444,7 +444,9 @@ void reportError(const char *string)
     if (reportTimes > 0) {
         --reportTimes;
 
-        fprintf(stderr, "%s: %d", string, static_cast<int>(lastError));
+        DWORD lastError = GetLastError();
+
+        fprintf(stderr, "%s: %d\n", string, static_cast<int>(lastError));
     }
 }
 
@@ -526,6 +528,14 @@ int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
         if (success) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
+        }
+        else if (ERROR_INVALID_ADDRESS == GetLastError()) {
+            // In practice, in this context, this usually means the DLL
+            // containing the code does not have source file name or line
+            // number debug information.  Keep going, the symbol name will
+            // probably be there.
+
+            ;
         }
         else {
             u::reportError("stack trace resolver error: symGetLineFromAddr64"

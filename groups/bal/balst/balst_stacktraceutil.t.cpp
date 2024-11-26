@@ -744,8 +744,12 @@ namespace NS_10_4 {
 #define BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
 #endif
 
+enum { k_NUM_THREADS = 100 };
+
 bsls::TimeInterval start;            // initialized from `main`
 bsls::AtomicInt    threadId(0);
+bsls::AtomicInt    analyzed(0);
+bsls::AtomicInt    numZeroStacks(0);
 
 bool mainFound = false;
 int  tracesDone = 0;
@@ -775,6 +779,7 @@ void loopForSevenSeconds()
 
     const int numRecurses     = threadId++ % 10 + 10;
     int       localTracesDone = 0;
+
     do {
         int depth = numRecurses;
         for (int i = 0; i < 10; ++i, ++localTracesDone) {
@@ -813,14 +818,34 @@ void topOfTheStack(void *, void *, void *, int numRecurses)
     ST st;
 
     int rc = Util::loadStackTraceFromStack(&st, 2000, true);
+# if !defined(BSLS_PLATFORM_OS_WINDOWS)
     LOOP_ASSERT(rc, 0 == rc);
+# else
+    // '::RtlCaptureStackBackTrace', the Windows stack walkback function used
+    // by 'bsls::StackAddressUtil::getStackAddresses' will, < 1% of the time,
+    // malfunction and return 0 addresses.  Not positive, but this seems to be
+    // exacerbated by the fact that this test case is extensively
+    // multithreaded.
+
+    if (0 != rc && 0 == st.length()) {
+        ++numZeroStacks;
+
+        ASSERT(numZeroStacks < 200);
+
+        return;                                                       // RETURN
+    }
+
+    // On Windows, apparently if ANY stack addresses were returned, then
+    // everything's fine.
+# endif
 
 #if defined(BALST_STACKTRACEUTIL_TEST_10_SYMBOLS)
+    ++analyzed;
     const int         len  = st.length();
     const bsl::size_t npos = bsl::string::npos;
 
     ASSERTV(st[0].symbolName(),
-                             npos != st[0].symbolName().find("topOfTheStack"));
+                 0 == len || npos != st[0].symbolName().find("topOfTheStack"));
 
     int tots = 0;
     int rabo = 0;
@@ -859,13 +884,13 @@ void topOfTheStack(void *, void *, void *, int numRecurses)
         }
     }
 
-    ASSERT(1 == tots);
-    ASSERTV(numRecurses, rabo, numRecurses == rabo);
-    ASSERT(1 == lffs);
-    ASSERTV(numRecurses, tc10, numRecurses + 2 == tc10);
-    ASSERTV(numRecurses, ns2,  numRecurses + 2 == ns2);
-    ASSERTV(numRecurses, ns3,  numRecurses + 2 == ns3);
-    ASSERTV(numRecurses, ns4,  numRecurses + 2 == ns4);
+    ASSERTV(len, 1 == tots);
+    ASSERTV(len, numRecurses, rabo, numRecurses == rabo);
+    ASSERTV(len, 1 == lffs);
+    ASSERTV(len, numRecurses, tc10, numRecurses + 2 == tc10);
+    ASSERTV(len, numRecurses, ns2,  numRecurses + 2 == ns2);
+    ASSERTV(len, numRecurses, ns3,  numRecurses + 2 == ns3);
+    ASSERTV(len, numRecurses, ns4,  numRecurses + 2 == ns4);
 #endif
 }
 
@@ -2496,13 +2521,15 @@ int main(int argc, char *argv[])
 
         TC::start = bsls::SystemTime::nowMonotonicClock();
 
-        tg.addThreads(&TC::loopForSevenSeconds, 100);
+        tg.addThreads(&TC::loopForSevenSeconds, TC::k_NUM_THREADS);
         tg.joinAll();
 
+        ASSERT(TC::numZeroStacks * 100 < TC::analyzed);
         ASSERT(! TC::mainFound);
 
         if (verbose) {
             P_(TC::elapsed());    P_(TC::tracesDone);    P(TC::minTracesDone);
+            P_(TC::analyzed);     P(TC::numZeroStacks);
         }
       } break;
       case 9: {
