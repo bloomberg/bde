@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_windows_cpp,"$Id$ $CSID$")
 #include <balst_stacktraceconfigurationutil.h>
 
 #include <bdlb_string.h>
+#include <bdlb_numericparseutil.h>
 #include <bdlma_heapbypassallocator.h>
 
 #include <bslmf_assert.h>
@@ -423,13 +424,16 @@ BOOL DbgHelpRecord::symGetLineFromAddr64(HANDLE           hProcess,
                                      line);
 }
 
+/// If an environment variable is set, report the result of 'GetLastError' to
+/// 'cerr', but only do it a limited number of times (test case 2 causes a huge
+/// number of these errors).
 void reportError(const char *string)
-    // If an environment variable is set, report the result of 'GetLastError'
-    // to 'cerr', but only do it a limited number of times (test case 2 causes
-    // a huge number of these errors).  Usually we don't want this output to
-    // show in front of clients, so 'reportTimes' defaults to 0.
 {
+    // Usually we don't want this output to show in front of clients, so
+    // 'reportTimes' defaults to 0.
+
     static int  reportTimes = 0;
+
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
@@ -437,7 +441,11 @@ void reportError(const char *string)
         const char *nrString =
               bsl::getenv("BALST_RESOLVERIMPL_WINDOWS_REPORT_TIMES");
         if (nrString) {
-            reportTimes = bsl::atoi(nrString);
+            int rc = bdlb::NumericParseUtil::parseInt(&reportTimes,
+                                                      nrString);
+            if (0 != rc) {
+                reportTimes = 0;
+            }
         }
     }
 
@@ -534,8 +542,6 @@ int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
             // containing the code does not have source file name or line
             // number debug information.  Keep going, the symbol name will
             // probably be there.
-
-            ;
         }
         else {
             u::reportError("stack trace resolver error: symGetLineFromAddr64"
