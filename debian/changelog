@@ -1,5 +1,11 @@
-bsl-internal (4.17.0.0) unstable; urgency=low
+bsl-internal (4.17.0.1) unstable; urgency=low
 
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Mon, 18 Nov 2024 16:09:33 -0500
+
+bsl-internal (4.17.0.0) git; urgency=low
+
+  * 7960a3056 Changelog for version 4.17.0.0
   * 44553fbef Bumped version to 4.17.0.0
   * 5a0857be4 Merge pull request #4985 from afeher/drqs-176816660-floating-point-tochars
   * ef07cc398 Add transparent 'bucket' to HashTable and unordered_map (#5072)
@@ -29,7 +35,7 @@ bsl-internal (4.17.0.0) unstable; urgency=low
   * 5d339be3a Fix PublicationScheduler (#5047)
   * 2a1788ab7 Revert "Add move for jobs in bdlmt_multiqueuethreadpool." (#5050)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Nov 2024 12:29:25 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Nov 2024 12:34:01 -0500
 
 bsl-internal (4.16.0.0) git; urgency=low
 
