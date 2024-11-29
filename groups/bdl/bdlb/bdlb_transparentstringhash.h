@@ -10,13 +10,12 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::TransparentStringHash: a transparent hash functor for strings
 //
-//@SEE_ALSO: bsl_map, bsl_set
+//@SEE_ALSO: bsl_unordered_map, bsl_unordered_set
 //
 //@DESCRIPTION: This component provides a `struct`, 
 // `bdlb::TransparentStringHash`, that defines a functor to generate a hash
 // code for different 'string-like' types and can be used as transparent hash
 // functor for heterogeneous lookup.
-//
 //
 ///Usage
 ///-----
