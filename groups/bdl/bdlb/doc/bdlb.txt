@@ -69,6 +69,7 @@
      bdlb_transparentequalto
      bdlb_transparenthash
      bdlb_transparentless
+     bdlb_transparentstringhash
 
   1. bdlb_nullableallocatedvalue_cpp03                                !PRIVATE!
      bdlb_nullablevalue_cpp03                                         !PRIVATE!
@@ -236,6 +237,9 @@
 :
 : 'bdlb_transparentless':
 :      Provide a transparent less-than predicate.
+:
+: 'bdlb_transparentstringhash':
+:      Provide a transparent hash functor for "string-like" data types.
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated `union`-like) type.
