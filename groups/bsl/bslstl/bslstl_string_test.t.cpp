@@ -2476,7 +2476,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
     }
 }
 
-// A brute-force search to see if the specified 'pattern' exists in the 
+// A brute-force search to see if the specified 'pattern' exists in the
 // specified 'corpus'
 template <class TYPE, class TRAITS>
 bool containsOracle(bsl::basic_string_view<TYPE, TRAITS> pattern,
@@ -2490,7 +2490,7 @@ bool containsOracle(bsl::basic_string_view<TYPE, TRAITS> pattern,
     	if (pattern == corpus.substr(i, pattern.size()))
     	    return true;
     	}
-    return false;    
+    return false;
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -2655,7 +2655,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                                  OBJ_INDEX  == STR_INDEX;
                         const bool E_CH_RESULT = OBJ_LENGTH != 0 &&
                                        OBJ_INDEX + OBJ_LENGTH - 1 == STR_INDEX;
-                        const bool C_CH_RESULT = OBJ_LENGTH != 0 && 
+                        const bool C_CH_RESULT = OBJ_LENGTH != 0 &&
                                   bsl::find(X.begin(), X.end(), CH) != X.end();
 
                         Tam dam(defaultAllocator_p);
@@ -2801,7 +2801,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                                    : 'A' == OBJ_SPEC[OBJ_SPEC_LEN - 1];
                 const bool EXP_0_C = 0 == OBJ_SPEC_LEN
                                    ? false
-                                   : std::find(OBJ_SPEC, 
+                                   : std::find(OBJ_SPEC,
                                                OBJ_SPEC + OBJ_SPEC_LEN,
                                                '0') != OBJ_SPEC + OBJ_SPEC_LEN;
                 const bool EXP_A_C = 0 == OBJ_SPEC_LEN
@@ -3442,7 +3442,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
                     nua->numBytesTotal(),
                     expNotUsedAllocTotal == nua->numBytesTotal());
 
-            ASSERTV(ty, LINE_L, LINE_R, 
+            ASSERTV(ty, LINE_L, LINE_R,
                     ua == (XL + VWR).get_allocator().allocator());
 
             // Reference providing non-modifiable access to `bsl::string`

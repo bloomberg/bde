@@ -1626,6 +1626,15 @@ class basic_string
                           const CHAR_TYPE *other,
                           size_type        otherNumChars) const;
 
+    // NOT IMPLEMENTED
+
+    /// This method signature is defined as private, unimplemented, and (if
+    /// that is supported) deleted to avoid calls like `string.insert(0, 'x')`
+    /// to be picked up by the wrong insert function because the 0 converts
+    /// into a null pointer that is then treated as an iterator.  If the intent
+    /// is to insert at the beginning, use `s.insert(s.begin(), 'x')`.
+    void insert(size_type zero, CHAR_TYPE) BSLS_KEYWORD_DELETED;
+
     // INVARIANTS
     BSLMF_ASSERT((bsl::is_same<CHAR_TYPE,
                                typename ALLOCATOR::value_type>::value));
