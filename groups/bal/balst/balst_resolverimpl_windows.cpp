@@ -441,11 +441,9 @@ void reportError(const char *string)
         const char *nrString =
               bsl::getenv("BALST_RESOLVERIMPL_WINDOWS_REPORT_TIMES");
         if (nrString) {
-            int rc = bdlb::NumericParseUtil::parseInt(&reportTimes,
-                                                      nrString);
-            if (0 != rc) {
-                reportTimes = 0;
-            }
+            // if 'parseInt' fails 'reportTimes' is unmodified.
+
+            (void) bdlb::NumericParseUtil::parseInt(&reportTimes, nrString);
         }
     }
 
