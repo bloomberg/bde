@@ -4195,8 +4195,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
                     if (veryVerbose) { T_ T_ P(i) }
                     input = static_cast<char>(i);
 
-                    VVV("Verify printable characters are printed and not \
-encoded.");
+                    VVV("Verify printable characters are printed and not \n"
+                                                                   "encoded.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
@@ -5653,8 +5653,9 @@ encoded.");
             ASSERT(numOutChkPt[2] == numOut);
             ASSERT(numInChkPt[2] - numInChkPt[1] == numIn);
             ASSERT(outIdxChkPt[2] == outIdx);
-            ASSERT(0 == strcmp(out, "Hello, this is a test using an input \
-line of text containing a space at pos=\r\n =3D 76"));
+            ASSERTV(out, 0 == strcmp(out,
+                                        "Hello, this is a test using an input "
+                        "line of text containing a space at pos=\r\n =3D 76"));
             for (int i = numOutChkPt[2]; i < numOutChkPt[3]; ++i)
                 ASSERT(0 == out[i]);
 
@@ -5676,9 +5677,9 @@ line of text containing a space at pos=\r\n =3D 76"));
             ASSERT(numOutChkPt[3] == numOut);
             ASSERT(numInChkPt[3] - numInChkPt[2] == numIn);
             ASSERT(outIdxChkPt[3] == outIdx);
-            ASSERT(0 == strcmp(out, "Hello, this is a test using an input \
-line of text containing a space at pos=\r\n =3D 76\
- (also having a=20\r\n linebreak)"));
+            ASSERT(0 == strcmp(out, "Hello, this is a test using an input "
+                         "line of text containing a space at pos=\r\n =3D 76"
+                                         " (also having a=20\r\n linebreak)"));
             for (int i = numOutChkPt[3]; i < numOutChkPt[4]; ++i)
                 ASSERT(0 == out[i]);
 
@@ -5696,9 +5697,9 @@ line of text containing a space at pos=\r\n =3D 76\
 
             ASSERT(numOutChkPt[4] == numOut);
             ASSERT(outIdxChkPt[4] == outIdx);
-            ASSERT(0 == strcmp(out, "Hello, this is a test using an input \
-line of text containing a space at pos=\r\n =3D 76\
- (also having a=20\r\n linebreak)=20"));
+            ASSERT(0 == strcmp(out, "Hello, this is a test using an input "
+                         "line of text containing a space at pos=\r\n =3D 76"
+                                      " (also having a=20\r\n linebreak)=20"));
         }
       } break;
       default: {

@@ -263,104 +263,104 @@ char assertion[e_ERROR_STATE + 1 == NUM_STATES];
 // usage example.
 
 const char BLOOMBERG_NEWS[] =
-"        (Commentary. Chet Currier is a Bloomberg News \n\
-columnist. The opinions expressed are his own.) \n\
-\n\
-By Chet Currier\n\
-     Sept. 14 (Bloomberg) -- The trouble with college finance in\n\
-21st Century America is way too much homework.\n\
-     Study up on UGMAs, ESAs, Section 529 savings programs that\n\
-come in more than 50 different versions, and prepaid tuition\n\
-plans. Learn when interest on U.S. Savings Bonds may, or may not,\n\
-be exempt from taxes when the money is used to pay educational\n\
-expenses.\n\
-     Comb through some of the 117,687 items that turn up when you\n\
-do a ``pay for college'' search on the Web site of Amazon.com.\n\
-Read articles like ``Understanding the Aid Form,'' a discussion\n\
-of something called the FAFSA that ran as part of a 28-page\n\
-special ``Paying for College'' section in the Sept. 6 U.S. News &\n\
-World Report.\n\
-     ``A college education is a worthwhile, but expensive,\n\
-investment,'' says the Vanguard Group in a current bulletin to\n\
-investors in its $730 billion stable of mutual funds. ``The right\n\
-savings plan can help ease the financial burden, but with the\n\
-variety of alternatives available you may need a crash course on\n\
-the pros and cons of each one.''\n\
-     Please, life already has all the crash courses it needs. Is\n\
-this the best we can do? Even if each piece of the system was\n\
-designed with the best of intentions, the aggregate has become an\n\
-absurd monstrosity.\n\
-\n\
-                         Fails the Test\n\
-\n\
-     The system's first and most obvious offense is its utter\n\
-disregard for the virtues of simplicity, both aesthetic and\n\
-practical. That's just the beginning.\n\
-     It wastes huge amounts of time, energy and economic\n\
-resources. Along the way, it undercuts several of the most\n\
-important ideas colleges are supposed to be dealing in.\n\
-     Consider the difference between real problems that naturally\n\
-arise in life, and artificial obstacles that humans put in their\n\
-own path. Dealing with real problems is an unavoidable part of\n\
-the human condition -- and quite often turns out to be a\n\
-productive exercise that gets you somewhere. Artificial problems,\n\
-being both unnecessary and sterile, offer few benefits of that\n\
-kind.\n\
-     The wish to give young people an education, and the\n\
-necessity of paying the cost of that effort, are classic examples\n\
-of naturally occurring problems. When you study 529 plans, by\n\
-contrast, you learn nothing but an arbitrary set of details that\n\
-have no bearing on anything else.\n\
-\n\
-                          Hypocritical\n\
-\n\
-     College should teach ways of thinking that a student can\n\
-apply and build on after the degree is awarded. The college-\n\
-finance system is completely out of synch with that ideal.\n\
-     In the few years while the teenagers in a family struggle\n\
-through the miasma known as the ``admissions process,'' college-\n\
-finance information presents itself as vital. Immediately after\n\
-the last child matriculates, it becomes junk to be jettisoned as\n\
-fast as the brain cells will allow.\n\
-     Also, college ought to be a place to acquire a sense of\n\
-ethics -- more now than ever amid the outcry over the moral and\n\
-ethical failures of so many in business, government, religion and\n\
-the press. Yet a basic part of college planning, usually\n\
-presented without the slightest moral compunction, is learning\n\
-the slyest ways to game the system.\n\
-     Parents saving for a child's tuition are confronted with\n\
-issues such as ``can that stash hurt your aid?'' to quote one\n\
-headline in the U.S. News college-planning report. Here, son, you\n\
-go study Plato and Aristotle, and we'll scrounge up the money to\n\
-pay for it by hiding assets in Aunt Adelaide's name.\n\
-\n\
-                        Lessons to Learn\n\
-\n\
-     ``Mankind, left free, instinctively complicates life,'' said\n\
-the writer Katharine Fullerton Gerould.\n\
-     Beyond the portrait it paints of human folly, though, maybe\n\
-there is something to be learned from the sorry state of college\n\
-finance. It gives us a glimpse into the workings of a so-called\n\
-``information economy'' where, instead of education steering us\n\
-toward life, life steers us to education.\n\
-     Like the computer, education was originally a tool, now is a\n\
-product unto itself. Hence the resume of achievements and\n\
-experiences that have come to be required of children aspiring to\n\
-get into a ``selective'' college.\n\
-     The economics of information is pretty new stuff. One sign\n\
-we are starting to figure it out will come when we do a better\n\
-job of designing mechanisms like college finance.\n\
-\n\
---Editors: Ahearn, Wolfson\n\
-\n\
-Story Illustration: To graph increase in population of U.S.\n\
-college graduates, click on  USP CL25 <Index> GP <GO> . To see\n\
-additional Currier columns, click on  NI CURRIER <GO> . To\n\
-comment on this column, click on  LETT <GO>  and send a letter to\n\
-the editor.\n\
-\n\
-To contact the writer of this column: Chet Currier in New York\n\
-(1) (212) 318-2605 or ccurrier@bloomberg.net.";
+"        (Commentary. Chet Currier is a Bloomberg News \n"
+"columnist. The opinions expressed are his own.) \n"
+"\n"
+"By Chet Currier\n"
+"     Sept. 14 (Bloomberg) -- The trouble with college finance in\n"
+"21st Century America is way too much homework.\n"
+"     Study up on UGMAs, ESAs, Section 529 savings programs that\n"
+"come in more than 50 different versions, and prepaid tuition\n"
+"plans. Learn when interest on U.S. Savings Bonds may, or may not,\n"
+"be exempt from taxes when the money is used to pay educational\n"
+"expenses.\n"
+"     Comb through some of the 117,687 items that turn up when you\n"
+"do a ``pay for college'' search on the Web site of Amazon.com.\n"
+"Read articles like ``Understanding the Aid Form,'' a discussion\n"
+"of something called the FAFSA that ran as part of a 28-page\n"
+"special ``Paying for College'' section in the Sept. 6 U.S. News &\n"
+"World Report.\n"
+"     ``A college education is a worthwhile, but expensive,\n"
+"investment,'' says the Vanguard Group in a current bulletin to\n"
+"investors in its $730 billion stable of mutual funds. ``The right\n"
+"savings plan can help ease the financial burden, but with the\n"
+"variety of alternatives available you may need a crash course on\n"
+"the pros and cons of each one.''\n"
+"     Please, life already has all the crash courses it needs. Is\n"
+"this the best we can do? Even if each piece of the system was\n"
+"designed with the best of intentions, the aggregate has become an\n"
+"absurd monstrosity.\n"
+"\n"
+"                         Fails the Test\n"
+"\n"
+"     The system's first and most obvious offense is its utter\n"
+"disregard for the virtues of simplicity, both aesthetic and\n"
+"practical. That's just the beginning.\n"
+"     It wastes huge amounts of time, energy and economic\n"
+"resources. Along the way, it undercuts several of the most\n"
+"important ideas colleges are supposed to be dealing in.\n"
+"     Consider the difference between real problems that naturally\n"
+"arise in life, and artificial obstacles that humans put in their\n"
+"own path. Dealing with real problems is an unavoidable part of\n"
+"the human condition -- and quite often turns out to be a\n"
+"productive exercise that gets you somewhere. Artificial problems,\n"
+"being both unnecessary and sterile, offer few benefits of that\n"
+"kind.\n"
+"     The wish to give young people an education, and the\n"
+"necessity of paying the cost of that effort, are classic examples\n"
+"of naturally occurring problems. When you study 529 plans, by\n"
+"contrast, you learn nothing but an arbitrary set of details that\n"
+"have no bearing on anything else.\n"
+"\n"
+"                          Hypocritical\n"
+"\n"
+"     College should teach ways of thinking that a student can\n"
+"apply and build on after the degree is awarded. The college-\n"
+"finance system is completely out of synch with that ideal.\n"
+"     In the few years while the teenagers in a family struggle\n"
+"through the miasma known as the ``admissions process,'' college-\n"
+"finance information presents itself as vital. Immediately after\n"
+"the last child matriculates, it becomes junk to be jettisoned as\n"
+"fast as the brain cells will allow.\n"
+"     Also, college ought to be a place to acquire a sense of\n"
+"ethics -- more now than ever amid the outcry over the moral and\n"
+"ethical failures of so many in business, government, religion and\n"
+"the press. Yet a basic part of college planning, usually\n"
+"presented without the slightest moral compunction, is learning\n"
+"the slyest ways to game the system.\n"
+"     Parents saving for a child's tuition are confronted with\n"
+"issues such as ``can that stash hurt your aid?'' to quote one\n"
+"headline in the U.S. News college-planning report. Here, son, you\n"
+"go study Plato and Aristotle, and we'll scrounge up the money to\n"
+"pay for it by hiding assets in Aunt Adelaide's name.\n"
+"\n"
+"                        Lessons to Learn\n"
+"\n"
+"     ``Mankind, left free, instinctively complicates life,'' said\n"
+"the writer Katharine Fullerton Gerould.\n"
+"     Beyond the portrait it paints of human folly, though, maybe\n"
+"there is something to be learned from the sorry state of college\n"
+"finance. It gives us a glimpse into the workings of a so-called\n"
+"``information economy'' where, instead of education steering us\n"
+"toward life, life steers us to education.\n"
+"     Like the computer, education was originally a tool, now is a\n"
+"product unto itself. Hence the resume of achievements and\n"
+"experiences that have come to be required of children aspiring to\n"
+"get into a ``selective'' college.\n"
+"     The economics of information is pretty new stuff. One sign\n"
+"we are starting to figure it out will come when we do a better\n"
+"job of designing mechanisms like college finance.\n"
+"\n"
+"--Editors: Ahearn, Wolfson\n"
+"\n"
+"Story Illustration: To graph increase in population of U.S.\n"
+"college graduates, click on  USP CL25 <Index> GP <GO> . To see\n"
+"additional Currier columns, click on  NI CURRIER <GO> . To\n"
+"comment on this column, click on  LETT <GO>  and send a letter to\n"
+"the editor.\n"
+"\n"
+"To contact the writer of this column: Chet Currier in New York\n"
+"(1) (212) 318-2605 or ccurrier@bloomberg.net.";
 
 // ============================================================================
 //                           TEST HELPER FUNCTIONS

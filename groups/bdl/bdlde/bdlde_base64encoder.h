@@ -615,33 +615,31 @@ class Base64Encoder {
     explicit
     Base64Encoder(const EncoderOptions& options = EncoderOptions::mime());
 
-    /// Create a Base64 encoder in the initial state, defaulting the maximum
-    /// allowable line-length of the output to 76 (as recommended by the
-    /// MIME standard).  Optionally specify an alphabet used to encode
-    /// characters.  If `alphabet` is not specified, then the basic
-    /// alphabet, "base64", is used.  Note that the `convert` and
-    /// `endConvert` methods of this encoder will insert a CRLF to prevent
-    /// each line of the output from exceeding 76 characters.
+    /// Create a Base64 encoder in the initial state, with the 'isPadded'
+    /// option set, a 'maxLineLength' of 76, and the specified 'alphabet'.
     ///
-    /// @DEPRECATED: Create and pass an `options` object instead.
+    /// @DEPRECATED: Create and pass an `options` object instead, equivalent to
+    /// ```
+    /// Bas64Encoder(Base64EncoderOptions::custom(
+    ///                           Base64EncoderOptions::k_MIME_MAX_LINE_LENGTH,
+    ///                           alphabet,
+    ///                           true));
+    /// ```
     BSLS_DEPRECATE_FEATURE("bdl",
                            "Base64Encoder",
                            "use overload with 'options'")
     explicit
     Base64Encoder(Alphabet alphabet);
 
-    /// Create a Base64 encoder in the initial state, setting the maximum
-    /// allowable line-length of the output to the specified
-    /// `maxLineLength`.  Specifying 0 for `maxLineLength` will result in a
-    /// single output line (i.e., one with no CRLF in it).  Optionally
-    /// specify an alphabet used to encode characters.  If `alphabet` is not
-    /// specified, then the basic alphabet, "base64", is used.The behavior
-    /// is undefined unless `0 <= maxLineLength`.  Note that when
-    /// `maxLineLength` is positive, the `convert` and `endConvert` methods
-    /// of this encoder will insert a CRLF to prevent each line of the
-    /// output from exceeding `maxLineLength`.
+    /// Create a Base64 encoder in the initial state, with the 'isPadded'
+    /// option set and the two specified options.
     ///
-    /// @DEPRECATED: Create and pass an `options` object instead.
+    /// @DEPRECATED: Create and pass an `options` object instead, equivalent to
+    /// ```
+    /// Base64Encoder(Base64EncoderOptions::custom(maxLinLength,
+    ///                                            alphabet,
+    ///                                            true));
+    /// ```
     BSLS_DEPRECATE_FEATURE("bdl",
                            "Base64Encoder",
                            "use overload with 'options'")

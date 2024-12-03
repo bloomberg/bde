@@ -195,36 +195,25 @@ BSLS_IDENT("$Id: $")
 // the decoded text to a `bsl::ostream`.  `streamconverter` returns 0 on
 // success and a negative value if the input data could not be successfully
 // decoded or if there is an I/O error.
+//
+//  streamdecoder.cpp                    -*-C++-*-
+//
+//  #include <streamdecoder.h>
+//
+//  #include <bdlde_base64decoder.h>
+//
 // ```
-// streamdecoder.h                      -*-C++-*-
-//
-// int streamDecoder(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream 'is', convert
-//     // the input base-64 encoding into plain text, and write the decoded
-//     // text to the specified output stream 'os'.  Return 0 on success, and a
-//     // negative value otherwise.
-// ```
-// We will use fixed-sized input and output buffers in the implementation, but,
-// because of the flexibility of `bsl::istream` and the output-buffer
-// monitoring functionality of `bdlde::Base64Decoder`, the fixed buffer sizes
-// do *not* limit the quantity of data that can be read, decoded, or written to
-// the output stream.  The implementation file is as follows.
-// ```
-// streamdecoder.cpp                    -*-C++-*-
-//
-// #include <streamdecoder.h>
-//
-// #include <bdlde_base64decoder.h>
-//
-// namespace BloombergLP {
-//
-// int streamDecoder(bsl::ostream& os, bsl::istream& is)
-// {
-//     enum {
-//         SUCCESS      =  0,
-//         DECODE_ERROR = -1,
-//         IO_ERROR     = -2
-//     };
+//  /// Read the entire contents of the specified input stream `is`, convert
+//  /// the input base-64 encoding into plain text, and write the decoded text
+//  /// to the specified output stream `os`.  Return 0 on success, and a
+//  /// negative value otherwise.
+//  int streamDecoder(bsl::ostream& os, bsl::istream& is)
+//  {
+//      enum {
+//          SUCCESS      =  0,
+//          DECODE_ERROR = -1,
+//          IO_ERROR     = -2
+//      };
 // ```
 // We declare a `bdlde::Base64Decoder` object `converter`, which will decode
 // the input data.  Note that various internal buffers and cursors are used as
@@ -234,58 +223,69 @@ BSLS_IDENT("$Id: $")
 // output that results from decoding the entire input stream (even in the case
 // of errors), the base64 decoder is configured not to detect errors.
 // ```
-//    bdlde::Base64Decoder converter(false);   // Do not report errors.
+//      bdlde::Base64Decoder converter(
+//                                    bdlde::Base64DecoderOptions::standard());
 //
-//    const int INBUFFER_SIZE  = 1 << 10;
-//    const int OUTBUFFER_SIZE = 1 << 10;
+//      const int INBUFFER_SIZE  = 1 << 10;
+//      const int OUTBUFFER_SIZE = 1 << 10;
+// ```
+// We will use fixed-sized input and output buffers in the implementation, but,
+// because of the flexibility of `bsl::istream` and the output-buffer
+// monitoring functionality of `bdlde::Base64Decoder`, the fixed buffer sizes
+// do *not* limit the quantity of data that can be read, decoded, or written to
+// the output stream.  The implementation file is as follows.
+// ```
+//      char inputBuffer[INBUFFER_SIZE];
+//      char outputBuffer[OUTBUFFER_SIZE];
 //
-//    char inputBuffer[INBUFFER_SIZE];
-//    char outputBuffer[OUTBUFFER_SIZE];
+//      char *output    = outputBuffer;
+//      char *outputEnd = outputBuffer + sizeof outputBuffer;
 //
-//    char *output    = outputBuffer;
-//    char *outputEnd = outputBuffer + sizeof outputBuffer;
+//      while (is.good()) {  // input stream not exhausted
 //
-//    while (is.good()) {  // input stream not exhausted
-//
-//        is.read(inputBuffer, sizeof inputBuffer);
+//          is.read(inputBuffer, sizeof inputBuffer);
 // ```
 // With `inputBuffer` now populated, we'll use `converter` in an inner `while`
 // loop to decode the input and write the decoded data to `outputBuffer` (via
 // the `output` cursor').  Note that if the call to `converter.convert` fails,
 // our function terminates with a negative status.
 // ```
-//        const char *input    = inputBuffer;
-//        const char *inputEnd = input + is.gcount();
+//          const char *input    = inputBuffer;
+//          const char *inputEnd = input + is.gcount();
 //
-//        while (input < inputEnd) { // input encoding not complete
+//          while (input < inputEnd) { // input encoding not complete
 //
-//            int numOut;
-//            int numIn;
+//              int numOut;
+//              int numIn;
 //
-//            int status = converter.convert(output, &numOut, &numIn,
-//                                           input,   inputEnd,
-//                                           outputEnd - output);
-//            if (status < 0) {
-//                return DECODE_ERROR;                               // RETURN
-//            }
+//              int status = converter.convert(
+//                                       output,
+//                                       &numOut,
+//                                       &numIn,
+//                                       input,
+//                                       inputEnd,
+//                                       static_cast<int>(outputEnd - output));
+//              if (status < 0) {
+//                  return DECODE_ERROR;                              // RETURN
+//              }
 // ```
 // If the call to `converter.convert` returns successfully, we'll see if the
 // output buffer is full, and if so, write its contents to the user-supplied
 // output stream `os`.  Note how we use the values of `numOut` and `numIn`
 // generated by `convert` to update the relevant cursors.
 // ```
-//            output += numOut;
-//            input  += numIn;
+//              output += numOut;
+//              input  += numIn;
 //
-//            if (output == outputEnd) {  // output buffer full; write data
-//                os.write (outputBuffer, sizeof outputBuffer);
-//                if (os.fail()) {
-//                    return IO_ERROR;                               // RETURN
-//                }
-//                output = outputBuffer;
-//            }
-//        }
-//    }
+//              if (output == outputEnd) {  // output buffer full; write data
+//                  os.write(outputBuffer, sizeof outputBuffer);
+//                  if (os.fail()) {
+//                      return IO_ERROR;                              // RETURN
+//                  }
+//                  output = outputBuffer;
+//              }
+//          }
+//      }
 // ```
 // We have now exited both the input and the "decode" loops.  `converter` may
 // still hold decoded output characters, and so we call `converter.endConvert`
@@ -297,134 +297,39 @@ BSLS_IDENT("$Id: $")
 // loop and write any data remaining in `outputBuffer` to `os`.  As above, if
 // `endConvert` fails, we exit the function with a negative return status.
 // ```
-//    while (1) {
+//      while (1) {
 //
-//        int numOut;
+//          int numOut;
 //
-//        int more = converter.endConvert(output, &numOut, outputEnd-output);
-//        if (more < 0) {
-//            return DECODE_ERROR;                                   // RETURN
-//        }
+//          int more = converter.endConvert(
+//                                      output,
+//                                      &numOut,
+//                                      static_cast<int>(outputEnd - output));
+//          if (more < 0) {
+//              return DECODE_ERROR;                                  // RETURN
+//          }
 //
-//        output += numOut;
+//          output += numOut;
 //
-//        if (!more) { // no more output
-//            break;
-//        }
+//          if (!more) { // no more output
+//              break;
+//          }
 //
-//        assert (output == outputEnd);  // output buffer is full
+//          assert(output == outputEnd);  // output buffer is full
 //
-//        os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-//        if (os.fail()) {
-//            return IO_ERROR;                                       // RETURN
-//        }
-//        output = outputBuffer;
-//    }
+//          os.write (outputBuffer, sizeof outputBuffer);  // write buffer
+//          if (os.fail()) {
+//              return IO_ERROR;                                      // RETURN
+//          }
+//          output = outputBuffer;
+//      }
 //
-//    if (output > outputBuffer) { // still data in output buffer; write it
-//                                 // all
-//        os.write(outputBuffer, output - outputBuffer);
-//    }
+//      if (output > outputBuffer) {
+//          os.write (outputBuffer, output - outputBuffer);
+//      }
 //
-//    return (is.eof() && os.good()) ? SUCCESS : IO_ERROR;
-// }
-//
-// } // Close namespace BloombergLP
-// ```
-// For ease of reading, we repeat the full content of the `streamconverter.cpp`
-// file without interruption.
-// ```
-// streamdecoder.cpp                    -*-C++-*-
-//
-// #include <streamdecoder.h>
-//
-// #include <bdlde_base64decoder.h>
-//
-// namespace BloombergLP {
-//
-// int streamDecoder(bsl::ostream& os, bsl::istream& is)
-// {
-//     enum {
-//         SUCCESS      =  0,
-//         DECODE_ERROR = -1,
-//         IO_ERROR     = -2
-//     };
-//
-//     bdlde::Base64Decoder converter(false);   // Do not report errors.
-//
-//     const int INBUFFER_SIZE  = 1 << 10;
-//     const int OUTBUFFER_SIZE = 1 << 10;
-//
-//     char inputBuffer[INBUFFER_SIZE];
-//     char outputBuffer[OUTBUFFER_SIZE];
-//
-//     char *output    = outputBuffer;
-//     char *outputEnd = outputBuffer + sizeof outputBuffer;
-//
-//     while (is.good()) {  // input stream not exhausted
-//
-//         is.read(inputBuffer, sizeof inputBuffer);
-//
-//         const char *input    = inputBuffer;
-//         const char *inputEnd = input + is.gcount();
-//
-//         while (input < inputEnd) { // input encoding not complete
-//
-//             int numOut;
-//             int numIn;
-//
-//             int status = converter.convert(output, &numOut, &numIn,
-//                                            input,   inputEnd,
-//                                            outputEnd - output);
-//             if (status < 0) {
-//                 return DECODE_ERROR;                               // RETURN
-//             }
-//
-//             output += numOut;
-//             input  += numIn;
-//
-//             if (output == outputEnd) {  // output buffer full; write data
-//                 os.write(outputBuffer, sizeof outputBuffer);
-//                 if (os.fail()) {
-//                     return IO_ERROR;                               // RETURN
-//                 }
-//                 output = outputBuffer;
-//             }
-//         }
-//     }
-//
-//     while (1) {
-//
-//         int numOut;
-//
-//         int more = converter.endConvert(output, &numOut, outputEnd-output);
-//         if (more < 0) {
-//             return DECODE_ERROR;                                   // RETURN
-//         }
-//
-//         output += numOut;
-//
-//         if (!more) { // no more output
-//             break;
-//         }
-//
-//         assert (output == outputEnd);  // output buffer is full
-//
-//         os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-//         if (os.fail()) {
-//             return IO_ERROR;                                       // RETURN
-//         }
-//         output = outputBuffer;
-//     }
-//
-//     if (output > outputBuffer) {
-//         os.write (outputBuffer, output - outputBuffer);
-//     }
-//
-//     return (is.eof() && os.good()) ? SUCCESS : IO_ERROR;
-// }
-//
-// } // Close namespace BloombergLP
+//      return is.eof() && os.good() ? SUCCESS : IO_ERROR;
+//  }
 // ```
 
 #include <bdlscm_version.h>
@@ -547,15 +452,17 @@ class Base64Decoder {
     explicit
     Base64Decoder(const Base64DecoderOptions& options);
 
-    /// Create a Base64 decoder in the initial state.  Unrecognized
-    /// characters (i.e., non-base64 characters other than whitespace) will
-    /// be treated as errors if the specified
-    /// `unrecognizedNonWhitespaceIsErrorFlag` is `true`, and ignored
-    /// otherwise.  Optionally specify an alphabet used to decode input
-    /// characters.  If `alphabet` is not specified, then the basic
-    /// alphabet, "base64", is used.  Padded input is assumed.
+    /// Create a decoder expecting padded encoding.
     ///
-    /// @DEPRECATED: Use the overload that takes `options` instead.
+    /// @DEPRECATED: Use the overload that takes `options` instead, for example
+    /// ```
+    /// Base64Decoder(Base64DecoderOptions::custom(
+    ///                                    unrecognizedNonWhitespaceIsErrorFlag
+    ///                                    ? e_IGNORE_NONE
+    ///                                    : e_IGNORE_WHITESPACE,
+    ///                                    alphabet,
+    ///                                    true));
+    /// ```
     BSLS_DEPRECATE_FEATURE("bdl", "Base64Decoder", "use options c'tor")
     explicit
     Base64Decoder(bool     unrecognizedNonWhitespaceIsErrorFlag,

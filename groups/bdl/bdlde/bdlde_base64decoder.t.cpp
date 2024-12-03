@@ -1265,186 +1265,252 @@ bool isState(Obj *object, int state)
 //                         SUPPORT FOR USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-namespace BloombergLP {
+namespace USAGE {
+    using namespace BloombergLP;
 
-int streamEncoder(bsl::ostream& os, bsl::istream& is)
-{
-    enum {
-        SUCCESS      =  0,
-        ENCODE_ERROR = -1,
-        IO_ERROR     = -2
-    };
+// The 'streamEncoder' part of the usage example is not propagated to the .h
+// file.
+
+    int streamEncoder(bsl::ostream& os, bsl::istream& is)
+    {
+        enum {
+            SUCCESS      =  0,
+            ENCODE_ERROR = -1,
+            IO_ERROR     = -2
+        };
 
 
-    bdlde::Base64Encoder converter(0);
+        bdlde::Base64Encoder converter(0);
 
-    const int INBUFFER_SIZE  = 1 << 10;
-    const int OUTBUFFER_SIZE = 1 << 10;
+        const int INBUFFER_SIZE  = 1 << 10;
+        const int OUTBUFFER_SIZE = 1 << 10;
 
-    char inputBuffer[INBUFFER_SIZE];
-    char outputBuffer[OUTBUFFER_SIZE];
+        char inputBuffer[INBUFFER_SIZE];
+        char outputBuffer[OUTBUFFER_SIZE];
 
-    char *output    = outputBuffer;
-    char *outputEnd = outputBuffer + sizeof outputBuffer;
+        char *output    = outputBuffer;
+        char *outputEnd = outputBuffer + sizeof outputBuffer;
 
-    while (is.good()) {  // input stream not exhausted
+        while (is.good()) {  // input stream not exhausted
 
-        is.read(inputBuffer, sizeof inputBuffer);
+            is.read(inputBuffer, sizeof inputBuffer);
 
-        const char *input    = inputBuffer;
-        const char *inputEnd = input + is.gcount();
+            const char *input    = inputBuffer;
+            const char *inputEnd = input + is.gcount();
 
-        while (input < inputEnd) { // input encoding not complete
+            while (input < inputEnd) { // input encoding not complete
 
-            int numOut;
-            int numIn;
+                int numOut;
+                int numIn;
 
-            int status = converter.convert(
+                int status = converter.convert(
                                          output,
                                          &numOut,
                                          &numIn,
                                          input,
                                          inputEnd,
                                          static_cast<int>(outputEnd - output));
-            if (status < 0) {
+                if (status < 0) {
+                    return ENCODE_ERROR;                              // RETURN
+                }
+
+                output += numOut;
+                input  += numIn;
+
+                if (output == outputEnd) {  // output buffer full; write data
+                    os.write(outputBuffer, sizeof outputBuffer);
+                    if (os.fail()) {
+                        return IO_ERROR;                              // RETURN
+                    }
+                    output = outputBuffer;
+                }
+            }
+        }
+
+        while (1) {
+
+            int numOut;
+
+            int more = converter.endConvert(
+                                        output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
+            if (more < 0) {
                 return ENCODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
-            input  += numIn;
 
-            if (output == outputEnd) {  // output buffer full; write data
-                os.write(outputBuffer, sizeof outputBuffer);
-                if (os.fail()) {
-                    return IO_ERROR;                                  // RETURN
-                }
-                output = outputBuffer;
+            if (!more) { // no more output
+                break;
             }
+
+            ASSERT(output == outputEnd);  // output buffer is full
+
+            os.write (outputBuffer, sizeof outputBuffer);  // write buffer
+            if (os.fail()) {
+                return IO_ERROR;                                      // RETURN
+            }
+            output = outputBuffer;
         }
+
+        if (output > outputBuffer) {
+            os.write (outputBuffer, output - outputBuffer);
+        }
+
+        return is.eof() && os.good() ? SUCCESS : IO_ERROR;
     }
 
-    while (1) {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// The following example shows how to use a `bdlde::Base64Decoder` object to
+// implement a function, `streamconverter`, that reads text from a
+// `bsl::istream`, decodes that text from base 64 representation, and writes
+// the decoded text to a `bsl::ostream`.  `streamconverter` returns 0 on
+// success and a negative value if the input data could not be successfully
+// decoded or if there is an I/O error.
+//
+//  streamdecoder.cpp                    -*-C++-*-
+//
+//  #include <streamdecoder.h>
+//
+//  #include <bdlde_base64decoder.h>
+//
+// ```
+    /// Read the entire contents of the specified input stream `is`, convert
+    /// the input base-64 encoding into plain text, and write the decoded text
+    /// to the specified output stream `os`.  Return 0 on success, and a
+    /// negative value otherwise.
+    int streamDecoder(bsl::ostream& os, bsl::istream& is)
+    {
+        enum {
+            SUCCESS      =  0,
+            DECODE_ERROR = -1,
+            IO_ERROR     = -2
+        };
+// ```
+// We declare a `bdlde::Base64Decoder` object `converter`, which will decode
+// the input data.  Note that various internal buffers and cursors are used as
+// needed without further comment.  We read as much data as is available from
+// the user-supplied input stream `is` *or* as much as will fit in
+// `inputBuffer` before beginning conversion.  To obtain unobstructedly the
+// output that results from decoding the entire input stream (even in the case
+// of errors), the base64 decoder is configured not to detect errors.
+// ```
+        bdlde::Base64Decoder converter(
+                                      bdlde::Base64DecoderOptions::standard());
 
-        int numOut;
+        const int INBUFFER_SIZE  = 1 << 10;
+        const int OUTBUFFER_SIZE = 1 << 10;
+// ```
+// We will use fixed-sized input and output buffers in the implementation, but,
+// because of the flexibility of `bsl::istream` and the output-buffer
+// monitoring functionality of `bdlde::Base64Decoder`, the fixed buffer sizes
+// do *not* limit the quantity of data that can be read, decoded, or written to
+// the output stream.  The implementation file is as follows.
+// ```
+        char inputBuffer[INBUFFER_SIZE];
+        char outputBuffer[OUTBUFFER_SIZE];
 
-        int more = converter.endConvert(output,
-                                        &numOut,
-                                        static_cast<int>(outputEnd - output));
-        if (more < 0) {
-            return ENCODE_ERROR;                                      // RETURN
-        }
+        char *output    = outputBuffer;
+        char *outputEnd = outputBuffer + sizeof outputBuffer;
 
-        output += numOut;
+        while (is.good()) {  // input stream not exhausted
 
-        if (!more) { // no more output
-            break;
-        }
+            is.read(inputBuffer, sizeof inputBuffer);
+// ```
+// With `inputBuffer` now populated, we'll use `converter` in an inner `while`
+// loop to decode the input and write the decoded data to `outputBuffer` (via
+// the `output` cursor').  Note that if the call to `converter.convert` fails,
+// our function terminates with a negative status.
+// ```
+            const char *input    = inputBuffer;
+            const char *inputEnd = input + is.gcount();
 
-        ASSERT(output == outputEnd);  // output buffer is full
+            while (input < inputEnd) { // input encoding not complete
 
-        os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-        if (os.fail()) {
-            return IO_ERROR;                                          // RETURN
-        }
-        output = outputBuffer;
-    }
+                int numOut;
+                int numIn;
 
-    if (output > outputBuffer) {
-        os.write (outputBuffer, output - outputBuffer);
-    }
-
-    return is.eof() && os.good() ? SUCCESS : IO_ERROR;
-}
-
-int streamDecoder(bsl::ostream& os, bsl::istream& is)
-{
-    enum {
-        SUCCESS      =  0,
-        DECODE_ERROR = -1,
-        IO_ERROR     = -2
-    };
-
-    Obj converter(false);   // Do not report errors.
-
-    const int INBUFFER_SIZE  = 1 << 10;
-    const int OUTBUFFER_SIZE = 1 << 10;
-
-    char inputBuffer[INBUFFER_SIZE];
-    char outputBuffer[OUTBUFFER_SIZE];
-
-    char *output    = outputBuffer;
-    char *outputEnd = outputBuffer + sizeof outputBuffer;
-
-    while (is.good()) {  // input stream not exhausted
-
-        is.read(inputBuffer, sizeof inputBuffer);
-
-        const char *input    = inputBuffer;
-        const char *inputEnd = input + is.gcount();
-
-        while (input < inputEnd) { // input encoding not complete
-
-            int numOut;
-            int numIn;
-
-            int status = converter.convert(
+                int status = converter.convert(
                                          output,
                                          &numOut,
                                          &numIn,
                                          input,
                                          inputEnd,
                                          static_cast<int>(outputEnd - output));
-            if (status < 0) {
+                if (status < 0) {
+                    return DECODE_ERROR;                              // RETURN
+                }
+// ```
+// If the call to `converter.convert` returns successfully, we'll see if the
+// output buffer is full, and if so, write its contents to the user-supplied
+// output stream `os`.  Note how we use the values of `numOut` and `numIn`
+// generated by `convert` to update the relevant cursors.
+// ```
+                output += numOut;
+                input  += numIn;
+
+                if (output == outputEnd) {  // output buffer full; write data
+                    os.write(outputBuffer, sizeof outputBuffer);
+                    if (os.fail()) {
+                        return IO_ERROR;                              // RETURN
+                    }
+                    output = outputBuffer;
+                }
+            }
+        }
+// ```
+// We have now exited both the input and the "decode" loops.  `converter` may
+// still hold decoded output characters, and so we call `converter.endConvert`
+// to emit any retained output.  To guarantee correct behavior, we call this
+// method in an infinite loop, because it is possible that the retained output
+// can fill the output buffer.  In that case, we solve the problem by writing
+// the contents of the output buffer to `os` within the loop.  The most likely
+// case, however, is that `endConvert` will return 0, in which case we exit the
+// loop and write any data remaining in `outputBuffer` to `os`.  As above, if
+// `endConvert` fails, we exit the function with a negative return status.
+// ```
+        while (1) {
+
+            int numOut;
+
+            int more = converter.endConvert(
+                                        output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
+            if (more < 0) {
                 return DECODE_ERROR;                                  // RETURN
             }
 
             output += numOut;
-            input  += numIn;
 
-            if (output == outputEnd) {  // output buffer full; write data
-                os.write(outputBuffer, sizeof outputBuffer);
-                if (os.fail()) {
-                    return IO_ERROR;                                  // RETURN
-                }
-                output = outputBuffer;
+            if (!more) { // no more output
+                break;
             }
+
+            ASSERT(output == outputEnd);  // output buffer is full
+
+            os.write (outputBuffer, sizeof outputBuffer);  // write buffer
+            if (os.fail()) {
+                return IO_ERROR;                                      // RETURN
+            }
+            output = outputBuffer;
         }
+
+        if (output > outputBuffer) {
+            os.write (outputBuffer, output - outputBuffer);
+        }
+
+        return is.eof() && os.good() ? SUCCESS : IO_ERROR;
     }
+// ```
 
-    while (1) {
-
-        int numOut;
-
-        int more = converter.endConvert(output,
-                                        &numOut,
-                                        static_cast<int>(outputEnd - output));
-        if (more < 0) {
-            return DECODE_ERROR;                                      // RETURN
-        }
-
-        output += numOut;
-
-        if (!more) { // no more output
-            break;
-        }
-
-        ASSERT(output == outputEnd);  // output buffer is full
-
-        os.write (outputBuffer, sizeof outputBuffer);  // write buffer
-        if (os.fail()) {
-            return IO_ERROR;                                          // RETURN
-        }
-        output = outputBuffer;
-    }
-
-    if (output > outputBuffer) {
-        os.write (outputBuffer, output - outputBuffer);
-    }
-
-    return is.eof() && os.good() ? SUCCESS : IO_ERROR;
-}
-
-}  // close enterprise namespace
+}  // close namespace USAGE
 
                         // ---------------------------
                         // Functions Used by Fuzz Test
@@ -3837,34 +3903,18 @@ DEFINE_TEST_CASE(11)
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 
-///Usage Example
-///-------------
-// The following example shows how to use a `bdlde::Base64Decoder` object to
-// implement a function, `streamDecode`, that reads text from a
-// `bsl::istream`, decodes that text from base 64 representation, and writes
-// the decoded text to a `bsl::ostream`.  `streamDecoder` returns 0 on
-// success and a negative value if the input data could not be successfully
-// decoded or if there is an I/O error.
-// ```
-// streamencoder.h                      -*-C++-*-
-//
-// int streamEncoder(bsl::ostream& os, bsl::istream& is);
-//     // Read the entire contents of the specified input stream `is`, convert
-//     // the input base-64 encoding into plain text, and write the decoded
-//     // text to the specified output stream `os`.  Return 0 on success, and a
-//     // negative value otherwise.
-// ```
+        namespace TC = USAGE;
+
         const bsl::string  inStr(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
         bsl::istringstream inStream(inStr);
         bsl::stringstream  outStream;
         bsl::stringstream  backInStream;
 
-        ASSERT(0 == streamEncoder(outStream, inStream));
-        ASSERT(0 == streamDecoder(backInStream, outStream));
+        ASSERT(0 == TC::streamEncoder(outStream, inStream));
+        ASSERT(0 == TC::streamDecoder(backInStream, outStream));
 
         ASSERT(inStr == backInStream.str());
 }

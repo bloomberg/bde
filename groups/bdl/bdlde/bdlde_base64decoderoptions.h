@@ -26,6 +26,96 @@ BSLS_IDENT_PRAGMA_ONCE
 // Other configurations may be obtained by specifying arguments to the `custom`
 // class method, or by calling the setters after the object is created.
 //
+///Attributes
+///----------
+// ```
+// Name        Type
+// ----------  ----------------------
+// ignoreMode  Base64IgnoreMode::Enum
+// alphabet    Base64Alphabet::Enum
+// isPadded    bool
+// ```
+// * `ignoreMode`: which types of characters, if any, are to be ignored
+//    - `e_IGNORE_NONE` : no input is ignored, any invalid Base64 character in
+//       the input will produce an error
+//
+//    - `e_IGNORE_WHITESPACE` : whitespace in the input is ignored (normally
+//       whitespace characters are invalid Base64 input)
+//
+//    - `e_IGNORE_UNRECOGNIZED` : all invalid Base64 characters in the input
+//       are ignored -> (no invalid input errors)
+//
+// * `alphabet`: describes the set of available characters (or alphabet) that
+//    may appear in the resulting encoded text.  Note that Base64 encoding
+//    breaks binary data into 64 bit blocks, where the numeric values 0-61 are
+//    encoded using [0-9a-zA-Z], the alphabet only impacts how the values 62
+//    and 63 are represented:
+//    - `e_BASIC` : defined in standard RFC 2045 section 6.8, and should be the
+//      default choice, uses '+' and '/' for 62 and 63, respectively,
+//
+//    - `e_URL` : defined in RFC 4648 section 5, creates an encoded
+//      representation suitable for use in a URL or filename. The alphabet
+//      avoids characters like '/' that have a special meaning in the context
+//      of a URL or filename. Uses '-' and '_' for 62 and 63, respectively.
+//
+// * `isPadded` : `bool` : if true, indicates that output is padded with '='
+//    characters to a multiple of 4 characters.
+//
+///Pre-Defined Styles
+///------------------
+// The `Base64DecoderOptions' type provides a set of factory class methods,
+// `custom`, `mime`, `standard`, and `urlStafe` to easily create a
+// `Base64DecoderOptions` object having typical configuration parameters.
+// Always use these methods to create a 'Base64DecoderOptions' object, the
+// object is copyable, but the value constructor is private.
+//
+// | class method |       ignoreMode      | alphabet | isPadded |
+// | :----------- | :-------------------: | :------: | :------: |
+// | custom       |          any          |    any   |    any   |
+// | mime         | (e_IGNORE_WHITESPACE) | e_BASIC  |   true   |
+// | standard     |    (e_IGNORE_NONE)    | e_BASIC  |  (true)  |
+// | urlSafe      |    (e_IGNORE_NONE)    |   e_URL  |  (false) |
+//
+// Note that in the above table, values in parentheses -- e.g. (e_IGNORE_NONE)
+// indicate a default which may be overrideen by a user-supplied value.
+//
+///Standards References
+///--------------------
+// Below is some background on standards related to base64 encoding.
+//
+/// RFC-2045 - Mime Standard
+///- - - - - - - - - - - - -
+// The Base64 encoding originated as a way of encoding arbitrary binary data
+// into the body of ASCII-only emails.  This was the MIME standard,
+// https://datatracker.ietf.org/doc/html/rfc2045#section-6.8
+//
+// The `mime` factory function creates a Base64Encoder configured to the MIME
+// specification.
+//
+/// RFC-4648 - The Base16|32|64 Encoding Standard
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Eventually, Base64 encoding was separately standardized in RFC-4648:
+// https://datatracker.ietf.org/doc/html/rfc464
+//
+// This standard differs slightly from the original MIME Base64 encoding in
+// that the encoding doesn't have line feeds, and the padding at the end of a
+// line is optional.
+//
+// This standard provides a couple variants of the alphabet of characters that
+// can be used to encode the data.
+//
+// **Standard Alphabet** - the standard alphabet is described in
+// https://datatracker.ietf.org/doc/html/rfc4648#section-4.  A factory function
+// `standard` is provided to create a `Base64Encoder` configured to use the
+// standard alphabet.
+//
+// ** URL and Filename Safe Alphabet** - An alternative alphabet for encoding
+// data to be used in file names or URLs in
+// https://datatracker.ietf.org/doc/html/rfc4648#section-5.  A factory function
+// `urlSafe` is provided to create a `Base64Encoder` configured to use the URL
+// and filename safe alphabet.  This alphabet avoids characters, like '/', that
+// have a special meaning the the context of a file name or URL.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
