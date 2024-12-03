@@ -994,12 +994,59 @@ class map {
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Return a reference providing modifiable access to the mapped-value
+    /// associated with a key that is equivalent with the specified `key`; if
+    /// this `map` does not already contain a `value_type` object having an
+    /// equivalent key, first insert a new `value_type` object having the
+    /// move-inserted `key` and a default-constructed `VALUE` object, and
+    /// return a reference to the newly mapped (default) value.  This method
+    /// requires that the (template parameter) type `KEY` be `move-insertable`
+    /// into this map and the (template parameter) type `VALUE` be
+    /// `default-insertable` into this map (see {Requirements on `KEY` and
+    /// `VALUE`}).
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        typename add_lvalue_reference<VALUE>::type>::type
+    operator [](LOOKUP_KEY&& key)
+    {
+        return try_emplace(
+                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
+    }
+#endif
+
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with the specified `key`, if such an entry exists;
     /// otherwise, throw a `std::out_of_range` exception.  Note that this
     /// method may also throw a different kind of exception if the
     /// (user-supplied) comparator throws.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
+
+    /// Return a reference providing modifiable access to the
+    /// mapped-value associated with a key that is equivalent to the
+    /// specified `key`, if such an entry exists; otherwise, throw a
+    /// `std::out_of_range` exception.  Note that this method may also throw
+    /// a different kind of exception if the (user-supplied) comparator
+    /// throws.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        typename add_lvalue_reference<VALUE>::type>::type
+    at(const LOOKUP_KEY& key) {
+        iterator iter = find(key);
+        if (iter == end()) {
+            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                "map<...>::at(LOOKUP_KEY): invalid key value");
+        }
+        return iter->second;
+    }
 
     /// Return an iterator providing modifiable access to the first
     /// `value_type` object in the ordered sequence of `value_type` objects
@@ -1726,6 +1773,29 @@ class map {
     /// throws.
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
+
+    /// Return a reference providing non-modifiable access to the
+    /// mapped-value associated with a key that is equivalent to the
+    /// specified `key`, if such an entry exists; otherwise, throw a
+    /// `std::out_of_range` exception.  Note that this method may also throw
+    /// a different kind of exception if the (user-supplied) comparator
+    /// throws.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        typename add_lvalue_reference<const VALUE>::type>::type
+    at(const LOOKUP_KEY& key) const {
+
+        const_iterator iter = find(key);
+        if (iter == end()) {
+            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                          "map<...>::at(LOOKUP_KEY) const: invalid key value");
+        }
+        return iter->second;
+    }
 
     /// Return the key-comparison functor (or function pointer) used by this
     /// map; if a comparator was supplied at construction, return its value;

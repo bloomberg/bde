@@ -2472,7 +2472,10 @@ class HashTable {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const LOOKUP_KEY& lvalue = key;
-        const std::size_t hashCode = this->d_parameters.hashCodeForKey(lvalue);
+//         const std::size_t hashCode =
+//                           this->d_parameters.hashCodeForTransparentKey(lvalue);
+        const std::size_t hashCode =
+                          this->d_parameters.hashCodeForKey(lvalue);
 
         // Use the hint, if we can
         if (!hint
@@ -3098,6 +3101,19 @@ class HashTable_ImplParameters
     /// not declared as `const`.
     template <class DEDUCED_KEY>
     std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
+
+    /// Return the hash code for the specified `key` using a copy of the
+    /// hash functor supplied at construction.  Note that this function is
+    /// provided as a common way to resolve `const_cast` issues in the case
+    /// that the stored hash functor has a function call operator that is
+    /// not declared as `const`.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+         BloombergLP::bslmf::IsTransparentPredicate<HASHER, LOOKUP_KEY>::value,
+          std::size_t>::type
+    hashCodeForTransparentKey(const LOOKUP_KEY &key) const {
+        return originalHasher()(key);
+    }
 
     /// Return a reference offering non-modifiable access to the `hasher`
     /// functor owned by this object.
