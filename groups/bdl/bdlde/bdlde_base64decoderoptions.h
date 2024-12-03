@@ -43,7 +43,7 @@ BSLS_IDENT_PRAGMA_ONCE
 //       whitespace characters are invalid Base64 input)
 //
 //    - `e_IGNORE_UNRECOGNIZED` : all invalid Base64 characters in the input
-//       are ignored -> (no invalid input errors)
+//       are ignored (no invalid input errors)
 //
 // * `alphabet`: describes the set of available characters (or alphabet) that
 //    may appear in the resulting encoded text.  Note that Base64 encoding
