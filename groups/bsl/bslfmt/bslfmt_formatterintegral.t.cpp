@@ -182,7 +182,7 @@ int main(int argc, char **argv)
         //: 1 Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single string.
+        //: 1 Use test contexts to format a single integer.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -197,10 +197,10 @@ int main(int argc, char **argv)
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with
-// padding.
+// Suppose we want to test this formatter's ability to format an integer with
+// defined alignment and padding.
 //
-//..
+// ```
     bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
 
     bsl::formatter<int, char> f;
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
     mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
     ASSERT("2a***" == mfc.finalString());
-//..
+// ```
 //
       } break;
       case 1: {
@@ -460,6 +460,8 @@ int main(int argc, char **argv)
 
             const unsigned long long ULL_VALUE =
                                         static_cast<unsigned long long>(VALUE);
+            const unsigned char      UC_VALUE =
+                                             static_cast<unsigned char>(VALUE);
 
             testRuntimeCharParse<                   int>(LINE, FORMAT);
             testRuntimeCharParse<          unsigned int>(LINE, FORMAT);
@@ -467,6 +469,7 @@ int main(int argc, char **argv)
             testRuntimeCharParse<     unsigned long int>(LINE, FORMAT);
             testRuntimeCharParse<         long long int>(LINE, FORMAT);
             testRuntimeCharParse<unsigned long long int>(LINE, FORMAT);
+            testRuntimeCharParse<unsigned          char>(LINE, FORMAT);
 
             testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,   U_VALUE);
@@ -474,6 +477,7 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_CHAR_DATA; ++i) {
@@ -503,6 +507,7 @@ int main(int argc, char **argv)
 
             const unsigned long long ULL_VALUE  =
                                         static_cast<unsigned long long>(VALUE);
+            const unsigned char UC_VALUE = static_cast<unsigned char>(VALUE);
 
             testRuntimeWcharParse<                   int>(LINE, FORMAT);
             testRuntimeWcharParse<          unsigned int>(LINE, FORMAT);
@@ -510,12 +515,14 @@ int main(int argc, char **argv)
             testRuntimeWcharParse<     unsigned long int>(LINE, FORMAT);
             testRuntimeWcharParse<         long long int>(LINE, FORMAT);
             testRuntimeWcharParse<unsigned long long int>(LINE, FORMAT);
+            testRuntimeWcharParse<unsigned          char>(LINE, FORMAT);
 
             testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,   L_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 
         for (int i = 0; i < NUM_NEGATIVE_WCHAR_DATA; ++i) {

@@ -81,12 +81,6 @@ class FormatterSpecificationStandard_Enums
 
         // Character presentation types
         e_CHARACTER_CHARACTER,  // `c` (default for characters)
-        e_CHARACTER_BINARY,     // `b`
-        e_CHARACTER_BINARY_UC,  // `B`
-        e_CHARACTER_DECIMAL,    // `d`
-        e_CHARACTER_OCTAL,      // `o`
-        e_CHARACTER_HEX,        // `x`
-        e_CHARACTER_HEX_UC,     // `X`
         e_CHARACTER_ESCAPED,    // `?`
 
         // Boolean presentation type
@@ -471,25 +465,25 @@ void FormatterSpecificationStandard<t_CHAR>::parseType(
       case e_CATEGORY_CHARACTER: {
         switch (typeChar) {
           case 'b': {
-            outSpec->d_formatType = e_CHARACTER_BINARY;
+            outSpec->d_formatType = e_INTEGRAL_BINARY;
           } break;
           case 'B': {
-            outSpec->d_formatType = e_CHARACTER_BINARY_UC;
+            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
           } break;
           case 'c': {
             outSpec->d_formatType = e_CHARACTER_CHARACTER;
           } break;
           case 'd': {
-            outSpec->d_formatType = e_CHARACTER_DECIMAL;
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
           } break;
           case 'o': {
-            outSpec->d_formatType = e_CHARACTER_OCTAL;
+            outSpec->d_formatType = e_INTEGRAL_OCTAL;
           } break;
           case 'x': {
-            outSpec->d_formatType = e_CHARACTER_HEX;
+            outSpec->d_formatType = e_INTEGRAL_HEX;
           } break;
           case 'X': {
-            outSpec->d_formatType = e_CHARACTER_HEX_UC;
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
           } break;
           case '?': {
             outSpec->d_formatType = e_CHARACTER_ESCAPED;

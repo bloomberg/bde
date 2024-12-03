@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test pointer formatter's ability to a substring with
-// padding.
+// Suppose we want to test pointer formatter's ability to format a pointer with
+// defined alignment and padding.
 //
 // ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<6p", 1);
@@ -190,7 +190,12 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer<t_VALUE, t_CHAR>::format(
 
     // value
 
-    const int  maxValueSize = NFUtil::ToCharsMaxLength<UintPtr>::k_VALUE;
+    // `formatValue` is universal function used for formatting integer values,
+    // therefore it requires storage sufficient to accommodate any
+    // representation of the value (even if for pointers hex format is used).
+    // Binary representation takes up the most space.
+
+    const int  maxValueSize = NFUtil::ToCharsMaxLength<UintPtr, 2>::k_VALUE;
     t_CHAR     valueBuf[maxValueSize];
     t_CHAR    *valueBegin = valueBuf;
     t_CHAR    *valueEnd   = valueBuf;

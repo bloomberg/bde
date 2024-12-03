@@ -96,7 +96,7 @@ case 2: {
         //: 1 Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single string.
+        //: 1 Use test contexts to format a single pointer.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -111,10 +111,10 @@ case 2: {
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test pointer formatter's ability to a substring with
-// padding.
+// Suppose we want to test pointer formatter's ability to format a pointer with
+// defined alignment and padding.
 //
-//..
+// ```
     bslfmt::Formatter_MockParseContext<char> mpc("*<6p", 1);
 
     bsl::formatter<const void *, char> f;
@@ -127,7 +127,7 @@ case 2: {
     mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
     ASSERT("0x0***" == mfc.finalString());
-//..
+// ```
 //
       } break;
       case 1: {
@@ -153,51 +153,65 @@ case 2: {
         void           *nullPtr    = 0;
         bsl::nullptr_t  nullptrObj = bsl::nullptr_t();
 
+        // Unlike the other compilers (gcc and clang), msvc supports the
+        // specifications allowed in the `c++26` standard when compiling with
+        // the `c++20` flag.  This allows us to perform additional checking of
+        // our implementation.
+
+        const bool oracleRequired =
+#if  defined(BSLS_PLATFORM_CMP_MSVC) ||                                       \
+     defined(BSLS_LIBRARYFEATURES_HAS_CPP26_BASELINE_LIBRARY)
+                                    true;
+#else
+                                    false;
+#endif
+
         static const struct {
             int         d_line;        // source line number
             const char *d_format_p;    // format spec
             const char *d_expected_p;  // format
             void       *d_value_p;     // value to be formatted
+            bool        d_runOracle;   // should example be tested with oracle
         } CHAR_DATA[] = {
-            //LINE  FORMAT         EXPECTED            VALUE
-            //----  -----------    ---------------     -------
-            { L_,   "{:}",         "0x0",              nullPtr   },
-            { L_,   "{0:}",        "0x0",              nullPtr   },
-            { L_,   "{:p}",        "0x0",              nullPtr   },
-            { L_,   "{0:p}",       "0x0",              nullPtr   },
-      //    { L_,   "{:01}",       "0x0",              nullPtr   },  // gcc bug
-      //    { L_,   "{:012}",      "0x0000000000",     nullPtr   },  // gcc bug
-            { L_,   "{:<12}",      "0x0         ",     nullPtr   },
-            { L_,   "{:>12}",      "         0x0",     nullPtr   },
-            { L_,   "{:^12}",      "    0x0     ",     nullPtr   },
-      //    { L_,   "{:<012}",     "0x0         ",     nullPtr   },  // gcc bug
-      //    { L_,   "{:>012}",     "         0x0",     nullPtr   },  // gcc bug
-      //    { L_,   "{:^012}",     "    0x0     ",     nullPtr   },  // gcc bug
-            { L_,   "{:*<12}",     "0x0*********",     nullPtr   },
-            { L_,   "{:*>12}",     "*********0x0",     nullPtr   },
-            { L_,   "{:*^12}",     "****0x0*****",     nullPtr   },
-            { L_,   "{:*<12p}",    "0x0*********",     nullPtr   },
-            { L_,   "{:*>12p}",    "*********0x0",     nullPtr   },
-            { L_,   "{:*^12p}",    "****0x0*****",     nullPtr   },
+            //LINE  FORMAT       EXPECTED          VALUE      ORACLE
+            //----  -----------  ---------------   -------    --------------
+            { L_,   "{:}",       "0x0",            nullPtr,   true           },
+            { L_,   "{0:}",      "0x0",            nullPtr,   true           },
+            { L_,   "{:p}",      "0x0",            nullPtr,   true           },
+            { L_,   "{0:p}",     "0x0",            nullPtr,   true           },
+            { L_,   "{:01}",     "0x0",            nullPtr,   oracleRequired },
+            { L_,   "{:012}",    "0x0000000000",   nullPtr,   oracleRequired },
+            { L_,   "{:<12}",    "0x0         ",   nullPtr,   true           },
+            { L_,   "{:>12}",    "         0x0",   nullPtr,   true           },
+            { L_,   "{:^12}",    "    0x0     ",   nullPtr,   true           },
+            { L_,   "{:<012}",   "0x0         ",   nullPtr,   oracleRequired },
+            { L_,   "{:>012}",   "         0x0",   nullPtr,   oracleRequired },
+            { L_,   "{:^012}",   "    0x0     ",   nullPtr,   oracleRequired },
+            { L_,   "{:*<12}",   "0x0*********",   nullPtr,   true           },
+            { L_,   "{:*>12}",   "*********0x0",   nullPtr,   true           },
+            { L_,   "{:*^12}",   "****0x0*****",   nullPtr,   true           },
+            { L_,   "{:*<12p}",  "0x0*********",   nullPtr,   true           },
+            { L_,   "{:*>12p}",  "*********0x0",   nullPtr,   true           },
+            { L_,   "{:*^12p}",  "****0x0*****",   nullPtr,   true           },
 
-            { L_,   "{:}",         "0x13579bdf",       ptr       },
-            { L_,   "{0:}",        "0x13579bdf",       ptr       },
-            { L_,   "{:p}",        "0x13579bdf",       ptr       },
-            { L_,   "{0:p}",       "0x13579bdf",       ptr       },
-      //    { L_,   "{:01}",       "0x13579bdf",       ptr       },  // gcc bug
-      //    { L_,   "{:012}",      "0x0013579bdf",     ptr       },  // gcc bug
-            { L_,   "{:<12}",      "0x13579bdf  ",     ptr       },
-            { L_,   "{:>12}",      "  0x13579bdf",     ptr       },
-            { L_,   "{:^12}",      " 0x13579bdf ",     ptr       },
-      //    { L_,   "{:<012}",     "0x13579bdf  ",     ptr       },  // gcc bug
-      //    { L_,   "{:>012}",     "  0x13579bdf",     ptr       },  // gcc bug
-      //    { L_,   "{:^012}",     " 0x13579bdf ",     ptr       },  // gcc bug
-            { L_,   "{:*<12}",     "0x13579bdf**",     ptr       },
-            { L_,   "{:*>12}",     "**0x13579bdf",     ptr       },
-            { L_,   "{:*^12}",     "*0x13579bdf*",     ptr       },
-            { L_,   "{:*<12p}",    "0x13579bdf**",     ptr       },
-            { L_,   "{:*>12p}",    "**0x13579bdf",     ptr       },
-            { L_,   "{:*^12p}",    "*0x13579bdf*",     ptr       },
+            { L_,   "{:}",       "0x13579bdf",     ptr,       true           },
+            { L_,   "{0:}",      "0x13579bdf",     ptr,       true           },
+            { L_,   "{:p}",      "0x13579bdf",     ptr,       true           },
+            { L_,   "{0:p}",     "0x13579bdf",     ptr,       true           },
+            { L_,   "{:01}",     "0x13579bdf",     ptr,       oracleRequired },
+            { L_,   "{:012}",    "0x0013579bdf",   ptr,       oracleRequired },
+            { L_,   "{:<12}",    "0x13579bdf  ",   ptr,       true           },
+            { L_,   "{:>12}",    "  0x13579bdf",   ptr,       true           },
+            { L_,   "{:^12}",    " 0x13579bdf ",   ptr,       true           },
+            { L_,   "{:<012}",   "0x13579bdf  ",   ptr,       oracleRequired },
+            { L_,   "{:>012}",   "  0x13579bdf",   ptr,       oracleRequired },
+            { L_,   "{:^012}",   " 0x13579bdf ",   ptr,       oracleRequired },
+            { L_,   "{:*<12}",   "0x13579bdf**",   ptr,       true           },
+            { L_,   "{:*>12}",   "**0x13579bdf",   ptr,       true           },
+            { L_,   "{:*^12}",   "*0x13579bdf*",   ptr,       true           },
+            { L_,   "{:*<12p}",  "0x13579bdf**",   ptr,       true           },
+            { L_,   "{:*>12p}",  "**0x13579bdf",   ptr,       true           },
+            { L_,   "{:*^12p}",  "*0x13579bdf*",   ptr,       true           },
         };
 
         enum { NUM_CHAR_DATA = sizeof CHAR_DATA / sizeof *CHAR_DATA };
@@ -208,46 +222,47 @@ case 2: {
             const wchar_t *d_format_p;    // format spec
             const wchar_t *d_expected_p;  // format
             void          *d_value_p;     // value to be formatted
+            bool           d_runOracle;   // should be tested with oracle
         } WCHAR_DATA[] = {
-            //LINE  FORMAT          EXPECTED             VALUE
-            //----  -----------     ---------------      -------
-            { L_,   L"{:}",         L"0x0",              nullPtr   },
-            { L_,   L"{0:}",        L"0x0",              nullPtr   },
-            { L_,   L"{:p}",        L"0x0",              nullPtr   },
-            { L_,   L"{0:p}",       L"0x0",              nullPtr   },
-      //    { L_,   L"{:01}",       L"0x0",              nullPtr   },// gcc bug
-      //    { L_,   L"{:012}",      L"0x0000000000",     nullPtr   },// gcc bug
-            { L_,   L"{:<12}",      L"0x0         ",     nullPtr   },
-            { L_,   L"{:>12}",      L"         0x0",     nullPtr   },
-            { L_,   L"{:^12}",      L"    0x0     ",     nullPtr   },
-      //    { L_,   L"{:<012}",     L"0x0         ",     nullPtr   },// gcc bug
-      //    { L_,   L"{:>012}",     L"         0x0",     nullPtr   },// gcc bug
-      //    { L_,   L"{:^012}",     L"    0x0     ",     nullPtr   },// gcc bug
-            { L_,   L"{:*<12}",     L"0x0*********",     nullPtr   },
-            { L_,   L"{:*>12}",     L"*********0x0",     nullPtr   },
-            { L_,   L"{:*^12}",     L"****0x0*****",     nullPtr   },
-            { L_,   L"{:*<12p}",    L"0x0*********",     nullPtr   },
-            { L_,   L"{:*>12p}",    L"*********0x0",     nullPtr   },
-            { L_,   L"{:*^12p}",    L"****0x0*****",     nullPtr   },
+            //LINE  FORMAT       EXPECTED          VALUE      ORACLE
+            //----  -----------  ---------------   -------    --------------
+            { L_,   L"{:}",      L"0x0",           nullPtr,   true           },
+            { L_,   L"{0:}",     L"0x0",           nullPtr,   true           },
+            { L_,   L"{:p}",     L"0x0",           nullPtr,   true           },
+            { L_,   L"{0:p}",    L"0x0",           nullPtr,   true           },
+            { L_,   L"{:01}",    L"0x0",           nullPtr,   oracleRequired },
+            { L_,   L"{:012}",   L"0x0000000000",  nullPtr,   oracleRequired },
+            { L_,   L"{:<12}",   L"0x0         ",  nullPtr,   true           },
+            { L_,   L"{:>12}",   L"         0x0",  nullPtr,   true           },
+            { L_,   L"{:^12}",   L"    0x0     ",  nullPtr,   true           },
+            { L_,   L"{:<012}",  L"0x0         ",  nullPtr,   oracleRequired },
+            { L_,   L"{:>012}",  L"         0x0",  nullPtr,   oracleRequired },
+            { L_,   L"{:^012}",  L"    0x0     ",  nullPtr,   oracleRequired },
+            { L_,   L"{:*<12}",  L"0x0*********",  nullPtr,   true           },
+            { L_,   L"{:*>12}",  L"*********0x0",  nullPtr,   true           },
+            { L_,   L"{:*^12}",  L"****0x0*****",  nullPtr,   true           },
+            { L_,   L"{:*<12p}", L"0x0*********",  nullPtr,   true           },
+            { L_,   L"{:*>12p}", L"*********0x0",  nullPtr,   true           },
+            { L_,   L"{:*^12p}", L"****0x0*****",  nullPtr,   true           },
 
-            { L_,   L"{:}",         L"0x13579bdf",       ptr       },
-            { L_,   L"{0:}",        L"0x13579bdf",       ptr       },
-            { L_,   L"{:p}",        L"0x13579bdf",       ptr       },
-            { L_,   L"{0:p}",       L"0x13579bdf",       ptr       },
-      //    { L_,   L"{:01}",       L"0x13579bdf",       ptr       },// gcc bug
-      //    { L_,   L"{:012}",      L"0x0013579bdf",     ptr       },// gcc bug
-            { L_,   L"{:<12}",      L"0x13579bdf  ",     ptr       },
-            { L_,   L"{:>12}",      L"  0x13579bdf",     ptr       },
-            { L_,   L"{:^12}",      L" 0x13579bdf ",     ptr       },
-      //    { L_,   L"{:<012}",     L"0x13579bdf  ",     ptr       },// gcc bug
-      //    { L_,   L"{:>012}",     L"  0x13579bdf",     ptr       },// gcc bug
-      //    { L_,   L"{:^012}",     L" 0x13579bdf ",     ptr       },// gcc bug
-            { L_,   L"{:*<12}",     L"0x13579bdf**",     ptr       },
-            { L_,   L"{:*>12}",     L"**0x13579bdf",     ptr       },
-            { L_,   L"{:*^12}",     L"*0x13579bdf*",     ptr       },
-            { L_,   L"{:*<12p}",    L"0x13579bdf**",     ptr       },
-            { L_,   L"{:*>12p}",    L"**0x13579bdf",     ptr       },
-            { L_,   L"{:*^12p}",    L"*0x13579bdf*",     ptr       },
+            { L_,   L"{:}",      L"0x13579bdf",    ptr,       true           },
+            { L_,   L"{0:}",     L"0x13579bdf",    ptr,       true           },
+            { L_,   L"{:p}",     L"0x13579bdf",    ptr,       true           },
+            { L_,   L"{0:p}",    L"0x13579bdf",    ptr,       true           },
+            { L_,   L"{:01}",    L"0x13579bdf",    ptr,       oracleRequired },
+            { L_,   L"{:012}",   L"0x0013579bdf",  ptr,       oracleRequired },
+            { L_,   L"{:<12}",   L"0x13579bdf  ",  ptr,       true           },
+            { L_,   L"{:>12}",   L"  0x13579bdf",  ptr,       true           },
+            { L_,   L"{:^12}",   L" 0x13579bdf ",  ptr,       true           },
+            { L_,   L"{:<012}",  L"0x13579bdf  ",  ptr,       oracleRequired },
+            { L_,   L"{:>012}",  L"  0x13579bdf",  ptr,       oracleRequired },
+            { L_,   L"{:^012}",  L" 0x13579bdf ",  ptr,       oracleRequired },
+            { L_,   L"{:*<12}",  L"0x13579bdf**",  ptr,       true           },
+            { L_,   L"{:*>12}",  L"**0x13579bdf",  ptr,       true           },
+            { L_,   L"{:*^12}",  L"*0x13579bdf*",  ptr,       true           },
+            { L_,   L"{:*<12p}", L"0x13579bdf**",  ptr,       true           },
+            { L_,   L"{:*>12p}", L"**0x13579bdf",  ptr,       true           },
+            { L_,   L"{:*^12p}", L"*0x13579bdf*",  ptr,       true           },
         };
 
         enum { NUM_WCHAR_DATA = sizeof WCHAR_DATA / sizeof *WCHAR_DATA };
@@ -255,11 +270,12 @@ case 2: {
         if (verbose) printf("\tTesting runtime processing.\n");
 
         for (int i = 0; i < NUM_CHAR_DATA; ++i) {
-            const int   LINE     = CHAR_DATA[i].d_line;
-            const char *FORMAT   = CHAR_DATA[i].d_format_p;
-            const char *EXPECTED = CHAR_DATA[i].d_expected_p;
-                  void *VALUE    = CHAR_DATA[i].d_value_p;
-            const void *CVALUE   = CHAR_DATA[i].d_value_p;
+            const int   LINE            = CHAR_DATA[i].d_line;
+            const char *FORMAT          = CHAR_DATA[i].d_format_p;
+            const char *EXPECTED        = CHAR_DATA[i].d_expected_p;
+                  void *VALUE           = CHAR_DATA[i].d_value_p;
+            const void *CVALUE          = CHAR_DATA[i].d_value_p;
+            const bool  ORACLE_REQUIRED = CHAR_DATA[i].d_runOracle;
 
             bsl::string message;
 
@@ -269,23 +285,23 @@ case 2: {
 
             int dummyArg = 0;
             rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
-                                                                     &message,
-                                                                     EXPECTED,
-                                                                     true,
-                                                                     FORMAT,
-                                                                     VALUE,
-                                                                     dummyArg,
-                                                                     dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               VALUE,
+                                                               dummyArg,
+                                                               dummyArg);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
-                                                                     &message,
-                                                                     EXPECTED,
-                                                                     true,
-                                                                     FORMAT,
-                                                                     CVALUE,
-                                                                     dummyArg,
-                                                                     dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               CVALUE,
+                                                               dummyArg,
+                                                               dummyArg);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             if (!VALUE) {
@@ -293,23 +309,24 @@ case 2: {
                 // a pointer having null value.
 
                 rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
-                                                                    &message,
-                                                                    EXPECTED,
-                                                                    true,
-                                                                    FORMAT,
-                                                                    nullptrObj,
-                                                                    dummyArg,
-                                                                    dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               nullptrObj,
+                                                               dummyArg,
+                                                               dummyArg);
                 ASSERTV(LINE, FORMAT, message.c_str(), rv);
             }
         }
 
         for (int i = 0; i < NUM_WCHAR_DATA; ++i) {
-            const int      LINE     = WCHAR_DATA[i].d_line;
-            const wchar_t *FORMAT   = WCHAR_DATA[i].d_format_p;
-            const wchar_t *EXPECTED = WCHAR_DATA[i].d_expected_p;
-                  void    *VALUE    = WCHAR_DATA[i].d_value_p;
-            const void    *CVALUE   = WCHAR_DATA[i].d_value_p;
+            const int      LINE            = WCHAR_DATA[i].d_line;
+            const wchar_t *FORMAT          = WCHAR_DATA[i].d_format_p;
+            const wchar_t *EXPECTED        = WCHAR_DATA[i].d_expected_p;
+                  void    *VALUE           = WCHAR_DATA[i].d_value_p;
+            const void    *CVALUE          = WCHAR_DATA[i].d_value_p;
+            const bool     ORACLE_REQUIRED = WCHAR_DATA[i].d_runOracle;
 
             bsl::string message;
 
@@ -319,23 +336,23 @@ case 2: {
 
             int dummyArg = 0;
             rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
-                                                                     &message,
-                                                                     EXPECTED,
-                                                                     true,
-                                                                     FORMAT,
-                                                                     VALUE,
-                                                                     dummyArg,
-                                                                     dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               VALUE,
+                                                               dummyArg,
+                                                               dummyArg);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
-                                                                     &message,
-                                                                     EXPECTED,
-                                                                     true,
-                                                                     FORMAT,
-                                                                     CVALUE,
-                                                                     dummyArg,
-                                                                     dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               CVALUE,
+                                                               dummyArg,
+                                                               dummyArg);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             if (!VALUE) {
@@ -343,13 +360,13 @@ case 2: {
                 // a pointer having null value.
 
                 rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
-                                                                    &message,
-                                                                    EXPECTED,
-                                                                    true,
-                                                                    FORMAT,
-                                                                    nullptrObj,
-                                                                    dummyArg,
-                                                                    dummyArg);
+                                                               &message,
+                                                               EXPECTED,
+                                                               ORACLE_REQUIRED,
+                                                               FORMAT,
+                                                               nullptrObj,
+                                                               dummyArg,
+                                                               dummyArg);
                 ASSERTV(LINE, FORMAT, message.c_str(), rv);
             }
         }

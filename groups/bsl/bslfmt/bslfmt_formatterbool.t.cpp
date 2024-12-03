@@ -128,7 +128,7 @@ int main(int argc, char **argv)
         //: 1 Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single string.
+        //: 1 Use test contexts to format a single boolean.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -143,10 +143,10 @@ int main(int argc, char **argv)
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with
-// padding.
+// Suppose we want to test this formatter's ability to format a boolean with
+// defined alignment and padding.
 //
-//..
+// ```
     bslfmt::Formatter_MockParseContext<char> mpc("*<6s", 1);
 
     bsl::formatter<bool, char> f;
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
     ASSERT("false*" == mfc.finalString());
-//..
+// ```
 //
       } break;
       case 1: {

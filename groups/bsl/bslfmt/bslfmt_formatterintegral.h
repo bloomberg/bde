@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with padding
-//  padding.
+// Suppose we want to test this formatter's ability to format an integer with
+// defined alignment and padding.
 //
 // ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
@@ -121,6 +121,24 @@ struct FormatterIntegral_Category<bsl::nullptr_t> {
     category();
 };
 
+/// This is a specialization of `FormatterIntegral_Category` template for
+/// `char`.
+template <>
+struct FormatterIntegral_Category<char> {
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+    category();
+};
+
+/// This is a specialization of `FormatterIntegral_Category` template for
+/// `wchar_t`.
+template <>
+struct FormatterIntegral_Category<wchar_t> {
+    static
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+    category();
+};
+
                          // ============================
                          // struct FormatterIntegralBase
                          // ============================
@@ -201,14 +219,14 @@ struct FormatterIntegralBase {
     const FormatterSpecificationStandard<t_CHAR>& specification() const ;
 };
 
-                         // =======================
-                         // struct FormatterInteger
-                         // =======================
+                         // ========================
+                         // struct FormatterIntegral
+                         // ========================
 
 /// This type implements the formatter logic specific to integer types other
 /// than character, boolean and pointer type.
 template <class t_VALUE, class t_CHAR>
-struct FormatterInteger : public FormatterIntegralBase<t_VALUE, t_CHAR> {
+struct FormatterIntegral : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -232,58 +250,65 @@ namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
 /// Partial specialization of the `bsl::formatter` template for the type
+/// `unsigned char`.
+template <class t_CHAR>
+struct formatter<unsigned char, t_CHAR>
+: BloombergLP::bslfmt::FormatterIntegral<unsigned char, t_CHAR> {
+};
+
+/// Partial specialization of the `bsl::formatter` template for the type
 /// `short int`.
 template <class t_CHAR>
 struct formatter<short, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<short, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<short, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned short int`.
 template <class t_CHAR>
 struct formatter<unsigned short, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<unsigned short, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<unsigned short, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type `int`.
 template <class t_CHAR>
 struct formatter<int, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<int, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<int, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned int`.
 template <class t_CHAR>
 struct formatter<unsigned, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<unsigned, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<unsigned, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `long int`.
 template <class t_CHAR>
 struct formatter<long, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned long int`.
 template <class t_CHAR>
 struct formatter<unsigned long, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<unsigned long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<unsigned long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `long long int`.
 template <class t_CHAR>
 struct formatter<long long, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<long long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<long long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned long long int`.
 template <class t_CHAR>
 struct formatter<unsigned long long, t_CHAR>
-: BloombergLP::bslfmt::FormatterInteger<unsigned long long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral<unsigned long long, t_CHAR> {
 };
 
 }  // close namespace bsl
@@ -336,6 +361,19 @@ FormatterIntegral_Category<bsl::nullptr_t>::category()
     return FormatterSpecificationStandard_Enums::e_CATEGORY_POINTER;
 }
 
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+FormatterIntegral_Category<char>::category()
+{
+    return FormatterSpecificationStandard_Enums::e_CATEGORY_CHARACTER;
+}
+
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard_Enums::Category
+FormatterIntegral_Category<wchar_t>::category()
+{
+    return FormatterSpecificationStandard_Enums::e_CATEGORY_CHARACTER;
+}
                          // ---------------------------
                          // class FormatterIntegralBase
                          // ---------------------------
@@ -369,6 +407,9 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
         BSLS_THROW(
                 bsl::format_error("Formatting L specifier not supported"));
     }
+
+    if (d_spec.formatType() == FSS::e_CHARACTER_ESCAPED)
+        BSLS_THROW(bsl::format_error("Character escaping not supported"));
 
     return parseContext.begin();
 }
@@ -435,7 +476,7 @@ char *FormatterIntegralBase<t_VALUE, t_CHAR>::formatPrefix(
             }
           } break;
           case FSS::e_INTEGRAL_DECIMAL:
-          case FSS::e_INTEGRAL_CHARACTER:{  // none or `d`
+          case FSS::e_INTEGRAL_CHARACTER: {  // none or `d`
             // No prefix.
           } break;
           case FSS::e_INTEGRAL_OCTAL: {  // `o`
@@ -519,8 +560,13 @@ t_CHAR *FormatterIntegralBase<t_VALUE, t_CHAR>::formatValue(
       }
     }
 
+    // We want to make sure that we have enough space to accommodate any
+    // representation of the `value`.  Binary representation takes up the most
+    // space. Unfortunately we can not use `valueBase` value her, because
+    // constant expression is required.
+
     const int maxValueSize =
-                        NFUtil::ToCharsMaxLength<t_ACTUAL_VALUE_TYPE>::k_VALUE;
+                     NFUtil::ToCharsMaxLength<t_ACTUAL_VALUE_TYPE, 2>::k_VALUE;
     BSLS_ASSERT(maxValueSize <= storageSize);
 
     char  valueBuf[maxValueSize];
@@ -609,8 +655,9 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
                 // types.
 
                 typedef FormatterSpecificationStandard_Enums FSSEnums;
-                if (FSSEnums::e_INTEGRAL_CHARACTER == d_spec.formatType() ||
-                    FSSEnums::e_BOOLEAN_STRING     == d_spec.formatType()) {
+                if (FSSEnums::e_INTEGRAL_CHARACTER  == d_spec.formatType() ||
+                    FSSEnums::e_CHARACTER_CHARACTER == d_spec.formatType() ||
+                    FSSEnums::e_BOOLEAN_STRING      == d_spec.formatType()) {
                     leftPadFillerCopiesNum  = 0;
                     rightPadFillerCopiesNum = totalPadDisplayWidth;
                 }
@@ -687,7 +734,7 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
 typename t_FORMAT_CONTEXT::iterator
-FormatterInteger<t_VALUE, t_CHAR>::format(
+FormatterIntegral<t_VALUE, t_CHAR>::format(
                                          t_VALUE           value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
@@ -698,7 +745,11 @@ FormatterInteger<t_VALUE, t_CHAR>::format(
     char      *prefixBegin = prefixBuf;
     char      *prefixEnd = this->formatPrefix(prefixBuf, maxPrefixSize, value);
 
-    const int  maxValueSize = NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE;
+    // We want to make sure that we have enough space to accommodate any
+    // representation of the `value`.  Binary representation takes up the most
+    // space.
+
+    const int  maxValueSize = NFUtil::ToCharsMaxLength<t_VALUE, 2>::k_VALUE;
     t_CHAR     valueBuf[maxValueSize];
     t_CHAR    *valueBegin = valueBuf;
     t_CHAR    *valueEnd   = this->formatValue(valueBuf, maxValueSize, value);

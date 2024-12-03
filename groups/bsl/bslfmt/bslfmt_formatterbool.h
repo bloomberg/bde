@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to test this formatter's ability to a substring with
-// padding.
+// Suppose we want to test this formatter's ability to format a boolean with
+// defined alignment and padding.
 //
 // ```
 //  bslfmt::Formatter_MockParseContext<char> mpc("*<6s", 1);
@@ -146,10 +146,15 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool<t_CHAR>::format(
     char      *prefixBegin = prefixBuf;
     char      *prefixEnd = prefixBuf;
 
-    const int  maxValueSize =
-                         NFUtil::ToCharsMaxLength<unsigned char>::k_VALUE > 5
-                             ? NFUtil::ToCharsMaxLength<unsigned char>::k_VALUE
-                             : 5;
+    // We want to make sure that we have enough space to accommodate any
+    // representation of the `value`.  In case of `unsigned char`
+    // it should be large enough for binary representation, in case of string
+    // we should be able to fit word `false`, which is 5 characters long.
+
+    const int maxValueSize =
+                      NFUtil::ToCharsMaxLength<unsigned char, 2>::k_VALUE > 5
+                          ? NFUtil::ToCharsMaxLength<unsigned char, 2>::k_VALUE
+                          : 5;
     t_CHAR     valueBuf[maxValueSize];
     t_CHAR    *valueBegin = valueBuf;
     t_CHAR    *valueEnd = valueBuf;

@@ -200,7 +200,6 @@ struct Formatter_CharUtils<char> {
     }
 };
 
-
 template <>
 struct Formatter_CharUtils<wchar_t> {
     // CLASS METHODS
@@ -210,9 +209,9 @@ struct Formatter_CharUtils<wchar_t> {
                                      t_ITERATOR  out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
-            valuetype;
-        BSLMF_ASSERT((bsl::is_same<valuetype, wchar_t>::value) ||
-                     (bsl::is_same<valuetype, void   >::value));
+            IteratorValueType;
+        BSLMF_ASSERT((bsl::is_same<IteratorValueType, wchar_t>::value) ||
+                     (bsl::is_same<IteratorValueType, void   >::value));
 
         static const std::ctype<wchar_t>& ct =
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
@@ -225,17 +224,17 @@ struct Formatter_CharUtils<wchar_t> {
     }
 
     template <class t_ITERATOR>
-    static t_ITERATOR outputFromChar(const char v, t_ITERATOR out)
+    static t_ITERATOR outputFromChar(const char value, t_ITERATOR out)
     {
         typedef typename bsl::iterator_traits<t_ITERATOR>::value_type
-            valuetype;
-        BSLMF_ASSERT((bsl::is_same<valuetype, wchar_t>::value) ||
-                     (bsl::is_same<valuetype, void   >::value));
+            IteratorValueType;
+        BSLMF_ASSERT((bsl::is_same<IteratorValueType, wchar_t>::value) ||
+                     (bsl::is_same<IteratorValueType, void   >::value));
 
         static const std::ctype<wchar_t>& ct =
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
 
-        *out++ = ct.widen(v);
+        *out++ = ct.widen(value);
 
         return out;
     }
