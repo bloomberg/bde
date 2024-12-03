@@ -40,9 +40,11 @@ BSLS_IDENT_PRAGMA_ONCE
 //    '\n' characters are output in the Base64 text.
 //
 // * `alphabet`: describes the set of available characters (or alphabet) that
-//    may appear in the resulting encoded text.  Numerals and upper &
-//    lower case alphabetical characters encode values 0-61, this enum
-//    determines how values 62 and 63 are represented:
+//    may appear in the resulting encoded text.  Note that Base64 encoding
+//    breaks binary data into 64 bit blocks, where the numeric values 0-61 are
+//    encoded using [0-9a-zA-Z], the alphabet only impacts how the values 62
+//    and 63 are represented:
+//
 //    - `e_BASIC` : defined in standard RFC 2045 section 6.8, and should be the
 //      default choice, uses '+' and '/' for 62 and 63, respectively,
 //
