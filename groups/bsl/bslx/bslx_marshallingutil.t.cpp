@@ -3397,8 +3397,8 @@ int main(int argc, char *argv[]) {
             //--  --------                  -------------------
             { L_,  0,                       "\x00"                      },
             { L_,  1,                       "\x01"                      },
-            { L_, -1,                       "\xFF"                      },
-            { L_, -2,                       "\xFE"                      },
+            { L_,  static_cast<T>(-1),      "\xFF"                      },
+            { L_,  static_cast<T>(-2),      "\xFE"                      },
             { L_,  0x71,                    "\x71"                      },
             { L_,  static_cast<T>(0x8C),    "\x8C"                      },
         };
@@ -3441,7 +3441,7 @@ int main(int argc, char *argv[]) {
                 MarshallingUtil::putInt8(buffer + i, unsignedNumber);
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
-                static const T INITIAL_VALUES[] = { -99, +99 };
+                static const T INITIAL_VALUES[] = {static_cast<T>(-99), +99};
 
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);

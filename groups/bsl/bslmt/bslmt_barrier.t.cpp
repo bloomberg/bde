@@ -288,13 +288,13 @@ extern "C" void *a(void *arg)
 
 extern "C" void *b(void *arg)
 {
-    char fillers[] = { -1, 0, 1};
+    int fillers[] = { -1, 0, 1};
 
     Control *c = (Control *)arg;
 
     void *mem = &c->d_b2;
     for (int i=0; i<c->d_numIterations; i++) {
-        char filler = fillers[i%3];
+        int filler = fillers[i%3];
 
         c->d_b1.wait();
         c->d_b2.wait();

@@ -2981,7 +2981,7 @@ int main(int argc, char *argv[])
                 { __LINE__,  SCHAR_MAX, 0,     "SCHAR_MAX" },
                 { __LINE__,  SCHAR_MIN, 0,     "SCHAR_MIN" },
                 { __LINE__,  '\x50',    0,     "positive signed character" },
-                { __LINE__,  '\xcc',    0,     "negative signed character" },
+                { __LINE__,  -52,       0,     "negative signed character" },
             };
             TestDriver::testCase3<signed char>(&output,
                                                DATA,

@@ -362,6 +362,9 @@ const char BLOOMBERG_NEWS[] =
 "To contact the writer of this column: Chet Currier in New York\n"
 "(1) (212) 318-2605 or ccurrier@bloomberg.net.";
 
+// Invalid 'char' value
+const char IV = static_cast<char>(-1);
+
 // ============================================================================
 //                           TEST HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
@@ -780,7 +783,7 @@ bool isState(bdlde::Base64Encoder *object, int state)
 
     int enabled = globalAssertsEnabled;
 
-    char b[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+    char b[8] = {IV, IV, IV, IV, IV, IV, IV, IV};
     int  numOut = -1;
     int  numIn = -1;
 
@@ -807,10 +810,10 @@ bool isState(bdlde::Base64Encoder *object, int state)
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = (char)-1 == b[0];                     ASSERT(d0 || !enabled);
-        bool d1 = (char)-1 == b[1];                     ASSERT(d1 || !enabled);
-        bool d2 = (char)-1 == b[2];                     ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -837,7 +840,7 @@ bool isState(bdlde::Base64Encoder *object, int state)
         bool d0 = '=' != b[0];                          ASSERT(d0 || !enabled);
         bool d1 = '=' == b[1];                          ASSERT(d1 || !enabled);
         bool d2 = '=' == b[2];                          ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -863,8 +866,8 @@ bool isState(bdlde::Base64Encoder *object, int state)
 
         bool d0 = '=' != b[0];                          ASSERT(d0 || !enabled);
         bool d1 = '=' == b[1];                          ASSERT(d1 || !enabled);
-        bool d2 = (char)-1 == b[2];                     ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -888,10 +891,10 @@ bool isState(bdlde::Base64Encoder *object, int state)
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = (char)-1 == b[0];                     ASSERT(d0 || !enabled);
-        bool d1 = (char)-1 == b[1];                     ASSERT(d1 || !enabled);
-        bool d2 = (char)-1 == b[2];                     ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -914,10 +917,10 @@ bool isState(bdlde::Base64Encoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = (char)-1 == b[0];                     ASSERT(d0 || !enabled);
-        bool d1 = (char)-1 == b[1];                     ASSERT(d1 || !enabled);
-        bool d2 = (char)-1 == b[2];                     ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -940,10 +943,10 @@ bool isState(bdlde::Base64Encoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = (char)-1 == b[0];                     ASSERT(d0 || !enabled);
-        bool d1 = (char)-1 == b[1];                     ASSERT(d1 || !enabled);
-        bool d2 = (char)-1 == b[2];                     ASSERT(d2 || !enabled);
-        bool d3 = (char)-1 == b[3];                     ASSERT(d3 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
+        bool d3 = IV == b[3];                           ASSERT(d3 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2 && d3;
@@ -1106,22 +1109,22 @@ static const bool CHARACTERS_THAT_CAN_BE_IGNORED_IN_RELAXED_MODE[256] = {
 static const char DEC[256] = {
     //  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 00
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 10
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,  // 20
-       52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,  // 30
-       -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,  // 40
-       15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,  // 50
-       -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,  // 60
-       41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,  // 70
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 80
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 90
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // A0
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // B0
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // C0
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // D0
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // E0
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // F0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // 00
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // 10
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, 62, IV, IV, IV, 63,  // 20
+       52, 53, 54, 55, 56, 57, 58, 59, 60, 61, IV, IV, IV, IV, IV, IV,  // 30
+       IV,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,  // 40
+       15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, IV, IV, IV, IV, IV,  // 50
+       IV, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,  // 60
+       41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, IV, IV, IV, IV, IV,  // 70
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // 80
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // 90
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // A0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // B0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // C0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // D0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // E0
+       IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV, IV,  // F0
 };
 
 const bool *const u_Base64Decoder_Test::s_ignorableStrict_p =
@@ -4246,7 +4249,7 @@ int main(int argc, char *argv[])
                 ASSERT(isPadded == obj.options().isPadded());
                 ASSERT(isPadded == obj.isPadded());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -4290,7 +4293,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(1 == obj.outputLength());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b + 1, &numOut);
 
@@ -4334,7 +4337,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(2 == obj.outputLength());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b + 2, &numOut);
 
@@ -4352,10 +4355,10 @@ int main(int argc, char *argv[])
                 ASSERT((isPadded ? 4 : 3) == obj.outputLength());
                 ASSERT(0 == result);
                 ASSERT((isPadded ? 2 : 1) == numOut);
-                ASSERT((char)-1 == b[0]);
-                ASSERT((char)-1 == b[1]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
                 ASSERT('A' == b[2]);
-                ASSERT((isPadded ? '=' : (char)-1) == b[3]);
+                ASSERT((isPadded ? '=' : IV) == b[3]);
             }
 
             if (verbose) cout << "\tState 3." << endl;
@@ -4378,7 +4381,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(4 == obj.outputLength());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -4396,10 +4399,10 @@ int main(int argc, char *argv[])
                 ASSERT(4 == obj.outputLength());
                 ASSERT(0 == result);
                 ASSERT(0 == numOut);
-                ASSERT((char)-1 == b[0]);
-                ASSERT((char)-1 == b[1]);
-                ASSERT((char)-1 == b[2]);
-                ASSERT((char)-1 == b[3]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
             }
 
             if (verbose) cout << "\te_DONE_STATE." << endl;
@@ -4422,7 +4425,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -4440,10 +4443,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.outputLength());
                 ASSERT(-1 == result);
                 ASSERT(0 == numOut);
-                ASSERT((char)-1 == b[0]);
-                ASSERT((char)-1 == b[1]);
-                ASSERT((char)-1 == b[2]);
-                ASSERT((char)-1 == b[3]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
             }
 
             if (verbose) cout << "\te_ERROR_STATE." << endl;
@@ -4466,7 +4469,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { IV, IV, IV, IV };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -4484,10 +4487,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == obj.outputLength());
                 ASSERT(-1 == result);
                 ASSERT(0 == numOut);
-                ASSERT((char)-1 == b[0]);
-                ASSERT((char)-1 == b[1]);
-                ASSERT((char)-1 == b[2]);
-                ASSERT((char)-1 == b[3]);
+                ASSERT(IV == b[0]);
+                ASSERT(IV == b[1]);
+                ASSERT(IV == b[2]);
+                ASSERT(IV == b[3]);
             }
         }
 

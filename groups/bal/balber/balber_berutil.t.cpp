@@ -15613,7 +15613,7 @@ int main(int argc, char *argv[])
             ASSERT(2       == numBytesConsumed);
         }
         {
-            char buffer[] = { -1, 0 };
+            char buffer[] = { (char)-1, 0 };
             bdlsb::FixedMemInStreamBuf isb(buffer, 2);
             int                       numBytesConsumed = 0;
 
@@ -15621,7 +15621,7 @@ int main(int argc, char *argv[])
                                                           &numBytesConsumed));
         }
         {
-            char buffer[] = { 0, -1 };
+            char buffer[] = { 0, (char)-1 };
             bdlsb::FixedMemInStreamBuf isb(buffer, 2);
             int                       numBytesConsumed = 0;
 
@@ -15629,7 +15629,7 @@ int main(int argc, char *argv[])
                                                           &numBytesConsumed));
         }
         {
-            char buffer[] = { -1, -1 };
+            char buffer[] = { (char)-1, (char)-1 };
             bdlsb::FixedMemInStreamBuf isb(buffer, 2);
             int                       numBytesConsumed = 0;
 
@@ -17774,14 +17774,14 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //  line  value       exp
                 //  ----  -----       ---
-                {  L_,       0,      "01 00" },
-                {  L_,       1,      "01 01" },
-                {  L_,      -2,      "01 FE" },
-                {  L_,      95,      "01 5F" },
-                {  L_,    -106,      "01 96" },
-                {  L_,     127,      "01 7F" },
-                {  L_,    -127,      "01 81" },
-                {  L_,    -128,      "01 80" },
+                {  L_,             0, "01 00" },
+                {  L_,             1, "01 01" },
+                {  L_,      (char)-2, "01 FE" },
+                {  L_,            95, "01 5F" },
+                {  L_,    (char)-106, "01 96" },
+                {  L_,           127, "01 7F" },
+                {  L_,    (char)-127, "01 81" },
+                {  L_,    (char)-128, "01 80" },
             };
 
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);

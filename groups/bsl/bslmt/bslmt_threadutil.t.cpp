@@ -3281,7 +3281,8 @@ int main(int argc, char *argv[])
         ASSERT(verbose);
 
 #ifdef PTHREAD_STACK_MIN
-        int stackSize = (IntPtr) PTHREAD_STACK_MIN;
+        ASSERT(PTHREAD_STACK_MIN <= INT_MAX);
+        int stackSize = (int) PTHREAD_STACK_MIN;
 #else
         int stackSize = 1 << 17;
 #endif

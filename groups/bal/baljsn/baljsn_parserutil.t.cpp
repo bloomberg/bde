@@ -7485,9 +7485,9 @@ int main(int argc, char *argv[])
                           << "\n==================================" << endl;
 
         {
-            const char ERROR_VALUE = 'X';
-            const char MAX         = bsl::numeric_limits<signed char>::max();
-            const char MIN         = bsl::numeric_limits<signed char>::min();
+            const signed char ERROR_VALUE = 'X';
+            const signed char MAX  = bsl::numeric_limits<signed char>::max();
+            const signed char MIN  = bsl::numeric_limits<signed char>::min();
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push

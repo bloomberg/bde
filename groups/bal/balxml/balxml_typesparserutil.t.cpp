@@ -1238,15 +1238,15 @@ int main(int argc, char *argv[])
         {
             static const RoundTripTestData<char> DATA[] =
             {
-                //line    input
-                //----    -----
-                { L_,     -128  },
-                { L_,     -127  },
-                { L_,     -1    },
-                { L_,     0     },
-                { L_,     1     },
-                { L_,     126   },
-                { L_,     127   },
+                //line       input
+                //----    -----------
+                { L_,     (char)-128  },
+                { L_,     (char)-127  },
+                { L_,     (char)-1    },
+                { L_,           0     },
+                { L_,           1     },
+                { L_,           126   },
+                { L_,           127   },
             };
             printDefaultRoundTripTester(DATA);
         }
@@ -2949,15 +2949,15 @@ int main(int argc, char *argv[])
         {
             static const RoundTripTestData<char> DATA[] =
             {
-                //line    input
-                //----    -----
-                { L_,     -128  },
-                { L_,     -127  },
-                { L_,     -1    },
-                { L_,     0     },
-                { L_,     1     },
-                { L_,     126   },
-                { L_,     127   },
+                //line       input
+                //----    -----------
+                { L_,     (char)-128  },
+                { L_,     (char)-127  },
+                { L_,     (char)-1    },
+                { L_,           0     },
+                { L_,           1     },
+                { L_,           126   },
+                { L_,           127   },
             };
             printDecimalRoundTripTester(DATA);
         }
@@ -3907,15 +3907,15 @@ int main(int argc, char *argv[])
                 const char *d_input;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "-128X",     -128,           },
-                { L_,     "-127X",     -127,           },
-                { L_,     "-1X",       -1,             },
-                { L_,     "0X",        0,              },
-                { L_,     "1X",        1,              },
-                { L_,     "126X",      126,            },
-                { L_,     "127X",      127,            },
+                //line    input         result
+                //----    -----       -----------
+                { L_,     "-128X",     (Type)-128,     },
+                { L_,     "-127X",     (Type)-127,     },
+                { L_,     "-1X",       (Type)-1,       },
+                { L_,     "0X",              0,        },
+                { L_,     "1X",              1,        },
+                { L_,     "126X",            126,      },
+                { L_,     "127X",            127,      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -4121,15 +4121,15 @@ int main(int argc, char *argv[])
                 const char *d_input;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "-128X",     -128,            },
-                { L_,     "-127X",     -127,            },
-                { L_,     "-1X",       -1,              },
-                { L_,     "0X",        0,               },
-                { L_,     "1X",        1,               },
-                { L_,     "126X",      126,             },
-                { L_,     "127X",      127,             },
+                //line    input         result
+                //----    -----       -----------
+                { L_,     "-128X",     (Type)-128,      },
+                { L_,     "-127X",     (Type)-127,      },
+                { L_,     "-1X",       (Type)-1,        },
+                { L_,     "0X",              0,         },
+                { L_,     "1X",              1,         },
+                { L_,     "126X",            126,       },
+                { L_,     "127X",            127,       },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6637,15 +6637,15 @@ int main(int argc, char *argv[])
                 const char *d_input;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "-128X",     -128            },
-                { L_,     "-127X",     -127            },
-                { L_,     "-1X",       -1              },
-                { L_,     "0X",        0               },
-                { L_,     "1X",        1               },
-                { L_,     "126X",      126             },
-                { L_,     "127X",      127             },
+                //line    input         result
+                //----    -----       -----------
+                { L_,     "-128X",     (Type)-128      },
+                { L_,     "-127X",     (Type)-127      },
+                { L_,     "-1X",       (Type)-1        },
+                { L_,     "0X",              0         },
+                { L_,     "1X",              1         },
+                { L_,     "126X",            126       },
+                { L_,     "127X",            127       },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

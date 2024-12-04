@@ -90,9 +90,9 @@ BSLS_IDENT("$Id: $")
 // Next, we scan input buffer one character at a time searching for the first
 // digit:
 // ```
-//     char ch;
-//     do {
-//         ch = static_cast<char>(buffer.sbumpc());
+//     int res;
+//     while ((res = buffer.sbumpc()) != EOF) {
+//         char ch = static_cast<char>(res);
 //
 //         if ( (ch >= '0') && (ch <= '9') ) {
 // ```
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //             cout << "The answer is " << n << " indeed..." << endl;
 //             break;
 //         }
-//     } while ( ch != EOF );
+//     }
 // }
 // ```
 

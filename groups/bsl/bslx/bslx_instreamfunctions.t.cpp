@@ -805,8 +805,9 @@ int main(int argc, char *argv[])
 
     {
         const MyPoint EXP(0, -1, BLUE);
-        const char buffer1[5] = { 0, 0, -1, -1, 2 };     // `MyPoint` (no ver)
-        const char buffer2[6] = { 1, 0, 0, -1, -1, 2 };  // version, `MyPoint`
+        const char IV = static_cast<char>(-1);
+        const char buffer1[5] = { 0, 0, IV, IV, 2 };     // 'MyPoint' (no ver)
+        const char buffer2[6] = { 1, 0, 0, IV, IV, 2 };  // version, 'MyPoint'
         MyPoint p1, p2;  // two default points
 
         MyInStream in1(buffer1, 5);  // `buffer1` has no version byte

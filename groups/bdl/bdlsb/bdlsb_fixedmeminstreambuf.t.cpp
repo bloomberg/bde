@@ -310,27 +310,27 @@ int main(int argc, char **argv)
 // Next, we scan input buffer one character at a time searching for the first
 // digit:
 // ```
-        char ch;
-        do {
-            ch = static_cast<char>(buffer.sbumpc());
+       int res;
+       while ((res = buffer.sbumpc()) != EOF) {
+           char ch = static_cast<char>(res);
 
-            if ( (ch >= '0') && (ch <= '9') ) {
+           if ( (ch >= '0') && (ch <= '9') ) {
 // ```
 // Now, when the digit character is found, we return the first digit into the
 // input stream buffer for subsequent read:
 // ```
-                buffer.sputbackc(ch);
-                int n;
+               buffer.sputbackc(ch);
+               int n;
 // ```
 // Finally, we read out the whole number:
 // ```
-                stream >> n;
-                ASSERT( 42 == n );
-                cout << "The answer is " << n << " indeed..." << endl;
-                break;
-            }
-        } while ( ch != EOF );
-    }
+               stream >> n;
+               ASSERT( 42 == n );
+               cout << "The answer is " << n << " indeed..." << endl;
+               break;
+           }
+       }
+   }
 // ```
 
       } break;

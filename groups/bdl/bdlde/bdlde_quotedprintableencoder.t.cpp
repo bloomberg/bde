@@ -497,16 +497,16 @@ bool StateAccessor::isState(State state) const
             d3 = '='  == b[0];                          ASSERT(d3 || !enabled);
             d4 = '0'  == b[1];                          ASSERT(d4 || !enabled);
             d5 = 'D'  == b[2];                          ASSERT(d5 || !enabled);
-            d6 = -1   == b[3];                          ASSERT(d6 || !enabled);
+            d6 = IV   == b[3];                          ASSERT(d6 || !enabled);
         }
         else {
             d0 = '=' == b[0];                           ASSERT(d0 || !enabled);
             d1 = '0' == b[1];                           ASSERT(d1 || !enabled);
             d2 = 'D' == b[2];                           ASSERT(d2 || !enabled);
-            d3 = -1  == b[3];                           ASSERT(d3 || !enabled);
-            d4 = -1  == b[4];                           ASSERT(d4 || !enabled);
-            d5 = -1  == b[5];                           ASSERT(d5 || !enabled);
-            d6 = -1  == b[6];                           ASSERT(d6 || !enabled);
+            d3 = IV  == b[3];                           ASSERT(d3 || !enabled);
+            d4 = IV  == b[4];                           ASSERT(d4 || !enabled);
+            d5 = IV  == b[5];                           ASSERT(d5 || !enabled);
+            d6 = IV  == b[6];                           ASSERT(d6 || !enabled);
         }
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
@@ -542,9 +542,9 @@ bool StateAccessor::isState(State state) const
             bb += 3;
         }
         else {
-            d0 = -1  == b[4];                           ASSERT(d0 || !enabled);
-            d1 = -1  == b[5];                           ASSERT(d1 || !enabled);
-            d2 = -1  == b[6];                           ASSERT(d2 || !enabled);
+            d0 = IV  == b[4];                           ASSERT(d0 || !enabled);
+            d1 = IV  == b[5];                           ASSERT(d1 || !enabled);
+            d2 = IV  == b[6];                           ASSERT(d2 || !enabled);
         }
 
         bool d3 = '='  == bb[0];                        ASSERT(d3 || !enabled);
@@ -555,7 +555,7 @@ bool StateAccessor::isState(State state) const
         bool d7 = '9' == bb[2];
         bool d8 = (d4 && d5) || (d6 && d7);             ASSERT(d8 || !enabled);
 
-        bool d9 = -1  == bb[3];                         ASSERT(d9 || !enabled);
+        bool d9 = IV  == bb[3];                         ASSERT(d9 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c3 && d0 && d1 && d2 && d3 && d8 && d9;

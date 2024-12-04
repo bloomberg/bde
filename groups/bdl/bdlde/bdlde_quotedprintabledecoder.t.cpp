@@ -679,7 +679,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
 
     int enabled = globalAssertsEnabled;
 
-    char b[3] = { -1, -1, -1 };
+    const char IV = static_cast<char>(-1);
+
+    char b[3] = { IV, IV, IV };
     int numOut = -1;
 
     bool rv = false;
@@ -703,9 +705,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 0 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3 && b4
           && c0 && c1 && d0 && d1 && d2;
@@ -737,14 +739,14 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
 
         switch (numOut) {
           case 1: {
-            d0 =  -1  != b[0];                          ASSERT(d0 || !enabled);
-            d1 =  -1  == b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  == b[2];                          ASSERT(d2 || !enabled);
+            d0 =  IV  != b[0];                          ASSERT(d0 || !enabled);
+            d1 =  IV  == b[1];                          ASSERT(d1 || !enabled);
+            d2 =  IV  == b[2];                          ASSERT(d2 || !enabled);
           } break;
           case 0: {
-            d0 =  -1  == b[0];                          ASSERT(d0 || !enabled);
-            d1 =  -1  == b[1];                          ASSERT(d1 || !enabled);
-            d2 =  -1  == b[2];                          ASSERT(d2 || !enabled);
+            d0 =  IV  == b[0];                          ASSERT(d0 || !enabled);
+            d1 =  IV  == b[1];                          ASSERT(d1 || !enabled);
+            d2 =  IV  == b[2];                          ASSERT(d2 || !enabled);
           } break;
         }
 
@@ -772,8 +774,8 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool d0, d1, d2;
 
         d0 = '=' == b[0];                               ASSERT(d0 || !enabled);
-        d1 =  -1 == b[1];                               ASSERT(d1 || !enabled);
-        d2 =  -1 == b[2];                               ASSERT(d2 || !enabled);
+        d1 =  IV == b[1];                               ASSERT(d1 || !enabled);
+        d2 =  IV == b[2];                               ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -800,7 +802,7 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
 
         d0 = '='  == b[0];                              ASSERT(d0 || !enabled);
         d1 =  isHex( b[1]);                             ASSERT(d1 || !enabled);
-        d2 =  -1  == b[2];                              ASSERT(d2 || !enabled);
+        d2 =  IV  == b[2];                               ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -830,7 +832,7 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         if (numOut == 6) {
             d0 = '='  == b[0];                          ASSERT(d0 || !enabled);
             d1 = '\r' == b[1];                          ASSERT(d1 || !enabled);
-            d2 = -1   == b[2];                          ASSERT(d2 || !enabled);
+            d2 = IV   == b[2];                          ASSERT(d2 || !enabled);
         }
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
@@ -857,8 +859,8 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool d0, d1, d2;
 
         d0 = '=' == b[0];                               ASSERT(d0 || !enabled);
-        d1 = -1  == b[1];                               ASSERT(d1 || !enabled);
-        d2 = -1  == b[2];                               ASSERT(d2 || !enabled);
+        d1 = IV  == b[1];                               ASSERT(d1 || !enabled);
+        d2 = IV  == b[2];                               ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -884,8 +886,8 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool d0, d1, d2;
 
         d0 = '\r' == b[0];                              ASSERT(d0 || !enabled);
-        d1 = -1   == b[1];                              ASSERT(d1 || !enabled);
-        d2 = -1   == b[2];                              ASSERT(d2 || !enabled);
+        d1 = IV   == b[1];                              ASSERT(d1 || !enabled);
+        d2 = IV   == b[2];                              ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -910,9 +912,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
 
         bool d0, d1, d2;
 
-        d0 = -1 == b[0];                                ASSERT(d0 || !enabled);
-        d1 = -1 == b[1];                                ASSERT(d1 || !enabled);
-        d2 = -1 == b[2];                                ASSERT(d2 || !enabled);
+        d0 = IV == b[0];                                ASSERT(d0 || !enabled);
+        d1 = IV == b[1];                                ASSERT(d1 || !enabled);
+        d2 = IV == b[2];                                ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -935,9 +937,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
           && c0 && c1 && d0 && d1 && d2;
@@ -960,9 +962,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool c0 = -1 == result;                         ASSERT(c0 || !enabled);
         bool c1 =  0 == numOut;                         ASSERT(c1 || !enabled);
 
-        bool d0 = -1 == b[0];                           ASSERT(d0 || !enabled);
-        bool d1 = -1 == b[1];                           ASSERT(d1 || !enabled);
-        bool d2 = -1 == b[2];                           ASSERT(d2 || !enabled);
+        bool d0 = IV == b[0];                           ASSERT(d0 || !enabled);
+        bool d1 = IV == b[1];                           ASSERT(d1 || !enabled);
+        bool d2 = IV == b[2];                           ASSERT(d2 || !enabled);
 
         rv = a0 && a1 && a2 && a3 && b0 && b1 && b2 && b3
             && c0 && c1 && d0 && d1 && d2;

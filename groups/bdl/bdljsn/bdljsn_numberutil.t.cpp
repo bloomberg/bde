@@ -3494,8 +3494,9 @@ int main(int argc, char *argv[])
                             EXPECT == result);                          \
                 }
 
-#ifdef BSLS_PLATFORM_CMP_IBM
-                // IBM char is unsigned.
+#if defined(BSLS_PLATFORM_CMP_IBM) ||                                         \
+    (defined(BSLS_PLATFORM_CPU_ARM) && defined(BSLS_PLATFORM_OS_LINUX))
+                // IBM and Linux ARM char is unsigned.
                 TEST_TYPE(e_CHAR, signed char, Int64);
 #else
                 TEST_TYPE(e_CHAR, char, Int64);
