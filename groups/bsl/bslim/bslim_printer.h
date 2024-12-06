@@ -536,6 +536,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+#include <bsl_tuple.h>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 #include <bsl_utility.h>
 
 namespace BloombergLP {
@@ -972,6 +975,28 @@ struct Printer_Helper {
                          int                        spacesPerLevel,
                          bslmf::SelectTraitCase<>);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+    /// No op.
+    template <class t_TUPLE>
+    static void printTupleElements(Printer&,
+                                   const t_TUPLE&,
+                                   bsl::integral_constant<int, 0>);
+
+    /// Print the first `t_SIZE` elements of the specified tuple, `data`, using the
+    /// specified `printer`.
+    template <int t_SIZE, class t_TUPLE>
+    static void printTupleElements(Printer&       printer,
+                                   const t_TUPLE& data,
+                                   bsl::integral_constant<int, t_SIZE>);
+
+    template <class... t_TYPES>
+    static void printRaw(bsl::ostream&                 stream,
+                         const bsl::tuple<t_TYPES...>& data,
+                         int                           level,
+                         int                           spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
     static void printRaw(bsl::ostream&              stream,
                          const bslstl::StringRef&   data,
                          int                        level,
@@ -1385,6 +1410,40 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
     printer.printValue(data.second);
     printer.end();
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+template <class t_TUPLE>
+inline
+void Printer_Helper::printTupleElements(Printer&,
+                                        const t_TUPLE&,
+                                        bsl::integral_constant<int, 0>)
+{
+}
+
+template <int t_SIZE, class t_TUPLE>
+inline
+void Printer_Helper::printTupleElements(Printer&       printer,
+                                        const t_TUPLE& data,
+                                        bsl::integral_constant<int, t_SIZE>)
+{
+    printTupleElements(printer, data, bsl::integral_constant<int, t_SIZE-1>{});
+    printer.printValue(bsl::get<t_SIZE-1>(data));
+}
+
+template <class... t_TYPES>
+inline
+void Printer_Helper::printRaw(bsl::ostream&                 stream,
+                              const bsl::tuple<t_TYPES...>& data,
+                              int                           level,
+                              int                           spacesPerLevel,
+                              bslmf::SelectTraitCase<>)
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printTupleElements(printer, data, bsl::integral_constant<int, sizeof...(t_TYPES)>{});
+    printer.end();
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 template <class TYPE>
 inline

@@ -2847,6 +2847,43 @@ int main(int argc, char *argv[])
             ASSERTV(v3Out.str(), " NULL" == v3Out.str());
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+        if (veryVerbose) { printf("tuple\n"); }
+        {
+            bsl::tuple<int, const char*, double> t(1, "two", 3.14);
+            bsl::ostringstream                   out;
+            bslim::Printer                       p(&out, 0, -1);
+            p.printAttribute("tuple", t);
+
+            bsl::ostringstream EXP;
+            EXP << " tuple = [ 1 \"two\" 3.14 ]";
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+        {
+            bsl::tuple<int, const char*, double> t(1, "two", 3.14);
+            bsl::ostringstream                   out;
+            bslim::Printer                       p(&out, 0, -1);
+            p.printValue(t);
+
+            bsl::ostringstream EXP;
+            EXP << " [ 1 \"two\" 3.14 ]";
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+        {
+            bsl::tuple<>       t;
+            bsl::ostringstream out;
+            bslim::Printer     p(&out, 0, -1);
+            p.printValue(t);
+
+            bsl::ostringstream EXP;
+            EXP << " [ ]";
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
         if (veryVerbose) { printf("vector<int>::iterator with FUNCTOR\n"); }
         {
             bsl::vector<int>        v(&uniqKeys[0], uniqKeys + NUM_DATA);
