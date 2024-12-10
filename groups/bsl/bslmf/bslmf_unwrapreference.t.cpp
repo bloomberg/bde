@@ -28,9 +28,9 @@ using namespace BloombergLP;
 // The component under test defines a meta-function `bsl::unwrap_reference`
 // that unwraps a reference wrapper specialization `bsl::reference_wrapper<U>`
 // (which is an alias to `std::reference_wrapper<U>` when that exists) template
-// `TYPE` argument by providing a `type` member with the type `U&`.  If the
-// specified `TYPE` is not a specialization of either reference wrapper the
-// member `type` shall be `TYPE`.
+// `t_TYPE` argument by providing a `type` member with the type `U&`.  If the
+// specified `t_TYPE` is not a specialization of either reference wrapper the
+// member `type` will be `t_TYPE`.
 //
 // The component also defines an alias to the result type of the
 // `bsl::unwrap_reference` meta-function.  Thus, we need to ensure that the
@@ -100,6 +100,8 @@ struct Struct {};
 class  Class  {};
 enum   Enum   {};
 union  Union  {};
+
+template <template <class> class> class X;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -203,8 +205,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) puts("\tTesting `unwrap_reference_t` `std` alias.");
 
-        ASSERT((bsl::is_same<bsl::unwrap_reference_t<T>,
-                             std::unwrap_reference_t<T> >::value));
+        ASSERT((bsl::is_same<X<bsl::unwrap_reference_t>,
+                             X<std::unwrap_reference_t> >::value));
 #else
         if (veryVerbose) puts("\tSkipped: standard types aren't available");
 #endif

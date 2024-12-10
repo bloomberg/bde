@@ -26,12 +26,12 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function `bsl::unwrap_ref_decay`
-// that decays its template `TYPE` argument then it unwraps it if it is a
-// reference wrapper specialization `bsl::reference_wrapper<U>` (which is an
+// that decays its template `TYPE` argument then unwraps it if it is a
+// reference-wrapper specialization `bsl::reference_wrapper<U>` (which is an
 // alias to `std::reference_wrapper<U>` when that exists) by providing a `type`
-// member with the type `U&`.  If the specified `TYPE` does not decay into a
-// specialization of either reference wrapper the member `type` shall be the
-// decayed `TYPE`.
+// member with the type `U&`.  If the specified `t_TYPE` does not decay into a
+// specialization of the reference-wrapper the member `type` will be the
+// decayed `t_TYPE`.
 //
 // The component also defines an alias to the result type of the
 // `bsl::unwrap_ref_decay` meta-function.  Thus, we need to ensure that the
@@ -306,8 +306,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // 1. `unwrap_ref_decay::type` is `U&` for any template type argument
-        //    that decays (`bsl::decay`) into `bsl::reference_wrapper<U>` or
-        //    `std::reference_wrapper<U>`.
+        //    that decays (`bsl::decay`) into `bsl::reference_wrapper<U>`.
         //
         // 2. `unwrap_ref_decay` does not transform `TYPE` when `TYPE` does not
         //    decay into a reference-wrapper type.
@@ -361,7 +360,7 @@ int main(int argc, char *argv[])
 
         // Arrays decay into pointers so the wrapper should not be unwrapped
         typedef bsl::reference_wrapper<int> WrappedType;
-        ASSERT_UNWRAP_REF(WrappedType[],      WrappedType*);
+        ASSERT_UNWRAP_REF(WrappedType[],       WrappedType*);
 
         ASSERT_UNWRAP_REF(FuncType,            FuncType*);
         ASSERT_UNWRAP_REF(Enum,                Enum);
@@ -374,25 +373,15 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
   #define ASSERT_UNWRAP_REF_WRAPPED(TYPE, RESULT)                             \
           ASSERT_UNWRAP_REF(bsl::reference_wrapper<TYPE >,           RESULT); \
-          ASSERT_UNWRAP_REF(std::reference_wrapper<TYPE >,           RESULT); \
           ASSERT_UNWRAP_REF(bsl::reference_wrapper<TYPE >&,          RESULT); \
-          ASSERT_UNWRAP_REF(std::reference_wrapper<TYPE >&,          RESULT); \
           ASSERT_UNWRAP_REF(const bsl::reference_wrapper<TYPE >,     RESULT); \
-          ASSERT_UNWRAP_REF(const std::reference_wrapper<TYPE >,     RESULT); \
           ASSERT_UNWRAP_REF(const bsl::reference_wrapper<TYPE >&,    RESULT); \
-          ASSERT_UNWRAP_REF(const std::reference_wrapper<TYPE >&,    RESULT); \
           ASSERT_UNWRAP_REF(volatile bsl::reference_wrapper<TYPE >,  RESULT); \
-          ASSERT_UNWRAP_REF(volatile std::reference_wrapper<TYPE >,  RESULT); \
           ASSERT_UNWRAP_REF(volatile bsl::reference_wrapper<TYPE >&, RESULT); \
-          ASSERT_UNWRAP_REF(volatile std::reference_wrapper<TYPE >&, RESULT); \
           ASSERT_UNWRAP_REF(const volatile bsl::reference_wrapper<TYPE >,     \
                                                                     RESULT);  \
-          ASSERT_UNWRAP_REF(const volatile std::reference_wrapper<TYPE >,     \
-                                                                    RESULT);  \
           ASSERT_UNWRAP_REF(const volatile bsl::reference_wrapper<TYPE >&,    \
-                                                                     RESULT); \
-          ASSERT_UNWRAP_REF(const volatile std::reference_wrapper<TYPE >&,    \
-                                                                        RESULT)
+                                                                     RESULT)
 #else
   #define ASSERT_UNWRAP_REF_WRAPPED(TYPE, RESULT)                             \
           ASSERT_UNWRAP_REF(bsl::reference_wrapper<TYPE >,           RESULT); \

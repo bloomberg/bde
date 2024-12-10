@@ -13,12 +13,12 @@ BSLS_IDENT("$Id: $")
 //
 //@CANONICAL_HEADER: bsl_functional.h, bsl_type_traits.h
 //
-//@SEE_ALSO: bslmf_referencewrapper, bslmf_uwrap_ref_decay
+//@SEE_ALSO: bslmf_referencewrapper, bslmf_unwrap_ref_decay
 //
 //@DESCRIPTION: This component defines a meta-function `bsl::unwrap_reference`
 // that may be used to unwrap a `bsl::reference_wrapper` (which is an alias of
 // `std::reference_wrapper` when that exists) of some type `U`, resulting in
-// `U&`.  In case the specified type template argument is not an specialization
+// `U&`.  In case the specified type template argument is not a specialization
 // of `bsl::reference_wrapper` the result is the type itself.
 //
 // `bsl::unwrap_reference` meets the requirements of the `unwrap_reference`
@@ -67,9 +67,9 @@ BSLS_IDENT("$Id: $")
   #include <type_traits>  // 'std::unwrap_reference', 'std::unwrap_reference_t'
 #endif
 
-                         // ======================
-                         // struct uwrap_reference
-                         // ======================
+                        // =======================
+                        // struct unwrap_reference
+                        // =======================
 
 namespace bsl {
 
@@ -96,7 +96,6 @@ struct unwrap_reference {
 /// is a `bsl::reference_wrapper`.
 template <class t_WRAPPED_TYPE>
 struct unwrap_reference<bsl::reference_wrapper<t_WRAPPED_TYPE> > {
-
     // TYPES
 
     /// This `typedef` is an alias to the template parameter `t_WRAPPED_TYPE&`.

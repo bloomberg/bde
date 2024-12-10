@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CANONICAL_HEADER: bsl_functional.h, bsl_type_traits.h
 //
-//@SEE_ALSO: bslmf_referencewrapper, bslmf_uwrap_reference
+//@SEE_ALSO: bslmf_referencewrapper, bslmf_unwrap_reference
 //
 //@DESCRIPTION: This component defines a meta-function `bsl::unwrap_ref_decay`
 // that may be used to unwrap a possibly cv-qualified `bsl::reference_wrapper`
@@ -34,12 +34,11 @@ BSLS_IDENT("$Id: $")
 // Suppose that we work in a programming environment where function argument
 // types may be presented as is, or wrapped in a `bsl::reference_wrapper` and
 // we would like to create a member or local variable while obeying the request
-// for the reference-wrapper represents.  As arguments may come potentially
-// cv-qualified, as well as references we need to first decay them to remove
-// cv-qualification, reference and/or turn arrays into a pointer etc. (see
-// `bsl::decay`).  When the argument type decays into a reference wrapper we
+// for the reference type that the reference-wrapper represents.  As parameters
+// may be cv-qualified and may be references we need to first decay them (see
+// `bsl::decay`).  When the argument type decays into a reference-wrapper we
 // want to use a reference to the wrapped type, and simply use the decayed
-// variations of the unwrapped types.  This is a use case for
+// variations of types that are not wrapped.  This is a use case for
 // `bsl::unwrap_ref_decay`.
 //
 // First, we create types that may be the bases for reference-wrapped, and
@@ -147,12 +146,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-  #include <type_traits> // 'std::unwrap_reference', 'std::unwrap_reference_t'
+  #include <type_traits>  // 'std::unwrap_reference', 'std::unwrap_reference_t'
 #endif
 
-                         // ======================
-                         // struct uwrap_reference
-                         // ======================
+                        // =======================
+                        // struct unwrap_ref_decay
+                        // =======================
 
 namespace bsl {
 
@@ -163,11 +162,10 @@ using std::unwrap_ref_decay_t;
 
 /// This `struct` template implements the `unwrap_ref_decay` meta-function
 /// defined in the C++20 standard [meta.trans.other], providing an alias,
-/// `type`, that returns the result.  `type` has the same type as the
-/// (template parameter) `t_TYPE` unless `bsl::decay<t_TYPE>::type` is a
-/// specialization of `bsl::reference_wrapper` (which is an alias to
-/// `std::reference_wrapper<U>` when that exists) for a type `U`, in which case
-/// `type` shall be `U&`.
+/// `type`, that returns the result.  `type` is `bsl::decay<t_TYPE>::type`
+/// unless `bsl::decay<t_TYPE>::type` is a specialization of
+/// `bsl::reference_wrapper` (which is an alias to `std::reference_wrapper<U>`
+/// when that exists) for a type `U`, in which case `type` shall be `U&`.
 template <class t_TYPE>
 struct unwrap_ref_decay {
     // TYPES
@@ -183,9 +181,9 @@ struct unwrap_ref_decay {
 /// 'bsl::unwrap_ref_decay' meta-function.
 template <class t_TYPE>
 using unwrap_ref_decay_t = typename unwrap_ref_decay<t_TYPE>::type;
-#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-#endif // else of BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif  // else of BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 }  // close namespace bsl
 
