@@ -651,11 +651,14 @@ using std::void_t;
 #include <bslmf_isvolatile.h>
 #include <bslmf_removeconst.h>
 #include <bslmf_removecv.h>
+#include <bslmf_removecvref.h>
 #include <bslmf_removeextent.h>
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
 #include <bslmf_typeidentity.h>
+#include <bslmf_unwraprefdecay.h>
+#include <bslmf_unwrapreference.h>
 #include <bslmf_voidtype.h>
 
 #endif

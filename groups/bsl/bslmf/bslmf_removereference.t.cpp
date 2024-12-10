@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // 1. The meta functions `bsl::remove_reference` and
-        //    `bsl::remove_reference_v` should be aliased to their standard
+        //    `bsl::remove_reference_t` should be aliased to their standard
         //    library analogs when the latter is available from the native
         //    library.
         //
