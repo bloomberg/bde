@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
         //
         // 3. Use the wrappers' explicit and implicit accessors.  (C-1)
         //
-        // 4. Verify that `BSLSTL_REFRENCE_WRAPPER_IS_ALIASED` is defined when
-        //    `BSLLMF_REFRENCE_WRAPPER_IS_ALIASED` is defined, and otherwise
+        // 4. Verify that `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` is defined when
+        //    `BSLMF_REFRENCEWRAPPER_IS_ALIASED` is defined, and otherwise
         //    it is not defined.
         //
         // Testing:

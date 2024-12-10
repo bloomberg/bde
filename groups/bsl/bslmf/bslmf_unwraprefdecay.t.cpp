@@ -26,7 +26,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function `bsl::unwrap_ref_decay`
-// that decays its template `TYPE` argument then unwraps it if it is a
+// that decays its template `t_TYPE` argument then unwraps it if it is a
 // reference-wrapper specialization `bsl::reference_wrapper<U>` (which is an
 // alias to `std::reference_wrapper<U>` when that exists) by providing a `type`
 // member with the type `U&`.  If the specified `t_TYPE` does not decay into a
