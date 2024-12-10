@@ -1,4 +1,4 @@
-// bslstl_formatterintegral.t.cpp                                     -*-C++-*-
+// bslfmt_formatterintegral.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterintegral.h>
 
 #include <bslfmt_formattertestutil.h> // Testing only
@@ -76,6 +76,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bslfmt::FormatterTestUtil<char>    TestUtilChar;
+typedef bslfmt::FormatterTestUtil<wchar_t> TestUtilWchar;
+
+// ============================================================================
 //                       HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -89,10 +96,7 @@ void testRuntimeCharParse(int line, const char *format)
 {
     bsl::string message;
 
-    bool rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<t_TYPE>(
-                                                                      &message,
-                                                                      false,
-                                                                      format);
+    bool rv = TestUtilChar::testParseVFormat<t_TYPE>(&message, false, format);
     ASSERTV(line, format, message.c_str(), rv);
 }
 
@@ -104,10 +108,7 @@ void testRuntimeWcharParse(int line, const wchar_t *format)
 {
     bsl::string message;
 
-    bool rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<t_TYPE>(
-                                                                      &message,
-                                                                      false,
-                                                                      format);
+    bool rv = TestUtilWchar::testParseVFormat<t_TYPE>(&message, false, format);
     ASSERTV(line, format, message.c_str(), rv);
 }
 
@@ -122,16 +123,13 @@ void testRuntimeFormat(int           line,
                        t_TYPE        value)
 {
     bsl::string message;
-    int         dummyArg = 0;
 
-    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+    bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(
                                                                      &message,
                                                                      expected,
                                                                      true,
                                                                      format,
-                                                                     value,
-                                                                     dummyArg,
-                                                                     dummyArg);
+                                                                     value);
     ASSERTV(line, format, message.c_str(), rv);
 }
 
@@ -147,16 +145,14 @@ void testWidthRuntimeFormat(int           line,
                             t_TYPE        value)
 {
     bsl::string message;
-    int         dummyArg = 0;
 
-    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+    bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(
                                                                      &message,
                                                                      expected,
                                                                      true,
                                                                      format,
                                                                      value,
-                                                                     width,
-                                                                     dummyArg);
+                                                                     width);
     ASSERTV(line, format, message.c_str(), rv);
 }
 
@@ -201,20 +197,19 @@ int main(int argc, char **argv)
 // defined alignment and padding.
 //
 // ```
-    bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
+    bslfmt::MockParseContext<char> mpc("*<5x", 1);
 
     bsl::formatter<int, char> f;
     mpc.advance_to(f.parse(mpc));
 
     int value = 42;
 
-    bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+    bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 
     mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
     ASSERT("2a***" == mfc.finalString());
 // ```
-//
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -234,11 +229,6 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-
-        bsl::formatter<int, char>    dummy1;
-        bsl::formatter<int, wchar_t> dummy2;
-        (void)dummy1;
-        (void)dummy2;
 
         static const struct {
             int         d_line;        // source line number
@@ -608,65 +598,56 @@ int main(int argc, char **argv)
 
             // `parse`
 
-            bool rv = bslfmt::Formatter_TestUtil<
-                char>::testParseFormat<int>(&message, true, "{0:}");
+            bool rv = TestUtilChar::testParseFormat<int>(&message,
+                                                         true,
+                                                         "{0:}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
-                int>(&message, true, L"{0:}");
+            rv = TestUtilWchar::testParseFormat<int>(&message, true, L"{0:}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
-                unsigned long long int>(&message, true, "{:*<6}");
+            rv = TestUtilChar::testParseFormat<unsigned long long int>(
+                                                                     &message,
+                                                                     true,
+                                                                     "{:*<6}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<
-                unsigned long long int>(&message, true, L"{:*<6}");
+            rv = TestUtilWchar::testParseFormat<unsigned long long int>(
+                                                                    &message,
+                                                                    true,
+                                                                    L"{:*<6}");
             ASSERTV(message.c_str(), rv);
 
             // `format`
 
-            const int VALUE = 5;
-            const int DUMMY_ARG = 0;
-            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
-                                                                    &message,
-                                                                    "5",
-                                                                    true,
-                                                                    "{:}",
-                                                                    VALUE,
-                                                                    DUMMY_ARG,
-                                                                    DUMMY_ARG);
+            const int VALUE     = 5;
+            rv                  = TestUtilChar::testEvaluateFormat(&message,
+                                                                   "5",
+                                                                   true,
+                                                                   "{:}",
+                                                                   VALUE);
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
-                                                                    &message,
-                                                                    L"5",
-                                                                    true,
-                                                                    L"{:}",
-                                                                    VALUE,
-                                                                    DUMMY_ARG,
-                                                                    DUMMY_ARG);
+            rv = TestUtilWchar::testEvaluateFormat(&message,
+                                                   L"5",
+                                                   true,
+                                                   L"{:}",
+                                                   VALUE);
             ASSERTV(message.c_str(), rv);
 
             const unsigned long long int ULL_VALUE = 12;
-            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
-                                                                    &message,
-                                                                    "12",
-                                                                    true,
-                                                                    "{:}",
-                                                                    ULL_VALUE,
-                                                                    DUMMY_ARG,
-                                                                    DUMMY_ARG);
+            rv = TestUtilChar::testEvaluateFormat(&message,
+                                                  "12",
+                                                  true,
+                                                  "{:}",
+                                                  ULL_VALUE);
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
-                                                                    &message,
-                                                                    L"12",
-                                                                    true,
-                                                                    L"{:}",
-                                                                    ULL_VALUE,
-                                                                    DUMMY_ARG,
-                                                                    DUMMY_ARG);
+            rv = TestUtilWchar::testEvaluateFormat(&message,
+                                                   L"12",
+                                                   true,
+                                                   L"{:}",
+                                                   ULL_VALUE);
             ASSERTV(message.c_str(), rv);
         }
 
@@ -676,23 +657,22 @@ int main(int argc, char **argv)
             try {
                 bsl::string message;
                 bool        rv =
-                       bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
+                       TestUtilChar::testParseVFormat<int>(
                            &message,
                            false,
                            "{:}");
 
                 ASSERTV(message.c_str(), rv);
 
-                rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
-                                                                      &message,
-                                                                      false,
-                                                                      "{:L}");
+                rv = TestUtilChar::testParseVFormat<int>(&message,
+                                                         false,
+                                                         "{:L}");
                 ASSERTV(message.c_str(), !rv);
             }
             catch(const bsl::format_error& err) {
                 ASSERTV(err.what(),
                         "Exception should have been caught by the "
-                        "`Formatter_TestUtil`",
+                        "`FormatterTestUtil`",
                         false);
             }
         }
@@ -702,24 +682,21 @@ int main(int argc, char **argv)
         {
             try {
                 bsl::string message;
-                bool        rv =
-                       bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
-                           &message,
-                           false,
-                           "{:6d}");
+                bool        rv = TestUtilChar::testParseVFormat<int>(&message,
+                                                                     false,
+                                                                     "{:6d}");
 
                 ASSERTV(message.c_str(), rv);
 
-                rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<int>(
-                                                                    &message,
-                                                                    false,
-                                                                    "{:6.5d}");
+                rv = TestUtilChar::testParseVFormat<int>(&message,
+                                                         false,
+                                                         "{:6.5d}");
                 ASSERTV(message.c_str(), !rv);
             }
             catch(const bsl::format_error& err) {
                 ASSERTV(err.what(),
                         "Exception should have been caught by the "
-                        "`Formatter_TestUtil`",
+                        "`FormatterTestUtil`",
                         false);
             }
         }

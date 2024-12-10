@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Nov  6 14:05:18 2024
+// Generated on Wed Dec  4 12:21:29 2024
 // Command line: sim_cpp11_features.pl bslfmt_formatargs.h
 
 #ifdef COMPILING_BSLFMT_FORMATARGS_H
@@ -933,9 +933,9 @@ template <class t_CONTEXT>
 class basic_format_args {
   private:
     // DATA
-    size_t                             d_size;   // Number of arguments held
-    const basic_format_arg<t_CONTEXT> *d_data;   // Pointer to the first element
-                                                 // of the contained array.
+    size_t                             d_size;  // Number of arguments held
+    const basic_format_arg<t_CONTEXT> *d_data;  // Pointer to the first element
+                                                // of the contained array.
 
     // PRIVATE ACCESSORS
 
@@ -1868,18 +1868,17 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 // }}} END GENERATED CODE
 #endif
 
-
                      // ----------------------------------
                      // class basic_format_args<t_CONTEXT>
                      // ----------------------------------
-
-
 
 // CREATORS
 template <class t_CONTEXT>
 inline
 basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
-    : d_size(0) {}
+: d_size(0)
+, d_data(0)
+{}
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1896,8 +1895,8 @@ inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 0u),
-  d_data(store.d_args.data())
+: d_size( 0u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 0
@@ -1909,8 +1908,8 @@ inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 1u),
-  d_data(store.d_args.data())
+: d_size( 1u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 1
@@ -1924,8 +1923,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS_01,
                                                              t_ARGS_02>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 2u),
-  d_data(store.d_args.data())
+: d_size( 2u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 2
@@ -1941,8 +1940,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_02,
                                                              t_ARGS_03>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 3u),
-  d_data(store.d_args.data())
+: d_size( 3u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 3
@@ -1960,8 +1959,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_03,
                                                              t_ARGS_04>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 4u),
-  d_data(store.d_args.data())
+: d_size( 4u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 4
@@ -1981,8 +1980,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_04,
                                                              t_ARGS_05>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 5u),
-  d_data(store.d_args.data())
+: d_size( 5u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 5
@@ -2004,8 +2003,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_05,
                                                              t_ARGS_06>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 6u),
-  d_data(store.d_args.data())
+: d_size( 6u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 6
@@ -2029,8 +2028,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_06,
                                                              t_ARGS_07>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 7u),
-  d_data(store.d_args.data())
+: d_size( 7u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 7
@@ -2056,8 +2055,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_07,
                                                              t_ARGS_08>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 8u),
-  d_data(store.d_args.data())
+: d_size( 8u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 8
@@ -2085,8 +2084,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_08,
                                                              t_ARGS_09>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size( 9u),
-  d_data(store.d_args.data())
+: d_size( 9u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 9
@@ -2116,8 +2115,8 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                              t_ARGS_09,
                                                              t_ARGS_10>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size(10u),
-  d_data(store.d_args.data())
+: d_size(10u)
+, d_data(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMATARGS_VARIADIC_LIMIT_F >= 10
@@ -2131,8 +2130,8 @@ inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT
-: d_size(sizeof...(t_ARGS)),
-  d_data(store.d_args.data())
+: d_size(sizeof...(t_ARGS))
+, d_data(store.d_args.data())
 {
 }
 // }}} END GENERATED CODE

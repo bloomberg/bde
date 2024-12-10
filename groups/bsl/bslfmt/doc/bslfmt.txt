@@ -9,7 +9,7 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 23 components having 10 levels of physical
+ The 'bslfmt' package currently has 25 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -31,6 +31,8 @@ bslfmt.txt
 
   5. bslfmt_formatargs
      bslfmt_formatterspecificationsplitter
+     bslfmt_mockformatcontext
+     bslfmt_mockparsecontext
 
   4. bslfmt_formatarg
      bslfmt_formatcontext
@@ -118,3 +120,9 @@ bslfmt.txt
 :
 : 'bslfmt_formatterunicodeutils':
 :      Private unicode utilities for use by `bsl::format`
+:
+: 'bslfmt_mockformatcontext':
+:      Provide mock format context for use in formatter tests
+:
+: 'bslfmt_mockparsecontext':
+:      Provide mock parse context for use in formatter tests

@@ -27,14 +27,14 @@ BSLS_IDENT("$Id: $")
 // defined alignment and padding.
 //
 // ```
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<6s", 1);
+//  bslfmt::MockParseContext<char> mpc("*<6s", 1);
 //
 //  bsl::formatter<bool, char> f;
 //  mpc.advance_to(f.parse(mpc));
 //
 //  bool value = false;
 //
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 //
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
@@ -75,13 +75,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                         // ====================
-                         // struct FormatterBool
-                         // ====================
+                         // ========================
+                         // struct FormatterBool_Imp
+                         // ========================
 
 /// This type implements the formatter logic specific to the boolean type.
 template <class t_CHAR>
-struct FormatterBool : public FormatterIntegralBase<bool, t_CHAR> {
+struct FormatterBool_Imp : public FormatterIntegralBase<bool, t_CHAR> {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -112,7 +112,7 @@ namespace bsl {
 /// `bool`.
 template <class t_CHAR>
 struct formatter<bool, t_CHAR>
-: BloombergLP::bslfmt::FormatterBool<t_CHAR> {
+: BloombergLP::bslfmt::FormatterBool_Imp<t_CHAR> {
 };
 
 }
@@ -131,7 +131,7 @@ namespace bslfmt {
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
-typename t_FORMAT_CONTEXT::iterator FormatterBool<t_CHAR>::format(
+typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
                                          bool              value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {

@@ -28,14 +28,14 @@ BSLS_IDENT("$Id: $")
 // defined alignment and padding.
 //
 // ```
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<6p", 1);
+//  bslfmt::MockParseContext<char> mpc("*<6p", 1);
 //
 //  bsl::formatter<const void *, char> f;
 //  mpc.advance_to(f.parse(mpc));
 //
 //  const void *value = 0;
 //
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 //
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
@@ -65,14 +65,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                         // =======================
-                         // struct FormatterPointer
-                         // =======================
+                         // ===========================
+                         // struct FormatterPointer_Imp
+                         // ===========================
 
 /// This struct is a specialization of the `bsl::formatter` template for the
 /// pointer types.
 template <class t_VALUE, class t_CHAR>
-struct FormatterPointer : public FormatterIntegralBase<t_VALUE, t_CHAR> {
+struct FormatterPointer_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -90,14 +90,14 @@ struct FormatterPointer : public FormatterIntegralBase<t_VALUE, t_CHAR> {
 };
 
 
-                         // =======================
-                         // struct FormatterNullptr
-                         // =======================
+                         // ===============================
+                         // struct FormatterPointer_Nullptr
+                         // ===============================
 
 /// This struct is a specialization of the `bsl::formatter` template for the
 /// `bsl::nullptr_t`.
 template <class t_CHAR>
-struct FormatterNullptr
+struct FormatterPointer_Nullptr
 : public FormatterIntegralBase<bsl::nullptr_t, t_CHAR> {
   public:
     // TRAITS
@@ -124,21 +124,21 @@ namespace bsl {
 /// `void *`.
 template <class t_CHAR>
 struct formatter<void *, t_CHAR>
-: BloombergLP::bslfmt::FormatterPointer<void *, t_CHAR> {
+: BloombergLP::bslfmt::FormatterPointer_Imp<void *, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `const void *`.
 template <class t_CHAR>
 struct formatter<const void *, t_CHAR>
-: BloombergLP::bslfmt::FormatterPointer<const void *, t_CHAR> {
+: BloombergLP::bslfmt::FormatterPointer_Imp<const void *, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `bsl::nullptr_t`.
 template <class t_CHAR>
 struct formatter<bsl::nullptr_t, t_CHAR>
-: BloombergLP::bslfmt::FormatterNullptr<t_CHAR> {
+: BloombergLP::bslfmt::FormatterPointer_Nullptr<t_CHAR> {
 };
 
 }  // close namespace bsl
@@ -157,7 +157,8 @@ namespace bslfmt {
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
-typename t_FORMAT_CONTEXT::iterator FormatterPointer<t_VALUE, t_CHAR>::format(
+typename t_FORMAT_CONTEXT::iterator
+FormatterPointer_Imp<t_VALUE, t_CHAR>::format(
                                          t_VALUE           ptrValue,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
@@ -213,14 +214,14 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer<t_VALUE, t_CHAR>::format(
                              formatContext);
 }
 
-                         // -----------------------
-                         // struct FormatterNullptr
-                         // -----------------------
+                         // -------------------------------
+                         // struct FormatterPointer_Nullptr
+                         // -------------------------------
 
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
-typename t_FORMAT_CONTEXT::iterator FormatterNullptr<t_CHAR>::format(
+typename t_FORMAT_CONTEXT::iterator FormatterPointer_Nullptr<t_CHAR>::format(
                                          bsl::nullptr_t,
                                          t_FORMAT_CONTEXT& formatContext) const
 {

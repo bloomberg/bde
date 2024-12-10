@@ -149,7 +149,7 @@ void aSsErT(bool condition, const char *message, int line)
     {                                                                          \
         bsl::string errorMsg;                                                  \
         bool rv;                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFailure<const type *>(&errorMsg, useOracle, fmtStr); \
         if (!rv) {                                                             \
             bsl::basic_string<type> formatStr(fmtStr);                         \
@@ -164,7 +164,7 @@ void aSsErT(bool condition, const char *message, int line)
         bsl::string errorMsg;                                                  \
         bool rv;                                                               \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<const type *>(&errorMsg,                      \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -173,7 +173,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<type *>(&errorMsg,                            \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -183,7 +183,7 @@ void aSsErT(bool condition, const char *message, int line)
         }                                                                      \
                                                                                \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<type[10]>(&errorMsg,                          \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -192,7 +192,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<bsl::basic_string<type> >(&errorMsg,          \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -201,7 +201,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<std::basic_string<type> > (&errorMsg,         \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -210,7 +210,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<bsl::basic_string_view<type> >(&errorMsg,     \
                                   useOracle,                                   \
                                   fmtStr);                                     \
@@ -219,7 +219,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
         }                                                                      \
                                                                                \
-        rv = bslfmt::Formatter_TestUtil<type>::                                \
+        rv = bslfmt::FormatterTestUtil<type>::                                 \
                  testParseFormat<TEST_STD_STRING_VIEW<type> >(                 \
                                  &errorMsg,                                    \
                                   useOracle,                                   \
@@ -235,7 +235,7 @@ void aSsErT(bool condition, const char *message, int line)
         bsl::string errorMsg;                                                 \
         bool        rv;                                                       \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<const type *> \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat<const type *>  \
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -244,7 +244,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type *>       \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat<type *>        \
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -253,7 +253,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat<type[10]>     \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat<type[10]>      \
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -262,7 +262,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
                                                     <bsl::basic_string<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -272,7 +272,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
                                                     <std::basic_string<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -282,7 +282,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
                                                <bsl::basic_string_view<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -292,7 +292,7 @@ void aSsErT(bool condition, const char *message, int line)
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
                                                                               \
-        rv = bslfmt::Formatter_TestUtil<type>::testParseVFormat               \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
                                                  <TEST_STD_STRING_VIEW<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
@@ -682,14 +682,14 @@ int main(int argc, char **argv)
 // and minimum width.
 //
 //..
-        bslfmt::Formatter_MockParseContext<char> mpc("*<5.3s", 1);
+        bslfmt::MockParseContext<char> mpc("*<5.3s", 1);
 
         bsl::formatter<const char *, char> f;
         mpc.advance_to(f.parse(mpc));
 
         const char *value = "abcdefghij";
 
-        bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+        bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 
         mfc.advance_to(bsl::as_const(f).format(value, mfc));
 
@@ -778,7 +778,7 @@ int main(int argc, char **argv)
 
                                     char *input_cp = const_cast<char *>
                                                          (inputString.c_str());
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -792,7 +792,7 @@ int main(int argc, char **argv)
 
                                     const char *input_ccp =
                                                            inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -805,7 +805,7 @@ int main(int argc, char **argv)
                                             rv);
 
                                     std::string input_ss = inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -821,7 +821,7 @@ int main(int argc, char **argv)
 
                                     std::string_view input_sv =
                                                            inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -836,7 +836,7 @@ int main(int argc, char **argv)
 #endif
 
                                     bsl::string input_bs = inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -849,7 +849,7 @@ int main(int argc, char **argv)
                                             rv);
 
                                     bsl::string_view input_bv = inputString;
-                                    rv = bslfmt::Formatter_TestUtil<char>::
+                                    rv = bslfmt::FormatterTestUtil<char>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -906,7 +906,7 @@ int main(int argc, char **argv)
 
                                     wchar_t *input_cp = const_cast<wchar_t *>(
                                                           inputString.c_str());
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -920,7 +920,7 @@ int main(int argc, char **argv)
 
                                     const wchar_t *input_ccp =
                                                            inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -933,7 +933,7 @@ int main(int argc, char **argv)
                                             rv);
 
                                     std::wstring input_ss = inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -949,7 +949,7 @@ int main(int argc, char **argv)
 
                                     std::wstring_view input_sv =
                                                            inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -964,7 +964,7 @@ int main(int argc, char **argv)
 #endif
 
                                     bsl::wstring input_bs = inputString.c_str();
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -977,7 +977,7 @@ int main(int argc, char **argv)
                                             rv);
 
                                     bsl::wstring_view input_bv = inputString;
-                                    rv = bslfmt::Formatter_TestUtil<wchar_t>::
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
                                         testEvaluateVFormat(&message,
                                                             outputString,
                                                             testOracle,
@@ -1917,35 +1917,35 @@ int main(int argc, char **argv)
 
         bool rv;
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<const char *>(
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<const char *>(
                                                                &message,
                                                                true,
                                                                "{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseFormat<const wchar_t *>(
+        rv = bslfmt::FormatterTestUtil<wchar_t>::testParseFormat<const wchar_t *>(
                                                               &message,
                                                               true,
                                                               L"{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<char *>(
+        rv = bslfmt::FormatterTestUtil<char>::testParseVFormat<char *>(
                                                                &message,
                                                                true,
                                                                "{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<wchar_t *>(
+        rv = bslfmt::FormatterTestUtil<wchar_t>::testParseVFormat<wchar_t *>(
                                                               &message,
                                                               true,
                                                               L"{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(&message,
+        rv = bslfmt::FormatterTestUtil<char>::testEvaluateFormat(&message,
                                                             "**abcde***",
                                                             true,
                                                             "{0:*^{1}.{2}}",
@@ -1955,7 +1955,7 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+        rv = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateFormat(
                                                               &message,
                                                               L"**abcde***",
                                                               true,
@@ -1966,7 +1966,7 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testEvaluateVFormat(
+        rv = bslfmt::FormatterTestUtil<char>::testEvaluateVFormat(
                                                                &message,
                                                                "**abcde***",
                                                                true,
@@ -1977,7 +1977,7 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateVFormat(
+        rv = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateVFormat(
                                                               &message,
                                                               L"**abcde***",
                                                               true,

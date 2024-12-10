@@ -27,14 +27,14 @@ BSLS_IDENT("$Id: $")
 // defined alignment and padding.
 //
 // ```
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<5x", 1);
+//  bslfmt::MockParseContext<char> mpc("*<5x", 1);
 //
 //  bsl::formatter<int, char> f;
 //  mpc.advance_to(f.parse(mpc));
 //
 //  int value = 42;
 //
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 //
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //

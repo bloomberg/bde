@@ -1,18 +1,14 @@
 // bslfmt_formatterspecificationsplitter.t.cpp                        -*-C++-*-
 #include <bslfmt_formatterspecificationsplitter.h>
 
+#include <bslfmt_formatstring.h> // Testing only
+#include <bslfmt_formattertestutil.h> // Testing only
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
 
 #include <stdio.h>
-#include <string.h>
-
-#include <bslfmt_formatarg.h> // Testing only
-#include <bslfmt_formatargs.h> // Testing only
-#include <bslfmt_formatparsecontext.h> // Testing only
-#include <bslfmt_formatstring.h> // Testing only
-#include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -183,7 +179,7 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL FSC parseStandard(
 
     bsl::basic_string_view<char> inputStringView(inputSpecification.get());
 
-    bslfmt::Formatter_MockParseContext<char> mpc(inputStringView, 3);
+    bslfmt::MockParseContext<char> mpc(inputStringView, 3);
 
     FSC::parse(&splitter, &mpc, sect);
 
@@ -203,7 +199,7 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL FSW parseStandard(
 
     bsl::basic_string_view<wchar_t> inputStringView(inputSpecification.get());
 
-    bslfmt::Formatter_MockParseContext<wchar_t> mpc(inputStringView, 3);
+    bslfmt::MockParseContext<wchar_t> mpc(inputStringView, 3);
 
     FSW::parse(&splitter, &mpc, sect);
 
@@ -226,7 +222,7 @@ void checkStandard(
 {
     FSC fs = splitter;
 
-    bslfmt::Formatter_MockFormatContext<char> mfc(99, 98, 97);
+    bslfmt::MockFormatContext<char> mfc(99, 98, 97);
     FSC::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<char>(fs.filler(),
@@ -259,7 +255,7 @@ void checkStandard(
 {
     FSW fs = splitter;
 
-    bslfmt::Formatter_MockFormatContext<wchar_t> mfc(99, 98, 97);
+    bslfmt::MockFormatContext<wchar_t> mfc(99, 98, 97);
     FSW::postprocess(&fs, mfc);
 
     ASSERT(filler == bsl::basic_string_view<wchar_t>(fs.filler(),

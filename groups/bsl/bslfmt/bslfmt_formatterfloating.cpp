@@ -1,9 +1,9 @@
-// bslstl_formatterfloating.cpp                                       -*-C++-*-
+// bslfmt_formatterfloating.cpp                                       -*-C++-*-
 
 #include <bslfmt_formatterfloating.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatterfloating_cpp, "$Id$ $CSID$")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 

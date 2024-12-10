@@ -29,14 +29,14 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to test this formatter's ability to present a character with
 // defined alignment and padding.
 // ```
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<6c", 1);
+//  bslfmt::MockParseContext<char> mpc("*<6c", 1);
 //
 //  bsl::formatter<char, char> formatter;
 //  mpc.advance_to(formatter.parse(mpc));
 //
 //  char value = 'a';
 //
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 //
 //  mfc.advance_to(bsl::as_const(formatter).format(value, mfc));
 //

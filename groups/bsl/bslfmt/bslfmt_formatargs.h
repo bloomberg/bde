@@ -237,9 +237,9 @@ template <class t_CONTEXT>
 class basic_format_args {
   private:
     // DATA
-    size_t                             d_size;   // Number of arguments held
-    const basic_format_arg<t_CONTEXT> *d_data;   // Pointer to the first element
-                                                 // of the contained array.
+    size_t                             d_size;  // Number of arguments held
+    const basic_format_arg<t_CONTEXT> *d_data;  // Pointer to the first element
+                                                // of the contained array.
 
     // PRIVATE ACCESSORS
 
@@ -331,18 +331,17 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 
 #endif
 
-
                      // ----------------------------------
                      // class basic_format_args<t_CONTEXT>
                      // ----------------------------------
-
-
 
 // CREATORS
 template <class t_CONTEXT>
 inline
 basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
-    : d_size(0) {}
+: d_size(0)
+, d_data(0)
+{}
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_CONTEXT>
@@ -351,8 +350,8 @@ inline
 basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT                                           // IMPLICIT
-: d_size(sizeof...(t_ARGS)),
-  d_data(store.d_args.data())
+: d_size(sizeof...(t_ARGS))
+, d_data(store.d_args.data())
 {
 }
 #endif

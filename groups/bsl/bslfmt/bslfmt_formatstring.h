@@ -189,7 +189,7 @@ class basic_format_string {
 
 // ALIAS TEMPLATES AND TYPEDEFS
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 
 template <class... t_ARGS>

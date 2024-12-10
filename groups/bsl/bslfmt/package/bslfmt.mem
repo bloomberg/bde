@@ -21,4 +21,6 @@ bslfmt_formatterstring
 bslfmt_formattertestutil
 bslfmt_formatterunicodedata
 bslfmt_formatterunicodeutils
+bslfmt_mockformatcontext
+bslfmt_mockparsecontext
 

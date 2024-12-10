@@ -1,9 +1,9 @@
-// bslstl_formatterbool.cpp                                           -*-C++-*-
+// bslfmt_formatterbool.cpp                                           -*-C++-*-
 
 #include <bslfmt_formatterbool.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatterbool_cpp, "$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 

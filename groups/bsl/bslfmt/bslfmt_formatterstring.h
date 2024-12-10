@@ -33,14 +33,14 @@ BSLS_IDENT("$Id: $")
 // and minimum width.
 //
 // ```
-//  bslfmt::Formatter_MockParseContext<char> mpc("*<5.3s", 1);
+//  bslfmt::MockParseContext<char> mpc("*<5.3s", 1);
 //
 //  bsl::formatter<const char *, char> f;
 //  mpc.advance_to(f.parse(mpc));
 //
 //  const char *value = "abcdefghij";
 //
-//  bslfmt::Formatter_MockFormatContext<char> mfc(value, 0, 0);
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
 //
 //  mfc.advance_to(bsl::as_const(f).format(value, mfc));
 //
@@ -709,7 +709,7 @@ formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
 
 }  // close namespace bsl
 
-#endif  // INCLUDED_BSLFMT_FORMATTERBASE
+#endif  // INCLUDED_BSLFMT_FORMATTERSTRING
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
