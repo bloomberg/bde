@@ -308,6 +308,7 @@ namespace bslma {
 
 // FORWARD REFERENCES
 struct TestAllocator_BlockHeader;
+class  TestAllocatorStashedStatistics;
 
                              // ===================
                              // class TestAllocator
@@ -554,6 +555,46 @@ class TestAllocator : public Allocator {
     /// dump) and abort.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
 
+    /// Return the current statistics that may later be passed to
+    /// `restoreStatistics`, and reset the current statistic as follows:
+    ///
+    /// Statistic        | Reset value to
+    /// ---------------- | --------------
+    /// numAllocations   | numBlocksInUse
+    /// numDeallocations | ZERO
+    /// numMismatches    | ZERO
+    /// numBoundsErrors  | ZERO
+    /// numBlocksMax     | numBlocksInUse
+    /// numBytesMax      | numBytesInUse
+    /// numBlocksTotal   | numBlocksInUse
+    /// numBytesTotal    | numBytesInUse
+    ///
+    /// See also `restoreStatistics`.
+    TestAllocatorStashedStatistics stashStatistics();
+
+    /// Restore the statistics from the specified `savedStatistics` by
+    /// appropriately combining the current values and the saved values.  The
+    /// behavior is undefined unless `savedStatistics` is a value returned by
+    /// the a previous call to `stashStatictics` on this same object, which has
+    /// not been passed to `restoreStatistics` yet.  This method restores the
+    /// state of the statistics as if the corresponding `stashStatistics` call
+    /// has never happened, in the following manner:
+    ///
+    /// Statistic        | Restore value as
+    /// ---------------- | ---------------------------------------------------
+    /// numAllocations   | saved + current - saved.numBlocksInUse
+    /// numDeallocations | saved.numDeallocations + current.numDeallocations
+    /// numMismatches    | saved.numMismatches    + current.numMismatches
+    /// numBoundsErrors  | saved.numBoundsErrors  + current.numBoundsErrors
+    /// numBlocksMax     | max(saved.numBlocksMax, current.numBlocksMax)
+    /// numBytesMax      | max(saved.numBytesMax,  current.numBytesMax)
+    /// numBlocksTotal   | saved + current - saved.numBlocksInUse
+    /// numBytesTotal    | saved + current - saved.numBytesInUse
+    ///
+    /// See also `stashStatistics`.
+    void restoreStatistics(
+                          const TestAllocatorStashedStatistics& savedStatistics);
+
     /// Set the number of valid allocation requests before an exception is
     /// to be thrown for this allocator to the specified `limit`.  If
     /// `limit` is less than 0, no exception is to be thrown.  By default,
@@ -754,6 +795,90 @@ class TestAllocator : public Allocator {
         { return ta.printToStream(stream); }
 };
 
+                   // ====================================
+                   // class TestAllocatorStashedStatistics
+                   // ====================================
+
+/// This simple unconstrained attribute type is used to store all information
+/// necessary to restore the state of all statistics of a `TestAllocator` after
+/// a `stashStatistics()` call that resets them.  See also
+/// `TestAllocator::stashStatistics` and `TestAllocator::restoreStatistics`.
+class TestAllocatorStashedStatistics {
+  private:
+    // DATA
+    mutable TestAllocator *d_origin_p;
+
+    bsls::Types::Int64     d_numBlocksInUse;
+    bsls::Types::Int64     d_numBytesInUse;
+
+    bsls::Types::Int64     d_numAllocations;
+    bsls::Types::Int64     d_numDeallocations;
+    bsls::Types::Int64     d_numMismatches;
+    bsls::Types::Int64     d_numBoundsErrors;
+    bsls::Types::Int64     d_numBlocksMax;
+    bsls::Types::Int64     d_numBytesMax;
+    bsls::Types::Int64     d_numBlocksTotal;
+    bsls::Types::Int64     d_numBytesTotal;
+
+  public:
+    // CREATORS
+
+    /// Create a `TestAllocatorStashedStatistics` object with its members
+    /// initialized by the current statistics values of the specified
+    /// `testAllocator`, and the address of it as `origin`.
+    TestAllocatorStashedStatistics(TestAllocator *testAllocator);
+
+    // MANIPULATORS
+
+    /// Set the `origin` to a null pointer to indicate that this stash has been
+    /// restored and must not be used again with
+    /// `TestAllocator::restoreStatistics`.  The behavior is undefined unless
+    /// this method is called only once during the lifetime of this object.
+    /// Notice that this manipulator is a `const` method because we want the
+    /// users only keep `const TestAllocatorStashedStatistics` objects around.
+    void markRestored() const;
+
+    /// Call `origin->restoreStatistics(*this)`.  Notice that this manipulator
+    /// is a `const` method because we want the users to only keep
+    /// `const TestAllocatorStashedStatistics` objects around.
+    void restore() const;
+
+    // ACCESSORS
+
+    /// Return the `numBlocksInUse` attribute value.
+    bsls::Types::Int64 numBlocksInUse() const;
+
+    /// Return the `numBytesInUse` attribute value.
+    bsls::Types::Int64 numBytesInUse() const;
+
+    /// Return the `numAllocations` attribute value.
+    bsls::Types::Int64 numAllocations() const;
+
+    /// Return the `numDeallocations` attribute value.
+    bsls::Types::Int64 numDeallocations() const;
+
+    /// Return the `numMismatches` attribute value.
+    bsls::Types::Int64 numMismatches() const;
+
+    /// Return the `numBoundsErrors` attribute value.
+    bsls::Types::Int64 numBoundsErrors() const;
+
+    /// Return the `numBlocksMax` attribute value.
+    bsls::Types::Int64 numBlocksMax() const;
+
+    /// Return the `numBytesMax` attribute value.
+    bsls::Types::Int64 numBytesMax() const;
+
+    /// Return the `numBlocksTotal` attribute value.
+    bsls::Types::Int64 numBlocksTotal() const;
+
+    /// Return the `numBytesTotal` attribute value.
+    bsls::Types::Int64 numBytesTotal() const;
+
+    /// Return a const pointer to the test allocator that was saved.
+    TestAllocator *origin() const;
+};
+
 }  // close package namespace
 
                // ==============================================
@@ -940,8 +1065,66 @@ t_OS& TestAllocator::printToStream(t_OS& stream) const
     return stream;
 }
 
-
 // MANIPULATORS
+inline
+TestAllocatorStashedStatistics TestAllocator::stashStatistics()
+{
+    bsls::BslLockGuard guard(&d_lock);
+
+    const TestAllocatorStashedStatistics rv(this);
+
+    d_numAllocations.storeRelaxed(d_numBlocksInUse.loadRelaxed());
+    d_numDeallocations.storeRelaxed(0);
+
+    d_numMismatches.storeRelaxed(0);
+    d_numBoundsErrors.storeRelaxed(0);
+    d_numBlocksMax.storeRelaxed(d_numBlocksInUse.loadRelaxed());
+    d_numBytesMax.storeRelaxed(d_numBytesInUse.loadRelaxed());
+    d_numBlocksTotal.storeRelaxed(d_numBlocksInUse.loadRelaxed());
+    d_numBytesTotal.storeRelaxed(d_numBytesInUse.loadRelaxed());
+
+    return rv;
+}
+
+inline
+void TestAllocator::restoreStatistics(
+                           const TestAllocatorStashedStatistics& savedStatistics)
+{
+    BSLS_ASSERT(savedStatistics.origin() == this);
+
+    bsls::BslLockGuard guard(&d_lock);
+
+    d_numAllocations.storeRelaxed(
+        savedStatistics.numAllocations() - savedStatistics.numBlocksInUse()
+                                             + d_numAllocations.loadRelaxed());
+    d_numDeallocations.storeRelaxed(
+        savedStatistics.numDeallocations() + d_numDeallocations.loadRelaxed());
+
+    d_numMismatches.storeRelaxed(
+              savedStatistics.numMismatches() + d_numMismatches.loadRelaxed());
+
+    d_numBoundsErrors.storeRelaxed(
+          savedStatistics.numBoundsErrors() + d_numBoundsErrors.loadRelaxed());
+
+    if (d_numBlocksMax.loadRelaxed() < savedStatistics.numBlocksMax()) {
+        d_numBlocksMax.storeRelaxed(savedStatistics.numBlocksMax());
+    }
+
+    if (d_numBytesMax.loadRelaxed() < savedStatistics.numBytesMax()) {
+        d_numBytesMax.storeRelaxed(savedStatistics.numBytesMax());
+    }
+
+    d_numBlocksTotal.storeRelaxed(
+        savedStatistics.numBlocksTotal() - savedStatistics.numBlocksInUse()
+                                             + d_numBlocksTotal.loadRelaxed());
+
+    d_numBytesTotal.storeRelaxed(
+        savedStatistics.numBytesTotal() - savedStatistics.numBytesInUse()
+                                              + d_numBytesTotal.loadRelaxed());
+
+    savedStatistics.markRestored();
+}
+
 inline
 void TestAllocator::setAllocationLimit(bsls::Types::Int64 limit)
 {
@@ -1121,6 +1304,112 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
 }
 
 #endif  // BDE_OPENSOURCE_PUBLICATION
+
+                      // -----------------------------
+                      // class TestAllocatorStatistics
+                      // -----------------------------
+
+// CREATORS
+inline
+TestAllocatorStashedStatistics::TestAllocatorStashedStatistics(
+                                                 TestAllocator *testAllocator)
+: d_origin_p(testAllocator)
+, d_numBlocksInUse(testAllocator->numBlocksInUse())
+, d_numBytesInUse(testAllocator->numBytesInUse())
+, d_numAllocations(testAllocator->numAllocations())
+, d_numDeallocations(testAllocator->numDeallocations())
+, d_numMismatches(testAllocator->numMismatches())
+, d_numBoundsErrors(testAllocator->numBoundsErrors())
+, d_numBlocksMax(testAllocator->numBlocksMax())
+, d_numBytesMax(testAllocator->numBytesMax())
+, d_numBlocksTotal(testAllocator->numBlocksTotal())
+, d_numBytesTotal(testAllocator->numBytesTotal())
+{ }
+
+// MANIPULATORS
+
+inline
+void TestAllocatorStashedStatistics::markRestored() const
+{
+    BSLS_ASSERT(d_origin_p);
+
+    d_origin_p = 0;
+}
+
+inline
+void TestAllocatorStashedStatistics::restore() const
+{
+    BSLS_ASSERT(d_origin_p);
+
+    d_origin_p->restoreStatistics(*this);
+}
+
+// ACCESSORS
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBlocksInUse() const
+{
+    return d_numBlocksInUse;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBytesInUse() const
+{
+    return d_numBytesInUse;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numAllocations() const
+{
+    return d_numAllocations;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numDeallocations() const
+{
+    return d_numDeallocations;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numMismatches() const
+{
+    return d_numMismatches;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBoundsErrors() const
+{
+    return d_numBoundsErrors;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBlocksMax() const
+{
+    return d_numBlocksMax;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBytesMax() const
+{
+    return d_numBytesMax;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBlocksTotal() const
+{
+    return d_numBlocksTotal;
+}
+
+inline
+bsls::Types::Int64 TestAllocatorStashedStatistics::numBytesTotal() const
+{
+    return d_numBytesTotal;
+}
+
+inline
+TestAllocator *TestAllocatorStashedStatistics::origin() const
+{
+    return d_origin_p;
+}
 
 }  // close package namespace
 
