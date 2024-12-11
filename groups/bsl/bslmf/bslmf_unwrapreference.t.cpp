@@ -281,13 +281,13 @@ int main(int argc, char *argv[])
           ASSERT_UNWRAP_REF(bsl::reference_wrapper<TYPE >, RESULT)
 #endif
 
-        ASSERT_UNWRAP_REF_WRAPPED(void*,  void*&);
-        ASSERT_UNWRAP_REF_WRAPPED(int,    int&);
-        ASSERT_UNWRAP_REF_WRAPPED(int&,   int&);
-        ASSERT_UNWRAP_REF_WRAPPED(Enum,   Enum&);
-        ASSERT_UNWRAP_REF_WRAPPED(Struct, Struct&);
-        ASSERT_UNWRAP_REF_WRAPPED(Union,  Union&);
-        ASSERT_UNWRAP_REF_WRAPPED(Class,  Class&);
+        ASSERT_UNWRAP_REF_WRAPPED(void*,     void*&);
+        ASSERT_UNWRAP_REF_WRAPPED(int,       int&);
+        ASSERT_UNWRAP_REF_WRAPPED(const int, const int&);
+        ASSERT_UNWRAP_REF_WRAPPED(Enum,      Enum&);
+        ASSERT_UNWRAP_REF_WRAPPED(Struct,    Struct&);
+        ASSERT_UNWRAP_REF_WRAPPED(Union,     Union&);
+        ASSERT_UNWRAP_REF_WRAPPED(Class,     Class&);
 
         ASSERT_UNWRAP_REF_WRAPPED(int Class::*, int Class::*&);
 
