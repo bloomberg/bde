@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 // (including printable ASCII, TAB `0x09`, or LF `0x0a`, but excluding control
 // characters other than TAB and LF) and that ampersand (`&` or `0x26`),
 // less-than (`<` or `0x3c`), greater-than (`>` or `0x3e`), apostrophe
-// (`0x27`), and quote (`"`) will be printed as `&amp;`, `&lt;`, `&gt`,
+// (`0x27`), and quote (") will be printed as `&amp;`, `&lt;`, `&gt`,
 // `&apos;` and `&quot;` respectively.  Hence the expected output for the above
 // string `VALID_STR` is:
 // ```
