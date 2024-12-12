@@ -488,7 +488,9 @@ class FixedThreadPool {
     /// memory.  If `basicAllocator` is 0, the currently installed default
     /// allocator is used.  The name used for created threads is
     /// `threadAttributes.threadName()` if not empty, otherwise
-    /// "bdl.FixedPool".  The behavior is undefined unless `1 <= numThreads`.
+    /// "bdl.FixedPool".  The detached state of `threadAttributes` is ignored,
+    /// and `e_CREATE_JOINABLE` is used in all cases.  The behavior is
+    /// undefined unless `1 <= numThreads`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
@@ -505,7 +507,9 @@ class FixedThreadPool {
     /// the currently installed default allocator is used.  The name used for
     /// created threads is `threadAttributes.threadName()` if not empty,
     /// otherwise `threadPoolName` if not empty, otherwise "bdl.FixedPool".
-    /// The behavior is undefined unless `1 <= numThreads`.
+    /// The detached state of `threadAttributes` is ignored, and
+    /// `e_CREATE_JOINABLE` is used in all cases.  The behavior is undefined
+    /// unless `1 <= numThreads`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
