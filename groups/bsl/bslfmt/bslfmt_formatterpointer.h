@@ -41,7 +41,6 @@ BSLS_IDENT("$Id: $")
 //
 //  assert("0x0***" == mfc.finalString());
 // ```
-//
 
 #include <bslscm_version.h>
 

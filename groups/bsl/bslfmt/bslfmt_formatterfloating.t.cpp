@@ -19,6 +19,21 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+//=============================================================================
+//                              TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// In this component we are testing partial specializations of `bsl::format`
+// using test helpers defined locally and elsewhere.
+//-----------------------------------------------------------------------------
+// [  ]
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] USAGE EXAMPLE
+// [ *] CONCERN: No memory is leaked from the default allocator.
+// [ *] CONCERN: No memory came from the global allocator.
+
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -69,17 +84,17 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 #define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
 #define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
-#define ASSERT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
-#define ASSERT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
-#define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
-#define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 
 // ============================================================================
@@ -172,7 +187,75 @@ int main(int argc, char **argv)
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) {  case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
+
+///Example: Formatting a pointer
+///- - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test pointer formatter's ability to format a number in
+// hexadecimal format with defined alignment and padding.
+//
+// ```
+    bslfmt::MockParseContext<char> mpc("*<8a", 1);
+
+    bsl::formatter<double , char > f;
+    mpc.advance_to(f.parse(mpc));
+
+    const double value = 42.24;
+
+    bslfmt::MockFormatContext<char> mfc(value, 0, 0);
+
+    mfc.advance_to(bsl::as_const(f).format(value, mfc));
+
+    ASSERT("1.51eb851eb851fp+5" == mfc.finalString());
+// ```
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This test exercises the component but tests nothing.
+        //
+        // Concerns:
+        // 1. The partial specializations are sufficiently functional to enable
+        //    comprehensive testing in subsequent test cases.
+        //
+        // Plan:
+        // 1. Verify that all 3 formatters can be instantiated for both
+        //    supported character types (`char` and `wchar_t`).
+        //
+        // 2. Test both `float` and `double` formatting with increasing
+        //    complexity of format strings, and several numbers including
+        //    special values of infinity and NaN.
+        //
+        // 3. Verify that the `long double` formatter fails as expected.
+        //
+        // 4. Verify that the format string with locale fail as expected.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
         if (verbose) puts("\nBREATHING TEST"
                           "\n==============");
 
@@ -636,7 +719,7 @@ int main(int argc, char **argv)
             ROW("1.234E-37  ", "{:<11.6G}", 1.234e-37),
             ROW(" 1.234E-37 ", "{:^11.6G}", 1.234e-37),
 
-            ROW("1.23457e-37", "{:.6g}", 1.2345678e-37),
+            ROW("1.23457e-37", "{:.6g}",    1.2345678e-37),
 
             // general .6 ALTERNATE
             ROW("1.23400e-37",   "{:#.6g}",    1.234e-37),
@@ -672,7 +755,8 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37),
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > 194134123
+#define u_MSVC_LAST_BAD_VER 194234435
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37),
             ROW(" 1.e-37",  "{:#7.0g}",  1.234e-37),
@@ -682,7 +766,7 @@ int main(int argc, char **argv)
 #endif
             // uppercase general .0 ALTERNATE
             ROW("1.E-37",   "{:#.0G}",   1.234e-37),
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > 194134123
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.E-37",   "{:#6.0G}",  1.234e-37),
             ROW(" 1.E-37",  "{:#7.0G}",  1.234e-37),
@@ -1380,7 +1464,7 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > 194134123
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37f),
             ROW(" 1.e-37",  "{:#7.0g}",  1.234e-37f),
@@ -1390,7 +1474,7 @@ int main(int argc, char **argv)
 #endif
             // uppercase general .0 ALTERNATE
             ROW("1.E-37",   "{:#.0G}",   1.234e-37f),
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > 194134123
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.E-37",   "{:#6.0G}",  1.234e-37f),
             ROW(" 1.E-37",  "{:#7.0G}",  1.234e-37f),
@@ -1713,6 +1797,24 @@ int main(int argc, char **argv)
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
+        if (veryVerbose) puts("\tTesting `long double` prohibition.");
+        {
+            try {
+                bsl::string message;
+                bool        rv = bslfmt::FormatterTestUtil<char>::
+                                        testParseVFormat<long double>(&message,
+                                                                      false,
+                                                                      "{:}");
+                ASSERTV(message.c_str(), !rv);
+            }
+            catch(const bsl::format_error& err) {
+                ASSERTV(err.what(),
+                        "Exception should have been caught by the "
+                        "`FormatterTestUtil`",
+                        false);
+            }
+        }
+
         if (veryVerbose) puts("\tTesting locale prohibition.");
         {
             try {

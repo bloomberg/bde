@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-case 2: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //

@@ -9,9 +9,59 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a formatter customization for floating point types
 //
 //@CLASSES:
+// template bsl::formatter<float, t_CHAR>:       formatter for `float`
+// template bsl::formatter<double, t_CHAR>:      formatter for `double`
+// template bsl::formatter<long double, t_CHAR>: disabled formatter
 //
 //@DESCRIPTION: This component provides partial specializations of
-// `bsl::formatter` catering for floating point types.
+// `bsl::formatter` catering for floating point types.  The component defines a
+// component-private `bslfmt::FormatterFloating_Base` class that implements the
+// formatters for the `float` and `double` types, for both supported output
+// character types (`char` and `wchar_t`).  Partial specializations are then
+// defined that use `bslfmt::FormatterFloating_Base` to specify the actual
+// formatters in the `bsl` namespace.  Notice that `long double` is not one of
+// the supported types.  See below why.
+//
+///`long double`
+///-------------
+// The type `long double` is rarely used in code as it is not only not
+// guaranteed to provide more precision than `double`, but in fact it is
+// exactly the same type as `double` on MSVC (Microsoft Windows), which makes
+// any code that uses it for more precision non-portable.
+//
+// We also do not have a ryu library implementation for `long double` so we
+// could only use much slower means of "printing" it than the other two types.
+//
+// For the above reasons `long double` is now not supported and an attempt to
+// print it will result in a runtime error.
+//
+///Usage
+///-----
+// In this section we show the intended use of this component.
+//
+///Example: Formatting a floating point number
+///- - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`, so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to test pointer formatter's ability to format a number in
+// hexadecimal format with defined alignment and padding.
+//
+// ```
+//  bslfmt::MockParseContext<char> mpc("*<8a", 1);
+//
+//  bsl::formatter<double, char> f;
+//  mpc.advance_to(f.parse(mpc));
+//
+//  const double value = 42.24;
+//
+//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
+//
+//  mfc.advance_to(bsl::as_const(f).format(value, mfc));
+//
+//  assert("1.51eb851eb851fp+5" == mfc.finalString());
+// ```
 
 #include <bslscm_version.h>
 
@@ -48,8 +98,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
+                 // ======================================
+                 // template struct FormatterFloating_Base
+                 // ======================================
+
+/// This class template provides the implementation for all possible floating
+/// point formatting styles and the parsing of the format specification.  The
+/// specified `t_VALUE` template type argument determines the type of floating
+/// point value use (`float` or `double`), while the specified `t_CHAR`
+/// determines the output's character type (`char` or `wchar_t`).
 template <class t_VALUE, class t_CHAR>
-struct Formatter_FloatingBase {
+struct FormatterFloating_Base {
   private:
     // PRIVATE CLASS TYPES
 
@@ -57,7 +116,7 @@ struct Formatter_FloatingBase {
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
 
     // DATA
-    FSS d_spec;  // Parsed specification.
+    FSS d_spec;  /// Parsed specification.
 
     /// A constant representing the case when a position is not found in a
     /// string-search.
@@ -220,10 +279,14 @@ struct Formatter_FloatingBase {
 //                           INLINE DEFINITIONS
 // ============================================================================
 
+                 // --------------------------------------
+                 // template struct FormatterFloating_Base
+                 // --------------------------------------
+
 // PRIVATE CLASS METHODS
 template <class t_VALUE, class t_CHAR>
 size_t
-Formatter_FloatingBase<t_VALUE, t_CHAR>::applyDefaultAlternate(
+FormatterFloating_Base<t_VALUE, t_CHAR>::applyDefaultAlternate(
                                                           char   *buf,
                                                           size_t  numberLength)
 {
@@ -275,7 +338,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyDefaultAlternate(
 
 template <class t_VALUE, class t_CHAR>
 size_t
-Formatter_FloatingBase<t_VALUE, t_CHAR>::applyFixedAlternate(
+FormatterFloating_Base<t_VALUE, t_CHAR>::applyFixedAlternate(
                                                           char   *buf,
                                                           size_t  numberLength)
 {
@@ -296,7 +359,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyFixedAlternate(
 
 template <class t_VALUE, class t_CHAR>
 size_t
-Formatter_FloatingBase<t_VALUE, t_CHAR>::applyGeneralAlternate(
+FormatterFloating_Base<t_VALUE, t_CHAR>::applyGeneralAlternate(
                                                           char   *buf,
                                                           size_t  numberLength,
                                                           int     precision)
@@ -374,7 +437,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyGeneralAlternate(
 
 template <class t_VALUE, class t_CHAR>
 size_t
-Formatter_FloatingBase<t_VALUE, t_CHAR>::applyScientificAlternate(
+FormatterFloating_Base<t_VALUE, t_CHAR>::applyScientificAlternate(
                                                           char    expChar,
                                                           char   *buf,
                                                           size_t  numberLength)
@@ -421,7 +484,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::applyScientificAlternate(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::alignAndCopy(
+FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
                                             const char        *numberBuffer,
                                             size_t             numberLength,
                                             t_FORMAT_CONTEXT&  formatContext,
@@ -531,7 +594,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::alignAndCopy(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatFixedImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatFixedImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -589,7 +652,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatFixedImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatDefaultImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatDefaultImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -621,7 +684,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatDefaultImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatGeneralImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -683,7 +746,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatGeneralImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -721,7 +784,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -781,7 +844,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatHexPrecImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
+FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
                                              t_VALUE           value,
                                              t_FORMAT_CONTEXT& formatContext,
                                              const FSS&        finalSpec) const
@@ -844,7 +907,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::formatScientificImpl(
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::format(
+FormatterFloating_Base<t_VALUE, t_CHAR>::format(
                                          t_VALUE           value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
@@ -900,7 +963,7 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::format(
 template <class t_VALUE, class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Formatter_FloatingBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
+FormatterFloating_Base<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
 {
     FSS::parse(&d_spec, &parseContext, FSS::e_CATEGORY_FLOATING);
 
@@ -918,16 +981,26 @@ Formatter_FloatingBase<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
 namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
+/// This template partial specialization defines `bsl::formatter` for `float`
+/// values for both (`char` and `wchar_t`) character types.
 template <class t_CHAR>
 struct formatter<float, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<float, t_CHAR> {
+: BloombergLP::bslfmt::FormatterFloating_Base<float, t_CHAR> {
 };
 
+/// This template partial specialization defines `bsl::formatter` for `float`
+/// values for both (`char` and `wchar_t`) character types.
 template <class t_CHAR>
 struct formatter<double, t_CHAR>
-: BloombergLP::bslfmt::Formatter_FloatingBase<double, t_CHAR> {
+: BloombergLP::bslfmt::FormatterFloating_Base<double, t_CHAR> {
 };
 
+/// This template partial specialization defines a disabled `bsl::formatter`
+/// for `long double` values for both (`char` and `wchar_t`) character types.
+/// Note that `long double` is disabled because we do not have a performant
+/// implementation for this type, and it is also rarely used because it
+/// essentially does not exist on MSVC because it is the same size and layout
+/// as `double`.  Plan is to implement it only in case it is actually needed.
 template <class t_CHAR>
 struct formatter<long double, t_CHAR> {
     // TRAITS
