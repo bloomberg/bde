@@ -13,6 +13,9 @@ BSLS_IDENT("$Id$")
 //  bdldfp::Decimal128: 128bit IEEE-754 decimal floating-point type
 //  bdldfp::DecimalNumGet: Stream Input Facet
 //  bdldfp::DecimalNumPut: Stream Output Facet
+//  template bsl::formatter<bdldfp::Decimal32, t_CHAR>: formatter impl
+//  template bsl::formatter<bdldfp::Decimal64, t_CHAR>: formatter impl
+//  template bsl::formatter<bdldfp::Decimal128, t_CHAR>: formatter impl
 //
 //@MACROS:
 //  BDLDFP_DECIMAL_DF: Portable Decimal32 literal macro
@@ -48,6 +51,9 @@ BSLS_IDENT("$Id$")
 // 24732 - C99 decimal TR) when available.
 //
 // `bdldfp::DecimalNumGet` and `bdldfp::DecimalNumPut` are IO stream facets.
+//
+// This component also provides support for `bsl::format` formatting as
+// described in {`bsl::format` Format Strings}
 //
 ///Floating-Point Primer
 ///---------------------
@@ -496,6 +502,25 @@ BSLS_IDENT("$Id$")
 // scientific or fixed flags are set then the precision manipulator specifies
 // how many digits of the decimal number are to be printed, otherwise all
 // significant digits of the decimal number are output using native notation.
+//
+///`bsl::format` Format Strings
+///----------------------------
+// `bsl::format` formatting is supported with format strings very similar to
+// binary floating point formats strings, with two major exceptions: there is
+// no support for hexadecimal format, and the default precision is the
+// precision stored within the decimal floating point number (see {Cohorts}),
+// unlike binary floating point where it is always 6.
+//
+// The formats supported are the so-called General, Fixed, Scientific, and
+// their uppercase equivalents.
+//
+// The sign support is the usual: Negative-only,  Always, and
+// Positive-as-space.
+//
+// The alternative format flag ('#') causes the decimal point to be always
+// written.
+//
+// Alignment, fill, and leading zeros are supported as usual.
 //
 ///User-defined literals
 ///---------------------
@@ -4275,94 +4300,186 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
     const wchar_t *end() const;
 };
 
-             // ============================================
-             // template class FormatterSpecificationDecimal
-             // ============================================
+             // =============================================
+             // template class Decimal_FormatterSpecification
+             // =============================================
 
+/// This template is the implementation of the de-facto standard formatter
+/// specification "concept" of `bslfmt` for `bdldfp::Decimal*` types.
 template <class t_CHAR>
 struct Decimal_FormatterSpecification {
 
     // PUBLIC TYPES
+
+    /// This enumeration is used as an indication of the format-type letter in
+    /// a decimal floating point format string.
     enum FormatType {
-        // Default value
-        e_TYPE_UNASSIGNED,
+        e_TYPE_UNASSIGNED,       /// Default value
 
         // Decimal floating point types
-        e_FORMAT_DEFAULT,        // none
-        e_FORMAT_SCIENTIFIC,     // `e`
-        e_FORMAT_SCIENTIFIC_UC,  // `E`
-        e_FORMAT_FIXED,          // `f`
-        e_FORMAT_FIXED_UC,       // `F`
-        e_FORMAT_GENERAL,        // `g`
-        e_FORMAT_GENERAL_UC,     // `g`
+        e_FORMAT_DEFAULT,        /// none
+        e_FORMAT_SCIENTIFIC,     /// `e`
+        e_FORMAT_SCIENTIFIC_UC,  /// `E`
+        e_FORMAT_FIXED,          /// `f`
+        e_FORMAT_FIXED_UC,       /// `F`
+        e_FORMAT_GENERAL,        /// `g`
+        e_FORMAT_GENERAL_UC,     /// `g`
     };
 
   private:
     // PRIVATE TYPES
-    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
+
+    ///  Just an abbreviation for shorter lines.
+    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
 
     // DATA
-    typename FSS::ParsingStatus d_parsingStatus;
-    FSS                         d_basicSplitter;
-    FormatType                  d_formatType;
-    int                         d_widthArgId;
-    int                         d_precisionArgId;
+    typename FSS::ParsingStatus d_parsingStatus;   /// ???
+    FSS                         d_basicSplitter;   /// Helper in parsing
+    FormatType                  d_formatType;      /// What type was requested
+    int                         d_widthArgId;      /// Requested argument num.
+    int                         d_precisionArgId;  /// Precision argument num.
 
     // PRIVATE CLASS METHODS
+
+    /// Parse, from the specified `typeString`, the requested format-type and
+    /// load it into the `d_formatTpe` of the specified `outSpec`.  This method
+    /// will throw a `bsl::format_error` exception in case the `typeString` is
+    /// not empty or a valid, single format character.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
-                             Decimal_FormatterSpecification         *outSpec,
+                             Decimal_FormatterSpecification        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString);
 
     // PRIVATE ACCESSORS
+
+    /// If `d_parsingStatus` is not yet at least `e_PARSED` throw a
+    /// `bsl::format_error` exception, otherwise if `d_parsingStatus` is at
+    /// least `e_PARSED` or higher (later in the process) do nothing.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureItWasParsed() const;
+
+    /// If `d_parsingStatus` is not `e_PARSING_POSTPROCESSED` (the last state)
+    /// throw a `bsl::format_error` exception, otherwise if `d_parsingStatus`
+    /// is `e_PARSING_POSTPROCESSED` do nothing.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureItWasPostprocessed() const;
 
   public:
     // CREATORS
+
+    /// Create an uninitialized `Decimal_FormatterSpecification` object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Decimal_FormatterSpecification();
 
     // CLASS METHODS
+
+    /// Parse a decimal floating point format string using the iterator-range
+    /// from the specified `context` and if successful load the results into
+    /// the specified `outSpec` as well as set its status to `e_PARSED`;
+    /// otherwise, if the format specification denoted by the `context`
+    /// iterator-range is not a valid decimal floating point format
+    /// specification thow a `bsl::format_error` exception.
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
-                                       Decimal_FormatterSpecification *outSpec,
-                                       t_PARSE_CONTEXT               *context);
+                                      Decimal_FormatterSpecification *outSpec,
+                                      t_PARSE_CONTEXT                *context);
 
+    /// Postprocess the specified `outSpec` by using the argument values
+    /// provided by the specified `context` to fill in the values of deferred
+    /// width or precision parameters if such deferred parameters exist and set
+    /// the status of `outSpec` to `e_PARSING_POSTPROCESSED`.  By deferred
+    /// format parameters we mean parameters whose value comes from an argument
+    /// to the formatter function, and not an literal integer value within the
+    /// format string.  In case of an error throw a `bsl::format_error`
+    /// exception.
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(Decimal_FormatterSpecification *outSpec,
-                            const t_FORMAT_CONTEXT&        context);
+                            const t_FORMAT_CONTEXT&         context);
 
     // ACCESSORS
+
+    /// Return a pointer to the character array that stored the parsed filler
+    /// code point in wide character mode, or just the filler character in
+    /// `char` mode unless the status is not `e_PARSING_POSTPROCESSED` in which
+    /// case throw a `bsl::format_error` exception indicating that error.  See
+    /// also `fillerCharacters()` that provides the number of characters in the
+    /// array returned by this function (at least one).
     BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
 
+    /// Return the number of filler characters in the array returned by
+    /// `filler()`unless the status is not `e_PARSING_POSTPROCESSED` in which
+    /// case throw a `bsl::format_error` exception indicating that error.  This
+    /// number will always be one when `t_CHAR` is `char`, and larger than zero
+    /// when it is `wchar_t`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCharacters() const;
 
+    /// Return the number of glyphs (visible characters) that the array
+    /// returned by `filler()` represents unless the status is not
+    /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
+    /// exception indicating that error.  This value will always be one for
+    /// when `t_CHAR` is `char`, and larger than zero when it is `wchar_t`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
 
+    /// Return the enumerator representing the requested alignment unless the
+    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Alignment alignment() const;
 
+    /// Return the enumerator representing the requested sign-treatment option
+    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Sign sign() const;
 
+    /// Return a boolean indicating if alternative formatting was requested
+    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool alternativeFlag() const;
 
+    /// Return a boolean indicating if zero padding was requested unless the
+    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool zeroPaddingFlag() const;
 
+    /// Return an optional value representing the requested width unless the
+    /// status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.  Note that the
+    /// returned type is capable of representing more than just an optional
+    /// integer, but after preprocessing it will have only two possible states:
+    /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20
     const bslfmt::FormatterSpecificationNumericValue
     postprocessedWidth() const;
 
+    /// Return an optional value representing the requested precision unless
+    /// the status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.  Note that the
+    /// returned type is capable of representing more than just an optional
+    /// integer, but after preprocessing it will have only two possible states:
+    /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20
     const bslfmt::FormatterSpecificationNumericValue
     postprocessedPrecision() const;
 
+    /// Return a boolean indicating if the locale specific flag was present in
+    /// the format specification unless the status is not at least
+    /// `e_PARSING_PARSED` in which case throw a `bsl::format_error` exception
+    /// indicating that error.  Note that the locale specific flag is not yet
+    /// supported hence the attempt to format with a specification that has
+    /// this flags set will result in an exception indicating that.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
 
+    /// Return a boolean indicating the format-type requested unless the status
+    /// is not at least `e_PARSING_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
 };
 
-              // ============================================
-              // template struct BslFmtFormatter_FloatingBase
-              // ============================================
+              // ===========================================
+              // template struct Decimal_BslFmtFormatterImpl
+              // ===========================================
 
+/// This class template provides the implementation for all possible decimal
+/// floating point formatting styles and the parsing of the format
+/// specification.  The specified `t_VALUE` template type argument determines
+/// the type of floating point value use (`Decimal32`, ``Decimal64, or
+/// `Decimal128`), while the specified `t_CHAR` determines the output's
+/// character type (`char` or `wchar_t`).
 template <class t_VALUE, class t_CHAR>
 struct Decimal_BslFmtFormatterImpl {
   private:
@@ -6830,9 +6947,9 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
     outSpec->d_parsingStatus = FSS::e_PARSING_POSTPROCESSED;
 }
 
-        // ---------------------------------------------------
-        // template struct BslFmtFormatter_DecimalFloatingImpl
-        // ---------------------------------------------------
+              // -------------------------------------------
+              // template struct Decimal_BslFmtFormatterImpl
+              // -------------------------------------------
 
 // PRIVATE MANIPULATORS
 template <class t_VALUE, class t_CHAR>
@@ -8849,6 +8966,8 @@ void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal128& object)
 // FORMATTER SPECIALIZATIONS
 namespace bsl {
 
+/// This template partial specialization defines `bsl::formatter` for
+/// `bdldfp::Decimal32` values for both (`char` and `wchar_t`) character types.
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal32, t_CHAR>
 : BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<
@@ -8856,6 +8975,8 @@ struct formatter<BloombergLP::bdldfp::Decimal32, t_CHAR>
                                                 t_CHAR>
 { };
 
+/// This template partial specialization defines `bsl::formatter` for
+/// `bdldfp::Decimal64` values for both (`char` and `wchar_t`) character types.
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal64, t_CHAR>
 : BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<
@@ -8863,6 +8984,8 @@ struct formatter<BloombergLP::bdldfp::Decimal64, t_CHAR>
                                                 t_CHAR>
 { };
 
+/// This template partial specialization defines `bsl::formatter` for
+/// `bdldfp::Decimal128` values for both (`char` & `wchar_t`) character types.
 template <class t_CHAR>
 struct formatter<BloombergLP::bdldfp::Decimal128, t_CHAR>
 : BloombergLP::bdldfp::Decimal_BslFmtFormatterImpl<

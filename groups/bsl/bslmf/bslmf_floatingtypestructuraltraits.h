@@ -57,9 +57,13 @@ namespace bslmf {
 
 // vvvvvvvvvv DERIVED FROM corecrt_internal_fltintrn.h vvvvvvvvvv
 
+/// This is the primary template declaration for
+/// `bslmf::FloatingTypeStructuralTraits`, which is never defined.
 template <class t_FLOATING_TYPE>
 struct FloatingTypeStructuralTraits;
 
+/// This is the full specialization of `bslmf::FloatingTypeStructuralTraits`
+/// for the `float` type.  See the individual members for documentation.
 template <>
 struct FloatingTypeStructuralTraits<float> {
     // PUBLIC TYPES
@@ -147,6 +151,9 @@ struct FloatingTypeStructuralTraits<float> {
     static const float k_MAX_VALUE /* = 0x1.FFFFFEp+127f */;         // FLT_MAX
 };
 
+
+/// This is the full specialization of `bslmf::FloatingTypeStructuralTraits`
+/// for the `double` type.  See the individual members for documentation.
 template <>
 struct FloatingTypeStructuralTraits<double> {
     // PUBLIC TYPES
@@ -232,9 +239,14 @@ struct FloatingTypeStructuralTraits<double> {
     static const double k_MAX_VALUE /*= 0x1.FFFFFFFFFFFFFp+1023*/;   // DBL_MAX
 };
 
+
+/// This is the full specialization of `bslmf::FloatingTypeStructuralTraits`
+/// for the `long double` type.  Notice that `long double` is deliberately not
+/// supported at this time, it is defined only so compiler errors will guide
+/// users to the comment stating so.
 template <>
 struct FloatingTypeStructuralTraits<long double> {
-    // BloombergLP: `long double` is not supported, see file-level documentation
+    // `long double` is not supported, see file-level documentation
 };
 
 // ^^^^^^^^^^ DERIVED FROM corecrt_internal_fltintrn.h ^^^^^^^^^^
