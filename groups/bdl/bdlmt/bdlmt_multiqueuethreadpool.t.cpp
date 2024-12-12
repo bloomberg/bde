@@ -36,16 +36,17 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
-#include <bsl_cmath.h>   // `sqrt`
+#include <bsl_cmath.h>  // `sqrt`
 #include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
-#include <bsl_iostream.h>
 #include <bsl_iomanip.h>
+#include <bsl_iostream.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_map.h>
 #include <bsl_memory.h>
+
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
@@ -120,7 +121,8 @@ using namespace BloombergLP;
 // [32] DRQS 143578129: `numElements` stress test
 // [34] DRQS 176332566: external threadpool shutdown race
 // [35] MOVING JOBS
-// [36] USAGE EXAMPLE 1
+// [36] DRQS 176750534: destroy each job before starting the next
+// [37] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -806,6 +808,113 @@ void case29Job()
 void case32Job()
 {
     bslmt::ThreadUtil::microSleep(10000);
+}
+
+/// Value semantic struct identifying a single event, either invoke or destroy,
+/// and the index of the job to which it appertains.
+struct Case36JournalEntry {
+    enum Type { e_INVOKE, e_DESTROY };
+
+    Type d_type;
+    int  d_index;
+
+    Case36JournalEntry(Type type, int index)
+    : d_type(type)
+    , d_index(index)
+    {
+    }
+};
+
+/// A container of `Case36JournalEntry` objects, maintaining the order in which
+/// they were added.
+class Case36Journal {
+  public:
+    // TYPES
+    typedef bsl::vector<Case36JournalEntry> Container;
+
+  private:
+    // DATA
+    Container    d_journal;
+    bslmt::Mutex d_mutex;
+
+  public:
+    // MANIPULATORS
+
+    /// Log an invoke event in this journal for the given job index.
+    void logInvoke(int index);
+
+    /// Log a destruction event in this journal for the given job index.
+    void logDestruction(int index);
+
+    /// Copy the journal to the specified `*output`.
+    void copyJournal(Container *output);
+
+    /// Clear the journal.
+    void clear();
+};
+
+/// A job object that logs events to a journal on invocation and destruction.
+class Case36Job {
+    // DATA
+    Case36Journal *const d_journal;  // held, not owned
+    int                  d_index;
+
+  public:
+    // CREATORS
+
+    /// Create a `Case36Job` object with the specified `index`, that logs to
+    /// the specified `*journal` on invocation and destruction.  The behavior
+    /// is undefined unless `*journal` outlives this object.
+    Case36Job(Case36Journal *journal, int index);
+
+    /// Destroy this object, and log to the journal specified on construction.
+    ~Case36Job();
+
+    // ACCESSORS
+
+    /// Log an invocation to the journal specified on construction.
+    void operator()() const;
+};
+
+void Case36Journal::logInvoke(int index)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    d_journal.emplace_back(Case36JournalEntry::e_INVOKE, index);
+}
+
+void Case36Journal::logDestruction(int index)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    d_journal.emplace_back(Case36JournalEntry::e_DESTROY, index);
+}
+
+void Case36Journal::copyJournal(Container *output)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    *output = d_journal;
+}
+
+void Case36Journal::clear()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    d_journal.clear();
+}
+
+Case36Job::Case36Job(Case36Journal *journal, int index)
+: d_journal(journal)
+, d_index(index)
+{
+}
+
+Case36Job::~Case36Job()
+{
+    bslmt::ThreadUtil::yield();  // encourage thread rescheduling
+    d_journal->logDestruction(d_index);
+}
+
+void Case36Job::operator()() const
+{
+    d_journal->logInvoke(d_index);
 }
 
 // ============================================================================
@@ -1687,7 +1796,7 @@ int main(int argc, char *argv[]) {
     bslma::DefaultAllocatorGuard dGuard(&da);
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1767,7 +1876,82 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-      }  break;
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // DRQS 176750534: destroy each job before starting the next
+        //
+        // Concerns:
+        // 1. The destruction of a Job object should be complete before
+        //    subsequent jobs are run.
+        //
+        // Plan:
+        // 1. Use a specially designed functor to measure the order of job
+        //    executions and destructions.  C-1
+        //
+        // Testing:
+        //   DRQS 176750534: destroy each job before starting the next
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "DRQS 176750534: destroy jobs\n"
+                 << "============================\n";
+
+        const int NUM_JOBS = 100;
+
+        for (int batchSize = 1; batchSize <= 101; batchSize += 10) {
+            Case36Journal journal;
+
+            {
+                Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+                mX.start();
+                const int queueId = mX.createQueue();
+                mX.setBatchSize(queueId, batchSize);
+                mX.pauseQueue(queueId);
+                ASSERT(0 == mX.numElements(queueId));
+
+                for (int i = 0; i < NUM_JOBS; ++i) {
+                    mX.enqueueJob(queueId, Case36Job(&journal, i));
+                }
+
+                mX.resumeQueue(queueId);
+                mX.drain();
+            }
+
+            // With mX destroyed, all jobs must also be destroyed.
+
+            // Copy the journal entries into a collection we can inspect.
+            typedef Case36Journal::Container Result;
+
+            Result result;
+            journal.copyJournal(&result);
+
+            int alreadyInvoked = -1;
+            for (Result::size_type i = 0; i < result.size(); ++i) {
+                Case36JournalEntry& entry = result[i];
+                if (Case36JournalEntry::e_INVOKE == entry.d_type) {
+                    // Assert that invoke events increase monotonically by one
+                    ASSERTV(entry.d_index,
+                            alreadyInvoked,
+                            alreadyInvoked + 1 == entry.d_index);
+                    alreadyInvoked = entry.d_index;
+                }
+                else if (Case36JournalEntry::e_DESTROY == entry.d_type) {
+                    // All destructors for a given index must come before any
+                    // greater index is invoked.
+                    ASSERTV(entry.d_index,
+                            alreadyInvoked,
+                            entry.d_index >= alreadyInvoked);
+                }
+                else {
+                    // This would be a bug in the test driver, there are only
+                    // two event types.
+                    ASSERT(false);
+                }
+            }
+        }
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // MOVING JOBS

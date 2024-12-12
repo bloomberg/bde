@@ -217,6 +217,7 @@ void MultiQueueThreadPool_Queue::executeFront()
 
     for (bsl::size_t i = 0; i < functors.size(); ++i) {
         functors[i]();
+        functors[i] = Job();
     }
 
     // Note that 'pause' might be called while executing the functors since no
