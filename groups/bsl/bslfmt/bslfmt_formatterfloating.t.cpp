@@ -251,7 +251,7 @@ int main(int argc, char **argv)
         //
         // 3. Verify that the `long double` formatter fails as expected.
         //
-        // 4. Verify that the format string with locale fail as expected.
+        // 4. Verify that the format string with locale fails as expected.
         //
         // Testing:
         //   BREATHING TEST
