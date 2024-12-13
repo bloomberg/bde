@@ -363,7 +363,7 @@ struct BslSourceNameParserUtil {
         k_MASK_TEST = 0x2,
 
         k_HEADER    = 0x0,  // .h
-        k_IMPL      = 0x1,  // .cpp
+        k_IMPL      = 0x1,  // .cpp or .gob
         k_TTEST     = 0x2,  // .t.cpp -- traditional test driver
         k_GTEST     = 0x3,  // .g.cpp -- Google test test driver
 

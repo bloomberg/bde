@@ -1254,6 +1254,7 @@ int main(int argc, char *argv[])
             //---- -----------------
             { L_, ".h",         Util::k_HEADER },
             { L_, ".cpp",       Util::k_IMPL   },
+            { L_, ".gob",       Util::k_IMPL   },
 
             { L_, ".t.cpp",     Util::k_TTEST  },
             { L_, ".g.cpp",     Util::k_GTEST  },

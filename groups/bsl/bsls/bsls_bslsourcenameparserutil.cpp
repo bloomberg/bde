@@ -240,6 +240,11 @@ int BslSourceNameParserUtil::getComponentName(const char **componentNamePtr,
             srcType = k_IMPL;  // Component implementation (.cpp) file
         }
     }
+    else if (endsWith(end, ".gob")) {
+        end -= 4;  // Cut off the ".gob"
+
+        srcType = k_IMPL;  // Component implementation (.gob) file
+    }
     else {
         // It was not a .cpp file, or a .h file
         return -2;                                                    // RETURN
