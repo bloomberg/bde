@@ -1259,6 +1259,11 @@ class map {
     pair<iterator, bool> insert_or_assign(const KEY&       key,
                                           BDE_OTHER_TYPE&& obj);
 
+    template <class BDE_OTHER_TYPE>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      BDE_OTHER_TYPE&&                    obj);
+
     /// If a key equivalent to the specified `key` already exists in this
     /// map, assign the specified `obj` to the value associated with that
     /// key, and return a pair containing an iterator referring to the
@@ -1267,10 +1272,44 @@ class map {
     /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
     /// and return a pair containing an iterator referring to the
     /// newly-created entry and `true`.
-    template <class BDE_OTHER_TYPE>
-    pair<iterator, bool> insert_or_assign(
-                                      BloombergLP::bslmf::MovableRef<KEY> key,
-                                      BDE_OTHER_TYPE&&                    obj);
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        pair<iterator, bool> >::type
+    insert_or_assign(LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
+    {
+        typedef pair<iterator, bool> Result;
+
+        int comparisonResult;
+        BloombergLP::bslalg::RbTreeNode *insertLocation =
+            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                   &comparisonResult,
+                                   &d_tree,
+                                   this->comparator(),
+                                   key);
+    
+        if (!comparisonResult) { // ASSIGN
+            iterator(insertLocation)->second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            return Result(iterator(insertLocation), false);           // RETURN
+        }
+    
+        // INSERT
+        BloombergLP::bslalg::RbTreeNode *node =
+            nodeFactory().emplaceIntoNewNode(
+                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+    
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  insertLocation,
+                                                  comparisonResult < 0,
+                                                  node);
+    
+        return Result(iterator(node), true);
+    }
 
     /// If a key equivalent to the specified `key` already exists in this
     /// map, assign the specified `obj` to the value associated with that
@@ -1298,6 +1337,57 @@ class map {
     iterator insert_or_assign(const_iterator                      hint,
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
+
+
+    /// If a key equivalent to the specified `key` already exists in this
+    /// _map, assign the specified `obj` to the value associated with that
+    /// key, and return an iterator referring to the existing item.
+    /// Otherwise, insert into this map a newly-created `value_type` object
+    /// constructed from
+    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
+    /// and return an iterator referring to the newly-created entry.  Use
+    /// the specified `hint` as a starting point for checking to see if the
+    /// key already in the map.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
+    {
+        BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+        int comparisonResult;
+        BloombergLP::bslalg::RbTreeNode *insertLocation =
+            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                   &comparisonResult,
+                                   &d_tree,
+                                   this->comparator(),
+                                   key,
+                                   hintNode);
+    
+        if (!comparisonResult) { // ASSIGN
+            iterator(insertLocation)->second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            return iterator(insertLocation);                          // RETURN
+        }
+    
+        // INSERT
+        BloombergLP::bslalg::RbTreeNode *node =
+            nodeFactory().emplaceIntoNewNode(
+                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+    
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  insertLocation,
+                                                  comparisonResult < 0,
+                                                  node);
+    
+        return iterator(node);
+    }
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES

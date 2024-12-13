@@ -3637,7 +3637,7 @@ namespace {
 // non-const.  So, for C++03, we make the conversion work with a const source.
 class TransparentlyComparable {
     // DATA
-#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
     mutable
 #endif
     int d_conversionCount;  // number of times `operator int` has been called
@@ -3661,7 +3661,7 @@ class TransparentlyComparable {
 
     /// Return the current value of this object.
     operator int()
-#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
     const
 #endif
     {
@@ -3689,6 +3689,7 @@ class TransparentlyComparable {
 
     /// Return `true` if the value of the specified `lhs` is equal to the
     /// specified `rhs`, and `false` otherwise.
+    BSLA_MAYBE_UNUSED
     friend bool operator==(const TransparentlyComparable& lhs, int rhs)
     {
         return lhs.d_value == rhs;
@@ -3796,14 +3797,14 @@ struct TransparentHasher
 /// `const`-qualified type, we are using the "reference" here as a sort of
 /// universal reference; conceptually, the object remains constant, but we
 /// want to test `const`-qualified and non-`const`-qualified overloads.
-template <class Container>
-void testSetTransparentComparator(Container& container,
-                               bool       isTransparent,
-                               int        initKeyValue)
+template <class t_CONTAINER>
+void testSetTransparentComparator(t_CONTAINER& container,
+                                  bool         isTransparent,
+                                  int          initKeyValue)
 {
     typedef typename bslalg::BidirectionalLink      *Link;
-    typedef typename Container::SizeType             Count;
-    typedef typename Container::ValueType            Value;
+    typedef typename t_CONTAINER::SizeType           Count;
+    typedef typename t_CONTAINER::ValueType          Value;
 
     const int expectedConversionCount = isTransparent ? 0 : 1;
 
@@ -3821,11 +3822,15 @@ void testSetTransparentComparator(Container& container,
         ASSERT(NULL                          !=  EXISTING_F);
         ASSERT(existingKey.value()           ==
          static_cast<bslalg::BidirectionalNode<Value> *>(EXISTING_F)->value());
-        ASSERT(existingKey.conversionCount() == expectedConversionCount);
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
 
         const Link NON_EXISTING_F = container.find(nonExistingKey);
         ASSERT(NULL                             == NON_EXISTING_F);
-        ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
     {
@@ -3836,17 +3841,21 @@ void testSetTransparentComparator(Container& container,
         Link first, last;
 
         container.findRange(&first, &last, existingKey);
-
-        ASSERT(expectedConversionCount == existingKey.conversionCount());
         ASSERT(first != last);
         for (Link it = first; it != last; it = it->nextLink()) {
             ASSERT(existingKey.value() ==
                  static_cast<bslalg::BidirectionalNode<Value> *>(it)->value());
         }
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
+
 
         container.findRange(&first, &last, nonExistingKey);
         ASSERT(first == last);
-        ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
 
@@ -3855,13 +3864,17 @@ void testSetTransparentComparator(Container& container,
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
 
-        const Count bucketFound    = container.bucketIndexForKey(existingKey);
-        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        const Count bucketFound = container.bucketIndexForKey(existingKey);
+        (void) bucketFound;
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
 
-        ASSERTV(expectedConversionCount,        existingKey.conversionCount(),
-                  expectedConversionCount ==    existingKey.conversionCount());
-        ASSERTV(expectedConversionCount,     nonExistingKey.conversionCount(),
-                  expectedConversionCount == nonExistingKey.conversionCount());
+        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        (void) bucketNotFound;
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 }
 
@@ -3871,14 +3884,14 @@ void testSetTransparentComparator(Container& container,
 /// `const`-qualified type, we are using the "reference" here as a sort of
 /// universal reference; conceptually, the object remains constant, but we
 /// want to test `const`-qualified and non-`const`-qualified overloads.
-template <class Container>
-void testMapTransparentComparator(Container& container,
-                               bool       isTransparent,
-                               int        initKeyValue)
+template <class t_CONTAINER>
+void testMapTransparentComparator(t_CONTAINER& container,
+                                  bool         isTransparent,
+                                  int          initKeyValue)
 {
     typedef typename bslalg::BidirectionalLink      *Link;
-    typedef typename Container::SizeType             Count;
-    typedef typename Container::ValueType            Value;
+    typedef typename t_CONTAINER::SizeType           Count;
+    typedef typename t_CONTAINER::ValueType          Value;
 
     const int expectedConversionCount = isTransparent ? 0 : 1;
 
@@ -3897,11 +3910,15 @@ void testMapTransparentComparator(Container& container,
         ASSERT(existingKey.value()           ==
                static_cast<bslalg::BidirectionalNode<Value> *>
                                                   (EXISTING_F)->value().first);
-        ASSERT(existingKey.conversionCount() == expectedConversionCount);
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
 
         const Link NON_EXISTING_F = container.find(nonExistingKey);
         ASSERT(NULL                             == NON_EXISTING_F);
-        ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
     {
@@ -3913,7 +3930,9 @@ void testMapTransparentComparator(Container& container,
 
         container.findRange(&first, &last, existingKey);
 
-        ASSERT(expectedConversionCount == existingKey.conversionCount());
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
         ASSERT(first != last);
         for (Link it = first; it != last; it = it->nextLink()) {
             ASSERT(existingKey.value() ==
@@ -3923,22 +3942,27 @@ void testMapTransparentComparator(Container& container,
 
         container.findRange(&first, &last, nonExistingKey);
         ASSERT(first == last);
-        ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
-
 
     {
         // Testing `bucketIndexForKey`.
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
 
-        const Count bucketFound    = container.bucketIndexForKey(existingKey);
-        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        const Count bucketFound = container.bucketIndexForKey(existingKey);
+        (void) bucketFound;
+        ASSERTV(isTransparent,
+                expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
 
-        ASSERTV(expectedConversionCount,        existingKey.conversionCount(),
-                  expectedConversionCount ==    existingKey.conversionCount());
-        ASSERTV(expectedConversionCount,     nonExistingKey.conversionCount(),
-                  expectedConversionCount == nonExistingKey.conversionCount());
+        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        (void) bucketNotFound;
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 }
 
@@ -3946,28 +3970,74 @@ void testMapTransparentComparator(Container& container,
 /// specified `container`, and count the number of conversions expected
 /// based on the specified `isTransparent`.  Since these tests can modify
 /// the container, we make a copy of it for each test.
-template <class Container>
-void testSetTransparentComparatorMutable(const Container& container,
-                                      bool             isTransparent,
-                                      int              initKeyValue)
+template <class t_CONTAINER>
+void testSetTransparentComparatorMutable(const t_CONTAINER& container,
+                                         bool               isTransparent,
+                                         int                initKeyValue)
 {
-    // No transparent modifying operations on sets.
+    typedef typename bslalg::BidirectionalLink      *Link;
+    typedef typename t_CONTAINER::SizeType           Count;
+    typedef typename t_CONTAINER::ValueType          Value;
+
+    const int expectedConversionCount = isTransparent ? 0 : 1;
+    const Count size = container.size();
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    {
+        // Testing `insertIfMissingTransparent`.   Note that this is only
+        // available when isTransparent is true; but we match the structure of
+        // the other test routines to make reading easier.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        bool      wasInserted;
+        Link      link;
+
+        // with an existing key
+        link = c.insertIfMissingTransparent(&wasInserted, existingKey);
+        ASSERT(!wasInserted);
+        ASSERT(size == c.size());
+        ASSERT(existingKey.value() ==
+         static_cast<bslalg::BidirectionalNode<Value> *>(link)->value());
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        // with a non-existing key
+
+        // Note: We always get a conversion here; if we don't have a
+        // transparent comparator, then the value gets converted, and when the
+        // lookup fails, it gets inserted into the map.  If we do have a
+        // transparent comparator, the lookup is done w/o conversion, but then
+        // the value gets converted in order to put it into the map.
+        link = c.insertIfMissingTransparent(&wasInserted, nonExistingKey);
+        ASSERT( wasInserted);
+        ASSERT(size + 1 == c.size());
+        ASSERT(nonExistingKey.value() ==
+               static_cast<bslalg::BidirectionalNode<Value> *>(link)->value());
+        ASSERTV(isTransparent,
+                1,   nonExistingKey.conversionCount(),
+                1 == nonExistingKey.conversionCount());
+    }
 }
 
 /// Search for a value equal to the specified `initKeyValue` in the
 /// specified `container`, and count the number of conversions expected
 /// based on the specified `isTransparent`.  Since these tests can modify
 /// the container, we make a copy of it for each test.
-template <class Container>
-void testMapTransparentComparatorMutable(const Container& container,
-                                      bool             isTransparent,
-                                      int              initKeyValue)
+template <class t_CONTAINER>
+void testMapTransparentComparatorMutable(const t_CONTAINER& container,
+                                      bool                  isTransparent,
+                                      int                   initKeyValue)
 {
-//     bslalg::BidirectionalLink *>::type tryEmplace(
 
     typedef typename bslalg::BidirectionalLink      *Link;
-    typedef typename Container::SizeType             Count;
-    typedef typename Container::ValueType            Value;
+    typedef typename t_CONTAINER::SizeType           Count;
+    typedef typename t_CONTAINER::ValueType          Value;
 
     const int expectedConversionCount = isTransparent ? 0 : 1;
     const Count size = container.size();
@@ -3981,7 +4051,7 @@ void testMapTransparentComparatorMutable(const Container& container,
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
 
-        Container c(container);
+        t_CONTAINER c(container);
         bool      wasInserted;
         Link      link;
 
@@ -4007,7 +4077,9 @@ void testMapTransparentComparatorMutable(const Container& container,
         ASSERT(size + 1 == c.size());
         ASSERT(nonExistingKey.value() ==
          static_cast<bslalg::BidirectionalNode<Value> *>(link)->value().first);
-        ASSERT(1 == nonExistingKey.conversionCount());
+        ASSERTV(isTransparent,
+                1,   nonExistingKey.conversionCount(),
+                1 == nonExistingKey.conversionCount());
     }
 
 }
@@ -9752,7 +9824,6 @@ int main(int argc, char *argv[])
                     printf("\tTesting mutable non-transparent map.\n");
                 }
                 testSetTransparentComparator       (mSet, false, KEY);
-                testSetTransparentComparatorMutable(mSet, false, KEY);
 
                 if (veryVerbose) {
                     printf("\tTesting const transparent map.\n");

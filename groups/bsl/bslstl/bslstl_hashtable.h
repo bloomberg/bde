@@ -1483,7 +1483,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Thu Nov 21 09:50:52 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 # define COMPILING_BSLSTL_HASHTABLE_H
 # include <bslstl_hashtable_cpp03.h>
@@ -2286,6 +2286,68 @@ class HashTable {
                  bool                                          *isInsertedFlag,
                  BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Insert into this hash-table a `ValueType` object created from the
+    /// specified `value` if a key equivalent to that of such an object does
+    /// not already exist in this hash-table.  Return the address of the
+    /// (possibly newly inserted) element in this hash-table whose key is
+    /// equivalent to that of the object created from `value`.  Load `true`
+    /// into the specified `isInsertedFlag` if a new value was inserted, and
+    /// `false` if an equivalent key was already present.  If this
+    /// hash-table contains more than one element with an equivalent key,
+    /// return the first such element (from the contiguous sequence of
+    /// elements having a matching key).  Additional buckets are allocated,
+    /// as needed, to preserve the invariant `loadFactor <= maxLoadFactor`.
+    /// If this function tries to allocate a number of buckets larger than
+    /// can be represented by this hash-table's `SizeType`, a
+    /// `std::length_error` exception is thrown.  This method requires that
+    /// the `ValueType` defined in the (template parameter) type
+    /// `KEY_CONFIG` be `move-insertable` into this hash-table (see
+    /// {Requirements on `KEY_CONFIG`}) and the (template parameter) type
+    /// `SOURCE_TYPE` be implicitly convertible to `ValueType`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
+    , bslalg::BidirectionalLink *>::type
+    insertIfMissingTransparent(
+                 bool                                          *isInsertedFlag,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)  value)
+    {
+        BSLS_ASSERT(isInsertedFlag);
+
+        const LOOKUP_KEY& lvalue = value;
+
+        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(lvalue);
+
+        bslalg::BidirectionalLink *position =
+           bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+
+        *isInsertedFlag = (!position);
+
+        if(!position) {
+            if (d_size >= d_capacity) {
+                this->rehashForNumBuckets(numBuckets() * 2);
+            }
+
+            position = d_parameters.nodeFactory().emplaceIntoNewNode(
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
+            bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
+                                                            position,
+                                                            hashCode);
+        ++d_size;
+        }
+
+        return position;
+    }
+#endif
+
     /// Insert into this hash-table a `ValueType` object created from the
     /// specified `value` and return the address of the newly inserted node.
     /// If a key equivalent to that of the newly-created object already
@@ -2346,6 +2408,68 @@ class HashTable {
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
                     BDE_OTHER_TYPE&&                            obj);
+
+    /// If a key equivalent to the specified `key` already exists in this
+    /// hash-table, assign the specified `obj` to the value associated with
+    /// that key, load `false` into the specified `isInsertedFlag` and
+    /// return a pointer to the existing entry.  Otherwise, insert into this
+    /// hash-table a newly-created `value_type` object, constructed from
+    /// `key` and `obj`, load `true` into `isInsertedFlag`, and return a
+    /// pointer to the newly-created entry.  Use the optionally specified
+    /// `hint` as a starting place for the search for the existing key.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
+    , bslalg::BidirectionalLink *>::type
+    insertOrAssignTransparent(bool                       *isInsertedFlag,
+                              bslalg::BidirectionalLink  *hint,
+                              LOOKUP_KEY&&                key,
+                              BDE_OTHER_TYPE&&            obj)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(key);
+        // Use the hint, if we can
+        if (!hint
+            || !d_parameters.comparator()(key,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+            hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 key,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) { // assign
+            static_cast<NodeType *>(hint)->value().second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            *isInsertedFlag = false;
+            return hint;                                              // RETURN
+        }
+
+        // insert
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        // Make a new node
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+            BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+
+        // Add it to the hash table
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
 #endif
 
     /// Re-organize this hash-table to have at least the specified
@@ -2471,21 +2595,18 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
-//         const std::size_t hashCode =
-//                           this->d_parameters.hashCodeForTransparentKey(lvalue);
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         // Use the hint, if we can
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2557,6 +2678,8 @@ class HashTable {
 
     /// Return the index of the bucket that would contain all the elements
     /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2577,7 +2700,7 @@ class HashTable {
 
         size_t hashCode = this->d_parameters.hashCodeForKey(key);
         return static_cast<SizeType>(
-	        bslalg::HashTableImpUtil::computeBucketIndex(
+            bslalg::HashTableImpUtil::computeBucketIndex(
                                                   hashCode,
                                                   d_anchor.bucketArraySize()));
     }
@@ -2602,6 +2725,8 @@ class HashTable {
     /// first such element (from the contiguous sequence of elements having
     /// the same key).  The behavior is undefined unless `key` is equivalent
     /// to the elements of at most one equivalent-key group.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -5237,7 +5362,7 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
 
 #endif // End C++11 code
 
-#endif
+#endif // End C++11 code
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

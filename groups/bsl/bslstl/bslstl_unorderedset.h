@@ -1009,6 +1009,34 @@ class unordered_set {
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  `value` is left in a valid but unspecified state.  Return a
+    /// pair whose `first` member is an iterator referring to the (possibly
+    /// newly inserted) `value_type` object in this set that is equivalent
+    /// to `value`, and whose `second` member is `true` if a new value was
+    /// inserted, and `false` if the key was already present.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<iterator, bool> >::type
+    insert(LOOKUP_KEY&& value)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result =
+                d_impl.insertIfMissingTransparent(
+                             &isInsertedFlag,
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+#endif
+
     /// Insert the specified `value` into this set if a key equivalent to
     /// `value` does not already exist in this set; otherwise, if a key
     /// equivalent to `value` already exists in this set, this method has no
@@ -1038,6 +1066,36 @@ class unordered_set {
     /// asserting its validity in some build modes).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Insert the specified `value` into this set if a key equivalent to
+    /// `value` does not already exist in this set; otherwise, if a key
+    /// equivalent to `value` already exists in this set, this method has no
+    /// effect.  `value` is left in a valid but unspecified state.  Return
+    /// an iterator referring to the (possibly newly inserted) `value_type`
+    /// object in this set that is equivalent to `value`.  The average and
+    /// worst case complexity of this operation is not affected by the
+    /// specified `hint`.  This method requires that the (template
+    /// parameter) type `KEY` be `move-insertable` (see {Requirements on
+    /// `KEY`}) into this set.  The behavior is undefined unless `hint` is
+    /// an iterator in the range `[begin() .. end()]` (both endpoints
+    /// included).  Note that `hint` is ignored (other than possibly
+    /// asserting its validity in some build modes).
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<LOOKUP_KEY&&, iterator>::value
+        && !bsl::is_convertible<LOOKUP_KEY&&, const_iterator>::value
+         , iterator>::type
+    insert(const_iterator, LOOKUP_KEY&& value)
+    {
+        return this->insert(
+                       BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value)).first;
+    }
+#endif
 
     /// Insert into this set the value of each `value_type` object in the
     /// range starting at the specified `first` iterator and ending
@@ -1163,6 +1221,8 @@ class unordered_set {
     /// `key`, if such an entry exists, and the past-the-end (`end`)
     /// iterator otherwise.  The behavior is undefined unless `key` is
     /// equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1170,7 +1230,6 @@ class unordered_set {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -1190,6 +1249,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1197,7 +1258,6 @@ class unordered_set {
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
         {
-            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<iterator, iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
@@ -1271,6 +1331,8 @@ class unordered_set {
 
     /// Return `true` if this unordered set contains an element whose key is
     /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -1279,7 +1341,6 @@ class unordered_set {
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
-       // Note: implemented inline due to Sun CC compilation error
         return find(key) != end();
     }
 
@@ -1310,6 +1371,8 @@ class unordered_set {
     /// specified `key`, if such an entry exists, and the past-the-end
     /// (`end`) iterator otherwise.  The behavior is undefined unless `key`
     /// is equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1317,7 +1380,6 @@ class unordered_set {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return const_iterator(d_impl.find(key));
         }
 
@@ -1332,6 +1394,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the returned value will be either 0 or 1.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1339,7 +1403,6 @@ class unordered_set {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return d_impl.find(key) != 0;
         }
 
@@ -1359,6 +1422,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1366,7 +1431,6 @@ class unordered_set {
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);

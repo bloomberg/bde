@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov 14 08:33:27 2024
+// Generated on Wed Dec 11 07:38:13 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1017,34 +1017,7 @@ class unordered_map {
     void insert(std::initializer_list<value_type> values);
 #endif
 
-#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
-#endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
-#endif
-    template <class BDE_OTHER_TYPE>
-    pair<iterator, bool> insert_or_assign(const KEY&       key,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
-
-    template <class BDE_OTHER_TYPE>
-    pair<iterator, bool> insert_or_assign(
-                                      BloombergLP::bslmf::MovableRef<KEY> key,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
-
-    template <class BDE_OTHER_TYPE>
-    iterator insert_or_assign(const_iterator   hint,
-                              const KEY&       key,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
-
-    template <class BDE_OTHER_TYPE>
-    iterator insert_or_assign(const_iterator                      hint,
-                              BloombergLP::bslmf::MovableRef<KEY> key,
-                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
-#else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class BDE_OTHER_TYPE>
@@ -1056,6 +1029,24 @@ class unordered_map {
                                       BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+         , pair<iterator, bool> >::type
+    insert_or_assign(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.insertOrAssignTransparent(
+                           &isInsertedFlag,
+                           NULL,
+                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+
     template <class BDE_OTHER_TYPE>
     iterator insert_or_assign(const_iterator   hint,
                               const KEY&       key,
@@ -1066,8 +1057,24 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+         , iterator>::type
+    insert_or_assign(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.insertOrAssignTransparent(
+                           &isInsertedFlag,
+                           hint.node(),
+                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+        return iterator(result);
+    }
 // }}} END GENERATED CODE
-#endif
 
     /// Return a pair of iterators providing modifiable access to the
     /// sequence of `value_type` objects in this unordered map having the

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov  7 07:41:40 2024
+// Generated on Wed Dec 11 08:22:26 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
@@ -414,6 +414,26 @@ class unordered_set {
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      pair<iterator, bool> >::type
+    insert(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) value)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result =
+                d_impl.insertIfMissingTransparent(
+                             &isInsertedFlag,
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+// }}} END GENERATED CODE
+
     /// Insert the specified `value` into this set if a key equivalent to
     /// `value` does not already exist in this set; otherwise, if a key
     /// equivalent to `value` already exists in this set, this method has no
@@ -443,6 +463,25 @@ class unordered_set {
     /// asserting its validity in some build modes).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
+
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                iterator>::value
+        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
+                                const_iterator>::value
+         , iterator>::type
+    insert(const_iterator, BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) value)
+    {
+        return this->insert(
+                       BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value)).first;
+    }
+// }}} END GENERATED CODE
 
     /// Insert into this set the value of each `value_type` object in the
     /// range starting at the specified `first` iterator and ending
@@ -474,29 +513,29 @@ class unordered_set {
 #ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A
-#define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C
+#define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 0
     pair<iterator, bool> emplace(
                          );
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     pair<iterator, bool> emplace(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> emplace(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -504,9 +543,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -516,9 +555,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -530,9 +569,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -546,9 +585,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -564,9 +603,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -584,9 +623,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -606,9 +645,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -630,28 +669,28 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 0
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 0
     iterator emplace_hint(const_iterator hint);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 0
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 1
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     iterator emplace_hint(const_iterator hint,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 1
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 2
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace_hint(const_iterator hint,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 2
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 3
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -659,9 +698,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 3
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 4
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -671,9 +710,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 4
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 5
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -685,9 +724,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 5
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 6
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -701,9 +740,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 6
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 7
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -719,9 +758,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 7
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 8
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -739,9 +778,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 8
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 9
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -761,9 +800,9 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 9
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 10
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -785,7 +824,7 @@ class unordered_set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_A >= 10
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -861,6 +900,8 @@ class unordered_set {
     /// `key`, if such an entry exists, and the past-the-end (`end`)
     /// iterator otherwise.  The behavior is undefined unless `key` is
     /// equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -868,7 +909,6 @@ class unordered_set {
                       iterator>::type
     find(const LOOKUP_KEY& key)
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return iterator(d_impl.find(key));
         }
 
@@ -888,6 +928,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -895,7 +937,6 @@ class unordered_set {
                       pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
         {
-            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<iterator, iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
@@ -969,6 +1010,8 @@ class unordered_set {
 
     /// Return `true` if this unordered set contains an element whose key is
     /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value &&
@@ -977,7 +1020,6 @@ class unordered_set {
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
-       // Note: implemented inline due to Sun CC compilation error
         return find(key) != end();
     }
 
@@ -1008,6 +1050,8 @@ class unordered_set {
     /// specified `key`, if such an entry exists, and the past-the-end
     /// (`end`) iterator otherwise.  The behavior is undefined unless `key`
     /// is equivalent to at most one element in this unordered set.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1015,7 +1059,6 @@ class unordered_set {
                       const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return const_iterator(d_impl.find(key));
         }
 
@@ -1030,6 +1073,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the returned value will be either 0 or 1.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1037,7 +1082,6 @@ class unordered_set {
                       size_type>::type
     count(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             return d_impl.find(key) != 0;
         }
 
@@ -1057,6 +1101,8 @@ class unordered_set {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the range will contain at most one element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1064,7 +1110,6 @@ class unordered_set {
                       pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
-            // Note: implemented inline due to Sun CC compilation error.
             typedef bsl::pair<const_iterator, const_iterator> ResultType;
 
             HashTableLink *first = d_impl.find(key);
@@ -1822,10 +1867,10 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 #ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B
-#define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D
+#define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 0
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 pair<typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator, bool>
@@ -1841,9 +1886,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 1
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -1861,9 +1906,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 2
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -1884,9 +1929,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 3
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -1910,9 +1955,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 4
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -1939,9 +1984,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 5
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -1971,9 +2016,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 6
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2006,9 +2051,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 7
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2044,9 +2089,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 8
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2085,9 +2130,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 9
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2129,9 +2174,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 10
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2176,10 +2221,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 10
 
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 0
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
@@ -2189,9 +2234,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator)
     return
         this->emplace().first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 1
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -2204,9 +2249,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
         this->emplace(BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 2
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2222,9 +2267,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 3
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2243,9 +2288,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 4
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2267,9 +2312,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 5
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2294,9 +2339,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 6
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2324,9 +2369,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 7
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2357,9 +2402,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 8
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2393,9 +2438,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 9
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2432,9 +2477,9 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 10
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2474,7 +2519,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(const_iterator,
                       BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10)
                       ).first;
 }
-#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDSET_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect

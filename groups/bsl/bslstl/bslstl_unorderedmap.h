@@ -1735,6 +1735,33 @@ class unordered_map {
 
     /// If a key equivalent to the specified `key` already exists in this
     /// unordered_map, assign the specified `obj` to the value associated
+    /// with that key, and return a pair containing an iterator referring to
+    /// the existing item and `false`.  Otherwise, insert into this map a
+    /// newly-created `value_type` object, constructed from
+    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
+    /// and return a pair containing an iterator referring to the
+    /// newly-created entry and `true`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+         , pair<iterator, bool> >::type
+    insert_or_assign(LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
+    {
+        typedef bsl::pair<iterator, bool> ResultType;
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.insertOrAssignTransparent(
+                           &isInsertedFlag,
+                           NULL,
+                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+        return ResultType(iterator(result), isInsertedFlag);
+    }
+
+    /// If a key equivalent to the specified `key` already exists in this
+    /// unordered_map, assign the specified `obj` to the value associated
     /// with that key, and return an iterator referring to the existing
     /// item.  Otherwise, insert into this map a newly-created `value_type`
     /// object, constructed from
@@ -1762,6 +1789,32 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
 
+    /// If a key equivalent to the specified `key` already exists in this
+    /// unordered_map, assign the specified `obj` to the value associated
+    /// with that key, and return an iterator referring to the existing
+    /// item.  Otherwise, insert into this map a newly-created `value_type`
+    /// object, constructed from
+    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
+    /// and return an iterator referring to the newly-created entry.  Use
+    /// the specified `hint` as a starting point for checking to see if the
+    /// key already in the unordered_map.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+         , iterator>::type
+    insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
+    {
+        bool isInsertedFlag = false;
+        HashTableLink *result = d_impl.insertOrAssignTransparent(
+                           &isInsertedFlag,
+                           hint.node(),
+                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+        return iterator(result);
+    }
 #endif
 
     /// Return a pair of iterators providing modifiable access to the

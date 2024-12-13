@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Nov 26 06:40:32 2024
+// Generated on Wed Dec 11 07:38:13 2024
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -734,6 +734,43 @@ class map {
                                       BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        pair<iterator, bool> >::type
+    insert_or_assign(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
+    {
+        typedef pair<iterator, bool> Result;
+
+        int comparisonResult;
+        BloombergLP::bslalg::RbTreeNode *insertLocation =
+            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                   &comparisonResult,
+                                   &d_tree,
+                                   this->comparator(),
+                                   key);
+    
+        if (!comparisonResult) {
+            iterator(insertLocation)->second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            return Result(iterator(insertLocation), false);
+        }
+    
+        BloombergLP::bslalg::RbTreeNode *node =
+            nodeFactory().emplaceIntoNewNode(
+                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+    
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  insertLocation,
+                                                  comparisonResult < 0,
+                                                  node);
+    
+        return Result(iterator(node), true);
+    }
+
     template <class BDE_OTHER_TYPE>
     iterator insert_or_assign(const_iterator   hint,
                               const KEY&       key,
@@ -743,6 +780,47 @@ class map {
     iterator insert_or_assign(const_iterator                      hint,
                               BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+
+
+    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    insert_or_assign(const_iterator hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
+    {
+        BloombergLP::bslalg::RbTreeNode *hintNode =
+                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+        int comparisonResult;
+        BloombergLP::bslalg::RbTreeNode *insertLocation =
+            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
+                                   &comparisonResult,
+                                   &d_tree,
+                                   this->comparator(),
+                                   key,
+                                   hintNode);
+    
+        if (!comparisonResult) {
+            iterator(insertLocation)->second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            return iterator(insertLocation);
+        }
+    
+        BloombergLP::bslalg::RbTreeNode *node =
+            nodeFactory().emplaceIntoNewNode(
+                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+    
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  insertLocation,
+                                                  comparisonResult < 0,
+                                                  node);
+    
+        return iterator(node);
+    }
 // }}} END GENERATED CODE
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES

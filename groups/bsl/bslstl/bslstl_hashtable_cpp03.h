@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Nov 25 22:33:57 2024
+// Generated on Wed Dec 11 11:35:48 2024
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1258,6 +1258,50 @@ class HashTable {
                  bool                                          *isInsertedFlag,
                  BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
+    , bslalg::BidirectionalLink *>::type
+    insertIfMissingTransparent(
+                 bool                                          *isInsertedFlag,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)  value)
+    {
+        BSLS_ASSERT(isInsertedFlag);
+
+        const LOOKUP_KEY& lvalue = value;
+
+        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(lvalue);
+
+        bslalg::BidirectionalLink *position =
+           bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 lvalue,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+
+        *isInsertedFlag = (!position);
+
+        if(!position) {
+            if (d_size >= d_capacity) {
+                this->rehashForNumBuckets(numBuckets() * 2);
+            }
+
+            position = d_parameters.nodeFactory().emplaceIntoNewNode(
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
+            bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
+                                                            position,
+                                                            hashCode);
+        ++d_size;
+        }
+
+        return position;
+    }
+// }}} END GENERATED CODE
+
     /// Insert into this hash-table a `ValueType` object created from the
     /// specified `value` and return the address of the newly inserted node.
     /// If a key equivalent to that of the newly-created object already
@@ -1312,6 +1356,54 @@ class HashTable {
                     bslalg::BidirectionalLink                  *hint,
                     BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
                     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+
+    template <class LOOKUP_KEY, class BDE_OTHER_TYPE>
+    typename bsl::enable_if<
+      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
+   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
+    , bslalg::BidirectionalLink *>::type
+    insertOrAssignTransparent(bool                       *isInsertedFlag,
+                              bslalg::BidirectionalLink  *hint,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
+    {
+        typedef bslalg::HashTableImpUtil ImpUtil;
+
+        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(key);
+        if (!hint
+            || !d_parameters.comparator()(key,
+                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+            hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
+                                                 d_anchor,
+                                                 key,
+                                                 d_parameters.comparator(),
+                                                 hashCode);
+        }
+
+        if (hint) {
+            static_cast<NodeType *>(hint)->value().second =
+                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+            *isInsertedFlag = false;
+            return hint;
+        }
+
+        if (d_size >= d_capacity) {
+            this->rehashForNumBuckets(numBuckets() * 2);
+        }
+
+        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
+            BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
+
+        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
+                                nodeProctor(&d_parameters.nodeFactory(), hint);
+        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
+        nodeProctor.release();
+        ++d_size;
+
+        *isInsertedFlag = true;
+        return hint;
+    }
 // }}} END GENERATED CODE
 
     /// Re-organize this hash-table to have at least the specified
@@ -1389,26 +1481,26 @@ class HashTable {
 #ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #define BSLSTL_HASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_C
-#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_C BSLSTL_HASHTABLE_VARIADIC_LIMIT
+#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_D
+#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_D BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #endif
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     const KeyType&                              key);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
     template <class ARGS_01>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     const KeyType&                              key,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
     template <class ARGS_01,
               class ARGS_02>
     bslalg::BidirectionalLink *tryEmplace(
@@ -1417,9 +1509,9 @@ class HashTable {
                     const KeyType&                              key,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -1430,9 +1522,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1445,9 +1537,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1462,9 +1554,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1481,9 +1573,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1502,9 +1594,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1525,9 +1617,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1550,9 +1642,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1577,26 +1669,26 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     bslmf::MovableRef<NonConstKeyType>          key);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
     template <class ARGS_01>
     bslalg::BidirectionalLink *tryEmplace(
                     bool                                       *isInsertedFlag,
                     bslalg::BidirectionalLink                  *hint,
                     bslmf::MovableRef<NonConstKeyType>          key,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
     template <class ARGS_01,
               class ARGS_02>
     bslalg::BidirectionalLink *tryEmplace(
@@ -1605,9 +1697,9 @@ class HashTable {
                     bslmf::MovableRef<NonConstKeyType>          key,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -1618,9 +1710,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1633,9 +1725,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1650,9 +1742,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1669,9 +1761,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1690,9 +1782,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1713,9 +1805,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1738,9 +1830,9 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1765,11 +1857,11 @@ class HashTable {
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                     BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 
 
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -1781,18 +1873,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -1835,9 +1926,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
     template <class LOOKUP_KEY, class ARGS_01>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -1850,18 +1941,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -1906,9 +1996,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02>
     typename bsl::enable_if<
@@ -1923,18 +2013,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -1981,9 +2070,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03>
@@ -2000,18 +2089,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2060,9 +2148,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2081,18 +2169,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2143,9 +2230,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2166,18 +2253,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2230,9 +2316,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2255,18 +2341,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2321,9 +2406,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2348,18 +2433,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2416,9 +2500,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2445,18 +2529,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2515,9 +2598,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2546,18 +2629,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2618,9 +2700,9 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
     template <class LOOKUP_KEY, class ARGS_01,
                                 class ARGS_02,
                                 class ARGS_03,
@@ -2651,18 +2733,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2725,7 +2806,7 @@ class HashTable {
         *isInsertedFlag = true;
         return hint;
     }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2757,18 +2838,17 @@ class HashTable {
     {
         typedef bslalg::HashTableImpUtil ImpUtil;
 
-        const LOOKUP_KEY& lvalue = key;
         const std::size_t hashCode =
-                          this->d_parameters.hashCodeForKey(lvalue);
+                          this->d_parameters.hashCodeForTransparentKey(key);
 
         if (!hint
             || !d_parameters.comparator()(
-                                      lvalue,
+                                      key,
                                       ImpUtil::extractKey<KEY_CONFIG>(hint))) {
 
                 hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                                  d_anchor,
-                                                 lvalue,
+                                                 key,
                                                  d_parameters.comparator(),
                                                  hashCode);
         }
@@ -2836,6 +2916,8 @@ class HashTable {
 
     /// Return the index of the bucket that would contain all the elements
     /// equivalent to the specified `key`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2856,7 +2938,7 @@ class HashTable {
 
         size_t hashCode = this->d_parameters.hashCodeForKey(key);
         return static_cast<SizeType>(
-	        bslalg::HashTableImpUtil::computeBucketIndex(
+            bslalg::HashTableImpUtil::computeBucketIndex(
                                                   hashCode,
                                                   d_anchor.bucketArraySize()));
     }
@@ -2881,6 +2963,8 @@ class HashTable {
     /// first such element (from the contiguous sequence of elements having
     /// the same key).  The behavior is undefined unless `key` is equivalent
     /// to the elements of at most one equivalent-key group.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -4471,10 +4555,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 #ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #define BSLSTL_HASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_D
-#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_D BSLSTL_HASHTABLE_VARIADIC_LIMIT
+#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_E
+#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_E BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #endif
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
@@ -4515,9 +4599,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01>
 bslalg::BidirectionalLink *
@@ -4559,9 +4643,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
@@ -4606,9 +4690,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4656,9 +4740,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4709,9 +4793,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4765,9 +4849,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4824,9 +4908,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4886,9 +4970,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4951,9 +5035,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5019,9 +5103,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5090,10 +5174,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
@@ -5136,9 +5220,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01>
 bslalg::BidirectionalLink *
@@ -5183,9 +5267,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
@@ -5233,9 +5317,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5286,9 +5370,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5342,9 +5426,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5401,9 +5485,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5463,9 +5547,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5528,9 +5612,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5596,9 +5680,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5667,9 +5751,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5741,10 +5825,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
 
     return newNode;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
@@ -5791,9 +5875,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01>
 bslalg::BidirectionalLink *
@@ -5842,9 +5926,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
@@ -5896,9 +5980,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -5953,9 +6037,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6013,9 +6097,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6076,9 +6160,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6142,9 +6226,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6211,9 +6295,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6283,9 +6367,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6358,9 +6442,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -6436,7 +6520,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 
     return position;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -6884,10 +6968,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 #ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #define BSLSTL_HASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_F
-#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_F BSLSTL_HASHTABLE_VARIADIC_LIMIT
+#ifndef BSLSTL_HASHTABLE_VARIADIC_LIMIT_G
+#define BSLSTL_HASHTABLE_VARIADIC_LIMIT_G BSLSTL_HASHTABLE_VARIADIC_LIMIT
 #endif
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
@@ -6944,9 +7028,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01>
 inline
@@ -7008,9 +7092,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
@@ -7077,9 +7161,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7151,9 +7235,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7230,9 +7314,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7314,9 +7398,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7403,9 +7487,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7497,9 +7581,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7596,9 +7680,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7700,9 +7784,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -7809,11 +7893,11 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 10
 
 
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 0
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 inline
 bslalg::BidirectionalLink *
@@ -7872,9 +7956,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 0
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 0
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 1
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01>
 inline
@@ -7938,9 +8022,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 1
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 1
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 2
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
@@ -8010,9 +8094,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 2
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 2
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 3
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8088,9 +8172,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 3
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 3
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 4
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8172,9 +8256,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 4
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 4
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 5
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8262,9 +8346,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 5
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 5
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 6
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8358,9 +8442,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 6
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 6
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 7
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8460,9 +8544,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 7
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 7
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 8
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8568,9 +8652,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 8
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 8
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 9
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8682,9 +8766,9 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 9
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 9
 
-#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+#if BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 10
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -8802,7 +8886,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
     *isInsertedFlag = true;
     return hint;
 }
-#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_F >= 10
+#endif  // BSLSTL_HASHTABLE_VARIADIC_LIMIT_G >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
