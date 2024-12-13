@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 55 components having 5 levels of physical
+ The 'bdlb' package currently has 56 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -239,7 +239,7 @@
 :      Provide a transparent less-than predicate.
 :
 : 'bdlb_transparentstringhash':
-:      Provide a transparent hash functor for "string-like" data types.
+:      Provide a transparent hash functor.
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated `union`-like) type.

@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 95 components having 21 levels of physical
+ The 'bslmf' package currently has 99 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -60,13 +60,16 @@
   21. bslmf_isnothrowswappable
 
   20. bslmf_isswappable
+      bslmf_unwraprefdecay
 
   19. bslmf_forwardingreftype
       bslmf_forwardingtype
       bslmf_invokeresult
+      bslmf_unwrapreference
       bslmf_util
 
   18. bslmf_movableref
+      bslmf_referencewrapper
 
   17. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
@@ -137,6 +140,7 @@
       bslmf_arraytopointer
       bslmf_conditional
       bslmf_enableif
+      bslmf_floatingtypestructuraltraits
       bslmf_integersequence
       bslmf_isconst
       bslmf_isreference
@@ -232,6 +236,9 @@
 :
 : 'bslmf_enableif':
 :      Provide a utility to set up SFINAE conditions in type deduction.
+:
+: 'bslmf_floatingtypestructuraltraits':
+:      Provide traits to describe floating point type structure.
 :
 : 'bslmf_forwardingreftype':
 :      Provide a meta-function for determining a forwarding type.
@@ -407,6 +414,9 @@
 : 'bslmf_nthparameter_cpp03':                                         !PRIVATE!
 :      Provide C++03 implementation for bslmf_nthparameter.h
 :
+: 'bslmf_referencewrapper':
+:      Provide copyable, assignable object wrapper for references.
+:
 : 'bslmf_removeconst':
 :      Provide a meta-function for removing top-level `const`-qualifier.
 :
@@ -448,6 +458,12 @@
 :
 : 'bslmf_typelist':
 :      Provide a typelist component.
+:
+: 'bslmf_unwraprefdecay':
+:      Provide a meta-function to decay and unwrap reference wrappers.
+:
+: 'bslmf_unwrapreference':
+:      Provide a meta-function to unwrap reference wrappers.
 :
 : 'bslmf_usesallocator':
 :      Provide a meta-function to determine if a type uses an allocator.

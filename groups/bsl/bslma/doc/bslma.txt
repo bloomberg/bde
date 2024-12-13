@@ -16,44 +16,44 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 57 components having 15 levels of physical
+ The 'bslma' package currently has 58 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  15. bslma_managedptr
+  16. bslma_managedptr
 
-  14. bslma_autodeallocator
+  15. bslma_autodeallocator
       bslma_destructorproctor
 
-  13. bslma_deallocatorproctor                           !DEPRECATED!
+  14. bslma_deallocatorproctor                           !DEPRECATED!
 
-  12. bslma_aatypeutil
+  13. bslma_aatypeutil
       bslma_deallocatebytesproctor
       bslma_deallocateobjectproctor
       bslma_deleteobjectproctor
 
-  11. bslma_aamodel
+  12. bslma_aamodel
       bslma_allocatorutil
       bslma_stdallocator                                 !DEPRECATED!
 
-  10. bslma_bslallocator
+  11. bslma_bslallocator
 
-   9. bslma_polymorphicallocator
+  10. bslma_polymorphicallocator
 
-   8. bslma_allocatortraits
+   9. bslma_allocatortraits
       bslma_managedptr_factorydeleter                                 !PRIVATE!
       bslma_managedptr_members                                        !PRIVATE!
       bslma_sequentialallocator                          !DEPRECATED!
       bslma_stdtestallocator
 
-   7. bslma_constructionutil
+   8. bslma_constructionutil
       bslma_sequentialpool                               !DEPRECATED!
       bslma_sharedptrinplacerep
       bslma_sharedptroutofplacerep
       bslma_testallocatormonitor
 
-   6. bslma_allocatoradaptor
+   7. bslma_allocatoradaptor
       bslma_autodestructor
       bslma_deallocatorguard
       bslma_defaultallocatorguard
@@ -67,10 +67,10 @@
       bslma_rawdeleterproctor
       bslma_sharedptrrep
 
-   5. bslma_default
+   6. bslma_default
       bslma_testallocator
 
-   4. bslma_autorawdeleter
+   5. bslma_autorawdeleter
       bslma_bufferallocator                              !DEPRECATED!
       bslma_mallocfreeallocator
       bslma_managedallocator                             !DEPRECATED!
@@ -78,8 +78,10 @@
       bslma_testallocatorexception
       bslma_usesbslmaallocator
 
-   3. bslma_allocator
-      bslma_hasallocatortype
+   4. bslma_allocator
+
+   3. bslma_hasallocatortype
+      bslma_memoryresourceimpsupport
 
    2. bslma_allocatortraits_cpp03                                     !PRIVATE!
       bslma_deleterhelper
@@ -215,6 +217,9 @@
 :
 : 'bslma_memoryresource':
 :      Provide a pure abstract interface for memory-allocation mechanisms.
+:
+: 'bslma_memoryresourceimpsupport':
+:      Provide support for implementing memory resources
 :
 : 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to `bslma::Allocator` protocol.
