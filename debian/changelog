@@ -1,5 +1,32 @@
-bsl-internal (4.17.0.0) unstable; urgency=low
+bsl-internal (4.18.0.0) unstable; urgency=low
 
+  * ba3c2ca61 Bumped version to 4.18.0.0
+  * 169322442 add transparent insert and insert_or_assign to associative containers (#5109)
+  * 6abd49b43 Enable .gob extension for component implementation files. (#5090)
+  * 386e959e9 Add a BSLS_REVIEW to prepare for a change in handling clocks and events (#5118)
+  * 8f7af8266 bdlmt_multiqueuethreadpool delete order (#5107)
+  * 79c83d5d7 bdlmt_fixedthreadpool constructor doc about joinability (#5112)
+  * 949be4c85 Merge pull request #5110 from bbi10/177597618
+  * 5aa984492 Merge pull request #5079 from afeher/drqs-177179750-unwrap_ref-work
+  * b5a95bdb2 [DRQS 176769030] Support bsl::tuple in bslim::Printer (#4977)
+  * b999956aa Add support for Linux ARM (#4789)
+  * b6d1cb387 Merge pull request #5080 from mclow3/c26-unordered-2
+  * 4583c54b5 bdlde_base64(de,en)coderoptions: doc tweak (#5058)
+  * fe714abd5 Merge pull request #5099 from afeher/drqs-145970933-string-insert-replace-fortifying
+  * 411c8135a Merge pull request #5098 from mclow3/TransparentStringHash
+  * 3a2674d4c Merge pull request #5103 from cdesrochers4/patch-2
+  * 021903268 bdlt::Datetime: modify 'add*' and 'add*IfValid' to take into account that (#5070)
+  * fbd8b611c Add real bdlat package documentation (DRQS 149549180) (#5096)
+  * a7a21313d Restore comment about MoveUtil::move that was (#5097)
+  * aa6593751 bdlcc_deque remove expectation of hitting high-water mark from case 15 (#5076)
+  * 4f3eb135f Merge pull request #5093 from hversche/add-removeAll-timequeue-drqs-177291899
+  * c4df872a0 Add a release method to bdls_tempdirectoryguard (#5081)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Dec 2024 18:48:02 +0000
+
+bsl-internal (4.17.0.0) git; urgency=low
+
+  * 7960a3056 Changelog for version 4.17.0.0
   * 44553fbef Bumped version to 4.17.0.0
   * 5a0857be4 Merge pull request #4985 from afeher/drqs-176816660-floating-point-tochars
   * ef07cc398 Add transparent 'bucket' to HashTable and unordered_map (#5072)
@@ -29,7 +56,7 @@ bsl-internal (4.17.0.0) unstable; urgency=low
   * 5d339be3a Fix PublicationScheduler (#5047)
   * 2a1788ab7 Revert "Add move for jobs in bdlmt_multiqueuethreadpool." (#5050)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Nov 2024 12:29:25 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 15 Nov 2024 12:34:01 -0500
 
 bsl-internal (4.16.0.0) git; urgency=low
 
