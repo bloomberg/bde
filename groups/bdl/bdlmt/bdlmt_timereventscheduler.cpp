@@ -704,6 +704,7 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(
             0,
@@ -743,6 +744,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -780,6 +782,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(
             0,
@@ -821,6 +824,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -858,6 +862,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(
             0,
@@ -899,6 +904,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(metricsRegistry, eventSchedulerName);
 }
@@ -936,6 +942,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(
             0,
@@ -977,6 +984,7 @@ TimerEventScheduler::TimerEventScheduler(
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
+    BSLS_REVIEW((numEvents + numClocks) < (1 << 24) - 1);
 
     initialize(metricsRegistry, eventSchedulerName);
 }
