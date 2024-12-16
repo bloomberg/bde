@@ -219,14 +219,14 @@ struct FormatterIntegralBase {
     const FormatterSpecificationStandard<t_CHAR>& specification() const ;
 };
 
-                         // ========================
-                         // struct FormatterIntegral
-                         // ========================
+                        // ============================
+                        // struct FormatterIntegral_Imp
+                        // ============================
 
 /// This type implements the formatter logic specific to integer types other
 /// than character, boolean and pointer type.
 template <class t_VALUE, class t_CHAR>
-struct FormatterIntegral : public FormatterIntegralBase<t_VALUE, t_CHAR> {
+struct FormatterIntegral_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -253,62 +253,62 @@ namespace bsl {
 /// `unsigned char`.
 template <class t_CHAR>
 struct formatter<unsigned char, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<unsigned char, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<unsigned char, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `short int`.
 template <class t_CHAR>
 struct formatter<short, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<short, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<short, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned short int`.
 template <class t_CHAR>
 struct formatter<unsigned short, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<unsigned short, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<unsigned short, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type `int`.
 template <class t_CHAR>
 struct formatter<int, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<int, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<int, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned int`.
 template <class t_CHAR>
 struct formatter<unsigned, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<unsigned, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<unsigned, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `long int`.
 template <class t_CHAR>
 struct formatter<long, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned long int`.
 template <class t_CHAR>
 struct formatter<unsigned long, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<unsigned long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<unsigned long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `long long int`.
 template <class t_CHAR>
 struct formatter<long long, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<long long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<long long, t_CHAR> {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned long long int`.
 template <class t_CHAR>
 struct formatter<unsigned long long, t_CHAR>
-: BloombergLP::bslfmt::FormatterIntegral<unsigned long long, t_CHAR> {
+: BloombergLP::bslfmt::FormatterIntegral_Imp<unsigned long long, t_CHAR> {
 };
 
 }  // close namespace bsl
@@ -607,7 +607,7 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
                                         const t_CHAR      *valueEnd,
                                         t_FORMAT_CONTEXT&  formatContext) const
 {
-    typedef FormatterSpecification_NumericValue FSNValue;
+    typedef FormatterSpecificationNumericValue FSNValue;
 
     const FSS& parsedSpec = this->specification();
     FSS        spec(parsedSpec);
@@ -726,15 +726,15 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::specification() const
     return d_spec;
 }
 
-                         // -----------------------
-                         // class FormatterIntegral
-                         // -----------------------
+                        // ============================
+                        // struct FormatterIntegral_Imp
+                        // ============================
 
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 inline
 typename t_FORMAT_CONTEXT::iterator
-FormatterIntegral<t_VALUE, t_CHAR>::format(
+FormatterIntegral_Imp<t_VALUE, t_CHAR>::format(
                                          t_VALUE           value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {

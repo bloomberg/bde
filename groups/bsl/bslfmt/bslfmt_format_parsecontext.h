@@ -1,7 +1,7 @@
-// bslfmt_formatparsecontext.h                                         -*-C++-*-
+// bslfmt_format_parsecontext.h                                         -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATPARSECONTEXT
-#define INCLUDED_BSLFMT_FORMATPARSECONTEXT
+#ifndef INCLUDED_BSLFMT_FORMAT_PARSECONTEXT
+#define INCLUDED_BSLFMT_FORMAT_PARSECONTEXT
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -62,7 +62,7 @@ namespace bslfmt {
 template <class t_CHAR>
 class basic_format_parse_context;
 
-struct Format_ParseContext_Test_Querier;
+struct Format_ParseContext_TestQuerier;
 
 // TYPEDEFS
 
@@ -159,17 +159,17 @@ class basic_format_parse_context {
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
 
     // FRIENDS
-    friend struct Format_ParseContext_Test_Querier;
+    friend struct Format_ParseContext_TestQuerier;
 };
 
-               // ---------------------------------------
-               // struct Format_ParseContext_Test_Querier
-               // ---------------------------------------
+               // --------------------------------------
+               // struct Format_ParseContext_TestQuerier
+               // --------------------------------------
 
 /// This component-private type enables the indexing mode of a
 /// `basic_parse_context` type to be inspected for the purposes of unit
 /// testing.
-struct Format_ParseContext_Test_Querier {
+struct Format_ParseContext_TestQuerier {
   public:
     // TYPES
     enum IndexingMode { e_UNKNOWN, e_MANUAL, e_AUTOMATIC };
@@ -289,13 +289,13 @@ basic_format_parse_context<t_CHAR>::end() const BSLS_KEYWORD_NOEXCEPT
     return d_end;
 }
 
-                   // --------------------------------------
-                   // class Format_ParseContext_Test_Querier
-                   // --------------------------------------
+                   // -------------------------------------
+                   // class Format_ParseContext_TestQuerier
+                   // -------------------------------------
 
 template <class t_CHAR>
-Format_ParseContext_Test_Querier::IndexingMode
-Format_ParseContext_Test_Querier::queryIndexingMode(
+Format_ParseContext_TestQuerier::IndexingMode
+Format_ParseContext_TestQuerier::queryIndexingMode(
                         const basic_format_parse_context<t_CHAR>& parseContext)
 {
     switch (parseContext.d_indexing) {
@@ -316,7 +316,7 @@ Format_ParseContext_Test_Querier::queryIndexingMode(
 } // close enterprise namespace
 
 
-#endif  // INCLUDED_BSLFMT_FORMATPARSECONTEXT
+#endif  // INCLUDED_BSLFMT_FORMAT_PARSECONTEXT
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

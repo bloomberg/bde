@@ -2,6 +2,7 @@
 #include <bslfmt_mockparsecontext.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_util.h>  // Testing only
 
 #include <bslstl_string.h>
 
@@ -109,7 +110,7 @@ int main(int argc, char **argv)
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // `MockParseContext` is designed to imitate the behavior of the
 // `basic_format_parse_context`. Therefore, let's look at the examples of
-// real-life context usage (`FormatterSpecification_Splitter::parse()`), repeat
+// real-life context usage (`FormatterSpecificationSplitter::parse()`), repeat
 // these steps and see the results.
 //
 // First, create a `MockParseContext` based on the defined specification:
@@ -127,9 +128,9 @@ int main(int argc, char **argv)
     ContextIterator current = mpc.begin();
     ContextIterator end     = mpc.end();
 
-    ASSERT(formatSpecification                             == current);
-    ASSERT(formatSpecification + formatSpecificationLength == end    );
-// ```
+    ASSERT(formatSpecification == BSLS_UTIL_ADDRESSOF(*current));
+    ASSERT(current + formatSpecificationLength == end);
+    // ```
 // Now check the work with arguments:
 // ```
     mpc.check_arg_id(0);

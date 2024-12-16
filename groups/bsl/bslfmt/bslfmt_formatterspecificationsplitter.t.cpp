@@ -1,7 +1,7 @@
 // bslfmt_formatterspecificationsplitter.t.cpp                        -*-C++-*-
 #include <bslfmt_formatterspecificationsplitter.h>
 
-#include <bslfmt_formatstring.h> // Testing only
+#include <bslfmt_format_string.h> // Testing only
 #include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
@@ -9,6 +9,13 @@
 #include <bslstl_string.h>
 
 #include <stdio.h>
+#include <string.h>
+
+#include <bslfmt_format_arg.h> // Testing only
+#include <bslfmt_format_args.h> // Testing only
+#include <bslfmt_format_parsecontext.h> // Testing only
+#include <bslfmt_format_string.h> // Testing only
+#include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -125,14 +132,14 @@ struct MockFormatContext {
     template <class t_ARG0>
     MockFormatContext(const t_ARG0 &arg_0) {
         bsl::array<Arg, 1> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0);
+        Format_ArgUtil::makeFormatArgArray(&arr, arg_0);
         d_arg_0 = Arg(arr[0]);
     }
 
     template <class t_ARG0, class t_ARG1>
     MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
         bsl::array<Arg, 2> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0, arg_1);
+        Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
     }
@@ -143,10 +150,10 @@ struct MockFormatContext {
                       const t_ARG2& arg_2)
     {
         bsl::array<Arg, 3> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
-                                                      arg_0,
-                                                      arg_1,
-                                                      arg_2);
+        Format_ArgUtil::makeFormatArgArray(&arr,
+                                            arg_0,
+                                            arg_1,
+                                            arg_2);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
         d_arg_2 = Arg(arr[2]);
@@ -163,8 +170,8 @@ struct MockFormatContext {
 
 #endif
 
-typedef FormatterSpecification_Splitter<char>    FSC;
-typedef FormatterSpecification_Splitter<wchar_t> FSW;
+typedef FormatterSpecificationSplitter<char>     FSC;
+typedef FormatterSpecificationSplitter<wchar_t> FSW;
 
 BSLFMT_FORMATTER_TEST_CONSTEVAL FSC parseStandard(
        BSLFMT_FORMAT_STRING_PARAMETER                   inputSpecification)
@@ -209,14 +216,14 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL FSW parseStandard(
 void checkStandard(
           const FSC                                        &splitter,
           bsl::basic_string_view<char>                      filler,
-          FormatterSpecification_Splitter<char>::Alignment  alignment,
-          FormatterSpecification_Splitter<char>::Sign       sign,
+          FormatterSpecificationSplitter<char>::Alignment   alignment,
+          FormatterSpecificationSplitter<char>::Sign        sign,
           bool                                              alternativeFlag,
           bool                                              zeroPaddingFlag,
-          FormatterSpecification_NumericValue               rawWidth,
-          FormatterSpecification_NumericValue               postprocessedWidth,
-          FormatterSpecification_NumericValue               rawPrecision,
-          FormatterSpecification_NumericValue               postprocessedPrecision,
+          FormatterSpecificationNumericValue                rawWidth,
+          FormatterSpecificationNumericValue                postprocessedWidth,
+          FormatterSpecificationNumericValue                rawPrecision,
+          FormatterSpecificationNumericValue                postprocessedPrecision,
           bool                                              localeSpecificFlag,
           bsl::basic_string_view<char>                      finalSpec)
 {
@@ -242,14 +249,14 @@ void checkStandard(
 void checkStandard(
        const FSW&                                           splitter,
        bsl::basic_string_view<wchar_t>                      filler,
-       FormatterSpecification_Splitter<wchar_t>::Alignment  alignment,
-       FormatterSpecification_Splitter<wchar_t>::Sign       sign,
+       FormatterSpecificationSplitter<wchar_t>::Alignment   alignment,
+       FormatterSpecificationSplitter<wchar_t>::Sign        sign,
        bool                                                 alternativeFlag,
        bool                                                 zeroPaddingFlag,
-       FormatterSpecification_NumericValue                  rawWidth,
-       FormatterSpecification_NumericValue                  postprocessedWidth,
-       FormatterSpecification_NumericValue                  rawPrecision,
-       FormatterSpecification_NumericValue                  postprocessedPrecision,
+       FormatterSpecificationNumericValue                   rawWidth,
+       FormatterSpecificationNumericValue                   postprocessedWidth,
+       FormatterSpecificationNumericValue                   rawPrecision,
+       FormatterSpecificationNumericValue                   postprocessedPrecision,
        bool                                                 localeSpecificFlag,
        bsl::basic_string_view<wchar_t>                      finalSpec)
 {
@@ -290,9 +297,9 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-        typedef FormatterSpecification_Splitter<char>    FSC;
-        typedef FormatterSpecification_Splitter<wchar_t> FSW;
-        typedef FormatterSpecification_NumericValue      FSValue;
+        typedef FormatterSpecificationSplitter<char>     FSC;
+        typedef FormatterSpecificationSplitter<wchar_t>  FSW;
+        typedef FormatterSpecificationNumericValue       FSValue;
 
         checkStandard(parseStandard(""),
                       " ",

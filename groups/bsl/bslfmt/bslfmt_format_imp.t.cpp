@@ -1,9 +1,12 @@
-// bslstl_formatimp.t.cpp                                             -*-C++-*-
-#include <bslfmt_formatimp.h>
+// bslstl_format_imp.t.cpp                                            -*-C++-*-
+#include <bslfmt_format_imp.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_stopwatch.h>  // Testing only
 
+#include <bslstl_iomanip.h>  // Testing only
 #include <bslstl_string.h>
+#include <bslstl_stringstream.h>  // Testing only
 
 #include <stdio.h>
 #include <string.h>
@@ -113,8 +116,8 @@ bool doTestWithOracle(string_view                   result,
 
     // Work around for the fact we cannot construct a bslfmt::format_string
     // from non-consteval fmtstr.
-    BSLFMT_FORMAT_STRING_PARAMETER                 bslfmt("");
-    bslfmt::Format_FormatString_Test_Updater<char> tu;
+    BSLFMT_FORMAT_STRING_PARAMETER          bslfmt("");
+    bslfmt::Format_String_TestUpdater<char> tu;
 
     tu.update(&bslfmt, fmtstr.get());
 
@@ -133,8 +136,8 @@ bool doTestWithOracle(wstring_view                   result,
 
     // Work around for the fact we cannot construct a bslfmt::format_string
     // from non-consteval fmtstr.
-    BSLFMT_FORMAT_WSTRING_PARAMETER                   bslfmt(L"");
-    bslfmt::Format_FormatString_Test_Updater<wchar_t> tu;
+    BSLFMT_FORMAT_WSTRING_PARAMETER            bslfmt(L"");
+    bslfmt::Format_String_TestUpdater<wchar_t> tu;
 
     tu.update(&bslfmt, fmtstr.get());
 
@@ -187,7 +190,7 @@ struct formatter<FormattableType, t_CHAR> {
 
         FSS::postprocess(&final_spec, fc);
 
-        typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+        typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
 
         FSNVAlue finalWidth(final_spec.postprocessedWidth());
 
@@ -423,6 +426,149 @@ int main(int argc, char **argv)
             check(bsl::wstring(temp2), L"Hello World");
         }
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE MEASUREMENTS
+        //
+        // Concerns:
+        // 1. Is format sufficiently performant compared to other methods.
+        //
+        // Plan:
+        // 1. Perform the tests inside a loop and report the timing
+        //    using `bsls_stopwatch`.
+        //
+        // Testing:
+        //    bsl::format(int)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nPERFORMANCE MEASUREMENTS"
+                   "\n========================\n");
+
+        const int k_MILLION = 1000 * 1000;
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int    value = 0;
+            bsls::Stopwatch timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += bsl::to_string(99.9).size();
+            }
+            timer.stop();
+            printf("floating to_string %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                bsl::stringstream buf1;
+                buf1 << "The value is ";
+                buf1 << bsl::setw(9) << bsl::setprecision(3) << 42.1;
+                value += buf1.str().size();
+            }
+            timer.stop();
+            printf("floating bsl::stringstream %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += std::format("The value is {:9f}", 42.1).size();
+            }
+            timer.stop();
+            printf("floating std::format %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+#endif
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += bslfmt::format("The value is {:9f}", 42.1).size();
+            }
+            timer.stop();
+            printf("floating bslfmt::format %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += bsl::to_string(99).size();
+            }
+            timer.stop();
+            printf("integer to_string %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                bsl::stringstream buf1;
+                buf1 << "The value is ";
+                buf1 << bsl::setw(9) << 42;
+                value += buf1.str().size();
+            }
+            timer.stop();
+            printf("integer bsl::stringstream %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += std::format("The value is {:9d}", 42).size();
+            }
+            timer.stop();
+            printf("integer std::format %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
+#endif
+        {
+            const int k_MIL_ITERATIONS = 10;
+            unsigned long int value = 0;
+            bsls::Stopwatch   timer;
+            timer.start();
+            for (int i = 0; i < k_MIL_ITERATIONS * k_MILLION; ++i) {
+                value += bslfmt::format("The value is {:9d}", 42).size();
+            }
+            timer.stop();
+            printf("integer bslfmt::format %dM values (in seconds): %f\n",
+                   k_MIL_ITERATIONS,
+                   timer.elapsedTime());
+            (void)value;
+        }
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

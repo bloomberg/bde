@@ -380,7 +380,7 @@ bool testRuntimeCharParse(int line, const char *format)
 {
     bsl::string message;
 
-    bool rv = bslfmt::Formatter_TestUtil<char>::testParseVFormat<t_TYPE>(
+    bool rv = bslfmt::FormatterTestUtil<char>::testParseVFormat<t_TYPE>(
                                                                       &message,
                                                                       false,
                                                                       format);
@@ -397,7 +397,7 @@ bool testRuntimeWcharParse(int line, const wchar_t *format)
 {
     bsl::string message;
 
-    bool rv = bslfmt::Formatter_TestUtil<wchar_t>::testParseVFormat<t_TYPE>(
+    bool rv = bslfmt::FormatterTestUtil<wchar_t>::testParseVFormat<t_TYPE>(
                                                                       &message,
                                                                       false,
                                                                       format);
@@ -419,7 +419,7 @@ bool testRuntimeFormat(int           line,
     bsl::string message;
     int         dummyArg = 0;
 
-    bool rv = bslfmt::Formatter_TestUtil<t_CHAR>::testEvaluateVFormat(
+    bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(
                                                                      &message,
                                                                      expected,
                                                                      true,
@@ -554,9 +554,9 @@ void TestDriver::testCase10()
     //: 3 instantiate `bsl::formatter`s for both supported character types
     //:
     //: 4 perform compile time format string compilation tests using
-    //:   `Formatter_TestUtil`
+    //:   `FormatterTestUtil`
     //:
-    //: 5 perform locale prohibition tests using `Formatter_TestUtil`
+    //: 5 perform locale prohibition tests using `FormatterTestUtil`
     //
     // Testing:
     //   BSLFMT FORMATTING
@@ -1105,53 +1105,53 @@ void TestDriver::testCase10()
         // `parse`
 
         // `bdldfp::Decimal32`
-        bool rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        bool rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                     bdldfp::Decimal32>(&message, true, "{0:}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                    bdldfp::Decimal32>(&message, true, "{0:g}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                    bdldfp::Decimal32>(&message, true, "{0:E}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                   bdldfp::Decimal32>(&message, true, "{0:.8}");
         ASSERTV(message.c_str(), rv);
 
         // `bdldfp::Decimal64`
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                     bdldfp::Decimal64>(&message, true, "{0:}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                    bdldfp::Decimal64>(&message, true, "{0:g}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                    bdldfp::Decimal64>(&message, true, "{0:E}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                   bdldfp::Decimal64>(&message, true, "{0:.8}");
         ASSERTV(message.c_str(), rv);
 
         // `bdldfp::Decimal128`
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                    bdldfp::Decimal128>(&message, true, "{0:}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                   bdldfp::Decimal128>(&message, true, "{0:g}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                   bdldfp::Decimal128>(&message, true, "{0:E}");
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::Formatter_TestUtil<char>::testParseFormat<
+        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<
                                  bdldfp::Decimal128>(&message, true, "{0:.8}");
         ASSERTV(message.c_str(), rv);
 
@@ -1160,7 +1160,7 @@ void TestDriver::testCase10()
         const int    DUMMY_ARG = 0;
         { // `bdldfp::Decimal32`
             const bdldfp::Decimal32 VALUE = BDLDFP_DECIMAL_DF(5.0);
-            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "5.0",
                                                                     true,
@@ -1170,7 +1170,7 @@ void TestDriver::testCase10()
                                                                     DUMMY_ARG);
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateFormat(
                                                                 &message,
                                                                 L"5.0",
                                                                 true,
@@ -1182,7 +1182,7 @@ void TestDriver::testCase10()
         }
         { // `bdldfp::Decimal64`
             const bdldfp::Decimal64 VALUE = BDLDFP_DECIMAL_DF(5.0);
-            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "5.0",
                                                                     true,
@@ -1192,7 +1192,7 @@ void TestDriver::testCase10()
                                                                     DUMMY_ARG);
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateFormat(
                                                                 &message,
                                                                 L"5.0",
                                                                 true,
@@ -1204,7 +1204,7 @@ void TestDriver::testCase10()
         }
         { // `bdldfp::Decimal128`
             const bdldfp::Decimal128 VALUE = BDLDFP_DECIMAL_DF(5.0);
-            rv = bslfmt::Formatter_TestUtil<char>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<char>::testEvaluateFormat(
                                                                     &message,
                                                                     "5.0",
                                                                     true,
@@ -1214,7 +1214,7 @@ void TestDriver::testCase10()
                                                                     DUMMY_ARG);
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<wchar_t>::testEvaluateFormat(
+            rv = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateFormat(
                                                                 &message,
                                                                 L"5.0",
                                                                 true,
@@ -1283,13 +1283,13 @@ void TestDriver::testCase10()
     { // `bdldfp::Decimal32`
         try {
             bsl::string message;
-            bool        rv = bslfmt::Formatter_TestUtil<char>::
+            bool        rv = bslfmt::FormatterTestUtil<char>::
                                   testParseVFormat<bdldfp::Decimal32>(&message,
                                                                       false,
                                                                       "{:}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<char>::
+            rv = bslfmt::FormatterTestUtil<char>::
                                   testParseVFormat<bdldfp::Decimal32>(&message,
                                                                       false,
                                                                       "{:L}");
@@ -1298,20 +1298,20 @@ void TestDriver::testCase10()
         catch(const bsl::format_error& err) {
             ASSERTV(err.what(),
                     "Exception should have been caught by the "
-                    "`Formatter_TestUtil`",
+                    "`FormatterTestUtil`",
                     false);
         }
     }
     { // `bdldfp::Decimal64`
         try {
             bsl::string message;
-            bool        rv = bslfmt::Formatter_TestUtil<char>::
+            bool        rv = bslfmt::FormatterTestUtil<char>::
                                   testParseVFormat<bdldfp::Decimal64>(&message,
                                                                       false,
                                                                       "{:}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<char>::
+            rv = bslfmt::FormatterTestUtil<char>::
                                   testParseVFormat<bdldfp::Decimal64>(&message,
                                                                       false,
                                                                       "{:L}");
@@ -1320,20 +1320,20 @@ void TestDriver::testCase10()
         catch(const bsl::format_error& err) {
             ASSERTV(err.what(),
                     "Exception should have been caught by the "
-                    "`Formatter_TestUtil`",
+                    "`FormatterTestUtil`",
                     false);
         }
     }
     { // `bdldfp::Decimal128`
         try {
             bsl::string message;
-            bool        rv = bslfmt::Formatter_TestUtil<char>::
+            bool        rv = bslfmt::FormatterTestUtil<char>::
                                  testParseVFormat<bdldfp::Decimal128>(&message,
                                                                      false,
                                                                      "{:}");
             ASSERTV(message.c_str(), rv);
 
-            rv = bslfmt::Formatter_TestUtil<char>::
+            rv = bslfmt::FormatterTestUtil<char>::
                                  testParseVFormat<bdldfp::Decimal128>(&message,
                                                                      false,
                                                                      "{:L}");
@@ -1342,7 +1342,7 @@ void TestDriver::testCase10()
         catch(const bsl::format_error& err) {
             ASSERTV(err.what(),
                     "Exception should have been caught by the "
-                    "`Formatter_TestUtil`",
+                    "`FormatterTestUtil`",
                     false);
         }
     }

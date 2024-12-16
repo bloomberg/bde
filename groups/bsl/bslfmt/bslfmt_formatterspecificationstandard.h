@@ -48,7 +48,7 @@ namespace BloombergLP {
 namespace bslfmt {
 
 class FormatterSpecificationStandard_Enums
-: public FormatterSpecification_SplitterEnums {
+: public FormatterSpecificationSplitter_Enums {
   public:
     // CLASS TYPES
 
@@ -104,7 +104,7 @@ class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
   private:
     // CLASS TYPES
-    typedef FormatterSpecification_Splitter<t_CHAR> Splitter;
+    typedef FormatterSpecificationSplitter<t_CHAR> Splitter;
 
     // DATA
     ParsingStatus d_parsingStatus;
@@ -143,9 +143,9 @@ class FormatterSpecificationStandard
     BSLS_KEYWORD_CONSTEXPR_CPP20 Sign          sign() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          alternativeFlag() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          zeroPaddingFlag() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                                postprocessedWidth() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                                postprocessedPrecision() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          localeSpecificFlag() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType    formatType() const;
@@ -225,7 +225,7 @@ bool FormatterSpecificationStandard<t_CHAR>::zeroPaddingFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const FormatterSpecification_NumericValue
+const FormatterSpecificationNumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 {
     return d_basicSplitter.postprocessedWidth();
@@ -233,7 +233,7 @@ FormatterSpecificationStandard<t_CHAR>::postprocessedWidth() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const FormatterSpecification_NumericValue
+const FormatterSpecificationNumericValue
 FormatterSpecificationStandard<t_CHAR>::postprocessedPrecision() const
 {
     return d_basicSplitter.postprocessedPrecision();
@@ -273,7 +273,7 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    typedef FormatterSpecification_NumericValue NumericValue;
+    typedef FormatterSpecificationNumericValue NumericValue;
 
     outSpec->d_parsingStatus = e_PARSING_PARSED;
 
@@ -287,7 +287,7 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
             e_SECTIONS_LOCALE_FLAG |
             e_SECTIONS_FINAL_SPECIFICATION);
 
-    FormatterSpecification_Splitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
+    FormatterSpecificationSplitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
                                                    context,
                                                    sect);
 
@@ -323,9 +323,9 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
     Splitter::postprocess(&outSpec->d_basicSplitter, context);
 
     switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
-      case FormatterSpecification_NumericValue::e_DEFAULT: {
+      case FormatterSpecificationNumericValue::e_DEFAULT: {
       } break;
-      case FormatterSpecification_NumericValue::e_VALUE: {
+      case FormatterSpecificationNumericValue::e_VALUE: {
         if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
             BSLS_THROW(
                  bsl::format_error("Zero or negative width value"));  // RETURN
@@ -337,9 +337,9 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
     }
 
     switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
-      case FormatterSpecification_NumericValue::e_DEFAULT: {
+      case FormatterSpecificationNumericValue::e_DEFAULT: {
       } break;
-      case FormatterSpecification_NumericValue::e_VALUE: {
+      case FormatterSpecificationNumericValue::e_VALUE: {
         if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
             BSLS_THROW(
                      bsl::format_error("Negative precision value"));  // RETURN

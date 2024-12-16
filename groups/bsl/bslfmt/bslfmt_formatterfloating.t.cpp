@@ -1,7 +1,7 @@
 // bslfmt_formatterfloating.t.cpp                                     -*-C++-*-
 #include <bslfmt_formatterfloating.h>
 
-#include <bslfmt_formatargs.h>
+#include <bslfmt_format_args.h>
 #include <bslfmt_formattertestutil.h>    // Testing only
 
 #include <bslma_testallocator.h>         // Testing only

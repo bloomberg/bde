@@ -9,10 +9,10 @@ BSLS_IDENT_RCSID(bslfmt_formatterbool_cpp, "$Id$ $CSID$")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<bool, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<bool, wchar_t> >::value));
 
 #endif

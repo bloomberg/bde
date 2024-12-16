@@ -161,7 +161,7 @@ struct formatter<FormattableType, t_CHAR> {
 
         FSS::postprocess(&final_spec, fc);
 
-        typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
+        typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
 
         FSNVAlue finalWidth(final_spec.postprocessedWidth());
 

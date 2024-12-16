@@ -1,5 +1,5 @@
-// bslstl_formatstring.t.cpp                                          -*-C++-*-
-#include <bslfmt_formatstring.h>
+// bslstl_format_string.t.cpp                                         -*-C++-*-
+#include <bslfmt_format_string.h>
 
 #include <bsls_bsltestutil.h>
 

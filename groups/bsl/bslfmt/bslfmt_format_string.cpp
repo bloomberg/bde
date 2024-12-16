@@ -1,6 +1,6 @@
-// bslstl_formatargs.cpp                                              -*-C++-*-
+// bslstl_format_string.cpp                                           -*-C++-*-
 
-#include <bslfmt_formatargs.h>
+#include <bslfmt_format_string.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")

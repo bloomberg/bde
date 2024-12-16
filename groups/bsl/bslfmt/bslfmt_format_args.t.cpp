@@ -1,9 +1,11 @@
-// bslstl_formatarg.t.cpp                                             -*-C++-*-
-#include <bslfmt_formatarg.h>
+// bslstl_format_args.t.cpp                                           -*-C++-*-
+#include <bslfmt_format_args.h>
 
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
+
+#include <bslfmt_format_arg.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>
@@ -15,42 +17,41 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'basic_format_arg<basic_format_context<t_OUT, t_CHAR> >' where t_OUT is
+// 'basic_format_args<basic_format_context<t_OUT, t_CHAR> >' where t_OUT is
 // an output iterator is a standard-compliant implementation of
-// 'std::basic_format_arg'. It is hard to test standalone as it is designed
+// 'std::basic_format_args'. It is hard to test standalone as it is designed
 // to be constructed only indirectly by the 'bslfmt::format' suite of
 // functions, and such testing requires the creation of "mock" contexts.
 //
 // It should meet the requirements specified in [format.string.std].
 //
 //-----------------------------------------------------------------------------
-// CLASS 'bsl::basic_format_arg'
+// CLASS 'bsl::basic_format_args'
 //
 // CREATORS
-// [ 3] basic_format_arg();
-// [ 3] ~basic_format_arg();
-// [ 7] basic_format_arg(const basic_format_arg &);
+// [ 3] basic_format_args();
+// [ 3] ~basic_format_args();
+// [ 7] basic_format_args(const basic_format_args &);
+// [12] basic_format_args(Format_ArgsStore);
 //
 // MANIPULATORS
-// [ 6] operator==(const basic_format_arg &);
-// [ 9] operator=(const basic_format_arg &);
-// [10] visit(VISITOR&& visitor)
+// [ 6] operator==(const basic_format_args &);
+// [ 9] operator=(const basic_format_args &);
 //
 // ACCESSORS
-// [ 4] operator BoolType();
-// [11] visit(ARG)
-// [11] handle::format(TYPE, FORMAT_CONTEXT&);
+// [ 4] get(size_t);
 //
 // FREE FUNCTIONS
-// [ 8] swap(basic_format_arg &, basic_format_arg&);
-// [10] visit_format_arg(VISITOR&& visitor)
+// [ 8] swap(basic_format_args &, basic_format_args &);
+// [11] make_format_args(ARGS&...)
+// [11] make_wformat_args(ARGS&...)
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING PRIMARY MANIPULATORS: Not Applicable
-// [ 5] TESTING OUTPUT
+// [ 5] TESTING OUTPUT:               Not Applicable
 // [10] STREAMING FUNCTIONALITY:      Not Applicable
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -124,6 +125,19 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace BloombergLP {
 namespace bslfmt {
+
+/// A minimum implementation of a format context output iterator to enable arg
+/// testing
+template <class t_VALUE>
+class Format_ContextOutputIteratorRef {
+  public:
+    // TYPES
+    typedef bsl::output_iterator_tag iterator_category;
+    typedef void                     difference_type;
+    typedef t_VALUE                  value_type;
+    typedef void                     reference;
+    typedef void                     pointer;
+};
 
 /// A minimum implementation of a format context to enable arg testing
 template <class t_OUT, class t_CHAR>
@@ -213,12 +227,12 @@ class basic_format_parse_context {
 
 namespace {
 
-template <class t_CHAR>
+template <class t_OUT, class t_CHAR>
 struct TestVisitor {
   private:
     // PRIVATE TYPES
     typedef typename bslfmt::basic_format_arg<
-        bslfmt::basic_format_context<t_CHAR *, t_CHAR> >::handle handle;
+        bslfmt::basic_format_context<t_OUT, t_CHAR> >::handle handle;
 
   public:
     // PUBLIC DATA
@@ -274,9 +288,12 @@ struct TestVisitor {
     }
     void operator()(const handle& h)
     {
-        bslfmt::basic_format_context<t_CHAR *, t_CHAR> fc((t_CHAR *)0);
-        bsl::basic_string_view<t_CHAR>                 fmt;
-        bslfmt::basic_format_parse_context<t_CHAR>     pc(fmt);
+        t_OUT dummy = t_OUT();
+
+        bslfmt::basic_format_context<t_OUT, t_CHAR> fc(dummy);
+        bsl::basic_string_view<t_CHAR>              fmt;
+        bslfmt::basic_format_parse_context<t_CHAR>  pc(fmt);
+
         h.format(pc, fc);
         d_ishandle = true;
     }
@@ -347,104 +364,89 @@ makeTestArg(const t_TYPE& val)
                1>
         arr;
 
-    bslfmt::Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, val);
+    bslfmt::Format_ArgUtil::makeFormatArgArray(&arr, val);
 
     return arr[0];
 }
 
-
-//    bool                            d_bool;
-//t_CHAR                          d_char;
-//int                             d_int;
-//unsigned                        d_unsigned;
-//long long                       d_longlong;
-//unsigned long long              d_unsignedlonglong;
-//float                           d_float;
-//double                          d_double;
-//long double                     d_longdouble;
-//const t_CHAR                   *d_charstar;
-//const void                     *d_voidstar;
-//bsl::basic_string_view<t_CHAR>  d_stringview;
-//bool                            d_ishandle;
-
-template <class t_CHAR>
-bool checkValue(bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<t_CHAR *, t_CHAR> >& arg,
-                bool                                                  value)
+template <class t_OUT, class t_CHAR>
+bool checkValue(
+ bslfmt::basic_format_arg<bslfmt::basic_format_context<t_OUT, t_CHAR> > arg,
+ bool                                                                   value)
 {
-    TestVisitor<t_CHAR> visitor;
+    TestVisitor<t_OUT, t_CHAR> visitor;
 
     arg.visit(visitor);
 
-    TestVisitor<t_CHAR> visitor2;
+    TestVisitor<t_OUT, t_CHAR> visitor2;
 
     visit_format_arg(visitor2, arg);
 
     return visitor.d_bool == value && visitor2.d_bool == value;
 }
 
-template <class t_CHAR>
-bool checkValue(bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<t_CHAR *, t_CHAR> >& arg,
-                t_CHAR                                                value)
+template <class t_OUT, class t_CHAR>
+bool checkValue(
+ bslfmt::basic_format_arg<bslfmt::basic_format_context<t_OUT, t_CHAR> > arg,
+ t_CHAR                                                                 value)
 {
-    TestVisitor<t_CHAR> visitor;
+    TestVisitor<t_OUT, t_CHAR> visitor;
 
     arg.visit(visitor);
 
-    TestVisitor<t_CHAR> visitor2;
+    TestVisitor<t_OUT, t_CHAR> visitor2;
 
     visit_format_arg(visitor2, arg);
 
     return visitor.d_char == value && visitor2.d_char == value;
 }
 
-template <class t_CHAR>
-bool checkValue(bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<t_CHAR *, t_CHAR> >& arg,
-                int                                                   value)
+template <class t_OUT, class t_CHAR>
+bool checkValue(
+ bslfmt::basic_format_arg<bslfmt::basic_format_context<t_OUT, t_CHAR> > arg,
+ int                                                                    value)
 {
-    TestVisitor<t_CHAR> visitor;
+    TestVisitor<t_OUT, t_CHAR> visitor;
 
     arg.visit(visitor);
 
-    TestVisitor<t_CHAR> visitor2;
+    TestVisitor<t_OUT, t_CHAR> visitor2;
 
     visit_format_arg(visitor2, arg);
 
     return visitor.d_int == value && visitor2.d_int == value;
 }
 
-template <class t_CHAR>
-bool checkValue(bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<t_CHAR *, t_CHAR> >& arg,
-                long double                                           value)
+template <class t_OUT, class t_CHAR>
+bool checkValue(
+ bslfmt::basic_format_arg<bslfmt::basic_format_context<t_OUT, t_CHAR> > arg,
+ long double                                                            value)
 {
-    TestVisitor<t_CHAR> visitor;
+    TestVisitor<t_OUT, t_CHAR> visitor;
 
     arg.visit(visitor);
 
-    TestVisitor<t_CHAR> visitor2;
+    TestVisitor<t_OUT, t_CHAR> visitor2;
 
     visit_format_arg(visitor2, arg);
 
     return visitor.d_longlong == value && visitor2.d_longlong == value;
 }
 
-template <class t_CHAR>
+template <class t_OUT, class t_CHAR>
 bool checkFormattableTypeValue(
-     bslfmt::basic_format_arg<bslfmt::basic_format_context<t_CHAR *, t_CHAR> >&
-         arg,
-     int handleValue)
+        bslfmt::basic_format_arg<bslfmt::basic_format_context<t_OUT, t_CHAR> >
+            arg,
+        int handleValue)
 {
     FormattableType::parseCalls = 0;
     FormattableType::formatSum  = 0;
 
-    TestVisitor<t_CHAR> visitor;
+    TestVisitor<t_OUT, t_CHAR> visitor;
 
     arg.visit(visitor);
 
-    TestVisitor<t_CHAR> visitor2;
+    TestVisitor<t_OUT, t_CHAR> visitor2;
 
     visit_format_arg(visitor2, arg);
 
@@ -452,9 +454,46 @@ bool checkFormattableTypeValue(
            (FormattableType::formatSum == 2 * handleValue);
 }
 
+
+// ============================================================================
+//                    GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+struct UsageExampleVisitor {
+    void operator()(bsl::monostate) const
+    {
+        ASSERT(false);  // contains no value
+    }
+
+    template <class t_TYPE>
+    typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type operator()(
+                                                                t_TYPE x) const
+    {
+        ASSERT(static_cast<t_TYPE>(99) == x);
+    }
+
+    template <class t_TYPE>
+    typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
+                                                               t_TYPE) const
+    {
+        ASSERT(false);  // contains non-integral value
+    }
+};
+
+struct UsageExampleChecker {
+    static void checkValue(bslfmt::format_args args)
+    {
+        UsageExampleVisitor visitor;
+        visit_format_arg(visitor, args.get(0));
+        ASSERT(!args.get(1));
+    }
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
+
+
 int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
@@ -464,7 +503,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -473,6 +512,8 @@ int main(int argc, char **argv)
         //
         // Plan:
         //: 1 Construct an instance and verify it holds no value.
+        //:
+        //: 2 Construct an instance with a single value and verify contents.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -480,36 +521,58 @@ int main(int argc, char **argv)
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-
-///Example: Default construction and value verification
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example: 1 Construct a `basic_format_args` object
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
 // are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
-// Suppose we want to construct a default-constructed `basic_format_arg` and
-// verify that it contains no value.
+// Suppose we want to construct a `basic_format_args` containing a single int.
 //
 //..
-        bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> > arg;
+        int                 value = 5;
+        bslfmt::format_args args(bslfmt::make_format_args(value));
 
-        ASSERT(!arg);
+        ASSERT( args.get(0));
+        ASSERT(!args.get(1));
 //..
 //
+///Example 2: Non-default construction and value verification
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We do not expect most users of `bsl::format` to interact with this type
+// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
+// are only a very limited number of public methods so this example is
+// necessarily unrealistic.
+//
+// Suppose we want to construct a int-containing `basic_format_args` and verify
+// that it contains that int. Note the use of a function to workaround the
+// lifetime issues specified above.
+//
+//..
+        int value2 = 99;
+        UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
+//..
+      } break;
+      case 12: {
+        // --------------------------------------------
+        // TESTING CONSTRUCTION FROM ARG STORE - WORK IN PROGRESS
+        //
+        // Testing:
+        //   basic_format_args(Format_ArgsStore);
+        // --------------------------------------------
+        if (verbose)
+            printf("\nCONSTRUCTION FROM ARG STORE"
+                   "\n= =========================\n");
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING VISIT AND HANDLE FORMAT FUNCTIONALITY
-        //     As it is not possible to access a contained handle in order to
-        //     test handle::format other than using the visitor pattern, the
-        //     visitor test must be combined with the handle::format test
-        // 
+        // TESTING FREE FUNCTIONS - WORK IN PROGRESS
+        //
         // Concerns:
-        //: 1 For all constructed types of 'bslfmt::basic_format_arg' we can
-        //:   use the visitor member and free functions to extract the
-        //:   contained value.
+        //: 1 make_format_args returns an object containing a `basic_format_arg`
+        //    containing the passed value(s) or reference(s) thereto.
         //:
         //: 2 Where the contained type is a reference (stored in a `handle`) to
         //:   a user defined type, calling `handle::format` will construct an
@@ -533,27 +596,90 @@ int main(int argc, char **argv)
         //:   calls both `parse` and `format` on that instance. (C-2)
         //
         // Testing:
-        //   visit()
-        //   visit_format_arg()
-        //   handle::format()
+        //   make_format_args(ARGS&...)
+        //   make_Wformat_args(ARGS&...)
         // --------------------------------------------------------------------
         if (verbose)
-            printf("\nVISIT AND HANDLE FORMAT FUNCTIONALITY"
-                   "\n=====================================\n");
+            printf("\nFREE FUNCTIONS"
+                   "\n==============\n");
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> >
-            FA;
+#if 0
+        bool                            d_bool;
+        t_CHAR                          d_char;
+        int                             d_int;
+        unsigned                        d_unsigned;
+        long long                       d_longlong;
+        unsigned long long              d_unsignedlonglong;
+        float                           d_float;
+        double                          d_double;
+        long double                     d_longdouble;
+        const t_CHAR                   *d_charstar;
+        const void                     *d_voidstar;
+        bsl::basic_string_view<t_CHAR>  d_stringview;
+        bool                            d_ishandle;
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<wchar_t *, wchar_t> >
-            WFA;
+        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
+
+        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context>
+            FAS;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context>
+            WFAS;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, bool>
+            FAS1;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, bool>
+            WFAS1;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, char, char>
+            FAS2;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, wchar_t, wchar_t>
+            WFAS2;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                         unsigned,
+                                         long long,
+                                         unsigned long long>
+            FAS3I;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                         unsigned,
+                                         long long,
+                                         unsigned long long>
+            WFAS3I;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, float, double, long double>
+            FAS3F;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, bool>
+            WFAS3F;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
+
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                              FormattableType>
+            FAST;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                              FormattableType>
+            WFAST;
 
         if (verbose)
             printf("\nValidating visit functionality\n");
         {
-            FA a;
-            ASSERT(!a);
+            int val = 5;
+
+            FAS temp = bslfmt::make_format_args();
+
+            bslfmt::format_args args(temp);
+
+            ASSERT(args.get(0));
+            ASSERT(!args.get(1));
+
+            FA arg = args.get(0);
+
+            ASSERT(checkValue(arg, val));
         }
 
         {
@@ -564,33 +690,31 @@ int main(int argc, char **argv)
         // Testing bool
 
         {
-            bool value = true;
-            FA   arg   = makeTestArg<char>(value);
+            bool val = true;
 
-            TestVisitor<char> visitor;
+            FASB temp = bslfmt::make_format_args(val);
 
-            arg.visit(visitor);
+            bslfmt::format_args args(temp);
 
-            ASSERT(visitor.d_bool == value);
+            ASSERT(args.get(0));
+            ASSERT(!args.get(1));
 
-            TestVisitor<char> visitor2;
+            FA arg = args.get(0);
 
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_bool == value);
+            ASSERT(checkValue(arg, val));
         }
 
         {
             bool value = true;
             WFA arg   = makeTestArg<wchar_t>(value);
-            
-            TestVisitor<wchar_t> visitor;
+
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_bool == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -603,13 +727,13 @@ int main(int argc, char **argv)
             int value = 21;
             FA  arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_int == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -620,13 +744,13 @@ int main(int argc, char **argv)
             int value = 22;
             WFA arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_int == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -639,13 +763,13 @@ int main(int argc, char **argv)
             char value = 'm';
             FA   arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_char == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -656,13 +780,13 @@ int main(int argc, char **argv)
             char value = 'm';
             WFA arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_char == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -675,13 +799,13 @@ int main(int argc, char **argv)
             wchar_t value = 'n';
             WFA  arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_char == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -694,13 +818,13 @@ int main(int argc, char **argv)
             unsigned value = 33;
             FA   arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_unsigned == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -711,13 +835,13 @@ int main(int argc, char **argv)
             unsigned value = 34;
             WFA  arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_unsigned == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -730,13 +854,13 @@ int main(int argc, char **argv)
             long long value = 45;
             FA        arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_longlong == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -747,13 +871,13 @@ int main(int argc, char **argv)
             long long value = 46;
             WFA       arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_longlong == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -766,13 +890,13 @@ int main(int argc, char **argv)
             unsigned long long value = 57;
             FA                 arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_unsignedlonglong == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -783,13 +907,13 @@ int main(int argc, char **argv)
             unsigned long long value = 58;
             WFA                arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_unsignedlonglong == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -802,13 +926,13 @@ int main(int argc, char **argv)
             float value = 3.1f;
             FA    arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_float == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -819,13 +943,13 @@ int main(int argc, char **argv)
             float value = 4.2f;
             WFA   arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_float == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -838,13 +962,13 @@ int main(int argc, char **argv)
             double value = 5.1;
             FA     arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_double == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -855,13 +979,13 @@ int main(int argc, char **argv)
             double value = 6.2;
             WFA    arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_double == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -874,13 +998,13 @@ int main(int argc, char **argv)
             long double value = 7.1;
             FA          arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_longdouble == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -891,13 +1015,13 @@ int main(int argc, char **argv)
             long double value = 8.2;
             WFA         arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_longdouble == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -910,13 +1034,13 @@ int main(int argc, char **argv)
             const char *value = "testing testing";
             FA       arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_charstar == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -929,13 +1053,13 @@ int main(int argc, char **argv)
             const wchar_t *value = L"more testing testing";
             WFA      arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_charstar == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -949,13 +1073,13 @@ int main(int argc, char **argv)
             const void *value = static_cast<const void *>(&dummy);
             FA          arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_voidstar == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -967,13 +1091,13 @@ int main(int argc, char **argv)
             const void *value = static_cast<const void *>(&dummy);
             WFA            arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_voidstar == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -987,13 +1111,13 @@ int main(int argc, char **argv)
             bsl::basic_string_view<char> value(dummy);
             FA                           arg = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1005,13 +1129,13 @@ int main(int argc, char **argv)
             bsl::basic_string_view<wchar_t> value(dummy);
             WFA                             arg = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1026,13 +1150,13 @@ int main(int argc, char **argv)
             std::basic_string_view<char> value(dummy);
             FA          arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1044,13 +1168,13 @@ int main(int argc, char **argv)
             std::basic_string_view<wchar_t> value(dummy);
             WFA         arg   = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1064,13 +1188,13 @@ int main(int argc, char **argv)
             bsl::basic_string<char> value("Testing");
             FA                      arg = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1081,13 +1205,13 @@ int main(int argc, char **argv)
             bsl::basic_string<wchar_t> value(L"Testing");
             WFA                        arg = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1100,13 +1224,13 @@ int main(int argc, char **argv)
             std::basic_string<char> value("Testing");
             FA                      arg = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1117,13 +1241,13 @@ int main(int argc, char **argv)
             std::basic_string<wchar_t> value(L"Testing");
             WFA                        arg = makeTestArg<wchar_t>(value);
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_stringview == value);
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1139,7 +1263,7 @@ int main(int argc, char **argv)
             FormattableType::parseCalls = 0;
             FormattableType::formatSum  = 0;
 
-            TestVisitor<char> visitor;
+            TestVisitor<char *, char> visitor;
 
             arg.visit(visitor);
 
@@ -1150,7 +1274,7 @@ int main(int argc, char **argv)
             FormattableType::parseCalls = 0;
             FormattableType::formatSum  = 0;
 
-            TestVisitor<char> visitor2;
+            TestVisitor<char *, char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1166,7 +1290,7 @@ int main(int argc, char **argv)
             FormattableType::parseCalls = 0;
             FormattableType::formatSum  = 0;
 
-            TestVisitor<wchar_t> visitor;
+            TestVisitor<wchar_t *, wchar_t> visitor;
 
             arg.visit(visitor);
 
@@ -1177,7 +1301,7 @@ int main(int argc, char **argv)
             FormattableType::parseCalls = 0;
             FormattableType::formatSum  = 0;
 
-            TestVisitor<wchar_t> visitor2;
+            TestVisitor<wchar_t *, wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
@@ -1185,6 +1309,8 @@ int main(int argc, char **argv)
             ASSERT(FormattableType::parseCalls == 1);
             ASSERT(FormattableType::formatSum == value.x);
         }
+
+#endif
 
       } break;
       case 10: {
@@ -1203,168 +1329,233 @@ int main(int argc, char **argv)
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 We can copy construct 'bslfmt::basic_format_arg' types and they
-        //:   retain the same values when copied.
+        //: 1 We can assign 'bslfmt::basic_format_args' types and they
+        //:   retain the same values when assigned.
+        //:
+        //: 2 We can move assign 'bslfmt::basic_format_args' types and they
+        //:   retain the same values when assigned.
         //
         // Plan:
-        //: 1 Construct a valueless 'bslfmt::basic_format_arg', assign it and
+        //: 1 Construct a valueless 'bslfmt::basic_format_args', assign it and
         //:   verify the assigned version is valueless. (C-1)
         //:
-        //: 2 Construct a 'bslfmt::basic_format_arg' holding an int, assign it
+        //: 2 Construct a 'bslfmt::basic_format_args' holding an int, assign it
         //:   and verify the assigned version holds the same value. (C-1)
         //:
-        //: 3 Construct a 'bslfmt::basic_format_arg' holding a reference to a
+        //: 3 Construct a 'bslfmt::basic_format_args' holding a reference to a
         //:   type, assign it and verify the assigned version references the
         //:   same type. (C-1)
+        //:
+        //: 4 Repeat the above tests using rvalue construction. (C-2)
         //
         // Testing:
-        //   operator=(const formatter &);
+        //   operator=(const basic_format_args &);
+        //   operator=(basic_format_args &&);
         // --------------------------------------------------------------------
 
         if (verbose)
             printf("\nTESTING ASSIGNMENT OPERATOR"
                    "\n===========================\n");
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> >
-            FA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<wchar_t *, wchar_t> >
-            WFA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                         FormattableType>
+            FAST;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                         FormattableType>
+            WFAST;
 
-        typedef bslmf::MovableRefUtil  MoveUtil;
+        typedef bslmf::MovableRefUtil MoveUtil;
 
         if (verbose)
-            printf("\nValidating operator=\n");
-        {
-            FA a1;
-            FA a2 = a1;
+            printf("\nValidating copy construction\n");
 
-            ASSERT(!a1);
-            ASSERT(!a2);
+        {
+            bslfmt::format_args a1;
+            bslfmt::format_args a2;
+
+            a2 = a1;
+
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
         }
 
         {
-            WFA a1;
-            WFA a2 = a1;
+            bslfmt::wformat_args a1;
+            bslfmt::wformat_args a2;
 
-            ASSERT(!a1);
-            ASSERT(!a2);
+            a2 = a1;
+
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
         }
 
         {
-            FA a1 = makeTestArg<char>((int)99);
-            FA a2 = a1;
+            int  value = 99;
+            FASI asi   = bslfmt::make_format_args(value);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2;
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
+            a2 = a1;
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
         }
 
         {
-            WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2 = a1;
+            int   value = 99;
+            WFASI asi   = bslfmt::make_wformat_args(value);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2;
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
-        }
+            a2 = a1;
 
-        {
-            FormattableType ft(42);
-            FA a1 = makeTestArg<char>(ft);
-            FA a2 = a1;
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
 
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-        }
-
-        {
-            FormattableType ft(42);
-            WFA a1 = makeTestArg<wchar_t>(ft);
-            WFA a2 = a1;
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-        }
-
-        {
-            FA a1;
-            FA a2;
-            a2 = MoveUtil::move(a1);
-
-            ASSERT(!a1);
-            ASSERT(!a2);
-        }
-
-        {
-            WFA a1;
-            WFA a2;
-            a2 = MoveUtil::move(a1);
-
-            ASSERT(!a1);
-            ASSERT(!a2);
-        }
-
-        {
-            FA a1 = makeTestArg<char>((int)99);
-            FA a2;
-            a2 = MoveUtil::move(a1);
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
-        }
-
-        {
-            WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2;
-            a2 = MoveUtil::move(a1);
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
         }
 
         {
             FormattableType ft(42);
-            FA a1 = makeTestArg<char>(ft);
-            FA a2;
-            a2 = MoveUtil::move(a1);
+            FAST            asi = bslfmt::make_format_args(ft);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2;
 
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
+            a2 = a1;
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
         }
 
         {
             FormattableType ft(42);
-            WFA a1 = makeTestArg<wchar_t>(ft);
-            WFA a2;
+            WFAST           asi = bslfmt::make_wformat_args(ft);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2;
+
+            a2 = a1;
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+        }
+
+        {
+            bslfmt::format_args a1;
+            bslfmt::format_args a2;
+
             a2 = MoveUtil::move(a1);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
+        }
 
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
+        {
+            bslfmt::wformat_args a1;
+            bslfmt::wformat_args a2;
+
+            a2 = MoveUtil::move(a1);
+
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
+        }
+
+        {
+            int  value = 99;
+            FASI asi   = bslfmt::make_format_args(value);
+
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2;
+
+            a2 = MoveUtil::move(a1);
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
+        }
+
+        {
+            int   value = 99;
+            WFASI asi   = bslfmt::make_wformat_args(value);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2;
+
+            a2 = MoveUtil::move(a1);
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
+        }
+
+        {
+            FormattableType ft(42);
+            FAST            asi = bslfmt::make_format_args(ft);
+
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2;
+
+            a2 = MoveUtil::move(a1);
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+        }
+
+        {
+            FormattableType ft(42);
+            WFAST           asi = bslfmt::make_wformat_args(ft);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2;
+
+            a2 = MoveUtil::move(a1);
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
         }
 
       } break;
@@ -1373,8 +1564,8 @@ int main(int argc, char **argv)
         // TESTING SWAP
         //
         // Concerns:
-        //: 1 We can copy construct 'bslfmt::basic_format_arg' types and they
-        //:   retain the same values when copied.
+        //: 1 We can swap construct 'bslfmt::basic_format_args' types and they
+        //:   retain the same values when swapped.
         //
         // Plan:
         //: 1 Construct a 'bslfmt::basic_format_arg'.
@@ -1395,43 +1586,58 @@ int main(int argc, char **argv)
             printf("\nTESTING SWAP"
                    "\n============\n");
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> >
-            FA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<wchar_t *, wchar_t> >
-            WFA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                         FormattableType>
+            FAST;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                         FormattableType>
+            WFAST;
 
         if (verbose)
             printf("\nValidating swap\n");
 
         {
-            FA a1;
-            FA a2 = makeTestArg<char>((int)99);
-            FA a3 = makeTestArg<char>(FormattableType(42));
+            int  value = 99;
+            FASI asi   = bslfmt::make_format_args(value);
+
+            FormattableType ft(42);
+            FAST            ast = bslfmt::make_format_args(ft);
+
+            bslfmt::format_args a1;
+            bslfmt::format_args a2(asi);
+            bslfmt::format_args a3(ast);
 
             bsl::swap(a1, a2);
             bsl::swap(a2, a3);
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-            ASSERT(!a3);
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+            ASSERT(!a3.get(0));
         }
 
         {
-            WFA a1;
-            WFA a2 = makeTestArg<wchar_t>((int)99);
-            WFA a3 = makeTestArg<wchar_t>(FormattableType(42));
+            int   value = 99;
+            WFASI asi   = bslfmt::make_wformat_args(value);
+
+            FormattableType ft(42);
+            WFAST           ast = bslfmt::make_wformat_args(ft);
+
+            bslfmt::wformat_args a1;
+            bslfmt::wformat_args a2(asi);
+            bslfmt::wformat_args a3(ast);
 
             bsl::swap(a1, a2);
             bsl::swap(a2, a3);
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-            ASSERT(!a3);
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+            ASSERT(!a3.get(0));
         }
-
 
       } break;
       case 7: {
@@ -1439,21 +1645,24 @@ int main(int argc, char **argv)
         // TESTING COPY/MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 We can copy construct 'bslfmt::basic_format_arg' types and they
+        //: 1 We can copy construct 'bslfmt::basic_format_args' types and they
+        //:   retain the same values when copied.
+        //:
+        //: 2 We can move construct 'bslfmt::basic_format_args' types and they
         //:   retain the same values when copied.
         //
         // Plan:
-        //: 1 Construct a valueless 'bslfmt::basic_format_arg', copy it and
+        //: 1 Construct a valueless 'bslfmt::basic_format_args', copy it and
         //:   verify the copied version is valueless. (C-1)
         //:
-        //: 2 Construct a 'bslfmt::basic_format_arg' holding an int, copy it
+        //: 2 Construct a 'bslfmt::basic_format_args' holding an int, copy it
         //:   and verify the copied version holds the same value. (C-1)
         //:
-        //: 3 Construct a 'bslfmt::basic_format_arg' holding a reference to a
+        //: 3 Construct a 'bslfmt::basic_format_args' holding a reference to a
         //:   type, copy it and verify the copied version references the same
         //:   type. (C-1)
         //:
-        //: 4 Repeat the above tests using rvalue construction.
+        //: 4 Repeat the above tests using rvalue construction. (C-2)
         //
         // Testing:
         //   formatter(const formatter &);
@@ -1464,13 +1673,17 @@ int main(int argc, char **argv)
             printf("\nTESTING COPY CONSTRUCTOR"
                    "\n========================\n");
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> >
-            FA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<wchar_t *, wchar_t> >
-            WFA;
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context,
+                                         FormattableType>
+            FAST;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context,
+                                         FormattableType>
+            WFAST;
 
         typedef bslmf::MovableRefUtil  MoveUtil;
 
@@ -1478,127 +1691,163 @@ int main(int argc, char **argv)
             printf("\nValidating copy construction\n");
 
         {
-            FA a1;
-            FA a2(a1);
+            bslfmt::format_args a1;
+            bslfmt::format_args a2(a1);
 
-            ASSERT(!a1);
-            ASSERT(!a2);
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
         }
 
         {
-            WFA a1;
-            WFA a2(a1);
+            bslfmt::wformat_args a1;
+            bslfmt::wformat_args a2(a1);
 
-            ASSERT(!a1);
-            ASSERT(!a2);
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
         }
 
         {
-            FA a1 = makeTestArg<char>((int)99);
-            FA a2(a1);
+            int  value = 99;
+            FASI asi   = bslfmt::make_format_args(value);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2(a1);
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
         }
 
         {
-            WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2(a1);
+            int  value = 99;
+            WFASI asi   = bslfmt::make_wformat_args(value);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2(a1);
 
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
-        }
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
 
-        {
-            FormattableType ft(42);
-            FA              a1 = makeTestArg<char>(ft);
-            FA              a2(a1);
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-        }
-
-        {
-            FormattableType ft(42);
-            WFA             a1 = makeTestArg<wchar_t>(ft);
-            WFA             a2(a1);
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
-        }
-
-        {
-            FA a1;
-            FA a2(MoveUtil::move(a1));
-
-            ASSERT(!a1);
-            ASSERT(!a2);
-        }
-
-        {
-            WFA a1;
-            WFA a2(MoveUtil::move(a1));
-
-            ASSERT(!a1);
-            ASSERT(!a2);
-        }
-
-        {
-            FA a1 = makeTestArg<char>((int)99);
-            FA a2(MoveUtil::move(a1));
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
-        }
-
-        {
-            WFA a1 = makeTestArg<wchar_t>((int)99);
-            WFA a2(MoveUtil::move(a1));
-
-            ASSERT(a1);
-            ASSERT(a2);
-
-            ASSERT(checkValue(a1, 99));
-            ASSERT(checkValue(a2, 99));
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
         }
 
         {
             FormattableType ft(42);
-            FA              a1 = makeTestArg<char>(ft);
-            FA              a2(MoveUtil::move(a1));
+            FAST                asi = bslfmt::make_format_args(ft);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2(a1);
 
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+        }
+
+        {
+            FormattableType      ft(42);
+            WFAST                 asi = bslfmt::make_wformat_args(ft);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2(a1);
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+        }
+
+        {
+            bslfmt::format_args a1;
+            bslfmt::format_args a2(MoveUtil::move(a1));
+
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
+        }
+
+        {
+            bslfmt::wformat_args a1;
+            bslfmt::wformat_args a2(MoveUtil::move(a1));
+
+            ASSERT(!a1.get(0));
+            ASSERT(!a2.get(0));
+        }
+
+        {
+            int  value = 99;
+            FASI asi   = bslfmt::make_format_args(value);
+
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2(MoveUtil::move(a1));
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
+        }
+
+        {
+            int   value = 99;
+            WFASI asi   = bslfmt::make_wformat_args(value);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2(MoveUtil::move(a1));
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkValue(a1.get(0), 99));
+            ASSERT(checkValue(a2.get(0), 99));
         }
 
         {
             FormattableType ft(42);
-            WFA             a1 = makeTestArg<wchar_t>(ft);
-            WFA             a2(MoveUtil::move(a1));
+            FAST            asi = bslfmt::make_format_args(ft);
 
-            ASSERT(a1);
-            ASSERT(a2);
+            bslfmt::format_args a1(asi);
+            bslfmt::format_args a2(MoveUtil::move(a1));
 
-            ASSERT(checkFormattableTypeValue(a1, 42));
-            ASSERT(checkFormattableTypeValue(a2, 42));
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
+        }
+
+        {
+            FormattableType ft(42);
+            WFAST           asi = bslfmt::make_wformat_args(ft);
+
+            bslfmt::wformat_args a1(asi);
+            bslfmt::wformat_args a2(MoveUtil::move(a1));
+
+            ASSERT(a1.get(0));
+            ASSERT(a2.get(0));
+            ASSERT(!a1.get(1));
+            ASSERT(!a2.get(1));
+
+            ASSERT(checkFormattableTypeValue(a1.get(0), 42));
+            ASSERT(checkFormattableTypeValue(a2.get(0), 42));
         }
 
       } break;
@@ -1630,57 +1879,97 @@ int main(int argc, char **argv)
         // TESTING BASIC ACCESSORS
         // 
         // Concerns:
-        //: 1 `operator BoolType()` for a default constructed
-        //:   `bslfmt::basic_format_arg` will return false;
+        //: 1 `get()` outside the range of contained values
+        //:    will return a default-constructed `basic_format_arg`.
         //:
-        //: 2 `operator BoolType()` for a non-default constructed
-        //:   `bslfmt::basic_format_arg` will return true;
+        //: 1 `get()` inside the range of contained values
+        //:    will return the contained `basic_format_arg`.
         //
         // Plan:
         //: 1 Construct a default 'bslfmt::basic_format_arg' and verify the
-        //:   result of calling `operator BoolType()`. (C-1)
+        //:   result of calling `get()`. (C-1)
         //:
         //: 2 Construct a non-default 'bslfmt::basic_format_arg' and verify
         //:   the result of calling `operator BoolType()`. (C-2)
         //
         // Testing:
-        //   operator BoolType();
+        //   operator get();
         // --------------------------------------------
         if (verbose)
             printf("\nTESTING BASIC ACCESSORS"
                    "\n=======================\n");
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<char *, char> >
-            FA;
+        typedef bslfmt::basic_format_arg<bslfmt::format_context> FA;
 
-        typedef bslfmt::basic_format_arg<
-            bslfmt::basic_format_context<wchar_t *, wchar_t> >
-            WFA;
+        typedef bslfmt::basic_format_arg<bslfmt::wformat_context> WFA;
 
-        {
-            // Test with default construction
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
 
-            FA dummy_c;
-            ASSERT(!dummy_c);
+        {  // Testing with no contained values
+            try {
+                bslfmt::basic_format_args<
+                    bslfmt::basic_format_context<char *, char> >
+                    dummy_c_1;
 
-            WFA dummy_w;
-            ASSERT(!dummy_w);
+                ASSERT(!dummy_c_1.get(0));
+
+                bslfmt::basic_format_args<bslfmt::format_context> dummy_c_2;
+
+                ASSERT(!dummy_c_2.get(0));
+
+                bslfmt::basic_format_args<
+                    bslfmt::basic_format_context<wchar_t *, wchar_t> >
+                    dummy_w_1;
+
+                ASSERT(!dummy_w_1.get(0));
+
+                bslfmt::basic_format_args<bslfmt::wformat_context> dummy_w_2;
+
+                ASSERT(!dummy_w_2.get(0));
+            }
+            catch (...) {
+                ASSERT(false);
+            }
         }
+        {  // Test with contained values
+            try {
+                int val = 5;
 
-        {
-            // Test with non-default construction. Note that we cannot
-            // construct this directly so have to rely on the internal-use-only
-            // utility struct `Format_FormatArg_ImpUtil`
-            int value = 1;
+                FASI temp = bslfmt::make_format_args(val);
 
-            FA fa = makeTestArg<char>(value);
+                bslfmt::format_args dummy_c(temp);
 
-            ASSERT(fa);
+                ASSERT( dummy_c.get(0));
+                ASSERT(!dummy_c.get(1));
 
-            WFA wfa = makeTestArg<wchar_t>(value);
+                FA arg_c = dummy_c.get(0);
 
-            ASSERT(wfa);
+                ASSERT(checkValue(arg_c, val));
+            }
+            catch (...) {
+                ASSERT(false);
+            }
+
+            try {
+                int val = 5;
+
+                WFASI temp = bslfmt::make_wformat_args(val);
+
+                bslfmt::wformat_args dummy_w(temp);
+
+                ASSERT( dummy_w.get(0));
+                ASSERT(!dummy_w.get(1));
+
+                WFA arg_w = dummy_w.get(0);
+
+                ASSERT(checkValue(arg_w, val));
+            }
+            catch (...) {
+                ASSERT(false);
+            }
         }
       } break;
       case 3: {
@@ -1701,7 +1990,8 @@ int main(int argc, char **argv)
         //:   private (C-2)
         //
         // Testing:
-        //   basic_format_arg();
+        //   basic_format_args();
+        //   ~basic_format_args()
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
@@ -1713,41 +2003,11 @@ int main(int argc, char **argv)
         {
             // Test default construction
             try {
-                bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<char *, char> >
+                bslfmt::format_args
                     dummy_c;
 
-                bslfmt::basic_format_arg<
-                    bslfmt::basic_format_context<wchar_t *, wchar_t> >
+                bslfmt::wformat_args
                     dummy_w;
-            }
-            catch (...) {
-                ASSERT(false);
-            }
-            ASSERT(true);
-        }
-        {
-            // Test construction with a value. Note that we cannot test this
-            // directly so have to rely on the internal-use-only utility struct
-            // `Format_FormatArg_ImpUtil`
-            try {
-                int value = 1;
-
-                bsl::array<bslfmt::basic_format_arg<
-                               bslfmt::basic_format_context<char *, char> >,
-                           1>
-                    arr_c;
-
-                bslfmt::Format_FormatArg_ImpUtil::makeFormatArgArray(&arr_c,
-                                                                     value);
-
-                bsl::array<bslfmt::basic_format_arg<
-                               bslfmt::basic_format_context<char *, char> >,
-                           1>
-                    arr_w;
-
-                bslfmt::Format_FormatArg_ImpUtil::makeFormatArgArray(&arr_w,
-                                                                     value);
             }
             catch (...) {
                 ASSERT(false);
@@ -1760,7 +2020,7 @@ int main(int argc, char **argv)
       case 2: {
         // --------------------------------------------
         // TESTING PRIMARY MANIPULATORS: Not Applicable
-        // 
+        //
         // Testing:
         //   PRIMARY MANIPULATORS: Not Applicable
         // --------------------------------------------
@@ -1790,22 +2050,62 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
+            FASI;
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
+            WFASI;
+
         // This type has very limited public-facing functionality, so there is
         // very little we can do in a breathing test.
         {
             // Test default construction
             try {
-                bslfmt::basic_format_arg<
+                bslfmt::basic_format_args<
                     bslfmt::basic_format_context<char *, char> >
-                    dummy_c;
+                    dummy_c_1;
 
-                ASSERT(!dummy_c);
+                ASSERT(!dummy_c_1.get(0));
 
-                bslfmt::basic_format_arg<
+                bslfmt::basic_format_args<bslfmt::format_context> dummy_c_2;
+
+                ASSERT(!dummy_c_2.get(0));
+
+                {
+                    int val = 5;
+
+                    FASI temp = bslfmt::make_format_args(val);
+
+                    bslfmt::format_args dummy_c_3(temp);
+
+                    ASSERT(dummy_c_3.get(0));
+                    ASSERT(!dummy_c_3.get(1));
+
+                    checkValue(dummy_c_3.get(0), val);
+                }
+
+
+                bslfmt::basic_format_args<
                     bslfmt::basic_format_context<wchar_t *, wchar_t> >
-                    dummy_w;
+                    dummy_w_1;
 
-                ASSERT(!dummy_w);
+                ASSERT(!dummy_w_1.get(0));
+
+                bslfmt::basic_format_args<bslfmt::wformat_context> dummy_w_2;
+
+                ASSERT(!dummy_w_2.get(0));
+
+                {
+                    int val = 5;
+
+                    WFASI temp = bslfmt::make_wformat_args(val);
+
+                    bslfmt::wformat_args dummy_w_3(temp);
+
+                    ASSERT( dummy_w_3.get(0));
+                    ASSERT(!dummy_w_3.get(1));
+
+                    checkValue(dummy_w_3.get(0), val);
+                }
             }
             catch (...) {
                 ASSERT(false);

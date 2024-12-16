@@ -490,7 +490,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
                                             t_FORMAT_CONTEXT&  formatContext,
                                             const FSS&         finalSpec) const
 {
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
 
     FSNVAlue finalWidth(finalSpec.postprocessedWidth());
 
@@ -606,7 +606,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatFixedImpl(
                 FSS::e_FLOATING_FIXED_UC == finalSpec.formatType());
 
     // Determine the precision
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
     const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
     const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
                         ? 6
@@ -664,7 +664,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatDefaultImpl(
 
     /// Must not have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
-                               FormatterSpecification_NumericValue::e_DEFAULT);
+                FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
     char buf[NFUtil::ToCharsMaxLength<t_VALUE>::k_VALUE];
@@ -696,7 +696,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
                 FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType());
 
     // Determine the precision
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
     const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
     const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
                         ? 6
@@ -759,7 +759,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
 
     /// Must not have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
-                               FormatterSpecification_NumericValue::e_DEFAULT);
+                FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
     char buf[NFUtil::ToCharsMaxLength<t_VALUE, NFUtil::e_HEX>::k_VALUE];
@@ -797,7 +797,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
 
     /// Must have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() !=
-                               FormatterSpecification_NumericValue::e_DEFAULT);
+                FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
     const size_t k_STACK_BUF_LEN =
@@ -856,7 +856,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
                 FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType());
 
     // Determine the precision
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
     const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
     const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
                         ? 6
@@ -911,7 +911,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::format(
                                          t_VALUE           value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
 
     FSS finalSpec(d_spec);
     FSS::postprocess(&finalSpec, formatContext);

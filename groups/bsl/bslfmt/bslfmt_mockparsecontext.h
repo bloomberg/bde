@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // `MockParseContext` is designed to imitate the behavior of the
 // `basic_format_parse_context`. Therefore, let's look at the examples of
-// real-life context usage (`FormatterSpecification_Splitter::parse()`), repeat
+// real-life context usage (`FormatterSpecificationSplitter::parse()`), repeat
 // these steps and see the results.
 //
 // First, create a `MockParseContext` based on the defined specification:
@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 //  typename ParseContext::const_iterator current = mpc.begin();
 //  typename ParseContext::const_iterator end     = mpc.end();
 //
-//  assert(formatSpecification                             == current);
-//  assert(formatSpecification + formatSpecificationLength == end    );
+//  assert(formatSpecification == BSLS_UTIL_ADDRESSOF(*current));
+//  assert(current + formatSpecificationLength == end);
 // ```
 // Now check the work with arguments:
 // ```
@@ -58,9 +58,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslfmt_formatarg.h>
-#include <bslfmt_formatargs.h>
-#include <bslfmt_formatcontext.h>
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_format_context.h>
 
 #include <bsls_keyword.h>
 

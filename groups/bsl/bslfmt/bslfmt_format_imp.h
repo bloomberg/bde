@@ -1,7 +1,7 @@
-// bslfmt_formatimp.h                                                    -*-C++-*-
+// bslfmt_format_imp.h                                                   -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATIMP
-#define INCLUDED_BSLFMT_FORMATIMP
+#ifndef INCLUDED_BSLFMT_FORMAT_IMP
+#define INCLUDED_BSLFMT_FORMAT_IMP
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -120,11 +120,11 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_variant.h>
 
 #include <bslfmt_formaterror.h>
-#include <bslfmt_formatarg.h>
-#include <bslfmt_formatargs.h>
-#include <bslfmt_formatcontext.h>
-#include <bslfmt_formatparsecontext.h>
-#include <bslfmt_formatstring.h>
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_format_context.h>
+#include <bslfmt_format_parsecontext.h>
+#include <bslfmt_format_string.h>
 
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterbool.h>
@@ -140,11 +140,11 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Jun 18 08:08:38 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatimp.h
-# define COMPILING_BSLFMT_FORMATIMP_H
-# include <bslfmt_formatimp_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATIMP_H
+// Generated on Wed Dec 11 15:22:22 2024
+// Command line: sim_cpp11_features.pl bslfmt_format_imp.h
+# define COMPILING_BSLFMT_FORMAT_IMP_H
+# include <bslfmt_format_imp_cpp03.h>
+# undef COMPILING_BSLFMT_FORMAT_IMP_H
 #else
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&               \
@@ -161,15 +161,15 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-   // ----------------------------------------------------------------------
-   // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
-   // ----------------------------------------------------------------------
+ // --------------------------------------------------------------------------
+ // class Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
+ // --------------------------------------------------------------------------
 
 /// This component-private type provides a stateful output iterator whose
 /// purpose is to count the numver of characters written for use by the
 /// `formatted_size` free funcions.
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-class Format_TruncatingIterator {
+class Format_Imp_TruncatingIterator {
   private:
     // TYPES
     typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
@@ -188,14 +188,14 @@ class Format_TruncatingIterator {
     typedef void                     pointer;
 
     // CREATORS
-    Format_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit);
+    Format_Imp_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit);
 
     // MANIPULATORS
-    Format_TruncatingIterator& operator*();
+    Format_Imp_TruncatingIterator& operator*();
 
     void operator=(t_VALUE_TYPE x);
 
-    Format_TruncatingIterator& operator++();
+    Format_Imp_TruncatingIterator& operator++();
 
     // ACCESSORS
     t_DIFF_TYPE count() const;
@@ -204,7 +204,7 @@ class Format_TruncatingIterator {
   private:
     // NOT IMPLEMENTED
 
-    Format_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
+    Format_Imp_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
         // The postfix operator must be deleted because, as a counting
         // iterator, return by value can cause data inconsistency.
 };
@@ -236,15 +236,14 @@ struct format_to_n_result {
 };
 #endif
 
-           // -----------------------------------------------------
-           // class Format_FormatVisitor<t_ITERATOR, t_OUT, t_CHAR>
-           // -----------------------------------------------------
-
+            // ---------------------------------------------------
+            // class Format_Imp_Visitor<t_ITERATOR, t_OUT, t_CHAR>
+            // ---------------------------------------------------
 
 /// Component-private type acting as the visitor in a call to
 /// `visit_format_arg`.
 template <class t_OUT, class t_CHAR>
-struct Format_FormatVisitor {
+struct Format_Imp_Visitor {
   private:
     // DATA
     basic_format_parse_context<t_CHAR>  *d_parseContext_p;  // context for
@@ -262,7 +261,7 @@ struct Format_FormatVisitor {
 
     /// Create an instance of this type referencing the specified `pc` and the
     /// specified `fc` for format strings and output iterators respectively.
-    Format_FormatVisitor(basic_format_parse_context<t_CHAR>&  pc,
+    Format_Imp_Visitor(basic_format_parse_context<t_CHAR>&  pc,
                          basic_format_context<t_OUT, t_CHAR>& fc);
 
     // MANIPULATORS
@@ -297,15 +296,15 @@ struct Format_FormatVisitor {
     void operator()(const handle& h) const;
 };
 
-                       // ------------------------------
-                       // class Format_FormatImp<t_CHAR>
-                       // ------------------------------
+                     // ----------------------------------
+                     // class Format_Imp_Processor<t_CHAR>
+                     // ----------------------------------
 
 /// This component-private namespace struct provides access to formatting
 /// implementation functions to which the `bslfmt::format` family of free
 /// functions can delegate.
 template <class t_CHAR>
-struct Format_FormatImp {
+struct Format_Imp_Processor {
   private:
     // PRIVATE CLASS METHODS
 
@@ -325,19 +324,19 @@ struct Format_FormatImp {
     /// `fmtstr` and write the result to the output iterator specified by
     /// `out`. Return an iterator one past the end of the output range. This
     /// function participates in overload resolution if `out` is of
-    /// `Format_OutputIteratorRef` type.
-    static Format_OutputIteratorRef<t_CHAR> process(
-          Format_OutputIteratorRef<t_CHAR> out,
-          bsl::basic_string_view<t_CHAR>   fmtstr,
-          const basic_format_args<
-              basic_format_context<Format_OutputIteratorRef<t_CHAR>, t_CHAR> >&
-              args);
+    /// `Format_ContextOutputIteratorRef` type.
+    static Format_ContextOutputIteratorRef<t_CHAR>
+    process(Format_ContextOutputIteratorRef<t_CHAR> out,
+            bsl::basic_string_view<t_CHAR>          fmtstr,
+            const basic_format_args<
+                basic_format_context<Format_ContextOutputIteratorRef<t_CHAR>,
+                                     t_CHAR> >&     args);
 
     /// Format the specified `args` according to the format string specified by
     /// `fmtstr` and write the result to the output iterator specified by
     /// `out`. Return an iterator one past the end of the output range. This
     /// function participates in overload resolution if `out` is not of
-    /// `Format_OutputIteratorRef` type.
+    /// `Format_ContextOutputIteratorRef` type.
     template <class t_OUT, class t_CONTEXT>
     static t_OUT process(t_OUT                               out,
                          bsl::basic_string_view<t_CHAR>      fmtstr,
@@ -578,15 +577,14 @@ format_to_n(t_OUT                                                 out,
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-
-   // ----------------------------------------------------------------------
-   // class Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
-   // ----------------------------------------------------------------------
+ // --------------------------------------------------------------------------
+ // class Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>
+ // --------------------------------------------------------------------------
 
 // CREATORS
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
-    Format_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit)
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
+    Format_Imp_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit)
 : d_iterator(iterator)
 , d_limit(limit)
 , d_count(0)
@@ -595,16 +593,16 @@ Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
 
 // MANIPULATORS
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>&
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::operator*()
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>&
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
+operator*()
 {
     return *this;
 }
 
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-void
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::operator=(
-                                                                t_VALUE_TYPE x)
+void Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
+operator=(t_VALUE_TYPE x)
 {
     if (d_count++ < d_limit) {
         *d_iterator = x;
@@ -616,8 +614,9 @@ Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::operator=(
 }
 
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>&
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::operator++()
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>&
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::
+operator++()
 {
     return *this;
 }
@@ -625,28 +624,28 @@ Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::operator++()
 // ACCESSORS
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
 t_DIFF_TYPE
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::count() const
+Format_Imp_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::count()
+    const
 {
     return d_count;
 }
 
 template <class t_ITERATOR, class t_VALUE_TYPE, class t_DIFF_TYPE>
-t_ITERATOR
-Format_TruncatingIterator<t_ITERATOR, t_VALUE_TYPE, t_DIFF_TYPE>::underlying()
-    const
+t_ITERATOR Format_Imp_TruncatingIterator<t_ITERATOR,
+                                         t_VALUE_TYPE,
+                                         t_DIFF_TYPE>::underlying() const
 {
     return d_iterator;
 }
 
-
-           // -----------------------------------------------------
-           // class Format_FormatVisitor<t_ITERATOR, t_OUT, t_CHAR>
-           // -----------------------------------------------------
+            // ---------------------------------------------------
+            // class Format_Imp_Visitor<t_ITERATOR, t_OUT, t_CHAR>
+            // ---------------------------------------------------
 
 // CREATORS
 
 template <class t_OUT, class t_CHAR>
-Format_FormatVisitor<t_OUT, t_CHAR>::Format_FormatVisitor(
+Format_Imp_Visitor<t_OUT, t_CHAR>::Format_Imp_Visitor(
                                        basic_format_parse_context<t_CHAR>&  pc,
                                        basic_format_context<t_OUT, t_CHAR>& fc)
 : d_parseContext_p(&pc)
@@ -657,7 +656,7 @@ Format_FormatVisitor<t_OUT, t_CHAR>::Format_FormatVisitor(
 // MANIPULATORS
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(bsl::monostate) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(bsl::monostate) const
 {
     BSLS_ASSERT_OPT(false);
     BSLS_THROW(
@@ -665,7 +664,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(bsl::monostate) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(bool x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(bool x) const
 {
     bsl::formatter<bool, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -674,7 +673,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(bool x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(t_CHAR x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(t_CHAR x) const
 {
     bsl::formatter<t_CHAR, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -683,7 +682,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(t_CHAR x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(unsigned x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(unsigned x) const
 {
     bsl::formatter<unsigned, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -692,7 +691,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(unsigned x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(long long x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(long long x) const
 {
     bsl::formatter<long long, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -701,7 +700,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(long long x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(
                                                     unsigned long long x) const
 {
     bsl::formatter<unsigned long long, t_CHAR> f;
@@ -711,7 +710,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(float x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(float x) const
 {
     bsl::formatter<float, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -720,7 +719,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(float x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(double x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(double x) const
 {
     bsl::formatter<double, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -729,7 +728,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(double x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(long double x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(long double x) const
 {
     bsl::formatter<long double, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -738,7 +737,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(long double x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(const t_CHAR *x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(const t_CHAR *x) const
 {
     bsl::formatter<const t_CHAR *, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -747,7 +746,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(const t_CHAR *x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(const void *x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(const void *x) const
 {
     bsl::formatter<const void *, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -756,7 +755,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(const void *x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(int x) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(int x) const
 {
     bsl::formatter<int, t_CHAR> f;
     d_parseContext_p->advance_to(f.parse(*d_parseContext_p));
@@ -765,7 +764,7 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(int x) const
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(
                                        bsl::basic_string_view<t_CHAR> sv) const
 {
     bsl::formatter<bsl::basic_string_view<t_CHAR>, t_CHAR> f;
@@ -775,29 +774,29 @@ void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(
 }
 
 template <class t_OUT, class t_CHAR>
-void Format_FormatVisitor<t_OUT, t_CHAR>::operator()(const handle& h) const
+void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(const handle& h) const
 {
     h.format(*d_parseContext_p, *d_formatContext_p);
 }
 
-                       // ------------------------------
-                       // class Format_FormatImp<t_CHAR>
-                       // ------------------------------
+                     // ----------------------------------
+                     // class Format_Imp_Processor<t_CHAR>
+                     // ----------------------------------
 
 template <class t_CHAR>
 template <class t_OUT>
-t_OUT Format_FormatImp<t_CHAR>::processImp(
+t_OUT Format_Imp_Processor<t_CHAR>::processImp(
          t_OUT&                                                         out,
          bsl::basic_string_view<t_CHAR>                                 fmtstr,
          const basic_format_args<basic_format_context<t_OUT, t_CHAR> >& args)
     // The actual meat of the implementation.
 {
-    const size_t argssize = Format_FormatArgs_ImpUtil::formatArgsSize(args);
+    const size_t argssize = Format_ArgsUtil::formatArgsSize(args);
 
     basic_format_parse_context<t_CHAR>  pc(fmtstr, argssize);
     basic_format_context<t_OUT, t_CHAR> fc(
-                            Format_FormatContextFactory::construct(out, args));
-    Format_FormatVisitor<t_OUT, t_CHAR> visitor(pc, fc);
+                                  Format_ContextFactory::construct(out, args));
+    Format_Imp_Visitor<t_OUT, t_CHAR> visitor(pc, fc);
 
     typename bsl::basic_string_view<t_CHAR>::iterator it = pc.begin();
 
@@ -877,11 +876,12 @@ t_OUT Format_FormatImp<t_CHAR>::processImp(
 }
 
 template <class t_CHAR>
-Format_OutputIteratorRef<t_CHAR> Format_FormatImp<t_CHAR>::process(
-    Format_OutputIteratorRef<t_CHAR> out,
-    bsl::basic_string_view<t_CHAR>   fmtstr,
-    const basic_format_args<
-        basic_format_context<Format_OutputIteratorRef<t_CHAR>, t_CHAR> >& args)
+Format_ContextOutputIteratorRef<t_CHAR> Format_Imp_Processor<t_CHAR>::process(
+              Format_ContextOutputIteratorRef<t_CHAR> out,
+              bsl::basic_string_view<t_CHAR>          fmtstr,
+              const basic_format_args<
+                  basic_format_context<Format_ContextOutputIteratorRef<t_CHAR>,
+                                       t_CHAR> >& args)
 {
     processImp(out, fmtstr, args);
     return out;
@@ -889,13 +889,13 @@ Format_OutputIteratorRef<t_CHAR> Format_FormatImp<t_CHAR>::process(
 
 template <class t_CHAR>
 template <class t_OUT, class t_CONTEXT>
-t_OUT Format_FormatImp<t_CHAR>::process(
+t_OUT Format_Imp_Processor<t_CHAR>::process(
                                     t_OUT                               out,
                                     bsl::basic_string_view<t_CHAR>      fmtstr,
                                     const basic_format_args<t_CONTEXT>& args)
 {
-    Format_OutputIteratorImpl<t_CHAR, t_OUT> wrappedOut(out);
-    Format_OutputIteratorRef<t_CHAR>         wrappedOutRef(&wrappedOut);
+    Format_ContextOutputIteratorImpl<t_CHAR, t_OUT> wrappedOut(out);
+    Format_ContextOutputIteratorRef<t_CHAR>         wrappedOutRef(&wrappedOut);
     processImp(wrappedOutRef, fmtstr, args);
     return out;
 }
@@ -911,14 +911,14 @@ template <class t_OUT>
 inline
 t_OUT vformat_to(t_OUT out, bsl::string_view fmtstr, format_args args)
 {
-    return Format_FormatImp<char>::process(out, fmtstr, args);
+    return Format_Imp_Processor<char>::process(out, fmtstr, args);
 }
 
 template <class t_OUT>
 inline
 t_OUT vformat_to(t_OUT out, bsl::wstring_view fmtstr, wformat_args args)
 {
-    return Format_FormatImp<wchar_t>::process(out, fmtstr, args);
+    return Format_Imp_Processor<wchar_t>::process(out, fmtstr, args);
 }
 
 inline
@@ -1053,7 +1053,7 @@ template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtstr,
                            const t_ARGS&...               args)
 {
-    typedef Format_TruncatingIterator<char *, char, ptrdiff_t>
+    typedef Format_Imp_TruncatingIterator<char *, char, ptrdiff_t>
         truncating_iterator;
 
     truncating_iterator it(0, 0);
@@ -1065,7 +1065,7 @@ template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtstr,
                            const t_ARGS&...                args)
 {
-    typedef Format_TruncatingIterator<wchar_t *, wchar_t, ptrdiff_t>
+    typedef Format_Imp_TruncatingIterator<wchar_t *, wchar_t, ptrdiff_t>
         truncating_iterator;
 
     truncating_iterator it(0, 0);
@@ -1084,7 +1084,7 @@ ptrdiff_t format_to_n(bsl::string                    *out,
     out->clear();
 
     typedef std::back_insert_iterator<bsl::string> underlying_iterator;
-    typedef Format_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
+    typedef Format_Imp_TruncatingIterator<underlying_iterator, char, ptrdiff_t>
                                                    truncating_iterator;
 
     underlying_iterator bit = std::back_inserter(*out);
@@ -1105,7 +1105,9 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
     out->clear();
 
     typedef std::back_insert_iterator<bsl::wstring> underlying_iterator;
-    typedef Format_TruncatingIterator<underlying_iterator, wchar_t, ptrdiff_t>
+    typedef Format_Imp_TruncatingIterator<underlying_iterator,
+                                          wchar_t,
+                                          ptrdiff_t>
                                                     truncating_iterator;
 
     underlying_iterator bit = std::back_inserter(*out);
@@ -1127,7 +1129,7 @@ format_to_n(t_OUT                                                 out,
     if (n < 0)
         n = 0;
 
-    typedef Format_TruncatingIterator<
+    typedef Format_Imp_TruncatingIterator<
         t_OUT,
         typename bsl::iterator_traits<t_OUT>::value_type,
         typename bsl::iterator_traits<t_OUT>::difference_type>
@@ -1155,7 +1157,7 @@ format_to_n(t_OUT                                                 out,
     if (n < 0)
         n = 0;
 
-    typedef Format_TruncatingIterator<
+    typedef Format_Imp_TruncatingIterator<
         t_OUT,
         typename bsl::iterator_traits<t_OUT>::value_type,
         typename bsl::iterator_traits<t_OUT>::difference_type>
@@ -1181,7 +1183,7 @@ format_to_n(t_OUT                                                 out,
 
 #endif // End C++11 code
 
-#endif  // INCLUDED_BSLFMT_FORMATIMP
+#endif  // INCLUDED_BSLFMT_FORMAT_IMP
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

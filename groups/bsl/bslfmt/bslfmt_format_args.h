@@ -1,7 +1,7 @@
-// bslfmt_formatargs.h                                                -*-C++-*-
+// bslfmt_format_args.h                                               -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATARGS
-#define INCLUDED_BSLFMT_FORMATARGS
+#ifndef INCLUDED_BSLFMT_FORMAT_ARGS
+#define INCLUDED_BSLFMT_FORMAT_ARGS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -124,16 +124,16 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
 
-#include <bslfmt_formatarg.h>
+#include <bslfmt_format_arg.h>
 #include <bslfmt_formaterror.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Thu Jul  4 12:04:46 2024
-// Command line: sim_cpp11_features.pl bslfmt_formatargs.h
-# define COMPILING_BSLFMT_FORMATARGS_H
-# include <bslfmt_formatargs_cpp03.h>
-# undef COMPILING_BSLFMT_FORMATARGS_H
+// Generated on Wed Dec 11 15:22:22 2024
+// Command line: sim_cpp11_features.pl bslfmt_format_args.h
+# define COMPILING_BSLFMT_FORMAT_ARGS_H
+# include <bslfmt_format_args_cpp03.h>
+# undef COMPILING_BSLFMT_FORMAT_ARGS_H
 #else
 
 namespace BloombergLP {
@@ -148,23 +148,23 @@ template <class t_CONTEXT>
 class basic_format_args;
 
 template <class t_VALUE>
-class Format_OutputIteratorRef;
+class Format_ContextOutputIteratorRef;
 
 // TYPEDEFS
 
-typedef basic_format_context<Format_OutputIteratorRef<char>, char>
+typedef basic_format_context<Format_ContextOutputIteratorRef<char>, char>
     format_context;
 
-typedef basic_format_context<Format_OutputIteratorRef<wchar_t>, wchar_t>
+typedef basic_format_context<Format_ContextOutputIteratorRef<wchar_t>, wchar_t>
     wformat_context;
 
 typedef basic_format_args<format_context> format_args;
 
 typedef basic_format_args<wformat_context> wformat_args;
 
-                 // ------------------------------------------
-                 // class Format_FormatArgStore<t_OUT, T_CHAR>
-                 // ------------------------------------------
+                   // -------------------------------------
+                   // class Format_ArgsStore<t_OUT, T_CHAR>
+                   // -------------------------------------
 
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -173,7 +173,7 @@ typedef basic_format_args<wformat_context> wformat_args;
 /// that this type has reference semantics and users must ensure that this type
 /// does not outlive the arguments used in its construction.
 template <class t_CONTEXT, class... t_ARGS>
-class Format_FormatArgStore {
+class Format_ArgsStore {
 
   private:
     // DATA
@@ -184,17 +184,17 @@ class Format_FormatArgStore {
     template <class t_INNER_CONTEXT>
     friend class basic_format_args;
 
-    friend class Format_FormatArgs_ImpUtil;
+    friend class Format_ArgsUtil;
 
     // PRIVATE CREATORS
 
-    /// Construct a `Format_FormatArgStore` containing a copy of the specified
+    /// Construct a `Format_ArgsStore` containing a copy of the specified
     /// `args`.
-    explicit Format_FormatArgStore(
+    explicit Format_ArgsStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
         BSLS_KEYWORD_NOEXCEPT;
 
-    explicit Format_FormatArgStore(
+    explicit Format_ArgsStore(
          bslmf::MovableRef<
              bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
         BSLS_KEYWORD_NOEXCEPT;
@@ -212,14 +212,14 @@ class Format_FormatArgStore {
 /// `format_arg_store` that is suitable for use by the `char`-based
 /// `bslfmt::format` functions.
 template <class... t_ARGS>
-Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
+Format_ArgsStore<format_context, t_ARGS...> make_format_args(
                                                           t_ARGS&... fmt_args);
 
 /// From the specified `fmt_args` return a type convertible to
 /// `format_arg_store` that is suitable for use by the `wchar_t`-based
 /// `bslfmt::format` functions.
 template <class... t_ARGS>
-Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
+Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
                                                           t_ARGS&... fmt_args);
 #endif
 
@@ -247,7 +247,7 @@ class basic_format_args {
     size_t size() const;
 
     // FRIENDS
-    friend class Format_FormatArgs_ImpUtil;
+    friend class Format_ArgsUtil;
 
   public:
     // CREATORS
@@ -260,7 +260,7 @@ class basic_format_args {
     // by the specified `store`. Typically this constructor would be called
     // using the return value of `make_format_args` or of `make_wformat_args`.
     template <class... t_ARGS>
-    basic_format_args(const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
+    basic_format_args(const Format_ArgsStore<t_CONTEXT, t_ARGS...>& store)
         BSLS_KEYWORD_NOEXCEPT;                                     // IMPLICIT
 #endif
 
@@ -272,24 +272,24 @@ class basic_format_args {
     basic_format_arg<t_CONTEXT> get(size_t pos) const BSLS_KEYWORD_NOEXCEPT;
 };
 
-                      // -------------------------------
-                      // class Format_FormatArgs_ImpUtil
-                      // -------------------------------
+                           // ---------------------
+                           // class Format_ArgsUtil
+                           // ---------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 /// This class provides utility functions to enable manipulation of types
 /// declared by this component. It is solely for private use by other components
 /// of the `bslfmt` package and should not be used directly.
-class Format_FormatArgs_ImpUtil {
+class Format_ArgsUtil {
   public:
     // CLASS METHODS
 
-    /// Construct a `Format_FormatArgStore` object containing
+    /// Construct a `Format_ArgsStore` object containing
     /// `basic_format_arg` objects constructed from the specified `fmt_args`
     /// values.
     template <class t_CONTEXT, class... t_ARGS>
-    static Format_FormatArgStore<t_CONTEXT, t_ARGS...> makeFormatArgs(
+    static Format_ArgsStore<t_CONTEXT, t_ARGS...> makeFormatArgs(
                                                           t_ARGS&... fmt_args);
 
     /// Call `size()` on the specified `args` parameter and return the result.
@@ -305,16 +305,16 @@ class Format_FormatArgs_ImpUtil {
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                 // ------------------------------------------
-                 // class Format_FormatArgStore<t_OUT, T_CHAR>
-                 // ------------------------------------------
+                   // -------------------------------------
+                   // class Format_ArgsStore<t_OUT, T_CHAR>
+                   // -------------------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
 // PRIVATE CREATORS
 template <class t_CONTEXT, class... t_ARGS>
 inline
-Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
+Format_ArgsStore<t_CONTEXT, t_ARGS...>::Format_ArgsStore(
         const bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)>& args)
     BSLS_KEYWORD_NOEXCEPT : d_args(args)
 {
@@ -322,7 +322,7 @@ Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
 
 template <class t_CONTEXT, class... t_ARGS>
 inline
-Format_FormatArgStore<t_CONTEXT, t_ARGS...>::Format_FormatArgStore(
+Format_ArgsStore<t_CONTEXT, t_ARGS...>::Format_ArgsStore(
          bslmf::MovableRef<
              bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> > args)
     BSLS_KEYWORD_NOEXCEPT : d_args(bslmf::MovableRefUtil::move(args))
@@ -348,7 +348,7 @@ template <class t_CONTEXT>
 template <class... t_ARGS>
 inline
 basic_format_args<t_CONTEXT>::basic_format_args(
-                      const Format_FormatArgStore<t_CONTEXT, t_ARGS...>& store)
+                      const Format_ArgsStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT                                           // IMPLICIT
 : d_size(sizeof...(t_ARGS))
 , d_data(store.d_args.data())
@@ -375,9 +375,9 @@ size_t basic_format_args<t_CONTEXT>::size() const
 }
 
 
-                      // -------------------------------
-                      // class Format_FormatArgs_ImpUtil
-                      // -------------------------------
+                           // ---------------------
+                           // class Format_ArgsUtil
+                           // ---------------------
 
 // CLASS METHODS
 
@@ -385,14 +385,14 @@ size_t basic_format_args<t_CONTEXT>::size() const
 
 template <class t_CONTEXT, class... t_ARGS>
 inline
-Format_FormatArgStore<t_CONTEXT, t_ARGS...>
-Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
+Format_ArgsStore<t_CONTEXT, t_ARGS...>
+Format_ArgsUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_FormatArg_ImpUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
+    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
                                                                   &arg_array,
                                                                   fmt_args...);
-    return Format_FormatArgStore<t_CONTEXT, t_ARGS...>(
+    return Format_ArgsStore<t_CONTEXT, t_ARGS...>(
                                        bslmf::MovableRefUtil::move(arg_array));
 }
 
@@ -400,7 +400,7 @@ Format_FormatArgs_ImpUtil::makeFormatArgs(t_ARGS&... fmt_args)
 
 template <class t_CONTEXT>
 inline
-size_t Format_FormatArgs_ImpUtil::formatArgsSize(
+size_t Format_ArgsUtil::formatArgsSize(
                                       const basic_format_args<t_CONTEXT>& args)
 {
     return args.size();
@@ -417,19 +417,19 @@ size_t Format_FormatArgs_ImpUtil::formatArgsSize(
 
 template <class... t_ARGS>
 inline
-Format_FormatArgStore<format_context, t_ARGS...> make_format_args(
+Format_ArgsStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_FormatArgs_ImpUtil::makeFormatArgs<format_context>(
+    return Format_ArgsUtil::makeFormatArgs<format_context>(
                                                                   fmt_args...);
 }
 
 template <class... t_ARGS>
 inline
-Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
+Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_FormatArgs_ImpUtil::makeFormatArgs<wformat_context>(
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
                                                                   fmt_args...);
 }
 
@@ -440,7 +440,7 @@ Format_FormatArgStore<wformat_context, t_ARGS...> make_wformat_args(
 
 #endif // End C++11 code
 
-#endif  // INCLUDED_BSLFMT_FORMATARG
+#endif  // INCLUDED_BSLFMT_FORMAT_ARGS
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

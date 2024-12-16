@@ -56,11 +56,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                   // ------------------------------------------
-                   // struct FormatterSpecification_NumericValue
-                   // ------------------------------------------
+                   // -----------------------------------------
+                   // struct FormatterSpecificationNumericValue
+                   // -----------------------------------------
 
-struct FormatterSpecification_NumericValue {
+struct FormatterSpecificationNumericValue {
   public:
     // CLASS TYPES
     enum ValueType { e_DEFAULT, e_VALUE, e_NEXT_ARG, e_ARG_ID };
@@ -73,51 +73,51 @@ struct FormatterSpecification_NumericValue {
     // PRIVATE CLASS FUNCTIONS
     template <class t_ITER>
     static void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
-                           FormatterSpecification_NumericValue *outValue,
-                           t_ITER                              *start,
-                           t_ITER                               end,
-                           bool                                 hasInitialDot);
+                            FormatterSpecificationNumericValue *outValue,
+                            t_ITER                             *start,
+                            t_ITER                              end,
+                            bool                                hasInitialDot);
 
     template <typename t_FORMAT_CONTEXT>
-    static void finalize(FormatterSpecification_NumericValue *out,
-                         const t_FORMAT_CONTEXT&              context);
+    static void finalize(FormatterSpecificationNumericValue *out,
+                         const t_FORMAT_CONTEXT&             context);
 
     // FRIENDS
     template <class t_CHAR>
-    friend class FormatterSpecification_Splitter;
+    friend class FormatterSpecificationSplitter;
 
-    friend struct FormatterSpecification_NumericValueVisitor;
+    friend struct FormatterSpecificationNumericValue_Visitor;
 
   public:
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecification_NumericValue();
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecification_NumericValue(
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue();
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue(
                                                                int       value,
                                                                ValueType type);
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    bool operator==(const FormatterSpecification_NumericValue& other) const;
+    bool operator==(const FormatterSpecificationNumericValue& other) const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 int       value() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 ValueType valueType() const;
 };
 
                  // -------------------------------------------------
-                 // struct FormatterSpecification_NumericValueVisitor
+                 // struct FormatterSpecificationNumericValue_Visitor
                  // -------------------------------------------------
 
 
-struct FormatterSpecification_NumericValueVisitor {
+struct FormatterSpecificationNumericValue_Visitor {
   private:
     // DATA
-    FormatterSpecification_NumericValue *d_value_p;
+    FormatterSpecificationNumericValue *d_value_p;
 
   public:
     // CREATORS
 
-    FormatterSpecification_NumericValueVisitor(
-                                      FormatterSpecification_NumericValue *pc);
+    FormatterSpecificationNumericValue_Visitor(
+                                      FormatterSpecificationNumericValue *pc);
 
     // MANIPULATORS
 
@@ -133,10 +133,10 @@ struct FormatterSpecification_NumericValueVisitor {
 };
 
               // ------------------------------------------
-              // class FormatterSpecification_SplitterEnums
+              // class FormatterSpecificationSplitter_Enums
               // ------------------------------------------
 
-struct FormatterSpecification_SplitterEnums {
+struct FormatterSpecificationSplitter_Enums {
   public:
     // CLASS TYPES
     enum ParsingStatus {
@@ -174,13 +174,13 @@ struct FormatterSpecification_SplitterEnums {
     };
 };
 
-                 // ---------------------------------------------
-                 // class FormatterSpecification_Splitter<t_CHAR>
-                 // ---------------------------------------------
+                 // --------------------------------------------
+                 // class FormatterSpecificationSplitter<t_CHAR>
+                 // --------------------------------------------
 
 template <class t_CHAR>
-class FormatterSpecification_Splitter
-: public FormatterSpecification_SplitterEnums {
+class FormatterSpecificationSplitter
+: public FormatterSpecificationSplitter_Enums {
 
   private:
     // PRIVATE CLASS TYPES
@@ -198,10 +198,10 @@ class FormatterSpecification_Splitter
     Sign                                d_sign;
     bool                                d_alternativeFlag;
     bool                                d_zeroPaddingFlag;
-    FormatterSpecification_NumericValue d_rawWidth;
-    FormatterSpecification_NumericValue d_rawPrecision;
-    FormatterSpecification_NumericValue d_postprocessedWidth;
-    FormatterSpecification_NumericValue d_postprocessedPrecision;
+    FormatterSpecificationNumericValue  d_rawWidth;
+    FormatterSpecificationNumericValue  d_rawPrecision;
+    FormatterSpecificationNumericValue  d_postprocessedWidth;
+    FormatterSpecificationNumericValue  d_postprocessedPrecision;
     bool                                d_localeSpecificFlag;
     bsl::basic_string_view<t_CHAR>      d_spec;
 
@@ -212,70 +212,70 @@ class FormatterSpecification_Splitter
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseFillAndAlignment(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
-    static void postprocessFiller(FormatterSpecification_Splitter *outSpec);
+    static void postprocessFiller(FormatterSpecificationSplitter *outSpec);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseSign(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseAlternateOption(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseZeroPaddingFlag(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawWidth(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawPrecision(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseLocaleSpecificFlag(
-                                      FormatterSpecification_Splitter *outSpec,
-                                      t_ITER                          *start,
-                                      t_ITER                           end);
+                                       FormatterSpecificationSplitter *outSpec,
+                                       t_ITER                         *start,
+                                       t_ITER                          end);
 
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
-    rawParse(FormatterSpecification_Splitter *outSpec,  // output
-             t_ITER                          *start,    // output
-             t_ITER                           end,      // input
-             Sections                         sections);                        // param
+    rawParse(FormatterSpecificationSplitter *outSpec,  // output
+             t_ITER                         *start,    // output
+             t_ITER                          end,      // input
+             Sections                        sections);// param
 
   public:
 
     // CLASS METHODS
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
-    parse(FormatterSpecification_Splitter *outSpec,    // output
-          t_PARSE_CONTEXT                 *pc,         // output
-          Sections                         sections);  // param
+    parse(FormatterSpecificationSplitter *outSpec,  // output
+          t_PARSE_CONTEXT                *pc,       // output
+          Sections                        sections);// param
 
     template <typename t_FORMAT_CONTEXT>
-    static void postprocess(FormatterSpecification_Splitter *outSpec,
-                            const t_FORMAT_CONTEXT&          context);
+    static void postprocess(FormatterSpecificationSplitter *outSpec,
+                            const t_FORMAT_CONTEXT&         context);
 
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecification_Splitter();
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationSplitter();
 
     // ACCESSORS
     BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
@@ -285,13 +285,13 @@ class FormatterSpecification_Splitter
     BSLS_KEYWORD_CONSTEXPR_CPP20 Sign      sign() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      alternativeFlag() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      zeroPaddingFlag() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     postprocessedWidth() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     postprocessedPrecision() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     rawWidth() const;
-    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
+    BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                       rawPrecision() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
     BSLS_KEYWORD_CONSTEXPR_CPP20 const bsl::basic_string_view<t_CHAR>
@@ -302,22 +302,22 @@ class FormatterSpecification_Splitter
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                 // ------------------------------------------
-                 // struct FormatterSpecification_NumericValue
-                 // ------------------------------------------
+                 // -----------------------------------------
+                 // struct FormatterSpecificationNumericValue
+                 // -----------------------------------------
 
 // CREATORS
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecification_NumericValue::FormatterSpecification_NumericValue()
+FormatterSpecificationNumericValue::FormatterSpecificationNumericValue()
 : d_value(0), d_type(e_DEFAULT)
 {
 }
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecification_NumericValue::FormatterSpecification_NumericValue(
+FormatterSpecificationNumericValue::FormatterSpecificationNumericValue(
                                                                int       value,
                                                                ValueType type)
 : d_value(value)
@@ -329,23 +329,23 @@ FormatterSpecification_NumericValue::FormatterSpecification_NumericValue(
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecification_NumericValue::operator==(
-                        const FormatterSpecification_NumericValue& other) const
+bool FormatterSpecificationNumericValue::operator==(
+                        const FormatterSpecificationNumericValue& other) const
 {
     return d_value == other.d_value && d_type == other.d_type;
 }
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatterSpecification_NumericValue::value() const
+int FormatterSpecificationNumericValue::value() const
 {
     return d_value;
 }
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecification_NumericValue::ValueType
-FormatterSpecification_NumericValue::valueType() const
+FormatterSpecificationNumericValue::ValueType
+FormatterSpecificationNumericValue::valueType() const
 {
     return d_type;
 }
@@ -354,11 +354,11 @@ FormatterSpecification_NumericValue::valueType() const
 
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_NumericValue::parse(
-                           FormatterSpecification_NumericValue *outValue,
-                           t_ITER                              *start,
-                           t_ITER                               end,
-                           bool                                 needInitialDot)
+void FormatterSpecificationNumericValue::parse(
+                           FormatterSpecificationNumericValue *outValue,
+                           t_ITER                             *start,
+                           t_ITER                              end,
+                           bool                                needInitialDot)
 {
     // Handle empty string or empty specification.
     if (*start == end || **start == '}')
@@ -444,14 +444,14 @@ void FormatterSpecification_NumericValue::parse(
 
 template <typename t_FORMAT_CONTEXT>
 inline
-void FormatterSpecification_NumericValue::finalize(
-                                 FormatterSpecification_NumericValue *out,
-                                 const t_FORMAT_CONTEXT&              context)
+void FormatterSpecificationNumericValue::finalize(
+                                 FormatterSpecificationNumericValue *out,
+                                 const t_FORMAT_CONTEXT&             context)
 {
-    if (out->d_type != FormatterSpecification_NumericValue::e_ARG_ID)
+    if (out->d_type != FormatterSpecificationNumericValue::e_ARG_ID)
         return;                                                       // RETURN
 
-    FormatterSpecification_NumericValueVisitor visitor(out);
+    FormatterSpecificationNumericValue_Visitor visitor(out);
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         // Depending on the type of t_FORMAT_CONTEXT we may need to use
@@ -463,54 +463,54 @@ void FormatterSpecification_NumericValue::finalize(
 }
 
               // -------------------------------------------------
-              // struct FormatterSpecification_NumericValueVisitor
+              // struct FormatterSpecificationNumericValue_Visitor
               // -------------------------------------------------
 
 inline
-FormatterSpecification_NumericValueVisitor::
-    FormatterSpecification_NumericValueVisitor(
-                                       FormatterSpecification_NumericValue *pc)
+FormatterSpecificationNumericValue_Visitor::
+    FormatterSpecificationNumericValue_Visitor(
+                                       FormatterSpecificationNumericValue *pc)
 : d_value_p(pc)
 {
 }
 
 inline void
-FormatterSpecification_NumericValueVisitor::operator()(bsl::monostate) const
+FormatterSpecificationNumericValue_Visitor::operator()(bsl::monostate) const
 {
     BSLS_THROW(bsl::format_error("Nested argument id out of range"));
 }
 
 template <class t_TYPE>
 typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type
-FormatterSpecification_NumericValueVisitor::operator()(t_TYPE x) const
+FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE x) const
 {
     d_value_p->d_value = static_cast<int>(x);
-    d_value_p->d_type  = FormatterSpecification_NumericValue::e_VALUE;
+    d_value_p->d_type  = FormatterSpecificationNumericValue::e_VALUE;
 }
 
 template <class t_TYPE>
 typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
-FormatterSpecification_NumericValueVisitor::operator()(t_TYPE) const
+FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE) const
 {
     BSLS_THROW(bsl::format_error("Nested value args must be integral"));
 }
 
 
-               // ---------------------------------------------
-               // class FormatterSpecification_Splitter<t_CHAR>
-               // ---------------------------------------------
+               // --------------------------------------------
+               // class FormatterSpecificationSplitter<t_CHAR>
+               // --------------------------------------------
 
 // CREATORS
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecification_Splitter<t_CHAR>::FormatterSpecification_Splitter()
+FormatterSpecificationSplitter<t_CHAR>::FormatterSpecificationSplitter()
 : d_sections(e_SECTIONS_NONE)
 , d_parsingStatus(e_PARSING_UNINITIALIZED)
 , d_filler(), d_fillerCharacters(1)
 , d_fillerCodePointDisplayWidth(1)
-, d_alignment(FormatterSpecification_Splitter::e_ALIGN_DEFAULT)
-, d_sign(FormatterSpecification_Splitter::e_SIGN_DEFAULT)
+, d_alignment(FormatterSpecificationSplitter::e_ALIGN_DEFAULT)
+, d_sign(FormatterSpecificationSplitter::e_SIGN_DEFAULT)
 , d_alternativeFlag(false)
 , d_zeroPaddingFlag(false)
 , d_localeSpecificFlag(false)
@@ -522,7 +522,7 @@ FormatterSpecification_Splitter<t_CHAR>::FormatterSpecification_Splitter()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const t_CHAR *FormatterSpecification_Splitter<t_CHAR>::filler() const
+const t_CHAR *FormatterSpecificationSplitter<t_CHAR>::filler() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error(
@@ -533,7 +533,7 @@ const t_CHAR *FormatterSpecification_Splitter<t_CHAR>::filler() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatterSpecification_Splitter<t_CHAR>::fillerCharacters() const
+int FormatterSpecificationSplitter<t_CHAR>::fillerCharacters() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(
@@ -545,7 +545,7 @@ int FormatterSpecification_Splitter<t_CHAR>::fillerCharacters() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 int
-FormatterSpecification_Splitter<t_CHAR>::fillerCodePointDisplayWidth() const
+FormatterSpecificationSplitter<t_CHAR>::fillerCodePointDisplayWidth() const
 {
     if (e_PARSING_POSTPROCESSED != d_parsingStatus)
         BSLS_THROW(
@@ -558,8 +558,8 @@ FormatterSpecification_Splitter<t_CHAR>::fillerCodePointDisplayWidth() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 typename
-FormatterSpecification_Splitter<t_CHAR>::Alignment
-FormatterSpecification_Splitter<t_CHAR>::alignment() const
+FormatterSpecificationSplitter<t_CHAR>::Alignment
+FormatterSpecificationSplitter<t_CHAR>::alignment() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -571,8 +571,8 @@ FormatterSpecification_Splitter<t_CHAR>::alignment() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 typename
-FormatterSpecification_Splitter<t_CHAR>::Sign
-FormatterSpecification_Splitter<t_CHAR>::sign() const
+FormatterSpecificationSplitter<t_CHAR>::Sign
+FormatterSpecificationSplitter<t_CHAR>::sign() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error(
@@ -583,7 +583,7 @@ FormatterSpecification_Splitter<t_CHAR>::sign() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecification_Splitter<t_CHAR>::alternativeFlag() const
+bool FormatterSpecificationSplitter<t_CHAR>::alternativeFlag() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -594,7 +594,7 @@ bool FormatterSpecification_Splitter<t_CHAR>::alternativeFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecification_Splitter<t_CHAR>::zeroPaddingFlag() const
+bool FormatterSpecificationSplitter<t_CHAR>::zeroPaddingFlag() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -604,8 +604,8 @@ bool FormatterSpecification_Splitter<t_CHAR>::zeroPaddingFlag() const
 }
 
 template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
-FormatterSpecification_Splitter<t_CHAR>::postprocessedWidth() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
+FormatterSpecificationSplitter<t_CHAR>::postprocessedWidth() const
 {
     if (e_PARSING_POSTPROCESSED != d_parsingStatus)
         BSLS_THROW(
@@ -616,8 +616,8 @@ FormatterSpecification_Splitter<t_CHAR>::postprocessedWidth() const
 }
 
 template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
-FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
+FormatterSpecificationSplitter<t_CHAR>::rawWidth() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -627,8 +627,8 @@ FormatterSpecification_Splitter<t_CHAR>::rawWidth() const
 }
 
 template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
-FormatterSpecification_Splitter<t_CHAR>::postprocessedPrecision() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
+FormatterSpecificationSplitter<t_CHAR>::postprocessedPrecision() const
 {
     if (e_PARSING_POSTPROCESSED != d_parsingStatus)
         BSLS_THROW(
@@ -639,8 +639,8 @@ FormatterSpecification_Splitter<t_CHAR>::postprocessedPrecision() const
 }
 
 template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecification_NumericValue
-FormatterSpecification_Splitter<t_CHAR>::rawPrecision() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
+FormatterSpecificationSplitter<t_CHAR>::rawPrecision() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -651,7 +651,7 @@ FormatterSpecification_Splitter<t_CHAR>::rawPrecision() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecification_Splitter<t_CHAR>::localeSpecificFlag() const
+bool FormatterSpecificationSplitter<t_CHAR>::localeSpecificFlag() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(
@@ -664,7 +664,7 @@ bool FormatterSpecification_Splitter<t_CHAR>::localeSpecificFlag() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const bsl::basic_string_view<t_CHAR>
-FormatterSpecification_Splitter<t_CHAR>::finalSpec() const
+FormatterSpecificationSplitter<t_CHAR>::finalSpec() const
 {
     if (e_PARSING_UNINITIALIZED == d_parsingStatus)
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
@@ -677,8 +677,8 @@ FormatterSpecification_Splitter<t_CHAR>::finalSpec() const
 
 template <class t_CHAR>
 inline BSLS_KEYWORD_CONSTEXPR_CPP20
-typename FormatterSpecification_Splitter<t_CHAR>::Alignment
-FormatterSpecification_Splitter<t_CHAR>::alignmentFromChar(t_CHAR in)
+typename FormatterSpecificationSplitter<t_CHAR>::Alignment
+FormatterSpecificationSplitter<t_CHAR>::alignmentFromChar(t_CHAR in)
 {
     if ('<' == in)
         return e_ALIGN_LEFT;                                          // RETURN
@@ -694,8 +694,8 @@ FormatterSpecification_Splitter<t_CHAR>::alignmentFromChar(t_CHAR in)
 
 template <class t_CHAR>
 inline BSLS_KEYWORD_CONSTEXPR_CPP20
-typename FormatterSpecification_Splitter<t_CHAR>::Sign
-FormatterSpecification_Splitter<t_CHAR>::signFromChar(t_CHAR in)
+typename FormatterSpecificationSplitter<t_CHAR>::Sign
+FormatterSpecificationSplitter<t_CHAR>::signFromChar(t_CHAR in)
 {
     if ('+' == in)
         return e_SIGN_POSITIVE;                                       // RETURN
@@ -712,10 +712,10 @@ FormatterSpecification_Splitter<t_CHAR>::signFromChar(t_CHAR in)
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 void
-FormatterSpecification_Splitter<t_CHAR>::parse(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_PARSE_CONTEXT                 *pc,
-                                     Sections                         sections)
+FormatterSpecificationSplitter<t_CHAR>::parse(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_PARSE_CONTEXT                *pc,
+                                     Sections                        sections)
 {
     BSLMF_ASSERT((
         bsl::is_same<typename bsl::iterator_traits<
@@ -731,27 +731,27 @@ FormatterSpecification_Splitter<t_CHAR>::parse(
 
     if (0 != (sections & e_SECTIONS_WIDTH)) {
         if (outSpec->rawWidth().valueType() ==
-            FormatterSpecification_NumericValue::e_ARG_ID) {
+            FormatterSpecificationNumericValue::e_ARG_ID) {
             pc->check_arg_id(outSpec->rawWidth().value());
         }
         else if (outSpec->rawWidth().valueType() ==
-                 FormatterSpecification_NumericValue::e_NEXT_ARG) {
-            outSpec->d_rawWidth = FormatterSpecification_NumericValue(
+                 FormatterSpecificationNumericValue::e_NEXT_ARG) {
+            outSpec->d_rawWidth = FormatterSpecificationNumericValue(
                                 static_cast<int>(pc->next_arg_id()),
-                                FormatterSpecification_NumericValue::e_ARG_ID);
+                                FormatterSpecificationNumericValue::e_ARG_ID);
         }
     }
 
     if (0 != (sections & e_SECTIONS_PRECISION)) {
         if (outSpec->rawPrecision().valueType() ==
-            FormatterSpecification_NumericValue::e_ARG_ID) {
+            FormatterSpecificationNumericValue::e_ARG_ID) {
             pc->check_arg_id(outSpec->rawPrecision().value());
         }
         else if (outSpec->rawPrecision().valueType() ==
-                 FormatterSpecification_NumericValue::e_NEXT_ARG) {
-            outSpec->d_rawPrecision = FormatterSpecification_NumericValue(
+                 FormatterSpecificationNumericValue::e_NEXT_ARG) {
+            outSpec->d_rawPrecision = FormatterSpecificationNumericValue(
                                 static_cast<int>(pc->next_arg_id()),
-                                FormatterSpecification_NumericValue::e_ARG_ID);
+                                FormatterSpecificationNumericValue::e_ARG_ID);
         }
     }
 
@@ -767,11 +767,11 @@ FormatterSpecification_Splitter<t_CHAR>::parse(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20 void
-FormatterSpecification_Splitter<t_CHAR>::rawParse(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end,
-                                     Sections                         sections)
+FormatterSpecificationSplitter<t_CHAR>::rawParse(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end,
+                                     Sections                        sections)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -859,17 +859,17 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
     // We cannot mix specified and unspecified relative argument ids.
 
     if (outSpec->d_rawWidth.valueType() ==
-            FormatterSpecification_NumericValue::e_NEXT_ARG &&
+            FormatterSpecificationNumericValue::e_NEXT_ARG &&
         outSpec->d_rawPrecision.valueType() ==
-            FormatterSpecification_NumericValue::e_ARG_ID) {
+            FormatterSpecificationNumericValue::e_ARG_ID) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
     }
 
     if (outSpec->d_rawWidth.valueType() ==
-            FormatterSpecification_NumericValue::e_ARG_ID &&
+            FormatterSpecificationNumericValue::e_ARG_ID &&
         outSpec->d_rawPrecision.valueType() ==
-            FormatterSpecification_NumericValue::e_NEXT_ARG) {
+            FormatterSpecificationNumericValue::e_NEXT_ARG) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
     }
@@ -885,10 +885,10 @@ FormatterSpecification_Splitter<t_CHAR>::rawParse(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseFillAndAlignment(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseFillAndAlignment(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -963,8 +963,8 @@ void FormatterSpecification_Splitter<t_CHAR>::parseFillAndAlignment(
 
 template <class t_CHAR>
 void
-FormatterSpecification_Splitter<t_CHAR>::postprocessFiller(
-                                      FormatterSpecification_Splitter *outSpec)
+FormatterSpecificationSplitter<t_CHAR>::postprocessFiller(
+                                      FormatterSpecificationSplitter *outSpec)
 {
     bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult cp;
     switch (sizeof(t_CHAR)) {
@@ -1018,10 +1018,10 @@ FormatterSpecification_Splitter<t_CHAR>::postprocessFiller(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseSign(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseSign(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1043,10 +1043,10 @@ void FormatterSpecification_Splitter<t_CHAR>::parseSign(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseAlternateOption(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseAlternateOption(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1068,10 +1068,10 @@ void FormatterSpecification_Splitter<t_CHAR>::parseAlternateOption(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseZeroPaddingFlag(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseZeroPaddingFlag(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1093,10 +1093,10 @@ void FormatterSpecification_Splitter<t_CHAR>::parseZeroPaddingFlag(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseRawWidth(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseRawWidth(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1106,7 +1106,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parseRawWidth(
     if (*start == end || **start == '}')
         return;                                                       // RETURN
 
-    typedef FormatterSpecification_NumericValue     FSNValue;
+    typedef FormatterSpecificationNumericValue     FSNValue;
 
     FSNValue::parse(&outSpec->d_rawWidth, start, end, false);
     // Non-relative widths must be strictly positive.
@@ -1118,10 +1118,10 @@ void FormatterSpecification_Splitter<t_CHAR>::parseRawWidth(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseRawPrecision(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseRawPrecision(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1131,7 +1131,7 @@ void FormatterSpecification_Splitter<t_CHAR>::parseRawPrecision(
     if (*start == end || **start == '}')
         return;                                                       // RETURN
 
-    typedef FormatterSpecification_NumericValue FSNValue;
+    typedef FormatterSpecificationNumericValue FSNValue;
 
     return FSNValue::parse(&outSpec->d_rawPrecision, start, end, true);
 }
@@ -1139,10 +1139,10 @@ void FormatterSpecification_Splitter<t_CHAR>::parseRawPrecision(
 template <class t_CHAR>
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecification_Splitter<t_CHAR>::parseLocaleSpecificFlag(
-                                     FormatterSpecification_Splitter *outSpec,
-                                     t_ITER                          *start,
-                                     t_ITER                           end)
+void FormatterSpecificationSplitter<t_CHAR>::parseLocaleSpecificFlag(
+                                     FormatterSpecificationSplitter *outSpec,
+                                     t_ITER                         *start,
+                                     t_ITER                          end)
 {
     BSLMF_ASSERT(
                (bsl::is_same<typename bsl::iterator_traits<t_ITER>::value_type,
@@ -1164,24 +1164,24 @@ void FormatterSpecification_Splitter<t_CHAR>::parseLocaleSpecificFlag(
 
 template <class t_CHAR>
 template <typename t_FORMAT_CONTEXT>
-void FormatterSpecification_Splitter<t_CHAR>::postprocess(
-                                      FormatterSpecification_Splitter *out,
-                                      const t_FORMAT_CONTEXT&          context)
+void FormatterSpecificationSplitter<t_CHAR>::postprocess(
+                                      FormatterSpecificationSplitter *out,
+                                      const t_FORMAT_CONTEXT&         context)
 {
     if (0 != (out->d_sections & e_SECTIONS_FILL_ALIGN)) {
-        FormatterSpecification_Splitter::postprocessFiller(out);
+        FormatterSpecificationSplitter::postprocessFiller(out);
     }
 
     if (0 != (out->d_sections & e_SECTIONS_WIDTH)) {
         out->d_postprocessedWidth = out->d_rawWidth;
-        FormatterSpecification_NumericValue::finalize(
+        FormatterSpecificationNumericValue::finalize(
                                                     &out->d_postprocessedWidth,
                                                     context);
     }
 
     if (0 != (out->d_sections & e_SECTIONS_PRECISION)) {
         out->d_postprocessedPrecision = out->d_rawPrecision;
-        FormatterSpecification_NumericValue::finalize(
+        FormatterSpecificationNumericValue::finalize(
                                                 &out->d_postprocessedPrecision,
                                                 context);
     }

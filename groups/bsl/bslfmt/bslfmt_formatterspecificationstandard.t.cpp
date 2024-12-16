@@ -1,13 +1,19 @@
 // bslfmt_formatterspecificationstandard.t.cpp                        -*-C++-*-
 #include <bslfmt_formatterspecificationstandard.h>
 
-#include <bslfmt_formatstring.h> // Testing only
+#include <bslfmt_format_string.h> // Testing only
 #include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
 #include <bslstl_string.h>
+
+#include <bslfmt_format_arg.h> // Testing only
+#include <bslfmt_format_args.h> // Testing only
+#include <bslfmt_format_parsecontext.h> // Testing only
+#include <bslfmt_format_string.h> // Testing only
+#include <bslfmt_formattertestutil.h> // Testing only
 
 #include <stdio.h>
 
@@ -131,14 +137,14 @@ struct MockFormatContext {
     template <class t_ARG0>
     MockFormatContext(const t_ARG0 &arg_0) {
         bsl::array<Arg, 1> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0);
+        Format_ArgUtil::makeFormatArgArray(&arr, arg_0);
         d_arg_0 = Arg(arr[0]);
     }
 
     template <class t_ARG0, class t_ARG1>
     MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
         bsl::array<Arg, 2> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0, arg_1);
+        Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
     }
@@ -149,10 +155,10 @@ struct MockFormatContext {
                       const t_ARG2& arg_2)
     {
         bsl::array<Arg, 3> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
-                                                      arg_0,
-                                                      arg_1,
-                                                      arg_2);
+        Format_ArgUtil::makeFormatArgArray(&arr,
+                                            arg_0,
+                                            arg_1,
+                                            arg_2);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
         d_arg_2 = Arg(arr[2]);
@@ -165,11 +171,11 @@ struct MockFormatContext {
                       const t_ARG3& arg_3)
     {
         bsl::array<Arg, 4> arr;
-        Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
-                                                      arg_0,
-                                                      arg_1,
-                                                      arg_2,
-                                                      arg_3);
+        Format_ArgUtil::makeFormatArgArray(&arr,
+                                            arg_0,
+                                            arg_1,
+                                            arg_2,
+                                            arg_3);
         d_arg_0 = Arg(arr[0]);
         d_arg_1 = Arg(arr[1]);
         d_arg_2 = Arg(arr[2]);
@@ -228,8 +234,8 @@ void checkStandard(
        FormatterSpecificationStandard<char>::Sign       sign,
        bool                                             alternativeFlag,
        bool                                             zeroPaddingFlag,
-       FormatterSpecification_NumericValue              postprocessedWidth,
-       FormatterSpecification_NumericValue              postprocessedPrecision,
+       FormatterSpecificationNumericValue               postprocessedWidth,
+       FormatterSpecificationNumericValue               postprocessedPrecision,
        bool                                             localeSpecificFlag,
        FormatterSpecificationStandard<char>::FormatType formatType)
 {
@@ -258,8 +264,8 @@ void checkStandard(
     FormatterSpecificationStandard<wchar_t>::Sign       sign,
     bool                                                alternativeFlag,
     bool                                                zeroPaddingFlag,
-    FormatterSpecification_NumericValue                 postprocessedWidth,
-    FormatterSpecification_NumericValue                 postprocessedPrecision,
+    FormatterSpecificationNumericValue                  postprocessedWidth,
+    FormatterSpecificationNumericValue                  postprocessedPrecision,
     bool                                                localeSpecificFlag,
     FormatterSpecificationStandard<wchar_t>::FormatType formatType)
 {
@@ -299,7 +305,7 @@ int main(int argc, char **argv)
                    "\n==============\n");
         typedef FormatterSpecificationStandard<char>    FSC;
         typedef FormatterSpecificationStandard<wchar_t> FSW;
-        typedef FormatterSpecification_NumericValue     FSValue;
+        typedef FormatterSpecificationNumericValue      FSValue;
 
         checkStandard(L_,
                       parseStandard("", FSC::e_CATEGORY_STRING),

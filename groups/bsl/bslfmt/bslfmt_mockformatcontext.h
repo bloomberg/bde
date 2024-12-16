@@ -129,9 +129,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslfmt_formatarg.h>
-#include <bslfmt_formatargs.h>
-#include <bslfmt_formatcontext.h>
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_format_context.h>
 
 #include <bsls_keyword.h>
 
@@ -328,7 +328,7 @@ MockFormatContext<t_CHAR>::MockFormatContext(const t_ARG0& arg_0)
 , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
 {
     bsl::array<Arg, 1> arr;
-    Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0);
+    Format_ArgUtil::makeFormatArgArray(&arr, arg_0);
     d_arg_0 = Arg(arr[0]);
 }
 
@@ -340,7 +340,7 @@ MockFormatContext<t_CHAR>::MockFormatContext(const t_ARG0& arg_0,
 , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
 {
     bsl::array<Arg, 2> arr;
-    Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0, arg_1);
+    Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1);
     d_arg_0 = Arg(arr[0]);
     d_arg_1 = Arg(arr[1]);
 }
@@ -354,7 +354,7 @@ MockFormatContext<t_CHAR>::MockFormatContext(const t_ARG0& arg_0,
 , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
 {
     bsl::array<Arg, 3> arr;
-    Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, arg_0, arg_1, arg_2);
+    Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1, arg_2);
     d_arg_0 = Arg(arr[0]);
     d_arg_1 = Arg(arr[1]);
     d_arg_2 = Arg(arr[2]);
@@ -370,11 +370,7 @@ MockFormatContext<t_CHAR>::MockFormatContext(const t_ARG0& arg_0,
 , d_iterator(d_buffer, d_buffer + k_BUFFER_SIZE - 1)
 {
     bsl::array<Arg, 4> arr;
-    Format_FormatArg_ImpUtil::makeFormatArgArray(&arr,
-                                                 arg_0,
-                                                 arg_1,
-                                                 arg_2,
-                                                 arg_3);
+    Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1, arg_2, arg_3);
     d_arg_0 = Arg(arr[0]);
     d_arg_1 = Arg(arr[1]);
     d_arg_2 = Arg(arr[2]);

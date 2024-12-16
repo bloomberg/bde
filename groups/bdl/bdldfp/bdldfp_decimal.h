@@ -4299,7 +4299,7 @@ struct Decimal_FormatterSpecification {
 
   private:
     // PRIVATE TYPES
-    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
+    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
 
     // DATA
     typename FSS::ParsingStatus d_parsingStatus;
@@ -4347,11 +4347,11 @@ struct Decimal_FormatterSpecification {
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool zeroPaddingFlag() const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    const bslfmt::FormatterSpecification_NumericValue
+    const bslfmt::FormatterSpecificationNumericValue
     postprocessedWidth() const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    const bslfmt::FormatterSpecification_NumericValue
+    const bslfmt::FormatterSpecificationNumericValue
     postprocessedPrecision() const;
 
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
@@ -6716,7 +6716,7 @@ bool Decimal_FormatterSpecification<t_CHAR>::zeroPaddingFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const bslfmt::FormatterSpecification_NumericValue
+const bslfmt::FormatterSpecificationNumericValue
 Decimal_FormatterSpecification<t_CHAR>::postprocessedWidth() const
 {
     ensureItWasPostprocessed();
@@ -6725,7 +6725,7 @@ Decimal_FormatterSpecification<t_CHAR>::postprocessedWidth() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const bslfmt::FormatterSpecification_NumericValue
+const bslfmt::FormatterSpecificationNumericValue
 Decimal_FormatterSpecification<t_CHAR>::postprocessedPrecision() const
 {
     ensureItWasPostprocessed();
@@ -6774,7 +6774,7 @@ void Decimal_FormatterSpecification<t_CHAR>::parse(
             FSS::e_SECTIONS_LOCALE_FLAG    |
             FSS::e_SECTIONS_FINAL_SPECIFICATION);
 
-    bslfmt::FormatterSpecification_Splitter<t_CHAR>::parse(
+    bslfmt::FormatterSpecificationSplitter<t_CHAR>::parse(
                                                       &outSpec->d_basicSplitter,
                                                       context,
                                                       sect);
@@ -6801,9 +6801,9 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
     FSS::postprocess(&outSpec->d_basicSplitter, context);
 
     switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
-      case bslfmt::FormatterSpecification_NumericValue::e_DEFAULT: break;
+      case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
-      case bslfmt::FormatterSpecification_NumericValue::e_VALUE: {
+      case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
         if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
             BSLS_THROW(bsl::format_error("Zero or negative width value"));
                                                                        // THROW
@@ -6815,9 +6815,9 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
     }
 
     switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
-      case bslfmt::FormatterSpecification_NumericValue::e_DEFAULT: break;
+      case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
-      case bslfmt::FormatterSpecification_NumericValue::e_VALUE: {
+      case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
         if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
             BSLS_THROW(bsl::format_error("Negative precision value")); // THROW
       } break;
@@ -6844,8 +6844,8 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
                                             t_FORMAT_CONTEXT&  formatContext,
                                             const FSD&         finalSpec) const
 {
-    typedef bslfmt::FormatterSpecification_NumericValue FSNVAlue;
-    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
+    typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
+    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
 
     FSNVAlue finalWidth(finalSpec.postprocessedWidth());
 
@@ -6971,8 +6971,8 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
                                          t_FORMAT_CONTEXT& formatContext) const
 {
 
-    typedef bslfmt::FormatterSpecification_NumericValue     FSNVAlue;
-    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
+    typedef bslfmt::FormatterSpecificationNumericValue     FSNVAlue;
+    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
     FSD finalSpec(d_spec);
     FSD::postprocess(&finalSpec, formatContext);
 

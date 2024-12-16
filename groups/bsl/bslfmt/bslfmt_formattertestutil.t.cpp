@@ -3,6 +3,14 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bslstl_string.h>
+
+#include <bslfmt_format_arg.h> // Testing only
+#include <bslfmt_format_parsecontext.h> // Testing only
+
+#include <stdio.h>
+#include <string.h>
+
 using namespace BloombergLP;
 using namespace bslfmt;
 

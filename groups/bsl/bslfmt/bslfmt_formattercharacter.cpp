@@ -9,13 +9,13 @@ BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<char, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<wchar_t, wchar_t> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<char, wchar_t> >::value));
 
 #endif

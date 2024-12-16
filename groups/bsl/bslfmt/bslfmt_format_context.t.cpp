@@ -1,11 +1,11 @@
-// bslstl_formatcontext.t.cpp                                         -*-C++-*-
-#include <bslfmt_formatcontext.h>
+// bslstl_format_context.t.cpp                                        -*-C++-*-
+#include <bslfmt_format_context.h>
 
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
 
-#include <bslfmt_formatargs.h> // Testing only
+#include <bslfmt_format_args.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>
@@ -270,7 +270,7 @@ makeTestArg(const t_TYPE& val)
                1>
         arr;
 
-    bslfmt::Format_FormatArg_ImpUtil::makeFormatArgArray(&arr, val);
+    bslfmt::Format_ArgUtil::makeFormatArgArray(&arr, val);
 
     return arr[0];
 }
@@ -396,13 +396,13 @@ void testFormatter(bslfmt::format_args args)
     MyCharFormatter                        f;
     bsl::string                            result;
     bsl::back_insert_iterator<bsl::string> backiter(result);
-    bslfmt::Format_OutputIteratorImpl<
+    bslfmt::Format_ContextOutputIteratorImpl<
         char, bsl::back_insert_iterator<bsl::string> >
                                            iter(backiter);
     bslfmt::format_context fc = 
-        bslfmt::Format_FormatContextFactory::construct(
-                         bslfmt::Format_OutputIteratorRef<char>(&iter),
-                         args);
+        bslfmt::Format_ContextFactory::construct(
+                      bslfmt::Format_ContextOutputIteratorRef<char>(&iter),
+                      args);
     MyCharFormatterTestVisitor visitor;
     bslfmt::visit_format_arg(visitor, fc.arg(0));
     f.format(visitor.value, fc);
@@ -471,8 +471,8 @@ int main(int argc, char **argv)
 // 
 // We can then write a test function. Note that it is not possible for users
 // to construct a context directly, so we are forced to abuse the
-// internal-use-only types `Format_OutputIteratorRef` and
-// `Format_FormatContextFactory` in order to write this usage example.
+// internal-use-only types `Format_ContextOutputIteratorRef` and
+// `Format_ContextFactory` in order to write this usage example.
 //
 //..
 //  struct MyCharFormatterTestVisitor {
@@ -492,13 +492,13 @@ int main(int argc, char **argv)
 //      MyCharFormatter                        f;
 //      bsl::string                            result;
 //      bsl::back_insert_iterator<bsl::string> backiter(result);
-//      bslfmt::Format_OutputIteratorImpl<
+//      bslfmt::Format_ContextOutputIteratorImpl<
 //          char, bsl::back_insert_iterator<bsl::string> >
 //                                             iter(backiter);
 //      bslfmt::format_context fc = 
-//          bslfmt::Format_FormatContextFactory::construct(
-//                           bslfmt::Format_OutputIteratorRef<char>(&iter),
-//                           args);
+//          bslfmt::Format_ContextFactory::construct(
+//                       bslfmt::Format_ContextOutputIteratorRef<char>(&iter),
+//                       args);
 //      MyCharFormatterTestVisitor visitor;
 //      bslfmt::visit_format_arg(visitor, fc.arg(0));
 //      f.format(visitor.value, fc);
@@ -519,7 +519,7 @@ int main(int argc, char **argv)
         // TESTING CONSTRUCTION FROM ARG STORE - WORK IN PROGRESS
         //
         // Testing:
-        //   basic_format_args(Format_FormatArgStore);
+        //   basic_format_args(Format_ArgsStore);
         // --------------------------------------------
         if (verbose)
             printf("\nCONSTRUCTION FROM ARG STORE"
@@ -713,9 +713,9 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        typedef bslfmt::Format_FormatArgStore<bslfmt::format_context, int>
+        typedef bslfmt::Format_ArgsStore<bslfmt::format_context, int>
             FASI;
-        typedef bslfmt::Format_FormatArgStore<bslfmt::wformat_context, int>
+        typedef bslfmt::Format_ArgsStore<bslfmt::wformat_context, int>
             WFASI;
 
         // This type has very limited public-facing functionality, so there
@@ -726,7 +726,7 @@ int main(int argc, char **argv)
 
             bsl::string                            result;
             bsl::back_insert_iterator<bsl::string> backiter(result);
-            bslfmt::Format_OutputIteratorImpl<
+            bslfmt::Format_ContextOutputIteratorImpl<
                 char,
                 bsl::back_insert_iterator<bsl::string> >
                 iter(backiter);
@@ -735,9 +735,9 @@ int main(int argc, char **argv)
             bslfmt::format_args args(argstore);
 
             bslfmt::format_context fc =
-                             bslfmt::Format_FormatContextFactory::construct(
-                                 bslfmt::Format_OutputIteratorRef<char>(&iter),
-                                 args);
+                      bslfmt::Format_ContextFactory::construct(
+                          bslfmt::Format_ContextOutputIteratorRef<char>(&iter),
+                          args);
 
             ASSERT(fc.arg(0));
             ASSERT(!fc.arg(1));
@@ -748,7 +748,7 @@ int main(int argc, char **argv)
 
             bsl::wstring                            result;
             bsl::back_insert_iterator<bsl::wstring> backiter(result);
-            bslfmt::Format_OutputIteratorImpl<
+            bslfmt::Format_ContextOutputIteratorImpl<
                 wchar_t,
                 bsl::back_insert_iterator<bsl::wstring> >
                 iter(backiter);
@@ -757,9 +757,9 @@ int main(int argc, char **argv)
             bslfmt::wformat_args args(argstore);
 
             bslfmt::wformat_context fc =
-                          bslfmt::Format_FormatContextFactory::construct(
-                              bslfmt::Format_OutputIteratorRef<wchar_t>(&iter),
-                              args);
+                   bslfmt::Format_ContextFactory::construct(
+                       bslfmt::Format_ContextOutputIteratorRef<wchar_t>(&iter),
+                       args);
 
             ASSERT(fc.arg(0));
             ASSERT(!fc.arg(1));

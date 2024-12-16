@@ -1,12 +1,22 @@
-// bslstl_formatparsecontext.cpp                                      -*-C++-*-
+// bslfmt_format_args_cpp03.cpp                                       -*-C++-*-
 
-#include <bslfmt_formatparsecontext.h>
+// Automatically generated file.  **DO NOT EDIT**
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+// Generated on Wed Dec 11 15:22:22 2024
+// Command line: sim_cpp11_features.pl bslfmt_format_args.cpp
+
+#define INCLUDED_BSLFMT_FORMAT_ARGS_CPP03  // Disable inclusion
+#include <bslfmt_format_args_cpp03.h>      // Pro-forma #include
+
+// Empty file except when compiling bslfmt_format_args.cpp
+#ifdef COMPILING_BSLFMT_FORMAT_ARGS_CPP
+
+// No C++03 Expansion
+
+#endif // defined(COMPILING_BSLFMT_FORMAT_ARGS_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <bslfmt_formatimp.h> // Testing only (`bsl::format` - breathing test)
+#include <bslfmt_format_imp.h> // Testing only (`bsl::format` - breathing test)
 
 #include <bslfmt_formattertestutil.h> // Testing only
 

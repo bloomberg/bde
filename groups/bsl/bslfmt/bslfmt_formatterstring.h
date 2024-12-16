@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 
 
 
-                        // ===========================
-                        // struct Formatter_StringBase
-                        // ===========================
+                        // ==========================
+                        // struct FormatterString_Imp
+                        // ==========================
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -88,7 +88,7 @@ namespace bslfmt {
 /// string formatting specifications and for formatting strings according to
 /// that specification.
 template <class t_CHAR>
-struct Formatter_StringBase {
+struct FormatterString_Imp {
   private:
     // PRIVATE CLASS TYPES
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
@@ -154,7 +154,7 @@ namespace bsl {
 /// `wchar_t *` types.
 template <class t_CHAR>
 struct formatter<t_CHAR *, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -184,7 +184,7 @@ struct formatter<t_CHAR *, t_CHAR>
 /// `const wchar_t *` types.
 template <class t_CHAR>
 struct formatter<const t_CHAR *, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -214,7 +214,7 @@ struct formatter<const t_CHAR *, t_CHAR>
 /// `wchar_t[]` types.
 template <class t_CHAR, size_t t_SIZE>
 struct formatter<t_CHAR[t_SIZE], t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -244,7 +244,7 @@ struct formatter<t_CHAR[t_SIZE], t_CHAR>
 /// `std::wstring` types.
 template <class t_CHAR>
 struct formatter<std::basic_string<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -275,7 +275,7 @@ struct formatter<std::basic_string<t_CHAR>, t_CHAR>
 /// `bsl::wstring` types.
 template <class t_CHAR>
 struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -308,7 +308,7 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
 /// `std::wstring_view` types.
 template <class t_CHAR>
 struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -342,7 +342,7 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
 /// `bsl::wstring_view` types.
 template <class t_CHAR>
 struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::Formatter_StringBase<t_CHAR> {
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
     // TRAITS
 
@@ -373,16 +373,16 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
 // ============================================================================
 
 
-                        // ===========================
-                        // struct Formatter_StringBase
-                        // ===========================
+                        // ==========================
+                        // struct FormatterString_Imp
+                        // ==========================
 
 
 namespace BloombergLP {
 namespace bslfmt {
 
 template <class t_CHAR>
-void Formatter_StringBase<t_CHAR>::findPrecisionLimitedString(
+void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
                           size_t                         *charactersUsed,
                           int                            *widthUsed,
                           bsl::basic_string_view<t_CHAR>  inputString,
@@ -439,7 +439,7 @@ void Formatter_StringBase<t_CHAR>::findPrecisionLimitedString(
 // PROTECTED ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
-typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
+typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
                                        bsl::basic_string_view<t_CHAR> v,
                                        t_FORMAT_CONTEXT&              fc) const
 {
@@ -447,7 +447,7 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
 
     FSS::postprocess(&final_spec, fc);
 
-    typedef FormatterSpecification_NumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNVAlue;
     bsl::basic_string_view<t_CHAR>              sv(v);
 
     FSNVAlue finalWidth(final_spec.postprocessedWidth());
@@ -547,7 +547,7 @@ typename t_FORMAT_CONTEXT::iterator Formatter_StringBase<t_CHAR>::formatImpl(
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Formatter_StringBase<t_CHAR>::parse(t_PARSE_CONTEXT& pc)
+FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& pc)
 {
     FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
 
@@ -590,7 +590,7 @@ typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR *, t_CHAR>::format(
                                                    t_FORMAT_CONTEXT&  fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -606,7 +606,7 @@ typename t_FORMAT_CONTEXT::iterator formatter<const t_CHAR *, t_CHAR>::format(
                                                    t_FORMAT_CONTEXT&  fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -624,7 +624,7 @@ typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR[t_SIZE], t_CHAR>::format(
                                                    t_FORMAT_CONTEXT&  fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v, t_SIZE);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -641,7 +641,7 @@ formatter<std::basic_string<t_CHAR>, t_CHAR>::format(
                                      t_FORMAT_CONTEXT&                fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -659,7 +659,7 @@ formatter<bsl::basic_string<t_CHAR>, t_CHAR>::format(
                                      t_FORMAT_CONTEXT&                fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -679,7 +679,7 @@ formatter<std::basic_string_view<t_CHAR>, t_CHAR>::format(
                                        t_FORMAT_CONTEXT&              fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 
@@ -701,7 +701,7 @@ formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
                                        t_FORMAT_CONTEXT&              fc) const
 {
     bsl::basic_string_view<t_CHAR> sv(v);
-    return BloombergLP::bslfmt::Formatter_StringBase<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
                                                                          fc);
 }
 

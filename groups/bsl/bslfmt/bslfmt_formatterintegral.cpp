@@ -7,28 +7,28 @@ BSLS_IDENT_RCSID(bslfmt_formatterintegral_cpp, "$Id$ $CSID$")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<int, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<int, wchar_t> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<unsigned, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<unsigned, wchar_t> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<long long, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<long long, wchar_t> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<unsigned long long, char> >::value));
 
-BSLMF_ASSERT((!BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<unsigned long long, wchar_t> >::value));
 
 #endif

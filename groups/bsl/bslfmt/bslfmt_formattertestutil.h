@@ -75,12 +75,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslfmt_formatarg.h>
-#include <bslfmt_formatargs.h>
-#include <bslfmt_formatcontext.h>
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_format_context.h>
 #include <bslfmt_formaterror.h>
-#include <bslfmt_formatparsecontext.h>
-#include <bslfmt_formatstring.h>
+#include <bslfmt_format_parsecontext.h>
+#include <bslfmt_format_string.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_mockformatcontext.h>
 #include <bslfmt_mockparsecontext.h>
@@ -100,9 +100,14 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <format>     // for oracle testing
-#endif
+#include <bslfmt_formaterror.h>
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_format_context.h>
+#include <bslfmt_format_parsecontext.h>
+#include <bslfmt_format_string.h>
+#include <bslfmt_formatterbase.h>
+
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
 

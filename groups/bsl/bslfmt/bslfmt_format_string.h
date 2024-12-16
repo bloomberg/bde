@@ -1,7 +1,7 @@
-// bslfmt_formatstring.h                                              -*-C++-*-
+// bslfmt_format_string.h                                             -*-C++-*-
 
-#ifndef INCLUDED_BSLFMT_FORMATSTRING
-#define INCLUDED_BSLFMT_FORMATSTRING
+#ifndef INCLUDED_BSLFMT_FORMAT_STRING
+#define INCLUDED_BSLFMT_FORMAT_STRING
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -95,7 +95,7 @@ namespace bslfmt {
 // FORWARD DECLARATIONS
 
 template <class t_CHAR>
-struct Format_FormatString_Test_Updater;
+struct Format_String_TestUpdater;
 
 
                 // --------------------------------------------
@@ -115,7 +115,7 @@ class basic_format_string {
 
     // FRIENDS
     template <class t_INNER_CHAR>
-    friend struct Format_FormatString_Test_Updater;
+    friend struct Format_String_TestUpdater;
 
   public:
     // CREATORS
@@ -147,7 +147,7 @@ class basic_format_string {
 
     // FRIENDS
     template <class t_INNER_CHAR>
-    friend struct Format_FormatString_Test_Updater;
+    friend struct Format_String_TestUpdater;
 
   public:
     // CREATORS
@@ -171,7 +171,7 @@ class basic_format_string {
 
     // FRIENDS
     template <class t_INNER_CHAR>
-    friend struct Format_FormatString_Test_Updater;
+    friend struct Format_String_TestUpdater;
 
   public:
     // CREATORS
@@ -208,15 +208,14 @@ typedef basic_format_string<wchar_t> wformat_string;
 
 #endif  // Support for Alias and Variadic templates
 
-               // ----------------------------------------------
-               // class Format_FormatString_Test_Updater<t_CHAR>
-               // ----------------------------------------------
-
+                  // ---------------------------------------
+                  // class Format_String_TestUpdater<t_CHAR>
+                  // ---------------------------------------
 
 /// This is a component-private type which enables test drivers to work around
 /// the compile-time restrictions in `basic_format_string` construction.
 template <class t_CHAR>
-struct Format_FormatString_Test_Updater
+struct Format_String_TestUpdater
 {
     /// Update the string contained in the specified `out` to the specified
     /// `value`.
@@ -295,15 +294,13 @@ basic_format_string<t_CHAR>::get()
 
 #endif
 
-
-
-               // ----------------------------------------------
-               // class Format_FormatString_Test_Updater<t_CHAR>
-               // ----------------------------------------------
+                  // ---------------------------------------
+                  // class Format_String_TestUpdater<t_CHAR>
+                  // ---------------------------------------
 
 template <class t_CHAR>
 template <class t_FORMATSTRING>
-void Format_FormatString_Test_Updater<t_CHAR>::update(
+void Format_String_TestUpdater<t_CHAR>::update(
                                            t_FORMATSTRING *out,
                                            const t_CHAR   *value)
 {
@@ -312,7 +309,7 @@ void Format_FormatString_Test_Updater<t_CHAR>::update(
 
 template <class t_CHAR>
 template <class t_FORMATSTRING>
-void Format_FormatString_Test_Updater<t_CHAR>::update(
+void Format_String_TestUpdater<t_CHAR>::update(
                                          t_FORMATSTRING                 *out,
                                          bsl::basic_string_view<t_CHAR>  value)
 {
@@ -325,7 +322,7 @@ void Format_FormatString_Test_Updater<t_CHAR>::update(
 
 //#endif // End C++11 code
 
-#endif  // INCLUDED_BSLFMT_FORMATSTRING
+#endif  // INCLUDED_BSLFMT_FORMAT_STRING
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

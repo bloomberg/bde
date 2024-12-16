@@ -18,6 +18,10 @@ BSLS_IDENT("$Id: $")
 // It also provides a mechanism, when the standard library `<format>` header is
 // available, to enable those partial specializations to be forwarded to the
 // `std` namespace to enable use of `std::format` as well as `bsl::format`
+// 
+// Trait macros are provided to enable the prevention of that promotion where
+// formatters already exist in the `std` namespace. These traits will not
+// typically be used outside the `bslfmt` package.
 //
 ///User-provided formatters
 ///------------------------
@@ -105,8 +109,11 @@ BSLS_IDENT("$Id: $")
     typedef void Formatter_DoNotPreventStdPromotion_DummyTypedef
 #endif
 
-
 namespace bsl {
+/// This is the base template for the `bsl::formatter` class. Its members are
+/// deleted to ensure attempts to format a type without a partial
+/// specialization of `formatter` for that type will result in a compile time
+/// error.
 template <class t_ARG, class t_CHAR = char>
 struct formatter {
   public:
@@ -125,12 +132,15 @@ struct formatter {
 namespace BloombergLP {
 namespace bslfmt {
 
+/// This type exists to enable SFINAE-based detection of the presence or
+/// absence of the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` or
+/// `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP23` traits as appropriate.
 template <class t_FORMATTER, class = void>
-struct Formatter_IsStdAliasingEnabled : bsl::true_type {
+struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
 };
 
 template <class t_FORMATTER>
-struct Formatter_IsStdAliasingEnabled<
+struct FormatterBase_IsStdAliasingEnabled<
     t_FORMATTER,
     typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
 };
@@ -143,9 +153,11 @@ namespace std {
 template <class t_ARG, class t_CHAR>
 struct formatter;
 
+/// Partial `formatter` specialization in the `std` namespace to enable use of
+/// formatters defined in the `bsl` namespece`.
 template <class t_ARG, class t_CHAR>
 requires(
-    BloombergLP::bslfmt::Formatter_IsStdAliasingEnabled<
+    BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
         bsl::formatter<t_ARG, t_CHAR> >::value
 )
 struct formatter<t_ARG, t_CHAR>
