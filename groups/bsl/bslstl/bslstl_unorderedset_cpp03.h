@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 11 08:22:26 2024
+// Generated on Mon Dec 16 09:06:26 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
@@ -414,6 +414,7 @@ class unordered_set {
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
 // {{{ BEGIN GENERATED CODE
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -433,6 +434,7 @@ class unordered_set {
         return ResultType(iterator(result), isInsertedFlag);
     }
 // }}} END GENERATED CODE
+#endif
 
     /// Insert the specified `value` into this set if a key equivalent to
     /// `value` does not already exist in this set; otherwise, if a key
@@ -464,6 +466,7 @@ class unordered_set {
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
 // {{{ BEGIN GENERATED CODE
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -482,6 +485,7 @@ class unordered_set {
                        BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value)).first;
     }
 // }}} END GENERATED CODE
+#endif
 
     /// Insert into this set the value of each `value_type` object in the
     /// range starting at the specified `first` iterator and ending
@@ -1150,6 +1154,7 @@ class unordered_set {
     /// inserted.
     size_type bucket(const key_type& key) const;
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return the index of the bucket, in the array of buckets of this
     /// container, where a value equivalent to the specified `key` would be
     /// inserted.
@@ -1164,6 +1169,7 @@ class unordered_set {
     {
         return d_impl.bucketIndexForKey(key);
     }
+#endif
 
     /// Return a local iterator providing non-modifiable access to the first
     /// `value_type` object (in the sequence of `value_type` objects) of the

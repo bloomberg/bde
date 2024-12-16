@@ -1373,6 +1373,7 @@ class unordered_map {
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with a key that is equivalent with the specified `key`; if
@@ -1397,6 +1398,7 @@ class unordered_map {
                  BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
     }
 #endif
+#endif
 
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with the specified `key`, if such an entry exists;
@@ -1404,6 +1406,7 @@ class unordered_map {
     /// method is not exception-neutral.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return a reference providing modifiable access to the
     /// mapped-value associated with a key that is equivalent to the
     /// specified `key`, if such an entry exists; otherwise, throw a
@@ -1426,6 +1429,7 @@ class unordered_map {
         }
         return static_cast<HashTableNode *>(node)->value().second;
     }
+#endif
 
     /// Return an iterator providing modifiable access to the first
     /// `value_type` object in the sequence of `value_type` objects
@@ -1733,6 +1737,7 @@ class unordered_map {
                                       BloombergLP::bslmf::MovableRef<KEY> key,
                                       BDE_OTHER_TYPE&&                    obj);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// If a key equivalent to the specified `key` already exists in this
     /// unordered_map, assign the specified `obj` to the value associated
     /// with that key, and return a pair containing an iterator referring to
@@ -1759,6 +1764,7 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
         return ResultType(iterator(result), isInsertedFlag);
     }
+#endif
 
     /// If a key equivalent to the specified `key` already exists in this
     /// unordered_map, assign the specified `obj` to the value associated
@@ -1789,6 +1795,7 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// If a key equivalent to the specified `key` already exists in this
     /// unordered_map, assign the specified `obj` to the value associated
     /// with that key, and return an iterator referring to the existing
@@ -1815,6 +1822,7 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
         return iterator(result);
     }
+#endif
 #endif
 
     /// Return a pair of iterators providing modifiable access to the
@@ -2025,6 +2033,7 @@ class unordered_map {
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return a reference providing non-modifiable access to the
     /// mapped-value associated with a key that is equivalent to the
     /// specified `key`, if such an entry exists; otherwise, throw a
@@ -2047,6 +2056,7 @@ class unordered_map {
         }
         return static_cast<HashTableNode *>(node)->value().second;
     }
+#endif
 
     const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
 
@@ -2087,6 +2097,7 @@ class unordered_map {
     /// specified `key` would be inserted.
     size_type bucket(const key_type& key) const;
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return the index of the bucket, in the array of buckets maintained
     /// by this unordered map, where values having a key equivalent to the
     /// specified `key` would be inserted.
@@ -2101,6 +2112,7 @@ class unordered_map {
     {
         return d_impl.bucketIndexForKey(key);
     }
+#endif
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered map.

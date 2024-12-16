@@ -1489,6 +1489,7 @@ class unordered_multiset
     /// inserted.
     size_type bucket(const key_type& key) const;
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return the index of the bucket, in the array of buckets of this
     /// container, where a value equivalent to the specified `key` would be
     /// inserted.
@@ -1503,6 +1504,7 @@ class unordered_multiset
     {
         return d_impl.bucketIndexForKey(key);
     }
+#endif
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered multiset.

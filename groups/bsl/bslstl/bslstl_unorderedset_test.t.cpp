@@ -1590,7 +1590,6 @@ void testTransparentComparator(t_CONTAINER& container,
                                bool         isTransparent,
                                int          initKeyValue)
 {
-    typedef typename t_CONTAINER::const_local_iterator LocalIterator;
     typedef typename t_CONTAINER::const_iterator       Iterator;
     typedef typename t_CONTAINER::size_type            Count;
 
@@ -1668,7 +1667,10 @@ void testTransparentComparator(t_CONTAINER& container,
     }
 
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     {
+        typedef typename t_CONTAINER::const_local_iterator LocalIterator;
+
         // Testing `bucket`.
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
@@ -1707,6 +1709,7 @@ void testTransparentComparator(t_CONTAINER& container,
         ASSERT(!found_it);
 
     }
+#endif
 }
 
 /// Search for a value equal to the specified `initKeyValue` in the
@@ -1719,14 +1722,15 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
                                       bool               isTransparent,
                                       int                initKeyValue)
 {
-    typedef typename t_CONTAINER::size_type      Count;
-    typedef typename t_CONTAINER::iterator       Iterator;
-
     const int expectedConversionCount = isTransparent ? 0 : 1;
 
     TransparentlyComparable existingKey(initKeyValue);
     TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
                                                         : -100);
+
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
+    typedef typename t_CONTAINER::size_type      Count;
+    typedef typename t_CONTAINER::iterator       Iterator;
 
     {
         // Testing `insert(value)`.
@@ -1793,6 +1797,12 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
                 1,   nonExistingKey.conversionCount(),
                 1 == nonExistingKey.conversionCount());
     }
+#else
+    (void) container;
+    (void) expectedConversionCount;
+    (void) existingKey;
+    (void) nonExistingKey;
+#endif
 }
 
 }  // close unnamed namespace

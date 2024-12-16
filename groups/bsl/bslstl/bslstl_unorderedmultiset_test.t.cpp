@@ -1570,7 +1570,6 @@ void testTransparentComparator(Container& container,
                                bool       isTransparent,
                                int        initKeyValue)
 {
-    typedef typename Container::const_local_iterator LocalIterator;
     typedef typename Container::const_iterator       Iterator;
     typedef typename Container::size_type            Count;
 
@@ -1648,7 +1647,10 @@ void testTransparentComparator(Container& container,
     ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     // Testing `bucket`.
+    typedef typename Container::const_local_iterator LocalIterator;
+
     const Count bucketFound    = container.bucket(existingKey);
     const Count bucketNotFound = container.bucket(nonExistingKey);
 
@@ -1684,6 +1686,7 @@ void testTransparentComparator(Container& container,
         }
     }
     ASSERT(!found_it);
+#endif
 }
 
 }  // close unnamed namespace

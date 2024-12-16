@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov  7 07:41:40 2024
+// Generated on Mon Dec 16 09:13:14 2024
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -898,6 +898,7 @@ class unordered_multimap {
     /// `key` would be inserted.
     size_type bucket(const key_type& key) const;
 
+#ifdef BSLSTL_NO_TRANSPARENT_OPS_FOR_NOW
     /// Return the index of the bucket, in the array of buckets maintained
     /// by this unordered map, where values having a key equivalent to the
     /// specified `key` would be inserted.
@@ -912,6 +913,7 @@ class unordered_multimap {
     {
         return d_impl.bucketIndexForKey(key);
     }
+#endif
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered multimap.
