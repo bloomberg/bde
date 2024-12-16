@@ -1,5 +1,13 @@
-bsl-internal (4.18.0.0) unstable; urgency=low
+bsl-internal (4.18.1.0) unstable; urgency=low
 
+  * ec52f5630 Bumped version to 4.18.1.0
+  * aa0d8d105 C26 unordered removal (#5121)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Dec 2024 18:43:52 +0000
+
+bsl-internal (4.18.0.0) git; urgency=low
+
+  * ec094b445 Changelog for version 4.18.0.0
   * ba3c2ca61 Bumped version to 4.18.0.0
   * 169322442 add transparent insert and insert_or_assign to associative containers (#5109)
   * 6abd49b43 Enable .gob extension for component implementation files. (#5090)
@@ -22,7 +30,7 @@ bsl-internal (4.18.0.0) unstable; urgency=low
   * 4f3eb135f Merge pull request #5093 from hversche/add-removeAll-timequeue-drqs-177291899
   * c4df872a0 Add a release method to bdls_tempdirectoryguard (#5081)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Dec 2024 18:48:02 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Dec 2024 18:51:12 +0000
 
 bsl-internal (4.17.0.0) git; urgency=low
 
