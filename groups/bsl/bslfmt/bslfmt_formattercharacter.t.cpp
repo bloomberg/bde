@@ -4,6 +4,7 @@
 #include <bslfmt_formattertestutil.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
 
@@ -368,58 +369,73 @@ int main(int argc, char **argv)
         const int NUM_NEGATIVE_C_TO_W_DATA = sizeof  NEGATIVE_C_TO_W_DATA /
                                              sizeof *NEGATIVE_C_TO_W_DATA;
 
+
+        // gcc version 13.2 and earlier incorrectly handles negative char
+        // values.
+
+        const bool compilerCorrectlyHandlesNegativeValues =
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
+                                                            false;
+#else
+                                                            true;
+#endif
+
         if (verbose) printf("\tTesting runtime processing.\n");
 
         for (int i = 0; i < NUM_CHAR_DATA; ++i) {
-            const int      LINE      =  CHAR_DATA[i].d_line;
-            const char    *FORMAT    =  CHAR_DATA[i].d_format_p;
-            const wchar_t *WFORMAT   = WCHAR_DATA[i].d_format_p;
-            const char    *EXPECTED  =  CHAR_DATA[i].d_expected_p;
-            const wchar_t *WEXPECTED = WCHAR_DATA[i].d_expected_p;
-            const char     VALUE     =  CHAR_DATA[i].d_value;
+            const int      LINE            =  CHAR_DATA[i].d_line;
+            const char    *FORMAT          =  CHAR_DATA[i].d_format_p;
+            const wchar_t *WFORMAT         = WCHAR_DATA[i].d_format_p;
+            const char    *EXPECTED        =  CHAR_DATA[i].d_expected_p;
+            const wchar_t *WEXPECTED       = WCHAR_DATA[i].d_expected_p;
+            const char     VALUE           =  CHAR_DATA[i].d_value;
+            const bool     ORACLE_REQUIRED =
+                           0 < VALUE || compilerCorrectlyHandlesNegativeValues;
 
             if (veryVerbose) { T_ T_ P_(LINE); P(FORMAT); }
 
             bsl::string message;
 
             bool rv = TestUtilChar::testParseVFormat<char>(&message,
-                                                           false,
+                                                           true,
                                                            FORMAT);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             rv = TestUtilChar::testEvaluateVFormat(&message,
                                                    EXPECTED,
-                                                   true,
+                                                   ORACLE_REQUIRED,
                                                    FORMAT,
                                                    VALUE);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             rv = TestUtilWchar::testEvaluateVFormat(&message,
                                                     WEXPECTED,
-                                                    true,
+                                                    ORACLE_REQUIRED,
                                                     WFORMAT,
                                                     VALUE);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
         }
 
         for (int i = 0; i < NUM_WCHAR_DATA; ++i) {
-            const int      LINE     = WCHAR_DATA[i].d_line;
-            const wchar_t *FORMAT   = WCHAR_DATA[i].d_format_p;
-            const wchar_t *EXPECTED = WCHAR_DATA[i].d_expected_p;
-            const char     VALUE    = WCHAR_DATA[i].d_value;
+            const int      LINE            = WCHAR_DATA[i].d_line;
+            const wchar_t *FORMAT          = WCHAR_DATA[i].d_format_p;
+            const wchar_t *EXPECTED        = WCHAR_DATA[i].d_expected_p;
+            const char     VALUE           = WCHAR_DATA[i].d_value;
+            const bool     ORACLE_REQUIRED =
+                           0 < VALUE || compilerCorrectlyHandlesNegativeValues;
 
             if (veryVerbose) { T_ T_ P_(LINE); P(FORMAT); }
 
             bsl::string message;
 
             bool rv = TestUtilWchar::testParseVFormat<wchar_t>(&message,
-                                                               false,
+                                                               true,
                                                                FORMAT);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
 
             rv = TestUtilWchar::testEvaluateVFormat(&message,
                                                     EXPECTED,
-                                                    true,
+                                                    ORACLE_REQUIRED,
                                                     FORMAT,
                                                     VALUE);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
@@ -427,6 +443,8 @@ int main(int argc, char **argv)
 
         if (verbose)
            printf("\tTesting negative values formatted as characters.\n");
+
+        const bool ORACLE_REQUIRED = compilerCorrectlyHandlesNegativeValues;
 
         // `char` value to `char` output.
 
@@ -442,7 +460,7 @@ int main(int argc, char **argv)
 
             bool rv = TestUtilChar::testEvaluateVFormat(&message,
                                                         EXP,
-                                                        true,
+                                                        ORACLE_REQUIRED,
                                                         FORMAT,
                                                         VALUE);
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
@@ -462,7 +480,7 @@ int main(int argc, char **argv)
 
             bool rv = TestUtilWchar::testEvaluateVFormat(&message,
                                                          EXP,
-                                                         true,
+                                                         ORACLE_REQUIRED,
                                                          FMT,
                                                          VAL);
             ASSERTV(LINE, FMT, message.c_str(), rv);
@@ -482,7 +500,7 @@ int main(int argc, char **argv)
 
             bool rv = TestUtilWchar::testEvaluateVFormat(&message,
                                                          EXP,
-                                                         true,
+                                                         ORACLE_REQUIRED,
                                                          FMT,
                                                          VAL);
             ASSERTV(LINE, FMT, message.c_str(), rv);
