@@ -4330,7 +4330,7 @@ struct Decimal_FormatterSpecification {
     // PRIVATE TYPES
 
     ///  Just an abbreviation for shorter lines.
-    typedef bslfmt::FormatterSpecification_Splitter<t_CHAR> FSS;
+    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
 
     // DATA
     typename FSS::ParsingStatus d_parsingStatus;   /// ???
