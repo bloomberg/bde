@@ -47,6 +47,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
+/// Namespace class holding enums used by `FormatterSpecificationSplitter`
 class FormatterSpecificationStandard_Enums
 : public FormatterSpecificationSplitter_Enums {
   public:
@@ -99,6 +100,8 @@ class FormatterSpecificationStandard_Enums
     };
 };
 
+/// Utility to parse and validate a Standard format specification string for a
+/// given argument type.
 template <class t_CHAR>
 class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
