@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 12 17:26:25 2024
+// Generated on Tue Dec 17 16:46:28 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -54,9 +54,9 @@ class Format_Imp_TruncatingIterator {
     typedef typename bsl::iterator_traits<t_ITERATOR>::difference_type DT;
 
     // DATA
-    t_ITERATOR  d_iterator;
-    t_DIFF_TYPE d_limit;
-    t_DIFF_TYPE d_count;
+    t_ITERATOR  d_iterator; // underlying iterator
+    t_DIFF_TYPE d_limit;    // character limit
+    t_DIFF_TYPE d_count;    // current character count
 
   public:
     // TYPES
@@ -67,25 +67,42 @@ class Format_Imp_TruncatingIterator {
     typedef void                     pointer;
 
     // CREATORS
+
+    /// Create a instance containing a copy of the specified `iterator` as
+    /// underlying iterater with the maximum character count set to the
+    /// specified `limit`.
     Format_Imp_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit);
 
     // MANIPULATORS
+
+    /// Do nothing and return a reference to this object. This is includes to
+    /// ensure compliance with the C++ Standard's LegacyOutputIterator
+    /// requirements.
     Format_Imp_TruncatingIterator& operator*();
 
+    /// Increment the current character count. If the current character count is less than the limit, assign the specified `x` to the stored underlying iterator and
+    /// increment the stored underlying iterator.
     void operator=(t_VALUE_TYPE x);
 
+    /// Do nothing and return a reference to this object. This is includes to
+    /// ensure compliance with the C++ Standard's LegacyOutputIterator
+    /// requirements.
     Format_Imp_TruncatingIterator& operator++();
 
     // ACCESSORS
+
+    /// Return the current character count
     t_DIFF_TYPE count() const;
 
+    /// Return the underlying iterator
     t_ITERATOR underlying() const;
   private:
     // NOT IMPLEMENTED
 
+    /// The postfix operator must be deleted because, as a counting iterator,
+    /// return by value can cause data inconsistency.
     Format_Imp_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
-        // The postfix operator must be deleted because, as a counting
-        // iterator, return by value can cause data inconsistency.
+
 };
 
 
