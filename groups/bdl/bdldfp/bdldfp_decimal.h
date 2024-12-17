@@ -4354,7 +4354,7 @@ struct Decimal_FormatterSpecification {
     /// If `d_parsingStatus` is not yet at least `e_PARSED` throw a
     /// `bsl::format_error` exception, otherwise if `d_parsingStatus` is at
     /// least `e_PARSED` or higher (later in the process) do nothing.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureParsignComplete() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureParsingComplete() const;
 
     /// If `d_parsingStatus` is not `e_PARSING_POSTPROCESSED` (the final
     /// state) throw a `bsl::format_error` exception, otherwise if
@@ -4383,11 +4383,10 @@ struct Decimal_FormatterSpecification {
     /// Postprocess the specified `outSpec` by using the argument values
     /// provided by the specified `context` to fill in the values of nested
     /// width or precision parameters if such deferred parameters exist and set
-    /// the status of `outSpec` to `e_PARSING_POSTPROCESSED`.  By deferred
-    /// format parameters we mean parameters whose value comes from an argument
-    /// to the formatter function, and not an literal integer value within the
-    /// format string.  In case of an error throw a `bsl::format_error`
-    /// exception.
+    /// the status of `outSpec` to `e_PARSING_POSTPROCESSED`.  By nested format
+    /// parameters we mean parameters whose value comes from an argument to the
+    /// formatter function, and not an literal integer value within the format
+    /// string.  In case of an error throw a `bsl::format_error` exception.
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(Decimal_FormatterSpecification *outSpec,
                             const t_FORMAT_CONTEXT&         context);
@@ -4459,9 +4458,9 @@ struct Decimal_FormatterSpecification {
     /// this flags set will result in an exception indicating that.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
 
-    /// Return a boolean indicating the format-type requested unless the status
-    /// is not at least `e_PARSING_PARSED` in which case throw a
-    /// `bsl::format_error` exception indicating that error.
+    /// Return the format-type requested unless the status is not at least
+    /// `e_PARSING_PARSED` in which case throw a `bsl::format_error` exception
+    /// indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
 };
 
@@ -6737,7 +6736,7 @@ void Decimal_FormatterSpecification<t_CHAR>::parseType(
 // PRIVATE ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void Decimal_FormatterSpecification<t_CHAR>::ensureParsignComplete() const
+void Decimal_FormatterSpecification<t_CHAR>::ensureParsingComplete() const
 {
     if (d_parsingStatus == FSS::e_PARSING_UNINITIALIZED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
@@ -6797,7 +6796,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 typename Decimal_FormatterSpecification<t_CHAR>::FSS::Alignment
 Decimal_FormatterSpecification<t_CHAR>::alignment() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_basicSplitter.alignment();
 }
 
@@ -6806,7 +6805,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 typename Decimal_FormatterSpecification<t_CHAR>::FSS::Sign
 Decimal_FormatterSpecification<t_CHAR>::sign() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_basicSplitter.sign();
 }
 
@@ -6814,7 +6813,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::alternativeFlag() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_basicSplitter.alternativeFlag();
 }
 
@@ -6822,7 +6821,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::zeroPaddingFlag() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_basicSplitter.zeroPaddingFlag();
 }
 
@@ -6848,7 +6847,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::localeSpecificFlag() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_basicSplitter.localeSpecificFlag();
 }
 
@@ -6857,7 +6856,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 typename Decimal_FormatterSpecification<t_CHAR>::FormatType
 Decimal_FormatterSpecification<t_CHAR>::formatType() const
 {
-    ensureParsignComplete();
+    ensureParsingComplete();
     return d_formatType;
 }
 
@@ -6908,7 +6907,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
                                        Decimal_FormatterSpecification *outSpec,
                                        const t_FORMAT_CONTEXT&        context)
 {
-    outSpec->ensureParsignComplete();
+    outSpec->ensureParsingComplete();
 
     FSS::postprocess(&outSpec->d_basicSplitter, context);
 
