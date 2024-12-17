@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 17 16:46:28 2024
+// Generated on Tue Dec 17 17:02:53 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -80,8 +80,9 @@ class Format_Imp_TruncatingIterator {
     /// requirements.
     Format_Imp_TruncatingIterator& operator*();
 
-    /// Increment the current character count. If the current character count is less than the limit, assign the specified `x` to the stored underlying iterator and
-    /// increment the stored underlying iterator.
+    /// Increment the current character count. If the current character count
+    /// is less than the limit, assign the specified `x` to the stored
+    /// underlying iterator and increment the stored underlying iterator.
     void operator=(t_VALUE_TYPE x);
 
     /// Do nothing and return a reference to this object. This is includes to
