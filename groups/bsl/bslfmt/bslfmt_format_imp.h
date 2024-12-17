@@ -223,8 +223,8 @@ class Format_Imp_TruncatingIterator {
 
     // ACCESSORS
 
-    /// Return the current character count. Note that is the number of calls to
-    /// `operator=` regardless of whether the limit has been breached.
+    /// Return the current character count. Note that this is the number of
+    /// calls to `operator=` regardless of whether the limit has been breached.
     t_DIFF_TYPE count() const;
 
     /// Return the underlying iterator.

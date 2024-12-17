@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 17 17:43:25 2024
+// Generated on Tue Dec 17 18:05:58 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -102,8 +102,8 @@ class Format_Imp_TruncatingIterator {
 
     // ACCESSORS
 
-    /// Return the current character count. Note that is the number of calls to
-    /// `operator=` regardless of whether the limit has been breached.
+    /// Return the current character count. Note that this is the number of
+    /// calls to `operator=` regardless of whether the limit has been breached.
     t_DIFF_TYPE count() const;
 
     /// Return the underlying iterator.
