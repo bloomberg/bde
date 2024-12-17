@@ -559,8 +559,8 @@ BSLS_IDENT("$Id: $")
 // The log messages you should look for are those produced by `bsls::Review`s
 // default review failure handler and will be similar to:
 // ```
-// ERROR myfunction.h::17 BSLS_REVIEW failure (level:R-DBG): 'x > 0'
-//                                    Please run "/bb/bin/showfunc.tsk ...
+// ERROR myfunction.h:17 BSLS_REVIEW failure (myfunction.h:17 level:R-DBG): 
+//                                'x > 0' Please run "/bb/bin/showfunc.tsk ...
 // ```
 // `showfunc.tsk` is a Bloomberg application that can be used (along with the
 // task binary) to convert the reported stack addresses to a more traditional
