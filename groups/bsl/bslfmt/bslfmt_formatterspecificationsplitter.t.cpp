@@ -1,8 +1,13 @@
 // bslfmt_formatterspecificationsplitter.t.cpp                        -*-C++-*-
 #include <bslfmt_formatterspecificationsplitter.h>
 
+#include <bslfmt_format_arg.h> // Testing only
+#include <bslfmt_format_args.h> // Testing only
+#include <bslfmt_format_parsecontext.h> // Testing only
 #include <bslfmt_format_string.h> // Testing only
 #include <bslfmt_formattertestutil.h> // Testing only
+
+#include <bslfmt_formatterspecificationnumericvalue.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -10,12 +15,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#include <bslfmt_format_arg.h> // Testing only
-#include <bslfmt_format_args.h> // Testing only
-#include <bslfmt_format_parsecontext.h> // Testing only
-#include <bslfmt_format_string.h> // Testing only
-#include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -105,70 +104,6 @@ void aSsErT(bool condition, const char *message, int line)
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 namespace {
-
-#if 0
-template <class t_CHAR>
-struct MockParseContext : public bslfmt::basic_format_parse_context<t_CHAR> {
-    MockParseContext(const bsl::basic_string_view<t_CHAR>& sv)
-    : bslfmt::basic_format_parse_context<t_CHAR>(sv, 3)
-    {
-    }
-};
-
-template <class t_CHAR>
-struct MockFormatContext {
-  public:
-    // TYPES
-    typedef basic_format_arg<basic_format_context<t_CHAR*, t_CHAR> > Arg;
-
-  private:
-    // DATA
-    Arg d_arg_0;
-    Arg d_arg_1;
-    Arg d_arg_2;
-
-  public:
-    // CREATORS
-    template <class t_ARG0>
-    MockFormatContext(const t_ARG0 &arg_0) {
-        bsl::array<Arg, 1> arr;
-        Format_ArgUtil::makeFormatArgArray(&arr, arg_0);
-        d_arg_0 = Arg(arr[0]);
-    }
-
-    template <class t_ARG0, class t_ARG1>
-    MockFormatContext(const t_ARG0 &arg_0, const t_ARG1 &arg_1) {
-        bsl::array<Arg, 2> arr;
-        Format_ArgUtil::makeFormatArgArray(&arr, arg_0, arg_1);
-        d_arg_0 = Arg(arr[0]);
-        d_arg_1 = Arg(arr[1]);
-    }
-
-    template <class t_ARG0, class t_ARG1, class t_ARG2>
-    MockFormatContext(const t_ARG0& arg_0,
-                      const t_ARG1& arg_1,
-                      const t_ARG2& arg_2)
-    {
-        bsl::array<Arg, 3> arr;
-        Format_ArgUtil::makeFormatArgArray(&arr,
-                                            arg_0,
-                                            arg_1,
-                                            arg_2);
-        d_arg_0 = Arg(arr[0]);
-        d_arg_1 = Arg(arr[1]);
-        d_arg_2 = Arg(arr[2]);
-    }
-
-    // ACCESSORS
-    Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT {
-        if (id == 0) return d_arg_0;
-        if (id == 1) return d_arg_1;
-        if (id == 2) return d_arg_2;
-        return Arg();
-    }
-};
-
-#endif
 
 typedef FormatterSpecificationSplitter<char>     FSC;
 typedef FormatterSpecificationSplitter<wchar_t> FSW;

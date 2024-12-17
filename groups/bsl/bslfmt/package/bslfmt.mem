@@ -15,6 +15,7 @@ bslfmt_formattercharacter
 bslfmt_formatterfloating
 bslfmt_formatterintegral
 bslfmt_formatterpointer
+bslfmt_formatterspecificationnumericvalue
 bslfmt_formatterspecificationsplitter
 bslfmt_formatterspecificationstandard
 bslfmt_formatterstring

@@ -30,6 +30,7 @@ bslfmt.txt
      bslfmt_formattertestutil
 
   5. bslfmt_formatargs
+     bslfmt_formatterspecificationnumericvalue
      bslfmt_formatterspecificationsplitter
      bslfmt_mockformatcontext
      bslfmt_mockparsecontext

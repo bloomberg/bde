@@ -107,13 +107,20 @@ class FormatterSpecificationStandard
     typedef FormatterSpecificationSplitter<t_CHAR> Splitter;
 
     // DATA
-    ParsingStatus d_parsingStatus;
-    Splitter      d_basicSplitter;
-    FormatType    d_formatType;
-    int           d_widthArgId;
-    int           d_precisionArgId;
+    ParsingStatus d_parsingStatus;   // Parsing state
+    Splitter      d_basicSplitter;   // Parsing helper
+    FormatType    d_formatType;      // What type was requested
+    int           d_widthArgId;      // Width argumetn number
+    int           d_precisionArgId;  // Precision argument number
 
     // PRIVATE CLASS FUNCTIONS
+
+    /// Parse, from the specified `typeString`, the requested format-type and
+    /// load it into the `d_formatTpe` of the specified `outSpec`. The
+    /// specified `category` determines the mapping table used from character
+    /// to format-type. This method will throw a `bsl::format_error` exception
+    /// in case the `typeString` is not empty or a valid, single format
+    /// character.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
                              FormatterSpecificationStandard        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString,
@@ -122,40 +129,121 @@ class FormatterSpecificationStandard
   public:
 
     // CREATORS
+
+    /// Create an uninitialized `FormatterSpecificationStandard` object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard();
 
     // CLASS FUNCTIONS
+
+    /// Parse a format string using the iterator-range from the specified
+    /// `context` assuming it is a Standard format specification for arguments
+    /// of category `category` and if successful load the results into the
+    /// specified `outSpec` as well as set the status to `e_PARSED`; otherwise,
+    /// if the format specification denoted by the `context` iterator-range is
+    /// not a valid Standard format specification for arguments of category
+    /// `category` thow a `bsl::format_error` exception.
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
                                      FormatterSpecificationStandard *outSpec,
                                      t_PARSE_CONTEXT                *context,
                                      Category                        category);
 
+    /// Postprocess the specified `outSpec` by using the argument values
+    /// provided by the specified `context` to fill in the values of nested
+    /// width or precision parameters if such nested parameters exist and set
+    /// the status of `outSpec` to `e_PARSING_POSTPROCESSED`.  By nested format
+    /// parameters we mean parameters whose value comes from an argument to the
+    /// formatter function, and not an literal integer value within the format
+    /// string.  In case of an error throw a `bsl::format_error` exception.
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(FormatterSpecificationStandard *outSpec,
                             const t_FORMAT_CONTEXT&         context);
 
     // ACCESSORS
+
+    /// Return a pointer to the character array that stores the parsed filler
+    /// character that may be a multibyte code point or just a single character
+    /// unless the status is not `e_PARSING_PARSED` or
+    /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
+    /// exception indicating that error.  See also `fillerCharacters()` that
+    /// provides the number of characters in the array returned by this
+    /// function (at least one).
     BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
+
+    /// Return the number of filler characters in the array returned by
+    /// `filler()` unless the status is not `e_PARSING_PARSED` or
+    /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
+    /// exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCharacters() const;
+
+    /// Return the display width of the code point represented by the array
+    /// returned by `filler()` unless the status is not `e_PARSING_PARSED` or
+    /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
+    /// exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCodePointDisplayWidth() const;
+
+    /// Return the enumerator representing the requested alignment unless the
+    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment     alignment() const;
+
+    /// Return the enumerator representing the requested sign-treatment option
+    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Sign          sign() const;
+
+    /// Return a boolean indicating if alternative formatting was requested
+    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          alternativeFlag() const;
+
+    /// Return a boolean indicating if zero padding was requested unless the
+    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          zeroPaddingFlag() const;
+
+    /// Return an optional value representing the requested width unless the
+    /// status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.  Note that the
+    /// returned type is capable of representing more than just an optional
+    /// integer, but after preprocessing it will have only two possible states:
+    /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                                postprocessedWidth() const;
+
+    /// Return an optional value representing the requested precision unless
+    /// the status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.  Note that the
+    /// returned type is capable of representing more than just an optional
+    /// integer, but after preprocessing it will have only two possible states:
+    /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                                postprocessedPrecision() const;
+
+    /// Return a boolean indicating if the locale specific flag was present in
+    /// the format specification unless the status is not at least
+    /// `e_PARSING_PARSED` in which case throw a `bsl::format_error` exception
+    /// indicating that error.  Note that the locale specific flag is not yet
+    /// supported hence the attempt to format with a specification that has
+    /// this flags set will result in an exception indicating that.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool          localeSpecificFlag() const;
+
+    /// Return the enumerator representing the requested format type requested
+    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType    formatType() const;
 };
 
-// PRIVATE CLASS FUNCTIONS
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                // --------------------------------------------
+                // class FormatterSpecificationStandard<t_CHAR>
+                // --------------------------------------------
 
 
 // CREATORS
-
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
