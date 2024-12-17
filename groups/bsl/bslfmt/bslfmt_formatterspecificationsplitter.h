@@ -6,11 +6,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Private utility for use within BSL `format` spec parsers
+//@PURPOSE: Tokernization utility for use within BSL `format` spec parsers
 //
 //@CLASSES:
-//  FormatSpecification_Splitter: Utility to tokenize format specifications.
-//  FormatSpecification_SplitterBase: Base for FormatSpecification_Splitter.
+//  FormatterSpecificationSplitter: Utility to tokenize format specifications.
 //
 //@SEE_ALSO: bslfmt_format.h
 //
@@ -20,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // validation is performed by this component and further type-specific
 // processing will be required prior to use.
 //
-// This component is for private use only.
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 
@@ -60,6 +59,9 @@ namespace bslfmt {
                    // struct FormatterSpecificationNumericValue
                    // -----------------------------------------
 
+/// Type holding an integral value plus a categorization of that value. This is
+/// a value semantic type to hold width and precision entries in a format
+/// specification.
 struct FormatterSpecificationNumericValue {
   public:
     // CLASS TYPES
@@ -67,17 +69,28 @@ struct FormatterSpecificationNumericValue {
 
   private:
     // DATA
-    int       d_value;
-    ValueType d_type;
+    int       d_value;  // integral value
+    ValueType d_type;   // categorization of held value
 
     // PRIVATE CLASS FUNCTIONS
+
+    /// Parse the string in the range specified by `start` and `end` to extract
+    /// either a hard-coded integer or a nested argument specification. If the
+    /// specified `needInitialDot` is true the string is only parsed if
+    /// `*begin == '.'` and a `format_error` exception is thrown if the string
+    /// following the initial dot is empty. Store the result into the specified
+    /// `outValue`.
     template <class t_ITER>
     static void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
                             FormatterSpecificationNumericValue *outValue,
                             t_ITER                             *start,
                             t_ITER                              end,
-                            bool                                hasInitialDot);
+                            bool                                needInitialDot);
 
+    /// If this holds a nested value (ie `d_type` is one of `e_NEXT_ARG` or
+    /// `e_ARG_ID`) then update the value using the arguments stored in the
+    /// specified `context` and update the type to `e_VALUE`. Otherwise do
+    /// nothing.
     template <typename t_FORMAT_CONTEXT>
     static void finalize(FormatterSpecificationNumericValue *out,
                          const t_FORMAT_CONTEXT&             context);
@@ -90,16 +103,28 @@ struct FormatterSpecificationNumericValue {
 
   public:
     // CREATORS
+
+    /// Create a `FormatterSpecificationNumericValue` object with a zero value
+    /// and a type of `e_DEFAULT`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue();
+
+    /// Create a `FormatterSpecificationNumericValue` object holding the
+    /// specified `value` and `type`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue(
                                                                int       value,
                                                                ValueType type);
 
     // ACCESSORS
+
+    /// Return true if the value and type of this object match those of the
+    /// specified `object`, otherwise return false.
     BSLS_KEYWORD_CONSTEXPR_CPP20
     bool operator==(const FormatterSpecificationNumericValue& other) const;
 
+    /// Return the held value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int       value() const;
+
+    /// Return the held type enum.
     BSLS_KEYWORD_CONSTEXPR_CPP20 ValueType valueType() const;
 };
 
@@ -107,26 +132,35 @@ struct FormatterSpecificationNumericValue {
                  // struct FormatterSpecificationNumericValue_Visitor
                  // -------------------------------------------------
 
-
+/// Component-private type to enable extraction of values held by format
+/// contexts during the postprocessing stage.
 struct FormatterSpecificationNumericValue_Visitor {
   private:
     // DATA
-    FormatterSpecificationNumericValue *d_value_p;
+    FormatterSpecificationNumericValue *d_value_p;  // value to be updated
 
   public:
     // CREATORS
 
+    /// Create an instance of `FormatterSpecificationNumericValue_Visitor`
+    /// holding a copy of the specifed `pc`.
     FormatterSpecificationNumericValue_Visitor(
                                       FormatterSpecificationNumericValue *pc);
 
     // MANIPULATORS
 
+    /// Throw an exception of type `format_error`. This indicates visitation of
+    /// an argument with no value, which would indicate a logic error.
     void operator()(bsl::monostate) const;
 
+    /// Update the value of the `FormatterSpecificationNumericValue` referenced
+    /// by this instance to the specified `x` and update its type to `e_VALUE`.
     template <class t_TYPE>
     typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type operator()(
                                                                t_TYPE x) const;
 
+    /// Throw an exception of type `format_error`. This indicates visitation of
+    /// an argument with non-integral value, which indicates a user error.
     template <class t_TYPE>
     typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
                                                                t_TYPE x) const;
@@ -178,6 +212,9 @@ struct FormatterSpecificationSplitter_Enums {
                  // class FormatterSpecificationSplitter<t_CHAR>
                  // --------------------------------------------
 
+/// Utility type for use when creating format specification parsers. This
+/// extracts the raw values from a string of the form
+/// `fill-and-align?sign # 0 width?precision?L type`.
 template <class t_CHAR>
 class FormatterSpecificationSplitter
 : public FormatterSpecificationSplitter_Enums {
@@ -187,73 +224,112 @@ class FormatterSpecificationSplitter
     enum { k_FILLER_BUFFER_SIZE = 5 };
 
     // DATA
-    Sections      d_sections;
-    ParsingStatus d_parsingStatus;
+    Sections      d_sections;        // List of sections extracted
+    ParsingStatus d_parsingStatus;   // Current status
 
     t_CHAR d_filler[k_FILLER_BUFFER_SIZE];  // one filler code point
-    int    d_fillerCharacters;
-    int    d_fillerCodePointDisplayWidth;
+    int    d_fillerCharacters;              // number of characters in filler
+    int    d_fillerCodePointDisplayWidth;   // display width of code point
 
-    Alignment                           d_alignment;
-    Sign                                d_sign;
-    bool                                d_alternativeFlag;
-    bool                                d_zeroPaddingFlag;
-    FormatterSpecificationNumericValue  d_rawWidth;
-    FormatterSpecificationNumericValue  d_rawPrecision;
-    FormatterSpecificationNumericValue  d_postprocessedWidth;
-    FormatterSpecificationNumericValue  d_postprocessedPrecision;
-    bool                                d_localeSpecificFlag;
-    bsl::basic_string_view<t_CHAR>      d_spec;
+    Alignment                           d_alignment;              // alignment
+    Sign                                d_sign;                   // sign
+    bool                                d_alternativeFlag;        // alt (#)
+    bool                                d_zeroPaddingFlag;        // zero (0)
+    FormatterSpecificationNumericValue  d_rawWidth;               // raw wdith
+    FormatterSpecificationNumericValue  d_rawPrecision;           // raw prec
+    FormatterSpecificationNumericValue  d_postprocessedWidth;     // width
+    FormatterSpecificationNumericValue  d_postprocessedPrecision; // precisions
+    bool                                d_localeSpecificFlag;     // locale (L)
+    bsl::basic_string_view<t_CHAR>      d_spec;                   // raw spec
 
     // PRIVATE CLASS FUNCTIONS
+
+    /// Determine and return the value of the Alignment enum represented by the
+    /// specified `in`, determined by the mapping given by the Standard C++
+    /// formatting specification. In the event of an error throw a `format_error` exception.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment alignmentFromChar(t_CHAR in);
 
+    /// Determine and return the value of the Sign enum represented by the
+    /// specified `in`, determined by the mapping given by the Standard C++
+    /// formatting specification. In the event of an error throw a `format_error` exception.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 Sign signFromChar(t_CHAR in);
 
+    /// Extract a filler code point and `Alignment` value from start of the
+    /// string specified by the `start` and `end` range, and upate the
+    /// specified output `outSpec` with the result. In the event of an error throw a `format_error` exception.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseFillAndAlignment(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Where the specified output `outSpec` contains a filler code point,
+    /// calculate the Unicode display width of that code point and update
+    /// `outSpec` with the result. In the event of an error throw a `format_error` exception.
     static void postprocessFiller(FormatterSpecificationSplitter *outSpec);
 
+    /// Extract a `Sign` value from the start of the string specified by the
+    /// `start` and `end` range, and upate the specified output `outSpec` with
+    /// the result. In the event of an error throw a `format_error` exception.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseSign(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Determine whether the start of the string specified by the `start` and
+    /// `end` range contains a flag (`#`) indicating alternative format
+    /// processing and if so return true. Otherwise return false.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseAlternateOption(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Determine whether the start of the string specified by the `start` and
+    /// `end` range contains a flag (`0`) indicating zero padding
+    /// and if so return true. Otherwise return false.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseZeroPaddingFlag(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Extract a width from the start of the string specified by the `start`
+    /// and `end` range, and upate the specified output `outSpec` with the
+    /// result. In the event of an error throw a `format_error` exception. Note
+    /// that the extracted precision may be hard-coded or nested and is not
+    /// itself validated at this stage.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawWidth(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Extract a precision from the start of the string specified by the
+    /// `start` and `end` range, and upate the specified output `outSpec` with
+    /// the result. In the event of an error throw a `format_error` exception.
+    /// Note that the extracted precision may be hard-coded or nested and is
+    /// not itself validated at this stage.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseRawPrecision(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Determine whether the start of the string specified by the `start` and
+    /// `end` range contains a flag (`L`) indicating locale specific formatting
+    /// and if so return true. Otherwise return false.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseLocaleSpecificFlag(
                                        FormatterSpecificationSplitter *outSpec,
                                        t_ITER                         *start,
                                        t_ITER                          end);
 
+    /// Parse the  string specified by the `start` and `end` range to extract
+    /// the items indicated by the specified `sections` and upate the specified
+    /// output `outSpec` with the result. In the event of an error throw a
+    /// `format_error` exception.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
     rawParse(FormatterSpecificationSplitter *outSpec,  // output
@@ -264,36 +340,93 @@ class FormatterSpecificationSplitter
   public:
 
     // CLASS METHODS
+
+    /// Parse the string contained by the specified input/output `parseContext`
+    /// parse context to extract the items indicated by the specified
+    /// `sections` and upate the specified output `outSpec` with the result.
+    /// Update the iterator held by `parseContext` to point to the start of the
+    /// unparsed section of the string. In the event of an error throw a
+    /// `format_error` exception.
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
-    parse(FormatterSpecificationSplitter *outSpec,  // output
-          t_PARSE_CONTEXT                *pc,       // output
-          Sections                        sections);// param
+    parse(FormatterSpecificationSplitter *outSpec,      // output
+          t_PARSE_CONTEXT                *parseContext, // output
+          Sections                        sections);    // param
 
+    /// Update any nested width and precision values held by the specified
+    /// `outSpec` to hold actual values based on the appropriate arguments held
+    /// by the specified `context` format context. In the event of an error
+    /// throw a `format_error` exception.
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(FormatterSpecificationSplitter *outSpec,
                             const t_FORMAT_CONTEXT&         context);
 
     // CREATORS
+
+    /// Construct a default instance of `FormatterSpecificationSplitter`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationSplitter();
 
     // ACCESSORS
+
+    /// Return the stored filler string. If `parse` has not previously been
+    /// called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
+
+    /// Return the size of the stored filler string. If `parse` has not
+    /// previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCharacters() const;
+
     BSLS_KEYWORD_CONSTEXPR_CPP20 int       fillerCodePointDisplayWidth() const;
+
+    /// Return the stored alignment value. If `parse` has not
+    /// previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment alignment() const;
+
+    /// Return the stored sign value. If `parse` has not previously been
+    /// called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Sign      sign() const;
+
+    /// Return true if parsing detected an alternative processing flag in the
+    /// specification, otherwise return false. If `parse` has not previously
+    /// been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      alternativeFlag() const;
+
+    /// Return true if parsing detected a zero padding flag in the
+    /// specification, otherwise return false. If `parse` has not previously
+    /// been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool      zeroPaddingFlag() const;
+
+    /// Return the modified numeric width extracted during postprocessing. If
+    /// `postprocess` has not previously been called throw a `format_error`
+    /// exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     postprocessedWidth() const;
+
+    /// Return the modified numeric precision extracted during postprocessing.
+    /// If `postprocess` has not previously been called throw a `format_error`
+    /// exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     postprocessedPrecision() const;
+
+    /// Return the unmodified width extracted during parsing. If `parse` has
+    /// not previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
     rawWidth() const;
+
+    /// Return the unmodified precision extracted during parsing. If `parse`
+    /// has not previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
                                       rawPrecision() const;
+
+    /// Return true if parsing detected a locale-specific formatting flag in
+    /// the specification, otherwise return false. If `parse` has not
+    /// previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
+
+    /// Return that section of the specification string parsed during the call
+    /// to `parse`. Note that this may be a truncated version of the string
+    /// held by the parse context. If `parse` has not previously been called
+    /// throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const bsl::basic_string_view<t_CHAR>
     finalSpec() const;
 };
@@ -714,7 +847,7 @@ template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 void
 FormatterSpecificationSplitter<t_CHAR>::parse(
                                      FormatterSpecificationSplitter *outSpec,
-                                     t_PARSE_CONTEXT                *pc,
+                                     t_PARSE_CONTEXT                *parseContext,
                                      Sections                        sections)
 {
     BSLMF_ASSERT((
@@ -724,20 +857,20 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
 
     outSpec->d_parsingStatus = e_PARSING_PARSED;
 
-    typename t_PARSE_CONTEXT::const_iterator current = pc->begin();
-    typename t_PARSE_CONTEXT::const_iterator end     = pc->end();
+    typename t_PARSE_CONTEXT::const_iterator current = parseContext->begin();
+    typename t_PARSE_CONTEXT::const_iterator end     = parseContext->end();
 
     rawParse(outSpec, &current, end, sections);
 
     if (0 != (sections & e_SECTIONS_WIDTH)) {
         if (outSpec->rawWidth().valueType() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
-            pc->check_arg_id(outSpec->rawWidth().value());
+            parseContext->check_arg_id(outSpec->rawWidth().value());
         }
         else if (outSpec->rawWidth().valueType() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawWidth = FormatterSpecificationNumericValue(
-                                static_cast<int>(pc->next_arg_id()),
+                                static_cast<int>(parseContext->next_arg_id()),
                                 FormatterSpecificationNumericValue::e_ARG_ID);
         }
     }
@@ -745,18 +878,18 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
     if (0 != (sections & e_SECTIONS_PRECISION)) {
         if (outSpec->rawPrecision().valueType() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
-            pc->check_arg_id(outSpec->rawPrecision().value());
+            parseContext->check_arg_id(outSpec->rawPrecision().value());
         }
         else if (outSpec->rawPrecision().valueType() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawPrecision = FormatterSpecificationNumericValue(
-                                static_cast<int>(pc->next_arg_id()),
+                                static_cast<int>(parseContext->next_arg_id()),
                                 FormatterSpecificationNumericValue::e_ARG_ID);
         }
     }
 
     if (current == end || *current == '}') {
-        pc->advance_to(current);
+        parseContext->advance_to(current);
         return;                                                       // RETURN
     }
 
