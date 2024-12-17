@@ -978,7 +978,11 @@ FormatterTestUtil_Impl<t_CHAR>::testParseFormatImpl(
             return false;                                             // RETURN
         }
     }
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+// We cannot do a consteval parse test on the MSVC standard library due to the
+// way the MSVC library implements nested parameters.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) &&                         \
+    !defined(BSLS_PLATFORM_CMP_MSVC)
     if (alsoTestOracle) {
         // TODO: this interface changes in C++26 so we will need to modify this
         // code accordingly then.
