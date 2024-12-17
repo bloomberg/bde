@@ -79,12 +79,12 @@ class Format_Imp_TruncatingIterator {
 
     /// Create a instance containing a copy of the specified `iterator` as
     /// underlying iterater with the maximum character count set to the
-    /// specified `limit` and the current character count set to zero.
+    /// specified `limit`.
     Format_Imp_TruncatingIterator(t_ITERATOR iterator, t_DIFF_TYPE limit);
 
     // MANIPULATORS
 
-    /// Do nothing and return a reference to this object. This is included to
+    /// Do nothing and return a reference to this object. This is includes to
     /// ensure compliance with the C++ Standard's LegacyOutputIterator
     /// requirements.
     Format_Imp_TruncatingIterator& operator*();
@@ -95,7 +95,7 @@ class Format_Imp_TruncatingIterator {
     /// stored underlying iterator.
     void operator=(t_VALUE_TYPE x);
 
-    /// Do nothing and return a reference to this object. This is included to
+    /// Do nothing and return a reference to this object. This is includes to
     /// ensure compliance with the C++ Standard's LegacyOutputIterator
     /// requirements.
     Format_Imp_TruncatingIterator& operator++();
@@ -108,6 +108,13 @@ class Format_Imp_TruncatingIterator {
 
     /// Return the underlying iterator.
     t_ITERATOR underlying() const;
+  private:
+    // NOT IMPLEMENTED
+
+    /// The postfix operator must be deleted because, as a counting iterator,
+    /// return by value can cause data inconsistency.
+    Format_Imp_TruncatingIterator operator++(int) BSLS_KEYWORD_DELETED;
+
 };
 
 
