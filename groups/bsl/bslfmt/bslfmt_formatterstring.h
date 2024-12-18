@@ -90,7 +90,7 @@ namespace bslfmt {
 template <class t_CHAR>
 struct FormatterString_Imp {
   private:
-    // PRIVATE CLASS TYPES
+    // PRIVATE TYPES
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
 
     // DATA
@@ -455,7 +455,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
     FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
     int maxDisplayWidth = 0;
-    switch (finalPrecision.valueType()) {
+    switch (finalPrecision.category()) {
       case FSNVAlue::e_DEFAULT: {
         maxDisplayWidth = std::numeric_limits<int>::max();
       } break;
@@ -473,7 +473,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
     // Only do an analysis of the string if there is a possibility of
     // truncation or padding.
     if ((maxDisplayWidth < static_cast<int>(sv.size()) * 2) ||
-        (finalWidth.valueType() != FSNVAlue::e_DEFAULT)) {
+        (finalWidth.category() != FSNVAlue::e_DEFAULT)) {
         findPrecisionLimitedString(&charactersOfInputUsed,
                                    &displayWidthUsedByInputString,
                                    sv,
@@ -482,7 +482,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
 
     int totalPadDisplayWidth = 0;
 
-    switch (finalWidth.valueType()) {
+    switch (finalWidth.category()) {
       case FSNVAlue::e_DEFAULT: {
         totalPadDisplayWidth = 0;
       } break;

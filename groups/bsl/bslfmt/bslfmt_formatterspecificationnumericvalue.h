@@ -6,19 +6,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Integer value for use within BSL `format` spec parsers
+//@PURPOSE: Integer value for use within `bsl::format` spec parsers
 //
 //@CLASSES:
-//  FormatterSpecificationNumericValue: Integer value and categorization pair
+//  FormatterSpecificationNumericValue: Integer value its category
 //
 //@SEE_ALSO: bslfmt_format.h
 //
 //@DESCRIPTION: This component provides a a value semantic type to enable
 // `bslfmt` formatters to return an integer, typically representing a width or
-// a precision, and an enum representing whether that is a fixed value or a
-// nested argument.
+// a precision,  and a category that determines the meaning of the integer
+// value (direct value or argument ID), or represents a category without an
+// integer value (default value or next argument).
 //
-// This component is for use within `bslfmt` only.
+// This component is for use by formatters in BSL only (primarily in `bslfmt`)
 
 #include <bslscm_version.h>
 
@@ -58,54 +59,30 @@ namespace bslfmt {
                    // struct FormatterSpecificationNumericValue
                    // -----------------------------------------
 
-/// Type holding an integral value plus a categorization of that value. This is
-/// a value semantic type to hold width and precision entries in a format
+/// Type holding an integral value plus a categorization of that value.  This
+/// is/// a value semantic type to hold width and precision entries in a format
 /// specification.
 struct FormatterSpecificationNumericValue {
   public:
-    // CLASS TYPES
-    enum ValueType { e_DEFAULT, e_VALUE, e_NEXT_ARG, e_ARG_ID };
+    // TYPES
+    enum ValueType {
+        e_DEFAULT,   // Unspecified value and category
+        e_VALUE,     // Contained integer is the value to use
+        e_NEXT_ARG,  // Dynamic nested argument
+        e_ARG_ID     // Nested argument whose id is the contained integer
+    };
 
   private:
     // DATA
-    int       d_value;  // integral value
-    ValueType d_type;   // categorization of held value
-
-    // PRIVATE CLASS FUNCTIONS
-
-    /// Parse the string in the range specified by `start` and `end` to extract
-    /// either a hard-coded integer or a nested argument specification. If the
-    /// specified `needInitialDot` is true the string is only parsed if
-    /// `*begin == '.'` and a `format_error` exception is thrown if the string
-    /// following the initial dot is empty. Store the result into the specified
-    /// `outValue`.
-    template <class t_ITER>
-    static void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
-                            FormatterSpecificationNumericValue *outValue,
-                            t_ITER                             *start,
-                            t_ITER                              end,
-                            bool                                needInitialDot);
-
-    /// If this holds a nested value (ie `d_type` is one of `e_NEXT_ARG` or
-    /// `e_ARG_ID`) then update the value using the arguments stored in the
-    /// specified `context` and update the type to `e_VALUE`. Otherwise do
-    /// nothing.
-    template <typename t_FORMAT_CONTEXT>
-    static void finalize(FormatterSpecificationNumericValue *out,
-                         const t_FORMAT_CONTEXT&             context);
+    int       d_value;    // integral value
+    ValueType d_category; // category
 
     // FRIENDS
-    template <class t_CHAR>
-    friend class FormatterSpecificationSplitter;
 
     friend struct FormatterSpecificationNumericValue_Visitor;
 
   public:
     // CREATORS
-
-    /// Create a `FormatterSpecificationNumericValue` object with a zero value
-    /// and a type of `e_DEFAULT`.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue();
 
     /// Create a `FormatterSpecificationNumericValue` object holding the
     /// specified `value` and `type`.
@@ -120,11 +97,37 @@ struct FormatterSpecificationNumericValue {
     BSLS_KEYWORD_CONSTEXPR_CPP20
     bool operator==(const FormatterSpecificationNumericValue& other) const;
 
-    /// Return the held value.
+    /// Return the held value. Behavior is undefined if the held category is
+    /// either `e_DEFAULT` or `e_NEXT_ARG_ID`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int       value() const;
 
-    /// Return the held type enum.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 ValueType valueType() const;
+    /// Return the held category.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 ValueType category() const;
+
+    // CLASS METHODS
+
+    /// Parse the string in the random-access-iterator range specified by
+    /// `start` and `end` to extract either a hard-coded integer or a nested
+    /// argument specification.  If the specified `needInitialDot` is true the
+    /// string is only parsed if `*begin == '.'` and a `format_error` exception
+    /// is thrown if the string following the initial dot is empty. If an error
+    /// occurs throw an exception of type `format_error`, otherwise pdate the
+    /// output `start` iterator to point to the first unparsed character of the
+    /// string and store the result into the specified `outValue`.
+    template <class t_ITER>
+    static void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
+                           FormatterSpecificationNumericValue *outValue,
+                           t_ITER                             *start,
+                           t_ITER                              end,
+                           bool                                needInitialDot);
+
+    /// If the specified output `out` holds a nested value (ie `d_type` is one
+    /// of `e_NEXT_ARG` or `e_ARG_ID`) update its value using the arguments
+    /// stored in the specified `context` and update the type to `e_VALUE`.
+    /// Otherwise do nothing.
+    template <typename t_FORMAT_CONTEXT>
+    static void postprocess(FormatterSpecificationNumericValue *out,
+                            const t_FORMAT_CONTEXT&             context);
 };
 
                  // -------------------------------------------------
@@ -132,25 +135,39 @@ struct FormatterSpecificationNumericValue {
                  // -------------------------------------------------
 
 /// Component-private type to enable extraction of values held by format
-/// contexts during the postprocessing stage.
+/// contexts during the postprocessing stage of determining the format
+/// specification (typically performed by the FormatSpecificationSplitter).
+/// This type exists so that FormatterSpecificationSplitter can update
+/// FormatterSpecificationNumericValue to the value contained by a Standard
+/// `basic_format_arg` using the Standard `visit_format_arg` function.
 struct FormatterSpecificationNumericValue_Visitor {
   private:
     // DATA
-    FormatterSpecificationNumericValue *d_value_p;  // value to be updated
+    FormatterSpecificationNumericValue *d_value_p;
+        // referenced FormatterSpecificationNumericValue
 
   public:
     // CREATORS
 
-    /// Create an instance of `FormatterSpecificationNumericValue_Visitor`
-    /// holding a copy of the specifed `pc`.
+    /// Create an instance of `FormatterSpecificationNumericValue_Visitor` that
+    /// refers to the object to which the specified `valuePtr` points. 
     FormatterSpecificationNumericValue_Visitor(
-                                      FormatterSpecificationNumericValue *pc);
+                                 FormatterSpecificationNumericValue *valuePtr);
 
     // MANIPULATORS
 
-    /// Throw an exception of type `format_error`. This indicates visitation of
-    /// an argument with no value, which would indicate a logic error.
+    /// Throw an exception of type `format_error`.  This indicates visitation
+    /// of an argument with no value, which would indicate a logic error. Note
+    /// this would only be called when extracting a value from a
+    /// `basic_format_arg` that holds no value, which would normally indicate
+    /// an incorrect argument type.
     void operator()(bsl::monostate) const;
+
+    /// Throw an exception of type `format_error`.  This indicates visitation
+    /// of an `bsl::format` argument of boolean type, usually resulting from a
+    /// user error such as calling `bsl::format("{:{}}",value,b)` where `b` is
+    /// bool.
+    void operator()(bool) const;
 
     /// Update the value of the `FormatterSpecificationNumericValue` referenced
     /// by this instance to the specified `x` and update its type to `e_VALUE`.
@@ -158,8 +175,10 @@ struct FormatterSpecificationNumericValue_Visitor {
     typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type operator()(
                                                                t_TYPE x) const;
 
-    /// Throw an exception of type `format_error`. This indicates visitation of
-    /// an argument with non-integral value, which indicates a user error.
+    /// Throw an exception of type `format_error`.  This indicates visitation
+    /// of an `bsl::format` argument of non-integral type, usually resulting
+    /// from a user error such as calling `bsl::format("{:{}}",value,f)` where
+    /// `f` is floating point.
     template <class t_TYPE>
     typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type operator()(
                                                                t_TYPE x) const;
@@ -178,18 +197,11 @@ struct FormatterSpecificationNumericValue_Visitor {
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecificationNumericValue::FormatterSpecificationNumericValue()
-: d_value(0), d_type(e_DEFAULT)
-{
-}
-
-inline
-BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationNumericValue::FormatterSpecificationNumericValue(
                                                                int       value,
                                                                ValueType type)
-: d_value(value)
-, d_type(type)
+: d_category(type)
+, d_value(value)
 {
 }
 
@@ -200,22 +212,26 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatterSpecificationNumericValue::operator==(
                         const FormatterSpecificationNumericValue& other) const
 {
-    return d_value == other.d_value && d_type == other.d_type;
+    return d_value == other.d_value && d_category == other.d_category;
 }
 
 inline
-BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatterSpecificationNumericValue::value() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 int
+FormatterSpecificationNumericValue::value() const
 {
+    if (d_category == e_DEFAULT || d_category == e_NEXT_ARG) {
+        BSLS_THROW(bsl::format_error(
+                      "Access to unspecified width or precision."));  // RETURN
+    }
     return d_value;
 }
 
 inline
 BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationNumericValue::ValueType
-FormatterSpecificationNumericValue::valueType() const
+FormatterSpecificationNumericValue::category() const
 {
-    return d_type;
+    return d_category;
 }
 
 // CLASS METHODS
@@ -255,9 +271,9 @@ void FormatterSpecificationNumericValue::parse(
                     bsl::format_error("Nested arg id missing '}'"));  // RETURN
         // Early exit for a non-numbered replacement field.
         if (*current == '}') {
-            outValue->d_type  = e_NEXT_ARG;
-            outValue->d_value = 0;
-            *start            = current + 1;
+            outValue->d_category = e_NEXT_ARG;
+            outValue->d_value    = 0;
+            *start               = current + 1;
             return;                                                   // RETURN
         }
         isArgId = true;
@@ -266,43 +282,48 @@ void FormatterSpecificationNumericValue::parse(
     int digitCount = 0;
     int value      = 0;
 
+    long long accumulator = 0;
     while (*current >= '0' && *current <= '9') {
-        value = (value * 10) + static_cast<int>(*current - '0');
+        accumulator = (accumulator * 10) + static_cast<int>(*current - '0');
+        if (accumulator > INT_MAX) {
+            BSLS_THROW(bsl::format_error(
+                      "Width or precision or arg-id out of range"));  // RETURN
+        }
         ++digitCount;
         ++current;
     }
+    value = accumulator;
 
     // No digits
     if (digitCount == 0) {
         // If we have either specified the "precision dot" or if we know we
         // have a numbered replacement field then digits are non-optional.
         if (needInitialDot) {
-            if (current == end)
-                BSLS_THROW(bsl::format_error(
-                       "Invalid Precision (non-digits after '.')"));  // RETURN
+            BSLS_THROW(bsl::format_error(
+                    "Invalid Precision (no digits following '.')"));  // RETURN
         }
         if (isArgId) {
-            if (current == end)
-                BSLS_THROW(
+            BSLS_THROW(
                     bsl::format_error("Nested arg id non-numeric"));  // RETURN
         }
-        outValue->d_value = 0;
-        outValue->d_type  = e_DEFAULT;
+        outValue->d_value    = 0;
+        outValue->d_category = e_DEFAULT;
     }
+    // At least one digit
     else {
-        // We know buffer holds only digits, so it is safe to call atoi. As we
-        // do not allow + or - the value must be non-negative.
+        // As we do not allow + or - the value must be non-negative.
         outValue->d_value = value;
 
         if (isArgId) {
             // Relative argument references must have a closing brace.
-            if (current == end || *current != '}')
+            if (current == end || *current != '}') {
                 BSLS_THROW(
                     bsl::format_error("Nested arg id missing '}'"));  // RETURN
+            }
             ++current;
         }
 
-        outValue->d_type = isArgId ? e_ARG_ID : e_VALUE;
+        outValue->d_category = isArgId ? e_ARG_ID : e_VALUE;
     }
 
     *start = current;
@@ -312,12 +333,13 @@ void FormatterSpecificationNumericValue::parse(
 
 template <typename t_FORMAT_CONTEXT>
 inline
-void FormatterSpecificationNumericValue::finalize(
+void FormatterSpecificationNumericValue::postprocess(
                                  FormatterSpecificationNumericValue *out,
                                  const t_FORMAT_CONTEXT&             context)
 {
-    if (out->d_type != FormatterSpecificationNumericValue::e_ARG_ID)
+    if (out->d_category != FormatterSpecificationNumericValue::e_ARG_ID) {
         return;                                                       // RETURN
+    }
 
     FormatterSpecificationNumericValue_Visitor visitor(out);
     {
@@ -337,8 +359,8 @@ void FormatterSpecificationNumericValue::finalize(
 inline
 FormatterSpecificationNumericValue_Visitor::
     FormatterSpecificationNumericValue_Visitor(
-                                       FormatterSpecificationNumericValue *pc)
-: d_value_p(pc)
+                                  FormatterSpecificationNumericValue *valuePtr)
+: d_value_p(valuePtr)
 {
 }
 
@@ -348,19 +370,28 @@ FormatterSpecificationNumericValue_Visitor::operator()(bsl::monostate) const
     BSLS_THROW(bsl::format_error("Nested argument id out of range"));
 }
 
+inline void
+FormatterSpecificationNumericValue_Visitor::operator()(bool) const
+{
+    BSLS_THROW(bsl::format_error("Nested value argument must be integral"));
+}
+
 template <class t_TYPE>
 typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type
 FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE x) const
 {
-    d_value_p->d_value = static_cast<int>(x);
-    d_value_p->d_type  = FormatterSpecificationNumericValue::e_VALUE;
+    if (x < 0 || x > INT_MAX) {
+        BSLS_THROW(bsl::format_error("Nested value argument out of range"));
+    }
+    d_value_p->d_value    = static_cast<int>(x);
+    d_value_p->d_category = FormatterSpecificationNumericValue::e_VALUE;
 }
 
 template <class t_TYPE>
 typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
 FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE) const
 {
-    BSLS_THROW(bsl::format_error("Nested value args must be integral"));
+    BSLS_THROW(bsl::format_error("Nested value argument must be integral"));
 }
 
 }  // close namespace bslfmt
@@ -369,7 +400,7 @@ FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE) const
 #endif  // INCLUDED_BSLFMT_FORMATTERSPECIFICATIONNUMERICVALUE
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

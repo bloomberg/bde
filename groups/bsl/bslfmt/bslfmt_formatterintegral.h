@@ -152,7 +152,7 @@ struct FormatterIntegral_Category<wchar_t> {
 template <class t_VALUE, class t_CHAR>
 struct FormatterIntegralBase {
   private:
-    // PRIVATE CLASS TYPES
+    // PRIVATE TYPES
 
     /// A type alias for the `FormatterSpecificationStandard<t_CHAR>`.
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
@@ -627,7 +627,8 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
                                               (prefixEnd - prefixBegin));
 
     // Filling the remaining space.
-    if (commonLength < finalWidth.value()) {
+    if (finalWidth.category() != FSNValue::e_DEFAULT &&
+        commonLength < finalWidth.value()) {
         // We need to fill the remaining space.
 
         int totalPadDisplayWidth = finalWidth.value() - commonLength;

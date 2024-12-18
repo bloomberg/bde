@@ -110,7 +110,7 @@ namespace bslfmt {
 template <class t_VALUE, class t_CHAR>
 struct FormatterFloating_Base {
   private:
-    // PRIVATE CLASS TYPES
+    // PRIVATE TYPES
 
     /// A type alias for the `FormatterSpecificationStandard<t_CHAR>`.
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
@@ -490,9 +490,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
                                             t_FORMAT_CONTEXT&  formatContext,
                                             const FSS&         finalSpec) const
 {
-    typedef FormatterSpecificationNumericValue FSNVAlue;
+    typedef FormatterSpecificationNumericValue FSNValue;
 
-    FSNVAlue finalWidth(finalSpec.postprocessedWidth());
+    FSNValue finalWidth(finalSpec.postprocessedWidth());
 
     ptrdiff_t leftPadFillerCopiesNum  = 0;
     ptrdiff_t rightPadFillerCopiesNum = 0;
@@ -518,7 +518,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
     const char lastChar = numberBuffer[numberLength - 1];
     const bool specialValue = 'f' == lastChar || 'n' == lastChar;
 
-    if (numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
+    if (finalWidth.category() != FSNValue::e_DEFAULT &&
+        numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
         // We need to fill the remaining space.
 
         const ptrdiff_t totalPadDisplayWidth =
@@ -606,9 +607,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatFixedImpl(
                 FSS::e_FLOATING_FIXED_UC == finalSpec.formatType());
 
     // Determine the precision
-    typedef FormatterSpecificationNumericValue FSNVAlue;
-    const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
-    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+    typedef FormatterSpecificationNumericValue FSNValue;
+    const FSNValue& specPrec = finalSpec.postprocessedPrecision();
+    const int precision = (FSNValue::e_DEFAULT == specPrec.category())
                         ? 6
                         : specPrec.value();
 
@@ -663,7 +664,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatDefaultImpl(
     BSLS_ASSERT(FSS::e_FLOATING_DEFAULT == finalSpec.formatType());
 
     /// Must not have precision
-    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().category() ==
                 FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
@@ -698,7 +699,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
     // Determine the precision
     typedef FormatterSpecificationNumericValue FSNVAlue;
     const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
-    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+    const int precision = (FSNVAlue::e_DEFAULT == specPrec.category())
                         ? 6
                         : specPrec.value();
 
@@ -758,7 +759,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
                 FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must not have precision
-    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() ==
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().category() ==
                 FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
@@ -796,7 +797,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
                 FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must have precision
-    BSLS_ASSERT(finalSpec.postprocessedPrecision().valueType() !=
+    BSLS_ASSERT(finalSpec.postprocessedPrecision().category() !=
                 FormatterSpecificationNumericValue::e_DEFAULT);
 
     // Converting to string
@@ -858,7 +859,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
     // Determine the precision
     typedef FormatterSpecificationNumericValue FSNVAlue;
     const FSNVAlue& specPrec = finalSpec.postprocessedPrecision();
-    const int precision = (FSNVAlue::e_DEFAULT == specPrec.valueType())
+    const int precision = (FSNVAlue::e_DEFAULT == specPrec.category())
                         ? 6
                         : specPrec.value();
 
@@ -917,7 +918,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::format(
     FSS::postprocess(&finalSpec, formatContext);
 
     const bool isDefaultPrecision =
-         FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().valueType();
+         FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().category();
 
     switch (finalSpec.formatType()) {
       case FSS::e_FLOATING_DEFAULT: {

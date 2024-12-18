@@ -51,7 +51,7 @@ namespace bslfmt {
 class FormatterSpecificationStandard_Enums
 : public FormatterSpecificationSplitter_Enums {
   public:
-    // CLASS TYPES
+    // TYPES
 
     enum Category {
         e_CATEGORY_UNASSIGNED,
@@ -106,7 +106,7 @@ template <class t_CHAR>
 class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
   private:
-    // CLASS TYPES
+    // TYPES
     typedef FormatterSpecificationSplitter<t_CHAR> Splitter;
 
     // DATA
@@ -383,7 +383,7 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
                                                    sect);
 
     if (NumericValue::e_DEFAULT !=
-            outSpec->d_basicSplitter.rawPrecision().valueType() &&
+            outSpec->d_basicSplitter.rawPrecision().category() &&
         e_CATEGORY_STRING != category &&
         e_CATEGORY_FLOATING != category) {
         BSLS_THROW(bsl::format_error("Standard specification parse failure "
@@ -413,7 +413,7 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
 
     Splitter::postprocess(&outSpec->d_basicSplitter, context);
 
-    switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
+    switch (outSpec->d_basicSplitter.postprocessedWidth().category()) {
       case FormatterSpecificationNumericValue::e_DEFAULT: {
       } break;
       case FormatterSpecificationNumericValue::e_VALUE: {
@@ -427,7 +427,7 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
       }
     }
 
-    switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
+    switch (outSpec->d_basicSplitter.postprocessedPrecision().category()) {
       case FormatterSpecificationNumericValue::e_DEFAULT: {
       } break;
       case FormatterSpecificationNumericValue::e_VALUE: {

@@ -1,7 +1,7 @@
 // bslfmt_formatterspecificationnumericvalue.t.cpp                    -*-C++-*-
 #include <bslfmt_formatterspecificationnumericvalue.h>
 
-#include <bslfmt_format_string.h> // Testing only
+#include <bslfmt_format_string.h>     // Testing only
 #include <bslfmt_formattertestutil.h> // Testing only
 
 #include <bsls_bsltestutil.h>
@@ -11,15 +11,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <bslfmt_format_arg.h> // Testing only
-#include <bslfmt_format_args.h> // Testing only
+#include <bslfmt_format_arg.h>          // Testing only
+#include <bslfmt_format_args.h>         // Testing only
 #include <bslfmt_format_parsecontext.h> // Testing only
-#include <bslfmt_format_string.h> // Testing only
-#include <bslfmt_formattertestutil.h> // Testing only
+#include <bslfmt_format_string.h>       // Testing only
+#include <bslfmt_formattertestutil.h>   // Testing only
 
 using namespace BloombergLP;
 using namespace bslfmt;
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -87,10 +86,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
-
-namespace {
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -124,7 +119,7 @@ int main(int argc, char **argv)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

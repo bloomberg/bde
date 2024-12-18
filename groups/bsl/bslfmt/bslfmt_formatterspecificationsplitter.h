@@ -62,7 +62,7 @@ namespace bslfmt {
 
 struct FormatterSpecificationSplitter_Enums {
   public:
-    // CLASS TYPES
+    // TYPES
     enum ParsingStatus {
         e_PARSING_UNINITIALIZED,
         e_PARSING_PARSED,
@@ -110,7 +110,7 @@ class FormatterSpecificationSplitter
 : public FormatterSpecificationSplitter_Enums {
 
   private:
-    // PRIVATE CLASS TYPES
+    // PRIVATE TYPES
     enum { k_FILLER_BUFFER_SIZE = 5 };
 
     // DATA
@@ -337,16 +337,19 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationSplitter<t_CHAR>::FormatterSpecificationSplitter()
 : d_sections(e_SECTIONS_NONE)
 , d_parsingStatus(e_PARSING_UNINITIALIZED)
-, d_filler(), d_fillerCharacters(1)
+, d_filler()
+, d_fillerCharacters(1)
 , d_fillerCodePointDisplayWidth(1)
 , d_alignment(FormatterSpecificationSplitter::e_ALIGN_DEFAULT)
 , d_sign(FormatterSpecificationSplitter::e_SIGN_DEFAULT)
 , d_alternativeFlag(false)
 , d_zeroPaddingFlag(false)
+, d_rawWidth(0, FormatterSpecificationNumericValue::e_DEFAULT)
+, d_rawPrecision(0, FormatterSpecificationNumericValue::e_DEFAULT)
+, d_postprocessedWidth(0, FormatterSpecificationNumericValue::e_DEFAULT)
+, d_postprocessedPrecision(0, FormatterSpecificationNumericValue::e_DEFAULT)
 , d_localeSpecificFlag(false)
-{
-    //memset(d_filler, 0, k_FILLER_BUFFER_SIZE * sizeof(t_CHAR));
-}
+{}
 
 // ACCESSORS
 
@@ -560,11 +563,11 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
     rawParse(outSpec, &current, end, sections);
 
     if (0 != (sections & e_SECTIONS_WIDTH)) {
-        if (outSpec->rawWidth().valueType() ==
+        if (outSpec->rawWidth().category() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
             parseContext->check_arg_id(outSpec->rawWidth().value());
         }
-        else if (outSpec->rawWidth().valueType() ==
+        else if (outSpec->rawWidth().category() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawWidth = FormatterSpecificationNumericValue(
                                 static_cast<int>(parseContext->next_arg_id()),
@@ -573,11 +576,11 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
     }
 
     if (0 != (sections & e_SECTIONS_PRECISION)) {
-        if (outSpec->rawPrecision().valueType() ==
+        if (outSpec->rawPrecision().category() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
             parseContext->check_arg_id(outSpec->rawPrecision().value());
         }
-        else if (outSpec->rawPrecision().valueType() ==
+        else if (outSpec->rawPrecision().category() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawPrecision = FormatterSpecificationNumericValue(
                                 static_cast<int>(parseContext->next_arg_id()),
@@ -688,17 +691,17 @@ FormatterSpecificationSplitter<t_CHAR>::rawParse(
 
     // We cannot mix specified and unspecified relative argument ids.
 
-    if (outSpec->d_rawWidth.valueType() ==
+    if (outSpec->d_rawWidth.category() ==
             FormatterSpecificationNumericValue::e_NEXT_ARG &&
-        outSpec->d_rawPrecision.valueType() ==
+        outSpec->d_rawPrecision.category() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
     }
 
-    if (outSpec->d_rawWidth.valueType() ==
+    if (outSpec->d_rawWidth.category() ==
             FormatterSpecificationNumericValue::e_ARG_ID &&
-        outSpec->d_rawPrecision.valueType() ==
+        outSpec->d_rawPrecision.category() ==
             FormatterSpecificationNumericValue::e_NEXT_ARG) {
         BSLS_THROW(bsl::format_error(
                        "Cannot mix manual and automatic indexing"));  // RETURN
@@ -1004,14 +1007,14 @@ void FormatterSpecificationSplitter<t_CHAR>::postprocess(
 
     if (0 != (out->d_sections & e_SECTIONS_WIDTH)) {
         out->d_postprocessedWidth = out->d_rawWidth;
-        FormatterSpecificationNumericValue::finalize(
+        FormatterSpecificationNumericValue::postprocess(
                                                     &out->d_postprocessedWidth,
                                                     context);
     }
 
     if (0 != (out->d_sections & e_SECTIONS_PRECISION)) {
         out->d_postprocessedPrecision = out->d_rawPrecision;
-        FormatterSpecificationNumericValue::finalize(
+        FormatterSpecificationNumericValue::postprocess(
                                                 &out->d_postprocessedPrecision,
                                                 context);
     }
