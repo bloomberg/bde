@@ -3,10 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <bslstl_string.h>
-
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -88,29 +86,59 @@ int main(int argc, char **argv)
 
     switch (test) {  case 0:
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        ASSERT(Formatter_UnicodeData::s_graphemeBreakCategoryRangeCount ==
-               1371);
-        ASSERT(Formatter_UnicodeData::s_extendedPictographicRangeCount ==
-                 78);
-        ASSERT(Formatter_UnicodeData::s_printableRangeCount ==
-                712);
-        ASSERT(Formatter_UnicodeData::s_graphemeExtendRangeCount ==
-                363);
-        ASSERT(Formatter_UnicodeData::s_doubleFieldWidthRangeCount ==
-                100);
+        typedef FormatterUnicodeData UnicodeData;
 
-        //unsigned char bytes[4];
-        //bytes[0] = (unsigned char)0xff;
-        //bytes[1] = (unsigned char)0xfe;
-        //bytes[2] = (unsigned char)0x00;
-        //bytes[2] = (unsigned char)0x00;
+        // Testing the availability of entities.
 
-        //auto result =
-        //    BloombergLP::bslfmt::Formatter_UnicodeUtils::extractUtf16(bytes, 2);
+        UnicodeData::GraphemeBreakCategory      category;
+        UnicodeData::BooleanRange               booleanRange;
+        UnicodeData::GraphemeBreakCategoryRange graphemeRange;
+
+        (void) category;       // suppress compiler warning
+        (void) booleanRange;   // suppress compiler warning
+        (void) graphemeRange;  // suppress compiler warning
+
+        // Testing class data.
+
+        ASSERTV(UnicodeData::s_graphemeBreakCategoryRanges[0].d_start,
+                0 == UnicodeData::s_graphemeBreakCategoryRanges[0].d_start);
+        ASSERTV(UnicodeData::s_extendedPictographicRanges[0].d_start,
+                0xa9 == UnicodeData::s_extendedPictographicRanges[0].d_start);
+        ASSERTV(UnicodeData::s_printableRanges[0].d_start,
+                0x20 == UnicodeData::s_printableRanges[0].d_start);
+        ASSERTV(UnicodeData::s_graphemeExtendRanges[0].d_start,
+                0x300 == UnicodeData::s_graphemeExtendRanges[0].d_start);
+        ASSERTV(UnicodeData::s_doubleFieldWidthRanges[0].d_start,
+                0x1100 == UnicodeData::s_doubleFieldWidthRanges[0].d_start);
+
+        ASSERTV(UnicodeData::s_graphemeBreakCategoryRangeCount,
+                1371 == UnicodeData::s_graphemeBreakCategoryRangeCount);
+        ASSERTV(UnicodeData::s_extendedPictographicRangeCount,
+                78   == UnicodeData::s_extendedPictographicRangeCount);
+        ASSERTV(UnicodeData::s_printableRangeCount,
+                712  == UnicodeData::s_printableRangeCount);
+        ASSERTV(UnicodeData::s_graphemeExtendRangeCount,
+                363  == UnicodeData::s_graphemeExtendRangeCount);
+        ASSERTV(UnicodeData::s_doubleFieldWidthRangeCount,
+                100  == UnicodeData::s_doubleFieldWidthRangeCount);
 
       } break;
       default: {

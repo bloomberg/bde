@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterspecificationnumericvalue.h>
-#include <bslfmt_formatterunicodeutils.h>
+#include <bslfmt_unicodecodepoint.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -163,6 +163,25 @@ class FormatterSpecificationSplitter
     /// `format_error` exception.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 Sign signFromChar(t_CHAR in);
 
+
+    /// Based on the value of the initial byte of a unicode code point in UTF-8
+    /// representation, calculate and return the number of bytes used in that
+    /// representation. The value of the first byte is specified by
+    /// `firstChar`. If `firstChar` does not contain a valid value for the
+    /// first byte of a UTF-8 codepoint representation return -1;
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
+                                                         const char firstChar);
+
+    /// Based on the value of the initial byte of a unicode code point in
+    /// UTF-16 (where `sizeof(wchar_t)==2`) or UTF-32 (where
+    /// `sizeof(wchar_t)==4`) representation, calculate and return the number
+    /// of bytes used in that representation. The value of the first byte is
+    /// specified by `firstChar`. If `firstChar` does not contain a valid value
+    /// for the first byte of a UTF-16 or UTF-32 (depending on
+    /// `sizeof(wchar_t)`) codepoint representation return -1;
+    static BSLS_KEYWORD_CONSTEXPR_CPP20 int codepointBytesIfValid(
+                                                      const wchar_t firstChar);
+
     /// Extract a filler code point and `Alignment` value from start of the
     /// string specified by the `start` and `end` random-access-iterator range,
     /// and update the specified output `outSpec` with the result.  In the
@@ -246,10 +265,10 @@ class FormatterSpecificationSplitter
     /// result.  In the event of an error throw a `format_error` exception.
     template <class t_ITER>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
-    rawParse(FormatterSpecificationSplitter *outSpec,  // output
-             t_ITER                         *start,    // output
-             t_ITER                          end,      // input
-             Sections                        sections);                       // param
+    rawParse(FormatterSpecificationSplitter *outSpec,    // output
+             t_ITER                         *start,      // output
+             t_ITER                          end,        // input
+             Sections                        sections);  // param
 
   public:
 
@@ -262,9 +281,9 @@ class FormatterSpecificationSplitter
     /// the string.  In the event of an error throw a `format_error` exception.
     template <class t_PARSE_CONTEXT>
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void
-    parse(FormatterSpecificationSplitter *outSpec,      // output
-          t_PARSE_CONTEXT                *parseContext, // output
-          Sections                        sections);    // param
+    parse(FormatterSpecificationSplitter *outSpec,       // output
+          t_PARSE_CONTEXT                *parseContext,  // output
+          Sections                        sections);     // param
 
     /// Update any nested width and precision values held by the specified
     /// `outSpec` to contain actual values based on the appropriate arguments
@@ -566,6 +585,55 @@ FormatterSpecificationSplitter<t_CHAR>::signFromChar(t_CHAR in)
 }
 
 template <class t_CHAR>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 int
+FormatterSpecificationSplitter<t_CHAR>::codepointBytesIfValid(
+                                                          const char firstChar)
+{
+    unsigned char c = static_cast<unsigned char>(firstChar);
+    if ((c & 0x80) == 0x00)
+        return 1;
+    else if ((c & 0xe0) == 0xc0)
+        return 2;
+    else if ((c & 0xf0) == 0xe0)
+        return 3;
+    else if ((c & 0xf8) == 0xf0)
+        return 4;
+    else
+        return -1;
+}
+
+template <class t_CHAR>
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 int
+FormatterSpecificationSplitter<t_CHAR>::codepointBytesIfValid(
+                                                       const wchar_t firstChar)
+{
+    switch (sizeof(wchar_t)) {
+      case 2: {  // UTF-16
+        if (static_cast<unsigned int>(firstChar) <
+            static_cast<unsigned int>(0xd800))
+            return 2;
+        else if (static_cast<unsigned int>(firstChar) <
+                 static_cast<unsigned int>(0xdc00))
+            return 4;
+        else
+            return -1;
+      } break;
+      case 4: {  // UTF-32
+        if (static_cast<unsigned long>(firstChar) <
+            static_cast<unsigned long>(0x80000000U))
+            return 4;
+        else
+            return -1;
+      } break;
+      default: {
+        return -1;  // unsuported wchar_t size.
+      } break;
+    }
+}
+
+template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 void
 FormatterSpecificationSplitter<t_CHAR>::parse(
@@ -758,7 +826,7 @@ void FormatterSpecificationSplitter<t_CHAR>::parseFillAndAlignment(
         return;                                                       // RETURN
     }
 
-    int cpBytes = Formatter_UnicodeUtils::codepointBytesIfValid(**start);
+    int cpBytes = codepointBytesIfValid(**start);
 
     if (cpBytes < 0)
         BSLS_THROW(bsl::format_error("Invalid unicode code point"));  // RETURN
@@ -822,53 +890,52 @@ void
 FormatterSpecificationSplitter<t_CHAR>::postprocessFiller(
                                       FormatterSpecificationSplitter *outSpec)
 {
-    bslfmt::Formatter_UnicodeUtils::CodePointExtractionResult cp;
+
+    UnicodeCodePoint cp;
+
     switch (sizeof(t_CHAR)) {
       case 1: {
-        cp = Formatter_UnicodeUtils::extractCodePoint(
-                                               Formatter_UnicodeUtils::e_UTF8,
-                                               (const void *)outSpec->d_filler,
-                                               outSpec->d_numFillerCharacters);
+        cp.extract(UnicodeCodePoint::e_UTF8,
+                   (const void *)outSpec->d_filler,
+                   outSpec->d_numFillerCharacters);
       } break;
       case 2: {
-        cp = Formatter_UnicodeUtils::extractCodePoint(
-                                           Formatter_UnicodeUtils::e_UTF16,
-                                           (const void *)outSpec->d_filler,
-                                           outSpec->d_numFillerCharacters * 2);
+        cp.extract(UnicodeCodePoint::e_UTF16,
+                   (const void *)outSpec->d_filler,
+                   outSpec->d_numFillerCharacters * 2);
       } break;
       case 4: {
-        cp = Formatter_UnicodeUtils::extractCodePoint(
-                                           Formatter_UnicodeUtils::e_UTF32,
-                                           (const void *)outSpec->d_filler,
-                                           outSpec->d_numFillerCharacters * 4);
+        cp.extract(UnicodeCodePoint::e_UTF32,
+                   (const void *)outSpec->d_filler,
+                   outSpec->d_numFillerCharacters * 4);
       } break;
       default: {
         BSLS_THROW(bsl::format_error("Unsupported wchar_t size"));    // RETURN
       }
     }
 
-    if (!cp.isValid)
+    if (!cp.isValid())
         BSLS_THROW(bsl::format_error("Invalid unicode code point"));  // RETURN
 
-    if (static_cast<size_t>(cp.numSourceBytes) !=
+    if (static_cast<size_t>(cp.numSourceBytes()) !=
         outSpec->d_numFillerCharacters * sizeof(t_CHAR)) {
         BSLS_THROW(bsl::format_error("Invalid unicode code point"));  // RETURN
     }
 
     // `{` and `}` are invalid fill characters per the C++ spec
-    if ('{' == cp.codePointValue || '}' == cp.codePointValue) {
+    if ('{' == cp.codePointValue() || '}' == cp.codePointValue()) {
         BSLS_THROW(
           bsl::format_error("Invalid fill character ('{' or '}')"));  // RETURN
     }
 
     if (outSpec->d_fillerDisplayWidth >= 0) {
-        if (outSpec->d_fillerDisplayWidth != cp.codePointWidth) {
+        if (outSpec->d_fillerDisplayWidth != cp.codePointWidth()) {
             BSLS_THROW(
                      bsl::format_error("Invalid code point width"));  // RETURN
         }
     }
     else {
-        outSpec->d_fillerDisplayWidth = cp.codePointWidth;
+        outSpec->d_fillerDisplayWidth = cp.codePointWidth();
     }
 
     return;

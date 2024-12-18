@@ -1,21 +1,17 @@
-// bslfmt_formatterspecificationnumericvalue.t.cpp                    -*-C++-*-
-#include <bslfmt_formatterspecificationnumericvalue.h>
-
-#include <bslfmt_format_arg.h>          // Testing only
-#include <bslfmt_format_args.h>         // Testing only
-#include <bslfmt_format_string.h>       // Testing only
-#include <bslfmt_formatparsecontext.h>  // Testing only
-#include <bslfmt_formattertestutil.h>   // Testing only
+// bslfmt_unicodecodepoint.t.cpp                                      -*-C++-*-
+#include <bslfmt_unicodecodepoint.h>
 
 #include <bsls_bsltestutil.h>
 
-#include <bslstl_string.h>
+#include <cstdlib>   // `atoi`
 
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h>   // `printf`
+#include <string.h>  // `strlen`
+#include <wchar.h>   // `wcslen`
 
 using namespace BloombergLP;
 using namespace bslfmt;
+
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -80,8 +76,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                  ASSISTANCE TYPES AND FUNCTIONS
+//                               TEST MACROS
 // ----------------------------------------------------------------------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#define UTF8_LITERAL(...)                                                     \
+    static_cast<const char *>(static_cast<const void *>(u8##__VA_ARGS__))
+#else
+#define UTF8_LITERAL(EXPR) EXPR
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -96,11 +99,80 @@ int main(int argc, char **argv)
 
     switch (test) {  case 0:
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        ASSERT(true);  // suppress compiler warning
+
+        unsigned char bytes[4];
+        bytes[0] = (unsigned char)0xff;
+        bytes[1] = (unsigned char)0xfe;
+        bytes[2] = (unsigned char)0x00;
+        bytes[2] = (unsigned char)0x00;
+
+        UnicodeCodePoint codePoint;
+        codePoint.extract(UnicodeCodePoint::e_UTF8, bytes, 4);
+
+        ASSERT(!codePoint.isValid());
+        codePoint.reset();
+        codePoint.extract(sizeof(wchar_t) == 2 ? UnicodeCodePoint::e_UTF16
+                                               : UnicodeCodePoint::e_UTF32,
+                         bytes,
+                         4);
+
+        ASSERT(!codePoint.isValid());
+
+        const char *fmt1 = (const char *) UTF8_LITERAL("\U0001F600");
+        int len1 = (int) strlen(fmt1);
+
+        codePoint.reset();
+        codePoint.extract(UnicodeCodePoint::e_UTF8, (const void *)fmt1, len1);
+
+        ASSERT(0x1f600 == codePoint.codePointValue() );
+        ASSERT(2       == codePoint.codePointWidth() );
+        ASSERT(true    == codePoint.isValid()        );
+        ASSERT(4       == codePoint.numSourceBytes() );
+
+        if (sizeof(wchar_t) == 2) {
+            const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
+            int         len2 = (int) wcslen(fmt2);
+
+            codePoint.reset();
+            codePoint.extract(UnicodeCodePoint::e_UTF16,
+                              (const void *)fmt2,
+                              len2 * sizeof(wchar_t));
+
+            ASSERT(4 == codePoint.numSourceBytes());
+        }
+        else {
+            const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
+            int         len2 = (int) wcslen(fmt2);
+
+            codePoint.reset();
+            codePoint.extract(UnicodeCodePoint::e_UTF32,
+                              (const void *)fmt2,
+                              len2 * sizeof(wchar_t));
+
+            ASSERT(4 == codePoint.numSourceBytes());
+        }
+
+        ASSERT(0x1f600 == codePoint.codePointValue() );
+        ASSERT(2       == codePoint.codePointWidth() );
+        ASSERT(true    == codePoint.isValid()        );
 
 
       } break;

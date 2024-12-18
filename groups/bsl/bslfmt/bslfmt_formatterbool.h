@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterspecificationstandard.h>
-#include <bslfmt_formatterunicodeutils.h>
 
 #include <bslalg_numericformatterutil.h>
 
@@ -137,7 +137,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
 {
     typedef FormatterSpecificationStandard<t_CHAR>  FSS;
     typedef bslalg::NumericFormatterUtil            NFUtil;
-    typedef Formatter_CharUtils<t_CHAR>             CharUtils;
+    typedef FormatterCharUtil<t_CHAR>               CharUtil;
 
     const FSS& parsedSpec = this->specification();
 
@@ -164,7 +164,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
 
         const char *stringRepresentation       = value ? "true" : "false";
         const int   stringRepresentationLength = value ? 4      : 5;
-        valueEnd = CharUtils::outputFromChar(
+        valueEnd = CharUtil::outputFromChar(
                              stringRepresentation,
                              stringRepresentation + stringRepresentationLength,
                              valueBegin);

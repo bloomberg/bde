@@ -1988,6 +1988,69 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
+        // Testing `FormatterString_GraphemeCluster`.
+
+        {
+            const char *fmt1 = (const char *)
+                UTF8_LITERAL("\U00000067\U00000308");
+            int len1 = (int)strlen(fmt1);
+
+            bslfmt::FormatterString_GraphemeCluster cluster;
+            cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
+                            (const void *)fmt1,
+                            len1);
+
+            ASSERT(0x67 == cluster.firstCodePointValue() );
+            ASSERT(1    == cluster.firstCodePointWidth() );
+            ASSERT(true == cluster.isValid()             );
+            ASSERT(2    == cluster.numCodePoints()       );
+            ASSERT(3    == cluster.numSourceBytes()      );
+
+            const char *fmt2 = (const char *)
+                UTF8_LITERAL("\U0001F408\U0000200D\U0001F7E7hello");
+            int len2 = (int)strlen(fmt2);
+
+            cluster.reset();
+            cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
+                            (const void *)fmt2,
+                            len2);
+
+            ASSERT(0x1f408 == cluster.firstCodePointValue() );
+            ASSERT(2       == cluster.firstCodePointWidth() );
+            ASSERT(true    == cluster.isValid()             );
+            ASSERT(3       == cluster.numCodePoints()       );
+            ASSERT(11      == cluster.numSourceBytes()      );
+
+            if (sizeof(wchar_t) == 2) {
+                const wchar_t *fmt3 =
+                       (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
+                int len3 = (int)wcslen(fmt3);
+
+                cluster.reset();
+                cluster.extract(bslfmt::UnicodeCodePoint::e_UTF16,
+                                (const void *)fmt3,
+                                len3 * sizeof(wchar_t));
+
+                ASSERT(10 == cluster.numSourceBytes());
+            }
+            else {
+                const wchar_t *fmt3 =
+                       (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
+                int len3 = (int)wcslen(fmt3);
+
+                cluster.reset();
+                cluster.extract(bslfmt::UnicodeCodePoint::e_UTF32,
+                                (const void *)fmt3,
+                                len3 * sizeof(wchar_t));
+
+                ASSERT(12 == cluster.numSourceBytes());
+            }
+
+            ASSERT(0x1f407 == cluster.firstCodePointValue() );
+            ASSERT(2       == cluster.firstCodePointWidth() );
+            ASSERT(true    == cluster.isValid()             );
+            ASSERT(3       == cluster.numCodePoints()       );
+        }
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

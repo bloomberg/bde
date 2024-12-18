@@ -35,7 +35,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_stringview.h>
 
 #include <bslfmt_formaterror.h>
-#include <bslfmt_formatterunicodeutils.h>
 #include <bslfmt_formatterspecificationsplitter.h>
 
 #include <locale>     // for 'std::ctype', 'locale'

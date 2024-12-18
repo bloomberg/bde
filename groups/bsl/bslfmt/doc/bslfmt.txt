@@ -9,7 +9,7 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 25 components having 10 levels of physical
+ The 'bslfmt' package currently has 26 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -37,7 +37,8 @@ bslfmt.txt
 
   4. bslfmt_formatarg
      bslfmt_formatcontext
-     bslfmt_formatterunicodeutils
+     bslfmt_formattercharutil
+     bslfmt_unicodecodepoint
 
   3. bslfmt_formatparsecontext
      bslfmt_formatterbase
@@ -95,6 +96,9 @@ bslfmt.txt
 : 'bslfmt_formattercharacter':
 :      Provide a formatter customization for character types
 :
+: 'bslfmt_formattercharutil':
+:      Private character utilities for use by `bsl::format`
+:
 : 'bslfmt_formatterfloating':
 :      Provide a formatter customization for floating point types
 :
@@ -111,7 +115,7 @@ bslfmt.txt
 :      Private utility for use within BSL `format` standard spec parsers
 :
 : 'bslfmt_formatterstring':
-:      Provide a ormatter customization for string types
+:      Provide a formatter customization for string types
 :
 : 'bslfmt_formattertestutil':
 :      Provide utilities for testing custom formatters
@@ -119,11 +123,11 @@ bslfmt.txt
 : 'bslfmt_formatterunicodedata':
 :      Private unicode data tables for use by `bsl::format`
 :
-: 'bslfmt_formatterunicodeutils':
-:      Private unicode utilities for use by `bsl::format`
-:
 : 'bslfmt_mockformatcontext':
 :      Provide mock format context for use in formatter tests
 :
 : 'bslfmt_mockparsecontext':
 :      Provide mock parse context for use in formatter tests
+:
+: 'bslfmt_unicodecodepoint':
+:      Private unicode code point object for use by `bsl::format`

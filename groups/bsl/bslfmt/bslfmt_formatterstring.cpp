@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_formatterstring_cpp, "$Id$ $CSID$")
 
+#include <bslfmt_formatterunicodedata.h>
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
@@ -38,6 +40,408 @@ BSLMF_ASSERT(!(BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
 #endif // BSLSTL_STRING_VIEW_IS_ALIASED
 
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
+namespace BloombergLP {
+
+namespace {
+
+typedef bslfmt::FormatterUnicodeData            UnicodeData;
+typedef UnicodeData::GraphemeBreakCategoryRange GraphemeBreakCategoryRange;
+
+
+                      // ====================================
+                      // struct EmojiModifierSequenceDetector
+                      // ====================================
+
+/// A component-private state machine required to detect emoji modifier
+/// sequences per https://www.unicode.org/reports/tr29/#GB11
+class EmojiModifierSequenceDetector
+{
+  private:
+    // PRIVATE TYPES
+    enum State {
+        e_START,   // startup state
+
+        e_EXT_PIC  // state indicating `match` has been called for a single
+                   // Extended_Pictogram and zero or more Extend characters.
+    };
+
+    // DATA
+    State d_state;  // the current state.
+
+    // NOT IMPLEMENTED
+    bool operator==(const EmojiModifierSequenceDetector&) BSLS_KEYWORD_DELETED;
+
+  public:
+    // CREATORS
+
+    /// Create an object in its initial state.
+    EmojiModifierSequenceDetector();
+
+    // MANIPULATORS
+
+    /// Return true for the ZWJ codePoint (determined by the specified
+    /// `left_gbp` being `e_ZERO_WIDTH_JOINER`) and the function was previously
+    /// called for an Extended_Pictogram codePoint (determined by the specified
+    /// `left_epv` being true) followed by zero or more Extend codePoints
+    /// (determined by the specified `left_gbp` being `e_EXTEND`).  Update the
+    /// internal state to enable correct calculations on subsequent calls.
+    bool match(const UnicodeData::GraphemeBreakCategory left_gbp,
+               bool                                     left_epv);
+};
+
+                      // ====================
+                      // struct EndComparator
+                      // ====================
+
+/// Component-private comparator class to facilitate range searches using
+/// standard algorithms.
+template <class t_RANGE_TYPE>
+struct EndComparator
+{
+    // MANIPULATORS
+
+    /// Return true if the `d_end` member of the specified `range` is less
+    /// than the specified `value`, false otherwise.
+    bool operator()(const t_RANGE_TYPE& range, const unsigned long int value);
+};
+
+// ============================================================================
+//                        STATIC HELPER FUNCTIONS
+// ============================================================================
+
+
+/// Find and return the Unicode Grapheme Break category for the specified
+/// `codePoint` if one exists, otherwise return `e_UNASSIGNED`.
+static UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
+                                                  unsigned long int codePoint);
+
+/// Return `true` if the specified `codePoint` is an extended pictogram, and
+/// `false` otherwise.
+static bool getExtendedPictogramValue(unsigned long int codePoint);
+
+/// Determine the width of the specified `codePoint` per the rules in the C++
+/// standard in [format.string.std].  Note that this width may differ from that
+/// specified by the Unicode standard.
+static int getCodepointWidth(unsigned long int codePoint);
+
+                      // --------------------
+                      // struct EndComparator
+                      // --------------------
+
+template <class t_RANGE_TYPE>
+bool EndComparator<t_RANGE_TYPE>::operator()(const t_RANGE_TYPE&     range,
+                                             const unsigned long int value)
+{
+    return range.d_end < value;
+}
+
+                  // ------------------------------------
+                  // struct EmojiModifierSequenceDetector
+                  // ------------------------------------
+
+inline
+EmojiModifierSequenceDetector::EmojiModifierSequenceDetector()
+: d_state(e_START)
+{
+}
+
+inline
+bool EmojiModifierSequenceDetector::match(
+                             const UnicodeData::GraphemeBreakCategory left_gbp,
+                             bool                                     left_epv)
+{
+    switch (d_state) {
+      case e_START:
+        if (left_epv) {
+            d_state = e_EXT_PIC;
+        }
+        return false;
+      case e_EXT_PIC:
+        if (left_gbp == UnicodeData::e_ZERO_WIDTH_JOINER) {
+            d_state = e_START;
+            return true;
+        }
+        else if (left_gbp != UnicodeData::e_EXTEND) {
+            d_state = e_START;
+            return false;
+        }
+        return false;
+      default:
+        BSLS_ASSERT(false);
+        return false;
+    }
+}
+
+// ----------------------------------------------------------------------------
+//                         STATIC HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+
+inline
+UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
+                                                   unsigned long int codePoint)
+{
+    // Early exit for the common (ascii) case
+    if (codePoint <= 0xff) {
+        if (codePoint <= 0x09) {
+            return UnicodeData::e_CONTROL;             // RETURN
+        }
+        if (codePoint == 0x0a) {
+            return UnicodeData::e_LF;                  // RETURN
+        }
+        if (codePoint == 0x0b || codePoint == 0x0c) {
+            return UnicodeData::e_CONTROL;             // RETURN
+        }
+        if (codePoint == 0x0d) {
+            return UnicodeData::e_CR;                  // RETURN
+        }
+        if (codePoint >= 0x0e && codePoint <= 0x1f) {
+            return UnicodeData::e_CONTROL;             // RETURN
+        }
+        if (codePoint >= 0x7f && codePoint <= 0x9f) {
+            return UnicodeData::e_CONTROL;             // RETURN
+        }
+        if (codePoint == 0xad) {
+            return UnicodeData::e_CONTROL;             // RETURN
+        }
+
+        return UnicodeData::e_UNASSIGNED;              // RETURN
+    }
+
+    const GraphemeBreakCategoryRange *first =
+                                    UnicodeData::s_graphemeBreakCategoryRanges;
+    const GraphemeBreakCategoryRange *last =
+                                UnicodeData::s_graphemeBreakCategoryRanges +
+                                UnicodeData::s_graphemeBreakCategoryRangeCount;
+
+    EndComparator<GraphemeBreakCategoryRange> comparator;
+
+    const GraphemeBreakCategoryRange *found =
+                          bsl::lower_bound(first, last, codePoint, comparator);
+
+    // Below the first element in the array.
+    if ((found == last) ||
+        (found->d_start > codePoint) ||
+        (found->d_end   < codePoint)) {
+        return UnicodeData::e_UNASSIGNED;              // RETURN
+    }
+
+    return found->d_category;
+}
+
+inline
+bool getExtendedPictogramValue(unsigned long int codePoint)
+{
+    const UnicodeData::BooleanRange *first =
+                                     UnicodeData::s_extendedPictographicRanges;
+
+    // Early exit for the common (ascii) case:
+    if (codePoint < first->d_start) {
+        return true;                                                  // RETURN
+    }
+
+    const UnicodeData::BooleanRange *last =
+                                 UnicodeData::s_extendedPictographicRanges +
+                                 UnicodeData::s_extendedPictographicRangeCount;
+
+    EndComparator<UnicodeData::BooleanRange> comparator;
+
+    const UnicodeData::BooleanRange *found =
+                          bsl::lower_bound(first, last, codePoint, comparator);
+
+    // Below the first element in the array.
+    if ((found == last) ||
+        (found->d_start > codePoint) ||
+        (found->d_end   < codePoint)) {
+        return false;                                                 // RETURN
+    }
+
+    return true;
+}
+
+inline
+int getCodepointWidth(unsigned long int codePoint)
+{
+    const UnicodeData::BooleanRange *first =
+                                         UnicodeData::s_doubleFieldWidthRanges;
+
+    // Early exit for the common (ascii) case:
+    if (codePoint < first->d_start) {
+        return 1;                                                     // RETURN
+    }
+
+    const UnicodeData::BooleanRange *last =
+                                     UnicodeData::s_doubleFieldWidthRanges +
+                                     UnicodeData::s_doubleFieldWidthRangeCount;
+
+    EndComparator<UnicodeData::BooleanRange> comparator;
+
+    const UnicodeData::BooleanRange *found =
+                          bsl::lower_bound(first, last, codePoint, comparator);
+
+    // Below the first element in the array.
+    if ((found == last) ||
+        (found->d_start > codePoint) ||
+        (found->d_end   < codePoint)) {
+        return 1;                                                     // RETURN
+    }
+
+    return 2;
+}
+
+}  // close unnamed namespace
+
+namespace bslfmt {
+
+                    // -------------------------------------
+                    // class FormatterString_GraphemeCluster
+                    // -------------------------------------
+
+// MANIPULATORS
+void FormatterString_GraphemeCluster::extract(
+                                       UnicodeCodePoint::UtfEncoding  encoding,
+                                       const void                    *bytes,
+                                       size_t                         maxBytes)
+{
+    UnicodeCodePoint  codePoint;
+    codePoint.extract(encoding, bytes, maxBytes);
+
+    bool isValid       = codePoint.isValid();
+    int  numBytes      = codePoint.numSourceBytes();
+    int  numCodepoints = 1;
+
+    // Failed to extract first code point.
+    if (!isValid) {
+        return;                                                       // RETURN
+    }
+
+    d_firstCodePointValue = codePoint.codePointValue();
+    d_firstCodePointWidth = codePoint.codePointWidth();
+
+    UnicodeData::GraphemeBreakCategory leftGbc =
+                          getGraphemeBreakCategory(codePoint.codePointValue());
+    bool leftEpv = getExtendedPictogramValue(codePoint.codePointValue());
+
+    UnicodeData::GraphemeBreakCategory rightGbc = UnicodeData::e_UNASSIGNED;
+    bool rightEpv = false;
+
+    size_t numRIs = 0;
+
+    EmojiModifierSequenceDetector emsMatcher;
+
+    for (;; leftGbc = rightGbc, leftEpv = rightEpv) {
+
+        d_isValid        = isValid;
+        d_numCodePoints  = numCodepoints;
+        d_numSourceBytes = numBytes;
+
+        if (0 == maxBytes - numBytes) {
+            // GB2 Any % eot
+            return;                                                   // RETURN
+        }
+
+        const void *cp = static_cast<const void *>(
+                                  static_cast<const char *>(bytes) + numBytes);
+        codePoint.reset();
+        codePoint.extract(encoding, cp, maxBytes - numBytes);
+
+        isValid = isValid && codePoint.isValid();
+        numBytes += codePoint.numSourceBytes();
+        numCodepoints++;
+
+        // Failed to extract valid code point.
+        if (!isValid) {
+            reset();
+            return;                                                   // RETURN
+        }
+
+        rightGbc = getGraphemeBreakCategory(codePoint.codePointValue());
+        rightEpv = getExtendedPictogramValue(codePoint.codePointValue());
+
+        // Match GB11 now, so that we're sure to update it for every character,
+        // not just ones where the GB11 rule is considered
+        const bool isGB11Match = emsMatcher.match(leftGbc, leftEpv);
+
+        // Also update the number of sequential RIs immediately
+        if (leftGbc == UnicodeData::e_REGIONAL_INDICATOR) {
+            ++numRIs;
+        }
+        else {
+            numRIs = 0;
+        }
+
+        if (leftGbc == UnicodeData::e_CR && rightGbc == UnicodeData::e_LF) {
+            continue;  // GB3 CR x LF
+        }
+
+        if (leftGbc == UnicodeData::e_CONTROL ||
+            leftGbc == UnicodeData::e_CR || leftGbc == UnicodeData::e_LF) {
+            // GB4 (Control | CR | LF) % Any
+            return;                                                   // RETURN
+        }
+
+        if (rightGbc == UnicodeData::e_CONTROL ||
+            rightGbc == UnicodeData::e_CR || rightGbc == UnicodeData::e_LF) {
+            // GB5 Any % (Control | CR | LF)
+            return;                                                   // RETURN
+        }
+
+        if ((leftGbc == UnicodeData::e_HANGUL_L) &&
+            (rightGbc == UnicodeData::e_HANGUL_L ||
+             rightGbc == UnicodeData::e_HANGUL_V ||
+             rightGbc == UnicodeData::e_HANGUL_LV ||
+             rightGbc == UnicodeData::e_HANGUL_LVT)) {
+            continue;  // GB6 L x (L | V | LV | LVT)
+        }
+
+        if ((leftGbc == UnicodeData::e_HANGUL_LV ||
+             leftGbc == UnicodeData::e_HANGUL_V) &&
+            (rightGbc == UnicodeData::e_HANGUL_V ||
+             rightGbc == UnicodeData::e_HANGUL_T)) {
+            continue;  // GB7 (LV | V) x (V | T)
+        }
+
+        if ((leftGbc == UnicodeData::e_HANGUL_LVT ||
+             leftGbc == UnicodeData::e_HANGUL_T) &&
+            (rightGbc == UnicodeData::e_HANGUL_T)) {
+            continue;  // GB8 (LVT | T) x T
+        }
+
+        if (rightGbc == UnicodeData::e_EXTEND ||
+            rightGbc == UnicodeData::e_ZERO_WIDTH_JOINER) {
+            continue;  // GB9 x (Extend | ZWJ)
+        }
+
+        if (rightGbc == UnicodeData::e_SPACING_MARK) {
+            continue;  // GB9a x SpacingMark
+        }
+
+        if (leftGbc == UnicodeData::e_PREPEND) {
+            continue;  // GB9b Prepend x
+        }
+
+        if (isGB11Match && rightEpv) {
+            // GB11 \p{ExtendedPictographic} Extend* ZWJ x
+            // \p{ExtendedPictographic}
+            continue;
+        }
+
+        if (leftGbc == UnicodeData::e_REGIONAL_INDICATOR &&
+            rightGbc == UnicodeData::e_REGIONAL_INDICATOR && numRIs % 2 != 0) {
+            // GB12 and 13, do not break between RIs if there are an odd number
+            // of RIs before the breakpoint
+            continue;
+        }
+
+        // No rule will cause `right` to extend the cluster, so return what we
+        // have.
+        return;                                                       // RETURN
+    }
+}
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

@@ -12,6 +12,7 @@ bslfmt_formatparsecontext
 bslfmt_formatterbase
 bslfmt_formatterbool
 bslfmt_formattercharacter
+bslfmt_formattercharutil
 bslfmt_formatterfloating
 bslfmt_formatterintegral
 bslfmt_formatterpointer
@@ -21,7 +22,7 @@ bslfmt_formatterspecificationstandard
 bslfmt_formatterstring
 bslfmt_formattertestutil
 bslfmt_formatterunicodedata
-bslfmt_formatterunicodeutils
 bslfmt_mockformatcontext
 bslfmt_mockparsecontext
+bslfmt_unicodecodepoint
 

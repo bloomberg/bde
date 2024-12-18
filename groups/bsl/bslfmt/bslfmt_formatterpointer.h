@@ -48,7 +48,6 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterintegral.h>
 #include <bslfmt_formatterspecificationstandard.h>
-#include <bslfmt_formatterunicodeutils.h>
 
 #include <bslalg_numericformatterutil.h>
 

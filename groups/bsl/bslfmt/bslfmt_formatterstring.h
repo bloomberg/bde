@@ -67,7 +67,6 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterspecificationstandard.h>
-#include <bslfmt_formatterunicodeutils.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
@@ -76,13 +75,80 @@ BSLS_IDENT("$Id: $")
 #include <stdio.h>    // for 'snprintf'
 
 
+namespace BloombergLP {
+namespace bslfmt {
+
+                        // =====================================
+                        // class FormatterString_GraphemeCluster
+                        // =====================================
+
+class FormatterString_GraphemeCluster {
+  private:
+    // DATA
+    bool              d_isValid;
+    int               d_numSourceBytes;
+    int               d_numCodePoints;
+    unsigned long int d_firstCodePointValue;
+    int               d_firstCodePointWidth;
+
+  public:
+    // CREATORS
+
+    /// Create a default (invalid) cluster.
+    FormatterString_GraphemeCluster();
+
+    // MANIPULATORS
+
+    /// Extract a grapheme cluster from no more than the specified `maxBytes`
+    /// of the byte stream at the specified `bytes` location in the specified
+    /// `encoding`.  Behavior is undefined if the input bytes are not in the
+    /// specified encoding.  Unicode Byte Order Markers are not supported and
+    /// behavior is undefined if the input data contains an embedded BOM.
+    /// Endianness is assumed to be that of the type pointed to by `bytes`.
+    ///
+    /// For UTF-8, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes` `unsigned char` types in contiguous memory.
+    ///
+    /// For UTF-16, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes/2` `wchar_t` types in contiguous memory.
+    /// Behaviour is undefined if `2 != sizeof(wchar_t)`.  Endianness is
+    /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
+    /// are not supported.
+    ///
+    /// For UTF-32, behavior is undefined if `bytes` is not a valid pointer to
+    /// an array of `numBytes/4` `wchar_t` types in contiguous memory.
+    /// Behaviour is undefined if `4 != sizeof(wchar_t)`.  Endianness is
+    /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
+    /// are not supported.
+    void extract(UnicodeCodePoint::UtfEncoding  encoding,
+                 const void                    *bytes,
+                 size_t                         maxBytes);
+
+    /// Reset this object to the default state.
+    void reset();
+
+    // ACCESSORS
+
+    /// Return `true` if this object was successfully extracted and contains
+    /// valid code point data, and `false` otherwise.
+    bool isValid() const;
+
+    /// Return the number of bytes occupied by this cluster.
+    int numSourceBytes() const;
+
+    /// Return the number of code points this cluster contains.
+    int numCodePoints() const;
+
+    /// Return the value of the first code point in this cluster.
+    unsigned long int firstCodePointValue() const;
+
+    /// Return the width of the first code point in this cluster.
+    int firstCodePointWidth() const;
+};
 
                         // ==========================
                         // struct FormatterString_Imp
                         // ==========================
-
-namespace BloombergLP {
-namespace bslfmt {
 
 /// This component-private class provides the implementations for parsing
 /// string formatting specifications and for formatting strings according to
@@ -372,14 +438,69 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-
-                        // ==========================
-                        // struct FormatterString_Imp
-                        // ==========================
-
-
 namespace BloombergLP {
 namespace bslfmt {
+
+                    // -------------------------------------
+                    // class FormatterString_GraphemeCluster
+                    // -------------------------------------
+
+// CREATORS
+inline
+FormatterString_GraphemeCluster::FormatterString_GraphemeCluster()
+: d_isValid(false)
+, d_numSourceBytes(0)
+, d_numCodePoints(0)
+, d_firstCodePointValue(0)
+, d_firstCodePointWidth(0)
+{
+}
+
+// MANIPULATORS
+inline
+void FormatterString_GraphemeCluster::reset()
+{
+    d_isValid             = false;
+    d_numSourceBytes      = 0;
+    d_numCodePoints       = 0;
+    d_firstCodePointValue = 0;
+    d_firstCodePointWidth = 0;
+}
+
+// ACCESSSORS
+inline
+bool FormatterString_GraphemeCluster::isValid() const
+{
+    return d_isValid;
+}
+
+inline
+int FormatterString_GraphemeCluster::numSourceBytes() const
+{
+    return d_numSourceBytes;
+}
+
+inline
+int FormatterString_GraphemeCluster::numCodePoints() const
+{
+    return d_numCodePoints;
+}
+
+inline
+unsigned long int FormatterString_GraphemeCluster::firstCodePointValue() const
+{
+    return d_firstCodePointValue;
+}
+
+inline
+int FormatterString_GraphemeCluster::firstCodePointWidth() const
+{
+    return d_firstCodePointWidth;
+}
+
+                        // --------------------------
+                        // struct FormatterString_Imp
+                        // --------------------------
 
 template <class t_CHAR>
 void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
@@ -395,44 +516,35 @@ void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
     size_t        bytesLeft = inputString.size() * sizeof(t_CHAR);
 
     while (bytesLeft > 0) {
-        Formatter_UnicodeUtils::GraphemeClusterExtractionResult gcresult;
+        FormatterString_GraphemeCluster cluster;
 
         switch (sizeof(t_CHAR)) {
           case 1: {
-            gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
-                                                Formatter_UnicodeUtils::e_UTF8,
-                                                current,
-                                                bytesLeft);
+            cluster.extract(UnicodeCodePoint::e_UTF8, current, bytesLeft);
           } break;
           case 2: {
-            gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
-                                               Formatter_UnicodeUtils::e_UTF16,
-                                               current,
-                                               bytesLeft);
+            cluster.extract(UnicodeCodePoint::e_UTF16, current, bytesLeft);
           } break;
           case 4: {
-            gcresult = Formatter_UnicodeUtils::extractGraphemeCluster(
-                                               Formatter_UnicodeUtils::e_UTF32,
-                                               current,
-                                               bytesLeft);
+            cluster.extract(UnicodeCodePoint::e_UTF32, current, bytesLeft);
           } break;
           default: {
             BSLS_THROW(bsl::format_error("Invalid character width"));
           }
         }
-        if (!gcresult.isValid) {
+        if (!cluster.isValid()) {
             BSLS_THROW(bsl::format_error("Invalid unicode stream"));
         }
 
-        if (*widthUsed + gcresult.firstCodePointWidth > maxTotalDisplayWidth)
+        if (*widthUsed + cluster.firstCodePointWidth() > maxTotalDisplayWidth)
             break;
 
-        bytesLeft -= gcresult.numSourceBytes;
-        current += gcresult.numSourceBytes / sizeof(t_CHAR);
+        bytesLeft -= cluster.numSourceBytes();
+        current += cluster.numSourceBytes() / sizeof(t_CHAR);
 
-        *charactersUsed += gcresult.numSourceBytes / sizeof(t_CHAR);
+        *charactersUsed += cluster.numSourceBytes() / sizeof(t_CHAR);
 
-        *widthUsed += gcresult.firstCodePointWidth;
+        *widthUsed += cluster.firstCodePointWidth();
     }
 }
 

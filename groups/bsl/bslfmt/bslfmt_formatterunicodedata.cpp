@@ -3,7 +3,7 @@
 #include <bslfmt_formatterunicodedata.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatterunicodedata_cpp, "$Id$ $CSID$")
 
 // ============================================================================
 //                     MACHINE-GENERATED DATA GOES HERE
@@ -19,7 +19,8 @@ namespace bslfmt {
 // The following static data tables are generated from the Unicode character
 // database.
 //
-// s_graphemeBreakCategoryRanges comes from ucd/auxiliary/GraphemeBreakProperty.txt.
+// s_graphemeBreakCategoryRanges comes from
+//                                     ucd/auxiliary/GraphemeBreakProperty.txt.
 //
 // s_extendedPictographicRanges comes from ucd/emoji/emoji-data.txt.
 //
@@ -36,8 +37,8 @@ namespace bslfmt {
 
 // GraphemeBreakProperty-15.1.0.txt
 // Date: 2023-01-05, 20:34:41 GMT
-const Formatter_UnicodeData::GraphemeBreakCategoryRange
-    Formatter_UnicodeData::s_graphemeBreakCategoryRanges[] = {
+const FormatterUnicodeData::GraphemeBreakCategoryRange
+    FormatterUnicodeData::s_graphemeBreakCategoryRanges[] = {
         {     0x0,     0x9, e_CONTROL},
         {     0xa,     0xa, e_LF},
         {     0xb,     0xc, e_CONTROL},
@@ -1413,15 +1414,15 @@ const Formatter_UnicodeData::GraphemeBreakCategoryRange
 
 
 
-const int Formatter_UnicodeData::s_graphemeBreakCategoryRangeCount = 
+const int FormatterUnicodeData::s_graphemeBreakCategoryRangeCount = 
     sizeof(s_graphemeBreakCategoryRanges) / sizeof(GraphemeBreakCategoryRange);
 
 
 
 // emoji-data.txt
 // Date: 2023-02-01, 02:22:54 GMT
-const Formatter_UnicodeData::BooleanRange
-    Formatter_UnicodeData::s_extendedPictographicRanges[] = {
+const FormatterUnicodeData::BooleanRange
+    FormatterUnicodeData::s_extendedPictographicRanges[] = {
         {    0xa9,    0xa9},
         {    0xae,    0xae},
         {  0x203c,  0x203c},
@@ -1504,15 +1505,15 @@ const Formatter_UnicodeData::BooleanRange
 
 
 
-const int Formatter_UnicodeData::s_extendedPictographicRangeCount = 
+const int FormatterUnicodeData::s_extendedPictographicRangeCount = 
     sizeof(s_extendedPictographicRanges) / sizeof(BooleanRange);
 
 
 
 // DerivedGeneralCategory-15.1.0.txt
 // Date: 2023-07-28, 23:34:02 GMT
-const Formatter_UnicodeData::BooleanRange
-    Formatter_UnicodeData::s_printableRanges[] = {
+const FormatterUnicodeData::BooleanRange
+    FormatterUnicodeData::s_printableRanges[] = {
         {    0x20,    0x7e},
         {    0xa1,    0xac},
         {    0xae,   0x377},
@@ -2229,15 +2230,15 @@ const Formatter_UnicodeData::BooleanRange
 
 
 
-const int Formatter_UnicodeData::s_printableRangeCount = 
+const int FormatterUnicodeData::s_printableRangeCount = 
     sizeof(s_printableRanges) / sizeof(BooleanRange);
 
 
 
 // DerivedCoreProperties-15.1.0.txt
 // Date: 2023-08-07, 15:21:24 GMT
-const Formatter_UnicodeData::BooleanRange
-    Formatter_UnicodeData::s_graphemeExtendRanges[] = {
+const FormatterUnicodeData::BooleanRange
+    FormatterUnicodeData::s_graphemeExtendRanges[] = {
         {   0x300,   0x36f},
         {   0x483,   0x489},
         {   0x591,   0x5bd},
@@ -2605,15 +2606,15 @@ const Formatter_UnicodeData::BooleanRange
 
 
 
-const int Formatter_UnicodeData::s_graphemeExtendRangeCount = 
+const int FormatterUnicodeData::s_graphemeExtendRangeCount = 
     sizeof(s_graphemeExtendRanges) / sizeof(BooleanRange);
 
 
 
 // EastAsianWidth-15.1.0.txt
 // Date: 2023-07-28, 23:34:08 GMT
-const Formatter_UnicodeData::BooleanRange
-    Formatter_UnicodeData::s_doubleFieldWidthRanges[] = {
+const FormatterUnicodeData::BooleanRange
+    FormatterUnicodeData::s_doubleFieldWidthRanges[] = {
         {  0x1100,  0x115f},
         {  0x231a,  0x231b},
         {  0x2329,  0x232a},
@@ -2718,7 +2719,7 @@ const Formatter_UnicodeData::BooleanRange
 
 
 
-const int Formatter_UnicodeData::s_doubleFieldWidthRangeCount = 
+const int FormatterUnicodeData::s_doubleFieldWidthRangeCount = 
     sizeof(s_doubleFieldWidthRanges) / sizeof(BooleanRange);
 
 
@@ -2761,7 +2762,7 @@ const int Formatter_UnicodeData::s_doubleFieldWidthRangeCount =
 // accompanying notice indicating the source.
 //
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

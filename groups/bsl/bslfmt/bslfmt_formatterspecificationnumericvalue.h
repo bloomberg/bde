@@ -23,6 +23,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_formaterror.h>
+
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_assert.h>
@@ -39,9 +41,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
-#include <bslfmt_formaterror.h>
-#include <bslfmt_formatterunicodeutils.h>
-
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
 
@@ -50,7 +49,6 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <format>     // for 'std::visit_format_arg'
 #endif
-
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -151,7 +149,7 @@ struct FormatterSpecificationNumericValue_ArgVisitor {
     // CREATORS
 
     /// Create an instance of `FormatterSpecificationNumericValue_Visitor` that
-    /// refers to the object to which the specified `valuePtr` points. 
+    /// refers to the object to which the specified `valuePtr` points.
     FormatterSpecificationNumericValue_ArgVisitor(
                                  FormatterSpecificationNumericValue *valuePtr);
 
@@ -221,11 +219,13 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 int
 FormatterSpecificationNumericValue::value() const
 {
     if (d_category == e_DEFAULT) {
-        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Access to unspecified nested "
+        BSLS_THROW(
+              bsl::format_error("INTERNAL ERROR: Access to unspecified nested "
                                 "value in format spec."));            // RETURN
     }
     if (d_category == e_NEXT_ARG) {
-        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Failed to identify arg-id for "
+        BSLS_THROW(
+             bsl::format_error("INTERNAL ERROR: Failed to identify arg-id for "
                                "nested value in format spec."));      // RETURN
     }
     return d_value;
@@ -292,7 +292,8 @@ void FormatterSpecificationNumericValue::parse(
     while (*current >= '0' && *current <= '9') {
         accumulator = (accumulator * 10) + static_cast<int>(*current - '0');
         if (accumulator > INT_MAX) {
-            BSLS_THROW(bsl::format_error("Parsed FormatterSpecificationNumericValue "
+            BSLS_THROW(
+                 bsl::format_error("Parsed FormatterSpecificationNumericValue "
                                    "overflow"));                      // RETURN
         }
         ++digitCount;

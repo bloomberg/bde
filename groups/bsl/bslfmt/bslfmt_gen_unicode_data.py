@@ -12,7 +12,7 @@
 # ftp://ftp.unicode.org/Public/UNIDATA/emoji/emoji-data.txt
 #
 # Then run this script and save the output to bslfmt_formatterunicodedata.cpp
-# 
+#
 
 import re
 import os
@@ -28,22 +28,22 @@ self = os.path.basename(__file__)
 RANGE_DATA_TEMPLATE = """
 {filename}
 {timestamp}
-const Formatter_UnicodeData::{prop_name}
-    Formatter_UnicodeData::{var_name}[] = {{
+const FormatterUnicodeData::{prop_name}
+    FormatterUnicodeData::{var_name}[] = {{
         {values}
 }};
 """
 
 COUNT_TEMPLATE = """
-const int Formatter_UnicodeData::{var_name} = 
+const int FormatterUnicodeData::{var_name} = 
     sizeof({source_name}) / sizeof({prop_name});
 """
 
 CATEGORY_DATA_TEMPLATE = """
 {filename}
 {timestamp}
-const Formatter_UnicodeData::{prop_name}
-    Formatter_UnicodeData::{var_name}[] = {{
+const FormatterUnicodeData::{prop_name}
+    FormatterUnicodeData::{var_name}[] = {{
         {values}
 }};
 """
@@ -55,7 +55,7 @@ OUTER_TEMPLATE = """
 #include <bslfmt_formatterunicodedata.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatterunicodedata_cpp, "$Id$ $CSID$")
 
 // ============================================================================
 //                     MACHINE-GENERATED DATA GOES HERE
@@ -71,7 +71,8 @@ namespace bslfmt {{
 // The following static data tables are generated from the Unicode character
 // database.
 //
-// s_graphemeBreakCategoryRanges comes from ucd/auxiliary/GraphemeBreakProperty.txt.
+// s_graphemeBreakCategoryRanges comes from
+//                                     ucd/auxiliary/GraphemeBreakProperty.txt.
 //
 // s_extendedPictographicRanges comes from ucd/emoji/emoji-data.txt.
 //
@@ -126,7 +127,7 @@ namespace bslfmt {{
 // accompanying notice indicating the source.
 //
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2024 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -331,7 +332,7 @@ def generate_data_tables() -> str:
                                      "GraphemeBreakCategoryRange",
                                      "s_graphemeBreakCategoryRanges",
                                      gbp_ranges)
-    
+
     gpb_cpp_count = generate_cpp_count("GraphemeBreakCategoryRange",
                                        "s_graphemeBreakCategoryRanges",
                                        "s_graphemeBreakCategoryRangeCount")
@@ -340,7 +341,7 @@ def generate_data_tables() -> str:
                                        "BooleanRange",
                                        "s_extendedPictographicRanges", [
         x for x in emoji_ranges if x.prop == "Extended_Pictographic"])
-    
+
     emoji_cpp_count = generate_cpp_count("BooleanRange",
                                          "s_extendedPictographicRanges",
                                          "s_extendedPictographicRangeCount")
@@ -350,7 +351,7 @@ def generate_data_tables() -> str:
                                            "BooleanRange",
                                            "s_printableRanges",
                                            printable_ranges)
-    
+
     printable_cpp_count = generate_cpp_count("BooleanRange",
                                             "s_printableRanges",
                                             "s_printableRangeCount")
@@ -360,17 +361,17 @@ def generate_data_tables() -> str:
                                                  "BooleanRange",
                                                  "s_graphemeExtendRanges", [
         x for x in derived_ranges if x.prop == "Grapheme_Extend"])
-    
+
     grapheme_extend_cpp_count = generate_cpp_count("BooleanRange",
                                                    "s_graphemeExtendRanges",
                                                    "s_graphemeExtendRangeCount")
-    
+
     width_estimate_intervals = generate_cpp_data(eaw_filename,
                                                  eaw_timestamp,
                                                  "BooleanRange",
                                                  "s_doubleFieldWidthRanges",
                                                  width_2_ranges)
-    
+
     width_estimate_interval_count = generate_cpp_count("BooleanRange",
                                                        "s_doubleFieldWidthRanges",
                                                        "s_doubleFieldWidthRangeCount")
@@ -397,20 +398,20 @@ if __name__ == "__main__":
 # -----------------------------------------------------------------------------
 #  Adapted for bde use from Microsoft MSVC library code, 2024
 #  'https://github.com/microsoft/STL/blob/vs-2022-17.11/tools/unicode_properties_parse/unicode_properties_data_gen.py'
-# 
+#
 #  # Copyright (c) Microsoft Corporation.
 #  # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 # -----------------------------------------------------------------------------
 
 #  ----------------------------------------------------------------------------
-#  Copyright 2015 Bloomberg Finance L.P.
-# 
+#  Copyright 2024 Bloomberg Finance L.P.
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.

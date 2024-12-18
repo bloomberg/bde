@@ -71,8 +71,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
 #include <bslfmt_formatterspecificationstandard.h>
-#include <bslfmt_formatterunicodeutils.h>
 
 #include <bslma_deallocatebytesproctor.h>
 #include <bslma_default.h>
@@ -567,20 +567,24 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
     }
 
     if (addSignChar) {
-        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
-                             t_CHAR>::outputFromChar(addSignChar, outIterator);
+        outIterator =
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    addSignChar,
+                    outIterator);
     }
 
     for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
-        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
-                                    t_CHAR>::outputFromChar('0', outIterator);
+        outIterator =
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    '0',
+                    outIterator);
     }
 
     outIterator =
-            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
-                                                   numberBuffer,
-                                                   numberBuffer + numberLength,
-                                                   outIterator);
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    numberBuffer,
+                    numberBuffer + numberLength,
+                    outIterator);
 
     for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
         outIterator = bsl::copy(
@@ -738,7 +742,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
     }
 
     if (FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType()) {
-        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(buf, end);
     }
 
     return alignAndCopy(buf, numberLength, formatContext, finalSpec);
@@ -776,7 +780,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
     }
 
     if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
-        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(buf, end);
     }
 
     return alignAndCopy(buf, numberLength, formatContext, finalSpec);
@@ -836,7 +840,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
     }
 
     if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
-        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(buf, end);
     }
 
     return alignAndCopy(buf, numberLength, formatContext, finalSpec);
@@ -898,7 +902,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
     }
 
     if (FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType()) {
-        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(buf, end);
+        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(buf, end);
     }
 
     return alignAndCopy(buf, numberLength, formatContext, finalSpec);

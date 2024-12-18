@@ -46,8 +46,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
 #include <bslfmt_formatterspecificationstandard.h>
-#include <bslfmt_formatterunicodeutils.h>
 
 #include <bslalg_numericformatterutil.h>
 
@@ -581,17 +581,17 @@ t_CHAR *FormatterIntegralBase<t_VALUE, t_CHAR>::formatValue(
         // additionally modify the resulting string for uppercase hexadecimal
         // format.
 
-        BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::toUpper(valueBuf,
-                                                                  valueEnd);
+        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(valueBuf,
+                                                                valueEnd);
     }
 
      t_CHAR *convertedValueEnd = valueStorage;
 
      convertedValueEnd =
-              BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
-                  valueBuf,
-                  valueEnd,
-                  convertedValueEnd);
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    valueBuf,
+                    valueEnd,
+                    convertedValueEnd);
 
      return convertedValueEnd;
 }
@@ -691,19 +691,19 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
 
     // perfix
     outIterator =
-              BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
-                  prefixBegin,
-                  prefixEnd,
-                  outIterator);
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    prefixBegin,
+                    prefixEnd,
+                    outIterator);
 
     // zero filler
     for (int i = 0; i < zeroPadFillerCopiesNum; ++i) {
         const char *zeroFiller = "0";
         outIterator =
-              BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
-                  zeroFiller,
-                  zeroFiller + 1,
-                  outIterator);
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    zeroFiller,
+                    zeroFiller + 1,
+                    outIterator);
     }
 
     // value
