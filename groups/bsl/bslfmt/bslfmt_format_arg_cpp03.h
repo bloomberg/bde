@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 19 15:51:17 2024
+// Generated on Thu Dec 19 18:08:06 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -193,8 +193,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// constructor only participates in overload resolution if `value` is not
     /// an integer or if `value` is an signed integer type that can not be held
     /// within a `long long` or an unsigned integer type that can not be held
-    /// within an `unsigned long long`. Participation in overload resolution is
-    /// also disabled if `value` is of type `long double`.
+    /// within an `unsigned long long`.  Participation in overload resolution
+    /// is also disabled if `value` is of type `long double`.
     template <class t_TYPE>
     explicit basic_format_arg(
          const t_TYPE& value,
