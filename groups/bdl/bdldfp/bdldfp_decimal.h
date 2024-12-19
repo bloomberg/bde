@@ -6985,7 +6985,9 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
     const bool specialValue = 'f' == lastChar || 'n' == lastChar
                            || 'F' == lastChar || 'N' == lastChar;
 
-    if (numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
+    if ((FSNVAlue::e_DEFAULT != finalWidth.category()) &&
+        (numberLength + hasSignChar <
+         static_cast<size_t>(finalWidth.value()))) {
         // We need to fill the remaining space.
 
         const ptrdiff_t totalPadDisplayWidth =
