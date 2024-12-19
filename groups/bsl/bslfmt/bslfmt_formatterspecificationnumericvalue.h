@@ -74,8 +74,8 @@ struct FormatterSpecificationNumericValue {
 
   private:
     // DATA
+    ValueType d_category;  // category
     int       d_value;    // integral value
-    ValueType d_category; // category
 
     // FRIENDS
 
