@@ -207,12 +207,14 @@ struct formatter<FormattableType, t_CHAR> {
 
         converter >> output;
 
-        int width = output.size();
+        // We know `output.size()` is less than INT_MAX
+        int width = static_cast<int>(output.size());
         if (finalWidth.category() != FSNVAlue::e_DEFAULT) {
             width = finalWidth.value();
         }
 
-        int precision = output.size();
+        // We know `output.size()` is less than INT_MAX
+        int precision = static_cast<int>(output.size());
         if (finalPrecision.category() != FSNVAlue::e_DEFAULT) {
             precision = finalPrecision.value();
         }
