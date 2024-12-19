@@ -288,23 +288,23 @@ wstring format(allocator<wchar_t>        alloc,
                wformat_string<t_ARGS...> fmtstr,
                t_ARGS&&...               args);
 
+/// Return an object, whose type is not specified, holding an array of
+/// `format_arg` types constructed from the specified `args`. The type returned
+/// is implicitly convertible to a `format_args` holding a reference to the
+/// contained array. This function will statically assert if any of the
+/// specified template parameters `t_ARGS` is of type `long double`.
 template <class t_CONTEXT = std::format_context, class... t_ARGS>
 auto make_format_args(t_ARGS&... args);
-    // Return an object, whose type is not specified, holding an array of
-    // `format_arg` types constructed from the specified `args`. The type
-    // returned is implicitly convertible to a `format_args` holding a
-    // reference to the contained array. This function will statically assert
-    // if any of the specified template parameters `t_ARGS` is of type
-    // `long double`.
 
+
+/// Return an object, whose type is not specified, holding an array of
+/// `wformat_arg` types constructed from the specified `args`. The type
+/// returned is implicitly convertible to a `wformat_args` holding a reference
+/// to the contained array. This function will statically assert if any of the
+/// specified template parameters `t_ARGS` is of type `long double`.
 template <class... t_ARGS>
 auto make_wformat_args(t_ARGS&... args);
-    // Return an object, whose type is not specified, holding an array of
-    // `wformat_arg` types constructed from the specified `args`. The type
-    // returned is implicitly convertible to a `wformat_args` holding a
-    // reference to the contained array. This function will statically assert
-    // if any of the specified template parameters `t_ARGS` is of type
-    // `long double`.
+
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtstr`, and write the result of this operation into the string

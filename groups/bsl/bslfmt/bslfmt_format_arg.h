@@ -276,9 +276,11 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// then held by value.
     explicit basic_format_arg(double value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value. Participation in overload resolution is also
-    /// disabled if `value` is of type `long double`.
+    /// Terminate by calling BSLMF_ASSERT.  This constructor only participates
+    /// in overload resolution if `value` is of the currently unsupported type
+    /// `long double`.  Note: this is required to use a template parameter to
+    /// ensure that this function is only instantiated when an attempt is made
+    /// to use it.
     template <class t_TYPE>
     explicit basic_format_arg(
            t_TYPE value,
@@ -780,8 +782,12 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                                       int>::type) BSLS_KEYWORD_NOEXCEPT
 : d_value(static_cast<long double>(value))
 {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
     static_assert(!bsl::is_same<t_TYPE, long double>::value,
-                  "long double not supported by bslfmt::format");
+                  "long double not supported by bsl::format");
+#else
+    BSLMF_ASSERT(!bsl::is_same<t_TYPE, long double>::value);
+#endif
 }
 
 template <class t_OUT, class t_CHAR>
