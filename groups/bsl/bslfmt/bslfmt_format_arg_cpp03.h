@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 12 17:26:25 2024
+// Generated on Thu Dec 19 13:13:15 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -193,13 +193,15 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// constructor only participates in overload resolution if `value` is not
     /// an integer or if `value` is an signed integer type that can not be held
     /// within a `long long` or an unsigned integer type that can not be held
-    /// within an `unsigned long long`.
+    /// within an `unsigned long long`. Participation in overload resolution is
+    /// also disabled if `value` is of type `long double`.
     template <class t_TYPE>
     explicit basic_format_arg(
-              const t_TYPE& value,
-              typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                          (sizeof(t_TYPE) > sizeof(long long)),
-                                      int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
+         const t_TYPE& value,
+         typename bsl::enable_if<(!bsl::is_integral<t_TYPE>::value &&
+                                  !bsl::is_same<t_TYPE, long double>::value) ||
+                                     (sizeof(t_TYPE) > sizeof(long long)),
+                                 int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     /// Construct a `basic_format_arg` from the specified `value`, which is
     /// then held by value.
@@ -210,8 +212,13 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     explicit basic_format_arg(double value) BSLS_KEYWORD_NOEXCEPT;
 
     /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
-    explicit basic_format_arg(long double value) BSLS_KEYWORD_NOEXCEPT;
+    /// then held by value. Participation in overload resolution is also
+    /// disabled if `value` is of type `long double`.
+    template <class t_TYPE>
+    explicit basic_format_arg(
+           t_TYPE value,
+           typename bsl::enable_if<bsl::is_same<t_TYPE, long double>::value,
+                                   int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
     /// Construct a `basic_format_arg` from the specified `value`, which is
     /// then held by value.
@@ -849,10 +856,11 @@ template <class t_OUT, class t_CHAR>
 template <class t_TYPE>
 inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
-              const t_TYPE& value,
-              typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value ||
-                                          (sizeof(t_TYPE) > sizeof(long long)),
-                                      int>::type) BSLS_KEYWORD_NOEXCEPT
+         const t_TYPE& value,
+         typename bsl::enable_if<(!bsl::is_integral<t_TYPE>::value &&
+                                  !bsl::is_same<t_TYPE, long double>::value) ||
+                                     (sizeof(t_TYPE) > sizeof(long long)),
+                                 int>::type) BSLS_KEYWORD_NOEXCEPT
 : d_value(handle(value))
 {
 }
@@ -874,11 +882,16 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
 }
 
 template <class t_OUT, class t_CHAR>
+template <class t_TYPE>
 inline
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
-                                       long double value) BSLS_KEYWORD_NOEXCEPT
-: d_value(value)
+              t_TYPE value,
+              typename bsl::enable_if<bsl::is_same<t_TYPE, long double>::value,
+                                      int>::type) BSLS_KEYWORD_NOEXCEPT
+: d_value(static_cast<long double>(value))
 {
+    static_assert(!bsl::is_same<t_TYPE, long double>::value,
+                  "long double not supported by bslfmt::format");
 }
 
 template <class t_OUT, class t_CHAR>
