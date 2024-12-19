@@ -121,10 +121,11 @@ struct FormatterSpecificationNumericValue {
                            t_ITER                              end,
                            bool                                needInitialDot);
 
-    /// If the specified output `out` holds a nested value (ie `d_type` is one
-    /// of `e_NEXT_ARG` or `e_ARG_ID`) update its value using the arguments
-    /// stored in the specified `context` and update the type to `e_VALUE`.
-    /// Otherwise do nothing.
+    /// If the specified output `out` holds a non-dynamic nested value (ie
+    /// `d_type` is `e_ARG_ID`) update its value using the arguments stored in
+    /// the specified `context` and update the type to `e_VALUE`.  If `out`
+    /// holds a dynamic nested value (ie `d_type` is `e_NEXT_ARG`) throw an
+    /// exception of type `format_error`.  Otherwise do nothing.
     template <typename t_FORMAT_CONTEXT>
     static void postprocess(FormatterSpecificationNumericValue *out,
                             const t_FORMAT_CONTEXT&             context);
@@ -337,8 +338,19 @@ void FormatterSpecificationNumericValue::postprocess(
                                  FormatterSpecificationNumericValue *out,
                                  const t_FORMAT_CONTEXT&             context)
 {
-    if (out->d_category != FormatterSpecificationNumericValue::e_ARG_ID) {
+    // Non-nested argument id - value does not change.
+    if (out->d_category == FormatterSpecificationNumericValue::e_DEFAULT ||
+        out->d_category == FormatterSpecificationNumericValue::e_VALUE) {
         return;                                                       // RETURN
+    }
+
+    // Splitter parsing converts dynamic nested widths and precisions
+    // (`e_NEXT_ARG`) into non-dynamic ones (`e_ARG_ID`).  As a result, if we
+    // encounder a dynamic nested width at this stage it indicates a logic
+    // error.
+    if (out->d_category == FormatterSpecificationNumericValue::e_NEXT_ARG) {
+        BSLS_THROW(
+          bsl::format_error("Unconverted dynamic nested argument"));  // RETURN
     }
 
     FormatterSpecificationNumericValue_Visitor visitor(out);

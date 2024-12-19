@@ -1,11 +1,11 @@
 // bslfmt_formatterspecificationsplitter.t.cpp                        -*-C++-*-
 #include <bslfmt_formatterspecificationsplitter.h>
 
-#include <bslfmt_format_arg.h> // Testing only
-#include <bslfmt_format_args.h> // Testing only
+#include <bslfmt_format_arg.h>          // Testing only
+#include <bslfmt_format_args.h>         // Testing only
 #include <bslfmt_format_parsecontext.h> // Testing only
-#include <bslfmt_format_string.h> // Testing only
-#include <bslfmt_formattertestutil.h> // Testing only
+#include <bslfmt_format_string.h>       // Testing only
+#include <bslfmt_formattertestutil.h>   // Testing only
 
 #include <bslfmt_formatterspecificationnumericvalue.h>
 

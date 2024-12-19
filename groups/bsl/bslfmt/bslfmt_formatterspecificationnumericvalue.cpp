@@ -3,7 +3,7 @@
 #include <bslfmt_formatterspecificationnumericvalue.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslfmt_formatspecificationnumericvalue.cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatspecificationnumericvalue_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2024 Bloomberg Finance L.P.

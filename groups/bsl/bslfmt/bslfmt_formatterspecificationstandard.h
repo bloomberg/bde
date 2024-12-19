@@ -100,8 +100,8 @@ class FormatterSpecificationStandard_Enums
     };
 };
 
-/// Utility to parse and validate a Standard format specification string for a
-/// given argument type.
+/// A general mechanism to parse and validate a Standard format specification
+/// string for a given argument type.
 template <class t_CHAR>
 class FormatterSpecificationStandard
 : public FormatterSpecificationStandard_Enums {
@@ -110,10 +110,10 @@ class FormatterSpecificationStandard
     typedef FormatterSpecificationSplitter<t_CHAR> Splitter;
 
     // DATA
-    ParsingStatus d_parsingStatus;   // Parsing state
+    ParsingStatus d_processingState; // Parsing state
     Splitter      d_basicSplitter;   // Parsing helper
     FormatType    d_formatType;      // What type was requested
-    int           d_widthArgId;      // Width argumetn number
+    int           d_widthArgId;      // Width argument number
     int           d_precisionArgId;  // Precision argument number
 
     // PRIVATE CLASS FUNCTIONS
@@ -251,7 +251,7 @@ class FormatterSpecificationStandard
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationStandard<t_CHAR>::FormatterSpecificationStandard()
-: d_parsingStatus(FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
+: d_processingState(FormatterSpecificationStandard::e_PARSING_UNINITIALIZED)
 , d_basicSplitter()
 , d_formatType(FormatterSpecificationStandard::e_TYPE_UNASSIGNED)
 , d_widthArgId(-1)
@@ -342,7 +342,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 typename FormatterSpecificationStandard<t_CHAR>::FormatType
 FormatterSpecificationStandard<t_CHAR>::formatType() const
 {
-    if (e_PARSING_UNINITIALIZED == d_parsingStatus)
+    if (e_PARSING_UNINITIALIZED == d_processingState)
         BSLS_THROW(bsl::format_error(
               "Format standard specification '.parse' not called"));  // RETURN
 
@@ -366,7 +366,7 @@ void FormatterSpecificationStandard<t_CHAR>::parse(
 
     typedef FormatterSpecificationNumericValue NumericValue;
 
-    outSpec->d_parsingStatus = e_PARSING_PARSED;
+    outSpec->d_processingState = e_PARSING_PARSED;
 
     const Sections sect = static_cast<Sections>(
             e_SECTIONS_FILL_ALIGN |
@@ -407,7 +407,7 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
                                        FormatterSpecificationStandard *outSpec,
                                        const t_FORMAT_CONTEXT&         context)
 {
-    if (outSpec->d_parsingStatus == e_PARSING_UNINITIALIZED)
+    if (outSpec->d_processingState == e_PARSING_UNINITIALIZED)
         BSLS_THROW(bsl::format_error(
               "Format standard specification '.parse' not called"));  // RETURN
 
@@ -441,7 +441,7 @@ void FormatterSpecificationStandard<t_CHAR>::postprocess(
       }
     }
 
-    outSpec->d_parsingStatus = e_PARSING_POSTPROCESSED;
+    outSpec->d_processingState = e_PARSING_POSTPROCESSED;
 }
 
 // PRIVATE CLASS FUNCTIONS

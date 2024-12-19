@@ -196,15 +196,41 @@ struct formatter<FormattableType, t_CHAR> {
 
         FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
 
-        static const char                   name[] = "FormattableType";
-        typename t_FORMAT_CONTEXT::iterator out    = fc.out();
+        bsl::basic_stringstream<t_CHAR> converter;
 
-        out  = std::copy(name, name + strlen(name), out);
-        *out++ = '{';
-        fc.advance_to(out);
-        out  = d_formatter_bsl.format(value.x, fc);
-        *out++ = '}';
-        return out;
+        converter << "FormattableType";
+        converter << "{";
+        converter << value.x;
+        converter << "}";
+
+        typename bsl::basic_string<t_CHAR> output;
+
+        converter >> output;
+
+        int width = output.size();
+        if (finalWidth.category() != FSNVAlue::e_DEFAULT) {
+            width = finalWidth.value();
+        }
+
+        int precision = output.size();
+        if (finalPrecision.category() != FSNVAlue::e_DEFAULT) {
+            precision = finalPrecision.value();
+        }
+
+        typename t_FORMAT_CONTEXT::iterator oit    = fc.out();
+
+        oit = std::copy(output.begin(), output.begin() + precision, oit);
+        fc.advance_to(oit);
+
+        if (width > precision) {
+            for (int i = 0; i < width - precision; i++) {
+                *oit++ = '=';
+            }
+        }
+
+        fc.advance_to(oit);
+
+        return oit;
     }
 };
 
@@ -289,31 +315,49 @@ int main(int argc, char **argv)
             FormattableType ft;
             ft.x = 37;
 
-            check(bslfmt::format("The value of {1:{0}} is {0}", ft.x, ft),
+
+            check(bslfmt::format("The value of {1:} is {0}", ft.x, ft),
                   "The value of FormattableType{37} is 37");
-            check(bslfmt::vformat("The value of {1:{0}} is {0}",
+            check(bslfmt::vformat("The value of {1:} is {0}",
                                   bslfmt::make_format_args(ft.x, ft)),
                   "The value of FormattableType{37} is 37");
 
             check(bslfmt::format("The value of {1:{0}} is {0}", ft.x, ft),
-               "The value of FormattableType{37} is 37");
-             check(bslfmt::vformat("The value of {1:{0}} is {0}",
-                                bslfmt::make_format_args(ft.x, ft)),
-                "The value of FormattableType{37} is 37");
+                  "The value of FormattableType{37}================== is 37");
+            check(bslfmt::vformat("The value of {1:{0}} is {0}",
+                                  bslfmt::make_format_args(ft.x, ft)),
+                  "The value of FormattableType{37}================== is 37");
+
+            int prec = 5;
+
+            check(bslfmt::format("The value of {1:{0}.{2}} is {0}",
+                                 ft.x,
+                                 ft,
+                                 prec),
+                  "The value of Forma================================ is 37");
+            check(bslfmt::vformat("The value of {1:{0}.{2}} is {0}",
+                                  bslfmt::make_format_args(ft.x, ft, prec)),
+                  "The value of Forma================================ is 37");
+
+            check(bslfmt::format("The value of {:{}} is {}", ft, ft.x, ft.x),
+                "The value of FormattableType{37}================== is 37");
+            check(bslfmt::vformat("The value of {:{}} is {}",
+                                bslfmt::make_format_args(ft, ft.x, ft.x)),
+                "The value of FormattableType{37}================== is 37");
 
             std::size_t len = bslfmt::formatted_size(
                                                  "The value of {1:{0}} is {0}",
                                                  ft.x,
                                                  ft);
-             ASSERTV(len, 38 == len);
+             ASSERTV(len, 56 == len);
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
              ASSERT((std::format("The value of {1:{0}} is {0}", ft.x, ft) ==
-                   "The value of FormattableType{37} is 37"));
+                  "The value of FormattableType{37}================== is 37"));
 #endif
              ASSERT((bslfmt::vformat("The value of {1:{0}} is {0}",
                                 bslfmt::make_format_args(ft.x, ft)) ==
-                   "The value of FormattableType{37} is 37"));
+                  "The value of FormattableType{37}================== is 37"));
         }
         { // simple test of format with wchar_t
             const bsl::wstring  intro = L"Here is a simple equation";
@@ -349,6 +393,23 @@ int main(int argc, char **argv)
             check(bslfmt::vformat(L"The value of {1} is {0}",
                                 bslfmt::make_wformat_args(ft.x, ft)),
                 L"The value of FormattableType{37} is 37");
+
+            int prec = 5;
+
+            check(bslfmt::format(L"The value of {1:{0}.{2}} is {0}",
+                                 ft.x,
+                                 ft,
+                                 prec),
+                  L"The value of Forma================================ is 37");
+            check(bslfmt::vformat(L"The value of {1:{0}.{2}} is {0}",
+                                  bslfmt::make_wformat_args(ft.x, ft, prec)),
+                  L"The value of Forma================================ is 37");
+
+            check(bslfmt::format(L"The value of {1:{0}} is {0}", ft.x, ft),
+                  L"The value of FormattableType{37}================== is 37");
+            check(bslfmt::vformat(L"The value of {1:{0}} is {0}",
+                                  bslfmt::make_wformat_args(ft.x, ft)),
+                  L"The value of FormattableType{37}================== is 37");
         }
         { // Test format of char with wchar_t output
             check(bslfmt::format(L"{}", (char)'x'), L"x");
