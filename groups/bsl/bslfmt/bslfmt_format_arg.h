@@ -786,7 +786,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
     static_assert(!bsl::is_same<t_TYPE, long double>::value,
                   "long double not supported by bsl::format");
 #else
-    BSLMF_ASSERT(!bsl::is_same<t_TYPE, long double>::value);
+    BSLMF_ASSERT((!bsl::is_same<t_TYPE, long double>::value));
 #endif
 }
 

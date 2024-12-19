@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 19 15:38:46 2024
+// Generated on Thu Dec 19 15:51:17 2024
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -896,7 +896,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
     static_assert(!bsl::is_same<t_TYPE, long double>::value,
                   "long double not supported by bsl::format");
 #else
-    BSLMF_ASSERT(!bsl::is_same<t_TYPE, long double>::value);
+    BSLMF_ASSERT((!bsl::is_same<t_TYPE, long double>::value));
 #endif
 }
 
