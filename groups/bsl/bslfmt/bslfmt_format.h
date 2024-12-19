@@ -214,8 +214,6 @@ using std::format_to;
 using std::format_to_n;
 using std::format_to_n_result;
 using std::formatted_size;
-using std::make_format_args;
-using std::make_wformat_args;
 using std::vformat_to;
 using std::visit_format_arg;
 using std::wformat_args;
@@ -289,6 +287,24 @@ wstring format(allocator<wchar_t>        alloc,
                const std::locale&        loc,
                wformat_string<t_ARGS...> fmtstr,
                t_ARGS&&...               args);
+
+template <class t_CONTEXT = std::format_context, class... t_ARGS>
+auto make_format_args(t_ARGS&... args);
+    // Return an object, whose type is not specified, holding an array of
+    // `format_arg` types constructed from the specified `args`. The type
+    // returned is implicitly convertible to a `format_args` holding a
+    // reference to the contained array. This function will statically assert
+    // if any of the specified template parameters `t_ARGS` is of type
+    // `long double`.
+
+template <class... t_ARGS>
+auto make_wformat_args(t_ARGS&... args);
+    // Return an object, whose type is not specified, holding an array of
+    // `wformat_arg` types constructed from the specified `args`. The type
+    // returned is implicitly convertible to a `wformat_args` holding a
+    // reference to the contained array. This function will statically assert
+    // if any of the specified template parameters `t_ARGS` is of type
+    // `long double`.
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtstr`, and write the result of this operation into the string
@@ -520,18 +536,37 @@ void vformat_to(wstring            *out,
 
 // FREE FUNCTIONS
 
+
+template <class t_CONTEXT, class... t_ARGS>
+auto make_format_args(t_ARGS&... args)
+{
+    static_assert(
+                 (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
+                 "long double not supported in bsl::format");
+    return std::make_format_args<t_CONTEXT, t_ARGS...>(args...);
+}
+
+template <class... t_ARGS>
+auto make_wformat_args(t_ARGS&... args)
+{
+    static_assert(
+                 (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
+                 "long double not supported in bsl::format");
+    return std::make_wformat_args<t_ARGS...>(args...);
+}
+
 template <class... t_ARGS>
 string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtstr.get(),
-                        make_format_args(args...));
+                        bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
 wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtstr.get(),
-                        make_wformat_args(args...));
+                        bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -541,7 +576,7 @@ string format(const std::locale&       loc,
 {
     return bsl::vformat(loc,
                         fmtstr.get(),
-                        make_format_args(args...));
+                        bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -551,7 +586,7 @@ wstring format(const std::locale&        loc,
 {
     return bsl::vformat(loc,
                         fmtstr.get(),
-                        make_wformat_args(args...));
+                        bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -561,7 +596,7 @@ string format(allocator<char>          alloc,
 {
     return bsl::vformat(alloc,
                         fmtstr.get(),
-                        make_format_args(args...));
+                        bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -571,7 +606,7 @@ wstring format(allocator<wchar_t>        alloc,
 {
     return bsl::vformat(alloc,
                         fmtstr.get(),
-                        make_wformat_args(args...));
+                        bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
@@ -583,7 +618,7 @@ string format(allocator<char>          alloc,
     return bsl::vformat(alloc,
                         loc,
                         fmtstr.get(),
-                        make_format_args(args...));
+                        bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
@@ -595,7 +630,7 @@ wstring format(allocator<char>           alloc,
     return bsl::vformat(alloc,
                         loc,
                         fmtstr.get(),
-                        make_wformat_args(std::forward<t_ARGS>(args)...));
+                        bsl::make_wformat_args(args...));
 }
 
 inline
@@ -680,7 +715,7 @@ requires(bsl::is_same_v<t_STRING, bsl::string>) void format_to(
 {
     bsl::vformat_to(out,
                     fmtstr.get(),
-                    make_format_args(std::forward<t_ARGS>(args)...));
+                    bsl::make_format_args(args...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -691,7 +726,7 @@ void format_to(t_STRING                  *out,
 {
     bsl::vformat_to(out,
                     fmtstr.get(),
-                    make_wformat_args(std::forward<t_ARGS>(args)...));
+                    bsl::make_wformat_args(args...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -704,7 +739,7 @@ void format_to(t_STRING                 *out,
     bsl::vformat_to(out,
                     loc,
                     fmtstr.get(),
-                    make_format_args(std::forward<t_ARGS>(args)...));
+                    bsl::make_format_args(args...));
 }
 
 template <class t_STRING, class... t_ARGS>
@@ -717,7 +752,7 @@ void format_to(t_STRING                  *out,
     bsl::vformat_to(out,
                     loc,
                     fmtstr.get(),
-                    make_wformat_args(std::forward<t_ARGS>(args)...));
+                    bsl::make_wformat_args(args...));
 }
 
 template <class t_STRING, class... t_ARGS>

@@ -352,21 +352,6 @@ makeTestArg(const t_TYPE& val)
     return arr[0];
 }
 
-
-//    bool                            d_bool;
-//t_CHAR                          d_char;
-//int                             d_int;
-//unsigned                        d_unsigned;
-//long long                       d_longlong;
-//unsigned long long              d_unsignedlonglong;
-//float                           d_float;
-//double                          d_double;
-//long double                     d_longdouble;
-//const t_CHAR                   *d_charstar;
-//const void                     *d_voidstar;
-//bsl::basic_string_view<t_CHAR>  d_stringview;
-//bool                            d_ishandle;
-
 template <class t_CHAR>
 bool checkValue(bslfmt::basic_format_arg<
                     bslfmt::basic_format_context<t_CHAR *, t_CHAR> >& arg,
@@ -868,41 +853,44 @@ int main(int argc, char **argv)
             ASSERT(visitor2.d_double == value);
         }
 
+        // TODO: The following should be uncommented if we update our
+        // implementation to support long double.
+        //
         // Testing long double
-
-        {
-            long double value = 7.1;
-            FA          arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longdouble == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longdouble == value);
-        }
-
-        {
-            long double value = 8.2;
-            WFA         arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longdouble == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longdouble == value);
-        }
+        //
+        //{
+        //    long double value = 7.1;
+        //    FA          arg   = makeTestArg<char>(value);
+        //
+        //    TestVisitor<char> visitor;
+        //
+        //    arg.visit(visitor);
+        //
+        //    ASSERT(visitor.d_longdouble == value);
+        //
+        //    TestVisitor<char> visitor2;
+        //
+        //    visit_format_arg(visitor2, arg);
+        //
+        //    ASSERT(visitor2.d_longdouble == value);
+        //}
+        //
+        //{
+        //    long double value = 8.2;
+        //    WFA         arg   = makeTestArg<wchar_t>(value);
+        //
+        //    TestVisitor<wchar_t> visitor;
+        //
+        //    arg.visit(visitor);
+        //
+        //    ASSERT(visitor.d_longdouble == value);
+        //
+        //    TestVisitor<wchar_t> visitor2;
+        //
+        //    visit_format_arg(visitor2, arg);
+        //
+        //    ASSERT(visitor2.d_longdouble == value);
+        //}
 
         // Testing char*
 
