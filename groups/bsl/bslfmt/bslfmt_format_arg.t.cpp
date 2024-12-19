@@ -853,44 +853,46 @@ int main(int argc, char **argv)
             ASSERT(visitor2.d_double == value);
         }
 
-        // TODO: The following should be uncommented if we update our
+        // TODO: The following should be re-added if we update our
         // implementation to support long double.
         //
         // Testing long double
-        //
-        //{
-        //    long double value = 7.1;
-        //    FA          arg   = makeTestArg<char>(value);
-        //
-        //    TestVisitor<char> visitor;
-        //
-        //    arg.visit(visitor);
-        //
-        //    ASSERT(visitor.d_longdouble == value);
-        //
-        //    TestVisitor<char> visitor2;
-        //
-        //    visit_format_arg(visitor2, arg);
-        //
-        //    ASSERT(visitor2.d_longdouble == value);
-        //}
-        //
-        //{
-        //    long double value = 8.2;
-        //    WFA         arg   = makeTestArg<wchar_t>(value);
-        //
-        //    TestVisitor<wchar_t> visitor;
-        //
-        //    arg.visit(visitor);
-        //
-        //    ASSERT(visitor.d_longdouble == value);
-        //
-        //    TestVisitor<wchar_t> visitor2;
-        //
-        //    visit_format_arg(visitor2, arg);
-        //
-        //    ASSERT(visitor2.d_longdouble == value);
-        //}
+
+#if u_BSLFMT_LONG_DOUBLE_IS_SUPPORTED
+        {
+            long double value = 7.1;
+            FA          arg   = makeTestArg<char>(value);
+
+            TestVisitor<char> visitor;
+
+            arg.visit(visitor);
+
+            ASSERT(visitor.d_longdouble == value);
+
+            TestVisitor<char> visitor2;
+
+            visit_format_arg(visitor2, arg);
+
+            ASSERT(visitor2.d_longdouble == value);
+        }
+
+        {
+            long double value = 8.2;
+            WFA         arg   = makeTestArg<wchar_t>(value);
+
+            TestVisitor<wchar_t> visitor;
+
+            arg.visit(visitor);
+
+            ASSERT(visitor.d_longdouble == value);
+
+            TestVisitor<wchar_t> visitor2;
+
+            visit_format_arg(visitor2, arg);
+
+            ASSERT(visitor2.d_longdouble == value);
+        }
+#endif
 
         // Testing char*
 
