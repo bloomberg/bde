@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Integer value for use within `bsl::format` spec parsers
 //
 //@CLASSES:
-//  FormatterSpecificationNumericValue: Integer value its category
+//  FormatterSpecificationNumericValue: Category and its integer value
 //
 //@SEE_ALSO: bslfmt_format.h
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // value (direct value or argument ID), or represents a category without an
 // integer value (default value or next argument).
 //
-// This component is for use by formatters in BSL only (primarily in `bslfmt`)
+// This component is for use by formatters in BDE only (primarily in `bslfmt`)
 
 #include <bslscm_version.h>
 
@@ -59,8 +59,8 @@ namespace bslfmt {
                    // struct FormatterSpecificationNumericValue
                    // -----------------------------------------
 
-/// Type holding an integral value plus a categorization of that value.  This
-/// is/// a value semantic type to hold width and precision entries in a format
+/// Type holding an category plus an integral value.  This is a value semantic
+/// type primarily used to hold width and precision entries in a format
 /// specification.
 struct FormatterSpecificationNumericValue {
   public:
@@ -75,11 +75,11 @@ struct FormatterSpecificationNumericValue {
   private:
     // DATA
     ValueType d_category;  // category
-    int       d_value;    // integral value
+    int       d_value;     // integral value
 
     // FRIENDS
 
-    friend struct FormatterSpecificationNumericValue_Visitor;
+    friend struct FormatterSpecificationNumericValue_ArgVisitor;
 
   public:
     // CREATORS
@@ -141,7 +141,7 @@ struct FormatterSpecificationNumericValue {
 /// This type exists so that FormatterSpecificationSplitter can update
 /// FormatterSpecificationNumericValue to the value contained by a Standard
 /// `basic_format_arg` using the Standard `visit_format_arg` function.
-struct FormatterSpecificationNumericValue_Visitor {
+struct FormatterSpecificationNumericValue_ArgVisitor {
   private:
     // DATA
     FormatterSpecificationNumericValue *d_value_p;
@@ -152,7 +152,7 @@ struct FormatterSpecificationNumericValue_Visitor {
 
     /// Create an instance of `FormatterSpecificationNumericValue_Visitor` that
     /// refers to the object to which the specified `valuePtr` points. 
-    FormatterSpecificationNumericValue_Visitor(
+    FormatterSpecificationNumericValue_ArgVisitor(
                                  FormatterSpecificationNumericValue *valuePtr);
 
     // MANIPULATORS
@@ -220,9 +220,13 @@ inline
 BSLS_KEYWORD_CONSTEXPR_CPP20 int
 FormatterSpecificationNumericValue::value() const
 {
-    if (d_category == e_DEFAULT || d_category == e_NEXT_ARG) {
-        BSLS_THROW(bsl::format_error(
-                      "Access to unspecified width or precision."));  // RETURN
+    if (d_category == e_DEFAULT) {
+        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Access to unspecified nested "
+                                "value in format spec."));            // RETURN
+    }
+    if (d_category == e_NEXT_ARG) {
+        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Failed to identify arg-id for "
+                               "nested value in format spec."));      // RETURN
     }
     return d_value;
 }
@@ -246,8 +250,9 @@ void FormatterSpecificationNumericValue::parse(
                            bool                                needInitialDot)
 {
     // Handle empty string or empty specification.
-    if (*start == end || **start == '}')
+    if (*start == end || **start == '}') {
         return;                                                       // RETURN
+    }
 
     t_ITER current = *start;
 
@@ -287,8 +292,8 @@ void FormatterSpecificationNumericValue::parse(
     while (*current >= '0' && *current <= '9') {
         accumulator = (accumulator * 10) + static_cast<int>(*current - '0');
         if (accumulator > INT_MAX) {
-            BSLS_THROW(bsl::format_error(
-                      "Width or precision or arg-id out of range"));  // RETURN
+            BSLS_THROW(bsl::format_error("Parsed FormatterSpecificationNumericValue "
+                                   "overflow"));                      // RETURN
         }
         ++digitCount;
         ++current;
@@ -349,11 +354,11 @@ void FormatterSpecificationNumericValue::postprocess(
     // encounder a dynamic nested width at this stage it indicates a logic
     // error.
     if (out->d_category == FormatterSpecificationNumericValue::e_NEXT_ARG) {
-        BSLS_THROW(
-          bsl::format_error("Unconverted dynamic nested argument"));  // RETURN
+        BSLS_THROW(bsl::format_error(
+            "INTERNAL ERROR: Unconverted dynamic nested argument"));  // RETURN
     }
 
-    FormatterSpecificationNumericValue_Visitor visitor(out);
+    FormatterSpecificationNumericValue_ArgVisitor visitor(out);
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         // Depending on the type of t_FORMAT_CONTEXT we may need to use
@@ -364,33 +369,34 @@ void FormatterSpecificationNumericValue::postprocess(
     }
 }
 
-              // -------------------------------------------------
-              // struct FormatterSpecificationNumericValue_Visitor
-              // -------------------------------------------------
+            // ----------------------------------------------------
+            // struct FormatterSpecificationNumericValue_ArgVisitor
+            // ----------------------------------------------------
 
 inline
-FormatterSpecificationNumericValue_Visitor::
-    FormatterSpecificationNumericValue_Visitor(
+FormatterSpecificationNumericValue_ArgVisitor::
+    FormatterSpecificationNumericValue_ArgVisitor(
                                   FormatterSpecificationNumericValue *valuePtr)
 : d_value_p(valuePtr)
 {
 }
 
-inline void
-FormatterSpecificationNumericValue_Visitor::operator()(bsl::monostate) const
+inline
+void FormatterSpecificationNumericValue_ArgVisitor::operator()(
+                                                          bsl::monostate) const
 {
     BSLS_THROW(bsl::format_error("Nested argument id out of range"));
 }
 
-inline void
-FormatterSpecificationNumericValue_Visitor::operator()(bool) const
+inline
+void FormatterSpecificationNumericValue_ArgVisitor::operator()(bool) const
 {
     BSLS_THROW(bsl::format_error("Nested value argument must be integral"));
 }
 
 template <class t_TYPE>
 typename bsl::enable_if<bsl::is_integral<t_TYPE>::value>::type
-FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE x) const
+FormatterSpecificationNumericValue_ArgVisitor::operator()(t_TYPE x) const
 {
     if (x < 0 || x > INT_MAX) {
         BSLS_THROW(bsl::format_error("Nested value argument out of range"));
@@ -401,7 +407,7 @@ FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE x) const
 
 template <class t_TYPE>
 typename bsl::enable_if<!bsl::is_integral<t_TYPE>::value>::type
-FormatterSpecificationNumericValue_Visitor::operator()(t_TYPE) const
+FormatterSpecificationNumericValue_ArgVisitor::operator()(t_TYPE) const
 {
     BSLS_THROW(bsl::format_error("Nested value argument must be integral"));
 }

@@ -198,12 +198,12 @@ struct formatter<FormattableType, t_CHAR> {
 
         bsl::basic_stringstream<t_CHAR> converter;
 
-        converter << "FormattableType";
-        converter << "{";
-        converter << value.x;
-        converter << "}";
+        converter << "FormattableType"
+                  << "{"
+                  << value.x
+                  << "}";
 
-        typename bsl::basic_string<t_CHAR> output;
+        bsl::basic_string<t_CHAR> output;
 
         converter >> output;
 

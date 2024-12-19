@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // * postprocessedPrecision: e_DEFAULT
 // * localeSpecificFlag:     false
 //
-// This component is for use by formatters in BSL only (primarily in `bslfmt`)
+// This component is for use by formatters in BDE only (primarily in `bslfmt`)
 
 #include <bslscm_version.h>
 
@@ -125,7 +125,7 @@ class FormatterSpecificationSplitter
 : public FormatterSpecificationSplitter_Enums {
 
   private:
-    // PRIVATE CLASS DATA
+    // PRIVATE CONSTANTS
     static BSLS_KEYWORD_CONSTEXPR_MEMBER size_t k_FILLER_BUFFER_SIZE = 5;
         // Maximum required buffer size to hold a null-terminated unicode code
         // point.
