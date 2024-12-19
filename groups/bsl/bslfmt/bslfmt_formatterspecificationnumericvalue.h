@@ -293,7 +293,7 @@ void FormatterSpecificationNumericValue::parse(
         ++digitCount;
         ++current;
     }
-    value = accumulator;
+    value = static_cast<int>(accumulator);
 
     // No digits
     if (digitCount == 0) {
