@@ -6911,7 +6911,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
 
     FSS::postprocess(&outSpec->d_basicSplitter, context);
 
-    switch (outSpec->d_basicSplitter.postprocessedWidth().valueType()) {
+    switch (outSpec->d_basicSplitter.postprocessedWidth().category()) {
       case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
       case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
@@ -6925,7 +6925,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
       }
     }
 
-    switch (outSpec->d_basicSplitter.postprocessedPrecision().valueType()) {
+    switch (outSpec->d_basicSplitter.postprocessedPrecision().category()) {
       case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
       case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
@@ -7088,7 +7088,7 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
     FSD::postprocess(&finalSpec, formatContext);
 
     const bool isDefaultPrecision =
-         FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().valueType();
+          FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().category();
     const int precision = isDefaultPrecision
                         ? -1
                         : finalSpec.postprocessedPrecision().value();
