@@ -381,14 +381,14 @@
 /- - - - - - - -
 
  Elements of a `bdlat`-message can have an associated formatting mode,
- described in `bdlat_formattingmode`.  This mode neither affects the value nor
+ described in `bdlat_formattingmode`.  This mode does not affect the value nor
  is it used by `bdlat` in any way.  The formatting mode can be used by message
  encoders and decoders.  For example, the `char` type can represent either a
  character or a tiny integer value.  Explicitly specifying the formatting mode
  in this case helps codecs choose the correct representation.
 
  See `balber_beruniversaltagnumber` or `balxml_typesprintutil` for examples of
- the formatting modes available for each type.
+ how the formatting modes are applied.
 
 /Hierarchical Synopsis
 /---------------------
