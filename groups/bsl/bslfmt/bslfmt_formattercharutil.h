@@ -176,6 +176,7 @@ t_ITERATOR FormatterCharUtil<char>::outputFromChar(const char value,
     return out;
 }
 
+inline
 void FormatterCharUtil<char>::toUpper(char *begin, const char *end)
 {
     for (; begin != end; (void)++begin) {
@@ -220,6 +221,7 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char value,
     return out;
 }
 
+inline
 void FormatterCharUtil<wchar_t>::toUpper(char *begin, const char *end)
 {
     for (; begin != end; (void)++begin) {

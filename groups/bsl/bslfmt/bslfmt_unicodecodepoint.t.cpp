@@ -2,10 +2,10 @@
 #include <bslfmt_unicodecodepoint.h>
 
 #include <bsls_bsltestutil.h>
-
-#include <cstdlib>   // `atoi`
+#include <bsls_libraryfeatures.h>
 
 #include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>  // `strlen`
 #include <wchar.h>   // `wcslen`
 
