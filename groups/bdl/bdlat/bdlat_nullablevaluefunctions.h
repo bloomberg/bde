@@ -42,9 +42,13 @@ BSLS_IDENT("$Id: $")
 // void bdlat_nullableValueMakeValue(YOUR_TYPE *object);
 //
 // /// Invoke the specified `manipulator` on the address of the value stored in
-// /// the specified "nullable" `object`.  Return the value from the invocation
-// /// of `manipulator`.  The behavior is undefined if `object` contains a null
-// /// value.
+// /// the specified "nullable" `object`.  The supplied `manipulator` must be a
+// /// callable type that can be called as if it had the following signature:
+// /// ```
+// /// int manipulator(VALUE_TYPE *value);
+// /// ```
+// /// Return the value from the invocation of `manipulator`.  The behavior is
+// /// undefined if `object` contains a null value.
 // template <class MANIPULATOR>
 // int bdlat_nullableValueManipulateValue(YOUR_TYPE    *object,
 //                                        MANIPULATOR&  manipulator);
@@ -52,9 +56,14 @@ BSLS_IDENT("$Id: $")
 // // ACCESSORS
 //
 // /// Invoke the specified `accessor` on a `const`-reference to the value
-// /// stored in the specified "nullable" `object`.  Return the value from the
-// /// invocation of `accessor`.  The behavior is undefined if `object`
-// /// contains a null value.
+// /// stored in the specified "nullable" `object`.  The supplied `accessor`
+// /// must be a callable type that can be called as if it had the following
+// /// signature:
+// /// ```
+// /// int accessor(const VALUE_TYPE& value);
+// /// ```
+// /// Return the value from the invocation of `accessor`.  The behavior is
+// /// undefined if `object` contains a null value.
 // template <class ACCESSOR>
 // int bdlat_nullableValueAccessValue(const YOUR_TYPE& object,
 //                                    ACCESSOR&        accessor);
@@ -607,23 +616,30 @@ namespace bdlat_NullableValueFunctions {
     template <class TYPE>
     void makeValue(TYPE *object);
 
-    /// Invoke the specified `manipulator` on the address of the value
-    /// stored in the specified "nullable" `object`.  Return the value from
-    /// the invocation of `manipulator`.  The behavior is undefined unless
-    /// `object` does not contain a null value.
+    /// Invoke the specified `manipulator` on the address of the value stored
+    /// in the specified "nullable" `object`.  The supplied `manipulator` must
+    /// be a callable type that can be called as if it had the following
+    /// signature:
+    /// ```
+    /// int manipulator(VALUE_TYPE *value);
+    /// ```
+    /// Return the value from the invocation of `manipulator`.  The behavior is
+    /// undefined unless `object` does not contain a null value.
     template <class TYPE, class MANIPULATOR>
-    int manipulateValue(TYPE         *object,
-                        MANIPULATOR&  manipulator);
+    int manipulateValue(TYPE *object, MANIPULATOR& manipulator);
 
     // ACCESSORS
 
-    /// Invoke the specified `accessor` on the non-modifiable value stored
-    /// in the specified "nullable" `object`.  Return the value from the
-    /// invocation of `accessor`.  The behavior is undefined unless `object`
-    /// does not contain a null value.
+    /// Invoke the specified `accessor` on the non-modifiable value stored in
+    /// the specified "nullable" `object`.  The supplied `accessor` must be a
+    /// callable type that can be called as if it had the following signature:
+    /// ```
+    /// int accessor(const VALUE_TYPE& value);
+    /// ```
+    /// Return the value from the invocation of `accessor`.  The behavior is
+    /// undefined unless `object` does not contain a null value.
     template <class TYPE, class ACCESSOR>
-    int accessValue(const TYPE& object,
-                    ACCESSOR&   accessor);
+    int accessValue(const TYPE& object, ACCESSOR& accessor);
 
     /// Return `true` if the specified "nullable" `object` contains a null
     /// value, and `false` otherwise.

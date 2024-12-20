@@ -57,9 +57,15 @@ BSLS_IDENT("$Id: $")
 //
 // /// Invoke the specified `manipulator` on the address of the (modifiable)
 // /// selection of the specified `object`, supplying `manipulator` with the
-// /// corresponding selection information structure.  Return -1 if the
-// /// selection is undefined, and the value returned from the invocation of
-// /// `manipulator` otherwise.
+// /// corresponding selection information structure.  The supplied
+// /// `manipulator` must be a callable type that can be called as if it had
+// /// the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int manipulator(SELECTION_TYPE *selection, const t_INFO& info);
+// /// ```
+// /// Return -1 if the selection is undefined, and the value returned from the
+// /// invocation of `manipulator` otherwise.
 // template <typename MANIPULATOR>
 // int bdlat_choiceManipulateSelection(YOUR_TYPE     *object,
 //                                     MANIPULATOR&   manipulator);
@@ -68,12 +74,17 @@ BSLS_IDENT("$Id: $")
 //
 // /// Invoke the specified `accessor` on the (non-modifiable) selection of the
 // /// specified `object`, supplying `accessor` with the corresponding
-// /// selection information structure.  Return -1 if the selection is
-// /// undefined, and the value returned from the invocation of `accessor`
-// /// otherwise.
+// /// selection information structure.  The supplied `accessor` must be a
+// /// callable type that can be called as if it had the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int accessor(const SELECTION_TYPE& selection, const t_INFO& info);
+// /// ```
+// /// Return -1 if the selection is undefined, and the value returned from the
+// /// invocation of `accessor` otherwise.
 // template <typename ACCESSOR>
 // int bdlat_choiceAccessSelection(const YOUR_TYPE& object,
-//                                 ACCESSOR&       accessor);
+//                                 ACCESSOR&        accessor);
 //
 // /// Return the id of the current selection if the selection is defined, and
 // /// 0 otherwise.
@@ -499,11 +510,17 @@ namespace bdlat_ChoiceFunctions {
                       const char *selectionName,
                       int         selectionNameLength);
 
-    /// Invoke the specified `manipulator` on the address of the
-    /// (modifiable) selection of the specified `object`, supplying
-    /// `manipulator` with the corresponding selection information
-    /// structure.  Return the value returned from the invocation of
-    /// `manipulator`.  The behavior is undefined unless
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// selection of the specified `object`, supplying `manipulator` with the
+    /// corresponding selection information structure.  The supplied
+    /// `manipulator` must be a callable type that can be called as if it had
+    /// the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int manipulator(SELECTION_TYPE *selection, const t_INFO& info);
+    /// ```
+    /// Return the value returned from the invocation of `manipulator`.  The
+    /// behavior is undefined unless
     /// `k_UNDEFINED_SELECTION_ID != selectionId(*object)`.
     template <class TYPE, class MANIPULATOR>
     int manipulateSelection(TYPE *object, MANIPULATOR& manipulator);
@@ -512,8 +529,14 @@ namespace bdlat_ChoiceFunctions {
 
     /// Invoke the specified `accessor` on the (non-modifiable) selection of
     /// the specified `object`, supplying `accessor` with the corresponding
-    /// selection information structure.  Return the value returned from the
-    /// invocation of `accessor`.  The behavior is undefined unless
+    /// selection information structure.  The supplied `accessor` must be a
+    /// callable type that can be called as if it had the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int accessor(const SELECTION_TYPE& selection, const t_INFO& info);
+    /// ```
+    /// Return the value returned from the invocation of `accessor`.  The
+    /// behavior is undefined unless
     /// `k_UNDEFINED_SELECTION_ID != selectionId(object)`.
     template <class TYPE, class ACCESSOR>
     int accessSelection(const TYPE& object, ACCESSOR& accessor);

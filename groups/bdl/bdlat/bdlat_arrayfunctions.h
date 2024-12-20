@@ -32,9 +32,14 @@ BSLS_IDENT("$Id: $")
 // // MANIPULATORS
 //
 // /// Invoke the specified `manipulator` on the address of the element at
-// /// the specified `index` of the specified `array`.  Return the value
-// /// from the invocation of `manipulator`.  The behavior is undefined
-// /// unless `0 <= index` and `index < bdlat_arraySize(*array)`.
+// /// the specified `index` of the specified `array`.  The supplied
+// /// `manipulator` must be a callable type that can be called as if it had
+// /// the following signature:
+// /// ```
+// /// int manipulator(ELEMENT_TYPE *element);
+// /// ```
+// /// Return the value from the invocation of `manipulator`.  The behavior is
+// /// undefined unless `0 <= index` and `index < bdlat_arraySize(*array)`.
 // template <class MANIPULATOR>
 // int bdlat_arrayManipulateElement(YOUR_TYPE    *array,
 //                                  MANIPULATOR&  manipulator,
@@ -51,9 +56,14 @@ BSLS_IDENT("$Id: $")
 //
 // // ACCESSORS
 //
-// /// Invoke the specified `accessor` on a `const`-reference to the
-// /// element at the specified `index` of the specified `array`.  Return
-// /// the value from the invocation of `accessor`.  The behavior is
+// /// Invoke the specified `accessor` on a `const`-reference to the element at
+// /// the specified `index` of the specified `array`.  The supplied `accessor`
+// /// must be a callable type that can be called as if it had the following
+// /// signature:
+// /// ```
+// /// int accessor(const ELEMENT_TYPE& element);
+// /// ```
+// /// Return the value from the invocation of `accessor`.  The behavior is
 // /// undefined unless `0 <= index` and `index < bdlat_arraySize(array)`.
 // template <class ACCESSOR>
 // int bdlat_arrayAccessElement(const YOUR_TYPE& array,
@@ -687,10 +697,15 @@ namespace bdlat_ArrayFunctions {
 
     // MANIPULATORS
 
-    /// Invoke the specified `manipulator` on the address of the element at
-    /// the specified `index` of the specified `array`.  Return the value
-    /// from the invocation of `manipulator`.  The behavior is undefined
-    /// unless `0 <= index` and `index < size(*array)`.
+    /// Invoke the specified `manipulator` on the address of the element at the
+    /// specified `index` of the specified `array`.  The supplied `manipulator`
+    /// must be a callable type that can be called as if it had the following
+    /// signature:
+    /// ```
+    //  int manipulator(ELEMENT_TYPE *element);
+    /// ```
+    /// Return the value from the invocation of `manipulator`.  The behavior is
+    /// undefined unless `0 <= index` and `index < size(*array)`.
     template <class TYPE, class MANIPULATOR>
     int manipulateElement(TYPE         *array,
                           MANIPULATOR&  manipulator,
@@ -708,9 +723,14 @@ namespace bdlat_ArrayFunctions {
     // ACCESSORS
 
     /// Invoke the specified `accessor` on the non-modifiable element at the
-    /// specified `index` of the specified `array`.  Return the value from
-    /// the invocation of `accessor`.  The behavior is undefined unless
-    /// `0 <= index` and `index < size(array)`.
+    /// specified `index` of the specified `array`.  The supplied `accessor`
+    /// must be a callable type that can be called as if it had the following
+    /// signature:
+    /// ```
+    /// int accessor(const ELEMENT_TYPE& element);
+    /// ```
+    /// Return the value from the invocation of `accessor`.  The behavior is
+    /// undefined unless `0 <= index` and `index < size(array)`.
     template <class TYPE, class ACCESSOR>
     int accessElement(const TYPE& array,
                       ACCESSOR&   accessor,

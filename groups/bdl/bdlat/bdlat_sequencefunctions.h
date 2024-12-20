@@ -45,9 +45,15 @@ BSLS_IDENT("$Id: $")
 // /// Invoke the specified `manipulator` on the address of the (modifiable)
 // /// attribute indicated by the specified `attributeName` and
 // /// `attributeNameLength` of the specified `object`, supplying `manipulator`
-// /// with the corresponding attribute information structure.  Return non-zero
-// /// value if the attribute is not found, and the value returned from the
-// /// invocation of `manipulator` otherwise.
+// /// with the corresponding attribute information structure.  The supplied
+// /// `manipulator` must be a callable type that can be called as if it had
+// /// the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+// /// ```
+// /// Return non-zero value if the attribute is not found, and the value
+// /// returned from the invocation of `manipulator` otherwise.
 // template <typename MANIPULATOR>
 // int bdlat_sequenceManipulateAttribute(YOUR_TYPE    *object,
 //                                       MANIPULATOR&  manipulator,
@@ -57,9 +63,14 @@ BSLS_IDENT("$Id: $")
 // /// Invoke the specified `manipulator` on the address of the (modifiable)
 // /// attribute indicated by the specified `attributeId` of the specified
 // /// `object`, supplying `manipulator` with the corresponding attribute
-// /// information structure.  Return non-zero value if the attribute is not
-// /// found, and the value returned from the invocation of `manipulator`
-// /// otherwise.
+// /// information structure.  The supplied `manipulator` must be a callable
+// /// type that can be called as if it had the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+// /// ```
+// /// Return non-zero value if the attribute is not found, and the value
+// /// returned from the invocation of `manipulator` otherwise.
 // template <typename MANIPULATOR>
 // int bdlat_sequenceManipulateAttribute(YOUR_TYPE    *object,
 //                                       MANIPULATOR&  manipulator,
@@ -68,9 +79,15 @@ BSLS_IDENT("$Id: $")
 // /// Invoke the specified `manipulator` sequentially on the address of each
 // /// (modifiable) attribute of the specified `object`, supplying
 // /// `manipulator` with the corresponding attribute information structure
-// /// until such invocation returns non-zero value.  Return the value from the
-// /// last invocation of `manipulator` (i.e., the invocation that terminated
-// /// the sequence).
+// /// until such invocation returns non-zero value.  The supplied
+// /// `manipulator` must be a callable type that can be called as if it had
+// /// the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+// /// ```
+// /// Return the value from the last invocation of `manipulator` (i.e., the
+// /// invocation that terminated the sequence).
 // template <typename MANIPULATOR>
 // int bdlat_sequenceManipulateAttributes(YOUR_TYPE    *object,
 //                                        MANIPULATOR&  manipulator);
@@ -80,9 +97,14 @@ BSLS_IDENT("$Id: $")
 // /// Invoke the specified `accessor` on the (non-modifiable) attribute of the
 // /// specified `object` indicated by the specified `attributeName` and
 // /// `attributeNameLength`, supplying `accessor` with the corresponding
-// /// attribute information structure.  Return non-zero value if the attribute
-// /// is not found, and the value returned from the invocation of `accessor`
-// /// otherwise.
+// /// attribute information structure.  The supplied `accessor` must be a
+// /// callable type that can be called as if it had the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+// /// ```
+// /// Return non-zero value if the attribute is not found, and the value
+// /// returned from the invocation of `accessor` otherwise.
 // template <typename ACCESSOR>
 // int bdlat_sequenceAccessAttribute(const YOUR_TYPE&  object,
 //                                   ACCESSOR&         accessor,
@@ -91,9 +113,15 @@ BSLS_IDENT("$Id: $")
 //
 // /// Invoke the specified `accessor` on the attribute of the specified
 // /// `object` with the given `attributeId`, supplying `accessor` with the
-// /// corresponding attribute information structure.  Return non-zero if the
-// /// attribute is not found, and the value returned from the invocation of
-// /// `accessor` otherwise.
+// /// corresponding attribute information structure.  The supplied `accessor`
+// /// must be a callable type that can be called as if it had the following
+// /// signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+// /// ```
+// /// Return non-zero if the attribute is not found, and the value returned
+// /// from the invocation of `accessor` otherwise.
 // template <typename ACCESSOR>
 // int bdlat_sequenceAccessAttribute(const YOUR_TYPE& object,
 //                                   ACCESSOR&        accessor,
@@ -102,8 +130,14 @@ BSLS_IDENT("$Id: $")
 // /// Invoke the specified `accessor` sequentially on each attribute of the
 // /// specified `object`, supplying `accessor` with the corresponding
 // /// attribute information structure until such invocation returns a non-zero
-// /// value.  Return the value from the last invocation of `accessor` (i.e.,
-// /// the invocation that terminated the sequence).
+// /// value.  The supplied `accessor` must be a callable type that can be
+// /// called as if it had the following signature:
+// /// ```
+// /// template <class t_INFO>
+// /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+// /// ```
+// /// Return the value from the last invocation of `accessor` (i.e., the
+// /// invocation that terminated the sequence).
 // template <typename ACCESSOR>
 // int bdlat_sequenceAccessAttributes(const YOUR_TYPE& object,
 //                                    ACCESSOR&        accessor);
@@ -602,46 +636,68 @@ namespace bdlat_SequenceFunctions {
 
     // MANIPULATORS
 
-    /// Invoke the specified `manipulator` on the address of the
-    /// (modifiable) attribute indicated by the specified `attributeName`
-    /// and `attributeNameLength` of the specified `object`, supplying
-    /// `manipulator` with the corresponding attribute information
-    /// structure.  Return non-zero value if the attribute is not found, and
-    /// the value returned from the invocation of `manipulator` otherwise.
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `attributeName` and
+    /// `attributeNameLength` of the specified `object`, supplying
+    /// `manipulator` with the corresponding attribute information structure.
+    /// The supplied `manipulator` must be a callable type that can be called
+    /// as if it had the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+    /// ```
+    /// Return non-zero value if the attribute is not found, and the value
+    /// returned from the invocation of `manipulator` otherwise.
     template <class TYPE, class MANIPULATOR>
     int manipulateAttribute(TYPE         *object,
                             MANIPULATOR&  manipulator,
                             const char   *attributeName,
                             int           attributeNameLength);
 
-    /// Invoke the specified `manipulator` on the address of the
-    /// (modifiable) attribute indicated by the specified `attributeId` of
-    /// the specified `object`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return non-zero
-    /// value if the attribute is not found, and the value returned from the
-    /// invocation of `manipulator` otherwise.
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `attributeId` of the specified
+    /// `object`, supplying `manipulator` with the corresponding attribute
+    /// information structure.  The supplied `manipulator` must be a callable
+    /// type that can be called as if it had the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+    /// ```
+    /// Return non-zero value if the attribute is not found, and the value
+    /// returned from the invocation of `manipulator` otherwise.
     template <class TYPE, class MANIPULATOR>
     int manipulateAttribute(TYPE         *object,
                             MANIPULATOR&  manipulator,
                             int           attributeId);
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of the specified `object`, supplying
+    /// Invoke the specified `manipulator` sequentially on the address of each
+    /// (modifiable) attribute of the specified `object`, supplying
     /// `manipulator` with the corresponding attribute information structure
-    /// until such invocation returns non-zero value.  Return the value
-    /// from the last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
+    /// until such invocation returns non-zero value.  The supplied
+    /// `manipulator` must be a callable type that can be called as if it had
+    /// the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int manipulator(ATTRIBUTE_TYPE *attribute, const t_INFO& info);
+    /// ```
+    /// Return the value from the last invocation of `manipulator` (i.e., the
+    /// invocation that terminated the sequence).
     template <class TYPE, class MANIPULATOR>
     int manipulateAttributes(TYPE *object, MANIPULATOR& manipulator);
 
     // ACCESSORS
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute of
-    /// the specified `object` indicated by the specified `attributeName`
-    /// and `attributeNameLength`, supplying `accessor` with the
-    /// corresponding attribute information structure.  Return non-zero
-    /// value if the attribute is not found, and the value returned from the
-    /// invocation of `accessor` otherwise.
+    /// the specified `object` indicated by the specified `attributeName` and
+    /// `attributeNameLength`, supplying `accessor` with the corresponding
+    /// attribute information structure.  The supplied `accessor` must be a
+    /// callable type that can be called as if it had the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+    /// ```
+    /// Return non-zero value if the attribute is not found, and the value
+    /// returned from the invocation of `accessor` otherwise.
     template <class TYPE, class ACCESSOR>
     int accessAttribute(const TYPE&  object,
                         ACCESSOR&    accessor,
@@ -650,9 +706,15 @@ namespace bdlat_SequenceFunctions {
 
     /// Invoke the specified `accessor` on the attribute of the specified
     /// `object` with the given `attributeId`, supplying `accessor` with the
-    /// corresponding attribute information structure.  Return non-zero if
-    /// the attribute is not found, and the value returned from the
-    /// invocation of `accessor` otherwise.
+    /// corresponding attribute information structure.  The supplied `accessor`
+    /// must be a callable type that can be called as if it had the following
+    /// signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+    /// ```
+    /// Return non-zero if the attribute is not found, and the value returned
+    /// from the invocation of `accessor` otherwise.
     template <class TYPE, class ACCESSOR>
     int accessAttribute(const TYPE& object,
                         ACCESSOR&   accessor,
@@ -661,8 +723,14 @@ namespace bdlat_SequenceFunctions {
     /// Invoke the specified `accessor` sequentially on each attribute of
     /// the specified `object`, supplying `accessor` with the corresponding
     /// attribute information structure until such invocation returns a
-    /// non-zero value.  Return the value from the last invocation of
-    /// `accessor` (i.e., the invocation that terminated the sequence).
+    /// non-zero value.  The supplied `accessor` must be a callable type that
+    /// can be called as if it had the following signature:
+    /// ```
+    /// template <class t_INFO>
+    /// int accessor(const ATTRIBUTE_TYPE& attribute, const t_INFO& info);
+    /// ```
+    /// Return the value from the last invocation of `accessor` (i.e., the
+    /// invocation that terminated the sequence).
     template <class TYPE, class ACCESSOR>
     int accessAttributes(const TYPE& object, ACCESSOR& accessor);
 
@@ -677,8 +745,7 @@ namespace bdlat_SequenceFunctions {
     /// Return true if the specified `object` has an attribute with the
     /// specified `attributeId`, and false otherwise.
     template <class TYPE>
-    bool hasAttribute(const TYPE& object,
-                      int         attributeId);
+    bool hasAttribute(const TYPE& object, int attributeId);
 
 }  // close namespace bdlat_SequenceFunctions
 

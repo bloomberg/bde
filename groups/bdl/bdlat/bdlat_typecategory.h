@@ -88,11 +88,11 @@ BSLS_IDENT("$Id: $")
 // type trait corresponding to its `bdlat` type category.  For example, if
 // `TYPE` is a `bdlat` "array" type then:
 // ```
-// 1 == bdlat_ArrayFunctions::IsArray<TYPE>::value;
+// true == bdlat_ArrayFunctions::IsArray<TYPE>::value;
 // ```
 // and if `TYPE` is a `bdlat` "choice" type then:
 // ```
-// 1 == bdlat_ChoiceFunctions::IsChoice<TYPE>::value;
+// true == bdlat_ChoiceFunctions::IsChoice<TYPE>::value;
 // ```
 // Additionally, `TYPE` must also meet the other requirements (e.g., defined
 // functions, defined types) of its `bdlat` type category.
@@ -380,7 +380,7 @@ BSLS_IDENT("$Id: $")
 // There are two ways that a type can be recognized as a dynamic type:
 //
 // * specializing the `bdlat_TypeCategoryDeclareDynamic` trait and providing a
-//   `value` of 1, and
+//   `value` of `true`, and
 // * implementing all of the requirements (i.e., setting of required traits)
 //   of each of the `bdlat` categories the type can assume.
 //
@@ -393,7 +393,8 @@ BSLS_IDENT("$Id: $")
 // runtime logic that determines its current runtime category.  See
 // [](#Customization Points).
 //
-// A type of the `bdlat` "dynamic" category is illustrated in [](#Example 3).
+// A type of the `bdlat` "dynamic" category is illustrated in
+// [](#Example 3: Dynamic Typing and Dispatch).
 //
 ///Trait: `bdlat_TypeCategoryDeclareDynamic`
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -508,7 +509,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Notice that a partial specialization was created for objects falling into
 // the "dynamic" category.  Determining the value of such objects will be
-// explored in [](#Example 3).
+// explored in [](#Example 3: Dynamic Typing and Dispatch).
 //
 // Now, we can implement the `printCategoryAndValue` function in terms of the
 // `printCategory` and `printValue` helper functions:
@@ -532,8 +533,6 @@ BSLS_IDENT("$Id: $")
 // Finally, we can exercise the `printCategoryAndValue` function on objects
 // that fall in different (non-dynamic) type categories.
 // ```
-// using namespace BloombergLP;
-//
 // void runUsageExample1()
 // {
 //     bsl::ostringstream oss;
@@ -572,7 +571,7 @@ BSLS_IDENT("$Id: $")
 // For run-time dispatching we can use the utility functions provided by
 // `bdlat_TypeCategoryUtil`.  Suppose we wish to examine the type category and
 // value of an arbitrary `bdlat` compatible object, as we did in
-// [](#Example 1).
+// [](#Example 1: Compile-Time Dispatch by Category Type).
 //
 // First, we define `mine::PrintAccessor`, a functor that encapsulates the
 // action to be taken:
@@ -664,8 +663,6 @@ BSLS_IDENT("$Id: $")
 // given object dispatch control to the corresponding overload of the accessor
 // functor:
 // ```
-// using namespace BloombergLP;
-//
 // void runUsageExample2()
 // {
 //     bsl::ostringstream oss;
@@ -843,8 +840,10 @@ BSLS_IDENT("$Id: $")
 // Notice that the customization points were implemented for just the two type
 // categories that `MyDynamicType` can achieve: "array" and "simple".
 //
-// Finally, we can see how the facilities we developed in [](#Example 1) and
-// [](#Example 2) behave when given a "dynamic" type;
+// Finally, we can see how the facilities we developed in
+// [](#Example 1: Compile-Time Dispatch by Category Type) and
+// [](#Example 2: Run-Time Dispatch by bdlat_TypeCategoryUtil) behave when
+// given a "dynamic" type;
 // ```
 // void runUsageExample3()
 // {
@@ -869,8 +868,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // We instruct object to behave as a vector and see that the `bdlat` framework
 // treats the object as a member of the "array" category and the
-// `PrintAccessor` we defined in [](#Example 2) treats `object` as a member of
-// the "array" category:
+// `PrintAccessor` we defined in
+// [](#Example 2: Run-Time Dispatch by bdlat_TypeCategoryUtil) treats `object`
+// as a member of the "array" category:
 // ```
 //     object.makeVectorChar();
 //
@@ -947,7 +947,7 @@ namespace BloombergLP {
 /// types that have *none* or only one of the above traits and still be
 /// considered dynamic (e.g., "variants" of simple types etc).  In order for
 /// the `bdlat` framework to treat these types as dynamic types, this
-/// `struct` must be specialized with a `value` of 1 or inheritance from
+/// `struct` must be specialized with a `value` of `true` or inheritance from
 /// bsl::true_type, and the `bdlat_TypeCategoryFunctions::select` function
 /// must be implemented, along with the appropriate
 /// `bdlat_TypeCategoryFunctions::manipulate*` and

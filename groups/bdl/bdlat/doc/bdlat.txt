@@ -4,14 +4,391 @@
 
 @MNEMONIC: Basic Development Library Attribute Types (bdlat)
 
-@DESCRIPTION: The `bdlat` package provides generic functions to work with the
- different concepts of attribute types.  These concepts group common behaviors
- ("array", "choice", "enumeration", "nullable", "sequence", or "value type").
- Once a type is made a model of one of these concepts, it can be used
- seamlessly by generic code such as the xml/ber encoders and decoders.
- Therefore, whenever a new type needs to be encodable, the codecs themselves do
- not need to be modified, but the type just needs to implement the necessary
- functions to expose the concept.
+@DESCRIPTION: The `bdlat` package provides a compile time framework to allow
+ introspecting the types and values of a document representations, as long as
+ that document representation conforms to the `bdlat` concepts defined in this
+ package (and documented below).  This allows, for example, writing encoders
+ (and decoders) for various message formats (like JSON, XML, BER) in a way that
+ is agnostic to the concrete types of the message objects being encoded (and
+ decoded).  The encoder can navigate the message representation using the
+ `bdlat` concepts to encode its value without a dependency on the concrete
+ (non-simple) types involved.  More generically, `bdlat` enables users to
+ decouple a set of operations provided on message objects, from the one or more
+ concrete representation of those messages.
+
+ As an example, the `baljsn` package provides an encoder (and decoder) for JSON
+ that works on `bdlat` compatible message objects.  In practice, `baljsn`
+ encoders and decoders are instantiated on a wide variety of message types
+ including: dynamic in-process message object representations (e.g.,
+ `Aggregate` objects), code generated message representations that are specific
+ (and optimized) for a specific schema, and a variety of other user defined
+ message types.
+
+ The `bdlat` package defines 8 different "type categories", which are the set
+ of concepts that are used to model a document.  These type categories are
+ summarized below, and then described in more detail in the next sections.
+
+ 1. **array** - a sequence of elements of the same type, analogous to a C++
+    array ([details](#Arrays)).
+
+ 2. **choice** - a value whose type is selected from a fixed set of types,
+    analogous to a `std::variant` ([details](#Choices)).
+
+ 3. **customized type** - used to customize an existing type, such as strings
+    with a limited number of characters and/or with a restricted character set,
+    or integers with a limited range of values ([details](#Customized Types)).
+
+ 4. **dynamic type** - another variant-like type, but with a different
+    interface - the number of alternatives is not fixed and they are not
+    indexed.  The actual type category can be determined at runtime only
+    ([details](#Dynamic Types)).
+
+ 5. **enumeration** - a closed set of named integer constants, analogous to a
+    C++ `enum` ([details](#Enumerations)).
+
+ 6. **nullable value** - represents a value that may, or may not, be present,
+    analogous to a `std::optional` ([details](#Nullable Values)).
+
+ 7. **sequence** - a sequence of elements of different types, where the number
+    of elements, order, and types in the sequence are fixed, analogous to a C++
+    `struct` ([details](#Sequences)).
+
+ 8. **simple type** - a scalar type represented by specific concrete C++
+    vocabulary type, like `int`, `double`, `bsl::string`, `bdlt::Date`, etc.
+    It is a kind of default category - if a type does not belong to any of the
+    above categories, it is a simple type ([details](#Simple Types)).
+
+ For each category of type listed above, the set of customization points a user
+ should define in order to expose this category can be found in the
+ corresponding `bdlat_*functions` component:
+
+ | Concept (Type Category) | Component with Customization Points |
+ |-------------------------|-------------------------------------|
+ | Array                   | `bdlat_arrayfunctions`              |
+ | Choice                  | `bdlat_choicefunctions`             |
+ | Customized Type         | `bdlat_customizedtypefunctions`     |
+ | Dynamic Type            | `bdlat_typecategory`                |
+ | Enumeration             | `bdlat_enumfunctions`               |
+ | Nullable Value          | `bdlat_nullablevaluefunctions`      |
+ | Sequence                | `bdlat_sequencefunctions`           |
+ | Simple Type             | N/A                                 |
+
+/Other Key Facilities
+/ - - - - - - - - - -
+
+ - `bdlat_typecategory` - this component provides a function to query which
+   type category (or concept) that an object within a document models.  Note
+   that this is **not** a user customization point, but determines the type
+   from the customization points defined for a type.
+
+ - `bdlat_valuetypefunctions` - Provides additional customization points that
+   apply across type categories, including assign and reset operations.
+
+/Arrays
+/ - - -
+
+ An array is a sequence of elements of the same type. Each element can be
+ addressed by a unique index, starting from 0.
+
+ The main properties of an array are:
+
+ - The number of elements, called "size", and
+ - Element type.
+
+ The size can be requested and set.  When setting the size, either the excess
+ elements at the end of the sequence are removed or new elements with a default
+ value are added.
+
+ Individual array elements can be accessed (and manipulated) using their index
+ and an accessor- or manipulator-callback.
+
+ An array type must implement the following customization points:
+
+ | Customization Point (manipulator) | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_arrayManipulateElement`    | apply manipulator callback to element  |
+ | `bdlat_arrayResize`               | set the new size                       |
+
+ | Customization Point (accessor)    | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_arrayAccessElement`        | apply accessor callback to element     |
+ | `bdlat_arraySize`                 | return array size                      |
+
+ | Customization Point (meta-function)          | Note                        |
+ |----------------------------------------------|-----------------------------|
+ | `bdlat_ArrayFunctions::IsArray<T>::value`    | is an array?                |
+ | `bdlat_ArrayFunctions::ElementType<T>::Type` | element type                |
+
+ Details of these operations are described in: `bdlat_arrayfunctions`
+
+/Choices
+/- - - -
+
+ A choice type is defined by a fixed set of types.  At every moment in time it
+ has a value of one of these types, or has no value if no selection has been
+ made.  Each type from the set has a unique numeric ID and a unique symbolic
+ name that can be used to address it.
+
+ The current selection can be changed using the "make selection" operation.
+ Either numeric or symbolic ID can be used to specify the desired type.  After
+ a successful selection change, the choice contains the default value for the
+ selected type.
+
+ The current selection ID can be requested, but only its numeric value.
+
+ The value of a selection can be accessed or manipulated by supplying an
+ appropriate callbacks to the respective "access" or "manipulate" function. The
+ accessor (or manipulator) callback is supplied not only the value, but also an
+ additional read-only meta-information object.  The exact type of the
+ meta-information object supplied to the accessor/manipulator callback is
+ unspecified, but it is guaranteed to provide the following member functions:
+
+ - `int id()` - a numeric selection ID.
+ - `const char *name()` - a pointer to a symbolic name.
+ - `int nameLength()` - the symbolic name length.
+ - `const char *annotation()` - a null-terminated description text.
+ - `int formattingMode()` - a value formating mode used by encoders/decoders
+   (see [](#Formatting Mode) for more info).
+
+ A choice type must implement the following customization points:
+
+ | Customization Point (manipulator) | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_choiceManipulateSelection` | apply manipulator callback to selection|
+ | `bdlat_choiceMakeSelection`       | make new selection                     |
+
+ | Customization Point (accessor)    | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_choiceAccessSelection`     | apply accessor callback to selection   |
+ | `bdlat_choiceSelectionId`         | return selection ID                    |
+
+ | Customization Point (meta-function)          | Note                        |
+ |----------------------------------------------|-----------------------------|
+ | `bdlat_ChoiceFunctions::IsChoice<T>::value`  | is a choice?                |
+
+ Details of these operations are described in: `bdlat_choicefunctions`
+
+/Customized Types
+/ - - - - - - - -
+
+ A customized type is a wrapper for another "base" type, such as `int` or
+ `string`.  Only 2 operations are available for such types:
+
+ - Convert to a reference to base type.
+ - Convert from a reference to base type.
+
+ Additional post-processing logic can be applied inside the second operation,
+ such as the limits/restrictions check.
+
+ A customized type must implement the following customization points:
+
+ | Customization Point (manipulator)         | Note                           |
+ |-------------------------------------------|--------------------------------|
+ | `bdlat_customizedTypeConvertFromBaseType` | convert from base value        |
+
+ | Customization Point (accessor)            | Note                           |
+ |-------------------------------------------|--------------------------------|
+ | `bdlat_customizedTypeConvertToBaseType`   | convert to base value          |
+
+ | Customization Point (meta-function)                         | Note         |
+ |-------------------------------------------------------------|--------------|
+ | `bdlat_CustomizedTypeFunctions::IsCustomizedType<T>::value` | is a cust. T?|
+ | `bdlat_CustomizedTypeFunctions::BaseType<T>::Type`          | base type    |
+
+ Details of these operations are described in: `bdlat_customizedtypefunctions`
+
+/Dynamic Types
+/- - - - - - -
+
+ Dynamic types are used to implement generic in-process document objects that
+ can be used to represent any `bdlat`-compatible document. For example,
+ `bdld::Datum`, `bdljsn::Json`, or "Aggregate" object types might implement
+ this dynamic type concept in order to allow `bdlat` documents to be encoded
+ and decoded from that representation.
+
+ As a consequence of this fact, the actual category of such a type can only be
+ determined at runtime.  The `bdlat_TypeCategory::Select` meta-function applied
+ to a dynamic type always returns "dynamic type" category.  In order to detect
+ the current category the `bdlat_TypeCategory::select` function is to be
+ applied to an instance (object) of the type.   However, applications should
+ generally use the `bdlat_TypeCategoryUtil::manipulateByCategory` and
+ `bdlat_TypeCategoryUtil::accessByCategory` functions instead to handle dynamic
+ values.  These functions detect the category inside and invoke the
+ appropriate handler, providing it with this information.
+
+ A dynamic type must implement the following customization points:
+
+ | Customization Point (manipulator)            | Note                        |
+ |----------------------------------------------|-----------------------------|
+ | `bdlat_typeCategoryManipulateArray`          | manipulate array            |
+ | `bdlat_typeCategoryManipulateChoice`         | manipulate choice           |
+ | `bdlat_typeCategoryManipulateCustomizedType` | manipulate customized type  |
+ | `bdlat_typeCategoryManipulateEnumeration`    | manipulate enumeration      |
+ | `bdlat_typeCategoryManipulateNullableValue`  | manipulate nullable value   |
+ | `bdlat_typeCategoryManipulateSequence`       | manipulate sequence         |
+ | `bdlat_typeCategoryManipulateSimple`         | manipulate simple type      |
+
+ | Customization Point (accessor)               | Note                        |
+ |----------------------------------------------|-----------------------------|
+ | `bdlat_typeCategoryAccessArray`              | access array                |
+ | `bdlat_typeCategoryAccessChoice`             | access choice               |
+ | `bdlat_typeCategoryAccessCustomizedType`     | access customized type      |
+ | `bdlat_typeCategoryAccessEnumeration`        | access enumeration          |
+ | `bdlat_typeCategoryAccessNullableValue`      | access nullable value       |
+ | `bdlat_typeCategoryAccessSequence`           | access sequence             |
+ | `bdlat_typeCategoryAccessSimple`             | access simple type          |
+
+ | Customization Point (meta-function)          | Note                        |
+ |----------------------------------------------|-----------------------------|
+ | `bdlat_TypeCategoryDeclareDynamic<T>::value` | is a dynamic type?          |
+
+ Details of these operations are described in:
+ [](bdlat_typecategory#Dynamic Types) chapter in `bdlat_typecategory`
+
+/Enumerations
+/ - - - - - -
+
+ An enumeration is a fixed set of integer values, each of which additionally
+ has a symbolic (string) name.  Each enumeration type must provide 4 functions
+ to convert values from/to int/string.
+
+ One of the enumeration values can optionally be declared as a special
+ "fallback" value.  In this case 2 more operations are required - setting and
+ checking the value.
+
+ An enumeration type must implement the following customization points:
+
+ | Customization Point (manipulator) | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_enumFromInt`               | convert from integer value             |
+ | `bdlat_enumFromString`            | convert from symbolic name             |
+ | `bdlat_enumMakeFallback`          | assign the fallback value              |
+
+ | Customization Point (accessor)    | Note                                   |
+ |-----------------------------------|----------------------------------------|
+ | `bdlat_enumToInt`                 | convert to integer value               |
+ | `bdlat_enumToString`              | convert from symbolic name             |
+ | `bdlat_enumHasFallback`           | has fallback value?                    |
+ | `bdlat_enumIsFallback`            | is the fallback value?                 |
+
+ | Customization Point (meta-function)                    | Note              |
+ |--------------------------------------------------------|-------------------|
+ | `bdlat_EnumFunctions::IsEnumeration<T>::value`         | is an enumeration?|
+ | `bdlat_EnumFunctions::HasFallbackEnumerator<T>::value` | has fallback?     |
+
+ Details of these operations are described in: `bdlat_enumfunctions`
+
+/Nullable Values
+/- - - - - - - -
+
+ A nullable value is a type that has special "empty" or "null" value among
+ others.  It provides the following operations:
+
+ - Check whether the current value is null or not.
+ - Set a default non-null value.
+ - Access the current non-null value using an accessor callback.
+ - Manipulate the current non-null value using a manipulator callback.
+
+ A nullable value type must implement the following customization points:
+
+ | Customization Point (manipulator)    | Note                                |
+ |--------------------------------------|-------------------------------------|
+ | `bdlat_nullableValueMakeValue`       | assign default non-null value       |
+ | `bdlat_nullableValueManipulateValue` | apply manipulator callback to value |
+
+ | Customization Point (accessor)       | Note                                |
+ |--------------------------------------|-------------------------------------|
+ | `bdlat_nullableValueAccessValue`     | apply accessor callback to value    |
+ | `bdlat_nullableValueIsNull`          | is null?                            |
+
+ | Customization Point (meta-function)                       | Note           |
+ |-----------------------------------------------------------|----------------|
+ | `bdlat_NullableValueFunctions::IsNullableValue<T>::value` | is a null. v.? |
+ | `bdlat_NullableValueFunctions::ValueType<T>::Type`        | value type     |
+
+ Details of these operations are described in: `bdlat_nullablevaluefunctions`
+
+/Sequences
+/- - - - -
+
+ A sequence is a fixed ordered sequence of elements of different types, called
+ "attributes".  Each attribute has a unique numeric ID and a unique symbolic
+ name.  Each attribute can be accessed or manipulated by a callback
+ individually using its ID or name.  Also, all attributes can be processed in
+ one call - the provided generic callback is applied to each attribute in
+ consecutive order.
+
+ Each accessor and manipulator invoked on an attribute is supplied with an
+ additional read-only meta-information object.  The exact type of the
+ meta-information object supplied to the accessor/manipulator callback is
+ unspecified, but it is guaranteed to provide the following member functions:
+
+ - `int id()` - a numeric attribute ID.
+ - `const char *name()` - a pointer to a symbolic attribute name.
+ - `int nameLength()` - the symbolic name length.
+ - `const char *annotation()` - a null-terminated description text.
+ - `int formattingMode()` - a value formating mode used by encoders/decoders
+   (see [](#Formatting Mode) for more info).
+
+ A sequence type must implement the following customization points:
+
+ | Customization Point (manipulator)    | Note                                |
+ |--------------------------------------|-------------------------------------|
+ | `bdlat_sequenceManipulateAttribute`  | apply manipulator callback to attr. |
+ | `bdlat_sequenceManipulateAttributes` | apply manipulator callback to attrs.|
+
+ | Customization Point (accessor)       | Note                                |
+ |--------------------------------------|-------------------------------------|
+ | `bdlat_sequenceAccessAttribute`      | apply accessor callback to attr.    |
+ | `bdlat_sequenceAccessAttributes`     | apply accessor callback to attrs.   |
+ | `bdlat_sequenceHasAttribute`         | has the attibute?                   |
+
+ | Customization Point (meta-function)             | Note                     |
+ |-------------------------------------------------|--------------------------|
+ | `bdlat_SequenceFunctions::IsSequence<T>::value` | is a sequence?           |
+
+ Details of these operations are described in: `bdlat_sequencefunctions`
+
+/Simple Types
+/ - - - - - -
+
+ Simple types (sometimes referred as "scalar types") are all types that do not
+ belong to any of the other categories, such as numbers, strings, and date-time
+ values.  Simple types include:
+
+ - `bool`
+ - `int`
+ - `unsigned int`
+ - `long`
+ - `float`
+ - `double`
+ - `bdldfp::Decimal64`
+ - `bsl::string`
+ - `bdlt::Date`
+ - `bdlt::DateTz`
+ - `bdlt::Datetime`
+ - `bdlt::DatetimeTz`
+ - `bdlt::Time`
+ - `bdlt::TimeTz`
+
+ The list above is incomplete and provided as an example only.
+
+ No special customization traits or common operations are required for simple
+ types - operations performed on `bdlat` message (e.g., encoding to JSON, or
+ decoding to BER) define concrete logic for handling these types.
+
+/Formatting Mode
+/- - - - - - - -
+
+ Elements of a `bdlat`-message can have an associated formatting mode,
+ described in `bdlat_formattingmode`.  This mode neither affects the value nor
+ is it used by `bdlat` in any way.  The formatting mode can be used by message
+ encoders and decoders.  For example, the `char` type can represent either a
+ character or a tiny integer value.  Explicitly specifying the formatting mode
+ in this case helps codecs choose the correct representation.
+
+ See `balber_beruniversaltagnumber` or `balxml_typesprintutil` for examples of
+ the formatting modes available for each type.
 
 /Hierarchical Synopsis
 /---------------------
