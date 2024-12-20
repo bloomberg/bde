@@ -10,11 +10,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::TransparentHash: a transparent hash functor
 //
-//@SEE_ALSO: bsl_map, bsl_set
+//@SEE_ALSO: bdlb::TransparentStringHash, bsl_map, bsl_set
 //
 //@DESCRIPTION: This component provides a `struct`, `bdlb::TransparentHash`,
 // that defines a functor to generate a hash code for different types and can
 // be used as transparent hash functor for heterogeneous lookup.
+//
+// `TransparentHash` should not be used for hashing strings, however, because
+// it gives unexpected results for `char *`s.  `TransparentStringHash` should
+// be used instead.
 //
 //
 ///Usage
@@ -73,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // Then, we create a container that uses `bdlb::TransparentHash`.  We use the
 // transparent comparator defined above to avoid implicit conversions:
 // ```
-// typedef bsl::unordered_set<bsl::string,
+// typedef bsl::unordered_set<bsl::optional<int>,
 //                            bdlb::TransparentHash,
 //                            TestTransparentEqualTo> TransparentHashSet;
 //
@@ -81,19 +85,21 @@ BSLS_IDENT("$Id: $")
 // ```
 // Now, we fill the container with the strings:
 // ```
-// transparentSet.insert("NY");
-// transparentSet.insert("LA");
+// transparentSet.insert(10001);   // New York
+// transparentSet.insert(90001);   // Los Angeles
 // ```
 // Finally, we observe that the container allows to use `bsl::string_view`
 // objects as a key and does not make any implicit conversions:
 // ```
-// bsl::string_view newYork     ("NY");
-// bsl::string_view losAngeles  ("LA");
-// bsl::string_view sanFrancisco("SF");
+// int                newYork      = 10001;
+// int                losAngeles   = 90001;
+// bsl::optional<int> sanFrancisco = 94102;
+// bsl::optional<int> nowhere;
 //
-// assert(transparentSet.end() != transparentSet.find(newYork     ));
-// assert(transparentSet.end() != transparentSet.find(losAngeles  ));
-// assert(transparentSet.end() == transparentSet.find(sanFrancisco));
+// ASSERT(transparentSet.end() != transparentSet.find(newYork     ));
+// ASSERT(transparentSet.end() != transparentSet.find(losAngeles  ));
+// ASSERT(transparentSet.end() == transparentSet.find(sanFrancisco));
+// ASSERT(transparentSet.end() == transparentSet.find(nowhere     ));
 // ```
 
 #include <bdlscm_version.h>

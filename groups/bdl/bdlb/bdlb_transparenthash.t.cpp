@@ -19,6 +19,7 @@
 #include <bsl_cstring.h>  // `bsl::strcmp`
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_optional.h>
 #include <bsl_unordered_set.h>
 
 using namespace BloombergLP;
@@ -308,7 +309,7 @@ int main(int argc, char *argv[])
 // Then, we create a container that uses `bdlb::TransparentHash`.  We use the
 // transparent comparator defined above to avoid implicit conversions:
 // ```
-    typedef bsl::unordered_set<bsl::string,
+    typedef bsl::unordered_set<bsl::optional<int>,
                                bdlb::TransparentHash,
                                TestTransparentEqualTo> TransparentHashSet;
 
@@ -316,19 +317,21 @@ int main(int argc, char *argv[])
 // ```
 // Now, we fill the container with the strings:
 // ```
-    transparentSet.insert("NY");
-    transparentSet.insert("LA");
+    transparentSet.insert(10001);   // New York
+    transparentSet.insert(90001);   // Los Angeles
 // ```
 // Finally, we observe that the container allows to use `bsl::string_view`
 // objects as a key and does not make any implicit conversions:
 // ```
-    bsl::string_view newYork     ("NY");
-    bsl::string_view losAngeles  ("LA");
-    bsl::string_view sanFrancisco("SF");
+    int                newYork      = 10001;
+    int                losAngeles   = 90001;
+    bsl::optional<int> sanFrancisco = 94102;
+    bsl::optional<int> nowhere;
 
     ASSERT(transparentSet.end() != transparentSet.find(newYork     ));
     ASSERT(transparentSet.end() != transparentSet.find(losAngeles  ));
     ASSERT(transparentSet.end() == transparentSet.find(sanFrancisco));
+    ASSERT(transparentSet.end() == transparentSet.find(nowhere     ));
 // ```
       } break;
       case 5: {

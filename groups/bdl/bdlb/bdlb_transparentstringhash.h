@@ -101,7 +101,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>      // 'bsl::basic_string'
 #include <bsl_string_view.h> // 'bsl::basic_string_view'
 
-#include <bsl_functional.h>    // 'bsl::hash'
+#include <bsl_functional.h>  // 'bsl::hash'
+
+#include <string>            // 'std::string'
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <string_view>       // 'std::string_view'
+#endif
 
 namespace BloombergLP {
 namespace bdlb {
@@ -153,9 +158,21 @@ struct TransparentStringHash {
     std::size_t operator()(
                   const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;
 
+    template <class CHAR, class TRAITS, class ALLOCATOR>
+    std::size_t operator()(
+                  const std::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    template <class CHAR, class TRAITS>
+    std::size_t operator()(
+                        const std::basic_string_view<CHAR, TRAITS>& str) const;
+#endif
+
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
     template <class CHAR, class TRAITS>
     std::size_t operator()(
                         const bsl::basic_string_view<CHAR, TRAITS>& str) const;
+#endif
 };
 
 // ============================================================================
@@ -179,17 +196,39 @@ inline std::size_t
 TransparentStringHash::operator()(
                    const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const
 {
-    return 
-      bsl::hash<bsl::basic_string<CHAR, TRAITS, ALLOCATOR> >().operator()(str);
+    bsl::basic_string_view<CHAR> sv(str.data(), str.size());
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
 }
 
+template <class CHAR, class TRAITS, class ALLOCATOR>
+inline std::size_t
+TransparentStringHash::operator()(
+                   const std::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const
+{
+    bsl::basic_string_view<CHAR> sv(str.data(), str.size());
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class CHAR, class TRAITS>
+inline std::size_t
+TransparentStringHash::operator()(
+                         const std::basic_string_view<CHAR, TRAITS>& str) const
+{
+    bsl::basic_string_view<CHAR> sv(str.data(), str.size());
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(sv);
+}
+#endif
+
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 template <class CHAR, class TRAITS>
 inline std::size_t
 TransparentStringHash::operator()(
                          const bsl::basic_string_view<CHAR, TRAITS>& str) const
 {
-    return bsl::hash<bsl::basic_string_view<CHAR, TRAITS> >().operator()(str);
+    return bsl::hash<bsl::basic_string_view<CHAR> >().operator()(str);
 }
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

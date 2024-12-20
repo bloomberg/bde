@@ -25,6 +25,11 @@
 
 #include <bslstl_stringref.h> // 'bslstl::StringRef'
 
+#include <string>            // 'std::string'
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#include <string_view>       // 'std::string_view'
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -170,6 +175,11 @@ void testHashString()
         bsl::string                       STR(SPEC, &ta);
         bsl::string_view                  VIEW(SPEC);
         bslstl::StringRef                 REF(SPEC);
+        std::string                       STDSTR(SPEC);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        std::string_view                  STDVIEW(SPEC);
+#endif
+
         const std::size_t                 EXPECTED =
                                       bsl::hash<bsl::string>().operator()(STR);
 
@@ -184,6 +194,20 @@ void testHashString()
         ASSERTV(LINE, EXPECTED == hasher(STR ));
         ASSERTV(LINE, EXPECTED == hasher(VIEW));
         ASSERTV(LINE, EXPECTED == hasher(REF));
+        ASSERTV(LINE, EXPECTED == hasher(STDSTR));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        ASSERTV(LINE, EXPECTED == hasher(STDVIEW));
+#endif
+
+        ASSERTV(LINE, EXPECTED == bsl::hash<bsl::string>      ()( STR));
+        ASSERTV(LINE, EXPECTED == bsl::hash<bsl::string_view> ()(VIEW));
+        ASSERTV(LINE, EXPECTED == bsl::hash<bslstl::StringRef>()(REF));
+        ASSERTV(LINE, EXPECTED == bsl::hash<std::string>      ()(STDSTR));
+        // There appears to be no bsl::hash specialization for std::string_view
+// #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+//         ASSERTV(LINE, EXPECTED == bsl::hash<std::string_view> ()(STDVIEW));
+// #endif
+
     }
 }
 

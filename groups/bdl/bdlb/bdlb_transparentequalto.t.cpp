@@ -1,7 +1,7 @@
 // bdlb_transparentequalto.t.cpp                                      -*-C++-*-
 #include <bdlb_transparentequalto.h>
 
-#include <bdlb_transparenthash.h>
+#include <bdlb_transparentstringhash.h>
 
 #include <bslalg_constructorproxy.h>
 #include <bslalg_typetraits.h>
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 // transparent hash functor:
 // ```
     typedef bsl::unordered_set<bsl::string,
-                               bdlb::TransparentHash,
+                               bdlb::TransparentStringHash,
                                bdlb::TransparentEqualTo>  TransparentSet;
 
     TransparentSet  transparentSet;

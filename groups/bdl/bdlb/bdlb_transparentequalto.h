@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // transparent hash functor:
 // ```
 // typedef bsl::unordered_set<bsl::string,
-//                            bdlb::TransparentHash,
+//                            bdlb::TransparentStringHash,
 //                            bdlb::TransparentEqualTo>  TransparentSet;
 //
 // TransparentSet  transparentSet;
