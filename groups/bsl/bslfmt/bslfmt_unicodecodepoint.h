@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::UnicodeCodePoint: unicode code point representation
 //
-//@DESCRIPTION: This component provides a single, unconstrained
+//@DESCRIPTION: This component provides a single, simply unconstrained
 // (value-semantic) attribute class, `bslfmt::UnicodeCodePoint`, that is used
 // to encapsulate a Unicode code point attributes.
 //
@@ -32,9 +32,9 @@ namespace bslfmt {
                         // class UnicodeCodePoint
                         // ======================
 
-/// This unconstrained (value-semantic) attribute class characterizes a Unicode
-/// code point represented by a set of integral values.  This class is private
-/// to this package and should not be used by clients.
+/// This simply constrained (value-semantic) attribute class characterizes a
+/// Unicode code point represented by a set of integral values.  This class is
+/// private to this package and should not be used by clients.
 class UnicodeCodePoint {
   public:
     // TYPES
