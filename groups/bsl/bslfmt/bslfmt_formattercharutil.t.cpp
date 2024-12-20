@@ -3,11 +3,28 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
+#include <bslstl_string.h>
+
+#include <stdio.h>    // `printf`
+#include <stdlib.h>   // `atoi`
+#include <string.h>   // `strlen`, `strcmp`, `memset`
+#include <wchar.h>    // `wcscmp`
 
 using namespace BloombergLP;
 using namespace bslfmt;
 
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// TBD
+// ----------------------------------------------------------------------------
+//
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -130,7 +147,6 @@ class SimpleIterator {
     {
         return *d_value_p;
     }
-
 };
 
 // FREE OPERATORS
@@ -157,6 +173,79 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Use test contexts to format a single integer.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example: Outputting a hexadecimal in upper case
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need to output hexadecimal number to sink object presented by the
+// output iterator (e.g. some character buffer).  Additionally, we are required
+// to have the number displayed in uppercase.
+// ```
+    char         number[] = {'0', 'x', '1', '2', 'c', 'd', '\0'};
+    const size_t sourceLength = std::strlen(number);
+// ```
+// First, we convert the number to uppercase in place and verify the result:
+// ```
+    bslfmt::FormatterCharUtil<char>::toUpper(number, number + sourceLength);
+    const char *expectedUppercaseNumber = "0X12CD";
+    ASSERT(0 == std::strcmp(number, expectedUppercaseNumber));
+// ```
+// Next, we output this uppercase number to the sink, using `outputFromChar`
+// function.  Note that `SimpleIterator` in this example is just a primitive
+// class that minimally satisfies the requirements of the output iterator. To
+// reduce the code size and improve readability, we do not provide its
+// implementation here.
+// ```
+    char charSink[8];
+    std::memset(charSink, 0, sizeof(char) * 8);
+    SimpleIterator<char> charIt(charSink);
+
+    charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
+                                                         number,
+                                                         number + sourceLength,
+                                                         charIt);
+
+    ASSERT(&charSink[sourceLength] == &(*charIt));
+    ASSERT(0 == std::strcmp(number, charSink));
+// ```
+// But the main purpose of these functions is to unify the output of values to
+// character strings and wide character strings.  All we need to do is just
+// change the template parameter:
+// ```
+    wchar_t wcharSink[8];
+    std::memset(wcharSink, 0, sizeof(wchar_t) * 8);
+
+    wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
+
+    SimpleIterator<wchar_t> wcharIt(wcharSink);
+    wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
+                                                         number,
+                                                         number + sourceLength,
+                                                         wcharIt);
+    ASSERT(&wcharSink[sourceLength] == &(*wcharIt));
+    ASSERT(0 == std::wcscmp(wcharExpected, wcharSink));
+// ```
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

@@ -15,7 +15,60 @@ BSLS_IDENT("$Id: $")
 // functions that convert characters (e.g. from `char` to `wchar_t` or
 // lowercase characters to uppercase).
 //
-// This component is for use within `bslfmt` only.
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example: Outputting a hexadecimal in upper case
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need to output hexadecimal number to sink object presented by the
+// output iterator (e.g. some character buffer).  Additionally, we are required
+// to have the number displayed in uppercase.
+// ```
+//  char         number[] = {'0', 'x', '1', '2', 'c', 'd', '\0'};
+//  const size_t sourceLength = std::strlen(number);
+// ```
+// First, we convert the number to uppercase in place and verify the result:
+// ```
+//  bslfmt::FormatterCharUtil<char>::toUpper(number, number + sourceLength);
+//  const char *expectedUppercaseNumber = "0X12CD";
+//  assert(0 == std::strcmp(number, expectedUppercaseNumber));
+// ```
+// Next, we output this uppercase number to the sink, using `outputFromChar`
+// function.  Note that `SimpleIterator` in this example is just a primitive
+// class that minimally satisfies the requirements of the output iterator. To
+// reduce the code size and improve readability, we do not provide its
+// implementation here.
+// ```
+//  char charSink[8];
+//  std::memset(charSink, 0, sizeof(char) * 8);
+//  SimpleIterator<char> charIt(charSink);
+//
+//  charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
+//                                                       number,
+//                                                       number + sourceLength,
+//                                                       charIt);
+//
+//  assert(&charSink[sourceLength] == &(*charIt));
+//  assert(0 == std::strcmp(number, charSink));
+// ```
+// But the main purpose of these functions is to unify the output of values to
+// character strings and wide character strings.  All we need to do is just
+// change the template parameter:
+// ```
+//  wchar_t wcharSink[8];
+//  std::memset(wcharSink, 0, sizeof(wchar_t) * 8);
+//
+//  wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
+//
+//  SimpleIterator<wchar_t> wcharIt(wcharSink);
+//  wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
+//                                                       number,
+//                                                       number + sourceLength,
+//                                                       wcharIt);
+//  assert(&wcharSink[sourceLength] == &(*wcharIt));
+//  assert(0 == std::wcscmp(wcharExpected, wcharSink));
+// ```
 
 #include <bslscm_version.h>
 

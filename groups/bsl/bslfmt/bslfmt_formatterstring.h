@@ -82,19 +82,32 @@ namespace bslfmt {
                         // class FormatterString_GraphemeCluster
                         // =====================================
 
+/// [**PRIVATE**] This private implementation `class` characterizes a grapheme
+/// cluster represented by a set of integral values.  This class is private to
+/// this component and should not be used by clients.
 class FormatterString_GraphemeCluster {
   private:
     // DATA
-    bool              d_isValid;
-    int               d_numSourceBytes;
-    int               d_numCodePoints;
-    unsigned long int d_firstCodePointValue;
-    int               d_firstCodePointWidth;
+    bool              d_isValid;              // flag indicating whether this
+                                              // object is initialized and
+                                              // initialized without errors
+
+    int               d_numSourceBytes;       // number of bytes occupied by
+                                              // this cluster
+
+    int               d_numCodePoints;        // number of code points in this
+                                              // cluster
+
+    unsigned long int d_firstCodePointValue;  // value of the first code point
+                                              // in this cluster
+
+    int               d_firstCodePointWidth;  // width of the first code point
+                                              // in this cluster
 
   public:
     // CREATORS
 
-    /// Create a default (invalid) cluster.
+    /// Create a default (uninitialized) cluster.
     FormatterString_GraphemeCluster();
 
     // MANIPULATORS

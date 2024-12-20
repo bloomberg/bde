@@ -26,6 +26,9 @@ namespace bslfmt {
                       // struct FormatterUnicodeData
                       // ===========================
 
+/// [**PRIVATE**] This private implementation `struct` contains data for
+/// correct processing of Unicode characters.  These data are private to this
+/// package and should not be used by clients.
 struct FormatterUnicodeData {
   public:
     // TYPES

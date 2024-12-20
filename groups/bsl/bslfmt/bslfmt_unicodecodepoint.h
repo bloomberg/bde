@@ -6,13 +6,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a formatter customization for character types
+//@PURPOSE: Provide a unicode code point representation
 //
 //@CLASSES:
+//  bslfmt::UnicodeCodePoint: unicode code point representation
 //
-//@DESCRIPTION: This component provides partial specializations of
-// `bsl::formatter` catering for character types.
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, `bslfmt::UnicodeCodePoint`, that is used
+// to encapsulate a Unicode code point attributes.
 //
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 
@@ -20,7 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <cstddef>  // `std::size_t`
+#include <string.h>  // `std::size_t`
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -29,6 +32,9 @@ namespace bslfmt {
                         // class UnicodeCodePoint
                         // ======================
 
+/// This unconstrained (value-semantic) attribute class characterizes a Unicode
+/// code point represented by a set of integral values.  This class is private
+/// to this package and should not be used by clients.
 class UnicodeCodePoint {
   public:
     // TYPES
