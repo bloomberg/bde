@@ -739,6 +739,7 @@ LoggerManager::LoggerManager(
 , d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
 , d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
+, d_defaultLoggerCount(0)
 , d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
 , d_loggers(bslma::Default::globalAllocator(globalAllocator))
@@ -1143,6 +1144,7 @@ LoggerManager::LoggerManager(
 , d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
 , d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
+, d_defaultLoggerCount(0)
 , d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
 , d_loggers(bslma::Default::globalAllocator(globalAllocator))
@@ -1334,13 +1336,15 @@ void LoggerManager::deallocateLogger(Logger *logger)
             ++itr;
         }
     }
+    d_defaultLoggerCount.storeRelease(
+                               static_cast<unsigned>(d_defaultLoggers.size()));
     d_defaultLoggersLock.unlock();
 
     logger->~Logger();
     d_allocator_p->deallocate(logger);
 }
 
-Logger& LoggerManager::getLogger()
+Logger& LoggerManager::getLoggerSlow()
 {
     // TBD: optimize it using thread local storage
 
@@ -1363,6 +1367,8 @@ void LoggerManager::setLogger(Logger *logger)
     else {
         d_defaultLoggers[id] = logger;
     }
+    d_defaultLoggerCount.storeRelease(
+                               static_cast<unsigned>(d_defaultLoggers.size()));
 }
 
                              // Category Management

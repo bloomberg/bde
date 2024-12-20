@@ -900,7 +900,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #include <bslmt_readerwritermutex.h>
 
+#include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_performancehint.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bsl_functional.h>
@@ -1289,6 +1291,9 @@ class LoggerManager {
     Logger                *d_logger_p;           // holds default logger
                                                  // (owned)
 
+    bsls::AtomicUint       d_defaultLoggerCount; // number of thread-specific
+                                                 // default loggers
+
     CategoryManager        d_categoryManager;    // category manager
 
     unsigned int           d_maxNumCategoriesMinusOne;
@@ -1374,6 +1379,11 @@ class LoggerManager {
     /// by this logger manager and indicate to the observers the specified
     /// publication `cause`.
     void publishAllImp(Transmission::Cause cause);
+
+    /// Return a non-`const` reference to a logger managed by this logger
+    /// manager suitable for performing logging operations for this thread
+    /// of execution.
+    Logger& getLoggerSlow();
 
   public:
     // CLASS METHODS
@@ -2347,6 +2357,16 @@ void LoggerManager::visitObservers(
 {
     d_observer->visitObservers(
                    BSLS_COMPILERFEATURES_FORWARD(t_OBSERVER_VISITOR, visitor));
+}
+
+inline
+Logger& LoggerManager::getLogger()
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                         d_defaultLoggerCount.loadAcquire())) {
+        return getLoggerSlow();
+    }
+    return *d_logger_p;
 }
 
 // ACCESSORS
