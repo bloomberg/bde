@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 // For example, an `IndexSpan` describing the middle name in the string
 // "James Tiberius Kirk" will have the position 6 (the `T` of "Tiberius" is the
-// 7th character of the string) and the length 8 ("Tiberius is 8 characters
+// 7th character of the string) and the length 8 ("Tiberius" is 8 characters
 // long).
 //
 // Note that the sum of the two attributes must be representable by the
