@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_format_arg.h>
 #include <bslfmt_format_args.h>
 #include <bslfmt_format_context.h>
-#include <bslfmt_format_parsecontext.h>
 #include <bslfmt_format_string.h>
+#include <bslfmt_formatparsecontext.h>
 
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterbool.h>

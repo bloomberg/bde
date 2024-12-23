@@ -7,8 +7,8 @@ bslfmt_format_context
 bslfmt_formaterror
 bslfmt_format_imp
 bslfmt_format_imp_cpp03
-bslfmt_format_parsecontext
 bslfmt_format_string
+bslfmt_formatparsecontext
 bslfmt_formatterbase
 bslfmt_formatterbool
 bslfmt_formattercharacter

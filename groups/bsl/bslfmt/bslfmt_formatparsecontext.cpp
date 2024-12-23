@@ -1,9 +1,9 @@
-// bslstl_format_parsecontext.cpp                                     -*-C++-*-
+// bslfmt_formatparsecontext.cpp                                      -*-C++-*-
 
-#include <bslfmt_format_parsecontext.h>
+#include <bslfmt_formatparsecontext.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslstl_formatparsecontext_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

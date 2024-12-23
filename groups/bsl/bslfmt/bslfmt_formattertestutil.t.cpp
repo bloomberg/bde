@@ -1,12 +1,12 @@
 // bslfmt_formattertestutil.t.cpp                                     -*-C++-*-
 #include <bslfmt_formattertestutil.h>
 
+#include <bslfmt_format_arg.h>         // Testing only
+#include <bslfmt_formatparsecontext.h> // Testing only
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
-
-#include <bslfmt_format_arg.h> // Testing only
-#include <bslfmt_format_parsecontext.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>

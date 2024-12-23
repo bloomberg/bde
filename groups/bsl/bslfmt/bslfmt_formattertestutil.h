@@ -78,9 +78,9 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_format_arg.h>
 #include <bslfmt_format_args.h>
 #include <bslfmt_format_context.h>
-#include <bslfmt_formaterror.h>
-#include <bslfmt_format_parsecontext.h>
 #include <bslfmt_format_string.h>
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatparsecontext.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_mockformatcontext.h>
 #include <bslfmt_mockparsecontext.h>
@@ -99,14 +99,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
-
-#include <bslfmt_formaterror.h>
-#include <bslfmt_format_arg.h>
-#include <bslfmt_format_args.h>
-#include <bslfmt_format_context.h>
-#include <bslfmt_format_parsecontext.h>
-#include <bslfmt_format_string.h>
-#include <bslfmt_formatterbase.h>
 
 #include <locale>     // for 'std::ctype', 'locale'
 #include <string>     // for 'std::char_traits'
