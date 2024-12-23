@@ -8655,7 +8655,7 @@ struct TestDeductionGuides {
         typedef std::allocator       <bsl::pair<const T7, T7>> SA7;
         typedef std::initializer_list<bsl::pair<const T7, T7>> IL7;
 
-        IL7           il7({{1L, 1L}, {2L, 3L}});
+        IL7           il7{{1L, 1L}, {2L, 3L}};
         bsl::multimap m7a(il7);
         bsl::multimap m7b(il7, CompT7{});
         bsl::multimap m7c(il7, CompT7{}, BA7{});
@@ -8675,7 +8675,7 @@ struct TestDeductionGuides {
         typedef std::allocator       <bsl::pair<const T8, T8>> SA8;
         typedef std::initializer_list<bsl::pair<const T8, T8>> IL8;
 
-        IL8           il8({{3LL, 3LL}, {2LL, 1LL}});
+        IL8           il8{{3LL, 3LL}, {2LL, 1LL}};
         bsl::multimap m8a(il8, BA8{});
         bsl::multimap m8b(il8, a1);
         bsl::multimap m8c(il8, a2);

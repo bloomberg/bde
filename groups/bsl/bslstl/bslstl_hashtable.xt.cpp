@@ -60,6 +60,10 @@
 
 using namespace BloombergLP;
 
+#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION >= 100000
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#endif                                                                          
+
 // ============================================================================
 //                                TEST PLAN
 // ----------------------------------------------------------------------------
@@ -789,7 +793,6 @@ namespace TestTypes {
 /// template specialization if this class were a template, and that is not
 /// supported by the C++ language.
 class MostEvilTestType {
-
   private:
     bsltf::NonEqualComparableTestType d_data;
 

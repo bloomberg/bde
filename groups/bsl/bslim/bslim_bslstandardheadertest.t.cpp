@@ -229,6 +229,10 @@ using namespace BloombergLP;
 #endif
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION >= 100000
+#pragma clang diagnostic ignored "-Wconstant-evaluated"
+#endif
+
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------

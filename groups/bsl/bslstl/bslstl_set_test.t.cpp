@@ -8246,7 +8246,7 @@ struct TestDeductionGuides {
 
         typedef long T7;
         typedef std::greater<T7> CompT7;
-        std::initializer_list<T7> il7({1L, 2L, 3L});
+        std::initializer_list<T7> il7{1L, 2L, 3L};
 
         bsl::set s7a(il7);
         bsl::set s7b(il7, CompT7{});
@@ -8267,7 +8267,7 @@ struct TestDeductionGuides {
                                      bsl::set<T7, CompT7, std::allocator<T7>>);
 
         typedef long long T8;
-        std::initializer_list<T8> il8({3LL, 2LL, 1LL});
+        std::initializer_list<T8> il8{3LL, 2LL, 1LL};
 
         bsl::set s8a(il8, bsl::allocator<T8>{});
         bsl::set s8b(il8, a1);

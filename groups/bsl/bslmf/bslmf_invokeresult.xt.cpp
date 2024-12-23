@@ -38,9 +38,10 @@
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
     #pragma GCC diagnostic ignored "-Wvolatile"
-    #ifdef BSLS_PLATFORM_CMP_CLANG
-        #pragma GCC diagnostic ignored "-Wdeprecated-volatile"
-    #endif
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION >= 100000
+    #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
 
 using namespace BloombergLP;
