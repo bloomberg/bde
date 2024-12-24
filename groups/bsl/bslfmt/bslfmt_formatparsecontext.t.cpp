@@ -270,7 +270,7 @@ int main(int argc, char **argv)
             CharObj      mX(emptyFormatString, NUM_ARGUMENTS);
 
             for (size_t j = 0; j < NUM_ARGUMENTS; ++j) {
-                const int ARGUMENT_NUM = j;
+                const size_t ARGUMENT_NUM = j;
                 mX.check_arg_id(ARGUMENT_NUM);  // action
             }
 
