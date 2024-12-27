@@ -612,6 +612,7 @@ BSLS_IDENT("$Id$")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
 #include <bslfmt_formatterspecificationsplitter.h>
 
 #include <bslma_deallocatebytesproctor.h>
@@ -7035,17 +7036,17 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
     }
 
     if (hasSignChar) {
-        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+        outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                              t_CHAR>::outputFromChar(signChar, outIterator);
     }
 
     for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
-        outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+        outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                                     t_CHAR>::outputFromChar('0', outIterator);
     }
 
     outIterator =
-            BloombergLP::bslfmt::Formatter_CharUtils<t_CHAR>::outputFromChar(
+            BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
                                                    numberBuffer,
                                                    numberBuffer + numberLength,
                                                    outIterator);

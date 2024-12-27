@@ -581,8 +581,8 @@ t_CHAR *FormatterIntegralBase<t_VALUE, t_CHAR>::formatValue(
         // additionally modify the resulting string for uppercase hexadecimal
         // format.
 
-        BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::toUpper(valueBuf,
-                                                                valueEnd);
+        BloombergLP::bslfmt::FormatterCharUtil<char>::toUpper(valueBuf,
+                                                              valueEnd);
     }
 
      t_CHAR *convertedValueEnd = valueStorage;

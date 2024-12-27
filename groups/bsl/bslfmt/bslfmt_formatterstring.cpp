@@ -324,9 +324,8 @@ void FormatterString_GraphemeCluster::extract(
     bool leftEpv = getExtendedPictogramValue(codePoint.codePointValue());
 
     UnicodeData::GraphemeBreakCategory rightGbc = UnicodeData::e_UNASSIGNED;
-    bool rightEpv = false;
-
-    size_t numRIs = 0;
+    bool                               rightEpv = false;
+    size_t                             numRIs   = 0;
 
     EmojiModifierSequenceDetector emsMatcher;
 
@@ -443,6 +442,50 @@ void FormatterString_GraphemeCluster::extract(
 }  // close package namespace
 }  // close enterprise namespace
 
+// ----------------------------------------------------------------------------
+//
+// The implementation of classes `EmojiModifierSequenceDetector` and
+// `FormatterString_GraphemeCluster` have been adapted for BDE use from
+// Microsoft MSVC library code, 2024
+// 'https://github.com/microsoft/STL/blob/vs-2022-17.11/stl/inc/format'
+//
+// Copyright (c) Microsoft Corporation.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// NOTE:
+// The Microsoft `format` header was itself derived in part from `libfmt` under
+// the following license:
+//
+// Copyright (c) 2012 - present, Victor Zverovich
+//
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+// --- Optional exception to the license ---
+//
+// As an exception, if, as a result of your compiling your source code,
+// portions of this Software are embedded into a machine-executable object form
+// of such source code, you may redistribute such embedded portions in such
+// object form without including the above copyright and permission notices.
+//
+// ----------------------------------------------------------------------------
+//
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
 //

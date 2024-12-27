@@ -99,8 +99,7 @@ int main(int argc, char **argv)
         if (verbose)
             printf("\nBREATHING TEST"
                    "\n==============\n");
-
-        ASSERT(true);  // suppress compiler warning
+        typedef FormatterSpecificationNumericValue     FSN;
 
 
       } break;

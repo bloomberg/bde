@@ -103,6 +103,7 @@ class SimpleIterator {
   private:
     // DATA
     t_TYPE *d_value_p;  // address this iterator points to
+    t_TYPE *d_end_p;    // maximum value this iterator can reach
 
   public:
     // TYPES
@@ -114,27 +115,34 @@ class SimpleIterator {
 
     // CREATORS
 
-    /// Create an iterator pointing to the specified `value`.
-    SimpleIterator(t_TYPE *value = 0)
+    /// Create an iterator pointing to the specified `value` and having the
+    /// specified `maxNumElements` as a maximum number of acceptable values to
+    /// iterate through.
+    SimpleIterator(t_TYPE *value, difference_type maxNumElements)
     : d_value_p(value)
+    , d_end_p(value + maxNumElements)
     {
     }
 
     // MANIPULATORS
 
     /// Increment to the next element and return a reference providing
-    /// modifiable access to this iterator.
+    /// modifiable access to this iterator.  The behavior is undefined unless
+    /// the iterator is within the range of acceptable values.
     SimpleIterator& operator++()
     {
+        ASSERT(d_end_p != d_value_p);
         ++d_value_p;
         return *this;
     }
 
     /// Increment to the next element and return an iterator having
-    /// pre-increment value of this iterator.
+    /// pre-increment value of this iterator.  The behavior is undefined unless
+    /// the iterator is within the range of acceptable values.
     SimpleIterator operator++(int)
     {
-        SimpleIterator temp(d_value_p);
+        ASSERT(d_end_p != d_value_p);
+        SimpleIterator temp(d_value_p, d_end_p - d_value_p);
         ++d_value_p;
         return temp;
     }
@@ -142,10 +150,19 @@ class SimpleIterator {
     // ACCESSORS
 
     /// Return a reference to the modifiable `t_TYPE` to which this object
-    /// refers.
-    t_TYPE& operator*() const
+    /// refers.  The behavior is undefined unless the incremented iterator is
+    /// within the range of acceptable values.
+    reference operator*() const
     {
+        ASSERT(d_end_p != d_value_p);
         return *d_value_p;
+    }
+
+    /// Return a pointer to the non-modifiable `t_TYPE` to which this object
+    /// refers.
+    const t_TYPE *ptr() const
+    {
+        return d_value_p;
     }
 };
 
@@ -217,7 +234,7 @@ int main(int argc, char **argv)
 // ```
     char charSink[8];
     std::memset(charSink, 0, sizeof(char) * 8);
-    SimpleIterator<char> charIt(charSink);
+    SimpleIterator<char> charIt(charSink, 8);
 
     charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
                                                          number,
@@ -236,7 +253,7 @@ int main(int argc, char **argv)
 
     wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
 
-    SimpleIterator<wchar_t> wcharIt(wcharSink);
+    SimpleIterator<wchar_t> wcharIt(wcharSink, 8);
     wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
                                                          number,
                                                          number + sourceLength,
@@ -265,8 +282,8 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        const int  BUFFER_SIZE            = 6;
-        const int  NUM_CHARACTERS_TO_COPY = BUFFER_SIZE - 1;
+        const size_t  BUFFER_SIZE            = 6;
+        const size_t  NUM_CHARACTERS_TO_COPY = BUFFER_SIZE - 1;
 
         const char SOURCE[]       = {'a', 'B', 'c', '1', '2', '#'};
         const char UPPER_SOURCE[] = {'A', 'B', 'C', '1', '2', '#'};
@@ -275,7 +292,7 @@ int main(int argc, char **argv)
         {
             char sink[BUFFER_SIZE];
 
-            for (int i = 0; i < BUFFER_SIZE; ++i) {
+            for (size_t i = 0; i < BUFFER_SIZE; ++i) {
                 sink[i] = 0;
             }
 
@@ -284,13 +301,13 @@ int main(int argc, char **argv)
 
             // Testing `outputFromChar(char *, char *, iterator)`.
 
-            SimpleIterator<char> out(sink);
+            SimpleIterator<char> out(sink, BUFFER_SIZE);
             out = FormatterCharUtil<char>::outputFromChar(sourceBegin,
                                                           sourceEnd,
                                                           out);
 
             ASSERTV(*out, &sink[NUM_CHARACTERS_TO_COPY] == &(*out));
-            for (int i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
+            for (size_t i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
                 ASSERTV(SOURCE[i], sink[i], SOURCE[i] == sink[i]);
             }
             ASSERTV(sink[NUM_CHARACTERS_TO_COPY],
@@ -302,7 +319,7 @@ int main(int argc, char **argv)
                                                 SOURCE[NUM_CHARACTERS_TO_COPY],
                                                 out);
 
-            ASSERTV(*out, &sink[BUFFER_SIZE] == &(*out));
+            ASSERTV(*out, &sink[BUFFER_SIZE] == out.ptr());
 
             ASSERTV(SOURCE[NUM_CHARACTERS_TO_COPY],
                     sink[NUM_CHARACTERS_TO_COPY],
@@ -316,7 +333,7 @@ int main(int argc, char **argv)
 
             FormatterCharUtil<char>::toUpper(sinkBegin, sinkEnd);
 
-            for (int i = 0; i < BUFFER_SIZE; ++i) {
+            for (size_t i = 0; i < BUFFER_SIZE; ++i) {
                 ASSERTV(UPPER_SOURCE[i], sink[i], UPPER_SOURCE[i] == sink[i]);
             }
         }
@@ -325,7 +342,7 @@ int main(int argc, char **argv)
         {
             wchar_t sink[BUFFER_SIZE];
 
-            for (int i = 0; i < BUFFER_SIZE; ++i) {
+            for (size_t i = 0; i < BUFFER_SIZE; ++i) {
                 sink[i] = 0;
             }
 
@@ -334,13 +351,13 @@ int main(int argc, char **argv)
 
             // Testing `outputFromChar(char *, char *, iterator)`.
 
-            SimpleIterator<wchar_t> out(sink);
+            SimpleIterator<wchar_t> out(sink, BUFFER_SIZE);
             out = FormatterCharUtil<wchar_t>::outputFromChar(sourceBegin,
                                                              sourceEnd,
                                                              out);
 
             ASSERTV(*out, &sink[NUM_CHARACTERS_TO_COPY] == &(*out));
-            for (int i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
+            for (size_t i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
                 ASSERTV(SOURCE[i], sink[i], wchar_t(SOURCE[i]) == sink[i]);
             }
             ASSERTV(sink[NUM_CHARACTERS_TO_COPY],
@@ -352,29 +369,12 @@ int main(int argc, char **argv)
                                                 SOURCE[NUM_CHARACTERS_TO_COPY],
                                                 out);
 
-            ASSERTV(*out, &sink[BUFFER_SIZE] == &(*out));
+            ASSERTV(*out, &sink[BUFFER_SIZE] == out.ptr());
 
             ASSERTV(SOURCE[NUM_CHARACTERS_TO_COPY],
                     sink[NUM_CHARACTERS_TO_COPY],
                     wchar_t(SOURCE[NUM_CHARACTERS_TO_COPY]) ==
                         sink[NUM_CHARACTERS_TO_COPY]);
-
-            // Testing `toUpper`.
-
-            char  charSink[BUFFER_SIZE];
-            char *sinkBegin      = charSink;
-            char *sinkEnd        = charSink + BUFFER_SIZE;
-
-            for (int i = 0; i < BUFFER_SIZE; ++i) {
-                charSink[i] = SOURCE[i];
-            }
-
-            FormatterCharUtil<wchar_t>::toUpper(sinkBegin, sinkEnd);
-
-            for (int i = 0; i < BUFFER_SIZE; ++i) {
-                ASSERTV(UPPER_SOURCE[i], charSink[i],
-                        UPPER_SOURCE[i] == charSink[i]);
-            }
         }
       }; break;
       default: {

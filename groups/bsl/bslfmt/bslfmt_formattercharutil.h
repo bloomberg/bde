@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // ```
 //  char charSink[8];
 //  std::memset(charSink, 0, sizeof(char) * 8);
-//  SimpleIterator<char> charIt(charSink);
+//  SimpleIterator<char> charIt(charSink, 8);
 //
 //  charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
 //                                                       number,
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //
 //  wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
 //
-//  SimpleIterator<wchar_t> wcharIt(wcharSink);
+//  SimpleIterator<wchar_t> wcharIt(wcharSink, 8);
 //  wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
 //                                                       number,
 //                                                       number + sourceLength,
@@ -98,23 +98,23 @@ template <>
 struct FormatterCharUtil<char> {
     // CLASS METHODS
 
-    /// Output to the specified `out` the character sequence starting at the
-    /// specified `begin` address and ending immediately before the specified
-    /// `end` address.  Return `out` incremented by the number of characters
-    /// written.
+    /// Output to the specified output forward-iterator `out` the character
+    /// sequence starting at the specified `begin` address and ending
+    /// immediately before the specified `end` address.  Return `out`
+    /// incremented by the number of characters written.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
                                      t_ITERATOR  out);
 
-    /// Output to the specified `out` the specified `value`.  Return
-    /// incremented `out`.
+    /// Output to the specified output forward-iterator `out` the specified
+    /// `value`.  Return incremented `out`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char value, t_ITERATOR out);
 
     /// Convert all characters in the sequence starting at the specified
     /// `begin` address and ending immediately before the specified `end`
-    /// address to uppercase.
+    /// address to uppercase.  Note that conversion happens in-place.
     static void toUpper(char *begin, const char *end);
 };
 
@@ -123,24 +123,19 @@ template <>
 struct FormatterCharUtil<wchar_t> {
     // CLASS METHODS
 
-    /// Output to the specified `out` the character sequence starting at the
-    /// specified `begin` address and ending immediately before the specified
-    /// `end` address.  Return `out` incremented by the number of characters
-    /// written.
+    /// Output to the specified output forward-iterator `out` the character
+    /// sequence starting at the specified `begin` address and ending
+    /// immediately before the specified `end` address.  Return `out`
+    /// incremented by the number of characters written.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
                                      t_ITERATOR  out);
 
-    /// Output to the specified `out` the specified `value`.  Return
-    /// incremented `out`.
+    /// Output to the specified output forward-iterator `out` the specified
+    /// `value`.  Return incremented `out`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char value, t_ITERATOR out);
-
-    /// Convert all characters in the sequence starting at the specified
-    /// `begin` address and ending immediately before the specified `end`
-    /// address to uppercase.
-    static void toUpper(char *begin, const char *end);
 };
 
 // ============================================================================
@@ -219,16 +214,6 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char value,
     *out++ = ct.widen(value);
 
     return out;
-}
-
-inline
-void FormatterCharUtil<wchar_t>::toUpper(char *begin, const char *end)
-{
-    for (; begin != end; (void)++begin) {
-        if (*begin >= 'a' && *begin <= 'z') {
-            *begin = static_cast<char>(*begin + 'A' - 'a');
-        }
-    }
 }
 
 }  // close namespace bslfmt
