@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 06:02:14 2024
+// Generated on Tue Dec 17 07:53:38 2024
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.h
 
 #ifdef COMPILING_BDLC_FLATHASHTABLE_H
@@ -183,6 +183,47 @@ class FlatHashTable
                            const KEY&   key,
                            bsl::size_t  hashValue);
 
+    /// Load `true` into the specified `notFound` if there is no entry in
+    /// this table equvalent to the specified `key` with the specified
+    /// `hashValue`, and `false` otherwise.  Return the index of the entry
+    /// within `d_entries_p` which contains the `key` if such an entry
+    /// exists, otherwise insert an entry with value obtained from
+    /// `ENTRY_UTIL::construct` and return the index of this entry.  This
+    /// method rehashes the table if the `key` was not present and the
+    /// addition of an entry would cause the load factor to exceed
+    /// `max_load_factor()`.  The behavior is undefined unless
+    /// `hashValue == d_hasher(key)`.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    indexOfKeyTransparent(bool              *notFound,
+                          const LOOKUP_KEY&  key,
+                          bsl::size_t        hashValue)
+    {
+        BSLS_ASSERT_SAFE(hashValue == d_hasher(key));
+
+        bsl::size_t index = findTransparentKey(key, hashValue);
+
+        if (index == d_capacity) {
+            *notFound = true;
+
+            if (d_size >= k_MAX_LOAD_FACTOR_NUMERATOR
+                        * (d_capacity / k_MAX_LOAD_FACTOR_DENOMINATOR)) {
+                rehashRaw(d_capacity > 0 ? 2 * d_capacity : k_MIN_CAPACITY);
+            }
+
+            index = (hashValue >> d_groupControlShift) * GroupControl::k_SIZE;
+            index = findAvailable(d_controls_p, index, d_capacity);
+        }
+        else {
+            *notFound = false;
+        }
+
+        return index;
+    }
+
     /// Change the capacity of this table to the specified `newCapacity`,
     /// and redistribute all the contained elements into the new sequence of
     /// entries, according to their hash values.  The behavior is undefined
@@ -197,6 +238,54 @@ class FlatHashTable
     /// `d_capacity` if the `key` is not present.  The behavior is undefined
     /// unless `hashValue == d_hasher(key)`.
     bsl::size_t findKey(const KEY& key, bsl::size_t hashValue) const;
+
+    /// Return the index of the entry within `d_entries_p` containing a key
+    /// equivalent to the specified `key`, which has the specified `hashValue`,
+    /// or `d_capacity` if a key equivalent to `key` is not present.  The
+    /// behavior is undefined unless `hashValue == d_hasher(key)`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    findTransparentKey(const LOOKUP_KEY& key, bsl::size_t hashValue) const
+    {
+        BSLS_ASSERT_SAFE(hashValue == d_hasher(key));
+
+        bsl::size_t  index   = (hashValue >> d_groupControlShift)
+                                                        * GroupControl::k_SIZE;
+        bsl::uint8_t hashlet = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+
+        for (bsl::size_t i = 0; i < d_capacity; i += GroupControl::k_SIZE) {
+            bsl::uint8_t *controlStart = d_controls_p + index;
+            ENTRY        *entryStart   = d_entries_p  + index;
+
+            GroupControl  groupControl(controlStart);
+            bsl::uint32_t candidates = groupControl.match(hashlet);
+            while (candidates) {
+                int offset = bdlb::BitUtil::numTrailingUnsetBits(candidates);
+
+                ENTRY *entry = entryStart + offset;
+
+                if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                      d_equal(ENTRY_UTIL::key(*entry), key))) {
+                    return index + offset;                            // RETURN
+                }
+                candidates = bdlb::BitUtil::withBitCleared(candidates, offset);
+            }
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(groupControl.neverFull()))
+            {
+                break;
+            }
+
+            index = (index + GroupControl::k_SIZE) & (d_capacity - 1);
+        }
+
+        return d_capacity;
+    }
 
     /// Return the minimum capacity that satisfies all class invariants, and
     /// is at least the specified `minimumCapacity`.
@@ -313,6 +402,31 @@ class FlatHashTable
     /// since each key in a flat hash table is unique, the returned range
     /// contains at most one element.
     bsl::pair<iterator, iterator> equal_range(const KEY& key);
+
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of objects in this table having a key equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence, and the second is positioned one past the end of the
+    /// sequence.  If this table contains no objects having a key equivalent to
+    /// the specified `key`, then the two returned iterators will have the same
+    /// value, `end()`.  Note that since a table maintains unique keys, the
+    /// range will contain at most one entry.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+    {
+        iterator it1 = find(key);
+        iterator it2 = it1;
+        if (it1 != end()) {
+            ++it2;
+        }
+        return bsl::make_pair(it1, it2);
+    }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -493,6 +607,25 @@ class FlatHashTable
     /// invalidates all iterators, and references to the removed element.
     bsl::size_t erase(const KEY& key);
 
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    erase(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+    {
+        iterator it = find(key);
+        if (it == end()) {
+            return 0;
+        }
+        erase(it);
+        return 1;
+    }
+// }}} END GENERATED CODE
+
     /// Remove from this table the object at the specified `position`, and
     /// return an iterator referring to the element immediately following
     /// the removed element, or to the past-the-end position if the removed
@@ -517,11 +650,27 @@ class FlatHashTable
     /// entry exists, and `end()` otherwise.
     iterator find(const KEY& key);
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-    template <class ENTRY_TYPE>
-    bsl::pair<iterator, bool> insert(
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
-#else
+    /// Return an iterator providing modifiable access to the object in this
+    /// flat hash table with a key equivalent to the specified `key`, if such
+    /// an entry exists, and `end()` otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , iterator>::type
+    find(const LOOKUP_KEY& key)
+    {
+        bsl::size_t index = findTransparentKey(key, d_hasher(key));
+        if (index < d_capacity) {
+            return iterator(IteratorImp(d_entries_p  + index,
+                                        d_controls_p + index,
+                                        d_capacity   - index - 1));   // RETURN
+            }
+        return end();
+    }
+
     /// Insert the specified `entry` into this table if the key of the
     /// `entry` does not already exist in this table; otherwise, this method
     /// has no effect.  Return a `pair` whose `first` member is an iterator
@@ -532,26 +681,31 @@ class FlatHashTable
     /// movable types that are not bitwise copyable will be copied (to avoid
     /// confusion with regard to calling the `entry` destructor after this
     /// call).
-    template <class ENTRY_TYPE>
-    typename bsl::enable_if<bsl::is_convertible<ENTRY_TYPE, ENTRY>::value,
-                            bsl::pair<iterator, bool> >::type
-                    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
-#endif
+    bsl::pair<iterator, bool> insert(const ENTRY &entry);
+    bsl::pair<iterator, bool> insert(bslmf::MovableRef<ENTRY> entry);
+
+// {{{ BEGIN GENERATED CODE
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    insertTransparent(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
     {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
 
         bool        notFound;
-        bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
-        bsl::size_t index     = indexOfKey(&notFound,
-                                           ENTRY_UTIL::key(entry),
-                                           hashValue);
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index     = indexOfKeyTransparent(&notFound,
+                                                      key,
+                                                      hashValue);
 
         if (notFound) {
             ENTRY_UTIL::construct(
                              d_entries_p + index,
                              d_allocator_p,
-                             BSLS_COMPILERFEATURES_FORWARD(ENTRY_TYPE, entry));
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
 
             d_controls_p[index] = static_cast<bsl::uint8_t>(
                                                    hashValue & k_HASHLET_MASK);
@@ -564,6 +718,7 @@ class FlatHashTable
                                                      d_capacity   - index - 1),
                                          notFound);
     }
+// }}} END GENERATED CODE
 
     /// Create an object for each iterator in the range starting at the
     /// specified `first` iterator and ending immediately before the
@@ -610,28 +765,28 @@ class FlatHashTable
 #ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #define BDLC_FLATHASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B
-#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B BDLC_FLATHASHTABLE_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D
+#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 0
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
     bsl::pair<iterator, bool> try_emplace(const KEY& key);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 0
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 1
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
     template< class ARGS_01>
     bsl::pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 1
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 2
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
     template< class ARGS_01,
               class ARGS_02>
     bsl::pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 2
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 3
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -639,9 +794,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 3
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 4
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -651,9 +806,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 4
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 5
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -665,9 +820,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 5
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 6
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -681,9 +836,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 6
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 7
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -699,9 +854,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 7
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 8
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -719,9 +874,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 8
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 9
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -741,9 +896,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 9
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 10
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -765,31 +920,31 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 10
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
 
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 0
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 0
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 1
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
     template <class ARGS_01>
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 1
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 2
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
     template <class ARGS_01,
               class ARGS_02>
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 2
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 3
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -798,9 +953,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 3
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 4
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -811,9 +966,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 4
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 5
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -826,9 +981,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 5
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 6
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -843,9 +998,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 6
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 7
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -862,9 +1017,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 7
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 8
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -883,9 +1038,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 8
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 9
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -906,9 +1061,9 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 9
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 10
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -931,7 +1086,471 @@ class FlatHashTable
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_B >= 10
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p);
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+    template <class LOOKUP_KEY, class ARGS_01>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+    template <class LOOKUP_KEY, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09,
+                                class ARGS_10>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -944,8 +1563,37 @@ class FlatHashTable
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
+    template <class LOOKUP_KEY, class... ARGS>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
+                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+    {
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
 // }}} END GENERATED CODE
 #endif
+
 
                           // Iterators
 
@@ -1010,10 +1658,56 @@ class FlatHashTable
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of objects in this table having a key equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence, and the second is positioned one past the end of the
+    /// sequence.  If this table contains no objects having a key equivalent to
+    /// the specified `key`, then the two returned iterators will have the same
+    /// value, `end()`.  Note that since a table maintains unique keys, the
+    /// range will contain at most one entry.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        {
+            const_iterator cit1 = find(key);
+            const_iterator cit2 = cit1;
+            if (cit1 != end()) {
+                ++cit2;
+            }
+            return bsl::make_pair(cit1, cit2);
+        }
+
     /// Return an iterator representing the position of the entry in this
     /// flat hash table having the specified `key`, or `end()` if no such
     /// entry exists in this table.
     const_iterator find(const KEY& key) const;
+
+    /// Return an iterator representing the position of the entry in this
+    /// flat hash table that is equivalent to the specified `key`, or `end()`
+    //  if no such entry exists in this table.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        {
+            bsl::size_t index = findTransparentKey(key, d_hasher(key));
+            if (index < d_capacity) {
+                return const_iterator(IteratorImp(d_entries_p  + index,
+                                          d_controls_p + index,
+                                          d_capacity   - index - 1)); // RETURN
+                }
+            return end();
+        }
 
     /// Return (a copy of) the unary hash functor used by this flat hash
     /// table to generate a hash value (of type `bsl::size_t) for a `KEY'
@@ -1902,10 +2596,10 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::equal_range(const KEY& key)
 #ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #define BDLC_FLATHASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C
-#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C BDLC_FLATHASHTABLE_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E
+#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 0
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 0
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 inline
 bsl::pair<typename
@@ -1921,9 +2615,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 0
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 0
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 1
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 1
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01>
 inline
@@ -1941,9 +2635,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 1
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 1
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 2
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 2
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02>
@@ -1964,9 +2658,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 2
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 2
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 3
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 3
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -1990,9 +2684,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 3
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 3
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 4
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 4
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2019,9 +2713,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 4
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 4
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 5
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 5
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2051,9 +2745,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 5
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 5
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 6
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 6
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2086,9 +2780,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 6
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 6
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 7
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 7
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2124,9 +2818,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 7
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 7
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 8
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 8
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2165,9 +2859,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 8
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 8
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 9
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 9
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2209,9 +2903,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 9
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 9
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 10
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 10
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2256,7 +2950,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::emplace(
     bslma::DestructorGuard<entry_type> guard(value.address());
     return this->insert(bslmf::MovableRefUtil::move(value.object()));
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_C >= 10
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2405,6 +3099,59 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::find(const KEY& key)
 }
 
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
+inline
+bsl::pair<typename FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator, bool>
+FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(const ENTRY& entry)
+{
+    bool        notFound;
+    bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
+    bsl::size_t index     = indexOfKey(&notFound,
+                                       ENTRY_UTIL::key(entry),
+                                       hashValue);
+
+    if (notFound) {
+        ENTRY_UTIL::construct(d_entries_p + index, d_allocator_p, entry);
+        d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+        ++d_size;
+    }
+
+    return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                 d_controls_p + index,
+                                                 d_capacity   - index - 1),
+                                     notFound);
+}
+
+template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
+inline
+bsl::pair<typename FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator, bool>
+FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(
+                                                bslmf::MovableRef<ENTRY> entry)
+{
+    bool        notFound;
+    bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
+    bsl::size_t index     = indexOfKey(&notFound,
+                                       ENTRY_UTIL::key(entry),
+                                       hashValue);
+
+    if (notFound) {
+        ENTRY_UTIL::construct(d_entries_p + index,
+                              d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ENTRY, entry));
+
+        d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                               hashValue & k_HASHLET_MASK);
+
+        ++d_size;
+    }
+
+    return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                 d_controls_p + index,
+                                                 d_capacity   - index - 1),
+                                     notFound);
+}
+
+template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template <class INPUT_ITERATOR>
 inline
 void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(
@@ -2483,10 +3230,10 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reset()
 #ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #define BDLC_FLATHASHTABLE_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D
-#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D BDLC_FLATHASHTABLE_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F
+#define BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F BDLC_FLATHASHTABLE_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 0
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 bsl::pair<typename
                   FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator,
@@ -2512,9 +3259,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 1
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01>
 bsl::pair<typename
@@ -2543,9 +3290,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 2
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02>
@@ -2577,9 +3324,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 3
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2614,9 +3361,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 4
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2654,9 +3401,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 5
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2697,9 +3444,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 6
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2743,9 +3490,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 7
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2792,9 +3539,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 8
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2844,9 +3591,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 9
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2899,9 +3646,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 10
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -2957,10 +3704,10 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 10
 
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 0
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 bsl::pair<typename
                   FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator,
@@ -2986,9 +3733,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 0
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 1
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01>
 bsl::pair<typename
@@ -3017,9 +3764,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 1
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 2
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02>
@@ -3051,9 +3798,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 2
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 3
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3088,9 +3835,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 3
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 4
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3128,9 +3875,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 4
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 5
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3171,9 +3918,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 5
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 6
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3217,9 +3964,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 6
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 7
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3266,9 +4013,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 7
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 8
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3318,9 +4065,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 8
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 9
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3373,9 +4120,9 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 9
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+#if BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 10
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -3431,7 +4178,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                                  d_capacity   - index - 1),
                                      notFound);
 }
-#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_D >= 10
+#endif  // BDLC_FLATHASHTABLE_VARIADIC_LIMIT_F >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect

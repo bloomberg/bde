@@ -176,7 +176,11 @@ using namespace bsl;
 // FREE FUNCTIONS
 // [ 8] void swap(FlatHashSet&, FlatHashSet&);
 // ----------------------------------------------------------------------------
-// [29] USAGE EXAMPLE
+// [30] USAGE EXAMPLE
+// [29] CONCERN: `find`        properly handles transparent comparators
+// [29] CONCERN: `count`       properly handles transparent comparators
+// [29] CONCERN: `contains`    properly handles transparent comparators
+// [29] CONCERN: `equal_range` properly handles transparent comparators
 // [24] CONCERN: `FlatHashSet` has the necessary type traits
 // [25] DRQS 165258625: `insert` could create reference to temporary
 // [27] DRQS 169531176: `bsl::inserter` usage on Sun
@@ -948,6 +952,342 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
     return results[NUM_TRIAL / 2];
 }
 
+                    // =============================
+                    // class TransparentlyComparable
+                    // =============================
+
+// When one of these is passed to an `emplace`-like method, it is passed by
+// universal reference, and can (and should) be converted to int as a non-const
+// object.  However, C++03 doesn't have universal references, and instead we
+// pass the object as a const lvalue.  This causes the creation of the object
+// in the container to fail (at compile time), because `operator int()` is
+// non-const.  So, for C++03, we make the conversion work with a const source.
+class TransparentlyComparable {
+    // DATA
+#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+    mutable
+#endif
+    int d_conversionCount;  // number of times `operator int` has been called
+    int d_value;            // the value
+
+  private:
+    // NOT IMPLEMENTED
+    TransparentlyComparable(const TransparentlyComparable&);  // = delete
+
+  public:
+    // CREATORS
+
+    /// Create an object having the specified `value`.
+    explicit TransparentlyComparable(int value)
+
+    : d_conversionCount(0)
+    , d_value(value)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// Return the current value of this object.
+    operator int()
+#if BLSL_COMPILERFEATURES_CPLUPLUS < 201103L
+    const
+#endif
+    {
+        ++d_conversionCount;
+        return d_value;
+    }
+
+    /// Set the conversion count to zero
+    void resetConversionCount()
+    {
+        d_conversionCount = 0;
+    }
+
+    // ACCESSORS
+
+    /// Return the number of times `operator int` has been called.
+    int conversionCount() const
+    {
+        return d_conversionCount;
+    }
+
+    /// Return the current value of this object.
+    int value() const
+    {
+        return d_value;
+    }
+
+    /// Return `true` if the value of the specified `lhs` is less than the
+    /// specified `rhs`, and `false` otherwise.
+    friend bool operator==(const TransparentlyComparable& lhs, int rhs)
+    {
+        return lhs.d_value == rhs;
+    }
+
+    /// Return `true` if the specified `lhs` is less than the value of the
+    /// specified `rhs`, and `false` otherwise.
+    friend bool operator==(int lhs, const TransparentlyComparable& rhs)
+    {
+        return lhs == rhs.d_value;
+    }
+};
+
+                    // ============================
+                    // struct TransparentComparator
+                    // ============================
+
+/// This class can be used as a comparator for containers.  It has a nested
+/// type `is_transparent`, so it is classified as transparent by the
+/// `bslmf::IsTransparentPredicate` metafunction and can be used for
+/// heterogeneous comparison.
+struct TransparentComparator
+ {
+    typedef void is_transparent;
+
+    /// Return `true` if the specified `lhs` is equivalent to the specified
+    /// `rhs` and `false` otherwise.
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS& rhs) const
+    {
+        return lhs == rhs;
+    }
+};
+
+                      // ========================
+                      // struct TransparentHasher
+                      // ========================
+
+/// This class can be used as a comparator for containers.  It has a nested
+/// type `is_transparent`, so it is classified as transparent by the
+/// `bslmf::IsTransparentPredicate` metafunction and can be used for
+/// heterogeneous comparison.
+struct TransparentHasher
+ {
+    typedef void is_transparent;
+
+    size_t operator () (const TransparentlyComparable &value) const
+    {
+        return static_cast<size_t>(value.value());
+    }
+
+    template <class VALUE>
+    size_t operator()(const VALUE &value) const
+    {
+        return static_cast<size_t>(value);
+    }
+};
+
+/// Search for a key equal to the specified `initKeyValue` in the specified
+/// `container`, and count the number of conversions expected based on the
+/// specified `isTransparent`.  Note that `Container` may resolve to a
+/// `const`-qualified type, we are using the "reference" here as a sort of
+/// universal reference; conceptually, the object remains constant, but we
+/// want to test `const`-qualified and non-`const`-qualified overloads.
+template <class t_CONTAINER>
+void testTransparentComparator(t_CONTAINER& container,
+                               bool         isTransparent,
+                               int          initKeyValue)
+{
+    typedef typename t_CONTAINER::const_iterator   Iterator;
+    typedef typename t_CONTAINER::size_type        Count;
+
+    const int expectedConversionCount = isTransparent ? 0 : 1;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    {
+        // Testing `find`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        const Iterator EXISTING_F = container.find(existingKey);
+
+        ASSERT(container.end()               != EXISTING_F);
+        ASSERT(existingKey.value()           == *EXISTING_F);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        const Iterator NON_EXISTING_F = container.find(nonExistingKey);
+        ASSERT(container.end()                  == NON_EXISTING_F);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `contains`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        const bool EXISTING_CONTAINS = container.contains(existingKey);
+        ASSERT(true == EXISTING_CONTAINS);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+        ASSERT(false == NON_EXISTING_CONTAINS);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `count`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        const Count EXISTING_C = container.count(existingKey);
+        ASSERT(1                       == EXISTING_C);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        const Count NON_EXISTING_C = container.count(nonExistingKey);
+        ASSERT(0                       == NON_EXISTING_C);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `equal_range`.
+        typedef const bsl::pair<Iterator, Iterator> IterPair;
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        IterPair EXISTING_ER = container.equal_range(existingKey);
+        ASSERT(EXISTING_ER.first != EXISTING_ER.second);
+        ASSERT(1 == static_cast<Count>(
+                        bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
+        for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
+            ASSERT(existingKey.value() == *it);
+        }
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        IterPair NON_EXISTING_ER = container.equal_range(nonExistingKey);
+        ASSERT(NON_EXISTING_ER.first == NON_EXISTING_ER.second);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
+}
+
+/// Search for a value equal to the specified `initKeyValue` in the
+/// specified `container`, and count the number of conversions expected
+/// based on the specified `isTransparent`.  Since these tests can modify
+/// the container, we make a copy of it for each test.
+template <class t_CONTAINER>
+void testTransparentComparatorMutable(const t_CONTAINER& container,
+                                      bool               isTransparent,
+                                      int                initKeyValue)
+{
+    typedef typename t_CONTAINER::iterator       Iterator;
+    typedef typename t_CONTAINER::size_type      Count;
+
+    const int            expectedConversionCount = isTransparent ? 0 : 1;
+    const Count          size = container.size();
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+
+    {
+        // Testing `erase`.
+        t_CONTAINER c(container, &oa);
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        // with an existing key
+        ASSERT(1 == c.erase(existingKey));
+        ASSERT(size - 1 == c.size());
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        // with a non-existing key
+        ASSERT(0 == c.erase(nonExistingKey));
+        ASSERT(size - 1 == c.size());
+
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `insert` (w/o a hint).
+        typedef const bsl::pair<Iterator, bool> ReturnType;
+
+        t_CONTAINER c(container, &oa);
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        // with an existing key
+        ReturnType existingRet = c.insert(existingKey);
+        ASSERT(!existingRet.second);
+        ASSERT(size == c.size());
+        ASSERT(existingKey.value() == *existingRet.first);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        // with a non-existing key
+        ReturnType nonExistingRet = c.insert(nonExistingKey);
+        ASSERT( nonExistingRet.second);
+        ASSERT(size + 1 == c.size());
+        ASSERT(nonExistingKey.value() == *nonExistingRet.first);
+
+        // Note: We always get a conversion here; if we don't have a transparent
+        // comparator, then the value gets converted, and when the lookup fails,
+        // it gets inserted into the map.  If we do have a transparent comparator,
+        // the lookup is done w/o conversion, but then the value gets converted
+        // in order to put it into the map.
+        ASSERTV(isTransparent,
+                1,   nonExistingKey.conversionCount(),
+                1 == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `insert` (w/a hint).
+        t_CONTAINER c(container, &oa);
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        // with an existing key
+        Iterator existingIter = c.insert(c.cbegin(), existingKey);
+        ASSERT(size == c.size());
+        ASSERT(existingKey.value() == *existingIter);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+
+        // with a non-existing key
+        Iterator nonExistingIter = c.insert(c.cbegin(), nonExistingKey);
+        ASSERT(size + 1 == c.size());
+        ASSERT(nonExistingKey.value() == *nonExistingIter);
+
+        // Note: We always get a conversion here; if we don't have a transparent
+        // comparator, then the value gets converted, and when the lookup fails,
+        // it gets inserted into the map.  If we do have a transparent comparator,
+        // the lookup is done w/o conversion, but then the value gets converted
+        // in order to put it into the map.
+        ASSERTV(isTransparent,
+                1,   nonExistingKey.conversionCount(),
+                1 == nonExistingKey.conversionCount());
+    }
+}
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -1230,7 +1570,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1277,6 +1617,89 @@ int main(int argc, char *argv[])
 // ```
 //  100 84
 // ```
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING TRANSPARENT COMPARATOR
+        //
+        // Concerns:
+        // 1. `unordered_set` has does not have a transparent set of lookup
+        //    functions if the comparator is not transparent.
+        // 2. `unordered_set` has a transparent set of lookup functions if the
+        //    comparator is transparent.
+        //
+        // Plan:
+        // 1. Construct a non-transparent set and call the lookup functions
+        //    with a type that is convertible to the `value_type`.  There
+        //    should be exactly one conversion per call to a lookup function.
+        //    (C-1)
+        // 2. Construct a transparent set and call the lookup functions with a
+        //    type that is convertible to the `value_type`.  There should be
+        //    no conversions.  (C-2)
+        //
+        // Testing:
+        //   CONCERN: `find`        properly handles transparent comparators
+        //   CONCERN: `count`       properly handles transparent comparators
+        //   CONCERN: `contains`    properly handles transparent comparators
+        //   CONCERN: `equal_range` properly handles transparent comparators
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
+                                 "==============================" "\n");
+
+        typedef bdlc::FlatHashSet<int>                       NonTransparentSet;
+        typedef bdlc::FlatHashSet<int,
+                   TransparentHasher, TransparentComparator>    TransparentSet;
+
+        const int DATA[] = { 0, 1, 2, 3, 4 };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        bslma::TestAllocator     oa("object", veryVeryVeryVerbose);
+        NonTransparentSet        mXNT(&oa);
+        const NonTransparentSet& XNT = mXNT;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            if (veryVeryVeryVerbose) {
+                printf("Constructing test data.\n");
+            }
+            mXNT.insert(DATA[i]);
+        }
+
+        TransparentSet        mXT(mXNT.begin(), mXNT.end(), &oa);
+        const TransparentSet& XT = mXT;
+
+        ASSERT(NUM_DATA == XNT.size());
+        ASSERT(NUM_DATA == XT.size() );
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int KEY = DATA[i];
+            if (veryVerbose) {
+                printf("Testing transparent comparators with a key of %d\n",
+                       KEY);
+            }
+
+            if (veryVerbose) {
+                printf("\tTesting const non-transparent set.\n");
+            }
+            testTransparentComparator( XNT, false, KEY);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable non-transparent set.\n");
+            }
+            testTransparentComparator       (mXNT, false, KEY);
+            testTransparentComparatorMutable(mXNT, false, KEY);
+            if (veryVerbose) {
+                printf("\tTesting const transparent set.\n");
+            }
+            testTransparentComparator( XT,  true,  KEY);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable transparent set.\n");
+            }
+            testTransparentComparator       (mXT,  true,  KEY);
+            testTransparentComparatorMutable(mXT,  true,  KEY);
+        }
+
       } break;
       case 28: {
         // --------------------------------------------------------------------

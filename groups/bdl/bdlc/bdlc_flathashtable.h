@@ -137,6 +137,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
@@ -159,7 +160,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
-// Generated on Tue Feb 13 09:14:21 2024
+// Generated on Thu Dec  5 18:14:12 2024
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.h
 # define COMPILING_BDLC_FLATHASHTABLE_H
 # include <bdlc_flathashtable_cpp03.h>
@@ -323,6 +324,47 @@ class FlatHashTable
                            const KEY&   key,
                            bsl::size_t  hashValue);
 
+    /// Load `true` into the specified `notFound` if there is no entry in
+    /// this table equvalent to the specified `key` with the specified
+    /// `hashValue`, and `false` otherwise.  Return the index of the entry
+    /// within `d_entries_p` which contains the `key` if such an entry
+    /// exists, otherwise insert an entry with value obtained from
+    /// `ENTRY_UTIL::construct` and return the index of this entry.  This
+    /// method rehashes the table if the `key` was not present and the
+    /// addition of an entry would cause the load factor to exceed
+    /// `max_load_factor()`.  The behavior is undefined unless
+    /// `hashValue == d_hasher(key)`.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    indexOfKeyTransparent(bool              *notFound,
+                          const LOOKUP_KEY&  key,
+                          bsl::size_t        hashValue)
+    {
+        BSLS_ASSERT_SAFE(hashValue == d_hasher(key));
+
+        bsl::size_t index = findTransparentKey(key, hashValue);
+
+        if (index == d_capacity) {
+            *notFound = true;
+
+            if (d_size >= k_MAX_LOAD_FACTOR_NUMERATOR
+                        * (d_capacity / k_MAX_LOAD_FACTOR_DENOMINATOR)) {
+                rehashRaw(d_capacity > 0 ? 2 * d_capacity : k_MIN_CAPACITY);
+            }
+
+            index = (hashValue >> d_groupControlShift) * GroupControl::k_SIZE;
+            index = findAvailable(d_controls_p, index, d_capacity);
+        }
+        else {
+            *notFound = false;
+        }
+
+        return index;
+    }
+
     /// Change the capacity of this table to the specified `newCapacity`,
     /// and redistribute all the contained elements into the new sequence of
     /// entries, according to their hash values.  The behavior is undefined
@@ -337,6 +379,54 @@ class FlatHashTable
     /// `d_capacity` if the `key` is not present.  The behavior is undefined
     /// unless `hashValue == d_hasher(key)`.
     bsl::size_t findKey(const KEY& key, bsl::size_t hashValue) const;
+
+    /// Return the index of the entry within `d_entries_p` containing a key
+    /// equivalent to the specified `key`, which has the specified `hashValue`,
+    /// or `d_capacity` if a key equivalent to `key` is not present.  The
+    /// behavior is undefined unless `hashValue == d_hasher(key)`.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    findTransparentKey(const LOOKUP_KEY& key, bsl::size_t hashValue) const
+    {
+        BSLS_ASSERT_SAFE(hashValue == d_hasher(key));
+
+        bsl::size_t  index   = (hashValue >> d_groupControlShift)
+                                                        * GroupControl::k_SIZE;
+        bsl::uint8_t hashlet = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+
+        for (bsl::size_t i = 0; i < d_capacity; i += GroupControl::k_SIZE) {
+            bsl::uint8_t *controlStart = d_controls_p + index;
+            ENTRY        *entryStart   = d_entries_p  + index;
+
+            GroupControl  groupControl(controlStart);
+            bsl::uint32_t candidates = groupControl.match(hashlet);
+            while (candidates) {
+                int offset = bdlb::BitUtil::numTrailingUnsetBits(candidates);
+
+                ENTRY *entry = entryStart + offset;
+
+                if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                      d_equal(ENTRY_UTIL::key(*entry), key))) {
+                    return index + offset;                            // RETURN
+                }
+                candidates = bdlb::BitUtil::withBitCleared(candidates, offset);
+            }
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(groupControl.neverFull()))
+            {
+                break;
+            }
+
+            index = (index + GroupControl::k_SIZE) & (d_capacity - 1);
+        }
+
+        return d_capacity;
+    }
 
     /// Return the minimum capacity that satisfies all class invariants, and
     /// is at least the specified `minimumCapacity`.
@@ -454,6 +544,31 @@ class FlatHashTable
     /// contains at most one element.
     bsl::pair<iterator, iterator> equal_range(const KEY& key);
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of objects in this table having a key equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence, and the second is positioned one past the end of the
+    /// sequence.  If this table contains no objects having a key equivalent to
+    /// the specified `key`, then the two returned iterators will have the same
+    /// value, `end()`.  Note that since a table maintains unique keys, the
+    /// range will contain at most one entry.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+    {
+        iterator it1 = find(key);
+        iterator it2 = it1;
+        if (it1 != end()) {
+            ++it2;
+        }
+        return bsl::make_pair(it1, it2);
+    }
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Create an `ENTRY` object from the specified `args`, and attempt to
     /// add it to this flat hash table.  Return a `bsl::pair` containing an
@@ -470,6 +585,29 @@ class FlatHashTable
     /// to `key` in this table) return 0 with no other effect.  This method
     /// invalidates all iterators, and references to the removed element.
     bsl::size_t erase(const KEY& key);
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Remove from this table the object having the specified `key`, if it
+    /// exists, and return 1; otherwise (there is no object with a key equal
+    /// to `key` in this table) return 0 with no other effect.  This method
+    /// invalidates all iterators, and references to the removed element.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::size_t>::type
+    erase(LOOKUP_KEY&& key)
+    {
+        iterator it = find(key);
+        if (it == end()) {
+            return 0;                                                 // RETURN
+        }
+        erase(it);
+        return 1;
+    }
+#endif
 
     /// Remove from this table the object at the specified `position`, and
     /// return an iterator referring to the element immediately following
@@ -495,11 +633,27 @@ class FlatHashTable
     /// entry exists, and `end()` otherwise.
     iterator find(const KEY& key);
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-    template <class ENTRY_TYPE>
-    bsl::pair<iterator, bool> insert(
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
-#else
+    /// Return an iterator providing modifiable access to the object in this
+    /// flat hash table with a key equivalent to the specified `key`, if such
+    /// an entry exists, and `end()` otherwise.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , iterator>::type
+    find(const LOOKUP_KEY& key)
+    {
+        bsl::size_t index = findTransparentKey(key, d_hasher(key));
+        if (index < d_capacity) {
+            return iterator(IteratorImp(d_entries_p  + index,
+                                        d_controls_p + index,
+                                        d_capacity   - index - 1));   // RETURN
+            }
+        return end();
+    }
+
     /// Insert the specified `entry` into this table if the key of the
     /// `entry` does not already exist in this table; otherwise, this method
     /// has no effect.  Return a `pair` whose `first` member is an iterator
@@ -510,26 +664,41 @@ class FlatHashTable
     /// movable types that are not bitwise copyable will be copied (to avoid
     /// confusion with regard to calling the `entry` destructor after this
     /// call).
-    template <class ENTRY_TYPE>
-    typename bsl::enable_if<bsl::is_convertible<ENTRY_TYPE, ENTRY>::value,
-                            bsl::pair<iterator, bool> >::type
-                    insert(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_TYPE) entry)
-#endif
+    bsl::pair<iterator, bool> insert(const ENTRY &entry);
+    bsl::pair<iterator, bool> insert(bslmf::MovableRef<ENTRY> entry);
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Insert the specified `key` into this table if a key equivalent to `key`
+    /// does not already exist in this table; otherwise, this method has no
+    /// effect.  Return a `pair` whose `first` member is an iterator
+    /// referring to the (possibly newly inserted) object in this table
+    /// whose key is the equal to that of the object to be inserted, and
+    /// whose `second` member is `true` if a new entry was inserted, and
+    /// `false` if a entry having an equal key was already present.  Bitwise
+    /// movable types that are not bitwise copyable will be copied (to avoid
+    /// confusion with regard to calling the `entry` destructor after this
+    /// call).
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    insertTransparent(LOOKUP_KEY&& key)
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
 
         bool        notFound;
-        bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
-        bsl::size_t index     = indexOfKey(&notFound,
-                                           ENTRY_UTIL::key(entry),
-                                           hashValue);
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index     = indexOfKeyTransparent(&notFound,
+                                                      key,
+                                                      hashValue);
 
         if (notFound) {
             ENTRY_UTIL::construct(
                              d_entries_p + index,
                              d_allocator_p,
-                             BSLS_COMPILERFEATURES_FORWARD(ENTRY_TYPE, entry));
+                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
 
             d_controls_p[index] = static_cast<bsl::uint8_t>(
                                                    hashValue & k_HASHLET_MASK);
@@ -542,6 +711,7 @@ class FlatHashTable
                                                      d_capacity   - index - 1),
                                          notFound);
     }
+#endif
 
     /// Create an object for each iterator in the range starting at the
     /// specified `first` iterator and ending immediately before the
@@ -608,7 +778,45 @@ class FlatHashTable
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                                      ARGS&&...                           args);
+
+    /// If a key equivalent to the specified `key` already exists in this map
+    /// return a pair containing an iterator referring to the existing
+    /// item, and `false`.  Otherwise, insert into this map a newly-created
+    /// `ENTRY` object, constructed from `std::forward<LOOKUP_KEY>(k)` and the
+    /// specified `args`, and return a pair containing an iterator referring
+    /// to the newly-created entry and `true`.  This method requires that
+    /// the (template parameter) types `KEY` and `VALUE` are
+    /// `emplace-constructible` from `key` and `args` respectively.  For
+    /// C++03, `VALUE` must also be `copy-constructible`.
+    template <class LOOKUP_KEY, class... ARGS>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<iterator, bool> >::type
+    try_emplace(LOOKUP_KEY&& key, ARGS&&... args)
+    {
+        // Note: `args` contains `piecewise_construct` and `key`
+        bool        notFound;
+        bsl::size_t hashValue = d_hasher(key);
+        bsl::size_t index = indexOfKeyTransparent(&notFound, key, hashValue);
+
+        if (notFound) {
+            ENTRY_UTIL::construct(d_entries_p + index,
+                                  d_allocator_p,
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+
+            d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+            ++d_size;
+            }
+
+        return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                     d_controls_p + index,
+                                                     d_capacity   - index - 1),
+                                         notFound);
+    }
 #endif
+
 
                           // Iterators
 
@@ -673,10 +881,56 @@ class FlatHashTable
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
+    /// Return a pair of iterators providing non-modifiable access to the
+    /// sequence of objects in this table having a key equivalent to the
+    /// specified `key`, where the first iterator is positioned at the start
+    /// of the sequence, and the second is positioned one past the end of the
+    /// sequence.  If this table contains no objects having a key equivalent to
+    /// the specified `key`, then the two returned iterators will have the same
+    /// value, `end()`.  Note that since a table maintains unique keys, the
+    /// range will contain at most one entry.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , bsl::pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        {
+            const_iterator cit1 = find(key);
+            const_iterator cit2 = cit1;
+            if (cit1 != end()) {
+                ++cit2;
+            }
+            return bsl::make_pair(cit1, cit2);
+        }
+
     /// Return an iterator representing the position of the entry in this
     /// flat hash table having the specified `key`, or `end()` if no such
     /// entry exists in this table.
     const_iterator find(const KEY& key) const;
+
+    /// Return an iterator representing the position of the entry in this
+    /// flat hash table that is equivalent to the specified `key`, or `end()`
+    //  if no such entry exists in this table.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
+          , const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        {
+            bsl::size_t index = findTransparentKey(key, d_hasher(key));
+            if (index < d_capacity) {
+                return const_iterator(IteratorImp(d_entries_p  + index,
+                                          d_controls_p + index,
+                                          d_capacity   - index - 1)); // RETURN
+                }
+            return end();
+        }
 
     /// Return (a copy of) the unary hash functor used by this flat hash
     /// table to generate a hash value (of type `bsl::size_t) for a `KEY'
@@ -1702,6 +1956,59 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::find(const KEY& key)
 }
 
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
+inline
+bsl::pair<typename FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator, bool>
+FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(const ENTRY& entry)
+{
+    bool        notFound;
+    bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
+    bsl::size_t index     = indexOfKey(&notFound,
+                                       ENTRY_UTIL::key(entry),
+                                       hashValue);
+
+    if (notFound) {
+        ENTRY_UTIL::construct(d_entries_p + index, d_allocator_p, entry);
+        d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                                   hashValue & k_HASHLET_MASK);
+        ++d_size;
+    }
+
+    return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                 d_controls_p + index,
+                                                 d_capacity   - index - 1),
+                                     notFound);
+}
+
+template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
+inline
+bsl::pair<typename FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::iterator, bool>
+FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(
+                                                bslmf::MovableRef<ENTRY> entry)
+{
+    bool        notFound;
+    bsl::size_t hashValue = d_hasher(ENTRY_UTIL::key(entry));
+    bsl::size_t index     = indexOfKey(&notFound,
+                                       ENTRY_UTIL::key(entry),
+                                       hashValue);
+
+    if (notFound) {
+        ENTRY_UTIL::construct(d_entries_p + index,
+                              d_allocator_p,
+                              BSLS_COMPILERFEATURES_FORWARD(ENTRY, entry));
+
+        d_controls_p[index] = static_cast<bsl::uint8_t>(
+                                               hashValue & k_HASHLET_MASK);
+
+        ++d_size;
+    }
+
+    return bsl::pair<iterator, bool>(IteratorImp(d_entries_p  + index,
+                                                 d_controls_p + index,
+                                                 d_capacity   - index - 1),
+                                     notFound);
+}
+
+template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template <class INPUT_ITERATOR>
 inline
 void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::insert(
@@ -1775,7 +2082,7 @@ void FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::reset()
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-/// Note: `args` contains `key`
+/// Note: `args` contains `piecewise_construct` and `key`
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class... ARGS>
 bsl::pair<typename
@@ -1805,7 +2112,7 @@ FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::try_emplace(
                                      notFound);
 }
 
-/// Note: `args` contains `key`
+/// Note: `args` contains `piecewise_construct` and `key`
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 template< class... ARGS>
 bsl::pair<typename
@@ -2441,7 +2748,7 @@ void FlatHashTable_ImplUtil::DestroyEntryArrayProctor<ENTRY_TYPE>::release()
 
 #endif // End C++11 code
 
-#endif
+#endif // End C++11 code
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.
