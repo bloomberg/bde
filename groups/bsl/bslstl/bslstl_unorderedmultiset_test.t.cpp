@@ -1458,6 +1458,9 @@ struct CompareProctor {
 
 class TransparentlyComparable {
     // DATA
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+    mutable
+#endif
     int d_conversionCount;  // number of times `operator int` has been called
     int d_value;            // the value
 
@@ -1479,9 +1482,19 @@ class TransparentlyComparable {
 
     /// Return the current value of this object.
     operator int()
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+    const
+#endif
     {
         ++d_conversionCount;
         return d_value;
+    }
+
+    /// return a count of the number of times this object has been converted to
+    /// an int.
+    void resetConversionCount()
+    {
+        d_conversionCount = 0;
     }
 
     // ACCESSORS
@@ -1574,116 +1587,135 @@ void testTransparentComparator(Container& container,
     typedef typename Container::const_iterator       Iterator;
     typedef typename Container::size_type            Count;
 
-    int expectedConversionCount = 0;
+    const int expectedConversionCount = isTransparent ? 0 : 1;
 
     TransparentlyComparable existingKey(initKeyValue);
     TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
                                                         : -100);
 
-    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+    {
+        // Testing `find`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
 
-    // Testing `find`.
+        const Iterator EXISTING_F = container.find(existingKey);
+        ASSERT(container.end()               != EXISTING_F);
+        ASSERT(existingKey.value()           == *EXISTING_F);
+        ASSERTV(isTransparent,
+                  expectedConversionCount,   existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
 
-    const Iterator EXISTING_F = container.find(existingKey);
-    if (!isTransparent) {
-        ++expectedConversionCount;
+        const Iterator NON_EXISTING_F = container.find(nonExistingKey);
+        ASSERT(container.end()                  == NON_EXISTING_F);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
-    ASSERT(container.end()               != EXISTING_F);
-    ASSERT(existingKey.value()           == *EXISTING_F);
-    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+    {
+        // Testing `contains`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
 
-    const Iterator NON_EXISTING_F = container.find(nonExistingKey);
-    ASSERT(container.end()                  == NON_EXISTING_F);
-    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+        const bool EXISTING_CONTAINS = container.contains(existingKey);
+        ASSERT(true == EXISTING_CONTAINS);
+        ASSERTV(isTransparent,
+                  expectedConversionCount,   existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
 
-    // Testing `contains`.
-
-    const bool EXISTING_CONTAINS = container.contains(existingKey);
-    if (!isTransparent) {
-        ++expectedConversionCount;
+        const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
+        ASSERT(false == NON_EXISTING_CONTAINS);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
-    ASSERT(true == EXISTING_CONTAINS);
-    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+    {
+        // Testing `count`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
 
-    const bool NON_EXISTING_CONTAINS = container.contains(nonExistingKey);
-    ASSERT(false == NON_EXISTING_CONTAINS);
-    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+        const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
+        const Count EXISTING_C = container.count(existingKey);
+        ASSERT(EXPECTED_C              == EXISTING_C);
+        ASSERTV(isTransparent,
+                  expectedConversionCount,   existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
 
-    // Testing `count`.
-
-    const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
-    const Count EXISTING_C = container.count(existingKey);
-
-    if (!isTransparent) {
-        ++expectedConversionCount;
+        const Count NON_EXISTING_C = container.count(nonExistingKey);
+        ASSERT(0                       == NON_EXISTING_C);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
-    ASSERT(EXPECTED_C              == EXISTING_C);
-    ASSERT(expectedConversionCount == existingKey.conversionCount());
+    {
+        // Testing `equal_range`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+        const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
 
-    const Count NON_EXISTING_C = container.count(nonExistingKey);
-    ASSERT(0                       == NON_EXISTING_C);
-    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+        const bsl::pair<Iterator, Iterator> EXISTING_ER =
+                                                container.equal_range(existingKey);
+        ASSERTV(isTransparent,
+                  expectedConversionCount,   existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
+        ASSERT(EXPECTED_C ==
+         static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
 
-    // Testing `equal_range`.
-
-    const bsl::pair<Iterator, Iterator> EXISTING_ER =
-                                            container.equal_range(existingKey);
-    if (!isTransparent) {
-        ++expectedConversionCount;
-    }
-
-    ASSERT(expectedConversionCount == existingKey.conversionCount());
-    ASSERT(EXPECTED_C ==
-     static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
-
-    for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
-        ASSERT(existingKey.value() == *it);
-    }
-
-    const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
-                                         container.equal_range(nonExistingKey);
-    ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
-    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
-
-    // Testing `bucket`.
-    const Count bucketFound    = container.bucket(existingKey);
-    const Count bucketNotFound = container.bucket(nonExistingKey);
-
-    if (!isTransparent) {
-        ++expectedConversionCount;
-    }
-
-    ASSERTV(expectedConversionCount,    existingKey.conversionCount(),
-                  expectedConversionCount ==    existingKey.conversionCount());
-    ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
-                  expectedConversionCount == nonExistingKey.conversionCount());
-
-    // check that we found the right bucket
-    bool                                found_it;
-    const typename Container::key_equal c_eq = container.key_eq();
-
-    found_it = false;
-    for (LocalIterator it  = container.begin(bucketFound);
-                       it != container.end(bucketFound);
-                       ++it) {
-        if (c_eq(*it, existingKey)) {
-            found_it = true;
+        for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
+            ASSERT(existingKey.value() == *it);
         }
-    }
-    ASSERT(found_it);
 
-    found_it = false;
-    for (LocalIterator it  = container.begin(bucketNotFound);
-                       it != container.end(bucketNotFound);
-                       ++it) {
-        if (c_eq(*it, nonExistingKey)) {
-            found_it = true;
-        }
+        const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
+                                             container.equal_range(nonExistingKey);
+        ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
-    ASSERT(!found_it);
+
+    {
+        // Testing `bucket`.
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        bool                                found_it;
+        const typename Container::key_equal c_eq = container.key_eq();
+
+        const Count bucketFound = container.bucket(existingKey);
+
+        // check that we found the right bucket
+        found_it = false;
+        for (LocalIterator it  = container.begin(bucketFound);
+                           it != container.end(bucketFound);
+                           ++it) {
+            if (c_eq(*it, existingKey.value())) {
+                found_it = true;
+            }
+        }
+        ASSERT(found_it);
+
+        ASSERTV(isTransparent,
+                  expectedConversionCount,   existingKey.conversionCount(),
+                  expectedConversionCount == existingKey.conversionCount());
+
+        const Count bucketNotFound = container.bucket(nonExistingKey);
+        // check that we found the right bucket
+        found_it = false;
+        for (LocalIterator it  = container.begin(bucketNotFound);
+                           it != container.end(bucketNotFound);
+                           ++it) {
+            if (c_eq(*it, nonExistingKey.value())) {
+                found_it = true;
+            }
+        }
+        ASSERT(!found_it);
+
+        ASSERTV(isTransparent,
+                expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+    }
 }
 
 }  // close unnamed namespace

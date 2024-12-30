@@ -1673,38 +1673,37 @@ void testTransparentComparator(t_CONTAINER& container,
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
 
-        const Count bucketFound    = container.bucket(existingKey);
-
-        ASSERTV(expectedConversionCount,      existingKey.conversionCount(),
-                expectedConversionCount ==    existingKey.conversionCount());
-
-        // check that we found the right bucket
         bool                                  found_it;
         const typename t_CONTAINER::key_equal c_eq = container.key_eq();
 
+        const Count bucketFound    = container.bucket(existingKey);
+        // check that we found the right bucket
         found_it = false;
         for (LocalIterator it  = container.begin(bucketFound);
                            it != container.end(bucketFound);
                            ++it) {
-            if (c_eq(*it, existingKey)) {
+            if (c_eq(*it, existingKey.value())) {
                 found_it = true;
             }
         }
         ASSERT(found_it);
+        ASSERTV(expectedConversionCount,      existingKey.conversionCount(),
+                expectedConversionCount ==    existingKey.conversionCount());
 
         const Count bucketNotFound = container.bucket(nonExistingKey);
-        ASSERTV(expectedConversionCount,   nonExistingKey.conversionCount(),
-                expectedConversionCount == nonExistingKey.conversionCount());
-
+        // check that we found the right bucket
         found_it = false;
         for (LocalIterator it  = container.begin(bucketNotFound);
                            it != container.end(bucketNotFound);
                            ++it) {
-            if (c_eq(*it, nonExistingKey)) {
+            if (c_eq(*it, nonExistingKey.value())) {
                 found_it = true;
             }
         }
         ASSERT(!found_it);
+        ASSERTV(expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
+
 
     }
 }
