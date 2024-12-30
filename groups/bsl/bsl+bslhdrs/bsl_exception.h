@@ -39,9 +39,9 @@ namespace bsl {
     using std::uncaught_exception;
 #endif
 
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
-    // These names are removed by C++17
-
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS) && \
+    !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
+    using std::get_unexpected;
     using std::set_unexpected;
     using std::unexpected;
     using std::unexpected_handler;
@@ -61,9 +61,6 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED)
-    using std::get_unexpected;
-# endif
     using std::get_terminate;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 }  // close package namespace

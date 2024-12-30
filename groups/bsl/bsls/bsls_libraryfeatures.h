@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR: `auto_ptr` provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP98_BINDERS_API: adaptable function API provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY: C++11 base lib provided
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS: [deprecated]
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING: except handling provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: GC support provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES: misc utils provided
@@ -64,6 +65,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: `std::jthread`
+//  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -496,6 +498,54 @@ BSLS_IDENT("$Id: $")
 //       - libstdc++ version 11
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY`
+///-------------------------------------------------
+// Experimental support! Do not use
+// TODO: Complete C++23 baseline functionality validation.
+//
+// The information under this macro is subject to change!
+//
+// This macro is used to identify whether the current platform's standard
+// library supports a baseline set of C++23 library features (which are defined
+// below).  This is especially important in BSL when importing standard library
+// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
+//
+// This macro is defined if all of the listed conditions are true:
+//
+// * The compiler supports C++23 language features.
+// * The following headers can be included:
+//   - <expected>  TODO
+//   - TBD
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 14.0
+//   - clang 17 when compiling against either:
+//       - libc++ version 17, or
+//       - libstdc++ version 14
+//   - Microsoft Visual Studio N/A
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS`
+///--------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS` macro is
+// defined if *both* of the listed conditions are true:
+//
+// * The compiler support is less or equal to C++20.
+// * The following functions and types are provided by the native standard
+//   library in `<exception>`:
+//   - `unexpected`
+//   - `unexpected_handler`
+//   - `set_unexpected`
+//   - `get_unexpected`
+//
+// @DEPRECATED: Do not use the API listed above.
+//
+// This macro is defined first for the following compiler versions:
+//
+// * GCC 5.0
+// * clang 3.0 using at least GCC 5.0 GNU C++ Library
+// * Microsoft Visual Studio 2015 / MSVC 19.00
+//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING`
 ///---------------------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING` macro is defined if
@@ -549,7 +599,6 @@ BSLS_IDENT("$Id: $")
 //     - `max_align_t`
 //   - Functions defined in `<exception>`
 //     - `get_terminate`
-//     - `get_unexpected`
 //   - Functions defined in `<iomanip>`
 //     - `get_time`
 //     - `put_time`
@@ -1454,13 +1503,13 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                          1
-    #if (__cplusplus >= 201103L) ||                \
+    #if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) ||                \
            (defined(__GXX_EXPERIMENTAL_CXX0X__) && \
             BSLS_PLATFORM_CMP_VERSION >= 40800)
         // C99 functions are available in C++11 builds.
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY                          1
     #endif
-    #if (__cplusplus >= 201103L) ||                \
+    #if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L) ||                \
            (defined(__GXX_EXPERIMENTAL_CXX0X__) && \
             BSLS_PLATFORM_CMP_VERSION >= 40800) || \
             (defined(_GLIBCXX_USE_C99) && _GLIBCXX_USE_C99 == 1)
@@ -1468,13 +1517,15 @@ BSLS_IDENT("$Id: $")
 
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                         1
     #endif
-    #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
+    #if defined(__GXX_EXPERIMENTAL_CXX0X__) && \
+        (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L)
         #if BSLS_PLATFORM_CMP_VERSION >= 40600
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS            1
         #endif
 
         #if BSLS_PLATFORM_CMP_VERSION >= 40800
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS    1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING         1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                      1
@@ -1496,17 +1547,17 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API     1
         #endif
     #endif
-    #if __cplusplus > 201103L
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201103L
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY               1
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS                1
     #endif
-    #if __cplusplus > 201402L  // > C++14
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201402L  // > C++14
         #if BSLS_PLATFORM_CMP_VERSION >= 70301
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD            1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS            1
         #endif
     #endif
-    #if __cplusplus >= 201703L  // At least C++17
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L  // At least C++17
         #if BSLS_PLATFORM_CMP_VERSION >= 70000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
@@ -1544,12 +1595,17 @@ BSLS_IDENT("$Id: $")
         #endif
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS         1
     #endif
-    #if __cplusplus >= 202002L  // At least C++20
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L  // At least C++20
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION                    1
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 110100
             #define BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY           1
+        #endif
+    #endif
+    #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L  // At least C++23;
+        #if BSLS_PLATFORM_CMP_VERSION >= 140000
+            #define BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY           1
         #endif
     #endif
 
@@ -1573,8 +1629,9 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS       1
     #endif
     #if _GLIBCXX_USE_DEPRECATED
-        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
+        // Note: always set to 1 for all known gcc versions.
         #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1639,6 +1696,7 @@ BSLS_IDENT("$Id: $")
         #endif
     #endif
 
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
@@ -1651,6 +1709,7 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
     // #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
@@ -1680,23 +1739,24 @@ BSLS_IDENT("$Id: $")
         #endif
 
         #if (defined(__GXX_EXPERIMENTAL_CXX0X__) || (_LIBCPP_STD_VER >= 11)) \
-          && (__cplusplus >= 201103L)
+          && (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY           1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS    1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING         1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                      1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR                 1
         #endif
 
-        #if __cplusplus > 201103L
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201103L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY           1
         #endif
 
-        #if __cplusplus >= 201402L
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS            1
         #endif
 
-        #if __cplusplus >= 201703L
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD            1
 
             #if BSLS_PLATFORM_CMP_VERSION >= 140000
@@ -1722,6 +1782,12 @@ BSLS_IDENT("$Id: $")
             #endif
         #endif
 
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
+            #if BSLS_PLATFORM_CMP_VERSION >= 170000
+                #define BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY       1
+            #endif
+        #endif
+
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
 
         #if defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -1729,14 +1795,16 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                     1
         #endif
 
-        #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
+        #if defined(__GXX_EXPERIMENTAL_CXX0X__) && \
+            (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY           1
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS            1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS    1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING         1
-            #if __cplusplus >= 201703L
+            #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
                 #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM             1
             #endif
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS            1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE                1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                      1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR                 1
@@ -1771,14 +1839,14 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS   1
         #endif
 
-        #if __cplusplus > 201103L
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS > 201103L
             #if BSLS_PLATFORM_CMP_VERSION >= 30400
                 #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY       1
                 #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS        1
             #endif
         #endif
 
-        #if __cplusplus >= 201703L
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY           1
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS            1
             #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
@@ -1824,6 +1892,18 @@ BSLS_IDENT("$Id: $")
                 #endif
             #endif
         #endif
+
+        #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
+            #if BSLS_PLATFORM_CMP_VERSION >= 170000
+                #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) &&               \
+                    defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 14
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY   1
+                #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&            \
+                      defined(_LIBCPP_VERSION) && _LIBCPP_VERSION >= 170000
+                    #define BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY   1
+                #endif
+            #endif
+        #endif
     #endif
 
     #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L &&                         \
@@ -1848,8 +1928,8 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
 
     #if _GLIBCXX_USE_DEPRECATED
-        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
         #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
 #endif
 
@@ -1862,25 +1942,27 @@ BSLS_IDENT("$Id: $")
     // We assume at least Visual Studio 2015
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                          1
     #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY                              1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY                   1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE                        1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES            1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS                    1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS                    1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR                         1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS           1
     #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                             1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY                   1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS            1
     #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING                 1
     #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API             1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES            1
     #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR         1
     #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION                1
-    #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                              1
-        // Note that earlier versions have 'tuple' but this macro also
-        // requires the definition of the
-        // 'BSLS_COMPILER_FEATURES_HAS_VARIADIC_TEMPLATES' macro.
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS                    1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE                        1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR                         1
     #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY                   1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS                    1
+    #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS           1
+    // Note that earlier versions have 'tuple' but this macro also
+    // requires the definition of the
+    // 'BSLS_COMPILER_FEATURES_HAS_VARIADIC_TEMPLATES' macro.
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                              1
+
+    // Early access to C++17 features
     #define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT                      1
-        // Early access to C++17 features
 
     #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
 
@@ -1994,6 +2076,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+    // Dynamic exception specifications were removed from most compiler before
+    // C++23.
+    #undef BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS
+
     // The garbage collection support API is removed from C++23, so undefine
     // for any standard version identifier greater than that of C++20.  Note
     // that some C++23 preview toolchains removed this API before the final
