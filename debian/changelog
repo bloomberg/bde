@@ -1,9 +1,16 @@
-bsl-internal (4.18.1.0) unstable; urgency=low
+bsl-internal (4.18.2.0) unstable; urgency=low
 
+  * af664975d Bumped version to 4.18.2.0
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 2 Jan 2025 16:55:33 -0500
+
+bsl-internal (4.18.1.0) git; urgency=low
+
+  * 9ba36b161 Changelog for version 4.18.1.0
   * ec52f5630 Bumped version to 4.18.1.0
   * aa0d8d105 C26 unordered removal (#5121)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Dec 2024 18:43:52 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Dec 2024 18:44:30 +0000
 
 bsl-internal (4.18.0.0) git; urgency=low
 
