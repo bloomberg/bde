@@ -146,14 +146,12 @@ int main(int argc, char **argv)
             { L_,   "Dummy spec", L"Dummy spec" },
         };
 
-        enum {
-            NUM_DATA = sizeof DATA / sizeof *DATA
-        };
+        const size_t  NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int         LINE    = DATA[i].d_line;
-            bsl::string_view  FORMAT  = DATA[i].d_format_p;
-            bsl::wstring_view WFORMAT = DATA[i].d_wformat_p;
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int               LINE    = DATA[i].d_line;
+            const bsl::string_view  FORMAT  = DATA[i].d_format_p;
+            const bsl::wstring_view WFORMAT = DATA[i].d_wformat_p;
 
             // Testing constructor and accessors.
 
@@ -209,7 +207,8 @@ int main(int argc, char **argv)
             }
             catch (const bsl::format_error& err) {
                 const char *expectedMessage =
-                               "Parse error: advance to iterator out of range";
+                          "Parse error: attempt to advance to an out-of-range "
+                          "iterator";
                 ASSERTV(LINE, err.what(),
                         0 == strcmp(expectedMessage, err.what()));
             }
@@ -223,7 +222,8 @@ int main(int argc, char **argv)
             }
             catch (const bsl::format_error& err) {
                 const char *expectedMessage =
-                               "Parse error: advance to iterator out of range";
+                          "Parse error: attempt to advance to an out-of-range "
+                          "iterator";
                 ASSERTV(LINE, err.what(),
                         0 == strcmp(expectedMessage, err.what()));
             }

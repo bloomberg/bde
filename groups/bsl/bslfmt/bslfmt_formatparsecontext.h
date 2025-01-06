@@ -54,8 +54,8 @@ class basic_format_parse_context {
     // DATA
     iterator     d_origBegin;  // start of format string
     iterator     d_unparsed;   // start of unparsed portion of format string
-    iterator     d_end;        // end of format string.
-    IndexingMode d_indexing;   // current indexing mode.
+    iterator     d_end;        // end of format string
+    IndexingMode d_indexing;   // current indexing mode
     size_t       d_nextArgId;  // next arg id for automatic indexing
     size_t       d_numArgs;    // number of args
 
@@ -74,15 +74,13 @@ class basic_format_parse_context {
 
     /// Create an instance of this type with the specified `fmt` parse string
     /// and number of arguments set to zero. The string is stored by reference,
-    /// so the user is required to ensure that the lifetime of `fmt` outlives
-    /// the lifetime of this object.
+    /// so `fmt` must outlive this object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT;
 
     /// Create an instance of this type with the specified `fmt` parse string
     /// and number of arguments set to the specified `numArgs`. The string is
-    /// stored by reference, so the user is required to ensure that the
-    /// lifetime of `fmt` outlives the lifetime of this object.
+    /// stored by reference, so `fmt` must outlive this object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                  bsl::basic_string_view<t_CHAR> fmt,
                  size_t                         numArgs) BSLS_KEYWORD_NOEXCEPT;
@@ -175,8 +173,8 @@ void basic_format_parse_context<t_CHAR>::advance_to(const_iterator it)
     // This check is safe as, in our implementation, it is guaranteed that
     // const_iterator is a random access iterator.
     if (!((it >= d_origBegin) && (it <= d_end))) {
-        BSLS_THROW(
-               format_error("Parse error: advance to iterator out of range"));
+        BSLS_THROW(format_error(
+               "Parse error: attempt to advance to an out-of-range iterator"));
     }
     d_unparsed = it;
 }
