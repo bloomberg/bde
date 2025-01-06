@@ -130,7 +130,7 @@ class OutputIterator {
     template<size_t t_SIZE>
     OutputIterator(t_CHAR_TYPE (&array)[t_SIZE])
     : d_value_p(array)
-    , d_end_p(array + sizeof(array))
+    , d_end_p(array + sizeof(array) / sizeof(*array))
     {
     }
 
