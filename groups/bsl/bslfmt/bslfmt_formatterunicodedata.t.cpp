@@ -99,12 +99,18 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
+        //   Since a component is a set of structures and static variables, we
+        //   want to check that they are can be discovered and have correct
+        //   values.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 Structures and static variables, defined in the component can be
+        //:   discovered.
         //
         // Plan:
+        //: 1 Create an object of each structure defined in the component.
+        //:
+        //: 2 Verify the values of static variables.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

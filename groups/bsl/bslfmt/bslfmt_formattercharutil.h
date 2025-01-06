@@ -6,27 +6,27 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Private character utilities for use by `bsl::format`
+//@PURPOSE: Character conversion utilities for `bsl::format`.
 //
 //@CLASSES:
-//  FormatterCharUtil: utilities managing a character conversion
+//  bslfmt::FormatterCharUtil: utilities to perform character conversions
 //
-//@DESCRIPTION: This component is a namespace struct to provide utility
-// functions that convert characters (e.g. from `char` to `wchar_t` or
-// lowercase characters to uppercase).
+//@DESCRIPTION: This component provide the `FormatterCharUtil` `struct`
+// template that is a namespace to utility functions that convert characters
+// (e.g. from `char` to `wchar_t` or lowercase characters to uppercase).
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example: Outputting a hexadecimal in upper case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need to output hexadecimal number to sink object presented by the
+// Suppose we need to output hexadecimal number to some object presented by the
 // output iterator (e.g. some character buffer).  Additionally, we are required
 // to have the number displayed in uppercase.
 // ```
-//  char         number[] = {'0', 'x', '1', '2', 'c', 'd', '\0'};
-//  const size_t sourceLength = std::strlen(number);
+//  char         number[]     = "0x12cd";
+//  const size_t sourceLength = sizeof(number) - 1;
 // ```
 // First, we convert the number to uppercase in place and verify the result:
 // ```
@@ -34,40 +34,40 @@ BSLS_IDENT("$Id: $")
 //  const char *expectedUppercaseNumber = "0X12CD";
 //  assert(0 == std::strcmp(number, expectedUppercaseNumber));
 // ```
-// Next, we output this uppercase number to the sink, using `outputFromChar`
-// function.  Note that `SimpleIterator` in this example is just a primitive
-// class that minimally satisfies the requirements of the output iterator. To
-// reduce the code size and improve readability, we do not provide its
-// implementation here.
+// Next, we output this uppercase number to the destination, using
+// `outputFromChar` function.  Note that `OutputIterator` in this example is
+// just a primitive class that minimally satisfies the requirements of the
+// output iterator. To reduce the code size and improve readability, we do not
+// provide its implementation here.
 // ```
-//  char charSink[8];
-//  std::memset(charSink, 0, sizeof(char) * 8);
-//  SimpleIterator<char> charIt(charSink, 8);
+//  char destination[8];
+//  std::memset(destination, 0, sizeof(destination));
+//  OutputIterator<char> charIt(destination);
 //
 //  charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
 //                                                       number,
 //                                                       number + sourceLength,
 //                                                       charIt);
 //
-//  assert(&charSink[sourceLength] == &(*charIt));
-//  assert(0 == std::strcmp(number, charSink));
+//  assert(destination + sourceLength == charIt.ptr());
+//  assert(0 == std::strcmp(number, destination));
 // ```
-// But the main purpose of these functions is to unify the output of values to
-// character strings and wide character strings.  All we need to do is just
-// change the template parameter:
+// Finally we demonstrate the main purpose of these functions - to unify the
+// output of values to character strings and wide character strings.  All we
+// need to do is just change the template parameter:
 // ```
-//  wchar_t wcharSink[8];
-//  std::memset(wcharSink, 0, sizeof(wchar_t) * 8);
+//  wchar_t wDestination[8];
+//  std::memset(wDestination, 0, sizeof(wchar_t) * 8);
 //
-//  wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
+//  wchar_t wcharExpected[] = L"0X12CD";
 //
-//  SimpleIterator<wchar_t> wcharIt(wcharSink, 8);
+//  OutputIterator<wchar_t> wcharIt(wDestination);
 //  wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
 //                                                       number,
 //                                                       number + sourceLength,
 //                                                       wcharIt);
-//  assert(&wcharSink[sourceLength] == &(*wcharIt));
-//  assert(0 == std::wcscmp(wcharExpected, wcharSink));
+//  assert(wDestination + sourceLength == wcharIt.ptr());
+//  assert(0 == std::wcscmp(wcharExpected, wDestination));
 // ```
 
 #include <bslscm_version.h>
@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-/// This `struct` provides a namespace for a utility functions that covert
+/// This struct provides a namespace for a utility functions that convert
 /// characters (e.g. `char` to `wchar_t` or lowercase characters to uppercase).
 template <class t_CHAR>
 struct FormatterCharUtil {
@@ -93,7 +93,9 @@ struct FormatterCharUtil {
                          // struct FormatterCharUtil
                          // ========================
 
-/// This is a specialization of `FormatterCharUtil` template for `char`.
+/// This is a specialization of `FormatterCharUtil` template providing utility
+/// functions for outputting data to the objects specialized by `char` type and
+/// referred by the corresponding output iterator.
 template <>
 struct FormatterCharUtil<char> {
     // CLASS METHODS
@@ -118,7 +120,9 @@ struct FormatterCharUtil<char> {
     static void toUpper(char *begin, const char *end);
 };
 
-/// This is a specialization of `FormatterCharUtil` template for `wchar_t`.
+/// This is a specialization of `FormatterCharUtil` template providing utility
+/// functions for outputting data to the objects specialized by `wchar_t` type
+/// and referred by the corresponding output iterator.
 template <>
 struct FormatterCharUtil<wchar_t> {
     // CLASS METHODS

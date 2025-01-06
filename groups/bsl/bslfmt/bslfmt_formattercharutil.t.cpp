@@ -92,91 +92,105 @@ void aSsErT(bool condition, const char *message, int line)
 //                       HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-                         // =====================
-                         // struct SimpleIterator
-                         // =====================
+                         // ====================
+                         // class OutputIterator
+                         // ====================
 
 /// This class provides a primitive template iterator that iterates through the
 /// sequence of objects of the (template parameter) type 't_TYPE'.
-template <class t_TYPE>
-class SimpleIterator {
+template <class t_CHAR_TYPE>
+class OutputIterator {
   private:
     // DATA
-    t_TYPE *d_value_p;  // address this iterator points to
-    t_TYPE *d_end_p;    // maximum value this iterator can reach
+    t_CHAR_TYPE *d_value_p;  // address this iterator points to
+    t_CHAR_TYPE *d_end_p;    // maximum value this iterator can reach
 
   public:
     // TYPES
-    typedef t_TYPE                   value_type;
-    typedef t_TYPE *                 pointer;
-    typedef t_TYPE&                  reference;
+    typedef t_CHAR_TYPE              value_type;
+    typedef t_CHAR_TYPE *            pointer;
+    typedef t_CHAR_TYPE&             reference;
     typedef ptrdiff_t                difference_type;
     typedef bsl::output_iterator_tag iterator_category;
 
     // CREATORS
 
     /// Create an iterator pointing to the specified `value` and having the
-    /// specified `maxNumElements` as a maximum number of acceptable values to
-    /// iterate through.
-    SimpleIterator(t_TYPE *value, difference_type maxNumElements)
+    /// specified `end` as the past-the-end element in the sequence to iterate
+    /// through.
+    OutputIterator(t_CHAR_TYPE *value, t_CHAR_TYPE *end)
     : d_value_p(value)
-    , d_end_p(value + maxNumElements)
+    , d_end_p(end)
+    {
+        BSLS_ASSERT(d_end_p > d_value_p);
+    }
+
+    /// Create an iterator having the specified `array` as a sequence to
+    /// iterate through.
+    template<size_t t_SIZE>
+    OutputIterator(t_CHAR_TYPE (&array)[t_SIZE])
+    : d_value_p(array)
+    , d_end_p(array + sizeof(array))
     {
     }
 
     // MANIPULATORS
 
     /// Increment to the next element and return a reference providing
-    /// modifiable access to this iterator.  The behavior is undefined unless
-    /// the iterator is within the range of acceptable values.
-    SimpleIterator& operator++()
+    /// modifiable access to this iterator.  The behavior is undefined if
+    /// iterator points to the past-the-end element of the sequence to iterate
+    /// through.
+    OutputIterator& operator++()
     {
-        ASSERT(d_end_p != d_value_p);
+        BSLS_ASSERT(d_end_p != d_value_p);
         ++d_value_p;
         return *this;
     }
 
     /// Increment to the next element and return an iterator having
-    /// pre-increment value of this iterator.  The behavior is undefined unless
-    /// the iterator is within the range of acceptable values.
-    SimpleIterator operator++(int)
+    /// pre-increment value of this iterator.  The behavior is undefined if
+    /// iterator points to the past-the-end element of the sequence to iterate
+    /// through.
+    OutputIterator operator++(int)
     {
-        ASSERT(d_end_p != d_value_p);
-        SimpleIterator temp(d_value_p, d_end_p - d_value_p);
+        BSLS_ASSERT(d_end_p != d_value_p);
+        OutputIterator temp(d_value_p, d_end_p);
         ++d_value_p;
         return temp;
     }
 
     // ACCESSORS
 
-    /// Return a reference to the modifiable `t_TYPE` to which this object
-    /// refers.  The behavior is undefined unless the incremented iterator is
-    /// within the range of acceptable values.
+    /// Return a reference to the modifiable `t_CHAR_TYPE` to which this object
+    /// refers.  The behavior is undefined if iterator points to the
+    /// past-the-end element of the sequence to iterate through.
     reference operator*() const
     {
-        ASSERT(d_end_p != d_value_p);
+        BSLS_ASSERT(d_end_p != d_value_p);
         return *d_value_p;
     }
 
-    /// Return a pointer to the non-modifiable `t_TYPE` to which this object
-    /// refers.
-    const t_TYPE *ptr() const
+    /// Return a pointer to the non-modifiable `t_CHAR_TYPE` to which this
+    /// object refers.  The behavior is undefined if iterator points to the
+    /// past-the-end element of the sequence to iterate through.
+    const t_CHAR_TYPE *ptr() const
     {
+        BSLS_ASSERT(d_end_p != d_value_p);
         return d_value_p;
     }
+
+    // HIDDEN FRIENDS
+
+    /// Return 'true' if the specified 'lhs' iterator has the same value as the
+    /// specified 'rhs' iterator, and 'false' otherwise.  Two iterators have
+    /// the same value if they refer the same element and have the same
+    /// past-the-end element.
+    friend bool operator==(const OutputIterator& lhs,
+                           const OutputIterator& rhs)
+    {
+        return (lhs.d_value_p == rhs.d_value_p && lhs.d_end_p == rhs.d_end_p);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return 'true' if the specified 'lhs' iterator has the same value as the
-/// specified 'rhs' iterator, and 'false' otherwise.  Two iterators have the
-/// same value if they refer to the same element.
-template <class t_TYPE>
-bool operator==(const SimpleIterator<t_TYPE>& lhs,
-                const SimpleIterator<t_TYPE>& rhs)
-{
-    return &*lhs == &*rhs;
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -185,7 +199,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -204,21 +217,21 @@ int main(int argc, char **argv)
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example: Outputting a hexadecimal in upper case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need to output hexadecimal number to sink object presented by the
+// Suppose we need to output hexadecimal number to some object presented by the
 // output iterator (e.g. some character buffer).  Additionally, we are required
 // to have the number displayed in uppercase.
 // ```
-    char         number[] = {'0', 'x', '1', '2', 'c', 'd', '\0'};
-    const size_t sourceLength = std::strlen(number);
+    char         number[]     = "0x12cd";
+    const size_t sourceLength = sizeof(number) - 1;
 // ```
 // First, we convert the number to uppercase in place and verify the result:
 // ```
@@ -226,40 +239,40 @@ int main(int argc, char **argv)
     const char *expectedUppercaseNumber = "0X12CD";
     ASSERT(0 == std::strcmp(number, expectedUppercaseNumber));
 // ```
-// Next, we output this uppercase number to the sink, using `outputFromChar`
-// function.  Note that `SimpleIterator` in this example is just a primitive
-// class that minimally satisfies the requirements of the output iterator. To
-// reduce the code size and improve readability, we do not provide its
-// implementation here.
+// Next, we output this uppercase number to the destination, using
+// `outputFromChar` function.  Note that `OutputIterator` in this example is
+// just a primitive class that minimally satisfies the requirements of the
+// output iterator. To reduce the code size and improve readability, we do not
+// provide its implementation here.
 // ```
-    char charSink[8];
-    std::memset(charSink, 0, sizeof(char) * 8);
-    SimpleIterator<char> charIt(charSink, 8);
+    char destination[8];
+    std::memset(destination, 0, sizeof(destination));
+    OutputIterator<char> charIt(destination);
 
     charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
                                                          number,
                                                          number + sourceLength,
                                                          charIt);
 
-    ASSERT(&charSink[sourceLength] == &(*charIt));
-    ASSERT(0 == std::strcmp(number, charSink));
+    ASSERT(destination + sourceLength == charIt.ptr());
+    ASSERT(0 == std::strcmp(number, destination));
 // ```
-// But the main purpose of these functions is to unify the output of values to
-// character strings and wide character strings.  All we need to do is just
-// change the template parameter:
+// Finally we demonstrate the main purpose of these functions - to unify the
+// output of values to character strings and wide character strings.  All we
+// need to do is just change the template parameter:
 // ```
-    wchar_t wcharSink[8];
-    std::memset(wcharSink, 0, sizeof(wchar_t) * 8);
+    wchar_t wDestination[8];
+    std::memset(wDestination, 0, sizeof(wchar_t) * 8);
 
-    wchar_t wcharExpected[] = {'0', 'X', '1', '2', 'C', 'D', '\0'};
+    wchar_t wcharExpected[] = L"0X12CD";
 
-    SimpleIterator<wchar_t> wcharIt(wcharSink, 8);
+    OutputIterator<wchar_t> wcharIt(wDestination);
     wcharIt = bslfmt::FormatterCharUtil<wchar_t>::outputFromChar(
                                                          number,
                                                          number + sourceLength,
                                                          wcharIt);
-    ASSERT(&wcharSink[sourceLength] == &(*wcharIt));
-    ASSERT(0 == std::wcscmp(wcharExpected, wcharSink));
+    ASSERT(wDestination + sourceLength == wcharIt.ptr());
+    ASSERT(0 == std::wcscmp(wcharExpected, wDestination));
 // ```
 
       } break;
@@ -273,108 +286,133 @@ int main(int argc, char **argv)
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Create source `char` array containing some data.
+        //:
+        //: 2 For each utility specialization (`char` and `wchar_t`):
+        //:
+        //:   2.1 Create sink array and set it to some value different from the
+        //:       value of the source array.
+        //:
+        //:   2.2 Output some part of the source array to the sink, using
+        //:       sequence overload of the `outputFromChar` function.  Verify
+        //:       the return value and the value of the sink array.
+        //:
+        //:   2.3 Output one character from the source array to the sink, using
+        //:       single character overload of the `outputFromChar` function.
+        //:       Verify the return value and the value of the sink array.
+        //:
+        //:   2.4 Modify the sink array using `toUpper` function and verify the
+        //:       result.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        const size_t  BUFFER_SIZE            = 6;
-        const size_t  NUM_CHARACTERS_TO_COPY = BUFFER_SIZE - 1;
+        const char SOURCE[]       = "aBc12#";
+        const char UPPER_SOURCE[] = "ABC12#";
 
-        const char SOURCE[]       = {'a', 'B', 'c', '1', '2', '#'};
-        const char UPPER_SOURCE[] = {'A', 'B', 'C', '1', '2', '#'};
+        // We are going to perform two output operations.  The first for a
+        // sequence of characters, the second for a single character.  However,
+        // we don't want to get into an undefined behavior situation for our
+        // output iterator.  So we leave one unchanged character in the sink
+        // array.
+
+        const size_t BUFFER_SIZE              = sizeof SOURCE / sizeof *SOURCE;
+        const size_t NUM_CHARACTERS_TO_OUTPUT = BUFFER_SIZE - 2;
 
         // Testing `char` specialization.
         {
             char sink[BUFFER_SIZE];
-
-            for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-                sink[i] = 0;
-            }
+            std::memset(sink, 0, sizeof(sink));
 
             const char *sourceBegin = SOURCE;
-            const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_COPY;
+            const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;
 
-            // Testing `outputFromChar(char *, char *, iterator)`.
+            // Testing sequence overload.
 
-            SimpleIterator<char> out(sink, BUFFER_SIZE);
+            OutputIterator<char> out(sink);
             out = FormatterCharUtil<char>::outputFromChar(sourceBegin,
                                                           sourceEnd,
                                                           out);
 
-            ASSERTV(*out, &sink[NUM_CHARACTERS_TO_COPY] == &(*out));
-            for (size_t i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
-                ASSERTV(SOURCE[i], sink[i], SOURCE[i] == sink[i]);
+            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
+            for (size_t i = 0; i < NUM_CHARACTERS_TO_OUTPUT; ++i) {
+                ASSERTV(i, SOURCE[i], sink[i], SOURCE[i] == sink[i]);
             }
-            ASSERTV(sink[NUM_CHARACTERS_TO_COPY],
-                    0 == sink[NUM_CHARACTERS_TO_COPY]);
 
-            // Testing `outputFromChar(char, iterator)`.
+            // Verify that the rest of the output array remains unaffected.
+
+            ASSERTV(sink[NUM_CHARACTERS_TO_OUTPUT],
+                    0 == sink[NUM_CHARACTERS_TO_OUTPUT]);
+
+            // Testing single character overload.
 
             out = FormatterCharUtil<char>::outputFromChar(
-                                                SOURCE[NUM_CHARACTERS_TO_COPY],
-                                                out);
+                                              SOURCE[NUM_CHARACTERS_TO_OUTPUT],
+                                              out);
 
-            ASSERTV(*out, &sink[BUFFER_SIZE] == out.ptr());
+            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT + 1,   out.ptr(),
+                    sink + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
 
-            ASSERTV(SOURCE[NUM_CHARACTERS_TO_COPY],
-                    sink[NUM_CHARACTERS_TO_COPY],
-                    SOURCE[NUM_CHARACTERS_TO_COPY] ==
-                        sink[NUM_CHARACTERS_TO_COPY]);
+            ASSERTV(SOURCE[NUM_CHARACTERS_TO_OUTPUT],
+                    sink[NUM_CHARACTERS_TO_OUTPUT],
+                    SOURCE[NUM_CHARACTERS_TO_OUTPUT] ==
+                                               sink[NUM_CHARACTERS_TO_OUTPUT]);
 
             // Testing `toUpper`.
 
-            char       *sinkBegin = sink;
-            char       *sinkEnd   = sink + BUFFER_SIZE;
+            char *sinkBegin = sink;
+            char *sinkEnd   = sink + BUFFER_SIZE;
 
             FormatterCharUtil<char>::toUpper(sinkBegin, sinkEnd);
 
             for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-                ASSERTV(UPPER_SOURCE[i], sink[i], UPPER_SOURCE[i] == sink[i]);
+                ASSERTV(i, UPPER_SOURCE[i], sink[i],
+                        UPPER_SOURCE[i] == sink[i]);
             }
         }
 
         // Testing `wchar_t` specialization.
         {
             wchar_t sink[BUFFER_SIZE];
-
-            for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-                sink[i] = 0;
-            }
+            std::memset(sink, 0, sizeof(sink));
 
             const char *sourceBegin = SOURCE;
-            const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_COPY;
+            const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;
 
-            // Testing `outputFromChar(char *, char *, iterator)`.
+            // Testing sequence overload.
 
-            SimpleIterator<wchar_t> out(sink, BUFFER_SIZE);
+            OutputIterator<wchar_t> out(sink);
             out = FormatterCharUtil<wchar_t>::outputFromChar(sourceBegin,
                                                              sourceEnd,
                                                              out);
 
-            ASSERTV(*out, &sink[NUM_CHARACTERS_TO_COPY] == &(*out));
-            for (size_t i = 0; i < NUM_CHARACTERS_TO_COPY; ++i) {
-                ASSERTV(SOURCE[i], sink[i], wchar_t(SOURCE[i]) == sink[i]);
+            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
+            for (size_t i = 0; i < NUM_CHARACTERS_TO_OUTPUT; ++i) {
+                ASSERTV(i, SOURCE[i], sink[i], wchar_t(SOURCE[i]) == sink[i]);
             }
-            ASSERTV(sink[NUM_CHARACTERS_TO_COPY],
-                    0 == sink[NUM_CHARACTERS_TO_COPY]);
 
-            // Testing `outputFromChar(char, iterator)`.
+            // Verify that the rest of the output array remains unaffected.
+
+            ASSERTV(sink[NUM_CHARACTERS_TO_OUTPUT],
+                    0 == sink[NUM_CHARACTERS_TO_OUTPUT]);
+
+            // Testing single character overload.
 
             out = FormatterCharUtil<wchar_t>::outputFromChar(
-                                                SOURCE[NUM_CHARACTERS_TO_COPY],
-                                                out);
+                                              SOURCE[NUM_CHARACTERS_TO_OUTPUT],
+                                              out);
 
-            ASSERTV(*out, &sink[BUFFER_SIZE] == out.ptr());
+            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT + 1,   out.ptr(),
+                    sink + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
 
-            ASSERTV(SOURCE[NUM_CHARACTERS_TO_COPY],
-                    sink[NUM_CHARACTERS_TO_COPY],
-                    wchar_t(SOURCE[NUM_CHARACTERS_TO_COPY]) ==
-                        sink[NUM_CHARACTERS_TO_COPY]);
+            ASSERTV(SOURCE[NUM_CHARACTERS_TO_OUTPUT],
+                    sink[NUM_CHARACTERS_TO_OUTPUT],
+                    wchar_t(SOURCE[NUM_CHARACTERS_TO_OUTPUT]) ==
+                                               sink[NUM_CHARACTERS_TO_OUTPUT]);
         }
       }; break;
       default: {

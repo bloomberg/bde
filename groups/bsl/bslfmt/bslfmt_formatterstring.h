@@ -89,8 +89,8 @@ class FormatterString_GraphemeCluster {
   private:
     // DATA
     bool              d_isValid;              // flag indicating whether this
-                                              // object is initialized and
-                                              // initialized without errors
+                                              // object is successfully
+                                              // initialized (without errors)
 
     int               d_numSourceBytes;       // number of bytes occupied by
                                               // this cluster
@@ -107,7 +107,7 @@ class FormatterString_GraphemeCluster {
   public:
     // CREATORS
 
-    /// Create a default (uninitialized) cluster.
+    /// Create an uninitialized cluster object (that is not valid).
     FormatterString_GraphemeCluster();
 
     // MANIPULATORS

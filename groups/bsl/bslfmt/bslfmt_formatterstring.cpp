@@ -177,7 +177,6 @@ bool EmojiModifierSequenceDetector::match(
 //                         STATIC HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
-
 inline
 UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
                                                    unsigned long int codePoint)
@@ -185,28 +184,28 @@ UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
     // Early exit for the common (ascii) case
     if (codePoint <= 0xff) {
         if (codePoint <= 0x09) {
-            return UnicodeData::e_CONTROL;             // RETURN
+            return UnicodeData::e_CONTROL;                            // RETURN
         }
         if (codePoint == 0x0a) {
-            return UnicodeData::e_LF;                  // RETURN
+            return UnicodeData::e_LF;                                 // RETURN
         }
         if (codePoint == 0x0b || codePoint == 0x0c) {
-            return UnicodeData::e_CONTROL;             // RETURN
+            return UnicodeData::e_CONTROL;                            // RETURN
         }
         if (codePoint == 0x0d) {
-            return UnicodeData::e_CR;                  // RETURN
+            return UnicodeData::e_CR;                                 // RETURN
         }
         if (codePoint >= 0x0e && codePoint <= 0x1f) {
-            return UnicodeData::e_CONTROL;             // RETURN
+            return UnicodeData::e_CONTROL;                            // RETURN
         }
         if (codePoint >= 0x7f && codePoint <= 0x9f) {
-            return UnicodeData::e_CONTROL;             // RETURN
+            return UnicodeData::e_CONTROL;                            // RETURN
         }
         if (codePoint == 0xad) {
-            return UnicodeData::e_CONTROL;             // RETURN
+            return UnicodeData::e_CONTROL;                            // RETURN
         }
 
-        return UnicodeData::e_UNASSIGNED;              // RETURN
+        return UnicodeData::e_UNASSIGNED;                             // RETURN
     }
 
     const GraphemeBreakCategoryRange *first =
