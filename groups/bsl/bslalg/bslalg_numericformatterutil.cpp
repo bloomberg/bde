@@ -367,7 +367,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstring>
 #include <limits>
 
-#include <ryu/blp_ryu.h>
+#include <bbryu/blp_ryu.h>
 
 namespace {
 namespace u {

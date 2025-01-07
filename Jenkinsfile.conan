@@ -31,59 +31,67 @@ node('WINDOWS') {
                 }
 
                 conan.getReleaseProfiles().each { profile ->
-			writeFile(file:"standalones/CMakeLists.txt", text: "")
-			writeFile(file:"groups/CMakeLists.txt", text: "")
+                    writeFile(file:"standalones/CMakeLists.txt", text: "")
+                    writeFile(file:"groups/CMakeLists.txt", text: "")
 
-			writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(ryu)")
-			conan.create(name: 'libryu-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(ryu)")
+                    conan.create(name: 'libryu-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
 
-			writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(inteldfp/LIBRARY)")
-			conan.create(name: 'libinteldfp-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(bbryu)")
+                    conan.create(name: 'libbbryu-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
 
-			writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(pcre2)")
-			conan.create(name: 'libpcre2-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
 
-			writeFile(file:"thirdparty/CMakeLists.txt", text: "")
+                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(inteldfp/LIBRARY)")
+                    conan.create(name: 'libinteldfp-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
 
-			writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bsl)")
-			conan.create(name: 'libbsl-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(pcre2)")
+                    conan.create(name: 'libpcre2-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
 
-			writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bdl)")
-			conan.create(name: 'libbdl-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"thirdparty/CMakeLists.txt", text: "")
 
-			writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bal)")
-			conan.create(name: 'libbal-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bsl)")
+                    conan.create(name: 'libbsl-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
 
-			writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bbl)")
-			conan.create(name: 'libbbl-dev',
-				     user:    user,
-				     channel: channel,
-				     '-o:a':  '*:dependency_user_channel=test/unstable',
-                                     '-pr:h': profile)
+                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bdl)")
+                    conan.create(name: 'libbdl-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
+
+                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bal)")
+                    conan.create(name: 'libbal-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
+
+                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bbl)")
+                    conan.create(name: 'libbbl-dev',
+                                 user:    user,
+                                 channel: channel,
+                                 '-o:a':  '*:dependency_user_channel=test/unstable',
+                                 '-pr:h': profile)
                 }
             }
             stage('Publish package(s)') {
@@ -94,6 +102,7 @@ node('WINDOWS') {
                 }
 
                 conan.remoteBbConan { remote ->
+                    remote.upload(dryRun: dryRun, pattern: 'libbbryu-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libryu-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libinteldfp-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libpcre2-dev')
