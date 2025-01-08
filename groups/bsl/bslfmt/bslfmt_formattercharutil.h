@@ -21,9 +21,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example: Outputting a hexadecimal in upper case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need to output hexadecimal number to some object presented by the
-// output iterator (e.g. some character buffer).  Additionally, we are required
-// to have the number displayed in uppercase.
+// Suppose we need to output a hexadecimal number to some object (e.g. some
+// character buffer) represented by the output iterator .  Additionally, we are
+// required to have the number displayed in uppercase.
 // ```
 //  char         number[]     = "0x12cd";
 //  const size_t sourceLength = sizeof(number) - 1;
@@ -35,10 +35,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == std::strcmp(number, expectedUppercaseNumber));
 // ```
 // Next, we output this uppercase number to the destination, using
-// `outputFromChar` function.  Note that `OutputIterator` in this example is
-// just a primitive class that minimally satisfies the requirements of the
-// output iterator. To reduce the code size and improve readability, we do not
-// provide its implementation here.
+// `outputFromChar` function.  `OutputIterator` in this example is just a
+// primitive class that minimally satisfies the requirements of the
+// output iterator.
 // ```
 //  char destination[8];
 //  std::memset(destination, 0, sizeof(destination));
@@ -100,17 +99,17 @@ template <>
 struct FormatterCharUtil<char> {
     // CLASS METHODS
 
-    /// Output to the specified output forward-iterator `out` the character
-    /// sequence starting at the specified `begin` address and ending
-    /// immediately before the specified `end` address.  Return `out`
-    /// incremented by the number of characters written.
+    /// Output to the specified output iterator `out` the character sequence
+    /// starting at the specified `begin` address and ending immediately before
+    /// the specified `end` address.  Return `out` incremented by the number of
+    /// characters written.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
                                      t_ITERATOR  out);
 
-    /// Output to the specified output forward-iterator `out` the specified
-    /// `value`.  Return incremented `out`.
+    /// Output to the specified output iterator `out` the specified `value`.
+    /// Return incremented `out`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char value, t_ITERATOR out);
 
@@ -127,17 +126,17 @@ template <>
 struct FormatterCharUtil<wchar_t> {
     // CLASS METHODS
 
-    /// Output to the specified output forward-iterator `out` the character
-    /// sequence starting at the specified `begin` address and ending
-    /// immediately before the specified `end` address.  Return `out`
-    /// incremented by the number of characters written.
+    /// Output to the specified output iterator `out` the character sequence
+    /// starting at the specified `begin` address and ending immediately before
+    /// the specified `end` address.  Return `out` incremented by the number of
+    /// characters written.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
                                      t_ITERATOR  out);
 
-    /// Output to the specified output forward-iterator `out` the specified
-    /// `value`.  Return incremented `out`.
+    /// Output to the specified output iterator `out` the specified `value`.
+    /// Return incremented `out`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char value, t_ITERATOR out);
 };

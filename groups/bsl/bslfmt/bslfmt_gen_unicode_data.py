@@ -12,7 +12,6 @@
 # ftp://ftp.unicode.org/Public/UNIDATA/emoji/emoji-data.txt
 #
 # Then run this script and save the output to bslfmt_formatterunicodedata.cpp
-#
 
 import re
 import os

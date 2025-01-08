@@ -59,8 +59,8 @@ struct FormatterUnicodeData {
     struct BooleanRange {
       public:
         // PUBLIC DATA
-        unsigned long int d_start; // first codepoint in range
-        unsigned long int d_end;   // last codepoint in range
+        unsigned long int d_start;  // first codepoint in range
+        unsigned long int d_end;     // last codepoint in range
     };
 
     /// This nested 'struct' provides a container for storing a pair of

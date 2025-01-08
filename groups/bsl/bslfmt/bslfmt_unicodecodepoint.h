@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::UnicodeCodePoint: unicode code point representation
 //
-//@DESCRIPTION: This component provides a single, simply unconstrained
+//@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, `bslfmt::UnicodeCodePoint`, that is used
 // to encapsulate a Unicode code point attributes.
 //
@@ -78,6 +78,8 @@ class UnicodeCodePoint {
 
   public:
     // CREATORS
+
+    /// Create an uninitialized Unicode code point object
     UnicodeCodePoint();
 
     // MANIPULATORS
@@ -132,7 +134,14 @@ class UnicodeCodePoint {
                           // class UnicodeCodePoint
                           // ----------------------
 
-// PRIVATE MANIPULATORS
+// CREATORS
+inline
+UnicodeCodePoint::UnicodeCodePoint()
+{
+    reset();
+}
+
+// MANIPULATORS
 inline
 void UnicodeCodePoint::extract(UtfEncoding  encoding,
                                const void  *bytes,
@@ -155,17 +164,6 @@ void UnicodeCodePoint::extract(UtfEncoding  encoding,
     }
 }
 
-// CREATORS
-inline
-UnicodeCodePoint::UnicodeCodePoint()
-: d_isValid(false)
-, d_numSourceBytes(0)
-, d_codePointValue(0)
-, d_codePointWidth(0)
-{
-}
-
-// MANIPULATORS
 inline
 void UnicodeCodePoint::reset()
 {

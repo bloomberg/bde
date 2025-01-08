@@ -1988,12 +1988,12 @@ int main(int argc, char **argv)
 
         ASSERTV(message.c_str(), rv);
 
-        // Testing `FormatterString_GraphemeCluster`.
+        // Testing `FormatterString_GraphemeCluster`
 
         {
             const char *fmt1 = (const char *)
                 UTF8_LITERAL("\U00000067\U00000308");
-            int len1 = (int)strlen(fmt1);
+            const int   len1 = (int)strlen(fmt1);
 
             bslfmt::FormatterString_GraphemeCluster cluster;
             cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
@@ -2008,7 +2008,7 @@ int main(int argc, char **argv)
 
             const char *fmt2 = (const char *)
                 UTF8_LITERAL("\U0001F408\U0000200D\U0001F7E7hello");
-            int len2 = (int)strlen(fmt2);
+            const int   len2 = (int)strlen(fmt2);
 
             cluster.reset();
             cluster.extract(bslfmt::UnicodeCodePoint::e_UTF8,
@@ -2024,7 +2024,7 @@ int main(int argc, char **argv)
             if (sizeof(wchar_t) == 2) {
                 const wchar_t *fmt3 =
                        (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
-                int len3 = (int)wcslen(fmt3);
+                const int      len3 = (int)wcslen(fmt3);
 
                 cluster.reset();
                 cluster.extract(bslfmt::UnicodeCodePoint::e_UTF16,
@@ -2036,7 +2036,7 @@ int main(int argc, char **argv)
             else {
                 const wchar_t *fmt3 =
                        (const wchar_t *)L"\U0001F407\U0000200D\U0001F7E7hello";
-                int len3 = (int)wcslen(fmt3);
+                const int      len3 = (int)wcslen(fmt3);
 
                 cluster.reset();
                 cluster.extract(bslfmt::UnicodeCodePoint::e_UTF32,

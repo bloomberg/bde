@@ -226,9 +226,9 @@ int main(int argc, char **argv)
 //
 ///Example: Outputting a hexadecimal in upper case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need to output hexadecimal number to some object presented by the
-// output iterator (e.g. some character buffer).  Additionally, we are required
-// to have the number displayed in uppercase.
+// Suppose we need to output a hexadecimal number to some object (e.g. some
+// character buffer) represented by the output iterator .  Additionally, we are
+// required to have the number displayed in uppercase.
 // ```
     char         number[]     = "0x12cd";
     const size_t sourceLength = sizeof(number) - 1;
@@ -240,10 +240,9 @@ int main(int argc, char **argv)
     ASSERT(0 == std::strcmp(number, expectedUppercaseNumber));
 // ```
 // Next, we output this uppercase number to the destination, using
-// `outputFromChar` function.  Note that `OutputIterator` in this example is
-// just a primitive class that minimally satisfies the requirements of the
-// output iterator. To reduce the code size and improve readability, we do not
-// provide its implementation here.
+// `outputFromChar` function.  `OutputIterator` in this example is just a
+// primitive class that minimally satisfies the requirements of the
+// output iterator.
 // ```
     char destination[8];
     std::memset(destination, 0, sizeof(destination));
@@ -274,7 +273,6 @@ int main(int argc, char **argv)
     ASSERT(wDestination + sourceLength == wcharIt.ptr());
     ASSERT(0 == std::wcscmp(wcharExpected, wDestination));
 // ```
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -286,7 +284,8 @@ int main(int argc, char **argv)
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create source `char` array containing some data.
+        //: 1 Create source `char` array containing some data with trailing
+        //:   markers.
         //:
         //: 2 For each utility specialization (`char` and `wchar_t`):
         //:
@@ -317,102 +316,104 @@ int main(int argc, char **argv)
         // We are going to perform two output operations.  The first for a
         // sequence of characters, the second for a single character.  However,
         // we don't want to get into an undefined behavior situation for our
-        // output iterator.  So we leave one unchanged character in the sink
-        // array.
+        // output iterator.  So we leave one unchanged character in the
+        // destination array.
 
-        const size_t BUFFER_SIZE              = sizeof SOURCE / sizeof *SOURCE;
+        const size_t BUFFER_SIZE              = sizeof SOURCE;
         const size_t NUM_CHARACTERS_TO_OUTPUT = BUFFER_SIZE - 2;
 
-        // Testing `char` specialization.
+        // Testing `char` specialization
         {
-            char sink[BUFFER_SIZE];
-            std::memset(sink, 0, sizeof(sink));
+            char destination[BUFFER_SIZE];
+            std::memset(destination, 0, sizeof(destination));
 
             const char *sourceBegin = SOURCE;
             const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;
 
-            // Testing sequence overload.
+            // Testing sequence overload
 
-            OutputIterator<char> out(sink);
+            OutputIterator<char> out(destination);
             out = FormatterCharUtil<char>::outputFromChar(sourceBegin,
                                                           sourceEnd,
                                                           out);
 
-            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
+            ASSERTV(destination + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
             for (size_t i = 0; i < NUM_CHARACTERS_TO_OUTPUT; ++i) {
-                ASSERTV(i, SOURCE[i], sink[i], SOURCE[i] == sink[i]);
+                ASSERTV(i, SOURCE[i], destination[i],
+                        SOURCE[i] == destination[i]);
             }
 
-            // Verify that the rest of the output array remains unaffected.
+            // Verifying that the rest of the output array remains unaffected
 
-            ASSERTV(sink[NUM_CHARACTERS_TO_OUTPUT],
-                    0 == sink[NUM_CHARACTERS_TO_OUTPUT]);
+            ASSERTV(destination[NUM_CHARACTERS_TO_OUTPUT],
+                    0 == destination[NUM_CHARACTERS_TO_OUTPUT]);
 
-            // Testing single character overload.
+            // Testing single character overload
 
             out = FormatterCharUtil<char>::outputFromChar(
                                               SOURCE[NUM_CHARACTERS_TO_OUTPUT],
                                               out);
 
-            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT + 1,   out.ptr(),
-                    sink + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
+            ASSERTV(destination + NUM_CHARACTERS_TO_OUTPUT + 1, out.ptr(),
+                    destination + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
 
             ASSERTV(SOURCE[NUM_CHARACTERS_TO_OUTPUT],
-                    sink[NUM_CHARACTERS_TO_OUTPUT],
+                    destination[NUM_CHARACTERS_TO_OUTPUT],
                     SOURCE[NUM_CHARACTERS_TO_OUTPUT] ==
-                                               sink[NUM_CHARACTERS_TO_OUTPUT]);
+                    destination[NUM_CHARACTERS_TO_OUTPUT]);
 
-            // Testing `toUpper`.
+            // Testing `toUpper`
 
-            char *sinkBegin = sink;
-            char *sinkEnd   = sink + BUFFER_SIZE;
+            char *destinationBegin = destination;
+            char *destinationEnd   = destination + BUFFER_SIZE;
 
-            FormatterCharUtil<char>::toUpper(sinkBegin, sinkEnd);
+            FormatterCharUtil<char>::toUpper(destinationBegin, destinationEnd);
 
             for (size_t i = 0; i < BUFFER_SIZE; ++i) {
-                ASSERTV(i, UPPER_SOURCE[i], sink[i],
-                        UPPER_SOURCE[i] == sink[i]);
+                ASSERTV(i, UPPER_SOURCE[i], destination[i],
+                        UPPER_SOURCE[i] == destination[i]);
             }
         }
 
-        // Testing `wchar_t` specialization.
+        // Testing `wchar_t` specialization
         {
-            wchar_t sink[BUFFER_SIZE];
-            std::memset(sink, 0, sizeof(sink));
+            wchar_t destination[BUFFER_SIZE];
+            std::memset(destination, 0, sizeof(destination));
 
             const char *sourceBegin = SOURCE;
             const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;
 
-            // Testing sequence overload.
+            // Testing sequence overload
 
-            OutputIterator<wchar_t> out(sink);
+            OutputIterator<wchar_t> out(destination);
             out = FormatterCharUtil<wchar_t>::outputFromChar(sourceBegin,
                                                              sourceEnd,
                                                              out);
 
-            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
+            ASSERTV(destination + NUM_CHARACTERS_TO_OUTPUT == out.ptr());
             for (size_t i = 0; i < NUM_CHARACTERS_TO_OUTPUT; ++i) {
-                ASSERTV(i, SOURCE[i], sink[i], wchar_t(SOURCE[i]) == sink[i]);
+                ASSERTV(i, SOURCE[i], destination[i],
+                        wchar_t(SOURCE[i]) == destination[i]);
             }
 
-            // Verify that the rest of the output array remains unaffected.
+            // Verifying that the rest of the output array remains unaffected
 
-            ASSERTV(sink[NUM_CHARACTERS_TO_OUTPUT],
-                    0 == sink[NUM_CHARACTERS_TO_OUTPUT]);
+            ASSERTV(destination[NUM_CHARACTERS_TO_OUTPUT],
+                    0 == destination[NUM_CHARACTERS_TO_OUTPUT]);
 
-            // Testing single character overload.
+            // Testing single character overload
 
             out = FormatterCharUtil<wchar_t>::outputFromChar(
                                               SOURCE[NUM_CHARACTERS_TO_OUTPUT],
                                               out);
 
-            ASSERTV(sink + NUM_CHARACTERS_TO_OUTPUT + 1,   out.ptr(),
-                    sink + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
+            ASSERTV(destination + NUM_CHARACTERS_TO_OUTPUT + 1, out.ptr(),
+                    destination + NUM_CHARACTERS_TO_OUTPUT + 1 == out.ptr());
 
             ASSERTV(SOURCE[NUM_CHARACTERS_TO_OUTPUT],
-                    sink[NUM_CHARACTERS_TO_OUTPUT],
+                    destination[NUM_CHARACTERS_TO_OUTPUT],
                     wchar_t(SOURCE[NUM_CHARACTERS_TO_OUTPUT]) ==
-                                               sink[NUM_CHARACTERS_TO_OUTPUT]);
+                                        destination[NUM_CHARACTERS_TO_OUTPUT]);
         }
       }; break;
       default: {

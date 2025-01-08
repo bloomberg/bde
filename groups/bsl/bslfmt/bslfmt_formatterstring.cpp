@@ -81,13 +81,13 @@ class EmojiModifierSequenceDetector
     // MANIPULATORS
 
     /// Return true for the ZWJ codePoint (determined by the specified
-    /// `left_gbp` being `e_ZERO_WIDTH_JOINER`) and the function was previously
+    /// `leftGbp` being `e_ZERO_WIDTH_JOINER`) and the function was previously
     /// called for an Extended_Pictogram codePoint (determined by the specified
-    /// `left_epv` being true) followed by zero or more Extend codePoints
-    /// (determined by the specified `left_gbp` being `e_EXTEND`).  Update the
+    /// `leftEpv` being true) followed by zero or more Extend codePoints
+    /// (determined by the specified `leftGbp` being `e_EXTEND`).  Update the
     /// internal state to enable correct calculations on subsequent calls.
-    bool match(const UnicodeData::GraphemeBreakCategory left_gbp,
-               bool                                     left_epv);
+    bool match(const UnicodeData::GraphemeBreakCategory leftGbp,
+               bool                                     leftEpv);
 };
 
                       // ====================
@@ -148,29 +148,31 @@ EmojiModifierSequenceDetector::EmojiModifierSequenceDetector()
 
 inline
 bool EmojiModifierSequenceDetector::match(
-                             const UnicodeData::GraphemeBreakCategory left_gbp,
-                             bool                                     left_epv)
+                              const UnicodeData::GraphemeBreakCategory leftGbp,
+                              bool                                     leftEpv)
 {
+    bool returnValue = false;
     switch (d_state) {
-      case e_START:
-        if (left_epv) {
+      case e_START: {
+        if (leftEpv) {
             d_state = e_EXT_PIC;
         }
-        return false;
-      case e_EXT_PIC:
-        if (left_gbp == UnicodeData::e_ZERO_WIDTH_JOINER) {
+      } break;
+      case e_EXT_PIC: {
+        if (leftGbp == UnicodeData::e_ZERO_WIDTH_JOINER) {
             d_state = e_START;
-            return true;
+            returnValue = true;
         }
-        else if (left_gbp != UnicodeData::e_EXTEND) {
+        else if (leftGbp != UnicodeData::e_EXTEND) {
             d_state = e_START;
-            return false;
         }
-        return false;
-      default:
-        BSLS_ASSERT(false);
-        return false;
+      } break;
+      default: {
+        BSLS_ASSERT(false && "Unexpected detector state");
+      }
     }
+
+    return returnValue;
 }
 
 // ----------------------------------------------------------------------------
@@ -235,7 +237,7 @@ bool getExtendedPictogramValue(unsigned long int codePoint)
     const UnicodeData::BooleanRange *first =
                                      UnicodeData::s_extendedPictographicRanges;
 
-    // Early exit for the common (ascii) case:
+    // Early exit for the common (ascii) case
     if (codePoint < first->d_start) {
         return true;                                                  // RETURN
     }
@@ -249,7 +251,7 @@ bool getExtendedPictogramValue(unsigned long int codePoint)
     const UnicodeData::BooleanRange *found =
                           bsl::lower_bound(first, last, codePoint, comparator);
 
-    // Below the first element in the array.
+    // Below the first element in the array
     if ((found == last) ||
         (found->d_start > codePoint) ||
         (found->d_end   < codePoint)) {
@@ -265,7 +267,7 @@ int getCodepointWidth(unsigned long int codePoint)
     const UnicodeData::BooleanRange *first =
                                          UnicodeData::s_doubleFieldWidthRanges;
 
-    // Early exit for the common (ascii) case:
+    // Early exit for the common (ascii) case
     if (codePoint < first->d_start) {
         return 1;                                                     // RETURN
     }
@@ -279,7 +281,7 @@ int getCodepointWidth(unsigned long int codePoint)
     const UnicodeData::BooleanRange *found =
                           bsl::lower_bound(first, last, codePoint, comparator);
 
-    // Below the first element in the array.
+    // Below the first element in the array
     if ((found == last) ||
         (found->d_start > codePoint) ||
         (found->d_end   < codePoint)) {
@@ -370,7 +372,8 @@ void FormatterString_GraphemeCluster::extract(
         }
 
         if (leftGbc == UnicodeData::e_CR && rightGbc == UnicodeData::e_LF) {
-            continue;  // GB3 CR x LF
+            // GB3 CR x LF
+            continue;                                               // CONTINUE
         }
 
         if (leftGbc == UnicodeData::e_CONTROL ||
@@ -390,46 +393,52 @@ void FormatterString_GraphemeCluster::extract(
              rightGbc == UnicodeData::e_HANGUL_V ||
              rightGbc == UnicodeData::e_HANGUL_LV ||
              rightGbc == UnicodeData::e_HANGUL_LVT)) {
-            continue;  // GB6 L x (L | V | LV | LVT)
+            // GB6 L x (L | V | LV | LVT)
+            continue;                                               // CONTINUE
         }
 
         if ((leftGbc == UnicodeData::e_HANGUL_LV ||
              leftGbc == UnicodeData::e_HANGUL_V) &&
             (rightGbc == UnicodeData::e_HANGUL_V ||
              rightGbc == UnicodeData::e_HANGUL_T)) {
-            continue;  // GB7 (LV | V) x (V | T)
+            // GB7 (LV | V) x (V | T)
+            continue;                                               // CONTINUE
         }
 
         if ((leftGbc == UnicodeData::e_HANGUL_LVT ||
              leftGbc == UnicodeData::e_HANGUL_T) &&
             (rightGbc == UnicodeData::e_HANGUL_T)) {
-            continue;  // GB8 (LVT | T) x T
+            // GB8 (LVT | T) x T
+            continue;                                               // CONTINUE
         }
 
         if (rightGbc == UnicodeData::e_EXTEND ||
             rightGbc == UnicodeData::e_ZERO_WIDTH_JOINER) {
-            continue;  // GB9 x (Extend | ZWJ)
+            // GB9 x (Extend | ZWJ)
+            continue;                                               // CONTINUE
         }
 
         if (rightGbc == UnicodeData::e_SPACING_MARK) {
-            continue;  // GB9a x SpacingMark
+            // GB9a x SpacingMark
+            continue;                                               // CONTINUE
         }
 
         if (leftGbc == UnicodeData::e_PREPEND) {
-            continue;  // GB9b Prepend x
+            // GB9b Prepend x
+            continue;                                               // CONTINUE
         }
 
         if (isGB11Match && rightEpv) {
             // GB11 \p{ExtendedPictographic} Extend* ZWJ x
             // \p{ExtendedPictographic}
-            continue;
+            continue;                                               // CONTINUE
         }
 
         if (leftGbc == UnicodeData::e_REGIONAL_INDICATOR &&
             rightGbc == UnicodeData::e_REGIONAL_INDICATOR && numRIs % 2 != 0) {
             // GB12 and 13, do not break between RIs if there are an odd number
             // of RIs before the breakpoint
-            continue;
+            continue;                                               // CONTINUE
         }
 
         // No rule will cause `right` to extend the cluster, so return what we

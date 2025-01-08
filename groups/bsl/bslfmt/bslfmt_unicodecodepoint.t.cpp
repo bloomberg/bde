@@ -118,14 +118,16 @@ int main(int argc, char **argv)
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Create an object and extract some code point values using
+        //:   `extract` method.  Verify the results using accessors.  Return
+        //:   the object to uninitialized state using `reset` method.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         unsigned char bytes[4];
         bytes[0] = (unsigned char)0xff;
@@ -146,19 +148,19 @@ int main(int argc, char **argv)
         ASSERT(!codePoint.isValid());
 
         const char *fmt1 = (const char *) UTF8_LITERAL("\U0001F600");
-        int len1 = (int) strlen(fmt1);
+        const int   len1 = (int)strlen(fmt1);
 
         codePoint.reset();
         codePoint.extract(UnicodeCodePoint::e_UTF8, (const void *)fmt1, len1);
 
-        ASSERT(0x1f600 == codePoint.codePointValue() );
-        ASSERT(2       == codePoint.codePointWidth() );
-        ASSERT(true    == codePoint.isValid()        );
-        ASSERT(4       == codePoint.numSourceBytes() );
+        ASSERT(0x1f600 == codePoint.codePointValue());
+        ASSERT(2       == codePoint.codePointWidth());
+        ASSERT(true    == codePoint.isValid()       );
+        ASSERT(4       == codePoint.numSourceBytes());
 
         if (sizeof(wchar_t) == 2) {
             const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
-            int         len2 = (int) wcslen(fmt2);
+            const int      len2 = (int)wcslen(fmt2);
 
             codePoint.reset();
             codePoint.extract(UnicodeCodePoint::e_UTF16,
@@ -169,7 +171,7 @@ int main(int argc, char **argv)
         }
         else {
             const wchar_t *fmt2 = (const wchar_t *) L"\U0001F600";
-            int         len2 = (int) wcslen(fmt2);
+            const int      len2 = (int)wcslen(fmt2);
 
             codePoint.reset();
             codePoint.extract(UnicodeCodePoint::e_UTF32,
@@ -179,11 +181,9 @@ int main(int argc, char **argv)
             ASSERT(4 == codePoint.numSourceBytes());
         }
 
-        ASSERT(0x1f600 == codePoint.codePointValue() );
-        ASSERT(2       == codePoint.codePointWidth() );
-        ASSERT(true    == codePoint.isValid()        );
-
-
+        ASSERT(0x1f600 == codePoint.codePointValue());
+        ASSERT(2       == codePoint.codePointWidth());
+        ASSERT(true    == codePoint.isValid()       );
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

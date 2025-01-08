@@ -137,7 +137,7 @@ class FormatterString_GraphemeCluster {
                  const void                    *bytes,
                  size_t                         maxBytes);
 
-    /// Reset this object to the default state.
+    /// Reset this object to an uninitialized state.
     void reset();
 
     // ACCESSORS
@@ -461,12 +461,8 @@ namespace bslfmt {
 // CREATORS
 inline
 FormatterString_GraphemeCluster::FormatterString_GraphemeCluster()
-: d_isValid(false)
-, d_numSourceBytes(0)
-, d_numCodePoints(0)
-, d_firstCodePointValue(0)
-, d_firstCodePointWidth(0)
 {
+    reset();
 }
 
 // MANIPULATORS

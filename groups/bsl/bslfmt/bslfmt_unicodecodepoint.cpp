@@ -33,25 +33,25 @@ enum {
 
 //    k_MIN_SURROGATE = 0xd800,
 //        // min surrogate value
-//
+
     k_MAX_UTF_VALID = 0x10ffff,
         // max value encodable in UTF-8
 
     k_UTF8_CONT_VALUE_MASK = 0x3f,
         // part of a continuation byte that contains the 6 bits of value info
-//
+
     k_UTF16_HIGH_SURROGATE_START = 0xd800,
         // start of high surrogate range
 
 //    k_UTF16_HIGH_SURROGATE_END   = 0xdbff,
 //        // start of high surrogate range
-//
+
     k_UTF16_LOW_SURROGATE_START = 0xdc00,
         // start of high surrogate range
 
 //    k_UTF16_LOW_SURROGATE_END   = 0xdcff,
 //        // start of high surrogate range
-//
+
     k_UTF16_SURROGATE_PAIR_OFFSET = 0x10000,
         // start of surrogate pair represented values
 
@@ -69,14 +69,15 @@ enum {
 //                              HELPER CLASSES
 // ============================================================================
 
-/// Component-private comparator class to facilitate range searches using
-/// standard algorithms.
-template <class e_RANGE_TYPE>
+/// Component-private comparator class to facilitate searches using standard
+/// algorithms.
+template <class t_CODE_POINT_RANGE_TYPE>
 struct EndCompare
 {
     /// Return true if the `d_end` member of the specified `range` is less
     /// than the specified `value`, false otherwise.
-    bool operator()(const e_RANGE_TYPE& range, const unsigned long int value)
+    bool operator()(const t_CODE_POINT_RANGE_TYPE& range,
+                    const unsigned long int        value)
     {
         return range.d_end < value;
     }
@@ -147,7 +148,7 @@ bool isByteOrderMarker(const void *bytes, size_t maxBytes)
 /// undefined unless the 2 bytes starting at `pc` contain a UTF-8 sequence
 /// describing a single valid code point.
 inline
-static int get2ByteUtf8Value(const unsigned char *pc)
+int get2ByteUtf8Value(const unsigned char *pc)
 {
     return ((*pc & 0x1f) << 6) | ((pc[1] & k_UTF8_CONT_VALUE_MASK));
 }
@@ -267,46 +268,35 @@ void UnicodeCodePoint::extractUtf8(const void *bytes, size_t maxBytes)
     const unsigned char *start = static_cast<const unsigned char *>(bytes);
 
     switch (static_cast<unsigned char>(*start) >> 4) {
-      case 0x0:
-        BSLA_FALLTHROUGH;
-      case 0x1:
-        BSLA_FALLTHROUGH;
-      case 0x2:
-        BSLA_FALLTHROUGH;
-      case 0x3:
-        BSLA_FALLTHROUGH;
-      case 0x4:
-        BSLA_FALLTHROUGH;
-      case 0x5:
-        BSLA_FALLTHROUGH;
-      case 0x6:
-        BSLA_FALLTHROUGH;
+      case 0x0: BSLA_FALLTHROUGH;
+      case 0x1: BSLA_FALLTHROUGH;
+      case 0x2: BSLA_FALLTHROUGH;
+      case 0x3: BSLA_FALLTHROUGH;
+      case 0x4: BSLA_FALLTHROUGH;
+      case 0x5: BSLA_FALLTHROUGH;
+      case 0x6: BSLA_FALLTHROUGH;
       case 0x7: {
         d_codePointValue = *start;
         d_numSourceBytes = 1;
         d_isValid        = true;
         d_codePointWidth = 1;  // simple ascii value.
       } break;
-      case 0x8:
-        BSLA_FALLTHROUGH;
-      case 0x9:
-        BSLA_FALLTHROUGH;
-      case 0xa:
-        BSLA_FALLTHROUGH;
+      case 0x8: BSLA_FALLTHROUGH;
+      case 0x9: BSLA_FALLTHROUGH;
+      case 0xa: BSLA_FALLTHROUGH;
       case 0xb: {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
         // Unexpected continuation octet
         return;                                                       // RETURN
       } break;
-      case 0xc:
-        BSLA_FALLTHROUGH;
+      case 0xc: BSLA_FALLTHROUGH;
       case 0xd: {
         if (UNLIKELY(maxBytes < 2)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             // Too few bytes available given the length indicated by the first
-            // byte.
+            // byte
             return;                                                   // RETURN
         }
 
@@ -335,7 +325,7 @@ void UnicodeCodePoint::extractUtf8(const void *bytes, size_t maxBytes)
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             // Too few bytes available given the length indicated by the first
-            // byte.
+            // byte
             return;                                                   // RETURN
         }
 
@@ -419,10 +409,10 @@ void UnicodeCodePoint::extractUtf8(const void *bytes, size_t maxBytes)
 void UnicodeCodePoint::extractUtf16(const void *bytes, size_t maxBytes)
 {
     // If ever this function is called on a platform with a 32-bit wchar_t
-    // (such as on Linux) then something went very badly wrong.
+    // (such as on Linux) then something went wrong.
     BSLS_ASSERT_OPT(sizeof(wchar_t) == 2);
 
-    if (0 == bytes || maxBytes < 2 || sizeof(wchar_t) != 2) {
+    if (0 == bytes || maxBytes < 2) {
         return;                                                       // RETURN
     }
 
@@ -436,14 +426,15 @@ void UnicodeCodePoint::extractUtf16(const void *bytes, size_t maxBytes)
 
     if (UNLIKELY(isLowSurrogateValue(first))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            // Illegal to have a low surrogate without a preceeding high
+            // It is illegal to have a low surrogate without a preceding high
             // surrogate.
 
         return;                                                       // RETURN
     }
 
     if (!isHighSurrogateValue(first)) {
-        // Illegal to have a low surrogate without a preceeding high surrogate.
+        // It is illegal to have a low surrogate without a preceeding high
+        // surrogate.
 
         d_codePointValue = first;
         d_numSourceBytes = 2;
@@ -490,14 +481,9 @@ void UnicodeCodePoint::extractUtf16(const void *bytes, size_t maxBytes)
 
 void UnicodeCodePoint::extractUtf32(const void *bytes, size_t maxBytes)
 {
-
     // If ever this function is called on a platform with a 32-bit wchar_t
-    // (such as on Linux) then something went very badly wrong.
+    // (such as on Linux) then something went wrong.
     BSLS_ASSERT_OPT(sizeof(wchar_t) == 4);
-
-    if (sizeof(wchar_t) != 4) {
-        return;                                                       // RETURN
-    }
 
     if (0 == bytes || maxBytes < 4) {
         return;                                                       // RETURN
@@ -513,7 +499,7 @@ void UnicodeCodePoint::extractUtf32(const void *bytes, size_t maxBytes)
 
     if (UNLIKELY(isSurrogateValue(value))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            // Illegal to have a low surrogate values in any UTF schema.
+            // It is illegal to have a low surrogate values in any UTF schema.
 
         return;                                                       // RETURN
     }
