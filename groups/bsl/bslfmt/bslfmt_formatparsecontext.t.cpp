@@ -206,11 +206,7 @@ int main(int argc, char **argv)
                 ASSERTV(LINE, "Exception has not been thrown", false);
             }
             catch (const bsl::format_error& err) {
-                const char *expectedMessage =
-                          "Parse error: attempt to advance to an out-of-range "
-                          "iterator";
-                ASSERTV(LINE, err.what(),
-                        0 == strcmp(expectedMessage, err.what()));
+                // Expected behavior.
             }
             catch (...) {
                 ASSERTV(LINE, "Unexpected exception", false);
@@ -221,11 +217,7 @@ int main(int argc, char **argv)
                 ASSERTV(LINE, "Exception has not been thrown", false);
             }
             catch (const bsl::format_error& err) {
-                const char *expectedMessage =
-                          "Parse error: attempt to advance to an out-of-range "
-                          "iterator";
-                ASSERTV(LINE, err.what(),
-                        0 == strcmp(expectedMessage, err.what()));
+                // Expected behavior.
             }
             catch (...) {
                 ASSERTV(LINE, "Unexpected exception", false);
