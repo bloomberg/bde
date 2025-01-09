@@ -69,13 +69,13 @@ enum {
 //                              HELPER CLASSES
 // ============================================================================
 
-/// Component-private comparator class to facilitate searches using standard
-/// algorithms.
+/// Component-private comparator class to facilitate searches by ranges of code
+/// points using standard algorithms.
 template <class t_CODE_POINT_RANGE_TYPE>
 struct EndCompare
 {
-    /// Return true if the `d_end` member of the specified `range` is less
-    /// than the specified `value`, false otherwise.
+    /// Return true if the `d_end` member of the specified `range` of code
+    /// points is less than the specified `value`, false otherwise.
     bool operator()(const t_CODE_POINT_RANGE_TYPE& range,
                     const unsigned long int        value)
     {
@@ -91,7 +91,7 @@ struct EndCompare
 /// length of the specified `maxBytes` contains a UTF Byte Order Marker, and
 /// return the result.
 inline
-bool isByteOrderMarker(const void *bytes, size_t maxBytes)
+static bool isByteOrderMarker(const void *bytes, size_t maxBytes)
 {
     if (maxBytes < 2) {
         return false;                                                 // RETURN
@@ -148,7 +148,7 @@ bool isByteOrderMarker(const void *bytes, size_t maxBytes)
 /// undefined unless the 2 bytes starting at `pc` contain a UTF-8 sequence
 /// describing a single valid code point.
 inline
-int get2ByteUtf8Value(const unsigned char *pc)
+static int get2ByteUtf8Value(const unsigned char *pc)
 {
     return ((*pc & 0x1f) << 6) | ((pc[1] & k_UTF8_CONT_VALUE_MASK));
 }
@@ -158,7 +158,7 @@ int get2ByteUtf8Value(const unsigned char *pc)
 /// undefined unless the 3 bytes starting at `pc` contain a UTF-8 sequence
 /// describing a single valid code point.
 inline
-int get3ByteUtf8Value(const unsigned char *pc)
+static int get3ByteUtf8Value(const unsigned char *pc)
 {
     return ((*pc & 0xf) << 12) | ((pc[1] & k_UTF8_CONT_VALUE_MASK) << 6) |
            ((pc[2] & k_UTF8_CONT_VALUE_MASK));
@@ -169,7 +169,7 @@ int get3ByteUtf8Value(const unsigned char *pc)
 /// undefined unless the 4 bytes starting at `pc` contain a UTF-8 sequence
 /// describing a single valid code point.
 inline
-int get4ByteUtf8Value(const unsigned char *pc)
+static int get4ByteUtf8Value(const unsigned char *pc)
 {
     return ((*pc & 0x7) << 18) | ((pc[1] & k_UTF8_CONT_VALUE_MASK) << 12) |
            ((pc[2] & k_UTF8_CONT_VALUE_MASK) << 6) |
@@ -180,7 +180,7 @@ int get4ByteUtf8Value(const unsigned char *pc)
 /// standard in [format.string.std].  Note that this width may differ from that
 /// specified by the Unicode standard.
 inline
-int getCodepointWidth(unsigned long int codepoint)
+static int getCodepointWidth(unsigned long int codepoint)
 {
     const UnicodeData::BooleanRange *first =
                                          UnicodeData::s_doubleFieldWidthRanges;
@@ -212,7 +212,7 @@ int getCodepointWidth(unsigned long int codepoint)
 /// Return `true` if the specified `value` is NOT a UTF-8 continuation byte,
 /// and `false` otherwise.
 inline
-bool isNotUtf8Continuation(unsigned char value)
+static bool isNotUtf8Continuation(unsigned char value)
 {
     return 0x80 != (value & 0xc0);
 }
@@ -220,7 +220,7 @@ bool isNotUtf8Continuation(unsigned char value)
 /// Return `true` if the specified `value` is a surrogate value, and `false`
 /// otherwise.
 inline
-bool isSurrogateValue(unsigned int value)
+static bool isSurrogateValue(unsigned int value)
 {
     // Mask is      1111 1111 1111 1111 1111 1000 0000 0000
     // Test against                     1101 1000 0000 0000
@@ -231,7 +231,7 @@ bool isSurrogateValue(unsigned int value)
 /// Return `true` if the specified `value` is a high surrogate value, and
 /// `false` otherwise.
 inline
-bool isHighSurrogateValue(unsigned int value)
+static bool isHighSurrogateValue(unsigned int value)
 {
     // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
     // Test against                     1101 1000 0000 0000
@@ -242,7 +242,7 @@ bool isHighSurrogateValue(unsigned int value)
 /// Return `true` if the specified `value` is a high surrogate value, and
 /// `false` otherwise.
 inline
-bool isLowSurrogateValue(unsigned int value)
+static bool isLowSurrogateValue(unsigned int value)
 {
     // Mask is      1111 1111 1111 1111 1111 1100 0000 0000
     // Test against                     1101 1100 0000 0000
