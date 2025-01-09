@@ -1087,7 +1087,7 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. Each enumerator has the appropriate type.
         // 2. Each enumerator has the appropriate value.
-        // 3. `BDEU_NUM_CATEGORIES` has the appropriate value.
+        // 3. `k_NUM_CATEGORIES` has the appropriate value.
         //
         // Plan: This test case uses Ad Hoc Test Data Selection and is
         // implemented using the Brute Force Technique.
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   enum Category;
-        //   enum { BDEU_NUM_CATEGORIES };
+        //   enum { k_NUM_CATEGORIES };
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n"

@@ -346,50 +346,11 @@ struct CharType {
         e_ALL,            // [\0-\377]
         e_NONE,           // []
         e_ODIGIT          // [0-7]
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEU_UPPER  = e_UPPER
-      , BDEU_LOWER  = e_LOWER
-      , BDEU_ALPHA  = e_ALPHA
-      , BDEU_ODIGIT = e_ODIGIT
-      , BDEU_DIGIT  = e_DIGIT
-      , BDEU_XDIGIT = e_XDIGIT
-      , BDEU_ALNUM  = e_ALNUM
-      , BDEU_SPACE  = e_SPACE
-      , BDEU_PRINT  = e_PRINT
-      , BDEU_GRAPH  = e_GRAPH
-      , BDEU_PUNCT  = e_PUNCT
-      , BDEU_CNTRL  = e_CNTRL
-      , BDEU_ASCII  = e_ASCII
-      , BDEU_IDENT  = e_IDENT
-      , BDEU_ALUND  = e_ALUND
-      , BDEU_ALL    = e_ALL
-      , BDEU_NONE   = e_NONE
-      , UPPER       = e_UPPER
-      , LOWER       = e_LOWER
-      , ALPHA       = e_ALPHA
-      , DIGIT       = e_DIGIT
-      , XDIGIT      = e_XDIGIT
-      , ALNUM       = e_ALNUM
-      , SPACE       = e_SPACE
-      , PRINT       = e_PRINT
-      , GRAPH       = e_GRAPH
-      , PUNCT       = e_PUNCT
-      , CNTRL       = e_CNTRL
-      , ASCII       = e_ASCII
-      , IDENT       = e_IDENT
-      , ALUND       = e_ALUND
-      , ALL         = e_ALL
-      , NONE        = e_NONE
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     /// Current number of categories supported by this component.
     enum {
         k_NUM_CATEGORIES = e_ODIGIT + 1
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEU_NUM_CATEGORIES = k_NUM_CATEGORIES
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
