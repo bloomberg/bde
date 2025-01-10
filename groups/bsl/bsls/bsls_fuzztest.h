@@ -71,9 +71,9 @@ BSLS_IDENT("$Id: $")
 // argument to `newtonsSqrt`, which has a slightly more restrictive
 // precondition: `mySqrt` accepts 0, while `newtonsSqrt` does not.
 // ```
+// /// Return the square root of the specified `x` according to Newton's
+// /// method.  The behavior is undefined unless `x > 0`.
 // double newtonsSqrt(double x)
-//     // Return the square root of the specified 'x' according to Newton's
-//     // method.  The behavior is undefined unless 'x > 0'.
 // {
 //     BSLS_PRECONDITIONS_BEGIN();
 //     BSLS_ASSERT(x > 0);
@@ -86,9 +86,9 @@ BSLS_IDENT("$Id: $")
 //     return guess;
 // }
 //
+// /// Return the square root of the specified `x`.  The behavior is undefined
+// /// unless `x >= 0`.
 // double mySqrt(double x)
-//     // Return the square root of the specified 'x'.  The behavior is
-//     // undefined unless 'x >= 0'.
 // {
 //     BSLS_PRECONDITIONS_BEGIN();
 //     BSLS_ASSERT(x >= 0);
@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 // component, `bsls::TimeInterval`.  This function, `setInterval`, has
 // precondition checks that are surrounded by `BEGIN` and `END`.
 // ```
+// /// This class implements a simple interval timer.
 // class Timer
-//     // This class implements a simple interval timer.
 // {
 //   private:
 //     // DATA
@@ -111,13 +111,14 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // MANIPULATORS
+//
+//     /// Start the countdown with a timer having the value given by the
+//     /// sum of the specified integral number of `seconds` and
+//     /// `nanoseconds`.  The behavior is undefined unless the total
+//     /// number of seconds in the resulting time interval can be
+//     /// represented with a 64-bit signed integer (see
+//     /// `TimeInterval::isValid`).
 //     void start(bsls::Types::Int64 seconds, int nanoseconds)
-//         // Start the countdown with a timer having the value given by the
-//         // sum of the specified integral number of 'seconds' and
-//         // 'nanoseconds'.  The behavior is undefined unless the total
-//         // number of seconds in the resulting time interval can be
-//         // represented with a 64-bit signed integer (see
-//         // 'TimeInterval::isValid').
 //     {
 //         d_timeout.setInterval(seconds, nanoseconds);
 //         //...
@@ -127,10 +128,10 @@ BSLS_IDENT("$Id: $")
 // Next, implement `LLVMFuzzerTestOneInput`.  We first select the test case
 // number based on the supplied fuzz data.
 // ```
+// /// Use the specified `data` array of `size` bytes as input to methods
+// /// of this component and return zero.
 // extern "C"
 // int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-//     // Use the specified 'data' array of 'size' bytes as input to methods
-//     // of this component and return zero.
 // {
 //     int         test;
 //     if (data && size) {
@@ -152,8 +153,8 @@ BSLS_IDENT("$Id: $")
 //         // 'mySqrt'
 //         //
 //         // Concerns:
-//         //: 1. That 'mySqrt' does not invoke the original assertion handler
-//         //:    for any 'input' value.
+//         // 1. That `mySqrt` does not invoke the original assertion handler
+//         //    for any `input` value.
 //         //
 //         // Testing: double mySqrt(double x);
 //         // ----------------------------------------------------------------
@@ -190,8 +191,8 @@ BSLS_IDENT("$Id: $")
 //         // 'Timer::start'
 //         //
 //         // Concerns:
-//         //: 1 That 'start', when invoked with the 'RAW' macro, does not
-//         //:   invoke the original assertion handler.
+//         // 1. That 'start', when invoked with the 'RAW' macro, does not
+//         //    invoke the original assertion handler.
 //         //
 //         // Testing:
 //         //   void Timer::start(Int64 seconds, int nanoseconds);
@@ -294,6 +295,7 @@ BSLS_IDENT("$Id: $")
     } while (false)
 
 #endif  // defined(BDE_ACTIVATE_FUZZ_TESTING)
+
 namespace BloombergLP {
 namespace bsls {
 
@@ -327,26 +329,26 @@ struct FuzzTestPreconditionTracker {
     static void handleException(
                                const FuzzTestPreconditionException& exception);
 
-    /// Throw a `FuzzTestPreconditionException` constructed from the
-    /// specified `violation` if the assertion violation occurred after the
-    /// first invocation of `handlePreconditionsBegin` but before the first
+    /// Throw a `FuzzTestPreconditionException` constructed from the specified
+    /// `violation` if the assertion violation occurred after the first
+    /// invocation of `handlePreconditionsBegin` but before the first
     /// invocation of `handlePreconditionsEnd`, and invoke the assertion
-    /// handler returned by
-    /// `FuzzTestHandlerGuard::getOriginalAssertionHandler` otherwise.
+    /// handler returned by `FuzzTestHandlerGuard::getOriginalAssertionHandler`
+    /// otherwise.
     static void handlePreconditionViolation(const AssertViolation& violation);
 
     /// Increment the assertion block depth level counter.
     static void handlePreconditionsBegin();
 
-    /// Decrement the assertion block depth level counter and record that
-    /// the first precondition block has ended if the depth level changed to
-    /// 0.  The behavior is undefined unless the depth level is positive.
+    /// Decrement the assertion block depth level counter and record that the
+    /// first precondition block has ended if the depth level changed to 0.
+    /// The behavior is undefined unless the depth level is positive.
     static void handlePreconditionsEnd();
 
     /// Store the specified `fileName` from the caller that invokes the
     /// top-level function under test (via `BSLS_FUZZTEST_EVALUATE(X)`), and
-    /// set the state to reflect that any precondition begin macro
-    /// encountered will be the first.
+    /// set the state to reflect that any precondition begin macro encountered
+    /// will be the first.
     static void initStaticState(const char *fileName);
 };
 
@@ -354,9 +356,9 @@ struct FuzzTestPreconditionTracker {
                          // class FuzzTestHandlerGuard
                          // ==========================
 
-/// This class provides a guard that will install and uninstall three
-/// handlers, one for assertion failure, one for `BSLS_PRECONDITIONS_BEGIN`,
-/// and one for `BSLS_PRECONDITIONS_END`, within the protected scope.
+/// This class provides a guard that will install and uninstall three handlers,
+/// one for assertion failure, one for `BSLS_PRECONDITIONS_BEGIN`, and one for
+/// `BSLS_PRECONDITIONS_END`, within the protected scope.
 class FuzzTestHandlerGuard {
 
   private:
@@ -368,9 +370,9 @@ class FuzzTestHandlerGuard {
     // CREATORS
 
     /// Create a guard object, installing
-    /// `FuzzTestPreconditionTracker::handlePreconditionViolation` as well
-    /// as the `BEGIN/END` handler.  The behavior is undefined if the
-    /// current assertion handler is
+    /// `FuzzTestPreconditionTracker::handlePreconditionViolation` as well as
+    /// the `BEGIN/END` handler.  The behavior is undefined if the current
+    /// assertion handler is
     /// `FuzzTestPreconditionTracker::handlePreconditionViolation`.
     FuzzTestHandlerGuard();
 

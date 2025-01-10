@@ -34,15 +34,15 @@ BSLS_IDENT("$Id: $")
 // The documentation of this component occasionally uses the following
 // terminology as shorthand:
 //
-//: *date-and-time* *type*:
-//:   A data type provided by BDE for the representation of a date and/or time
-//:   value.  The date-and-time types are: `bdlt::Date`, `bdlt::DateTz`,
-//:   `bdlt::Datetime`, `bdlt::DatetimeTz`, `bdlt::Time`, and `bdlt::TimeTz`.
-//:   Note that under this definition, the time-zone-aware types provided by
-//:   BDE, such as `baltzo::LocalDatetime`, are not date-and-time types.
-//:
-//: *date-and-time* *value*:
-//:   The value associated with an object of a date-and-time type.
+// * **date-and-time type**:
+//   > A data type provided by BDE for the representation of a date and/or time
+//   > value.  The date-and-time types are: `bdlt::Date`, `bdlt::DateTz`,
+//   > `bdlt::Datetime`, `bdlt::DatetimeTz`, `bdlt::Time`, and `bdlt::TimeTz`.
+//   > Note that under this definition, the time-zone-aware types provided by
+//   > BDE, such as `baltzo::LocalDatetime`, are not date-and-time types.
+//
+// * **date-and-time value**:
+//   > The value associated with an object of a date-and-time type.
 //
 ///Usage
 ///-----
@@ -166,18 +166,18 @@ struct BerUtil {
 
     // CLASS METHODS
 
-    /// Decode the "end-of-content" octets (two consecutive zero-octets)
-    /// from the specified `streamBuf` and add the number of bytes consumed
-    /// (which is always 2) to the specified `accumNumBytesConsumed`.
-    /// Return 0 on success, and a non-zero value otherwise.
+    /// Decode the "end-of-content" octets (two consecutive zero-octets) from
+    /// the specified `streamBuf` and add the number of bytes consumed (which
+    /// is always 2) to the specified `accumNumBytesConsumed`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int getEndOfContentOctets(bsl::streambuf *streamBuf,
                                      int            *accumNumBytesConsumed);
 
     /// Decode the identifier octets from the specified `streamBuf` and load
     /// the tag class, tag type, and tag number to the specified `tagClass`,
     /// `tagType`, and `tagNumber` respectively.  Add the number of bytes
-    /// consumed to the specified `accumNumBytesConsumed`.  Return
-    /// 0 on success, and a non-zero value otherwise.
+    /// consumed to the specified `accumNumBytesConsumed`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int getIdentifierOctets(
                                 bsl::streambuf         *streamBuf,
                                 BerConstants::TagClass *tagClass,
@@ -186,22 +186,22 @@ struct BerUtil {
                                 int                    *accumNumBytesConsumed);
 
     /// Decode the length octets from the specified `streamBuf` and load the
-    /// result to the specified `result`.  If the length is indefinite
-    /// (i.e., contents will be terminated by "end-of-content" octets) then
-    /// `result` will be set to `k_INDEFINITE_LENGTH`.  Add the number of
-    /// bytes consumed to the specified `accumNumBytesConsumed`.  Return 0
-    /// on success, and a non-zero value otherwise.
+    /// result to the specified `result`.  If the length is indefinite (i.e.,
+    /// contents will be terminated by "end-of-content" octets) then `result`
+    /// will be set to `k_INDEFINITE_LENGTH`.  Add the number of bytes consumed
+    /// to the specified `accumNumBytesConsumed`.  Return 0 on success, and a
+    /// non-zero value otherwise.
     static int getLength(bsl::streambuf *streamBuf,
                          int            *result,
                          int            *accumNumBytesConsumed);
 
-    /// Decode the specified `value` from the specified `streamBuf`,
-    /// consuming exactly the specified `length` bytes.  Return 0 on
-    /// success, and a non-zero value otherwise.  Optionally specify
-    /// decoding `options` to control aspects of the decoding.  Note that
-    /// the value consists of the contents bytes only (no length prefix).
-    /// Also note that only fundamental C++ types, `bsl::string`, and BDE
-    /// date/time types are supported.
+    /// Decode the specified `value` from the specified `streamBuf`, consuming
+    /// exactly the specified `length` bytes.  Return 0 on success, and a
+    /// non-zero value otherwise.  Optionally specify decoding `options` to
+    /// control aspects of the decoding.  Note that the value consists of the
+    /// contents bytes only (no length prefix).  Also note that only
+    /// fundamental C++ types, `bsl::string`, and BDE date/time types are
+    /// supported.
     template <typename TYPE>
     static int getValue(
                       bsl::streambuf           *streamBuf,
@@ -209,13 +209,13 @@ struct BerUtil {
                       int                       length,
                       const BerDecoderOptions&  options = BerDecoderOptions());
 
-    /// Decode the specified `value` from the specified `streamBuf` and add
-    /// the number of bytes consumed to the specified
-    /// `accumNumBytesConsumed`.  Return 0 on success, and a non-zero value
-    /// otherwise.  Optionally specify decoding `options` to control aspects
-    /// of the decoding.  Note that the value consists of the length and
-    /// contents primitives.  Also note that only fundamental C++ types,
-    /// `bsl::string`, and BDE date/time types are supported.
+    /// Decode the specified `value` from the specified `streamBuf` and add the
+    /// number of bytes consumed to the specified `accumNumBytesConsumed`.
+    /// Return 0 on success, and a non-zero value otherwise.  Optionally
+    /// specify decoding `options` to control aspects of the decoding.  Note
+    /// that the value consists of the length and contents primitives.  Also
+    /// note that only fundamental C++ types, `bsl::string`, and BDE date/time
+    /// types are supported.
     template <typename TYPE>
     static int getValue(
                       bsl::streambuf           *streamBuf,
@@ -223,15 +223,15 @@ struct BerUtil {
                       int                      *accumNumBytesConsumed,
                       const BerDecoderOptions&  options = BerDecoderOptions());
 
-    /// Encode the "end-of-content" octets (two consecutive zero-octets) to
-    /// the specified `streamBuf`.  The "end-of-content" octets act as the
-    /// termination bytes for objects that have indefinite length.  Return 0
-    /// on success, and a non-zero value otherwise.
+    /// Encode the "end-of-content" octets (two consecutive zero-octets) to the
+    /// specified `streamBuf`.  The "end-of-content" octets act as the
+    /// termination bytes for objects that have indefinite length.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int putEndOfContentOctets(bsl::streambuf *streamBuf);
 
     /// Encode the identifier octets for the specified `tagClass`, `tagType`
-    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success,
-    /// and a non-zero value otherwise.
+    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success, and
+    /// a non-zero value otherwise.
     static int putIdentifierOctets(bsl::streambuf         *streamBuf,
                                    BerConstants::TagClass  tagClass,
                                    BerConstants::TagType   tagType,
@@ -239,20 +239,20 @@ struct BerUtil {
 
     /// Encode the "indefinite-length" octet onto the specified `streamBuf`.
     /// This octet signifies that the length of the contents is indefinite
-    /// (i.e., contents will be terminated by end of content octets).
-    /// Return 0 on success, and a non-zero value otherwise.
+    /// (i.e., contents will be terminated by end of content octets).  Return 0
+    /// on success, and a non-zero value otherwise.
     static int putIndefiniteLengthOctet(bsl::streambuf *streamBuf);
 
-    /// Encode the specified `length` to the specified `streamBuf`.  Return
-    /// 0 on success, and a non-zero value otherwise.  The behavior is
-    /// undefined unless `0 <= length`.
+    /// Encode the specified `length` to the specified `streamBuf`.  Return 0
+    /// on success, and a non-zero value otherwise.  The behavior is undefined
+    /// unless `0 <= length`.
     static int putLength(bsl::streambuf *streamBuf, int length);
 
-    /// Encode the specified `value` to the specified `streamBuf`.  Return 0
-    /// on success, and a non-zero value otherwise.  Note that the value
-    /// consists of the length and contents primitives.  Also note that only
-    /// fundamental C++ types, `bsl::string`, `bsl::string_view`,
-    /// `bslstl::StringRef`, and BDE date/time types are supported.
+    /// Encode the specified `value` to the specified `streamBuf`.  Return 0 on
+    /// success, and a non-zero value otherwise.  Note that the value consists
+    /// of the length and contents primitives.  Also note that only fundamental
+    /// C++ types, `bsl::string`, `bsl::string_view`, `bslstl::StringRef`, and
+    /// BDE date/time types are supported.
     template <typename TYPE>
     static int putValue(bsl::streambuf          *streamBuf,
                         const TYPE&              value,
@@ -261,7 +261,7 @@ struct BerUtil {
 
 // Implementation Note
 // -------------------
-// The following utility structs used in the implementation of 'BerUtil' are
+// The following utility structs used in the implementation of `BerUtil` are
 // provided in reverse dependency order.  This means that low-level utilities
 // appear first, and higher-level utilities later.  No utility uses another
 // that appears later.
@@ -296,12 +296,11 @@ struct BerUtil_StreambufUtil {
 
     // CLASS METHODS
 
-    /// Read the next byte from the specified `streamBuf` without advancing
-    /// the read position and load that byte into the specified `value`.
-    /// Return 0 on success, and a non-zero value otherwise.  If this
-    /// operation is not successful, the value of `*value` is unchanged.
-    /// This operation fails if the input sequence of `streamBuf` is at its
-    /// end.
+    /// Read the next byte from the specified `streamBuf` without advancing the
+    /// read position and load that byte into the specified `value`.  Return 0
+    /// on success, and a non-zero value otherwise.  If this operation is not
+    /// successful, the value of `*value` is unchanged.  This operation fails
+    /// if the input sequence of `streamBuf` is at its end.
     static int peekChar(char *value, bsl::streambuf *streamBuf);
 
     /// Read the specified `bufferLength` number of bytes from the input
@@ -311,10 +310,10 @@ struct BerUtil_StreambufUtil {
     /// element.  Return 0 on success, and a non-zero value otherwise.  The
     /// operation succeeds if `length` bytes are successfully read from the
     /// input sequence of the `streamBuf` without the read position becoming
-    /// unavailable.  If less than `bufferLength` bytes are read, the number
-    /// of bytes loaded into `buffer` is not specified.  The behavior is
-    /// undefined unless `0 <= bufferLength` and `buffer` is the address of
-    /// a sequence of at least `bufferLength` bytes.
+    /// unavailable.  If less than `bufferLength` bytes are read, the number of
+    /// bytes loaded into `buffer` is not specified.  The behavior is undefined
+    /// unless `0 <= bufferLength` and `buffer` is the address of a sequence of
+    /// at least `bufferLength` bytes.
     static int getChars(char           *buffer,
                         bsl::streambuf *streamBuf,
                         int             bufferLength);
@@ -332,16 +331,15 @@ struct BerUtil_StreambufUtil {
                       // struct BerUtil_IdentifierImpUtil
                       // ================================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions used by `BerUtil` to implement BER identifier octet
-/// encoding and decoding.
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER identifier octet encoding and
+/// decoding.
 struct BerUtil_IdentifierImpUtil {
 
     // TYPES
 
-    /// `Constants` is an alias to a namespace for a suite of
-    /// general-purpose constants that occur when encoding or decoding BER
-    /// data.
+    /// `Constants` is an alias to a namespace for a suite of general-purpose
+    /// constants that occur when encoding or decoding BER data.
     typedef BerUtil_Constants Constants;
 
   private:
@@ -421,20 +419,18 @@ struct BerUtil_RawIntegerImpUtil {
 
     // TYPES
 
-    /// `Constants` is an alias to a namespace for a suite of
-    /// general-purpose constants that occur when encoding or decoding BER
-    /// data.
+    /// `Constants` is an alias to a namespace for a suite of general-purpose
+    /// constants that occur when encoding or decoding BER data.
     typedef BerUtil_Constants Constants;
 
     // CLASS METHODS
 
-    /// Encode the octets used in the BER encoding of the specified `value`
-    /// of the specified `INTEGRAL_TYPE` to the specified `streamBuf`, using
-    /// exactly the specified `length` number of octets.  Return 0 on
-    /// success, and a non-zero value otherwise.  The behavior is undefined
-    /// unless `INTEGRAL_TYPE` is fundamental integral type and exactly
-    /// `length` number of octets is used in the BER encoding of the
-    /// specified `value`.
+    /// Encode the octets used in the BER encoding of the specified `value` of
+    /// the specified `INTEGRAL_TYPE` to the specified `streamBuf`, using
+    /// exactly the specified `length` number of octets.  Return 0 on success,
+    /// and a non-zero value otherwise.  The behavior is undefined unless
+    /// `INTEGRAL_TYPE` is fundamental integral type and exactly `length`
+    /// number of octets is used in the BER encoding of the specified `value`.
     template <class INTEGRAL_TYPE>
     static int putIntegerGivenLength(bsl::streambuf *streamBuf,
                                      INTEGRAL_TYPE   value,
@@ -445,16 +441,15 @@ struct BerUtil_RawIntegerImpUtil {
                         // struct BerUtil_LengthImpUtil
                         // ============================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions used by `BerUtil` to implement BER length quantity encoding
-/// and decoding.
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER length quantity encoding and
+/// decoding.
 struct BerUtil_LengthImpUtil {
 
     // TYPES
 
-    /// `Constants` is an alias to a namespace for a suite of
-    /// general-purpose constants that occur when encoding or decoding BER
-    /// data.
+    /// `Constants` is an alias to a namespace for a suite of general-purpose
+    /// constants that occur when encoding or decoding BER data.
     typedef BerUtil_Constants Constants;
 
     /// `RawIntegerUtil` is an alias to a namespace for a suite of functions
@@ -500,29 +495,29 @@ struct BerUtil_LengthImpUtil {
                          int            *accumNumBytesConsumed,
                          bsl::streambuf *streamBuf);
 
-    /// Decode the "end-of-content" octets (two consecutive zero-octets)
-    /// from the specified `streamBuf` and add the number of bytes consumed
-    /// (which is always 2) to the specified `accumNumBytesConsumed`.
-    /// Return 0 on success, and a non-zero value otherwise.
+    /// Decode the "end-of-content" octets (two consecutive zero-octets) from
+    /// the specified `streamBuf` and add the number of bytes consumed (which
+    /// is always 2) to the specified `accumNumBytesConsumed`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int getEndOfContentOctets(int            *accumNumBytesConsumed,
                                      bsl::streambuf *streamBuf);
 
     // Length Encoding Functions
 
     /// Encode the specified `length` length octets to the specified
-    /// `streamBuf`.  Return 0 on success, and a non-zero value otherwise.
-    /// The behavior is undefined unless `0 <= length`.
+    /// `streamBuf`.  Return 0 on success, and a non-zero value otherwise.  The
+    /// behavior is undefined unless `0 <= length`.
     static int putLength(bsl::streambuf *streamBuf, int length);
 
     /// Encode the "indefinite-length" octet onto the specified `streamBuf`.
     /// This octet signifies that the length of the contents is indefinite
-    /// (i.e., contents will be terminated by end of content octets).
-    /// Return 0 on success, and a non-zero value otherwise.
+    /// (i.e., contents will be terminated by end of content octets).  Return 0
+    /// on success, and a non-zero value otherwise.
     static int putIndefiniteLengthOctet(bsl::streambuf *streamBuf);
 
     /// Encode the identifier octets for the specified `tagClass`, `tagType`
-    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success,
-    /// and a non-zero value otherwise.
+    /// and `tagNumber` to the specified `streamBuf`.  Return 0 on success, and
+    /// a non-zero value otherwise.
     static int putEndOfContentOctets(bsl::streambuf *streamBuf);
 };
 
@@ -530,18 +525,18 @@ struct BerUtil_LengthImpUtil {
                        // struct BerUtil_BooleanImpUtil
                        // =============================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for boolean values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+/// * **the specification**:
+///  > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_BooleanImpUtil {
 
     // TYPES
 
-    /// `LengthUtil` is an alias to a namespace for a suite of functions
-    /// used to implement BER encoding and decoding operations for length
+    /// `LengthUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for length
     /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
 
@@ -550,22 +545,22 @@ struct BerUtil_BooleanImpUtil {
     // Decoding
 
     /// Decode to the specified `value` from the specified `streamBuf`,
-    /// consuming exactly the specified `length` bytes.  Return 0 on
-    /// success, and a non-zero value otherwise.  This operations succeeds
-    /// if `length` bytes are successfully read from the `streamBuf` and
-    /// they contain a valid representation of the contents octets for a
-    /// BER-encoded boolean value according to the specification.
+    /// consuming exactly the specified `length` bytes.  Return 0 on success,
+    /// and a non-zero value otherwise.  This operations succeeds if `length`
+    /// bytes are successfully read from the `streamBuf` and they contain a
+    /// valid representation of the contents octets for a BER-encoded boolean
+    /// value according to the specification.
     static int getBoolValue(bool           *value,
                             bsl::streambuf *streamBuf,
                             int             length);
 
     // Encoding
 
-    /// Encode the specified `value` to the specified `streamBuf`.  Return 0
-    /// on success and a non-zero value otherwise.  The `value` is encoded
-    /// as the sequence of contents octets for a BER-encoded boolean value
-    /// according to the specification.  This operation succeeds if all of
-    /// the contents octets are successfully written to the `streamBuf`.
+    /// Encode the specified `value` to the specified `streamBuf`.  Return 0 on
+    /// success and a non-zero value otherwise.  The `value` is encoded as the
+    /// sequence of contents octets for a BER-encoded boolean value according
+    /// to the specification.  This operation succeeds if all of the contents
+    /// octets are successfully written to the `streamBuf`.
     static int putBoolValue(bsl::streambuf *streamBuf, bool value);
 };
 
@@ -577,8 +572,8 @@ struct BerUtil_BooleanImpUtil {
 /// of functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for integer values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_IntegerImpUtil {
 
     // TYPES
@@ -616,33 +611,32 @@ struct BerUtil_IntegerImpUtil {
     static int getNumOctetsToStream(int value);
     static int getNumOctetsToStream(long long value);
 
-    /// Return the number of octets required to provide a BER encoding of
-    /// the specified `value` according to the specification.  The program
-    /// is ill-formed unless the specified `INTEGRAL_TYPE` is a fundamental
+    /// Return the number of octets required to provide a BER encoding of the
+    /// specified `value` according to the specification.  The program is
+    /// ill-formed unless the specified `INTEGRAL_TYPE` is a fundamental
     /// integral type.
     template <class INTEGRAL_TYPE>
     static int getNumOctetsToStream(INTEGRAL_TYPE value);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// interpretation of those bytes as the contents octets of a
-    /// BER-encoded integer value according to the specification.  Return 0
-    /// if successful, and a non-zero value otherwise.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the contents octets of a BER-encoded
+    /// integer value according to the specification.  Return 0 if successful,
+    /// and a non-zero value otherwise.
     static int getIntegerValue(long long      *value,
                                bsl::streambuf *streamBuf,
                                int             length);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the
     /// interpretation of those bytes as the contents octets of BER-encoded
-    /// integer value according to the specification.  Return 0 if
-    /// successful, and a non-zero value otherwise.  The operation succeeds
-    /// if `length` bytes are successfully read from the input sequence of
-    /// the `streamBuf` without the read position becoming unavailable, and
-    /// the bytes read contain a valid representation of the contents octets
-    /// of an integer value according to the specification.  The program is
-    /// ill-formed unless the specified `INTEGRAL_TYPE` is a fundamental
-    /// integral type.
+    /// integer value according to the specification.  Return 0 if successful,
+    /// and a non-zero value otherwise.  The operation succeeds if `length`
+    /// bytes are successfully read from the input sequence of the `streamBuf`
+    /// without the read position becoming unavailable, and the bytes read
+    /// contain a valid representation of the contents octets of an integer
+    /// value according to the specification.  The program is ill-formed unless
+    /// the specified `INTEGRAL_TYPE` is a fundamental integral type.
     template <class INTEGRAL_TYPE>
     static int getIntegerValue(INTEGRAL_TYPE  *value,
                                bsl::streambuf *streamBuf,
@@ -661,12 +655,12 @@ struct BerUtil_IntegerImpUtil {
 
     /// Write the length and contents octets of the BER encoding of the
     /// specified integer `value` (as defined in the specification) to the
-    /// output sequence of the specified `streamBuf`.  Return 0 if
-    /// successful, and a non-zero value otherwise.  The operation succeeds
-    /// if all bytes corresponding to the length and contents octets are
-    /// written to the `streamBuf` without the write position becoming
-    /// unavailable.  The program is ill-formed unless the specified
-    /// `INTEGRAL_TYPE` is a fundamental integral type.
+    /// output sequence of the specified `streamBuf`.  Return 0 if successful,
+    /// and a non-zero value otherwise.  The operation succeeds if all bytes
+    /// corresponding to the length and contents octets are written to the
+    /// `streamBuf` without the write position becoming unavailable.  The
+    /// program is ill-formed unless the specified `INTEGRAL_TYPE` is a
+    /// fundamental integral type.
     template <class INTEGRAL_TYPE>
     static int putIntegerValue(bsl::streambuf *streamBuf, INTEGRAL_TYPE value);
 
@@ -705,19 +699,18 @@ struct BerUtil_IntegerImpUtil {
 /// of functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for byte values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_CharacterImpUtil {
 
     // TYPES
 
-    /// `IntegerUtil` is an alias to a namespace for a suite of functions
-    /// used to implement BER encoding and decoding operations for integer
-    /// values.
+    /// `IntegerUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for integer values.
     typedef BerUtil_IntegerImpUtil IntegerUtil;
 
-    /// `LengthUtil` is an alias to a namespace for a suite of functions
-    /// used to implement BER encoding and decoding operations for length
+    /// `LengthUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for length
     /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
 
@@ -807,13 +800,12 @@ struct BerUtil_CharacterImpUtil {
 /// operations for floating point number values.  Within the definition of
 /// this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-///:   and
-///:
-///: *the* *floating* *point* *specification*:
-///:   Refers to the 2008 revision of the IEE 754 Standard for
-///:   Floating-Point Arithemtic.
+/// * **the specification**:
+///   >  Refers to the August 2015 revision of the ITU-T Recommendation X.690
+///
+/// * **the floating point specification**:
+///   > Refers to the 2008 revision of the IEE 754 Standard for
+///   > Floating-Point Arithemtic.
 struct BerUtil_FloatingPointImpUtil {
 
     // TYPES
@@ -999,14 +991,14 @@ struct BerUtil_FloatingPointImpUtil {
 /// of functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for string values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 struct BerUtil_StringImpUtil {
 
     // TYPES
 
-    /// `LengthUtil` is an alias to a namespace for a suite of functions
-    /// used to implement BER encoding and decoding operations for length
+    /// `LengthUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoding and decoding operations for length
     /// quantities.
     typedef BerUtil_LengthImpUtil LengthUtil;
 
@@ -1016,41 +1008,40 @@ struct BerUtil_StringImpUtil {
     // Utilities
 
     /// Write the length and contents octets of the BER encoding of the
-    /// specified byte `string` having the specified `stringLength` (as
-    /// defined in the specification) to the output sequence of the
-    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
-    /// otherwise.  The operation succeeds if all bytes corresponding to the
-    /// length and contents octets are written to the `streamBuf` without
-    /// the write position becoming unavailable.
+    /// specified byte `string` having the specified `stringLength` (as defined
+    /// in the specification) to the output sequence of the specified
+    /// `streamBuf`.  Return 0 if successful, and a non-zero value otherwise.
+    /// The operation succeeds if all bytes corresponding to the length and
+    /// contents octets are written to the `streamBuf` without the write
+    /// position becoming unavailable.
     static int putRawStringValue(bsl::streambuf *streamBuf,
                                  const char     *string,
                                  int             stringLength);
 
     /// Write the specified `numChars` number of bytes having the specified
-    /// `value` to the output sequence of the specified `streamBuf`.  Return
-    /// 0 if successful, and a non-zero value otherwise.  The operation
-    /// succeeds if all `numChars` bytes are written to the `streamBuf`
-    /// without the write position becoming unavailable.
+    /// `value` to the output sequence of the specified `streamBuf`.  Return 0
+    /// if successful, and a non-zero value otherwise.  The operation succeeds
+    /// if all `numChars` bytes are written to the `streamBuf` without the
+    /// write position becoming unavailable.
     static int putChars(bsl::streambuf *streamBuf, char value, int numChars);
 
     // 'bsl::string' Decoding
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// interpretation of those bytes as the value of the contents octets of
-    /// a BER-encoded character string (more specifically, an unrestricted
-    /// character string) according to the specification, unless an
-    /// alternate value is indicated by the specified `options`, in which
-    /// case, the alternate value is loaded.  If the `DefaultEmptyStrings`
-    /// attribute of the `options` is `true` and the witnessed BER-encoded
-    /// character string represents the empty string value, the alternate
-    /// value is the current `*value`, otherwise there is no alternate
-    /// value.  Return 0 if successful, and a non-zero value otherwise.  The
-    /// operation succeeds if `length` bytes are successfully read from the
-    /// input sequence of the `streamBuf` without the read position becoming
-    /// unavailable, and the bytes read contain a valid representation of
-    /// the contents octets of a character string value according to the
-    /// specification.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the
+    /// interpretation of those bytes as the value of the contents octets of a
+    /// BER-encoded character string (more specifically, an unrestricted
+    /// character string) according to the specification, unless an alternate
+    /// value is indicated by the specified `options`, in which case, the
+    /// alternate value is loaded.  If the `DefaultEmptyStrings` attribute of
+    /// the `options` is `true` and the witnessed BER-encoded character string
+    /// represents the empty string value, the alternate value is the current
+    /// `*value`, otherwise there is no alternate value.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds if
+    /// `length` bytes are successfully read from the input sequence of the
+    /// `streamBuf` without the read position becoming unavailable, and the
+    /// bytes read contain a valid representation of the contents octets of a
+    /// character string value according to the specification.
     static int getStringValue(bsl::string              *value,
                               bsl::streambuf           *streamBuf,
                               int                       length,
@@ -1059,36 +1050,33 @@ struct BerUtil_StringImpUtil {
     // 'bsl::string' Encoding
 
     /// Write the length and contents octets of the BER encoding of the
-    /// specified character string `value` (as defined in the specification)
-    /// to the output sequence of the specified `streamBuf`.  Return 0 if
-    /// successful, and a non-zero value otherwise.  The operation succeeds
-    /// if all bytes corresponding to the length and contents octets are
-    /// written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// specified character string `value` (as defined in the specification) to
+    /// the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes corresponding to the length and contents octets are written
+    /// to the `streamBuf` without the write position becoming unavailable.
     static int putStringValue(bsl::streambuf     *streamBuf,
                               const bsl::string&  value);
 
     // 'bsl::string_view' Encoding
 
     /// Write the length and contents octets of the BER encoding of the
-    /// specified character string `value` (as defined in the specification)
-    /// to the output sequence of the specified `streamBuf`.  Return 0 if
-    /// successful, and a non-zero value otherwise.  The operation succeeds
-    /// if all bytes corresponding to the length and contents octets are
-    /// written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// specified character string `value` (as defined in the specification) to
+    /// the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes corresponding to the length and contents octets are written
+    /// to the `streamBuf` without the write position becoming unavailable.
     static int putStringViewValue(bsl::streambuf          *streamBuf,
                                   const bsl::string_view&  value);
 
     // 'bslstl::StringRef' Encoding
 
     /// Write the length and contents octets of the BER encoding of the
-    /// specified character string `value` (as defined in the specification)
-    /// to the output sequence of the specified `streamBuf`.  Return 0 if
-    /// successful, and a non-zero value otherwise.  The operation succeeds
-    /// if all bytes corresponding to the length and contents octets are
-    /// written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// specified character string `value` (as defined in the specification) to
+    /// the output sequence of the specified `streamBuf`.  Return 0 if
+    /// successful, and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes corresponding to the length and contents octets are written
+    /// to the `streamBuf` without the write position becoming unavailable.
     static int putStringRefValue(bsl::streambuf           *streamBuf,
                                  const bslstl::StringRef&  value);
 };
@@ -1097,36 +1085,34 @@ struct BerUtil_StringImpUtil {
                        // struct BerUtil_Iso8601ImpUtil
                        // =============================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions used by `BerUtil` to implement BER encoding and decoding
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for date and time values in the ISO 8601 format.  See the
 /// component-level documentation of {`bdlt_iso8601util`} for a complete
-/// description of the ISO 8601 format used by the functions provided by
-/// this `struct`.
+/// description of the ISO 8601 format used by the functions provided by this
+/// `struct`.
 struct BerUtil_Iso8601ImpUtil {
 
     // TYPES
 
-    /// `StringUtil` is an alias to a namespace for a suite of functions
-    /// used to implement BER encoder and decoding operations for string
-    /// values.
+    /// `StringUtil` is an alias to a namespace for a suite of functions used
+    /// to implement BER encoder and decoding operations for string values.
     typedef BerUtil_StringImpUtil StringUtil;
 
   private:
     // PRIVATE CLASS METHODS
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// value represented by the interpretation of the bytes as an ISO 8601
-    /// date/time value.  The specified `TYPE` defines the expected ISO 8601
-    /// date/time format, which is the format corresponding to the `TYPE` as
-    /// specified in {`bdlt_iso8601util`}.  The operation succeeds if
-    /// `length` bytes are successfully read from the input sequence of the
-    /// `streamBuf` without the read position becoming unavailable, and the
-    /// bytes contain a valid representation of the expected ISO 8601
-    /// date/time format.  The program is ill-formed unless `TYPE` is one
-    /// of: `bdlt::Date`, `bdlt::DateTz`, `bdlt::Datetime`,
-    /// `bdlt::DatetimeTz`, `bdlt::Time`, or `bdlt::TimeTz`.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the value
+    /// represented by the interpretation of the bytes as an ISO 8601 date/time
+    /// value.  The specified `TYPE` defines the expected ISO 8601 date/time
+    /// format, which is the format corresponding to the `TYPE` as specified in
+    /// {`bdlt_iso8601util`}.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a valid
+    /// representation of the expected ISO 8601 date/time format.  The program
+    /// is ill-formed unless `TYPE` is one of: `bdlt::Date`, `bdlt::DateTz`,
+    /// `bdlt::Datetime`, `bdlt::DatetimeTz`, `bdlt::Time`, or `bdlt::TimeTz`.
     template <class TYPE>
     static int getValue(TYPE *value, bsl::streambuf *streamBuf, int length);
 
@@ -1134,13 +1120,13 @@ struct BerUtil_Iso8601ImpUtil {
     /// output sequence of the specified `streamBuf`.  If the specified
     /// `options` is 0, use 3 decimal places of fractional second precision,
     /// otherwise use the number of decimal places specified by the
-    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
-    /// Return 0 on success and a non-zero value otherwise.  The operation
-    /// succeeds if all bytes of the ISO 8601 representation of the `value`
-    /// are written to the `streamBuf` without the write position becoming
-    /// unavailable.  The program is ill-formed unless `TYPE` is one of
-    /// `bdlt::Date`, `bdlt::DateTz`, `bdlt::Datetime`, `bdlt::DatetimeTz`,
-    /// `bdlt::Time`, or `bdlt::TimeTz`.
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.  Return
+    /// 0 on success and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes of the ISO 8601 representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.  The
+    /// program is ill-formed unless `TYPE` is one of `bdlt::Date`,
+    /// `bdlt::DateTz`, `bdlt::Datetime`, `bdlt::DatetimeTz`, `bdlt::Time`, or
+    /// `bdlt::TimeTz`.
     template <class TYPE>
     static int putValue(bsl::streambuf          *streamBuf,
                         const TYPE&              value,
@@ -1151,26 +1137,26 @@ struct BerUtil_Iso8601ImpUtil {
 
     // Decoding
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// date value represented by the interpretation of the read bytes as an
-    /// ISO 8601 date.  Return 0 on success, and a non-zero value otherwise.
-    /// The operation succeeds if `length` bytes are successfully read from
-    /// the input sequence of the `streamBuf` without the read position
-    /// becoming unavailable, and the bytes contain a valid representation
-    /// of an ISO 8601 date.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the date
+    /// value represented by the interpretation of the read bytes as an ISO
+    /// 8601 date.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of an ISO
+    /// 8601 date.
     static int getDateValue(bdlt::Date     *value,
                             bsl::streambuf *streamBuf,
                             int             length);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// date value represented by the interpretation of the read bytes as an
-    /// ISO 8601 date and time zone.  Return 0 on success, and a non-zero
-    /// value otherwise.  The operation succeeds if `length` bytes are
-    /// successfully read from the input sequence of the `streamBuf` without
-    /// the read position becoming unavailable, and the bytes contain a
-    /// valid representation of an ISO 8601 date and time zone.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the date
+    /// value represented by the interpretation of the read bytes as an ISO
+    /// 8601 date and time zone.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are successfully
+    /// read from the input sequence of the `streamBuf` without the read
+    /// position becoming unavailable, and the bytes contain a valid
+    /// representation of an ISO 8601 date and time zone.
     static int getDateTzValue(bdlt::DateTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
@@ -1187,39 +1173,38 @@ struct BerUtil_Iso8601ImpUtil {
                                 bsl::streambuf *streamBuf,
                                 int             length);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// date value represented by the interpretation of the read bytes as an
-    /// ISO 8601 date, time, and time zone.  Return 0 on success, and a
-    /// non-zero value otherwise.  The operation succeeds if `length` bytes
-    /// are successfully read from the input sequence of the `streamBuf`
-    /// without the read position becoming unavailable, and the bytes
-    /// contain a valid representation of an ISO 8601 date, time, and time
-    /// zone.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the date
+    /// value represented by the interpretation of the read bytes as an ISO
+    /// 8601 date, time, and time zone.  Return 0 on success, and a non-zero
+    /// value otherwise.  The operation succeeds if `length` bytes are
+    /// successfully read from the input sequence of the `streamBuf` without
+    /// the read position becoming unavailable, and the bytes contain a valid
+    /// representation of an ISO 8601 date, time, and time zone.
     static int getDatetimeTzValue(bdlt::DatetimeTz *value,
                                   bsl::streambuf   *streamBuf,
                                   int               length);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// date value represented by the interpretation of the read bytes as an
-    /// ISO 8601 time.  Return 0 on success, and a non-zero value otherwise.
-    /// The operation succeeds if `length` bytes are successfully read from
-    /// the input sequence of the `streamBuf` without the read position
-    /// becoming unavailable, and the bytes contain a valid representation
-    /// of an ISO 8601 time.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the date
+    /// value represented by the interpretation of the read bytes as an ISO
+    /// 8601 time.  Return 0 on success, and a non-zero value otherwise.  The
+    /// operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes contain a valid representation of an ISO
+    /// 8601 time.
     static int getTimeValue(bdlt::Time     *value,
                             bsl::streambuf *streamBuf,
                             int             length);
 
-    /// Read the specified `length` number of bytes from the input sequence
-    /// of the specified `streamBuf` and load to the specified `value` the
-    /// date value represented by the interpretation of the read bytes as an
-    /// ISO 8601 time and time zone.  Return 0 on success, and a non-zero
-    /// value otherwise.  The operation succeeds if `length` bytes are
-    /// successfully read from the input sequence of the `streamBuf` without
-    /// the read position becoming unavailable, and the bytes contain a
-    /// valid representation of an ISO 8601 time and time zone.
+    /// Read the specified `length` number of bytes from the input sequence of
+    /// the specified `streamBuf` and load to the specified `value` the date
+    /// value represented by the interpretation of the read bytes as an ISO
+    /// 8601 time and time zone.  Return 0 on success, and a non-zero value
+    /// otherwise.  The operation succeeds if `length` bytes are successfully
+    /// read from the input sequence of the `streamBuf` without the read
+    /// position becoming unavailable, and the bytes contain a valid
+    /// representation of an ISO 8601 time and time zone.
     static int getTimeTzValue(bdlt::TimeTz   *value,
                               bsl::streambuf *streamBuf,
                               int             length);
@@ -1227,19 +1212,19 @@ struct BerUtil_Iso8601ImpUtil {
     // Encoding
 
     /// Write the ISO 8601 representation of the specified `value` to the
-    /// output sequence of the specified `streamBuf`.  Return 0 on success
-    /// and a non-zero value otherwise.  The operation succeeds if all bytes
-    /// of the ISO 8601 representation of the `value` are written to the
-    /// `streamBuf` without the write position becoming unavailable.
+    /// output sequence of the specified `streamBuf`.  Return 0 on success and
+    /// a non-zero value otherwise.  The operation succeeds if all bytes of the
+    /// ISO 8601 representation of the `value` are written to the `streamBuf`
+    /// without the write position becoming unavailable.
     static int putDateValue(bsl::streambuf          *streamBuf,
                             const bdlt::Date&        value,
                             const BerEncoderOptions *options);
 
     /// Write the ISO 8601 representation of the specified `value` to the
-    /// output sequence of the specified `streamBuf`.  Return 0 on success
-    /// and a non-zero value otherwise.  The operation succeeds if all bytes
-    /// of the ISO 8601 representation of the `value` are written to the
-    /// `streamBuf` without the write position becoming unavailable.
+    /// output sequence of the specified `streamBuf`.  Return 0 on success and
+    /// a non-zero value otherwise.  The operation succeeds if all bytes of the
+    /// ISO 8601 representation of the `value` are written to the `streamBuf`
+    /// without the write position becoming unavailable.
     static int putDateTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::DateTz&      value,
                               const BerEncoderOptions *options);
@@ -1248,11 +1233,10 @@ struct BerUtil_Iso8601ImpUtil {
     /// output sequence of the specified `streamBuf`.  If the specified
     /// `options` is 0, use 3 decimal places of fractional second precision,
     /// otherwise use the number of decimal places specified by the
-    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
-    /// Return 0 on success and a non-zero value otherwise.  The operation
-    /// succeeds if all bytes of the ISO 8601 representation of the `value`
-    /// are written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.  Return
+    /// 0 on success and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes of the ISO 8601 representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putDatetimeValue(bsl::streambuf          *streamBuf,
                                 const bdlt::Datetime&    value,
                                 const BerEncoderOptions *options);
@@ -1261,11 +1245,10 @@ struct BerUtil_Iso8601ImpUtil {
     /// output sequence of the specified `streamBuf`.  If the specified
     /// `options` is 0, use 3 decimal places of fractional second precision,
     /// otherwise use the number of decimal places specified by the
-    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
-    /// Return 0 on success and a non-zero value otherwise.  The operation
-    /// succeeds if all bytes of the ISO 8601 representation of the `value`
-    /// are written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.  Return
+    /// 0 on success and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes of the ISO 8601 representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putDatetimeTzValue(bsl::streambuf          *streamBuf,
                                   const bdlt::DatetimeTz&  value,
                                   const BerEncoderOptions *options);
@@ -1274,11 +1257,10 @@ struct BerUtil_Iso8601ImpUtil {
     /// output sequence of the specified `streamBuf`.  If the specified
     /// `options` is 0, use 3 decimal places of fractional second precision,
     /// otherwise use the number of decimal places specified by the
-    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
-    /// Return 0 on success and a non-zero value otherwise.  The operation
-    /// succeeds if all bytes of the ISO 8601 representation of the `value`
-    /// are written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.  Return
+    /// 0 on success and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes of the ISO 8601 representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putTimeValue(bsl::streambuf          *streamBuf,
                             const bdlt::Time&        value,
                             const BerEncoderOptions *options);
@@ -1287,11 +1269,10 @@ struct BerUtil_Iso8601ImpUtil {
     /// output sequence of the specified `streamBuf`.  If the specified
     /// `options` is 0, use 3 decimal places of fractional second precision,
     /// otherwise use the number of decimal places specified by the
-    /// `datetimeFractionalSecondPrecision` attribute of the `options`.
-    /// Return 0 on success and a non-zero value otherwise.  The operation
-    /// succeeds if all bytes of the ISO 8601 representation of the `value`
-    /// are written to the `streamBuf` without the write position becoming
-    /// unavailable.
+    /// `datetimeFractionalSecondPrecision` attribute of the `options`.  Return
+    /// 0 on success and a non-zero value otherwise.  The operation succeeds if
+    /// all bytes of the ISO 8601 representation of the `value` are written to
+    /// the `streamBuf` without the write position becoming unavailable.
     static int putTimeTzValue(bsl::streambuf          *streamBuf,
                               const bdlt::TimeTz&      value,
                               const BerEncoderOptions *options);
@@ -1301,9 +1282,9 @@ struct BerUtil_Iso8601ImpUtil {
                     // struct BerUtil_TimezoneOffsetImpUtil
                     // ====================================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions and constants used by `BerUtil` to encode and decode
-/// time-zone values.
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions and constants used by `BerUtil` to encode and decode time-zone
+/// values.
 struct BerUtil_TimezoneOffsetImpUtil {
 
     // TYPES
@@ -1322,20 +1303,20 @@ struct BerUtil_TimezoneOffsetImpUtil {
 
     // CLASS METHODS
 
-    /// Return `true` if the specified `value` is a valid time-zone offset,
-    /// and return `false` otherwise.  A time-zone offset is valid if it is
-    /// greater than or equal to `k_MIN_OFFSET` and less than or equal to
+    /// Return `true` if the specified `value` is a valid time-zone offset, and
+    /// return `false` otherwise.  A time-zone offset is valid if it is greater
+    /// than or equal to `k_MIN_OFFSET` and less than or equal to
     /// `k_MAX_OFFSET`.
     static bool isValidTimezoneOffsetInMinutes(int value);
 
-    /// Read from the specified `streamBuf` and load to the specified
-    /// `value` of the time-zone offset.
+    /// Read from the specified `streamBuf` and load to the specified `value`
+    /// of the time-zone offset.
     static int getTimezoneOffsetInMinutes(int            *value,
                                           bsl::streambuf *streamBuf);
 
-    /// Read a time zone offset value from the specified `streamBuf`.  If
-    /// the offset is greater than or equal to `k_MIN_OFFSET` and less than
-    /// or equal to `k_MAX_OFFSET` then load the value of the offset to the
+    /// Read a time zone offset value from the specified `streamBuf`.  If the
+    /// offset is greater than or equal to `k_MIN_OFFSET` and less than or
+    /// equal to `k_MAX_OFFSET` then load the value of the offset to the
     /// specified `value` and return zero, otherwise do not modify the value
     /// addressed by `value` and return non-zero.
     static int getTimezoneOffsetInMinutesIfValid(int            *value,
@@ -1390,18 +1371,18 @@ struct BerUtil_DateAndTimeEncoding {
                  // struct BerUtil_ExtendedBinaryEncodingUtil
                  // =========================================
 
-/// This component-private utility `struct` provides a namespace for a suite
-/// of functions used by `BerUtil` to determine if a particular date and/or
-/// time value should be encoded using its corresponding
-/// extended-binary-encoding format, its corresponding
-/// compact-binary-encoding format, or neither format.
+/// This component-private utility `struct` provides a namespace for a suite of
+/// functions used by `BerUtil` to determine if a particular date and/or time
+/// value should be encoded using its corresponding extended-binary-encoding
+/// format, its corresponding compact-binary-encoding format, or neither
+/// format.
 struct BerUtil_ExtendedBinaryEncodingUtil {
 
     // TYPES
 
-    /// `Encoding` is an alias to a namespace for enumerating the union of
-    /// the sets of date and time formats used to encode and decode all date
-    /// and time types supported by `BerUtil`.
+    /// `Encoding` is an alias to a namespace for enumerating the union of the
+    /// sets of date and time formats used to encode and decode all date and
+    /// time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
 
     // CLASS METHODS
@@ -1776,17 +1757,16 @@ struct BerUtil_DateOrDateTzEncoding {
 /// functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for date values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-///:   and
-///:
-///: *the* *default* *set* *of* *options*:
-///:   Refers to a `balber::BerEncoderOptions` value having a
-///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
-///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
 ///
-/// See the package level documentation of {`balber`} for a definition of
-/// the compact and extended binary formats for date and time values.
+/// * **the default set of options**:
+///   > Refers to a `balber::BerEncoderOptions` value having a
+///   > `datetimeFractionalSecondPrecision` attribute of 3 and a
+///   > `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+///
+/// See the package level documentation of `balber` for a definition of the
+/// compact and extended binary formats for date and time values.
 struct BerUtil_DateImpUtil {
 
     // TYPES
@@ -2212,15 +2192,15 @@ struct BerUtil_DateImpUtil {
                         // ===========================
 
 /// This component-private utility `struct` provides a namespace for
-/// enumerating the set of formats that may be used by `BerUtil` to encode
-/// and decode values of `bdlt::Time` type.
+/// enumerating the set of formats that may be used by `BerUtil` to encode and
+/// decode values of `bdlt::Time` type.
 struct BerUtil_TimeEncoding {
 
     // TYPES
 
-    /// `Encoding` is an alias to a namespace for enumerating the union of
-    /// the sets of date and time formats used to encode and decode all date
-    /// and time types supported by `BerUtil`.
+    /// `Encoding` is an alias to a namespace for enumerating the union of the
+    /// sets of date and time formats used to encode and decode all date and
+    /// time types supported by `BerUtil`.
     typedef BerUtil_DateAndTimeEncoding Encoding;
 
     enum Value {
@@ -2298,14 +2278,13 @@ struct BerUtil_TimeOrTimeTzEncoding {
 /// functions used by `BerUtil` to implement BER encoding and decoding
 /// operations for time values.  Within the definition of this `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-///:   and
-///:
-///: *the* *default* *set* *of* *options*:
-///:   Refers to a `balber::BerEncoderOptions` value having a
-///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
-///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+///
+/// * **the default set of options**:
+///   > Refers to a `balber::BerEncoderOptions` value having a
+///   > `datetimeFractionalSecondPrecision` attribute of 3 and a
+///   > `encodeDateAndTimeTypesAsBinary` attribute of `false`.
 ///
 /// See the package level documentation of {`balber`} for a definition of
 /// the compact and extended binary formats for date and time values.
@@ -2927,14 +2906,13 @@ struct BerUtil_DatetimeOrDatetimeTzEncoding {
 /// operations for date and time values.  Within the definition of this
 /// `struct`:
 ///
-///: *the* *specification*:
-///:   Refers to the August 2015 revision of the ITU-T Recommendation X.690,
-///:   and
-///:
-///: *the* *default* *set* *of* *options*:
-///:   Refers to a `balber::BerEncoderOptions` value having a
-///:   `datetimeFractionalSecondPrecision` attribute of 3 and a
-///:   `encodeDateAndTimeTypesAsBinary` attribute of `false`.
+/// * **the specification**:
+///   > Refers to the August 2015 revision of the ITU-T Recommendation X.690.
+///
+/// * **the default set of optionsi**:
+///   > Refers to a `balber::BerEncoderOptions` value having a
+///   > `datetimeFractionalSecondPrecision` attribute of 3 and a
+///   > `encodeDateAndTimeTypesAsBinary` attribute of `false`.
 ///
 /// See the package level documentation of {`balber`} for a definition of
 /// the compact and extended binary formats for date and time values.
@@ -2942,9 +2920,8 @@ struct BerUtil_DatetimeImpUtil {
 
     // TYPES
 
-    /// `Constants` is an alias to a namespace for a suite of
-    /// general-purpose constants that occur when encoding or decoding BER
-    /// data.
+    /// `Constants` is an alias to a namespace for a suite of general-purpose
+    /// constants that occur when encoding or decoding BER data.
     typedef BerUtil_Constants Constants;
 
     /// `DateAndTimeHeaderUtil` is an alias to a namespace for a suite of
@@ -3835,11 +3812,11 @@ struct BerUtil_Imp {
 
     /// Write the length and contents octets of the BER encoding of the
     /// specified character `string` having the specified `stringLength` (as
-    /// defined in the specification) to the output sequence of the
-    /// specified `streamBuf`.  Return 0 if successful, and a non-zero value
-    /// otherwise.  The operation succeeds if and only if all bytes
-    /// corresponding to the length and contents octets are written to the
-    /// `streamBuf` without the write position becoming unavailable.
+    /// defined in the specification) to the output sequence of the specified
+    /// `streamBuf`.  Return 0 if successful, and a non-zero value otherwise.
+    /// The operation succeeds if and only if all bytes corresponding to the
+    /// length and contents octets are written to the `streamBuf` without the
+    /// write position becoming unavailable.
     static int putStringValue(bsl::streambuf *streamBuf,
                               const char     *string,
                               int             stringLength);

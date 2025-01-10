@@ -9,80 +9,80 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 ///
 ///Implementation on 32-bit platforms
 ///----------------------------------
-// The following paragraphs describe how 'Datum' represents all the values
+// The following paragraphs describe how `Datum` represents all the values
 // while maintaining the smallest memory footprint.
 //
-///IEEE 754 'double' format
+///IEEE 754 `double` format
 ///- - - - - - - - - - - - -
-// IEEE 754 'double' format uses 1 bit to store the sign, 11 bits to store the
+// IEEE 754 `double` format uses 1 bit to store the sign, 11 bits to store the
 // exponent and the remaining 52 bits to store the fraction part of a
 // double-precision floating point number.  The way these bits are rendered
 // depends on whether the platform is little-endian or big-endian.  If all the
-// bits in the exponent part of a 'double' value are 1, then the value
-// represents one of the following special 'double' values:
+// bits in the exponent part of a `double` value are 1, then the value
+// represents one of the following special `double` values:
 //
-//: o Infinity          - fraction part is 0
-//: o Negative Infinity - fraction part is 0 and sign bit is 1
-//: o NaN               - fraction part is a non-zero number
-//: o Negative NaN      - fraction part is a non-zero number and sign bit is 1
+// * Infinity          - fraction part is 0
+// * Negative Infinity - fraction part is 0 and sign bit is 1
+// * NaN               - fraction part is a non-zero number
+// * Negative NaN      - fraction part is a non-zero number and sign bit is 1
 //
-// Following is the list of special 'double' values on MS Visual Studio and
+// Following is the list of special `double` values on MS Visual Studio and
 // GNU C++, for reference.
 //
 // GNU C++:
-//..
-//  Quiet NaN         = 7ff8000000000000
-//  Signaling NaN     = 7ff4000000000000
-//  Infinity          = 7ff0000000000000
-//  Negative Infinity = fff0000000000000
-//..
+// ```
+// Quiet NaN         = 7ff8000000000000
+// Signaling NaN     = 7ff4000000000000
+// Infinity          = 7ff0000000000000
+// Negative Infinity = fff0000000000000
+// ```
 // MS Visual Studio
-//..
-//  Quiet NaN         = 7ff8000000000000
-//  Signaling NaN     = 7ff8000000000001
-//  Infinity          = 7ff0000000000000
-//  Negative Infinity = fff0000000000000
-//  Indeterminate     = fff8000000000000
-//..
+// ```
+// Quiet NaN         = 7ff8000000000000
+// Signaling NaN     = 7ff8000000000001
+// Infinity          = 7ff0000000000000
+// Negative Infinity = fff0000000000000
+// Indeterminate     = fff8000000000000
+// ```
 //
 ///How values are stored
 ///- - - - - - - - - - -
-// When representing a value of a type other than 'double', 'Datum' stores data
+// When representing a value of a type other than `double`, `Datum` stores data
 // in 48 bits out of the 52 bits of the fraction part and sets all the bits in
-// the exponent part to 1, to indicate a special 'double' value.  'Datum' uses
+// the exponent part to 1, to indicate a special `double` value.  `Datum` uses
 // the remaining 4 bits in the fraction part to distinguish between the 16
 // different encoding types.  Due to alignment issues, only 4 of the available
 // 6 bytes are used to store data in most cases.  Values of 4-byte-aligned
-// types like 'int', 'bool', and 'bdlt::Date' are stored inline.  Error code
+// types like `int`, `bool`, and `bdlt::Date` are stored inline.  Error code
 // values that do not have an associated error message are also stored inline.
-// Values of larger fixed length types like 'Int64', 'bdlt::Datetime',
-// 'bdlt::DatetimeInterval' and 'Decimal64' are allocated externally and held
+// Values of larger fixed length types like `Int64`, `bdlt::Datetime`,
+// `bdlt::DatetimeInterval` and `Decimal64` are allocated externally and held
 // by pointer.  Values of variable length types like strings, binary data,
-// error values (having both code and message), arrays of 'Datum' objects, and
-// maps of 'Datum' objects (keyed by strings) are allocated externally and held
+// error values (having both code and message), arrays of `Datum` objects, and
+// maps of `Datum` objects (keyed by strings) are allocated externally and held
 // by pointer.  User-defined objects are also held by pointer.  Commonly used
 // short length strings (6 or fewer characters in length), short
-// 'DatetimeInterval' ([-2^47 microseconds, +2^47 microseconds], approximately
-// +/- 1628 days), near 'Datetime' (now +/- approximately 89 years), small
-// 'Int64' ([-2^47, +2^47]) and small binary values are stored directly in the
+// `DatetimeInterval` ([-2^47 microseconds, +2^47 microseconds], approximately
+// +/- 1628 days), near `Datetime` (now +/- approximately 89 years), small
+// `Int64` ([-2^47, +2^47]) and small binary values are stored directly in the
 // 6 bytes of storage available in the fraction part.
 //
 ///Implementation on 64-bit platforms
 ///----------------------------------
-// The following paragraph describes the implementation of 'Datum' on 64-bit
+// The following paragraph describes the implementation of `Datum` on 64-bit
 // platforms.
 //
 ///How values are stored
 ///- - - - - - - - - - -
-// 'Datum' stores data inside a 16 byte unsigned character array, two first
+// `Datum` stores data inside a 16 byte unsigned character array, two first
 // bytes of which are used to distinguish between the different types that can
-// be held.  Values of 4-byte-aligned types like 'int', 'bool', and
-// 'bdlt::Date' are stored inline.  Values of 8 byte aligned types like
-// 'Int64', 'bdlt::Datetime', 'bdlt::DatetimeInterval' and 'Decimal64' are also
+// be held.  Values of 4-byte-aligned types like `int`, `bool`, and
+// `bdlt::Date` are stored inline.  Values of 8 byte aligned types like
+// `Int64`, `bdlt::Datetime`, `bdlt::DatetimeInterval` and `Decimal64` are also
 // stored inline.  Error code values that do not have an associated error
 // message are also stored inline.  Values of variable length types like
-// strings, error values (having both code and message), arrays of 'Datum'
-// objects, and maps of 'Datum' objects (keyed by strings) are allocated
+// strings, error values (having both code and message), arrays of `Datum`
+// objects, and maps of `Datum` objects (keyed by strings) are allocated
 // externally and held by pointer.  User-defined objects are also held by
 // pointer.  Commonly used short length strings (14 or fewer characters in
 // length) and binary values are stored directly in the 14 bytes of available
@@ -90,17 +90,17 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 //
 ///Further Notes
 ///-------------
-// * On 32-bit platforms, memory is allocated in 'copyString' only if the
+// * On 32-bit platforms, memory is allocated in `copyString` only if the
 //   string has more than 6 characters (not including the terminating null
 //   character), storing the pointer to the allocated string.  Note that the
 //   string value passed in is copied.  If the string has fewer than 6
 //   characters, a copy is stored inline.  On 64-bit platforms, memory is
-//   allocated in 'copyString' only if the string has more than 13 characters
+//   allocated in `copyString` only if the string has more than 13 characters
 //   (not including the terminating null character).  The maximum length for
-//   storing without allocation is held in 'Datum::k_SHORTSTRING_SIZE'.
+//   storing without allocation is held in `Datum::k_SHORTSTRING_SIZE`.
 //
 // * On 32-bit platforms, NaN value is stored as a separate type and cannot be
-//   directly retrieved as a 'double' value.
+//   directly retrieved as a `double` value.
 //
 // * On 64-bit platforms, zero-initialized Datums are not a valid Datum value.
 //   This behavior is implemented specifically to help identify the accidental
@@ -108,18 +108,18 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 //   static data.  A similar mechanism is not implemented for 32-bit platforms
 //   because of negative performance implications.
 //
-// * DatumMapRef::find() does a binary search if the map is sorted.  Otherwise
-//   it does a linear search.
+// * `DatumMapRef::find()` does a binary search if the map is sorted.
+//    Otherwise it does a linear search.
 //
 ///R-value and forwarding references
 ///- - - - - - - - - - - - - - - - -
-// As you may see in the 'bldl_datummaker.h' file  variadic overloads (for
-// example the 'pushBackHelper') do not support perfect forwarding of their
-// arguments.  In case 'bdld::Datum' will ever support move semantics to some
-// (any) of its directly supported types ('create*' function arguments)
-// variadic functions in the 'bdld::DatumMaker' component shall be updated to
-// support perfect forwarding using the 'BSLS_COMPILERFEATURES_FORWARD', and
-// 'BSLS_COMPILERFEATURES_FORWARDING_REF' macros.
+// As you may see in the `bldl_datummaker.h` file  variadic overloads (for
+// example the `pushBackHelper`) do not support perfect forwarding of their
+// arguments.  In case `bdld::Datum` will ever support move semantics to some
+// (any) of its directly supported types (`create*` function arguments)
+// variadic functions in the `bdld::DatumMaker` component shall be updated to
+// support perfect forwarding using the `BSLS_COMPILERFEATURES_FORWARD`, and
+// `BSLS_COMPILERFEATURES_FORWARDING_REF` macros.
 
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
@@ -368,79 +368,79 @@ class Datum_CopyVisitor {
   public:
     // CREATORS
 
-    /// Create a `Datum_CopyVisitor` object with the specified `result`
-    /// and `basicAllocator`.
+    /// Create a `Datum_CopyVisitor` object with the specified `result` and
+    /// `basicAllocator`.
     Datum_CopyVisitor(Datum                       *result,
                       const Datum::AllocatorType&  allocator);
 
     // MANIPULATORS
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(bslmf::Nil value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const bdlt::Date& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const bdlt::Datetime& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const bdlt::DatetimeInterval& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const bdlt::Time& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const bslstl::StringRef& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(bool value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(bsls::Types::Int64 value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(double value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumError& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(int value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumUdt& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumArrayRef& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumIntMapRef& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumMapRef& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(const DatumBinaryRef& value);
 
-    /// Create a `Datum` object using the specified `value` and copy it
-    /// into `d_result_p`.
+    /// Create a `Datum` object using the specified `value` and copy it into
+    /// `d_result_p`.
     void operator()(bdldfp::Decimal64 value);
 };
 

@@ -136,12 +136,12 @@ BSLS_IDENT("$Id: $")
 // language in C++17, so should not be used as a substitute for documentation
 // in earlier language dialects:
 // ```
+// /// Return the specified integer `i`, unless `1 == 1` or `2 == i`.  If
+// /// `1 == i` throw an exception of type `my_ExcClass1`.  If `2 == i`
+// /// throw an exception of type `my_ExcClass2`.  Note that if exceptions
+// /// are not enabled in the current build mode, then the program will
+// /// `abort` rather than throw.
 // int mightThrowFunc(int i)
-//     // Return the specified integer 'i', unless '1 == 1' or '2 == i'.  If
-//     // '1 == i' throw an exception of type 'my_ExcClass1'.  If '2 == i'
-//     // throw an exception of type 'my_ExcClass2'.  Note that if exceptions
-//     // are not enabled in the current build mode, then the program will
-//     // 'abort' rather than throw.
 // {
 //     switch (i) {
 //       case 0: break;
@@ -276,7 +276,7 @@ BSLS_IDENT("$Id: $")
       /// Declare a dynamic exception specification for a function.
       /// Usage:
       /// ```
-      ///  void f() BSLS_EXCEPTION_SPEC((std::logic_error));
+      /// void f() BSLS_EXCEPTION_SPEC((std::logic_error));
       /// ```
       /// `SPEC` must be a comma-separated list of one or more exception
       /// types enclosed in parenthesis.  (Double parenthesis are mandatory)
@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
         /// Declare that a function does not throw any exceptions:
         /// Usage:
         /// ```
-        ///  void f() BSLS_NOTHROW_SPEC;
+        /// void f() BSLS_NOTHROW_SPEC;
         /// ```
         /// Exceptions enabled: `throw ()` or `noexcept`
         /// Exceptions disabled: empty

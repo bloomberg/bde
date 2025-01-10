@@ -23,14 +23,15 @@ BSLS_IDENT("$Id: $")
 //
 // The `bslmt::Once` class is designed to be statically allocated and
 // initialized using the `BSLMT_ONCE_INITIALIZER` macro.  Client code may use
-// the `bslmt::Once` object in one of two ways: 1) it may use the `callOnce`
-// method to call a function or functor or 2) it may call the `enter` and
-// `leave` methods just before and after the code that is intended to be
-// executed only once.  That code must be executed conditionally on `enter`
-// returning `true`, indicating that the caller is the first thread to pass
-// through this region of code.  The `leave` method must be executed at the end
-// of the code region, indicating that the one-time execution has completed and
-// unblocking any threads waiting on `enter`.
+// the `bslmt::Once` object in one of two ways:
+// 1. it may use the `callOnce` method to call a function or functor
+// 2. it may call the `enter` and `leave` methods just before and after the
+//    code that is intended to be executed only once.
+// That code must be executed conditionally on `enter` returning `true`,
+// indicating that the caller is the first thread to pass through this region
+// of code.  The `leave` method must be executed at the end of the code region,
+// indicating that the one-time execution has completed and unblocking any
+// threads waiting on `enter`.
 //
 // A safer way to use the `enter` and `leave` methods of `bslmt::Once` is to
 // manage the `bslmt::Once` object using a `bslmt::OnceGuard` object
@@ -382,14 +383,13 @@ namespace BloombergLP {
 /// does not have `break` or `return` semantics).
 #define BSLMT_ONCE_CANCEL() bslmt_doOnceGuard.cancel()
 
+/// Use this macro to initialize an object of type `Once`.  E.g.:
+/// ```
+///  Once once = BSLMT_ONCE_INITIALIZER;
+/// ```
 #define BSLMT_ONCE_INITIALIZER { BSLMT_QLOCK_INITIALIZER, { 0 } }
 
 namespace bslmt {
-
-    // Use this macro to initialize an object of type 'Once'.  E.g.:
-    //..
-    //  Once once = BSLMT_ONCE_INITIALIZER;
-    //..
 
                                 // ==========
                                 // class Once
@@ -485,10 +485,10 @@ class Once {
                              // ===============
 
 /// Guard class for using `Once` safely.  Construct an object of this class
-/// before conditionally entering one-time processing code.  Destroy the
-/// object when the one-time code is complete.  When used this way, this
-/// object will be in an "in-progress" state during the time that the
-/// one-time code is being executed.
+/// before conditionally entering one-time processing code.  Destroy the object
+/// when the one-time code is complete.  When used this way, this object will
+/// be in an "in-progress" state during the time that the one-time code is
+/// being executed.
 class OnceGuard {
 
     // PRIVATE TYPES
@@ -512,43 +512,42 @@ class OnceGuard {
     /// the `setOnce` method before other methods may be called.
     explicit OnceGuard(Once *once = 0);
 
-    /// Destroy this object.  If this object is not in an "in-progress"
-    /// state, do nothing.  If this object is in an "in-progress" state and
-    /// is being destroyed in the course of normal processing, then call
-    /// `leave` on the associated `Once` object.
+    /// Destroy this object.  If this object is not in an "in-progress" state,
+    /// do nothing.  If this object is in an "in-progress" state and is being
+    /// destroyed in the course of normal processing, then call `leave` on the
+    /// associated `Once` object.
     ~OnceGuard();
 
     // MANIPULATORS
 
-    /// Set this object to guard the specified `once` object.  The behavior
-    /// is undefined if this object is currently in the "in-progress" state.
+    /// Set this object to guard the specified `once` object.  The behavior is
+    /// undefined if this object is currently in the "in-progress" state.
     void setOnce(Once *once);
 
-    /// Call `enter` on the associated `Once` object and return the result.
-    /// If `Once::enter` returns `true`, set this object into the
-    /// "in-progress" state.  The behavior is undefined unless this object
-    /// has been associated with a `Once` object, either in the constructor
-    /// or using `setOnce`, or if this object is already in the
-    /// "in-progress" state.
+    /// Call `enter` on the associated `Once` object and return the result.  If
+    /// `Once::enter` returns `true`, set this object into the "in-progress"
+    /// state.  The behavior is undefined unless this object has been
+    /// associated with a `Once` object, either in the constructor or using
+    /// `setOnce`, or if this object is already in the "in-progress" state.
     bool enter();
 
     /// If this object is in the "in-progress" state, call `leave` on the
-    /// associated `Once` object and exit the "in-progress" state.
-    /// Otherwise, do nothing.
+    /// associated `Once` object and exit the "in-progress" state.  Otherwise,
+    /// do nothing.
     void leave();
 
     /// If this object is in the "in-progress" state, call `cancel` on the
-    /// associated `Once` object and exit the "in-progress" state.
-    /// Otherwise, do nothing.
+    /// associated `Once` object and exit the "in-progress" state.  Otherwise,
+    /// do nothing.
     void cancel();
 
     // ACCESSORS
 
-    /// Return `true` if this object is in the "in-progress" state.  The
-    /// object is in-progress if `enter` has been called and returned `true`
-    /// and neither `leave` nor `cancel` have been called.  The one-time
-    /// code controlled by this object should only be executing if this
-    /// object is in the "in-progress" state.
+    /// Return `true` if this object is in the "in-progress" state.  The object
+    /// is in-progress if `enter` has been called and returned `true` and
+    /// neither `leave` nor `cancel` have been called.  The one-time code
+    /// controlled by this object should only be executing if this object is in
+    /// the "in-progress" state.
     bool isInProgress() const;
 };
 

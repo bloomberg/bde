@@ -88,21 +88,21 @@ BSLS_IDENT("$Id: $")
 //     const int y = 2;
 //     assert(2 == MyLvalueReferenceUtil::access(y));
 //
-//     // Note that even though the following invokes 'access' with the
+//     // Note that even though the following invokes `access` with the
 //     // literal 3, which is a prvalue expression, the call expression is
-//     // an lvalue with type 'const int&'.
+//     // an lvalue with type `const int&`.
 //     assert(3 == MyLvalueReferenceUtil::access(3));
 //
 //     // Further, note that the levelization of the
-//     // 'bslmf_isreferencewrapper' component prohibits showing the
-//     // application of 'MyLvalueReferenceUtil' to a reference wrapper.
+//     // `bslmf_isreferencewrapper` component prohibits showing the
+//     // application of `MyLvalueReferenceUtil` to a reference wrapper.
 //     // The following commented-out code would be valid given a suitable
-//     // 'bsl::reference_wrapper' type that acts like a reference wrapper
-//     // and specializes the 'bslmf::IsReferenceWrapper' trait accordingly.
-//     //..
-//     //  assert(x == MyLvalueReferenceUtil::access(
-//     //                                    bsl::reference_wrapper<int>(x)));
-//     //..
+//     // `bsl::reference_wrapper` type that acts like a reference wrapper
+//     // and specializes the `bslmf::IsReferenceWrapper` trait accordingly.
+//     // ```
+//     // assert(x == MyLvalueReferenceUtil::access(
+//     //                                     bsl::reference_wrapper<int>(x)));
+//     // ```
 // }
 // ```
 

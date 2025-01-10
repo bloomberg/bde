@@ -75,23 +75,23 @@ BSLS_IDENT("$Id: $")
 // to `bsl::hash<TYPE>`.  For common types of `TYPE` such as `int`, a
 // specialization of `bsl::hash` is already defined:
 // ```
+// /// This table leverages a hash table to provide a fast lookup of an
+// /// external, non-owned, array of values of configurable type.
+// ///
+// /// The only requirement for `TYPE` is that it have a transitive,
+// /// symmetric `operator==` function.  There is no requirement that it
+// /// have any kind of creator defined.
+// ///
+// /// The `HASHER` template parameter type must be a functor with a
+// /// function of the following signature:
+// /// ```
+// /// size_t operator()(const TYPE)  const; or
+// /// size_t operator()(const TYPE&) const; or
+// /// ```
+// /// and `HASHER` must have a publicly available default constructor and
+// /// destructor.
 // template <class TYPE, class HASHER = bsl::hash<TYPE> >
 // class HashCrossReference {
-//     // This table leverages a hash table to provide a fast lookup of an
-//     // external, non-owned, array of values of configurable type.
-//     //
-//     // The only requirement for 'TYPE' is that it have a transitive,
-//     // symmetric 'operator==' function.  There is no requirement that it
-//     // have any kind of creator defined.
-//     //
-//     // The 'HASHER' template parameter type must be a functor with a
-//     // function of the following signature:
-//     //..
-//     //  size_t operator()(const TYPE)  const; or
-//     //  size_t operator()(const TYPE&) const; or
-//     //..
-//     // and 'HASHER' must have a publicly available default constructor and
-//     // destructor.
 //
 //     // DATA
 //     const TYPE       *d_values;             // Array of values table is to
@@ -243,25 +243,24 @@ BSLS_IDENT("$Id: $")
 // First, we declare `Point`, a class that allows us to identify a location on
 // a two dimensional Cartesian plane.
 // ```
-//   /// This class is a value-semantic type that represents a two-
-//   /// dimensional location on a Cartesian plane.
-//   class Point {
+// /// This class is a value-semantic type that represents a two-dimensional
+// /// location on a Cartesian plane.
+// class Point {
 //
-//     private:
-//       int    d_x;
-//       int    d_y;
-//       double d_distToOrigin; // This value will be accessed a lot, so we
-//                              // cache it rather than recalculating every
-//                              // time.
+//   private:
+//     int    d_x;
+//     int    d_y;
+//     double d_distToOrigin; // This value will be accessed a lot, so we
+//                            // cache it rather than recalculating every
+//                            // time.
 //
-//     public:
+//   public:
 //
-//       /// Create a `Point` with the specified `x` and `y` coordinates
-//       Point (int x, int y);
+//     /// Create a `Point` with the specified `x` and `y` coordinates
+//     Point (int x, int y);
 //
-//       /// Return the distance from the origin (0, 0) to this point.
-//       double distanceToOrigin();
-//
+//     /// Return the distance from the origin (0, 0) to this point.
+//     double distanceToOrigin();
 // ```
 // Then, we declare `operator==` as a friend so that we will be able to compare
 // two points.
@@ -272,10 +271,10 @@ BSLS_IDENT("$Id: $")
 // Next, we declare `hashAppend` as a friend so that we will be able hash a
 // `Point`.
 // ```
+//     /// Apply the specified `hashAlg` to the specified `point`.
 //     template <class HASH_ALGORITHM>
 //     friend
 //     void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
-//         // Apply the specified 'hashAlg' to the specified 'point'
 // };
 //
 // Point::Point(int x, int y)
@@ -320,8 +319,8 @@ BSLS_IDENT("$Id: $")
 // Then, we declare another value-semantic type, `Box`, that has a `Point` as
 // one of its salient attributes.
 // ```
-// /// This class is a value-semantic type that represents a box drawn on
-// /// to a Cartesian plane.
+// /// This class is a value-semantic type that represents a box drawn on to
+// /// a Cartesian plane.
 // class Box {
 //
 //   private:
@@ -339,10 +338,10 @@ BSLS_IDENT("$Id: $")
 // ```
 //     friend bool operator==(const Box &left, const Box &right);
 //
+//     /// Apply the specified `hashAlg` to the specified `box`.
 //     template <class HASH_ALGORITHM>
 //     friend
 //     void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
-//         // Apply the specified 'hashAlg' to the specified 'box'
 // };
 //
 // Box::Box(Point position, int length, int width) : d_position(position),
@@ -378,16 +377,14 @@ BSLS_IDENT("$Id: $")
 // Then, we want to use our cross reference on a `Box`.  We create an array of
 // unique `Box`s and take its length:
 // ```
-//
-//       Box boxes[] = { Box(Point(0, 0), 2, 3),
-//                       Box(Point(1, 0), 1, 1),
-//                       Box(Point(0, 1), 1, 5),
-//                       Box(Point(1, 1), 5, 6),
-//                       Box(Point(2, 1), 1, 13),
-//                       Box(Point(0, 4), 3, 3),
-//                       Box(Point(3, 2), 2, 17) };
-//       enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
-//
+//     Box boxes[] = { Box(Point(0, 0), 2, 3),
+//                     Box(Point(1, 0), 1, 1),
+//                     Box(Point(0, 1), 1, 5),
+//                     Box(Point(1, 1), 5, 6),
+//                     Box(Point(2, 1), 1, 13),
+//                     Box(Point(0, 4), 3, 3),
+//                     Box(Point(3, 2), 2, 17) };
+//     enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
 // ```
 // Next, we create our cross-reference `hcrsts` and verify that it constructed
 // properly.  Note we don't pass a second parameter template argument and let
@@ -395,17 +392,14 @@ BSLS_IDENT("$Id: $")
 // `bsl::hash` for `Box`, `bsl::hash<TYPE>` will attempt to use `bslh::hash<>`
 // to hash `Box`.
 // ```
-//
-//       HashCrossReference<Box> hcrsts(boxes, NUM_BOXES);
-//       ASSERT(hcrsts.isValid());
-//
+//     HashCrossReference<Box> hcrsts(boxes, NUM_BOXES);
+//     ASSERT(hcrsts.isValid());
 // ```
 // Now, we verify that each element in our array registers with count:
 // ```
 //     for(int i = 0; i < NUM_BOXES; ++i) {
 //         ASSERT(1 == hcrsts.count(boxes[i]));
 //     }
-//
 // ```
 // Finally, we verify that elements not in our original array are correctly
 // identified as not being in the set:
@@ -476,14 +470,15 @@ template <>
 struct hash<bool> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef bool argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -515,14 +510,15 @@ template <>
 struct hash<char> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef char argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -554,14 +550,15 @@ template <>
 struct hash<signed char> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef signed char argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -593,14 +590,15 @@ template <>
 struct hash<unsigned char> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned char argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -632,14 +630,15 @@ template <>
 struct hash<wchar_t> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef wchar_t argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -671,14 +670,15 @@ template <>
 struct hash<short> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef short argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -710,14 +710,15 @@ template <>
 struct hash<unsigned short> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned short argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -749,14 +750,15 @@ template <>
 struct hash<int> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef int argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -788,14 +790,15 @@ template <>
 struct hash<unsigned int> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned int argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -827,14 +830,15 @@ template <>
 struct hash<long> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef long argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -866,14 +870,15 @@ template <>
 struct hash<unsigned long> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned long argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -905,14 +910,15 @@ template <>
 struct hash<long long> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef long long argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.
@@ -944,14 +950,15 @@ template <>
 struct hash<unsigned long long> {
 
     // STANDARD TYPEDEFS
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef unsigned long long argument_type;
 
-    BSLSTL_HASH_DEPRECATED_CPP17
-    /// **DEPRECATED**: This typedef is depreacted in C++17, for details see
+    /// @DEPRECATED: This typedef is depreacted in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
+    BSLSTL_HASH_DEPRECATED_CPP17
     typedef std::size_t result_type;
 
     /// Create a `hash` object.

@@ -42,31 +42,31 @@ BSLS_IDENT("$Id: $")
 // developer should overload the template function `bdlat_TypeName_className`
 // for this type in the namespace where the type is defined.
 //
-//WARNING! Do not extend `bdlat_TypeName_Overloadable` namespace.
+// WARNING! Do not extend `bdlat_TypeName_Overloadable` namespace.
 //
 ///Generic Type Name Information
 ///-----------------------------
 // The template functions `name` returns the generic type name for the given
 // object.  The generic type name is one of the following:
-// ```
-// o predefined name for fundamental types
-// o class name from 'bdlat_TypeName_className', if such function returns a
+//
+// * predefined name for fundamental types
+// * class name from 'bdlat_TypeName_className', if such function returns a
 //   non-null value
-// o name obtained from 'type_info' object provided by C++ runtime, if no
+// * name obtained from 'type_info' object provided by C++ runtime, if no
 //   class name is available
-// ```
+//
 //
 ///XSD Type Name Information
 ///-------------------------
 // The template functions `xsdName` returns the XML/XSD type name, based on
 // the object type and formatting mode.  The returned value is one of the
 // following:
-// ```
-//  o predefined name for built-in XSD types
-//  o class name from 'bdlat_TypeName_className', if such function returns
-//    a non-null value
-//  o the "anyType" string, if no class name is available
-// ```
+//
+// * predefined name for built-in XSD types
+// * class name from 'bdlat_TypeName_className', if such function returns
+//   a non-null value
+// * the "anyType" string, if no class name is available
+//
 // This component also defines the XSD names for the following C++ types and
 // formatting modes:
 // ```
@@ -91,12 +91,12 @@ BSLS_IDENT("$Id: $")
 // bsl::string                   DEFAULT/TEXT                string
 // bsl::string                   BASE64                      base64Binary
 // bsl::string                   HEX                         hexBinary
-// bdlt::Date                     DEFAULT                     date
-// bdlt::DateTz                   DEFAULT                     date
-// bdlt::Datetime                 DEFAULT                     dateTime
-// bdlt::DatetimeTz               DEFAULT                     dateTime
-// bdlt::Time                     DEFAULT                     time
-// bdlt::TimeTz                   DEFAULT                     time
+// bdlt::Date                    DEFAULT                     date
+// bdlt::DateTz                  DEFAULT                     date
+// bdlt::Datetime                DEFAULT                     dateTime
+// bdlt::DatetimeTz              DEFAULT                     dateTime
+// bdlt::Time                    DEFAULT                     time
+// bdlt::TimeTz                  DEFAULT                     time
 // bsl::vector<char>             DEFAULT/BASE64              base64Binary
 // bsl::vector<char>             HEX                         hexBinary
 // bsl::vector<char>             TEXT                        string
@@ -272,40 +272,40 @@ namespace BloombergLP {
 /// name of a type.
 struct bdlat_TypeName {
 
-    /// Return a null-terminated string containing the exported name for
-    /// the specified `TYPE`, or a 0 pointer if `TYPE` does not export a
-    /// name.  A type exports a name by overloading the function
+    /// Return a null-terminated string containing the exported name for the
+    /// specified `TYPE`, or a 0 pointer if `TYPE` does not export a name.  A
+    /// type exports a name by overloading the function
     /// `bdlat_TypeName_className(const TYPE&)` in TYPE's namespace.  The
-    /// default implementation of `bdlat_TypeName_className` will
-    /// automatically return the `CLASS_NAME` value for types that have the
+    /// default implementation of `bdlat_TypeName_className` will automatically
+    /// return the `CLASS_NAME` value for types that have the
     /// `bdlat_TypeTraitBasicChoice`, `bdlat_TypeTraitBasicSequence`,
     /// `bdlat_TypeTraitBasicCustomizedType`, or
-    /// `bdlat_TypeTraitBasicEnumeration` trait (i.e., types generated
-    /// using `bas_codegen.pl`).
+    /// `bdlat_TypeTraitBasicEnumeration` trait (i.e., types generated using
+    /// `bas_codegen.pl`).
     template <class TYPE>
     static const char *className(const TYPE& object);
 
     /// Return a null-terminated string containing the name of the specified
     /// `TYPE`.  If `TYPE` is a fundamental type, string, date, time, or
     /// datetime, then return a canonical representation of the type's name.
-    /// Otherwise, if `className` applied to the specified `object` returns
-    /// a non-null value, then return that value.  Otherwise, return
+    /// Otherwise, if `className` applied to the specified `object` returns a
+    /// non-null value, then return that value.  Otherwise, return
     /// `typeid(TYPE).name()`.  Note that the returned name refers to the
     /// *static* `TYPE`, not to the dynamic type of `object`.
     template <class TYPE>
     static const char *name(const TYPE& object);
 
     /// Return a null-terminated text string containing the name of the
-    /// specified `TYPE` with the specified `format` as it would appear in
-    /// an XML Schema (XSD) element declaration.  The `format` is
-    /// interpreted as the bit-wise OR of one or more of the values defined
-    /// in the `bdlat_formattingmode` component.  Formatting mode bits
-    /// outside of `bdlat_FormattingMode::TYPE_MASK` are ignored.  If the
-    /// specified `object` corresponds to one of the XSD built-in types,
-    /// then return the XSD type's name.  Otherwise, if `className(object)`
-    /// returns a non-null value, then return that value.  Otherwise, return
-    /// "anyType".  The behavior is undefined unless the `format` is valid
-    /// for the specified `TYPE`.
+    /// specified `TYPE` with the specified `format` as it would appear in an
+    /// XML Schema (XSD) element declaration.  The `format` is interpreted as
+    /// the bit-wise OR of one or more of the values defined in the
+    /// `bdlat_formattingmode` component.  Formatting mode bits outside of
+    /// `bdlat_FormattingMode::TYPE_MASK` are ignored.  If the specified
+    /// `object` corresponds to one of the XSD built-in types, then return the
+    /// XSD type's name.  Otherwise, if `className(object)` returns a non-null
+    /// value, then return that value.  Otherwise, return "anyType".  The
+    /// behavior is undefined unless the `format` is valid for the specified
+    /// `TYPE`.
     template <class TYPE>
     static const char *xsdName(const TYPE& object, int format);
 };

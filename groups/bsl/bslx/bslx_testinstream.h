@@ -112,91 +112,95 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Return the maximum valid BDEX format version, as indicated by
+//     /// the specified `versionSelector`, to be passed to the
+//     /// `bdexStreamOut` method.  Note that it is highly recommended that
+//     /// `versionSelector` be formatted as "YYYYMMDD", a date
+//     /// representation.  Also note that `versionSelector` should be a
+//     /// *compile*-time-chosen value that selects a format version
+//     /// supported by both externalizer and unexternalizer.  See the
+//     /// `bslx` package-level documentation for more information on BDEX
+//     /// streaming of value-semantic types and containers.
 //     static int maxSupportedBdexVersion(int versionSelector);
-//         // Return the maximum valid BDEX format version, as indicated by
-//         // the specified 'versionSelector', to be passed to the
-//         // 'bdexStreamOut' method.  Note that it is highly recommended that
-//         // 'versionSelector' be formatted as "YYYYMMDD", a date
-//         // representation.  Also note that 'versionSelector' should be a
-//         // *compile*-time-chosen value that selects a format version
-//         // supported by both externalizer and unexternalizer.  See the
-//         // 'bslx' package-level documentation for more information on BDEX
-//         // streaming of value-semantic types and containers.
 //
 //     // CREATORS
+//
+//     /// Create a default person.
 //     MyPerson();
-//         // Create a default person.
 //
+//     /// Create a person having the specified `firstName`, `lastName`,
+//     /// and `age`.
 //     MyPerson(const char *firstName, const char *lastName, int age);
-//         // Create a person having the specified 'firstName', 'lastName',
-//         // and 'age'.
 //
+//     /// Create a person having the value of the specified `original` person.
 //     MyPerson(const MyPerson& original);
-//         // Create a person having the value of the specified 'original'
-//         // person.
 //
+//     /// Destroy this object.
 //     ~MyPerson();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
-//     MyPerson& operator=(const MyPerson& rhs);
-//         // Assign to this person the value of the specified 'rhs' person,
-//         // and return a reference to this person.
 //
+//     /// Assign to this person the value of the specified `rhs` person, and
+//     /// return a reference to this person.
+//     MyPerson& operator=(const MyPerson& rhs);
+//
+//     /// Assign to this object the value read from the specified input
+//     /// `stream` using the specified `version` format, and return a
+//     /// reference to `stream`.  If `stream` is initially invalid, this
+//     /// operation has no effect.  If `version` is not supported, this
+//     /// object is unaltered and `stream` is invalidated, but otherwise
+//     /// unmodified.  If `version` is supported but `stream` becomes
+//     /// invalid during this operation, this object has an undefined, but
+//     /// valid, state.  Note that no version is read from `stream`.  See
+//     /// the `bslx` package-level documentation for more information on
+//     /// BDEX streaming of value-semantic types and containers.
 //     template <class STREAM>
 //     STREAM& bdexStreamIn(STREAM& stream, int version);
-//         // Assign to this object the value read from the specified input
-//         // 'stream' using the specified 'version' format, and return a
-//         // reference to 'stream'.  If 'stream' is initially invalid, this
-//         // operation has no effect.  If 'version' is not supported, this
-//         // object is unaltered and 'stream' is invalidated, but otherwise
-//         // unmodified.  If 'version' is supported but 'stream' becomes
-//         // invalid during this operation, this object has an undefined, but
-//         // valid, state.  Note that no version is read from 'stream'.  See
-//         // the 'bslx' package-level documentation for more information on
-//         // BDEX streaming of value-semantic types and containers.
 //
 //     //...
 //
 //     // ACCESSORS
+//
+//     /// Return the first name of this person.
 //     const bsl::string& firstName() const;
-//         // Return the first name of this person.
 //
+//     /// Return the last name of this person.
 //     const bsl::string& lastName() const;
-//         // Return the last name of this person.
 //
+//     /// Return the age of this person.
 //     int age() const;
-//         // Return the age of this person.
 //
+//     /// Write the value of this object, using the specified `version`
+//     /// format, to the specified output `stream`, and return a reference
+//     /// to `stream`.  If `stream` is initially invalid, this operation
+//     /// has no effect.  If `version` is not supported, `stream` is
+//     /// invalidated, but otherwise unmodified.  Note that `version` is
+//     /// not written to `stream`.  See the `bslx` package-level
+//     /// documentation for more information on BDEX streaming of
+//     /// value-semantic types and containers.
 //     template <class STREAM>
 //     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//         // Write the value of this object, using the specified 'version'
-//         // format, to the specified output 'stream', and return a reference
-//         // to 'stream'.  If 'stream' is initially invalid, this operation
-//         // has no effect.  If 'version' is not supported, 'stream' is
-//         // invalidated, but otherwise unmodified.  Note that 'version' is
-//         // not written to 'stream'.  See the 'bslx' package-level
-//         // documentation for more information on BDEX streaming of
-//         // value-semantic types and containers.
 //
 //     //...
 //
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` and `rhs` person objects have
+// /// the same value, and `false` otherwise.  Two person objects have the
+// /// same value if they have the same first name, last name, and age.
 // bool operator==(const MyPerson& lhs, const MyPerson& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' person objects have
-//     // the same value, and 'false' otherwise.  Two person objects have the
-//     // same value if they have the same first name, last name, and age.
 //
+// /// Return `true` if the specified `lhs` and `rhs` person objects do not
+// /// have the same value, and `false` otherwise.  Two person objects
+// /// differ in value if they differ in first name, last name, or age.
 // bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
-//     // have the same value, and 'false' otherwise.  Two person objects
-//     // differ in value if they differ in first name, last name, or age.
 //
+// /// Write the specified `person` value to the specified output `stream`
+// /// in some reasonable format, and return a reference to `stream`.
 // bsl::ostream& operator<<(bsl::ostream& stream, const MyPerson& person);
-//     // Write the specified 'person' value to the specified output 'stream'
-//     // in some reasonable format, and return a reference to 'stream'.
 //
 // // ========================================================================
 // //                  INLINE FUNCTION DEFINITIONS
@@ -386,58 +390,56 @@ class TestInStream {
 
     /// Verify the validity of the type code and array length, and the
     /// sufficiency of data at the current cursor position in the external
-    /// memory buffer.  Extract the type code at the cursor position from
-    /// the buffer.  If the type code does not correspond to the specified
-    /// `code`, then mark this stream as invalid, and if the quiet flag is
-    /// zero print an error message.  Otherwise, advance the cursor by the
-    /// size of the type code and extract the array length.  If the length
-    /// does not correspond to the specified `numElements`, then mark this
-    /// stream as invalid, and if the quiet flag is zero print an error
-    /// message.  Otherwise, advance the cursor by the size of the array
-    /// length, and verify that the buffer contains sufficient bytes for
-    /// `numElements` of the specified `elementSize`.  If there are too few
-    /// bytes in the buffer, then mark this stream as invalid.  If this
-    /// stream is invalid on entry, this function has no effect.  The
-    /// behavior is undefined unless `0 < elementSize` and
-    /// `0 <= numElements`.  Note that error messages are not printed for
-    /// insufficient data in the buffer.
+    /// memory buffer.  Extract the type code at the cursor position from the
+    /// buffer.  If the type code does not correspond to the specified `code`,
+    /// then mark this stream as invalid, and if the quiet flag is zero print
+    /// an error message.  Otherwise, advance the cursor by the size of the
+    /// type code and extract the array length.  If the length does not
+    /// correspond to the specified `numElements`, then mark this stream as
+    /// invalid, and if the quiet flag is zero print an error message.
+    /// Otherwise, advance the cursor by the size of the array length, and
+    /// verify that the buffer contains sufficient bytes for `numElements` of
+    /// the specified `elementSize`.  If there are too few bytes in the buffer,
+    /// then mark this stream as invalid.  If this stream is invalid on entry,
+    /// this function has no effect.  The behavior is undefined unless
+    /// `0 < elementSize` and `0 <= numElements`.  Note that error messages are
+    /// not printed for insufficient data in the buffer.
     void checkArray(TypeCode::Enum code,
                     int            elementSize,
                     int            numElements);
 
-    /// Verify the validity of the type code and the sufficiency of data at
-    /// the current cursor position in the external memory buffer.  Extract
-    /// the type code at the cursor position from the buffer.  If the type
-    /// code does not correspond to the specified `code`, then mark this
-    /// stream as invalid and, if the quiet flag is zero, print an error
-    /// message.  Otherwise, advance the cursor position by the size of the
-    /// type code, and verify that the buffer contains sufficient bytes for
-    /// the specified `numExpectedBytes`.  If there are too few bytes, then
-    /// this stream is marked as invalid.  If this stream is invalid on
-    /// entry, this function has no effect.  The behavior is undefined
-    /// unless `0 < numExpectedBytes`.  Also note that error messages are
-    /// not printed for insufficient data in the buffer.
+    /// Verify the validity of the type code and the sufficiency of data at the
+    /// current cursor position in the external memory buffer.  Extract the
+    /// type code at the cursor position from the buffer.  If the type code
+    /// does not correspond to the specified `code`, then mark this stream as
+    /// invalid and, if the quiet flag is zero, print an error message.
+    /// Otherwise, advance the cursor position by the size of the type code,
+    /// and verify that the buffer contains sufficient bytes for the specified
+    /// `numExpectedBytes`.  If there are too few bytes, then this stream is
+    /// marked as invalid.  If this stream is invalid on entry, this function
+    /// has no effect.  The behavior is undefined unless
+    /// `0 < numExpectedBytes`.  Also note that error messages are not printed
+    /// for insufficient data in the buffer.
     void checkTypeCodeAndAvailableLength(TypeCode::Enum code,
                                          bsl::size_t    numExpectedBytes);
 
-    /// Decrement the internal input limit of this test stream.  If the
-    /// input limit becomes negative and exception-handling is enabled
-    /// (i.e., `-DBDE_BUILD_TARGET_EXC` was supplied at compile time), then
-    /// throw a `TestInStreamException` object initialized with the
-    /// specified type `code`.  If exception-handling is not enabled, this
+    /// Decrement the internal input limit of this test stream.  If the input
+    /// limit becomes negative and exception-handling is enabled (enabled by
+    /// default), then throw a `TestInStreamException` object initialized with
+    /// the specified type `code`.  If exception-handling is not enabled, this
     /// method has no effect.
     void throwExceptionIfInputLimitExhausted(const TypeCode::Enum& code);
 
   public:
     // CREATORS
 
-    /// Create an empty test input stream.  Note that the constructed object
-    /// is useless until a buffer is set with the `reset` method.
+    /// Create an empty test input stream.  Note that the constructed object is
+    /// useless until a buffer is set with the `reset` method.
     explicit TestInStream();
 
-    /// Create a test input stream containing the specified initial
-    /// `numBytes` from the specified `buffer`.  The behavior is undefined
-    /// unless `0 == numBytes` if `0 == buffer`.
+    /// Create a test input stream containing the specified initial `numBytes`
+    /// from the specified `buffer`.  The behavior is undefined unless
+    /// `0 == numBytes` if `0 == buffer`.
     TestInStream(const char *buffer, bsl::size_t numBytes);
 
     /// Create a test input stream containing the specified `srcData`.
@@ -450,62 +452,61 @@ class TestInStream {
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 8-bit unsigned integer or 32-bit signed
-    /// integer value representing a length (see the `bslx` package-level
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 8-bit unsigned integer or 32-bit signed integer
+    /// value representing a length (see the `bslx` package-level
     /// documentation) into the specified `variable` if its type is
-    /// appropriate, update the cursor location, and return a reference to
-    /// this stream.  Consume an 8-bit unsigned integer if the most
-    /// significant bit of this byte is 0, otherwise consume a 32-bit signed
-    /// integer and set the most significant bit to zero in the resultant
-    /// `variable`.  If the type is incorrect, then this stream is marked
-    /// invalid and the value of `variable` is unchanged.  If this stream is
-    /// initially invalid, this operation has no effect.  If this function
-    /// otherwise fails to extract a valid value, this stream is marked
-    /// invalid and the value of `variable` is undefined.
+    /// appropriate, update the cursor location, and return a reference to this
+    /// stream.  Consume an 8-bit unsigned integer if the most significant bit
+    /// of this byte is 0, otherwise consume a 32-bit signed integer and set
+    /// the most significant bit to zero in the resultant `variable`.  If the
+    /// type is incorrect, then this stream is marked invalid and the value of
+    /// `variable` is unchanged.  If this stream is initially invalid, this
+    /// operation has no effect.  If this function otherwise fails to extract a
+    /// valid value, this stream is marked invalid and the value of `variable`
+    /// is undefined.
     TestInStream& getLength(int& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 8-bit unsigned integer value representing
-    /// a version (see the `bslx` package-level documentation) into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 8-bit unsigned integer value representing a
+    /// version (see the `bslx` package-level documentation) into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getVersion(int& variable);
 
-    /// Put this input stream in an invalid state.  This function has no
-    /// effect if this stream is already invalid.  Note that this function
-    /// should be called whenever a value extracted from this stream is
-    /// determined to be invalid, inconsistent, or otherwise incorrect.
+    /// Put this input stream in an invalid state.  This function has no effect
+    /// if this stream is already invalid.  Note that this function should be
+    /// called whenever a value extracted from this stream is determined to be
+    /// invalid, inconsistent, or otherwise incorrect.
     void invalidate();
 
     /// Set the index of the next byte to be extracted from this stream to 0
-    /// (i.e., the beginning of the stream) and validate this stream if it
-    /// is currently invalid.
+    /// (i.e., the beginning of the stream) and validate this stream if it is
+    /// currently invalid.
     void reset();
 
-    /// Reset this stream to extract from the specified `buffer` containing
-    /// the specified `numBytes`, set the index of the next byte to be
-    /// extracted to 0 (i.e., the beginning of the stream), and validate
-    /// this stream if it is currently invalid.  The behavior is undefined
-    /// unless `0 == numBytes` if `0 == buffer`.
+    /// Reset this stream to extract from the specified `buffer` containing the
+    /// specified `numBytes`, set the index of the next byte to be extracted to
+    /// 0 (i.e., the beginning of the stream), and validate this stream if it
+    /// is currently invalid.  The behavior is undefined unless `0 == numBytes`
+    /// if `0 == buffer`.
     void reset(const char *buffer, bsl::size_t numBytes);
 
     /// Reset this stream to extract from the specified `srcData`, set the
-    /// index of the next byte to be extracted to 0 (i.e., the beginning of
-    /// the stream), and validate this stream if it is currently invalid.
+    /// index of the next byte to be extracted to 0 (i.e., the beginning of the
+    /// stream), and validate this stream if it is currently invalid.
     void reset(const bslstl::StringRef& srcData);
 
-    /// Set the index of the next byte to be extracted from this stream to
-    /// the specified `offset` from the beginning of the stream, and
-    /// validate this stream if it is currently invalid.  The behavior is
-    /// undefined unless `offset <= length()`.
+    /// Set the index of the next byte to be extracted from this stream to the
+    /// specified `offset` from the beginning of the stream, and validate this
+    /// stream if it is currently invalid.  The behavior is undefined unless
+    /// `offset <= length()`.
     void seek(bsl::size_t offset);
 
     /// Set the number of input operations allowed on this stream to the
@@ -517,219 +518,203 @@ class TestInStream {
     /// Set the quiet mode for this test stream to the specified (boolean)
     /// `flagValue`.  If `flagValue` is `true`, then quiet mode is turned ON
     /// and no error messages will be written to standard output.  If
-    /// `flagValue` is `false`, then quiet mode is turned OFF.  Note that
-    /// quiet mode is turned OFF by default.
+    /// `flagValue` is `false`, then quiet mode is turned OFF.  Note that quiet
+    /// mode is turned OFF by default.
     void setQuiet(bool flagValue);
 
                       // *** scalar integer values ***
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 64-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 64-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt64(bsls::Types::Int64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 64-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 64-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint64(bsls::Types::Uint64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 56-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 56-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt56(bsls::Types::Int64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 56-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 56-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint56(bsls::Types::Uint64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 48-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 48-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt48(bsls::Types::Int64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 48-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 48-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint48(bsls::Types::Uint64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 40-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 40-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt40(bsls::Types::Int64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 40-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 40-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint40(bsls::Types::Uint64& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 32-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 32-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt32(int& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 32-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 32-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint32(unsigned int& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 24-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 24-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt24(int& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 24-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 24-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint24(unsigned int& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 16-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 16-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt16(short& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 16-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 16-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint16(unsigned short& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 8-bit signed integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 8-bit signed integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getInt8(char&        variable);
     TestInStream& getInt8(signed char& variable);
 
     /// If required, throw a `TestInStreamException` (see
     /// `throwExceptionIfInputLimitExhausted`); otherwise, consume the 8-bit
-    /// unsigned integer type code, verify the type of the next value in
-    /// this stream, consume that 8-bit unsigned integer value into the
-    /// specified `variable` if its type is appropriate, update the cursor
-    /// location, and return a reference to this stream.  If the type is
-    /// incorrect, then this stream is marked invalid and the value of
-    /// `variable` is unchanged.  If this stream is initially invalid, this
-    /// operation has no effect.  If this function otherwise fails to
-    /// extract a valid value, this stream is marked invalid and the value
-    /// of `variable` is undefined.
+    /// unsigned integer type code, verify the type of the next value in this
+    /// stream, consume that 8-bit unsigned integer value into the specified
+    /// `variable` if its type is appropriate, update the cursor location, and
+    /// return a reference to this stream.  If the type is incorrect, then this
+    /// stream is marked invalid and the value of `variable` is unchanged.  If
+    /// this stream is initially invalid, this operation has no effect.  If
+    /// this function otherwise fails to extract a valid value, this stream is
+    /// marked invalid and the value of `variable` is undefined.
     TestInStream& getUint8(char&          variable);
     TestInStream& getUint8(unsigned char& variable);
 
@@ -1065,22 +1050,21 @@ class TestInStream {
 
     // ACCESSORS
 
-    /// Return a non-zero value if this stream is valid, and 0 otherwise.
-    /// An invalid stream is a stream for which an input operation was
-    /// detected to have failed.
+    /// Return a non-zero value if this stream is valid, and 0 otherwise.  An
+    /// invalid stream is a stream for which an input operation was detected to
+    /// have failed.
     operator const void *() const;
 
     /// Return the index of the next byte to be extracted from this stream.
     bsl::size_t cursor() const;
 
     /// Return the address of the contiguous, non-modifiable external memory
-    /// buffer of this stream.  The behavior of accessing elements outside
-    /// the range `[ data() .. data() + (length() - 1) ]` is undefined.
+    /// buffer of this stream.  The behavior of accessing elements outside the
+    /// range `[ data() .. data() + (length() - 1) ]` is undefined.
     const char *data() const;
 
-    /// Return the current number of input requests left before an exception
-    /// is thrown.  A negative value indicates that no exception is
-    /// scheduled.
+    /// Return the current number of input requests left before an exception is
+    /// thrown.  A negative value indicates that no exception is scheduled.
     int inputLimit() const;
 
     /// Return `true` if this stream is empty, and `false` otherwise.  Note
@@ -1088,8 +1072,7 @@ class TestInStream {
     /// successfully reading all expected data, no data remains.
     bool isEmpty() const;
 
-    /// Return `true` if this stream's quiet mode is ON, and `false`
-    /// otherwise.
+    /// Return `true` if this stream's quiet mode is ON, and `false` otherwise.
     bool isQuiet() const;
 
     /// Return `true` if this stream is valid, and `false` otherwise.  An
@@ -1099,8 +1082,7 @@ class TestInStream {
     /// causes it to be otherwise.
     bool isValid() const;
 
-    /// Return the total number of bytes stored in the external memory
-    /// buffer.
+    /// Return the total number of bytes stored in the external memory buffer.
     bsl::size_t length() const;
 };
 
@@ -1110,8 +1092,8 @@ class TestInStream {
 /// reasonable (multi-line) format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const TestInStream& object);
 
-/// Read the specified `value` from the specified input `stream` following
-/// the requirements of the BDEX protocol (see the `bslx` package-level
+/// Read the specified `value` from the specified input `stream` following the
+/// requirements of the BDEX protocol (see the `bslx` package-level
 /// documentation), and return a reference to `stream`.  The behavior is
 /// undefined unless `TYPE` is BDEX-compliant.
 template <class TYPE>
