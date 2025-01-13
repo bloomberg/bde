@@ -295,15 +295,18 @@ struct formatter<FormattableType, t_CHAR> {
                 }
 
                 if (numPaddingCharacters) {
-                    outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                    outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                         t_CHAR>::outputFromChar(paddingStr,
                                                 paddingStr +
                                                     numPaddingCharacters,
                                                 outIterator);
                 }
             }
-            outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
-                t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
+            outIterator =
+                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+                    buffer,
+                    bufferEnd,
+                    outIterator);
         }
 
         /// Output the specified `value` representing the month or day to the
@@ -323,11 +326,11 @@ struct formatter<FormattableType, t_CHAR> {
 
             if (paddingRequired) {
                 if (10 > value) {
-                    outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                    outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                         t_CHAR>::outputFromChar('0', outIterator);
                 }
             }
-            outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+            outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                 t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
         }
 
@@ -431,16 +434,16 @@ struct formatter<FormattableType, t_CHAR> {
                 outputMonthDay<t_FORMAT_CONTEXT>(outIterator,
                                                  value.day(),
                                                  false);
-                outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                     t_CHAR>::outputFromChar(' ', outIterator);
 
                 // Outputting month
                 const char *month = months[value.month() - 1];
-                outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                outIterator  = BloombergLP::bslfmt::FormatterCharUtil<
                     t_CHAR>::outputFromChar(month,
                                             month + std::strlen(month),
                                             outIterator);
-                outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                     t_CHAR>::outputFromChar(' ', outIterator);
 
                 // Outputting year
@@ -449,14 +452,14 @@ struct formatter<FormattableType, t_CHAR> {
             else if (e_NUMERIC == d_format) {  // 2000-01-01
                             // Outputting year
                 outputYear<t_FORMAT_CONTEXT>(outIterator, value.year(), true);
-                outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                     t_CHAR>::outputFromChar('-', outIterator);
 
                 // Outputting month
                 outputMonthDay<t_FORMAT_CONTEXT>(outIterator,
                                                  value.month(),
                                                  true);
-                outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+                outIterator = BloombergLP::bslfmt::FormatterCharUtil<
                     t_CHAR>::outputFromChar('-', outIterator);
 
                 // Outputting day

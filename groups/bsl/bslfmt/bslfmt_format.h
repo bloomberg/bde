@@ -213,14 +213,14 @@ BSLS_IDENT("$Id: $")
 //              }
 //
 //              if (numPaddingCharacters) {
-//                  outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//                  outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                      t_CHAR>::outputFromChar(paddingStr,
 //                                              paddingStr +
 //                                                  numPaddingCharacters,
 //                                              outIterator);
 //              }
 //          }
-//          outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//          outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //              t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
 //      }
 //
@@ -241,11 +241,11 @@ BSLS_IDENT("$Id: $")
 //
 //          if (paddingRequired) {
 //              if (10 > value) {
-//                  outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//                  outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                      t_CHAR>::outputFromChar('0', outIterator);
 //              }
 //          }
-//          outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//          outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //              t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
 //      }
 //
@@ -349,16 +349,16 @@ BSLS_IDENT("$Id: $")
 //              outputMonthDay<t_FORMAT_CONTEXT>(outIterator,
 //                                               value.day(),
 //                                               false);
-//              outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar(' ', outIterator);
 //
 //              // Outputting month
 //              const char *month = months[value.month() - 1];
-//              outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar(month,
 //                                          month + std::strlen(month),
 //                                          outIterator);
-//              outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar(' ', outIterator);
 //
 //              // Outputting year
@@ -367,14 +367,14 @@ BSLS_IDENT("$Id: $")
 //          else if (e_NUMERIC == d_format) {  // 2000-01-01
 //                          // Outputting year
 //              outputYear<t_FORMAT_CONTEXT>(outIterator, value.year(), true);
-//              outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar('-', outIterator);
 //
 //              // Outputting month
 //              outputMonthDay<t_FORMAT_CONTEXT>(outIterator,
 //                                               value.month(),
 //                                               true);
-//              outIterator = BloombergLP::bslfmt::Formatter_CharUtils<
+//              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar('-', outIterator);
 //
 //              // Outputting day
