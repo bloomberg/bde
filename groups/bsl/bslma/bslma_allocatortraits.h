@@ -460,12 +460,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>     // 'forward<T>(V)'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri May 13 11:05:19 2022
+// Generated on Mon Jan 13 08:31:27 2025
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
+
 # define COMPILING_BSLMA_ALLOCATORTRAITS_H
 # include <bslma_allocatortraits_cpp03.h>
 # undef COMPILING_BSLMA_ALLOCATORTRAITS_H
+
+// clang-format on
 #else
 
 #include <limits>

@@ -135,12 +135,16 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Jan 13 08:32:07 2025
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
+
 # define COMPILING_BDLB_NULLABLEVALUE_H
 # include <bdlb_nullablevalue_cpp03.h>
 # undef COMPILING_BDLB_NULLABLEVALUE_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

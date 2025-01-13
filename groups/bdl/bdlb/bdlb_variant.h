@@ -654,12 +654,16 @@ BSLS_IDENT("$Id: $")
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri Jul 14 13:20:25 2023
+// Generated on Mon Jan 13 08:32:07 2025
 // Command line: sim_cpp11_features.pl bdlb_variant.h
+
 # define COMPILING_BDLB_VARIANT_H
 # include <bdlb_variant_cpp03.h>
 # undef COMPILING_BDLB_VARIANT_H
+
+// clang-format on
 #else
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \

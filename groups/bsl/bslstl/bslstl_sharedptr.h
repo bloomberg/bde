@@ -1500,12 +1500,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Wed Oct 26 08:50:25 2022
+// Generated on Mon Jan 13 08:31:39 2025
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
+
 # define COMPILING_BSLSTL_SHAREDPTR_H
 # include <bslstl_sharedptr_cpp03.h>
 # undef COMPILING_BSLSTL_SHAREDPTR_H
+
+// clang-format on
 #else
 
 #if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)

@@ -286,12 +286,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>     // 'forward<T>(V)', `Util::addressOf`
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Wed Aug 30 14:35:39 2023
+// Generated on Mon Jan 13 08:31:27 2025
 // Command line: sim_cpp11_features.pl bslma_polymorphicallocator.h
+
 # define COMPILING_BSLMA_POLYMORPHICALLOCATOR_H
 # include <bslma_polymorphicallocator_cpp03.h>
 # undef COMPILING_BSLMA_POLYMORPHICALLOCATOR_H
+
+// clang-format on
 #else
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR

@@ -178,12 +178,16 @@ BSLS_IDENT("$Id: $")
 #include <bsl_utility.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri Apr  5 12:00:49 2024
+// Generated on Mon Jan 13 08:32:13 2025
 // Command line: sim_cpp11_features.pl bdlma_localbufferedobject.h
+
 # define COMPILING_BDLMA_LOCALBUFFEREDOBJECT_H
 # include <bdlma_localbufferedobject_cpp03.h>
 # undef COMPILING_BDLMA_LOCALBUFFEREDOBJECT_H
+
+// clang-format on
 #else
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

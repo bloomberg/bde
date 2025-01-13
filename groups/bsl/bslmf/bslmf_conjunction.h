@@ -29,12 +29,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Tue Feb 20 12:10:48 2024
+// Generated on Mon Jan 13 08:31:25 2025
 // Command line: sim_cpp11_features.pl bslmf_conjunction.h
+
 # define COMPILING_BSLMF_CONJUNCTION_H
 # include <bslmf_conjunction_cpp03.h>
 # undef COMPILING_BSLMF_CONJUNCTION_H
+
+// clang-format on
 #else
 
 namespace bsl {

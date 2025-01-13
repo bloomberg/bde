@@ -100,12 +100,16 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>   // NULL
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri Aug 18 08:37:40 2023
+// Generated on Mon Jan 13 08:32:07 2025
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
+
 # define COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
 # include <bdlb_nullableallocatedvalue_cpp03.h>
 # undef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

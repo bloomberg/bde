@@ -147,12 +147,16 @@ BSLS_IDENT("$Id: $")
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 30 15:27:01 2023
+// Generated on Mon Jan 13 08:31:39 2025
 // Command line: sim_cpp11_features.pl bslstl_optional.h
+
 # define COMPILING_BSLSTL_OPTIONAL_H
 # include <bslstl_optional_cpp03.h>
 # undef COMPILING_BSLSTL_OPTIONAL_H
+
+// clang-format on
 #else
 
 // ============================================================================

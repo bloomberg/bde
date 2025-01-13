@@ -24,12 +24,16 @@
 #include <bsls_compilerfeatures.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Wed Jun 26 13:51:42 2024
+// Generated on Mon Jan 13 08:31:16 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.xt.cpp
+
 # define COMPILING_BSLMF_INVOKERESULT_XT_CPP
 # include <bslmf_invokeresult_cpp03.xt.cpp>
 # undef COMPILING_BSLMF_INVOKERESULT_XT_CPP
+
+// clang-format on
 #else
 
 #if defined(BSLS_PLATFORM_CMP_SUN)

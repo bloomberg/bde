@@ -339,12 +339,16 @@ BSLS_IDENT("$Id: $")
 #include <algorithm>  // 'std::swap'
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Sat Jul 23 20:07:37 2022
+// Generated on Mon Jan 13 08:31:27 2025
 // Command line: sim_cpp11_features.pl bslma_allocatorutil.h
+
 # define COMPILING_BSLMA_ALLOCATORUTIL_H
 # include <bslma_allocatorutil_cpp03.h>
 # undef COMPILING_BSLMA_ALLOCATORUTIL_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

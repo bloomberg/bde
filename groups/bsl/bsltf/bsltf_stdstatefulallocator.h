@@ -151,12 +151,16 @@ BSLS_IDENT("$Id: $")
 #include <new>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Jan 13 08:31:33 2025
 // Command line: sim_cpp11_features.pl bsltf_stdstatefulallocator.h
+
 # define COMPILING_BSLTF_STDSTATEFULALLOCATOR_H
 # include <bsltf_stdstatefulallocator_cpp03.h>
 # undef COMPILING_BSLTF_STDSTATEFULALLOCATOR_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

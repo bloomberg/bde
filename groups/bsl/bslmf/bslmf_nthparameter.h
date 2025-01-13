@@ -68,12 +68,16 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri Dec 16 11:47:20 2022
+// Generated on Mon Jan 13 08:31:25 2025
 // Command line: sim_cpp11_features.pl bslmf_nthparameter.h
+
 # define COMPILING_BSLMF_NTHPARAMETER_H
 # include <bslmf_nthparameter_cpp03.h>
 # undef COMPILING_BSLMF_NTHPARAMETER_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

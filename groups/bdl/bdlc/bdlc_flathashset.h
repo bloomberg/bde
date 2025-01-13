@@ -430,12 +430,16 @@ BSLS_IDENT("$Id: $")
 #include <bsl_utility.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Dec  5 18:14:12 2024
+// Generated on Mon Jan 13 08:32:17 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashset.h
+
 # define COMPILING_BDLC_FLATHASHSET_H
 # include <bdlc_flathashset_cpp03.h>
 # undef COMPILING_BDLC_FLATHASHSET_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {

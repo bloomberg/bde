@@ -581,12 +581,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Jan 13 08:31:39 2025
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
+
 # define COMPILING_BSLSTL_MULTIMAP_H
 # include <bslstl_multimap_cpp03.h>
 # undef COMPILING_BSLSTL_MULTIMAP_H
+
+// clang-format on
 #else
 
 namespace bsl {

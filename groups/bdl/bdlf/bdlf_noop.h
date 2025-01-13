@@ -119,12 +119,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Wed Apr 12 13:24:41 2023
+// Generated on Mon Jan 13 08:32:04 2025
 // Command line: sim_cpp11_features.pl bdlf_noop.h
+
 # define COMPILING_BDLF_NOOP_H
 # include <bdlf_noop_cpp03.h>
 # undef COMPILING_BDLF_NOOP_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {
