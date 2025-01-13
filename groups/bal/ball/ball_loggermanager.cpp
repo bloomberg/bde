@@ -137,13 +137,15 @@ struct RecordSharedPtrUtil {
 
     // CLASS METHODS
 
-    /// Acquire an additional reference to the specified `record` shared
-    /// pointer, and return a raw pointer its managed value.  The behavior
-    /// is undefined unless `initializeSharedObjectOffset` has been called.
-    /// Note that the shared pointer must be reconstituted by a subsequent
-    /// call to `reassembleSharedPtr`.
+    /// Take over ownership of the reference from the shared pointer the
+    /// specified `record` points to, and return a raw pointer to its managed
+    /// value.  The behavior is undefined unless `record` is non-null,
+    /// `initializeSharedObjectOffset` has been called, and the shared object
+    /// pointed to by `record` is stored in-place within the concrete
+    /// `bslma::SharedPtrRep` object.  Note that the shared pointer must be
+    /// reconstituted by a subsequent call to `reassembleSharedPtr`.
     static
-    Record *disassembleSharedPtr(const bsl::shared_ptr<Record>& record);
+    Record *disassembleSharedPtr(bsl::shared_ptr<Record> *record);
 
     /// Reassemble a shared pointer to the specified `record` (taking
     /// ownership of the additional reference acquired when
@@ -172,18 +174,17 @@ std::ptrdiff_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
 
 // CLASS METHODS
 Record *RecordSharedPtrUtil::disassembleSharedPtr(
-                                         const bsl::shared_ptr<Record>& record)
+                                               bsl::shared_ptr<Record> *record)
 {
+    BSLS_ASSERT(record);
+    BSLS_ASSERT(0 != s_sharedObjectOffset);
     BSLS_ASSERT(s_sharedObjectOffset ==
-                                     reinterpret_cast<char *>(record.get())
-                                     - reinterpret_cast<char *>(record.rep()));
+                                    reinterpret_cast<char *>(record->get())
+                                    - reinterpret_cast<char *>(record->rep()));
 
-    // Returning a raw pointer to a 'Record' that is shared, so manually bump
-    // the use count to ensure that 'record.rep()' persists.
-
-    record.rep()->acquireRef();
-
-    return record.get();
+    // Return the underlying pointer to the record without releasing the
+    // reference, but reset the shared pointer object to null
+    return record->release().first;
 }
 
 bsl::shared_ptr<Record>
@@ -595,8 +596,8 @@ Record *Logger::getRecord(const char *fileName, int lineNumber)
    // The shared pointer returned by 'getRecordPtr' is reconstituted in the
    // 3-argument 'logMessage' method.
 
-    return RecordSharedPtrUtil::disassembleSharedPtr(getRecordPtr(fileName,
-                                                                  lineNumber));
+    bsl::shared_ptr<Record> record = getRecordPtr(fileName, lineNumber);
+    return RecordSharedPtrUtil::disassembleSharedPtr(&record);
 }
 
 void Logger::logMessage(const Category&  category,
