@@ -534,7 +534,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:39 2025
+// Generated on Tue Jan 14 14:15:23 2025
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 # define COMPILING_BSLSTL_MAP_H
@@ -998,59 +998,12 @@ class map {
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Return a reference providing modifiable access to the mapped-value
-    /// associated with a key that is equivalent with the specified `key`; if
-    /// this `map` does not already contain a `value_type` object having an
-    /// equivalent key, first insert a new `value_type` object having the
-    /// move-inserted `key` and a default-constructed `VALUE` object, and
-    /// return a reference to the newly mapped (default) value.  This method
-    /// requires that the (template parameter) type `KEY` be `move-insertable`
-    /// into this map and the (template parameter) type `VALUE` be
-    /// `default-insertable` into this map (see {Requirements on `KEY` and
-    /// `VALUE`}).
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    operator [](LOOKUP_KEY&& key)
-    {
-        return try_emplace(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
-    }
-#endif
-
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with the specified `key`, if such an entry exists;
     /// otherwise, throw a `std::out_of_range` exception.  Note that this
     /// method may also throw a different kind of exception if the
     /// (user-supplied) comparator throws.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
-
-    /// Return a reference providing modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    at(const LOOKUP_KEY& key) {
-        iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                "map<...>::at(LOOKUP_KEY): invalid key value");
-        }
-        return iter->second;
-    }
 
     /// Return an iterator providing modifiable access to the first
     /// `value_type` object in the ordered sequence of `value_type` objects
@@ -1263,11 +1216,6 @@ class map {
     pair<iterator, bool> insert_or_assign(const KEY&       key,
                                           BDE_OTHER_TYPE&& obj);
 
-    template <class BDE_OTHER_TYPE>
-    pair<iterator, bool> insert_or_assign(
-                                      BloombergLP::bslmf::MovableRef<KEY> key,
-                                      BDE_OTHER_TYPE&&                    obj);
-
     /// If a key equivalent to the specified `key` already exists in this
     /// map, assign the specified `obj` to the value associated with that
     /// key, and return a pair containing an iterator referring to the
@@ -1276,44 +1224,10 @@ class map {
     /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
     /// and return a pair containing an iterator referring to the
     /// newly-created entry and `true`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        pair<iterator, bool> >::type
-    insert_or_assign(LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
-    {
-        typedef pair<iterator, bool> Result;
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                   &comparisonResult,
-                                   &d_tree,
-                                   this->comparator(),
-                                   key);
-    
-        if (!comparisonResult) { // ASSIGN
-            iterator(insertLocation)->second =
-                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
-            return Result(iterator(insertLocation), false);           // RETURN
-        }
-    
-        // INSERT
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-    
-        return Result(iterator(node), true);
-    }
+    template <class BDE_OTHER_TYPE>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                                      BDE_OTHER_TYPE&&                    obj);
 
     /// If a key equivalent to the specified `key` already exists in this
     /// map, assign the specified `obj` to the value associated with that
@@ -1341,57 +1255,6 @@ class map {
     iterator insert_or_assign(const_iterator                      hint,
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
-
-
-    /// If a key equivalent to the specified `key` already exists in this
-    /// _map, assign the specified `obj` to the value associated with that
-    /// key, and return an iterator referring to the existing item.
-    /// Otherwise, insert into this map a newly-created `value_type` object
-    /// constructed from
-    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
-    /// and return an iterator referring to the newly-created entry.  Use
-    /// the specified `hint` as a starting point for checking to see if the
-    /// key already in the map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        iterator>::type
-    insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
-    {
-        BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                   &comparisonResult,
-                                   &d_tree,
-                                   this->comparator(),
-                                   key,
-                                   hintNode);
-    
-        if (!comparisonResult) { // ASSIGN
-            iterator(insertLocation)->second =
-                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
-            return iterator(insertLocation);                          // RETURN
-        }
-    
-        // INSERT
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-    
-        return iterator(node);
-    }
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -1867,29 +1730,6 @@ class map {
     /// throws.
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
-
-    /// Return a reference providing non-modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        typename add_lvalue_reference<const VALUE>::type>::type
-    at(const LOOKUP_KEY& key) const {
-
-        const_iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                          "map<...>::at(LOOKUP_KEY) const: invalid key value");
-        }
-        return iter->second;
-    }
 
     /// Return the key-comparison functor (or function pointer) used by this
     /// map; if a comparator was supplied at construction, return its value;
@@ -2801,10 +2641,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](const key_type& key)
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
-        // Unfortunately, in C++03, there are user types where a MovableRef
-        // will not safely degrade to a lvalue reference when a move
-        // constructor is not available, so 'move' cannot be used directly on a
-        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, key, temp.object());
 #endif
     }
@@ -2836,10 +2672,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator[](
 
         BloombergLP::bslma::DestructorGuard<VALUE> guard(temp.address());
 
-        // Unfortunately, in C++03, there are user types where a MovableRef
-        // will not safely degrade to a lvalue reference when a move
-        // constructor is not available, so 'move' cannot be used directly on a
-        // user supplied type.  See internal bug report 99039150.
         iter = emplace_hint(iter, lvalue, temp.object());
 #endif
     }

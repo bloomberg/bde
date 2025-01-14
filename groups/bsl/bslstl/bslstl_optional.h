@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:39 2025
+// Generated on Tue Jan 14 14:15:23 2025
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 # define COMPILING_BSLSTL_OPTIONAL_H
@@ -5780,14 +5780,13 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<t_TYPE> make_optional(
 // that results in types inheriting from std::optional not being identified
 // correctly as optional types.  The end result is endless recursion evaluating
 // the requires clause for the spaceship operator when it is implemented
-// according to the C++20 specification, which happens for GCC 11-14 and
-// MSVC-2022 prior to MSVC 19.36 when building with C++20 and later. In MSVC
-// 19.36 Microsoft implemented the solution suggested in LWG-3746, so the
-// workaround is not required for that and subsequent versions; similarly, the
-// issue will be resolved in GCC 15 (to be released).
+// according to the C++20 specification, which currently happens for GCC 11-13
+// and MSVC-2022 prior to MSVC 19.36 when building with C++20. In MSVC 19.36
+// Microsoft implemented the solution suggested in LWG-3746, so the workaround
+// is not required for that and subsequent versions.
 //
 // The issue with the standard is tracked here:
-// https://cplusplus.github.io/LWG/issue3746
+// https://cplusplus.github.io/LWG/lwg-active.html#3746
 //
 // See DRQS 170388558 for more information
 //
@@ -5801,9 +5800,9 @@ BSLS_KEYWORD_CONSTEXPR bsl::optional<t_TYPE> make_optional(
 // gcc and for MSVC are different due to different standard library
 // implementations, hence the two distinct macros and implementations.
 
-# if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L && \
+# if BSLS_COMPILERFEATURES_CPLUSPLUS==202002L && \
      defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && \
-     (11 <= _GLIBCXX_RELEASE && _GLIBCXX_RELEASE <= 14)
+     (11 <= _GLIBCXX_RELEASE && _GLIBCXX_RELEASE < 14)
 
 #define BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
 

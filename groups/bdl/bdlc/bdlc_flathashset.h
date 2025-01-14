@@ -410,7 +410,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
-#include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
@@ -432,7 +431,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:32:17 2025
+// Generated on Tue Jan 14 14:16:03 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashset.h
 
 # define COMPILING_BDLC_FLATHASHSET_H
@@ -743,6 +742,7 @@ class FlatHashSet {
     /// asserting its validity in some build modes).
     template <class... ARGS>
     iterator emplace_hint(const_iterator hint, ARGS&&... args);
+
 #endif
 
     /// Remove from this set the element whose key is equal to the specified
@@ -751,23 +751,6 @@ class FlatHashSet {
     /// method invalidates all iterators and references to the removed
     /// element.
     bsl::size_t erase(const KEY& key);
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Remove from this set the element whose key is equivalent to the
-    /// specified `key`, if it exists, and return 1; otherwise (there is no
-    /// element equivalent to `key` in this set), return 0 with no other effect.
-    /// This method invalidates all iterators and references to the removed
-    /// element.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t>::type
-    erase(LOOKUP_KEY&& key)
-    {
-        return d_impl.erase(key);
-    }
-#endif
 
     /// Remove from this set the element at the specified `position`, and
     /// return a `const_iterator` referring to the element immediately
@@ -787,6 +770,11 @@ class FlatHashSet {
     /// iteration sequence provided by this container.
     const_iterator erase(const_iterator first, const_iterator last);
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class KEY_TYPE>
+    bsl::pair<const_iterator, bool> insert(
+                             BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#else
     /// Insert the specified `value` into this set if the `value` does not
     /// already exist in this set; otherwise, this method has no effect.
     /// Return a `pair` whose `first` member is a `const_iterator` referring
@@ -794,94 +782,41 @@ class FlatHashSet {
     /// equivalent to that of the element to be inserted, and whose `second`
     /// member is `true` if a new element was inserted, and `false` if an
     /// equivalent value was already present.
-    bsl::pair<const_iterator, bool> insert(const KEY& value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(value);
-    }
-
-    /// Insert the specified `value` into this set if the `value` does not
-    /// already exist in this set; otherwise, this method has no effect.
-    /// Return a `pair` whose `first` member is a `const_iterator` referring
-    /// to the (possibly newly inserted) element in this set whose value is
-    /// equivalent to that of the element to be inserted, and whose `second`
-    /// member is `true` if a new element was inserted, and `false` if an
-    /// equivalent value was already present.
-    bsl::pair<const_iterator, bool> insert(bslmf::MovableRef<KEY> value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY, value));
-    }
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Insert the specified `key` into this set if a key equivalent to `k`
-    /// does not already exist in this set; otherwise, this method has no effect.
-    /// Return a pair containing an `iterator` referring to the newly inserted
-    /// element and `true` if a element was inserted.  Return a pair containing
-    /// an `iterator` to an existing element and `false` if the value already
-    /// existed in the set.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , typename bsl::pair<iterator, bool> >::type
-    insert(LOOKUP_KEY&& key)
-    {
-        return d_impl.insertTransparent(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
-    }
+    template <class KEY_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
+                            bsl::pair<const_iterator, bool> >::type
+                      insert(BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #endif
+    {
+        // Note that some compilers require functions declared with 'enable_if'
+        // to be defined inline.
 
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, value));
+    }
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class KEY_TYPE>
+    const_iterator insert(const_iterator                              ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#else
     /// Insert the specified `value` into this set if the `value` does not
     /// already exist in this set; otherwise, this method has no effect.
     /// Return a `const_iterator` referring to the (possibly newly inserted)
     /// element in this set whose value is equivalent to that of the
     /// element to be inserted.  The supplied `const_iterator` is ignored.
-    const_iterator insert(const_iterator, const KEY& value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(value).first;
-    }
-
-
-    /// Insert the specified `value` into this set if the `value` does not
-    /// already exist in this set; otherwise, this method has no effect.
-    /// Return a `const_iterator` referring to the (possibly newly inserted)
-    /// element in this set whose value is equivalent to that of the
-    /// element to be inserted.  The supplied `const_iterator` is ignored.
-    const_iterator insert(const_iterator, bslmf::MovableRef<KEY> value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY,value)).first;
-    }
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Insert the specified `key` into this set if a key equivalent to `k`
-    /// does not already exist in this set; otherwise, this method has no effect.
-    /// Return a pair containing an `iterator` referring to the newly inserted
-    /// element and `true` if a element was inserted.  Return a pair containing
-    /// an `iterator` to an existing element and `false` if the value already
-    /// existed in the set.  The supplied `const_iterator` is ignored.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         && bsl::is_convertible<LOOKUP_KEY&&, const_iterator>::value == false
-         && bsl::is_convertible<const_iterator, LOOKUP_KEY&&>::value == false
-          , iterator>::type
-    insert(const_iterator, LOOKUP_KEY&& key)
-    {
-        return insert(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first;
-    }
+    template <class KEY_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
+                            const_iterator>::type
+                      insert(const_iterator                              ,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
 #endif
+    {
+        // Note that some compilers require functions declared with 'enable_if'
+        // to be defined inline.
+
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE,
+                                                           value)).first;
+    }
 
     /// Insert into this set the value of each element in the input iterator
     /// range specified by `first` through `last` (including `first`,
@@ -947,41 +882,10 @@ class FlatHashSet {
     /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
 
-    /// Return `true` if this set contains an element whose key is equivalent
-    /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        &&  BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-        , bool>::type
-    contains(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end();
-    }
-
     /// Return the number of elements in this set having the specified
     /// `key`.  Note that since a flat hash set maintains unique keys, the
     /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-
-    /// Return the number of `value_type` objects within this unordered set
-    /// that are equivalent to the specified `key`.  The behavior is
-    /// undefined unless `key` is equivalent to at most one element in this
-    /// unordered set.  Note that since an unordered set maintains unique
-    /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t >::type
-    count(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end() ? 1 : 0;
-    }
 
     /// Return `true` if this set contains no elements, and `false`
     /// otherwise.
@@ -997,47 +901,10 @@ class FlatHashSet {
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
-    /// Return a pair of `const_iterator` providing non-modifiable access to
-    /// the sequence of `value_type` objects in this unordered set that are
-    /// equivalent to the specified `key`, where the first iterator is
-    /// positioned at the start of the sequence and the second iterator is
-    /// positioned one past the end of the sequence.  If this unordered set
-    /// contains no `value_type` objects equivalent to `key`, then the two
-    /// returned iterators will have the same value.  Note that since an
-    /// unordered set maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const
-    {
-        return d_impl.equal_range(key);
-    }
-
     /// Return a `const_iterator` referring to the element in this set
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this set.
     const_iterator find(const KEY& key) const;
-
-    /// Return a `const_iterator` referring to the element in this set
-    /// having the specified `key`, or `end()` if no such entry exists in
-    /// this set.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , const_iterator>::type
-    find(const LOOKUP_KEY& key) const
-    {
-        return iterator(d_impl.find(key));
-    }
-
 
     /// Return (a copy of) the unary hash functor used by this set to
     /// generate a hash value (of type `bsl::size_t`) for a `KEY` object.

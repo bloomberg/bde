@@ -994,7 +994,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:39 2025
+// Generated on Tue Jan 14 14:15:23 2025
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 # define COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -1377,59 +1377,11 @@ class unordered_map {
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Return a reference providing modifiable access to the mapped-value
-    /// associated with a key that is equivalent with the specified `key`; if
-    /// this `map` does not already contain a `value_type` object having an
-    /// equivalent key, first insert a new `value_type` object having the
-    /// move-inserted `key` and a default-constructed `VALUE` object, and
-    /// return a reference to the newly mapped (default) value.  This method
-    /// requires that the (template parameter) type `KEY` be `move-insertable`
-    /// into this map and the (template parameter) type `VALUE` be
-    /// `default-insertable` into this map (see {Requirements on `KEY` and
-    /// `VALUE`}).
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    operator [](LOOKUP_KEY&& key)
-    {
-        return try_emplace(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
-    }
-#endif
-
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with the specified `key`, if such an entry exists;
     /// otherwise throw `std::out_of_range` exception.  Note that this
     /// method is not exception-neutral.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
-
-    /// Return a reference providing modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    at(const LOOKUP_KEY& key) {
-        HashTableLink *node = d_impl.find(key);
-
-        if (!node) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                      "unordered_map<...>::at(LOOKUP_KEY): invalid key value");
-        }
-        return static_cast<HashTableNode *>(node)->value().second;
-    }
 
     /// Return an iterator providing modifiable access to the first
     /// `value_type` object in the sequence of `value_type` objects
@@ -1739,33 +1691,6 @@ class unordered_map {
 
     /// If a key equivalent to the specified `key` already exists in this
     /// unordered_map, assign the specified `obj` to the value associated
-    /// with that key, and return a pair containing an iterator referring to
-    /// the existing item and `false`.  Otherwise, insert into this map a
-    /// newly-created `value_type` object, constructed from
-    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
-    /// and return a pair containing an iterator referring to the
-    /// newly-created entry and `true`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , pair<iterator, bool> >::type
-    insert_or_assign(LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
-    {
-        typedef bsl::pair<iterator, bool> ResultType;
-        bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
-                           &isInsertedFlag,
-                           NULL,
-                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-        return ResultType(iterator(result), isInsertedFlag);
-    }
-
-    /// If a key equivalent to the specified `key` already exists in this
-    /// unordered_map, assign the specified `obj` to the value associated
     /// with that key, and return an iterator referring to the existing
     /// item.  Otherwise, insert into this map a newly-created `value_type`
     /// object, constructed from
@@ -1793,32 +1718,6 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
 
-    /// If a key equivalent to the specified `key` already exists in this
-    /// unordered_map, assign the specified `obj` to the value associated
-    /// with that key, and return an iterator referring to the existing
-    /// item.  Otherwise, insert into this map a newly-created `value_type`
-    /// object, constructed from
-    /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
-    /// and return an iterator referring to the newly-created entry.  Use
-    /// the specified `hint` as a starting point for checking to see if the
-    /// key already in the unordered_map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , iterator>::type
-    insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
-    {
-        bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
-                           &isInsertedFlag,
-                           hint.node(),
-                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-        return iterator(result);
-    }
 #endif
 
     /// Return a pair of iterators providing modifiable access to the
@@ -2029,29 +1928,6 @@ class unordered_map {
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
 
-    /// Return a reference providing non-modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<const VALUE>::type>::type
-    at(const LOOKUP_KEY& key) const {
-        HashTableLink *node = d_impl.find(key);
-
-        if (!node) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                "unordered_map<...>::at(LOOKUP_KEY) const: invalid key value");
-        }
-        return static_cast<HashTableNode *>(node)->value().second;
-    }
-
     const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
 
     /// Return an iterator providing non-modifiable access to the first
@@ -2090,21 +1966,6 @@ class unordered_map {
     /// by this unordered map, where values having a key equivalent to the
     /// specified `key` would be inserted.
     size_type bucket(const key_type& key) const;
-
-    /// Return the index of the bucket, in the array of buckets maintained
-    /// by this unordered map, where values having a key equivalent to the
-    /// specified `key` would be inserted.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-                      size_type>::type
-    bucket(const LOOKUP_KEY& key) const
-    {
-        return d_impl.bucketIndexForKey(key);
-    }
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered map.

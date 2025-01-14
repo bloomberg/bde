@@ -26,7 +26,7 @@
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:16 2025
+// Generated on Tue Jan 14 14:12:51 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.xt.cpp
 
 # define COMPILING_BSLMF_INVOKERESULT_XT_CPP
@@ -42,10 +42,9 @@
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
     #pragma GCC diagnostic ignored "-Wvolatile"
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION >= 100000
-    #pragma clang diagnostic ignored "-Wdeprecated-volatile"
+    #ifdef BSLS_PLATFORM_CMP_CLANG
+        #pragma GCC diagnostic ignored "-Wdeprecated-volatile"
+    #endif
 #endif
 
 using namespace BloombergLP;

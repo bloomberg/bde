@@ -576,7 +576,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:39 2025
+// Generated on Tue Jan 14 14:15:23 2025
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 # define COMPILING_BSLSTL_SET_H
@@ -979,47 +979,6 @@ class set {
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Insert the specified `value` into this set if a key equivalent to
-    /// `value` does not already exist in this set; otherwise, if a key
-    /// equivalent to `value` already exists in this set, this method has no
-    /// effect.  `value` is left in a valid but unspecified state.  Return a
-    /// pair whose `first` member is an iterator referring to the (possibly
-    /// newly inserted) `value_type` object in this set that is equivalent
-    /// to `value`, and whose `second` member is `true` if a new value was
-    /// inserted, and `false` if the key was already present.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value
-        , pair<iterator, bool> >::type
-    insert(LOOKUP_KEY&& value)
-    {
-        typedef pair<iterator, bool> Result;
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                                            &comparisonResult,
-                                                            &d_tree,
-                                                            this->comparator(),
-                                                            value);
-        if (!comparisonResult) {
-            return Result(iterator(insertLocation), false);           // RETURN
-        }
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-        return Result(iterator(node), true);
-    }
-#endif
-
     /// Insert the specified `value` into this set (in amortized constant
     /// time if the specified `hint` is a valid immediate successor to
     /// `value`), if a key equivalent to `value` does not already exist in
@@ -1049,58 +1008,6 @@ class set {
     /// the range `[begin() .. end()]` (both endpoints included).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Insert the specified `value` into this set if a key equivalent to
-    /// `value` does not already exist in this set; otherwise, if a key
-    /// equivalent to `value` already exists in this set, this method has no
-    /// effect.  `value` is left in a valid but unspecified state.  Return
-    /// an iterator referring to the (possibly newly inserted) `value_type`
-    /// object in this set that is equivalent to `value`.  The average and
-    /// worst case complexity of this operation is not affected by the
-    /// specified `hint`.  This method requires that the (template
-    /// parameter) type `KEY` be `move-insertable` (see {Requirements on
-    /// `KEY`}) into this set.  The behavior is undefined unless `hint` is
-    /// an iterator in the range `[begin() .. end()]` (both endpoints
-    /// included).  Note that `hint` is ignored (other than possibly
-    /// asserting its validity in some build modes).
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value
-        && !bsl::is_convertible<LOOKUP_KEY&&, iterator>::value
-        && !bsl::is_convertible<LOOKUP_KEY&&, const_iterator>::value
-         , iterator>::type
-    insert(const_iterator hint, LOOKUP_KEY&& value)
-    {
-        BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                                            &comparisonResult,
-                                                            &d_tree,
-                                                            this->comparator(),
-                                                            value,
-                                                            hintNode);
-        if (!comparisonResult) {
-            return iterator(insertLocation);                          // RETURN
-        }
-
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
-
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-        return iterator(node);
-    }
-#endif
 
     /// Insert into this set the value of each `value_type` object in the
     /// range starting at the specified `first` iterator and ending

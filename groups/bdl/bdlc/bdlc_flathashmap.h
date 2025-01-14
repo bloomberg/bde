@@ -288,7 +288,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:32:17 2025
+// Generated on Tue Jan 14 14:16:03 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashmap.h
 
 # define COMPILING_BDLC_FLATHASHMAP_H
@@ -588,63 +588,14 @@ class FlatHashMap {
     /// the `key` and a default-constructed `VALUE`, and return a reference
     /// to the newly mapped value.  If `key` is movable, `key` is left in a
     /// (valid) unspecified state.
-    VALUE& operator[](const KEY& key);
-
-    /// Return a reference providing modifiable access to the mapped value
-    /// associated with the specified `key` in this map.  If this map does
-    /// not already contain an element having `key`, insert an element with
-    /// the `key` and a default-constructed `VALUE`, and return a reference
-    /// to the newly mapped value.  If `key` is movable, `key` is left in a
-    /// (valid) unspecified state.
-    VALUE& operator[](bslmf::MovableRef<KEY> key);
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-    /// Return a reference providing modifiable access to the mapped value
-    /// associated with the a key equivalent to the specified `key` in this
-    /// map.  If this map does not already contain an element eqivalent to
-    /// `key`, insert an element with the KEY constructed from
-    /// `std::forward<LOOKUP_KEY>(k)` and a default-constructed `VALUE`, and
-    /// return a reference to the newly mapped value.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , VALUE&>::type
-    operator[](LOOKUP_KEY&& key)
-    {
-        return try_emplace(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
-    }
-#endif   // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-#endif
+    template <class KEY_TYPE>
+    VALUE& operator[](BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key);
 
     /// Return a reference providing modifiable access to the mapped value
     /// associated with the specified `key` in this map, if such an entry
     /// exists; otherwise throw a `std::out_of_range` exception.  Note that
     /// this method is not exception-neutral.
     VALUE& at(const KEY& key);
-
-    /// Return a reference providing modifiable access to the mapped value
-    /// associated with a key that is equivalent to the specified `key` in this
-    /// map, if such an entry exists; otherwise throw a `std::out_of_range`
-    /// exception.  Note that this method is not exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , VALUE&>::type
-    at(const LOOKUP_KEY& key)
-    {
-        iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                             "FlatHashMap::at(LOOKUP_KEY): invalid key_value");
-        }
-        return iter->second;
-    }
 
     /// Remove all elements from this map.  Note that this map will be empty
     /// after calling this method, but allocated memory may be retained for
@@ -660,26 +611,6 @@ class FlatHashMap {
     /// map maintains unique keys, the range will contain at most one
     /// element.
     bsl::pair<iterator, iterator> equal_range(const KEY& key);
-
-    /// Return a pair of iterators defining the sequence of modifiable
-    /// elements in this map having a key equivalent to the specified `key`,
-    /// where the first iterator is positioned at the start of the sequence and
-    /// the second iterator is positioned one past the end of the sequence.  If
-    /// this map contains no elements having a key equivalent to `key`, then
-    /// the two returned iterators will have the same value.  Note that since a
-    /// map maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, iterator> >::type
-    equal_range(const LOOKUP_KEY& key)
-    {
-        return d_impl.equal_range(key);
-    }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Insert into this map a newly-created `value_type` object,
@@ -726,23 +657,6 @@ class FlatHashMap {
     /// element.
     bsl::size_t erase(const KEY& key);
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Remove from this map the element whose key is equivalent to the
-    /// specified `key`, if it exists, and return 1; otherwise (there is no
-    /// element equivalent to `key` in this map), return 0 with no other effect.
-    /// This method invalidates all iterators and references to the removed
-    /// element.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t>::type
-    erase(LOOKUP_KEY&& key)
-    {
-        return d_impl.erase(key);
-    }
-#endif
-
     /// Remove from this map the element at the specified `position`, and
     /// return an iterator referring to the modifiable element immediately
     /// following the removed element, or to the past-the-end position if
@@ -767,21 +681,6 @@ class FlatHashMap {
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
     iterator find(const KEY& key);
-
-    /// Return an `iterator` referring to the modifiable element in this map
-    /// having the key equivalent to the specified `key`, or `end()` if no such
-    /// entry exists in this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    find(const LOOKUP_KEY& key)
-    {
-        return iterator(d_impl.find(key));
-    }
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class VALUE_TYPE>
@@ -860,83 +759,6 @@ class FlatHashMap {
     void insert(bsl::initializer_list<value_type> values);
 #endif
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry,
-    /// and return an iterator to that entry and `false`.  Otherwise, insert a
-    /// new entry into the map with the and return an iterator to that entry
-    /// and `true`.  `obj` is left in a (valid) unspecified state.
-    template<class M>
-    bsl::pair<iterator, bool> insert_or_assign(const KEY& key, M&& obj);
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry,
-    /// and return an iterator to that entry and `false`.  Otherwise, insert a
-    /// new entry into the map with the and return an iterator to that entry
-    /// and `true`.  `obj` is left in a (valid) unspecified state.
-    template<class M>
-    bsl::pair<iterator, bool> insert_or_assign(
-                             BloombergLP::bslmf::MovableRef<KEY> key, M&& obj);
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry,
-    /// and return an iterator to that entry and `false`.  Otherwise, insert a
-    /// new entry into the map with the and return an iterator to that entry
-    /// and `true`.  `obj` is left in a (valid) unspecified state.
-    template <class LOOKUP_KEY, class M>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    insert_or_assign(LOOKUP_KEY&& key, M&& obj)
-    {
-        iterator iter = find(key);
-        if (iter != end()) {
-            iter->second = std::forward<M>(obj);
-            return make_pair(iter, false);                            // RETURN
-        }
-        return emplace(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                       BSLS_COMPILERFEATURES_FORWARD(M, obj));
-    }
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry.
-    /// Otherwise, insert a new entry into the map. Return an iterator to the
-    /// inserted or updated entry.  `obj` is left in a (valid) unspecified
-    /// state.
-    template <class MAPPED>
-    iterator insert_or_assign(const_iterator, const KEY& key, MAPPED&& obj);
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry.
-    /// Otherwise, insert a new entry into the map. Return an iterator to the
-    /// inserted or updated entry.  `obj` is left in a (valid) unspecified
-    /// state.
-    template <class MAPPED>
-    iterator insert_or_assign(const_iterator, 
-                              BloombergLP::bslmf::MovableRef<KEY> key, 
-                              MAPPED&& obj);
-
-    /// If this map contains an entry with a key equivalent to the specified
-    /// `key`, assign the specified `obj` to the `mapped_type` of that entry.
-    /// Otherwise, insert a new entry into the map. Return an iterator to the
-    /// inserted or updated entry.  `obj` is left in a (valid) unspecified
-    /// state.
-    template <class LOOKUP_KEY, class MAPPED>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    insert_or_assign(const_iterator, LOOKUP_KEY&& key, MAPPED&& obj)
-    {
-        return insert_or_assign(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                 BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-    }
-#endif
-
-
     /// Change the capacity of this map to at least the specified
     /// `minimumCapacity`, and redistribute all the contained elements into
     /// a new sequence of entries according to their hash values.  If
@@ -992,31 +814,6 @@ class FlatHashMap {
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                                      ARGS&&...                           args);
 
-    /// If a key equivalent to the specified `key` already exists in this map
-    /// return a pair containing an iterator referring to the existing
-    /// item and `false`.  Otherwise, insert into this map a newly-created
-    /// `value_type` object, constructed from `std::forward<LOOKUP_KEY>(key)`
-    /// and the specified `args`, and return a pair containing an iterator
-    /// referring to the newly-created entry, and `true`.  This method
-    /// requires that the (template parameter) types `KEY` and `VALUE` are
-    /// `emplace-constructible` from `key` and `args` respectively.  For
-    /// C++03, `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY, class... ARGS>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(LOOKUP_KEY&& key, ARGS&&... args)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
-    }
-
     /// If a key equivalent to the specified `key` already exists in this
     /// map, return an iterator referring to the existing item.  Otherwise,
     /// insert into this map a newly-created `value_type` object,
@@ -1041,35 +838,7 @@ class FlatHashMap {
     iterator try_emplace(const_iterator,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          ARGS&&...                           args);
-
-    /// If a key equivalent to the specified `key` already exists in this map
-    /// return an iterator referring to the existing item.  Otherwise, insert
-    /// into this map a newly-created `value_type` object, constructed from
-    /// `std::forward<LOOKUP_KEY>(key)` and the specified `args`, and return an
-    /// iterator referring to the newly-created entry.  This method requires
-    /// that the (template parameter) types `KEY` and `VALUE` are
-    /// `emplace-constructible` from `key` and `args` respectively.  For C++03,
-    /// `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY, class... ARGS>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator, LOOKUP_KEY&& key, ARGS&&... args)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...)
-                  ).first;
-    }
-
-#endif   // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+#endif
 #endif
 
                           // Iterators
@@ -1099,28 +868,6 @@ class FlatHashMap {
     /// that this method is not exception-neutral.
     const VALUE& at(const KEY& key) const;
 
-    /// Return a reference providing non-modifiable access to the mapped
-    /// value associated with a key that is equivalent to the specified `key`
-    /// in this map, if such an entry exists; otherwise throw a
-    /// `std::out_of_range` exception.  Note that this method is not
-    /// exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , const VALUE&>::type
-    at(const LOOKUP_KEY& key) const
-    {
-        const_iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                       "FlatHashMap::at(LOOKUP_KEY) const: invalid key_value");
-        }
-        return iter->second;
-    }
-
     /// Return the number of elements this map could hold if the load factor
     /// were 1.
     bsl::size_t capacity() const;
@@ -1129,39 +876,10 @@ class FlatHashMap {
     /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
 
-    /// Return `true` if this map contains an element whose key is equivalent
-    /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        &&  BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-        , bool>::type
-    contains(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end();
-    }
-
     /// Return the number of elements in this map having the specified
     /// `key`.  Note that since a flat hash map maintains unique keys, the
     /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-
-    /// Return the number of elements in this map having a key equivalent to
-    /// the specified `key`.  Note that since a flat hash map maintains unique
-    /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t >::type
-    count(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end() ? 1 : 0;
-    }
 
     /// Return `true` if this map contains no elements, and `false`
     /// otherwise.
@@ -1177,47 +895,10 @@ class FlatHashMap {
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
-    /// Return a pair of iterators providing non-modifiable access to the
-    /// sequence of `value_type` objects in this unordered map that are
-    /// equivalent to the specified `key`, where the first iterator is
-    /// positioned at the start of the sequence and the second iterator is
-    /// positioned one past the end of the sequence.  If this unordered map
-    /// contains no `value_type` objects equivalent to `key`, then the two
-    /// returned iterators will have the same value.  Note that since an
-    /// unordered map maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const
-    {
-        return d_impl.equal_range(key);
-    }
-
     /// Return a `const_iterator` referring to the element in this map
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
     const_iterator find(const KEY& key) const;
-
-    /// Return a `const_iterator` referring to the element in this map
-    /// having the specified `key`, or `end()` if no such entry exists in
-    /// this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , const_iterator>::type
-    find(const LOOKUP_KEY& key) const
-    {
-        return const_iterator(d_impl.find(key));
-    }
-
 
     /// Return (a copy of) the unary hash functor used by this map to
     /// generate a hash value (of type `bsl::size_t`) for a `KEY` object.
@@ -1633,17 +1314,12 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator=(
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class KEY_TYPE>
 inline
-VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](const KEY& key)
+VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](
+                               BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key)
 {
-    return d_impl[key].second;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-inline
-VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](bslmf::MovableRef<KEY> key)
-{
-    return d_impl[BSLS_COMPILERFEATURES_FORWARD(KEY, key)].second;
+    return d_impl[BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, key)].second;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1751,67 +1427,6 @@ void FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert(INPUT_ITERATOR first,
     d_impl.insert(first, last);
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const KEY& key,
-                                                       MAPPED&&   obj)
-{
-    iterator iter = find(key);
-    if (iter != end()) {
-        iter->second = std::forward<MAPPED>(obj);
-        return make_pair(iter, false);                            // RETURN
-    }
-    return emplace(key, BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(
-                                       BloombergLP::bslmf::MovableRef<KEY> key,
-                                       MAPPED&&                            obj)
-{
-    const KEY& lvalue = key;
-    iterator iter = find(lvalue);
-    if (iter != end()) {
-        iter->second = std::forward<MAPPED>(obj);
-        return make_pair(iter, false);                            // RETURN
-    }
-    return emplace(bslmf::MovableRefUtil::move(lvalue),
-                   BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator, 
-                                                       const KEY&      key,
-                                                       MAPPED&&        obj)
-{
-    return insert_or_assign(key, 
-                             BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(
-                                       const_iterator,
-                                       BloombergLP::bslmf::MovableRef<KEY> key,
-                                       MAPPED&&                            obj)
-{
-    const KEY& lvalue = key;
-    return insert_or_assign(bslmf::MovableRefUtil::move(lvalue),
-                            BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-}
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class KEY, class VALUE, class HASH, class EQUAL>
 void FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert(
@@ -1901,7 +1516,7 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
           std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...))
           .first;
 }
-#endif   // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+#endif
 #endif
 
                           // Iterators

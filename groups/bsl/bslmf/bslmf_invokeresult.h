@@ -230,7 +230,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:25 2025
+// Generated on Tue Jan 14 14:15:14 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 # define COMPILING_BSLMF_INVOKERESULT_H

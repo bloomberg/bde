@@ -128,12 +128,16 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Wed Dec 11 15:22:22 2024
+// Generated on Tue Jan 14 14:15:43 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_args.h
+
 # define COMPILING_BSLFMT_FORMAT_ARGS_H
 # include <bslfmt_format_args_cpp03.h>
 # undef COMPILING_BSLFMT_FORMAT_ARGS_H
+
+// clang-format on
 #else
 
 namespace BloombergLP {
