@@ -2580,13 +2580,13 @@ int main(int argc, const char *argv[])
         // Valid directory name, invalid input file.
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        #define VALID_DN  "/usr/include"
+        #define VALID_DN  "/usr"
 #else
         #define VALID_DN  "c:/windows"
 #endif
 
-        ASSERT(bdls::FilesystemUtil::isRegularFile(VALID_FN));
-        ASSERT(bdls::FilesystemUtil::isDirectory(VALID_DN));
+        ASSERTV(VALID_FN, bdls::FilesystemUtil::isRegularFile(VALID_FN));
+        ASSERTV(VALID_DN, bdls::FilesystemUtil::isDirectory(VALID_DN));
 
         static const struct Data {
             int         d_line;
