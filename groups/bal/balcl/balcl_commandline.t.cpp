@@ -5506,7 +5506,7 @@ int main(int argc, const char *argv[])
                           << "TESTING ORDER OF ARGUMENTS" << endl
                           << "==========================" << endl;
 
-        const int MAX_ARGC = 16;
+        const int MAX_ARGC = 32;
 
         if (verbose)
             cout << "\n\tTesting `u::isCompatibleOrdering` helper." << endl;
