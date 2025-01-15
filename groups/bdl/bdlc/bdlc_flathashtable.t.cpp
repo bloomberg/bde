@@ -45,12 +45,16 @@
 #include <bsls_compilerfeatures.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Dec  5 16:23:13 2024
+// Generated on Wed Jan 15 11:40:39 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.t.cpp
+
 # define COMPILING_BDLC_FLATHASHTABLE_T_CPP
 # include <bdlc_flathashtable_cpp03.t.cpp>
 # undef COMPILING_BDLC_FLATHASHTABLE_T_CPP
+
+// clang-format on
 #else
 
 using namespace BloombergLP;
