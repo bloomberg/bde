@@ -18,6 +18,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_cstdlib.h>  // `bsl::realloc`, `bsl::free`
@@ -62,8 +63,9 @@ using namespace bsl;
 // [ 1] void swap(bdljsn::JsonNull& a, b);
 // [ 3] void hashAppend(HASHALG& hashAlgorithm, const JsonNull& object);
 // ----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 // [ 2] CONCERN: All accessor methods are declared `const`.
+// [ 4] CONCERN: 'bdljsn::jsonNull' exists and has the expected value.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -188,7 +190,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -243,6 +245,40 @@ int main(int argc, char *argv[])
     swap(a, b);
     ASSERT(a == b);
 // ```
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'bdljsn::jsonNull''
+        //
+        // Concerns:
+        //: 1 The 'bdljsn::jsonNull' object exists at namespace scope,
+        //:   has the intended value, and is 'const'.
+        //
+        //  Plan:
+        //: 1 An ad hoc sequence of tests.
+        //
+        // Testing
+        //    CONCERN: 'bdljsn::jsonNull' exists and has the expected value.
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << bsl::endl
+                      << "TESTING 'bdljsn::jsonNull'" << bsl::endl
+                      << "==========================" << bsl::endl;
+        }
+
+        ASSERTV(bdljsn::jsonNull == Obj());  // The object exists at
+                                             // namespace scope and has the
+                                             // intended value.
+
+        bsl::ostringstream os;
+
+        ASSERT((&os == &bdljsn::jsonNull.print(os, 0, 0)));
+                                     // 'print' is 'const'-qualified, thus the
+                                     // object too must be 'const'-qualified.
+
+        ASSERTV(os.str(), "null\n" == os.str());
 
       } break;
       case 3: {
@@ -416,7 +452,11 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
-                const Obj X;  // Same value on each iteration.
+#if BSLS_PLATFORM_CMP_IBM
+                const Obj X = { };  // Same value on each iteration.
+#else
+                const Obj X;        // Same value on each iteration.
+#endif
 
                 for (int pass = 1; pass <= 2; ++pass) {
 

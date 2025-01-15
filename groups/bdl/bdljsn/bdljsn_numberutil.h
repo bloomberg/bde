@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 #include <bsla_nodiscard.h>
 #include <bslmf_assert.h>
 #include <bslmf_selecttrait.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
@@ -201,6 +202,8 @@ struct NumberUtil {
 
            // typed integer conversions
 
+// BDE_VERIFY pragma: -FABC01 // not in alphabetic order
+
     /// Load the specified `result` with the specified `value`, even if a
     /// non-zero status is returned (truncating fractional digits if
     /// necessary).  Return 0 on success, `k_OVERFLOW` if `value` is larger
@@ -215,10 +218,20 @@ struct NumberUtil {
     /// `true`.  Note that this operation will correctly handle exponents
     /// (e.g., a `value` of "0.00000000000000000001e20" will produce a `result`
     /// of 1).
-    static int asInt(int *result, const bsl::string_view& value);
-    static int asInt64(Int64 *result, const bsl::string_view& value);
-    static int asUint(unsigned int *result, const bsl::string_view& value);
-    static int asUint64(Uint64 *result, const bsl::string_view& value);
+    static int asShort(short           *result, const bsl::string_view& value);
+    static int asUshort(unsigned short *result, const bsl::string_view& value);
+    static int asInt  (int             *result, const bsl::string_view& value);
+    static int asUint (unsigned int    *result, const bsl::string_view& value);
+    static int asLong (long            *result, const bsl::string_view& value);
+    static int asUlong(unsigned long   *result, const bsl::string_view& value);
+    static int asLonglong
+                 (long long          *result, const bsl::string_view& value);
+    static int asUlonglong
+                 (unsigned long long *result, const bsl::string_view& value);
+    static int asInt64 (Int64        *result, const bsl::string_view& value);
+    static int asUint64(Uint64       *result, const bsl::string_view& value);
+
+// BDE_VERIFY pragma: +FABC01 // not in alphabetic order
 
             // generic integer conversion
 
@@ -250,9 +263,9 @@ struct NumberUtil {
 
     /// Load into the specified `result` a string representation of
     /// specified numerical `value`.
-    static void stringify(bsl::string *result, Int64 value);
-    static void stringify(bsl::string *result, Uint64 value);
-    static void stringify(bsl::string *result, double value);
+    static void stringify(bsl::string *result, long long                value);
+    static void stringify(bsl::string *result, unsigned long long       value);
+    static void stringify(bsl::string *result, double                   value);
     static void stringify(bsl::string *result, const bdldfp::Decimal64& value);
 
            // comparison
@@ -325,9 +338,9 @@ struct NumberUtil_ImpUtil {
     /// `NumberUtil::asInteger`.
     template <class t_INTEGER_TYPE>
     static int asIntegerDispatchImp(
-                           t_INTEGER_TYPE                    *result,
-                           const bsl::string_view&            value,
-                           bslmf::SelectTraitCase<NumberUtil_IsSigned>);
+                                  t_INTEGER_TYPE                    *result,
+                                  const bsl::string_view&            value,
+                                  bslmf::SelectTraitCase<NumberUtil_IsSigned>);
     template <class t_INTEGER_TYPE>
     static int asIntegerDispatchImp(t_INTEGER_TYPE           *result,
                                     const bsl::string_view&   value,
@@ -416,6 +429,8 @@ struct NumberUtil_ImpUtil {
                            // struct NumberUtil
                            // -----------------
 
+// BDE_VERIFY pragma: -FABC01 // not in alphabetic order
+
 inline
 double NumberUtil::asDouble(const bsl::string_view& value)
 {
@@ -446,7 +461,25 @@ float NumberUtil::asFloat(const bsl::string_view& value)
 }
 
 inline
+int NumberUtil::asShort(short *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
 int NumberUtil::asInt(int *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asLong(long *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asLonglong(long long *result, const bsl::string_view& value)
 {
     return asInteger(result, value);
 }
@@ -458,7 +491,26 @@ int NumberUtil::asInt64(Int64 *result, const bsl::string_view& value)
 }
 
 inline
+int NumberUtil::asUshort(unsigned short *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
 int NumberUtil::asUint(unsigned int *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asUlong(unsigned long *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asUlonglong(unsigned long long      *result,
+                            const bsl::string_view&  value)
 {
     return asInteger(result, value);
 }
@@ -472,6 +524,8 @@ int NumberUtil::asInteger(t_INTEGER_TYPE          *result,
                  !bsl::is_same<t_INTEGER_TYPE, bool>::value));
     return NumberUtil_ImpUtil::asInteger(result, value);
 }
+
+// BDE_VERIFY pragma: +FABC01 // not in alphabetic order
 
                          // -------------------------
                          // struct NumberUtil_ImpUtil

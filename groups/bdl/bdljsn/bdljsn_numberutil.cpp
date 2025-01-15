@@ -7,11 +7,15 @@ BSLS_IDENT_RCSID(bdljsn_numberutil_cpp, "$Id$ $CSID$")
 #include <bdlb_chartype.h>
 
 #include <bdlb_string.h>
+
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalutil.h>
+
 #include <bdlma_localsequentialallocator.h>
 
 #include <bslalg_numericformatterutil.h>
+
+#include <bsls_annotation.h>
 #include <bsls_log.h>
 
 #include <bsl_cctype.h>
@@ -26,18 +30,18 @@ namespace bdljsn {
 namespace {
 namespace u {
 
-static const bsls::Types::Uint64 INT64_MAX_VALUE =
+static const bsls::Types::Uint64 k_INT64_MAX_VALUE =
                                bsl::numeric_limits<bsls::Types::Int64>::max();
 
-static const bsls::Types::Uint64 UINT64_MAX_VALUE =
+static const bsls::Types::Uint64 k_UINT64_MAX_VALUE =
                                bsl::numeric_limits<bsls::Types::Uint64>::max();
-static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10 =
-                                                         UINT64_MAX_VALUE / 10;
-static const bsls::Types::Uint64 UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
-                                             UINT64_MAX_VALUE / 10000000000ULL;
-static const bsls::Types::Uint64 UINT64_MAX_VALUE_LAST_DIGIT = 5;
+static const bsls::Types::Uint64 k_UINT64_MAX_DIVIDED_BY_10 =
+                                                       k_UINT64_MAX_VALUE / 10;
+static const bsls::Types::Uint64 k_UINT64_MAX_DIVIDED_BY_10_TO_THE_10 =
+                                           k_UINT64_MAX_VALUE / 10000000000ULL;
+static const bsls::Types::Uint64 k_UINT64_MAX_VALUE_LAST_DIGIT = 5;
 
-static const bsls::Types::Uint64 POWER_OF_TEN_LOOKUP[] = {
+static const bsls::Types::Uint64 k_POWER_OF_TEN_LOOKUP[] = {
     1ULL,              // 1e0
     10ULL,             // 1e1
     100ULL,            // 1e2
@@ -207,7 +211,10 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     bool  isNeg, isExpNegative;
     Int64 exponentBias;
 
-    bsl::string_view integer, fraction, exponentStr, significantDigits;
+    bsl::string_view            integer,
+                                fraction,
+                                exponentStr,
+                                significantDigits;
     bsl::string_view::size_type significantDigitsDotOffset;
 
     ImpUtil::decompose(&isNeg,
@@ -243,12 +250,12 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
 
     int rc = ImpUtil::appendDigits(&uExponent, 0, exponentStr);
 
-    if (0 != rc || uExponent > u::UINT64_MAX_DIVIDED_BY_10) {
+    if (0 != rc || uExponent > u::k_UINT64_MAX_DIVIDED_BY_10) {
         if (isExpNegative) {
             *result = 0;
             return k_NOT_INTEGRAL;                                    // RETURN
         }
-        *result = u::UINT64_MAX_VALUE;
+        *result = u::k_UINT64_MAX_VALUE;
         return k_OVERFLOW;                                            // RETURN
     }
 
@@ -268,7 +275,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
     // from the exponent) to fit into a Uint64.
 
     if (numSigDigits + exponent > 20) {
-        *result = u::UINT64_MAX_VALUE;
+        *result = u::k_UINT64_MAX_VALUE;
         return k_OVERFLOW;                                            // RETURN
     }
 
@@ -320,11 +327,11 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
 
     Uint64 tmp;
     if (0 != ImpUtil::appendDigits(&tmp, 0, digits)) {
-        *result = u::UINT64_MAX_VALUE;
+        *result = u::k_UINT64_MAX_VALUE;
         return k_OVERFLOW;                                            // RETURN
     }
     if (0 != ImpUtil::appendDigits(&tmp, tmp, moreDigits)) {
-        *result = u::UINT64_MAX_VALUE;
+        *result = u::k_UINT64_MAX_VALUE;
         return k_OVERFLOW;                                            // RETURN
     }
 
@@ -333,8 +340,8 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         BSLS_ASSERT(exponent <= 19);  // sanity. tested above
 
         if (exponent >= 10) {
-            if (tmp > u::UINT64_MAX_DIVIDED_BY_10_TO_THE_10) {
-                *result = u::UINT64_MAX_VALUE;
+            if (tmp > u::k_UINT64_MAX_DIVIDED_BY_10_TO_THE_10) {
+                *result = u::k_UINT64_MAX_VALUE;
                 return k_OVERFLOW;                                    // RETURN
             }
             tmp *= 10000000000ULL;
@@ -344,13 +351,13 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         BSLS_ASSERT(exponent <= 9);  // sanity. tested above
 
         const bsls::Types::Uint64 uExponentMultiple =
-                                              u::POWER_OF_TEN_LOOKUP[exponent];
+                                            u::k_POWER_OF_TEN_LOOKUP[exponent];
 
-        if (u::UINT64_MAX_VALUE / uExponentMultiple >= tmp) {
+        if (u::k_UINT64_MAX_VALUE / uExponentMultiple >= tmp) {
             tmp *= uExponentMultiple;
         }
         else {
-            *result = u::UINT64_MAX_VALUE;
+            *result = u::k_UINT64_MAX_VALUE;
             return k_OVERFLOW;                                        // RETURN
         }
     }
@@ -361,7 +368,7 @@ int NumberUtil::asUint64(bsls::Types::Uint64     *result,
         // value is UINT64_MAX_VALUE plus some fraction, we prefer to report an
         // overflow.
 
-        return (tmp == u::UINT64_MAX_VALUE) ? k_OVERFLOW : k_NOT_INTEGRAL;
+        return (tmp == u::k_UINT64_MAX_VALUE) ? k_OVERFLOW : k_NOT_INTEGRAL;
                                                                       // RETURN
     }
 
@@ -410,10 +417,10 @@ int NumberUtil::asDecimal64Exact(bdldfp::Decimal64       *result,
 
     bsl::string dataString(value, &allocator);
 
-    // Note that there an issue in the inteldfp library with incorrect status
+    // Note that there an issue in the 'inteldfp' library with incorrect status
     // values returned for 0's with an exponent outside the valid range for a
-    // 'Decimal64'.  E.g., 0e200 will incorrectly return k_INEXACT.  The test
-    // driver function 'asDecimal64ExactOracle' provides an alternative
+    // 'Decimal64'.  E.g., '0e200' will incorrectly return 'k_INEXACT'.  The
+    // test driver function 'asDecimal64ExactOracle' provides an alternative
     // implementation that fixes that (but is far more complicated).
 
     int rc = bdldfp::DecimalUtil::parseDecimal64Exact(result,
@@ -507,11 +514,11 @@ bool NumberUtil::areEqual(const bsl::string_view& lhs,
     }
 
     // If computing the canonical exponent at any point requires values that
-    // cannot be represented as a int64, fall back to a string comparison.
+    // cannot be represented as a 'Int64', fall back to a string comparison.
 
-    if (lUExp > u::INT64_MAX_VALUE || rUExp > u::INT64_MAX_VALUE ||
-        u::INT64_MAX_VALUE - l.d_significantDigitsBias < lUExp ||
-        u::INT64_MAX_VALUE - r.d_significantDigitsBias < rUExp) {
+    if (lUExp > u::k_INT64_MAX_VALUE || rUExp > u::k_INT64_MAX_VALUE ||
+        u::k_INT64_MAX_VALUE - l.d_significantDigitsBias < lUExp ||
+        u::k_INT64_MAX_VALUE - r.d_significantDigitsBias < rUExp) {
         return compareNumberTextFallback(l, r);                       // RETURN
     }
 
@@ -619,7 +626,10 @@ bool NumberUtil::isIntegralNumber(const bsl::string_view& value)
     bool  isNeg, isExpNegative;
     Int64 exponentBias;
 
-    bsl::string_view integer, fraction, exponentStr, significantDigits;
+    bsl::string_view            integer,
+                                fraction,
+                                exponentStr,
+                                significantDigits;
     bsl::string_view::size_type significantDigitsDotOffset;
 
     ImpUtil::decompose(&isNeg,
@@ -651,7 +661,7 @@ bool NumberUtil::isIntegralNumber(const bsl::string_view& value)
     }
 
     // 'value' is integral if the canonical exponent for 'value' is >= 0 (see
-    // NumberUtil_Imp::decompose for an explantion of the canonical exponent).
+    // NumberUtil_Imp::decompose for an explanation of the canonical exponent).
     // A mathematical expression for this would be:
     //..
     // return 0 <= (isExpNegative ? -exponent : exponent) + exponentBias
@@ -670,8 +680,8 @@ bool NumberUtil::isIntegralNumber(const bsl::string_view& value)
 
 void NumberUtil::stringify(bsl::string *result, bsls::Types::Int64 value)
 {
-    typedef bslalg::NumericFormatterUtil NFU;
-    char  buffer[NFU::ToCharsMaxLength<bsls::Types::Int64>::k_VALUE];
+    typedef bslalg::NumericFormatterUtil NFUtil;
+    char  buffer[NFUtil::ToCharsMaxLength<bsls::Types::Int64>::k_VALUE];
     char *ret = bslalg::NumericFormatterUtil::toChars(
         buffer, buffer + sizeof buffer, value);
     BSLS_ASSERT(0 != ret);
@@ -681,8 +691,8 @@ void NumberUtil::stringify(bsl::string *result, bsls::Types::Int64 value)
 
 void NumberUtil::stringify(bsl::string *result, bsls::Types::Uint64 value)
 {
-    typedef bslalg::NumericFormatterUtil NFU;
-    char  buffer[NFU::ToCharsMaxLength<bsls::Types::Uint64>::k_VALUE];
+    typedef bslalg::NumericFormatterUtil NFUtil;
+    char  buffer[NFUtil::ToCharsMaxLength<bsls::Types::Uint64>::k_VALUE];
     char *ret = bslalg::NumericFormatterUtil::toChars(
         buffer, buffer + sizeof buffer, value);
     BSLS_ASSERT(0 != ret);
@@ -692,8 +702,8 @@ void NumberUtil::stringify(bsl::string *result, bsls::Types::Uint64 value)
 
 void NumberUtil::stringify(bsl::string *result, double value)
 {
-    typedef bslalg::NumericFormatterUtil NFU;
-    char  buffer[NFU::ToCharsMaxLength<double>::k_VALUE];
+    typedef bslalg::NumericFormatterUtil NFUtil;
+    char  buffer[NFUtil::ToCharsMaxLength<double>::k_VALUE];
     char *ret = bslalg::NumericFormatterUtil::toChars(
         buffer, buffer + sizeof buffer, value);
     BSLS_ASSERT(0 != ret);
@@ -727,9 +737,9 @@ int NumberUtil_ImpUtil::appendDigits(bsls::Types::Uint64     *result,
     bsl::string_view::const_iterator iter = digits.begin();
     while (iter != digits.end()) {
         const unsigned digitValue = *iter - '0';
-        if (value < u::UINT64_MAX_DIVIDED_BY_10 ||
-            (u::UINT64_MAX_DIVIDED_BY_10 == value &&
-             digitValue <= u::UINT64_MAX_VALUE_LAST_DIGIT)) {
+        if (value < u::k_UINT64_MAX_DIVIDED_BY_10 ||
+            (u::k_UINT64_MAX_DIVIDED_BY_10 == value &&
+             digitValue <= u::k_UINT64_MAX_VALUE_LAST_DIGIT)) {
             value = value * 10 + digitValue;
             ++iter;
         }
@@ -783,11 +793,11 @@ void NumberUtil_ImpUtil::decompose(
 
     bsl::string_view::const_iterator intEnd =
                               u::findFirstNonDigit(input.begin(), input.end());
-    bsl::string_view::size_type intLen = bsl::distance(input.begin(), intEnd);
-
+    bsl::string_view::size_type      intLen = bsl::distance(input.begin(),
+                                                            intEnd);
     *integer = input.substr(0, intLen);
 
-    bsl::string_view digits;
+    bsl::string_view            digits;
     bsl::string_view::size_type digitsDotOffset;
 
     // Iterate over the fractional digits.
@@ -824,8 +834,8 @@ void NumberUtil_ImpUtil::decompose(
     // 'digits' and 'digitsDotOffset' contain the non-canonical digits (and
     // decimal point) of 'value', from them we need to remove the leading and
     // trailing 0s to compute 'significantDigits',
-    // 'significantDigitsDotOffset', and 'signficantDigitsBias'.  Some
-    // example values:
+    // 'significantDigitsDotOffset', and 'signficantDigitsBias'.  Some example
+    // values:
     //..
     // | digits   | significantDigits | sigDigitsDotOffset | sigDigitsBias |
     // |----------|-------------------|--------------------|---------------|
@@ -844,8 +854,8 @@ void NumberUtil_ImpUtil::decompose(
     bsl::string_view::size_type firstSignificantDigit, lastSignificantDigit;
     bsl::string_view::size_type lastNotZero = digits.find_last_not_of('0');
 
-    // We ignore the fraction of 'digits' if there is no decimal point,
-    // or if the fraction 'digits' are all 0s.
+    // We ignore the fraction of 'digits' if there is no decimal point, or if
+    // the fraction 'digits' are all 0s.
 
     bool ignoreFraction =  digitsDotOffset == npos;
     if (!ignoreFraction && lastNotZero == digitsDotOffset) {
@@ -876,8 +886,8 @@ void NumberUtil_ImpUtil::decompose(
 
         lastSignificantDigit = lastNotZero;
 
-        *significantDigitsBias = -1LL * (lastSignificantDigit - integer->length());
-
+        *significantDigitsBias = -1LL * (lastSignificantDigit
+                                                          - integer->length());
         if (digits[0] != '0') {
             // E.g., "34.50"
             firstSignificantDigit = 0;
