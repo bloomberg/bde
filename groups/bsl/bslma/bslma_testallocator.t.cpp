@@ -1282,7 +1282,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) puts("Scope overrides stashed maximums and nesting");
         {
             StatisticsStashGuard guard(&mX);
-            const bslma::TestAllocatorStashedStatistics& saved = guard.d_stash;
 
             // Allocate and deallocate memory to raise the maximum above the
             // stashed maximums
