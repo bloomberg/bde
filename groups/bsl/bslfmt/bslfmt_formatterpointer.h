@@ -9,7 +9,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a formatter customization for pointer types
 //
 //@CLASSES:
-//  bslfmt::Formatter_PointerBase: formatter specialization for the pointers
+//  bsl::formatter<void *, t_CHAR>: formatter specialization for `void *`
+//  bsl::formatter<const void *, t_CHAR>: specialization for `const void *`
+//  bsl::formatter<bsl::nullptr_t, t_CHAR>: specialization for `bsl::nullptr_t`
 //
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for pointer types.
@@ -112,7 +114,7 @@ struct FormatterPointer_Nullptr
                                         bsl::nullptr_t,
                                         t_FORMAT_CONTEXT& formatContext) const;
 };
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -263,7 +265,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer_Nullptr<t_CHAR>::format(
                              formatContext);
     }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERPOINTER

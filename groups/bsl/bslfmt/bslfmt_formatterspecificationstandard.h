@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Private utility for use within BSL `format` standard spec parsers
 //
 //@CLASSES:
-//  FormatterSpecificationStandard: Utility to parse a standard format spec
+//  bslfmt::FormatterSpecificationStandard: utility to parse a format spec
 //
 //@DESCRIPTION: This component provides a mechanism to parse a formatting
 // string that is a "standard formatting specification" as defined by
@@ -46,7 +46,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-/// Namespace class holding enums used by `FormatterSpecificationSplitter`
+              // ===========================================
+              // struct FormatterSpecificationStandard_Enums
+              // ===========================================
+
+/// Namespace class holding enums used by `FormatterSpecificationStandard`
 class FormatterSpecificationStandard_Enums
 : public FormatterSpecificationSplitter_Enums {
   public:
@@ -99,6 +103,10 @@ class FormatterSpecificationStandard_Enums
     };
 };
 
+                 // =====================================
+                 // struct FormatterSpecificationStandard
+                 // =====================================
+
 /// A general mechanism to parse and validate a Standard format specification
 /// string for a given argument type.
 template <class t_CHAR>
@@ -115,12 +123,12 @@ class FormatterSpecificationStandard
     int           d_widthArgId;      // Width argument number
     int           d_precisionArgId;  // Precision argument number
 
-    // PRIVATE CLASS FUNCTIONS
+    // PRIVATE CLASS METHODS
 
     /// Parse, from the specified `typeString`, the requested format-type and
-    /// load it into the `d_formatTpe` of the specified `outSpec`. The
+    /// load it into the `d_formatTpe` of the specified `outSpec`.  The
     /// specified `category` determines the mapping table used from character
-    /// to format-type. This method will throw a `bsl::format_error` exception
+    /// to format-type.  This method will throw a `bsl::format_error` exception
     /// in case the `typeString` is not empty or a valid, single format
     /// character.
     static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
@@ -130,12 +138,7 @@ class FormatterSpecificationStandard
 
   public:
 
-    // CREATORS
-
-    /// Create an uninitialized `FormatterSpecificationStandard` object.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard();
-
-    // CLASS FUNCTIONS
+    // CLASS METHODS
 
     /// Parse a format string using the iterator-range from the specified
     /// `context` assuming it is a Standard format specification for arguments
@@ -161,6 +164,11 @@ class FormatterSpecificationStandard
     static void postprocess(FormatterSpecificationStandard *outSpec,
                             const t_FORMAT_CONTEXT&         context);
 
+    // CREATORS
+
+    /// Create an uninitialized `FormatterSpecificationStandard` object.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationStandard();
+
     // ACCESSORS
 
     /// Return a pointer to the character array that stores the parsed filler
@@ -176,33 +184,33 @@ class FormatterSpecificationStandard
     /// `filler()` unless the status is not `e_PARSING_PARSED` or
     /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
     /// exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCharacters() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCharacters() const;
 
     /// Return the display width of the code point represented by the array
     /// returned by `filler()` unless the status is not `e_PARSING_PARSED` or
     /// `e_PARSING_POSTPROCESSED` in which case throw a `bsl::format_error`
     /// exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 int           fillerCodePointDisplayWidth() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
 
     /// Return the enumerator representing the requested alignment unless the
     /// status is not at least `e_PARSING_PARSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment     alignment() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Alignment alignment() const;
 
     /// Return the enumerator representing the requested sign-treatment option
     /// unless the status is not at least `e_PARSING_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 Sign          sign() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 Sign sign() const;
 
     /// Return a boolean indicating if alternative formatting was requested
     /// unless the status is not at least `e_PARSING_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          alternativeFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool alternativeFlag() const;
 
     /// Return a boolean indicating if zero padding was requested unless the
     /// status is not at least `e_PARSING_PARSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          zeroPaddingFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool zeroPaddingFlag() const;
 
     /// Return an optional value representing the requested width unless the
     /// status is not `e_PARSING_POSTPROCESSED` in which case throw a
@@ -211,7 +219,7 @@ class FormatterSpecificationStandard
     /// integer, but after preprocessing it will have only two possible states:
     /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
-                                               postprocessedWidth() const;
+    postprocessedWidth() const;
 
     /// Return an optional value representing the requested precision unless
     /// the status is not `e_PARSING_POSTPROCESSED` in which case throw a
@@ -220,7 +228,7 @@ class FormatterSpecificationStandard
     /// integer, but after preprocessing it will have only two possible states:
     /// no value, or an integer value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
-                                               postprocessedPrecision() const;
+    postprocessedPrecision() const;
 
     /// Return a boolean indicating if the locale specific flag was present in
     /// the format specification unless the status is not at least
@@ -228,25 +236,351 @@ class FormatterSpecificationStandard
     /// indicating that error.  Note that the locale specific flag is not yet
     /// supported hence the attempt to format with a specification that has
     /// this flags set will result in an exception indicating that.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 bool          localeSpecificFlag() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
 
     /// Return the enumerator representing the requested format type requested
     /// unless the status is not at least `e_PARSING_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType    formatType() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
 };
 
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                // --------------------------------------------
-                // class FormatterSpecificationStandard<t_CHAR>
-                // --------------------------------------------
+                   // ------------------------------------
+                   // class FormatterSpecificationStandard
+                   // ------------------------------------
 
+// PRIVATE CLASS METHODS
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationStandard<t_CHAR>::parseType(
+                             FormatterSpecificationStandard        *outSpec,
+                             const bsl::basic_string_view<t_CHAR>&  typeString,
+                             Category                               category)
+{
+    // Handle empty string or empty specification.
+    if (typeString.empty()) {
+        switch (category) {
+          case e_CATEGORY_UNASSIGNED: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                 bsl::format_error("No default type for category"));   // THROW
+          } break;
+          case e_CATEGORY_STRING: {
+            outSpec->d_formatType = e_STRING_DEFAULT;
+          } break;
+          case e_CATEGORY_INTEGRAL: {
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
+          } break;
+          case e_CATEGORY_CHARACTER: {
+            outSpec->d_formatType = e_CHARACTER_CHARACTER;
+          } break;
+          case e_CATEGORY_BOOLEAN: {
+            outSpec->d_formatType = e_BOOLEAN_STRING;
+          } break;
+          case e_CATEGORY_FLOATING: {
+            outSpec->d_formatType = e_FLOATING_DEFAULT;
+          } break;
+          case e_CATEGORY_POINTER: {
+            outSpec->d_formatType = e_INTEGRAL_HEX;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                 bsl::format_error("No default type for category"));   // THROW
+          }
+        }
+        return;                                                       // RETURN
+    }
+
+    // Standard format strings only allow a single type character.
+    if (typeString.size() > 1) {
+        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        BSLS_THROW(
+          bsl::format_error("Standard types are single-character"));   // THROW
+    }
+
+    t_CHAR frontChar = typeString.front();
+
+    // The type character can only be ascii so we can do a simple cast.
+    char typeChar = (frontChar >= 0 && frontChar <= 0x7f)
+                        ? static_cast<char>(frontChar)
+                        : static_cast<char>(0);
+
+    switch (category) {
+      case e_CATEGORY_UNASSIGNED: {
+        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        BSLS_THROW(
+                 bsl::format_error("Invalid type for unassigned."));   // THROW
+      } break;
+      case e_CATEGORY_STRING: {
+        switch (typeChar) {
+          case 's': {
+            outSpec->d_formatType = e_STRING_DEFAULT;
+          } break;
+          case '?': {
+            outSpec->d_formatType = e_STRING_ESCAPED;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                     bsl::format_error("Invalid type for string."));   // THROW
+          }
+        }
+      } break;
+      case e_CATEGORY_INTEGRAL: {
+        switch (typeChar) {
+          case 'b': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY;
+          } break;
+          case 'B': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
+          } break;
+          case 'c': {
+            outSpec->d_formatType = e_INTEGRAL_CHARACTER;
+          } break;
+          case 'd': {
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
+          } break;
+          case 'o': {
+            outSpec->d_formatType = e_INTEGRAL_OCTAL;
+          } break;
+          case 'x': {
+            outSpec->d_formatType = e_INTEGRAL_HEX;
+          } break;
+          case 'X': {
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                   bsl::format_error("Invalid type for integers."));   // THROW
+          }
+        }
+      } break;
+      case e_CATEGORY_CHARACTER: {
+        switch (typeChar) {
+          case 'b': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY;
+          } break;
+          case 'B': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
+          } break;
+          case 'c': {
+            outSpec->d_formatType = e_CHARACTER_CHARACTER;
+          } break;
+          case 'd': {
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
+          } break;
+          case 'o': {
+            outSpec->d_formatType = e_INTEGRAL_OCTAL;
+          } break;
+          case 'x': {
+            outSpec->d_formatType = e_INTEGRAL_HEX;
+          } break;
+          case 'X': {
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
+          } break;
+          case '?': {
+            outSpec->d_formatType = e_CHARACTER_ESCAPED;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+            bsl::format_error("Invalid type for character types."));   // THROW
+          }
+        }
+      } break;
+      case e_CATEGORY_BOOLEAN: {
+        switch (typeChar) {
+          case 'b': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY;
+          } break;
+          case 'B': {
+            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
+          } break;
+          case 'd': {
+            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
+          } break;
+          case 'o': {
+            outSpec->d_formatType = e_INTEGRAL_OCTAL;
+          } break;
+          case 's': {
+            outSpec->d_formatType = e_BOOLEAN_STRING;
+          } break;
+          case 'x': {
+            outSpec->d_formatType = e_INTEGRAL_HEX;
+          } break;
+          case 'X': {
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                bsl::format_error("Invalid type for booleans."));      // THROW
+          }
+        }
+      } break;
+      case e_CATEGORY_FLOATING: {
+        switch (typeChar) {
+          case 'a': {
+            outSpec->d_formatType = e_FLOATING_HEX;
+          } break;
+          case 'A': {
+            outSpec->d_formatType = e_FLOATING_HEX_UC;
+          } break;
+          case 'e': {
+            outSpec->d_formatType = e_FLOATING_SCIENTIFIC;
+          } break;
+          case 'E': {
+            outSpec->d_formatType = e_FLOATING_SCIENTIFIC_UC;
+          } break;
+          case 'f': {
+            outSpec->d_formatType = e_FLOATING_FIXED;
+          } break;
+          case 'F': {
+            outSpec->d_formatType = e_FLOATING_FIXED_UC;
+          } break;
+          case 'g': {
+            outSpec->d_formatType = e_FLOATING_GENERAL;
+          } break;
+          case 'G': {
+            outSpec->d_formatType = e_FLOATING_GENERAL_UC;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+            bsl::format_error("Invalid type for floating points."));   // THROW
+          }
+        }
+      } break;
+      case e_CATEGORY_POINTER: {
+        switch (typeChar) {
+          case 'p': {
+            outSpec->d_formatType = e_INTEGRAL_HEX;
+          } break;
+          case 'P': {
+            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
+          } break;
+          default: {
+            outSpec->d_formatType = e_TYPE_UNASSIGNED;
+            BSLS_THROW(
+                   bsl::format_error("Invalid type for pointers."));   // THROW
+          }
+        }
+      } break;
+      default: {
+        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        BSLS_THROW(
+           bsl::format_error("Invalid type for default category."));   // THROW
+      }
+    }
+
+    if (e_TYPE_UNASSIGNED == outSpec->d_formatType) {
+        BSLS_THROW(
+        bsl::format_error("Failed to parse type (reason unknown)"));   // THROW
+    }
+}
+
+// CLASS METHODS
+
+template <class t_CHAR>
+template <class t_PARSE_CONTEXT>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+void FormatterSpecificationStandard<t_CHAR>::parse(
+                                      FormatterSpecificationStandard *outSpec,
+                                      t_PARSE_CONTEXT                *context,
+                                      Category                        category)
+{
+    BSLMF_ASSERT((
+        bsl::is_same<typename bsl::iterator_traits<
+                         typename t_PARSE_CONTEXT::const_iterator>::value_type,
+                     t_CHAR>::value));
+
+    typedef FormatterSpecificationNumericValue NumericValue;
+
+    outSpec->d_processingState = e_PARSING_PARSED;
+
+    const Sections sect = static_cast<Sections>(
+            e_SECTIONS_FILL_ALIGN |
+            e_SECTIONS_SIGN_FLAG |
+            e_SECTIONS_ALTERNATE_FLAG |
+            e_SECTIONS_ZERO_PAD_FLAG |
+            e_SECTIONS_WIDTH |
+            e_SECTIONS_PRECISION |
+            e_SECTIONS_LOCALE_FLAG |
+            e_SECTIONS_FINAL_SPECIFICATION);
+
+    FormatterSpecificationSplitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
+                                                   context,
+                                                   sect);
+
+    if (NumericValue::e_DEFAULT !=
+            outSpec->d_basicSplitter.rawPrecision().category() &&
+        e_CATEGORY_STRING != category &&
+        e_CATEGORY_FLOATING != category) {
+        BSLS_THROW(bsl::format_error("Standard specification parse failure "
+                                     "(precision is used with inappropriate "
+                                     "type)"));                        // THROW
+    }
+
+    parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
+
+    if (context->begin() == context->end() || *context->begin() == '}') {
+        return;                                                       // RETURN
+    }
+
+    BSLS_THROW(bsl::format_error("Standard specification parse failure "
+                                 "(invalid character)"));              // THROW
+}
+
+template <class t_CHAR>
+template <typename t_FORMAT_CONTEXT>
+void FormatterSpecificationStandard<t_CHAR>::postprocess(
+                                       FormatterSpecificationStandard *outSpec,
+                                       const t_FORMAT_CONTEXT&         context)
+{
+    if (outSpec->d_processingState == e_PARSING_UNINITIALIZED)
+        BSLS_THROW(bsl::format_error(
+              "Format standard specification '.parse' not called"));   // THROW
+
+    Splitter::postprocess(&outSpec->d_basicSplitter, context);
+
+    switch (outSpec->d_basicSplitter.postprocessedWidth().category()) {
+      case FormatterSpecificationNumericValue::e_DEFAULT: {
+      } break;
+      case FormatterSpecificationNumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
+            BSLS_THROW(
+                 bsl::format_error("Zero or negative width value"));   // THROW
+      } break;
+      default: {
+        BSLS_THROW(
+             bsl::format_error("Failed to find valid width value"));   // THROW
+      }
+    }
+
+    switch (outSpec->d_basicSplitter.postprocessedPrecision().category()) {
+      case FormatterSpecificationNumericValue::e_DEFAULT: {
+      } break;
+      case FormatterSpecificationNumericValue::e_VALUE: {
+        if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
+            BSLS_THROW(
+                     bsl::format_error("Negative precision value"));   // THROW
+      } break;
+      default: {
+        BSLS_THROW(
+         bsl::format_error("Failed to find valid precision value"));   // THROW
+      }
+    }
+
+    outSpec->d_processingState = e_PARSING_POSTPROCESSED;
+}
 
 // CREATORS
-
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatterSpecificationStandard<t_CHAR>::FormatterSpecificationStandard()
@@ -259,7 +593,6 @@ FormatterSpecificationStandard<t_CHAR>::FormatterSpecificationStandard()
 }
 
 // ACCESSORS
-
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR *FormatterSpecificationStandard<t_CHAR>::filler() const
@@ -343,345 +676,15 @@ FormatterSpecificationStandard<t_CHAR>::formatType() const
 {
     if (e_PARSING_UNINITIALIZED == d_processingState)
         BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
+              "Format standard specification '.parse' not called"));   // THROW
 
     return d_formatType;
 }
 
-// CLASS FUNCTIONS
-
-template <class t_CHAR>
-template <class t_PARSE_CONTEXT>
-BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationStandard<t_CHAR>::parse(
-                                      FormatterSpecificationStandard *outSpec,
-                                      t_PARSE_CONTEXT                *context,
-                                      Category                        category)
-{
-    BSLMF_ASSERT((
-        bsl::is_same<typename bsl::iterator_traits<
-                         typename t_PARSE_CONTEXT::const_iterator>::value_type,
-                     t_CHAR>::value));
-
-    typedef FormatterSpecificationNumericValue NumericValue;
-
-    outSpec->d_processingState = e_PARSING_PARSED;
-
-    const Sections sect = static_cast<Sections>(
-            e_SECTIONS_FILL_ALIGN |
-            e_SECTIONS_SIGN_FLAG |
-            e_SECTIONS_ALTERNATE_FLAG |
-            e_SECTIONS_ZERO_PAD_FLAG |
-            e_SECTIONS_WIDTH |
-            e_SECTIONS_PRECISION |
-            e_SECTIONS_LOCALE_FLAG |
-            e_SECTIONS_FINAL_SPECIFICATION);
-
-    FormatterSpecificationSplitter<t_CHAR>::parse(&outSpec->d_basicSplitter,
-                                                   context,
-                                                   sect);
-
-    if (NumericValue::e_DEFAULT !=
-            outSpec->d_basicSplitter.rawPrecision().category() &&
-        e_CATEGORY_STRING != category &&
-        e_CATEGORY_FLOATING != category) {
-        BSLS_THROW(bsl::format_error("Standard specification parse failure "
-                                     "(precision is used with inappropriate "
-                                     "type)"));                       // RETURN
-    }
-
-    parseType(outSpec, outSpec->d_basicSplitter.finalSpec(), category);
-
-    if (context->begin() == context->end() || *context->begin() == '}') {
-        return;                                                       // RETURN
-    }
-
-    BSLS_THROW(bsl::format_error("Standard specification parse failure "
-                                 "(invalid character)"));             // RETURN
-}
-
-template <class t_CHAR>
-template <typename t_FORMAT_CONTEXT>
-void FormatterSpecificationStandard<t_CHAR>::postprocess(
-                                       FormatterSpecificationStandard *outSpec,
-                                       const t_FORMAT_CONTEXT&         context)
-{
-    if (outSpec->d_processingState == e_PARSING_UNINITIALIZED)
-        BSLS_THROW(bsl::format_error(
-              "Format standard specification '.parse' not called"));  // RETURN
-
-    Splitter::postprocess(&outSpec->d_basicSplitter, context);
-
-    switch (outSpec->d_basicSplitter.postprocessedWidth().category()) {
-      case FormatterSpecificationNumericValue::e_DEFAULT: {
-      } break;
-      case FormatterSpecificationNumericValue::e_VALUE: {
-        if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
-            BSLS_THROW(
-                 bsl::format_error("Zero or negative width value"));  // RETURN
-      } break;
-      default: {
-        BSLS_THROW(
-             bsl::format_error("Failed to find valid width value"));  // RETURN
-      }
-    }
-
-    switch (outSpec->d_basicSplitter.postprocessedPrecision().category()) {
-      case FormatterSpecificationNumericValue::e_DEFAULT: {
-      } break;
-      case FormatterSpecificationNumericValue::e_VALUE: {
-        if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
-            BSLS_THROW(
-                     bsl::format_error("Negative precision value"));  // RETURN
-      } break;
-      default: {
-        BSLS_THROW(
-         bsl::format_error("Failed to find valid precision value"));  // RETURN
-      }
-    }
-
-    outSpec->d_processingState = e_PARSING_POSTPROCESSED;
-}
-
-// PRIVATE CLASS FUNCTIONS
-
-template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationStandard<t_CHAR>::parseType(
-                             FormatterSpecificationStandard        *outSpec,
-                             const bsl::basic_string_view<t_CHAR>&  typeString,
-                             Category                               category)
-{
-    // Handle empty string or empty specification.
-    if (typeString.empty()) {
-        switch (category) {
-          case e_CATEGORY_UNASSIGNED: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                 bsl::format_error("No default type for category"));  // RETURN
-          } break;
-          case e_CATEGORY_STRING: {
-            outSpec->d_formatType = e_STRING_DEFAULT;
-          } break;
-          case e_CATEGORY_INTEGRAL: {
-            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
-          } break;
-          case e_CATEGORY_CHARACTER: {
-            outSpec->d_formatType = e_CHARACTER_CHARACTER;
-          } break;
-          case e_CATEGORY_BOOLEAN: {
-            outSpec->d_formatType = e_BOOLEAN_STRING;
-          } break;
-          case e_CATEGORY_FLOATING: {
-            outSpec->d_formatType = e_FLOATING_DEFAULT;
-          } break;
-          case e_CATEGORY_POINTER: {
-            outSpec->d_formatType = e_INTEGRAL_HEX;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                 bsl::format_error("No default type for category"));  // RETURN
-          }
-        }
-        return;                                                       // RETURN
-    }
-
-    // Standard format strings only allow a single type character.
-    if (typeString.size() > 1) {
-        outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        BSLS_THROW(
-          bsl::format_error("Standard types are single-character"));  // RETURN
-    }
-
-    t_CHAR frontChar = typeString.front();
-
-    // The type character can only be ascii so we can do a simple cast.
-    char typeChar = (frontChar >= 0 && frontChar <= 0x7f)
-                        ? static_cast<char>(frontChar)
-                        : static_cast<char>(0);
-
-    switch (category) {
-      case e_CATEGORY_UNASSIGNED: {
-        outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        BSLS_THROW(
-                 bsl::format_error("Invalid type for unassigned."));  // RETURN
-      } break;
-      case e_CATEGORY_STRING: {
-        switch (typeChar) {
-          case 's': {
-            outSpec->d_formatType = e_STRING_DEFAULT;
-          } break;
-          case '?': {
-            outSpec->d_formatType = e_STRING_ESCAPED;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                     bsl::format_error("Invalid type for string."));  // RETURN
-          }
-        }
-      } break;
-      case e_CATEGORY_INTEGRAL: {
-        switch (typeChar) {
-          case 'b': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY;
-          } break;
-          case 'B': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
-          } break;
-          case 'c': {
-            outSpec->d_formatType = e_INTEGRAL_CHARACTER;
-          } break;
-          case 'd': {
-            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
-          } break;
-          case 'o': {
-            outSpec->d_formatType = e_INTEGRAL_OCTAL;
-          } break;
-          case 'x': {
-            outSpec->d_formatType = e_INTEGRAL_HEX;
-          } break;
-          case 'X': {
-            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                   bsl::format_error("Invalid type for integers."));  // RETURN
-          }
-        }
-      } break;
-      case e_CATEGORY_CHARACTER: {
-        switch (typeChar) {
-          case 'b': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY;
-          } break;
-          case 'B': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
-          } break;
-          case 'c': {
-            outSpec->d_formatType = e_CHARACTER_CHARACTER;
-          } break;
-          case 'd': {
-            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
-          } break;
-          case 'o': {
-            outSpec->d_formatType = e_INTEGRAL_OCTAL;
-          } break;
-          case 'x': {
-            outSpec->d_formatType = e_INTEGRAL_HEX;
-          } break;
-          case 'X': {
-            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
-          } break;
-          case '?': {
-            outSpec->d_formatType = e_CHARACTER_ESCAPED;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-            bsl::format_error("Invalid type for character types."));  // RETURN
-          }
-        }
-      } break;
-      case e_CATEGORY_BOOLEAN: {
-        switch (typeChar) {
-          case 'b': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY;
-          } break;
-          case 'B': {
-            outSpec->d_formatType = e_INTEGRAL_BINARY_UC;
-          } break;
-          case 'd': {
-            outSpec->d_formatType = e_INTEGRAL_DECIMAL;
-          } break;
-          case 'o': {
-            outSpec->d_formatType = e_INTEGRAL_OCTAL;
-          } break;
-          case 's': {
-            outSpec->d_formatType = e_BOOLEAN_STRING;
-          } break;
-          case 'x': {
-            outSpec->d_formatType = e_INTEGRAL_HEX;
-          } break;
-          case 'X': {
-            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                bsl::format_error("Invalid type for booleans."));  // RETURN
-          }
-        }
-      } break;
-      case e_CATEGORY_FLOATING: {
-        switch (typeChar) {
-          case 'a': {
-            outSpec->d_formatType = e_FLOATING_HEX;
-          } break;
-          case 'A': {
-            outSpec->d_formatType = e_FLOATING_HEX_UC;
-          } break;
-          case 'e': {
-            outSpec->d_formatType = e_FLOATING_SCIENTIFIC;
-          } break;
-          case 'E': {
-            outSpec->d_formatType = e_FLOATING_SCIENTIFIC_UC;
-          } break;
-          case 'f': {
-            outSpec->d_formatType = e_FLOATING_FIXED;
-          } break;
-          case 'F': {
-            outSpec->d_formatType = e_FLOATING_FIXED_UC;
-          } break;
-          case 'g': {
-            outSpec->d_formatType = e_FLOATING_GENERAL;
-          } break;
-          case 'G': {
-            outSpec->d_formatType = e_FLOATING_GENERAL_UC;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-            bsl::format_error("Invalid type for floating points."));  // RETURN
-          }
-        }
-      } break;
-      case e_CATEGORY_POINTER: {
-        switch (typeChar) {
-          case 'p': {
-            outSpec->d_formatType = e_INTEGRAL_HEX;
-          } break;
-          case 'P': {
-            outSpec->d_formatType = e_INTEGRAL_HEX_UC;
-          } break;
-          default: {
-            outSpec->d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                   bsl::format_error("Invalid type for pointers."));  // RETURN
-          }
-        }
-      } break;
-      default: {
-        outSpec->d_formatType = e_TYPE_UNASSIGNED;
-        BSLS_THROW(
-           bsl::format_error("Invalid type for default category."));  // RETURN
-      }
-    }
-
-    if (e_TYPE_UNASSIGNED == outSpec->d_formatType)
-        BSLS_THROW(
-        bsl::format_error("Failed to parse type (reason unknown)"));  // RETURN
-
-    return;
-}
-
-
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
-#endif  // INCLUDED_BSLFMT_FORMATTERBASE
+#endif  // INCLUDED_BSLFMT_FORMATTERSPECIFICATIONSTANDARD
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

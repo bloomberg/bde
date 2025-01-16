@@ -9,10 +9,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a string formatter for use by bsl::format
 //
 //@CLASSES:
-//  bsl::formatter: partial specialization for string types.
+//  bsl::formatter<t_CHAR *, t_CHAR>: formatter specialization for `t_CHAR *`
+//  bsl::formatter<const t_CHAR *, t_CHAR>: specialization for `const t_CHAR *`
+//  bsl::formatter<t_CHAR[N], t_CHAR> : specialization for character arrays
+//  bsl::formatter<std::basic_string, t_CHAR>: for `std::basic_string`
+//  bsl::formatter<bsl::basic_string, t_CHAR>: for `bsl::basic_string`
+//  bsl::formatter<bsl::basic_string_view, t_CHAR>: `bsl::basic_string_view`
 //
 //@DESCRIPTION: This component provides a partial specialization for the
-// `bsl::formatter` type covering the case for string formatting. This type
+// `bsl::formatter` type covering the case for string formatting.  This type
 // meets the requirements as specified in [formatter.requirements] and supports
 // all functionality supported by the C++20 `std::formatter` string type
 // specializations with the following exceptions:
@@ -173,17 +178,17 @@ struct FormatterString_Imp {
     typedef FormatterSpecificationStandard<t_CHAR> FSS;
 
     // DATA
-    FSS d_spec;    // Parsed specification.
+    FSS d_spec;  // parsed specification.
 
     // PRIVATE CLASS METHODS
 
     /// Given the specified `inputString` and `maxTotalDisplayWidth` find the
     /// maximal initial substring of `inputString` whose unicode display width
     /// (calculated using the rules in [format.string.std] does not exceed
-    /// `maxTotalDisplayWidth`. Update the specified `charactersUsed` with the
+    /// `maxTotalDisplayWidth`.  Update the specified `charactersUsed` with the
     /// number of characters of type `t_CHAR` in the maximal substring and
     /// update the specified `widthUsed` with the unicode display width of the
-    /// maximal substring. Throws an execption of type `bsl::format_error` in
+    /// maximal substring.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     static void findPrecisionLimitedString(
                          size_t                         *charactersUsed,
@@ -196,8 +201,8 @@ struct FormatterString_Imp {
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatImpl(
@@ -209,17 +214,17 @@ struct FormatterString_Imp {
 
     /// Parse and validate the specification string stored in the iterator
     /// accessed via the `begin()` method of the context passed via the
-    /// specified `pc` parameter. Where nested parameters are encounted in the
-    /// specification string then the `next_arg_id` and `check_arg_id` are
-    /// called on `fc` as specified in the C++ Standard. Returns an end
-    /// iterator of the parsed range. Throws an execption of type
+    /// specified `pc` parameter.  Where nested parameters are encountered in
+    /// the specification string then the `next_arg_id` and `check_arg_id` are
+    /// called on `fc` as specified in the C++ Standard.  Return an end
+    /// iterator of the parsed range.  Throw an exception of type
     /// `bsl::format_error` in the event of failure.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                           t_PARSE_CONTEXT& pc);
 };
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -229,7 +234,7 @@ namespace bsl {
                         // ==================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `char *` and
+/// `bsl::formatter` type.  It implements formatting for `char *` and
 /// `wchar_t *` types.
 template <class t_CHAR>
 struct formatter<t_CHAR *, t_CHAR>
@@ -246,8 +251,8 @@ struct formatter<t_CHAR *, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *value,
@@ -259,7 +264,7 @@ struct formatter<t_CHAR *, t_CHAR>
                      // ========================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `const char *` and
+/// `bsl::formatter` type.  It implements formatting for `const char *` and
 /// `const wchar_t *` types.
 template <class t_CHAR>
 struct formatter<const t_CHAR *, t_CHAR>
@@ -276,8 +281,8 @@ struct formatter<const t_CHAR *, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *value,
@@ -289,7 +294,7 @@ struct formatter<const t_CHAR *, t_CHAR>
                      // ===================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `char[]` and
+/// `bsl::formatter` type.  It implements formatting for `char[]` and
 /// `wchar_t[]` types.
 template <class t_CHAR, size_t t_SIZE>
 struct formatter<t_CHAR[t_SIZE], t_CHAR>
@@ -306,8 +311,8 @@ struct formatter<t_CHAR[t_SIZE], t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(const t_CHAR      *value,
@@ -319,7 +324,7 @@ struct formatter<t_CHAR[t_SIZE], t_CHAR>
                 // ===========================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `std::string` and
+/// `bsl::formatter` type.  It implements formatting for `std::string` and
 /// `std::wstring` types.
 template <class t_CHAR>
 struct formatter<std::basic_string<t_CHAR>, t_CHAR>
@@ -336,8 +341,8 @@ struct formatter<std::basic_string<t_CHAR>, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
@@ -350,7 +355,7 @@ struct formatter<std::basic_string<t_CHAR>, t_CHAR>
               // ===========================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `bsl::string` and
+/// `bsl::formatter` type.  It implements formatting for `bsl::string` and
 /// `bsl::wstring` types.
 template <class t_CHAR>
 struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
@@ -367,8 +372,8 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
@@ -383,8 +388,8 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
               // ================================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `std::string_view` and
-/// `std::wstring_view` types.
+/// `bsl::formatter` type.  It implements formatting for `std::string_view`
+/// and `std::wstring_view` types.
 template <class t_CHAR>
 struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
@@ -400,8 +405,8 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
@@ -417,7 +422,7 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
               // ================================================
 
 /// This component-private class provides the partial specialization of the
-/// `bsl::formatter` type. It implementes formatting for `bsl::string_view` and
+/// `bsl::formatter` type.  It implements formatting for `bsl::string_view` and
 /// `bsl::wstring_view` types.
 template <class t_CHAR>
 struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
@@ -434,8 +439,8 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
     /// Format the value in the specified `value` parameter according to the
     /// specification stored as a result of a previous call to the `parse`
     /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter. Returns an end iterator
-    /// of the output range. Throws an execption of type `bsl::format_error` in
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
@@ -561,7 +566,7 @@ void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
-                                       bsl::basic_string_view<t_CHAR> v,
+                                       bsl::basic_string_view<t_CHAR> value,
                                        t_FORMAT_CONTEXT&              fc) const
 {
     FSS final_spec(d_spec);
@@ -569,7 +574,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
     FSS::postprocess(&final_spec, fc);
 
     typedef FormatterSpecificationNumericValue FSNVAlue;
-    bsl::basic_string_view<t_CHAR>              sv(v);
+    bsl::basic_string_view<t_CHAR>              sv(value);
 
     FSNVAlue finalWidth(final_spec.postprocessedWidth());
 
@@ -693,137 +698,134 @@ FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& pc)
     return pc.begin();
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 
 namespace bsl {
 
-                     // ==================================
+                     // ----------------------------------
                      // struct formatter<t_CHAR *, t_CHAR>
-                     // ==================================
+                     // ----------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR *, t_CHAR>::format(
-                                                   const t_CHAR      *v,
+                                                   const t_CHAR      *value,
                                                    t_FORMAT_CONTEXT&  fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
-                  // ========================================
+                  // ----------------------------------------
                   // struct formatter<const t_CHAR *, t_CHAR>
-                  // ========================================
+                  // ----------------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator formatter<const t_CHAR *, t_CHAR>::format(
-                                                   const t_CHAR      *v,
+                                                   const t_CHAR      *value,
                                                    t_FORMAT_CONTEXT&  fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
-
-
-                    // ===================================
+                    // -----------------------------------
                     // struct formatter<t_CHAR[N], t_CHAR>
-                    // ===================================
+                    // -----------------------------------
 
 // ACCESSORS
 template <class t_CHAR, size_t t_SIZE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR[t_SIZE], t_CHAR>::format(
-                                                   const t_CHAR      *v,
+                                                   const t_CHAR      *value,
                                                    t_FORMAT_CONTEXT&  fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v, t_SIZE);
+    bsl::basic_string_view<t_CHAR> sv(value, t_SIZE);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
-                // ===========================================
+                // -------------------------------------------
                 // struct formatter<std::basic_string, t_CHAR>
-                // ===========================================
+                // -------------------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<std::basic_string<t_CHAR>, t_CHAR>::format(
-                                     const std::basic_string<t_CHAR>& v,
+                                     const std::basic_string<t_CHAR>& value,
                                      t_FORMAT_CONTEXT&                fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
-
-                // ===========================================
+                // -------------------------------------------
                 // struct formatter<bsl::basic_string, t_CHAR>
-                // ===========================================
+                // -------------------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<bsl::basic_string<t_CHAR>, t_CHAR>::format(
-                                     const bsl::basic_string<t_CHAR>& v,
+                                     const bsl::basic_string<t_CHAR>& value,
                                      t_FORMAT_CONTEXT&                fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-              // ================================================
+              // ------------------------------------------------
               // struct formatter<std::basic_string_view, t_CHAR>
-              // ================================================
+              // ------------------------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<std::basic_string_view<t_CHAR>, t_CHAR>::format(
-                                       std::basic_string_view<t_CHAR> v,
+                                       std::basic_string_view<t_CHAR> value,
                                        t_FORMAT_CONTEXT&              fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
-              // ================================================
+              // ------------------------------------------------
               // struct formatter<bsl::basic_string_view, t_CHAR>
-              // ================================================
+              // ------------------------------------------------
 
 // ACCESSORS
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
-                                       bsl::basic_string_view<t_CHAR> v,
+                                       bsl::basic_string_view<t_CHAR> value,
                                        t_FORMAT_CONTEXT&              fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(v);
+    bsl::basic_string_view<t_CHAR> sv(value);
     return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
-                                                                         fc);
+                                                                        fc);
 }
 
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED

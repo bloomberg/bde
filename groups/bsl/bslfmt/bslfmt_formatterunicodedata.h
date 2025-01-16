@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Private unicode data tables for use by `bsl::format`
 //
 //@CLASSES:
-//  FormatterUnicodeData: Namespace struct for generated unicode data tables.
+//  FormatterUnicodeData: namespace struct for generated unicode data tables
 //
 //@DESCRIPTION: This component is a namespace struct to provide access to
 // script-generated tables of unicode character data as required by
@@ -107,7 +107,7 @@ struct FormatterUnicodeData {
         // length of `s_doubleFieldWidthRanges` array
 };
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERUNICODEDATA

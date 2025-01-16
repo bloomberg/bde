@@ -31,7 +31,7 @@ namespace bslfmt {
 // s_doubleFieldWidthRanges comes from ucd/EastAsianWidth.txt.
 //
 // Codepoint ranges may not overlap, and, within one property, a codepoint may
-// only appear once. Furthermore the codepoint lower bounds appear in sorted
+// only appear once.  Furthermore the codepoint lower bounds appear in sorted
 // (ascending) order.
 
 
@@ -1414,7 +1414,7 @@ const FormatterUnicodeData::GraphemeBreakCategoryRange
 
 
 
-const int FormatterUnicodeData::s_graphemeBreakCategoryRangeCount = 
+const int FormatterUnicodeData::s_graphemeBreakCategoryRangeCount =
     sizeof(s_graphemeBreakCategoryRanges) / sizeof(GraphemeBreakCategoryRange);
 
 
@@ -1505,7 +1505,7 @@ const FormatterUnicodeData::BooleanRange
 
 
 
-const int FormatterUnicodeData::s_extendedPictographicRangeCount = 
+const int FormatterUnicodeData::s_extendedPictographicRangeCount =
     sizeof(s_extendedPictographicRanges) / sizeof(BooleanRange);
 
 
@@ -2230,7 +2230,7 @@ const FormatterUnicodeData::BooleanRange
 
 
 
-const int FormatterUnicodeData::s_printableRangeCount = 
+const int FormatterUnicodeData::s_printableRangeCount =
     sizeof(s_printableRanges) / sizeof(BooleanRange);
 
 
@@ -2606,7 +2606,7 @@ const FormatterUnicodeData::BooleanRange
 
 
 
-const int FormatterUnicodeData::s_graphemeExtendRangeCount = 
+const int FormatterUnicodeData::s_graphemeExtendRangeCount =
     sizeof(s_graphemeExtendRanges) / sizeof(BooleanRange);
 
 
@@ -2719,7 +2719,7 @@ const FormatterUnicodeData::BooleanRange
 
 
 
-const int FormatterUnicodeData::s_doubleFieldWidthRangeCount = 
+const int FormatterUnicodeData::s_doubleFieldWidthRangeCount =
     sizeof(s_doubleFieldWidthRanges) / sizeof(BooleanRange);
 
 

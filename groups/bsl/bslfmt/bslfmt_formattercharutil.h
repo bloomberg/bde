@@ -219,7 +219,7 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char value,
     return out;
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERCHARUTIL

@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities for testing custom formatters
 //
 //@CLASSES:
-//  FormatterTestUtil: Formatter test utilities
+//  FormatterTestUtil: formatter test utilities
 //
 //@DESCRIPTION: This component provides a utility to facilitate testing of
 // `bsl::formatter` partial specializations where, due to hierarchical reasons,
@@ -1384,9 +1384,9 @@ bool FormatterTestUtil<char>::testParseFormat(
                     BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING_P  fmt)
 {
     return FormatterTestUtil_Impl<char>::testParseFormat<t_TYPE>(
-                                 message,
-                                 alsoTestOracle,
-                                 fmt);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
 template <class t_TYPE>
@@ -1396,9 +1396,9 @@ bool FormatterTestUtil<char>::testParseVFormat(
                                   bsl::basic_string_view<char>  fmt)
 {
     return FormatterTestUtil_Impl<char>::testParseVFormat<t_TYPE>(
-                                 message,
-                                 alsoTestOracle,
-                                 fmt);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
 template <class t_TYPE>
@@ -1529,24 +1529,24 @@ bool FormatterTestUtil<wchar_t>::testParseFormat(
                     BSLFMT_FORMATTER_TEST_UTIL_WFORMAT_STRING_P fmt)
 {
     return FormatterTestUtil_Impl<wchar_t>::testParseFormat<t_TYPE>(
-                             message,
-                             alsoTestOracle,
-                             fmt);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
 template <class t_TYPE>
 bool FormatterTestUtil<wchar_t>::testParseVFormat(
-                    bsl::string                                *message,
-                    bool                                        alsoTestOracle,
-                    bsl::basic_string_view<wchar_t>             fmt)
+                               bsl::string                     *message,
+                               bool                             alsoTestOracle,
+                               bsl::basic_string_view<wchar_t>  fmt)
 {
     return FormatterTestUtil_Impl<wchar_t>::testParseVFormat<t_TYPE>(
-                             message,
-                             alsoTestOracle,
-                             fmt);
+                                                                message,
+                                                                alsoTestOracle,
+                                                                fmt);
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #undef BSLFMT_FORMATTER_TEST_UTIL_FORMAT_STRING

@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a base template for formatter specializations
 //
 //@CLASSES:
-//  bsl::formatter: standard-compliant formatter base template.
+//  bsl::formatter: standard-compliant formatter base template
 //
 //@DESCRIPTION: This component provides an base template of the C++20 Standard
 // Library's `formatter`, which provides a customization point for use defined
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // It also provides a mechanism, when the standard library `<format>` header is
 // available, to enable those partial specializations to be forwarded to the
 // `std` namespace to enable use of `std::format` as well as `bsl::format`
-// 
+//
 // Trait macros are provided to enable the prevention of that promotion where
 // formatters already exist in the `std` namespace. These traits will not
 // typically be used outside the `bslfmt` package.
@@ -145,7 +145,7 @@ struct FormatterBase_IsStdAliasingEnabled<
     typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
 };
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace std {

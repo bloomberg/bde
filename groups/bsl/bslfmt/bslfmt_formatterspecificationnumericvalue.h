@@ -413,7 +413,7 @@ FormatterSpecificationNumericValue_ArgVisitor::operator()(t_TYPE) const
     BSLS_THROW(bsl::format_error("Nested value argument must be integral"));
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERSPECIFICATIONNUMERICVALUE

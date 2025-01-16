@@ -119,7 +119,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -257,10 +256,7 @@ int main(int argc, char **argv)
             { L_,   "{:0<5x}",    "00000",      false  },
         };
 
-        enum {
-            NUM_CHAR_DATA = sizeof CHAR_DATA /
-                                     sizeof *CHAR_DATA
-        };
+        size_t NUM_CHAR_DATA = sizeof CHAR_DATA / sizeof *CHAR_DATA;
 
         static const struct {
             int            d_line;        // source line number
@@ -335,14 +331,11 @@ int main(int argc, char **argv)
             { L_,   L"{:0<5x}",    L"00000",      false  },
         };
 
-        enum {
-            NUM_WCHAR_DATA = sizeof WCHAR_DATA /
-                                     sizeof *WCHAR_DATA
-        };
+        size_t NUM_WCHAR_DATA = sizeof WCHAR_DATA / sizeof *WCHAR_DATA;
 
         if (verbose) printf("\tTesting runtime processing.\n");
 
-        for (int i = 0; i < NUM_CHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_CHAR_DATA; ++i) {
             const int   LINE     = CHAR_DATA[i].d_line;
             const char *FORMAT   = CHAR_DATA[i].d_format_p;
             const char *EXPECTED = CHAR_DATA[i].d_expected_p;
@@ -363,7 +356,7 @@ int main(int argc, char **argv)
             ASSERTV(LINE, FORMAT, message.c_str(), rv);
         }
 
-        for (int i = 0; i < NUM_WCHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_WCHAR_DATA; ++i) {
             const int      LINE     = WCHAR_DATA[i].d_line;
             const wchar_t *FORMAT   = WCHAR_DATA[i].d_format_p;
             const wchar_t *EXPECTED = WCHAR_DATA[i].d_expected_p;

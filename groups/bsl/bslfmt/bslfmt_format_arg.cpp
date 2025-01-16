@@ -1,9 +1,9 @@
-// bslstl_format_arg.cpp                                              -*-C++-*-
+// bslfmt_format_arg.cpp                                              -*-C++-*-
 
 #include <bslfmt_format_arg.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_format_arg_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

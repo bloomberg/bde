@@ -1,13 +1,13 @@
-// bslstl_formattercharacter.cpp                                      -*-C++-*-
+// bslfmt_formattercharacter.cpp                                      -*-C++-*-
 
 #include <bslfmt_formattercharacter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslstl_format_cpp, "$Id$ $CSID$")
-
-#include <bslmf_assert.h>
+BSLS_IDENT_RCSID(bslfmt_formattercharacter_cpp, "$Id$ $CSID$")
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+#include <bslmf_assert.h>
 
 BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
               bsl::formatter<char, char> >::value));

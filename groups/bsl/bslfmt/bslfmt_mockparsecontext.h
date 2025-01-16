@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide mock context to test formatter specializations
 //
 //@CLASSES:
-//  MockParseContext: Parsing context for use in formatter tests
+//  MockParseContext: parsing context for use in formatter tests
 //
 //@DESCRIPTION: This component provides a class that holds the format string
 // parsing state and is used for formatter testing.
@@ -77,7 +77,7 @@ namespace bslfmt {
 /// This class template provides an access to the format specification current
 /// parsing state.
 template <class t_CHAR>
-struct MockParseContext {
+class MockParseContext {
 
   public:
     // TYPES
@@ -118,7 +118,7 @@ struct MockParseContext {
     // MANIPULATORS
 
     /// Update the held iterator to the unparsed portion of the format string
-    /// to be the specified `it`. Subsequent calls to `begin` will return this
+    /// to be the specified `it`.  Subsequent calls to `begin` will return this
     /// value.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
 
@@ -128,8 +128,8 @@ struct MockParseContext {
     BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id();
 
     /// Check whether the specified `id` is in range of number of arguments and
-    /// enter manual indexing mode. Throw `bslfmt::format_error` if this object
-    /// has already entered automatic indexing mode.
+    /// enter manual indexing mode.  Throw `bslfmt::format_error` if this
+    /// object has already entered automatic indexing mode.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id);
 
     // ACCESSORS
@@ -234,7 +234,7 @@ MockParseContext<t_CHAR>::indexingMode() const BSLS_KEYWORD_NOEXCEPT
     return d_indexingMode;
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 

@@ -9,6 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a formatter customization for bool type
 //
 //@CLASSES:
+//  bsl::formatter<bool, t_CHAR>: formatter specialization for `bool`
 //
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for bool type.
@@ -98,7 +99,7 @@ struct FormatterBool_Imp : public FormatterIntegralBase<bool, t_CHAR> {
                                         t_FORMAT_CONTEXT& formatContext) const;
 };
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -124,9 +125,9 @@ struct formatter<bool, t_CHAR>
 namespace BloombergLP {
 namespace bslfmt {
 
-                         // --------------------
-                         // struct FormatterBool
-                         // --------------------
+                         // ------------------------
+                         // struct FormatterBool_Imp
+                         // ------------------------
 
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
@@ -185,7 +186,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
                              formatContext);
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBOOL

@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide mock context to test formatter specializations
 //
 //@CLASSES:
-//  MockFormatContext: Format context for use in formatter tests
+//  MockFormatContext: format context for use in formatter tests
 //
 //@DESCRIPTION: This component provides a class that holds the state of the
 // format operation and is used for formatter testing.
@@ -197,7 +197,7 @@ class MockFormatContext_Iterator {
 
 /// This
 template <class t_CHAR>
-struct MockFormatContext {
+class MockFormatContext {
   public:
     // TYPES
     typedef basic_format_arg<basic_format_context<t_CHAR *, t_CHAR> > Arg;
@@ -414,7 +414,7 @@ bsl::basic_string_view<t_CHAR> MockFormatContext<t_CHAR>::finalString() const
     return bsl::basic_string_view<t_CHAR>(d_buffer, d_iterator.rawPointer());
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 

@@ -73,13 +73,13 @@ class basic_format_parse_context {
     // CREATORS
 
     /// Create an instance of this type with the specified `fmt` parse string
-    /// and number of arguments set to zero. The string is stored by reference,
+    /// and number of arguments set to zero.  The string is stored by reference,
     /// so `fmt` must outlive this object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                      bsl::basic_string_view<t_CHAR> fmt) BSLS_KEYWORD_NOEXCEPT;
 
     /// Create an instance of this type with the specified `fmt` parse string
-    /// and number of arguments set to the specified `numArgs`. The string is
+    /// and number of arguments set to the specified `numArgs`.  The string is
     /// stored by reference, so `fmt` must outlive this object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit basic_format_parse_context(
                  bsl::basic_string_view<t_CHAR> fmt,
@@ -88,22 +88,22 @@ class basic_format_parse_context {
     // MANIPULATORS
 
     /// Update the held iterator to the unparsed portion of the format string
-    /// to be the specified `it`. Subsequent calls to `begin` will return this
+    /// to be the specified `it`.  Subsequent calls to `begin` will return this
     /// value.  The behavior is undefined unless `it` is a valid iterator to
     /// the format string used in construction of this context.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
 
-    /// Return the index of the next-unused argument. If the indexing mode is
-    /// unset, the indexing mode is set to `e_AUTOMATIC`. If the indexing mode
+    /// Return the index of the next-unused argument.  If the indexing mode is
+    /// unset, the indexing mode is set to `e_AUTOMATIC`.  If the indexing mode
     /// is `e_MANUAL`, caused by a previous call to `check_arg_id` then an
-    /// exception of type `format_error` is thrown. If there are no remaining
+    /// exception of type `format_error` is thrown.  If there are no remaining
     /// unused arguments then an exception of type `format_error` is thrown.
     BSLS_KEYWORD_CONSTEXPR_CPP20 size_t next_arg_id();
 
-    /// Check that the specified `id` is a valid argument index. If the
-    /// indexing mode is unset, the indexing mode is set to `e_MANUAL`. If the
+    /// Check that the specified `id` is a valid argument index.  If the
+    /// indexing mode is unset, the indexing mode is set to `e_MANUAL`.  If the
     /// indexing mode is `e_AUTOMATIC`, caused by a previous call to
-    /// `next_arg_id` then an exception of type `format_error` is thrown. If
+    /// `next_arg_id` then an exception of type `format_error` is thrown.  If
     /// `id` is not less than the number of arguments then an exception of type
     /// `format_error` is thrown.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void check_arg_id(size_t id);

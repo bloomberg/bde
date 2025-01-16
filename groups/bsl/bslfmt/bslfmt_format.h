@@ -166,8 +166,6 @@ BSLS_IDENT("$Id: $")
 
 #include <stdexcept>
 
-
-
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
 namespace bsl {
@@ -223,309 +221,307 @@ using std::wformat_string;
 // FREE FUNCTIONS
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` and return the result as a `bsl::string`. In the event
+/// specified `fmtStr` and return the result as a `bsl::string`.  In the event
 /// of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
-string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args);
+string format(format_string<t_ARGS...> fmtStr, t_ARGS&&... args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` and return the result. In the event of an error the
+/// specified `fmtStr` and return the result.  In the event of an error the
 /// exception `format_error` is thrown.
 template <class... t_ARGS>
-wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args);
+wstring format(wformat_string<t_ARGS...> fmtStr, t_ARGS&&... args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc` and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// specified `fmtStr` in the locale of the specified `loc` and return the
+/// result.  In the event of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 string format(const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc` and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// specified `fmtStr` in the locale of the specified `loc` and return the
+/// result.  In the event of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 wstring format(const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, using the specified `alloc` to supply memory (if
-/// required), and return the result. In the event of an error the exception
+/// specified `fmtStr`, using the specified `alloc` to supply memory (if
+/// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 template <class... t_ARGS>
 string format(allocator<char>          alloc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, using the specified `alloc` to supply memory (if
-/// required), and return the result. In the event of an error the exception
+/// specified `fmtStr`, using the specified `alloc` to supply memory (if
+/// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 template <class... t_ARGS>
 wstring format(allocator<wchar_t>        alloc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, using the
+/// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// result.  In the event of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 string format(allocator<char>          alloc,
               const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, using the
+/// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// result.  In the event of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
 wstring format(allocator<wchar_t>        alloc,
                const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args);
 
 /// Return an object, whose type is not specified, holding an array of
 /// `format_arg` types constructed from the specified `args`.  The type
 /// returned is implicitly convertible to a `format_args` holding a reference
-/// to the contained array. This function will statically assert if any of the
+/// to the contained array.  This function will statically assert if any of the
 /// specified template parameters `t_ARGS` is of type `long double`.
 template <class t_CONTEXT = std::format_context, class... t_ARGS>
 auto make_format_args(t_ARGS&... args);
 
-
 /// Return an object, whose type is not specified, holding an array of
 /// `wformat_arg` types constructed from the specified `args`.  The type
 /// returned is implicitly convertible to a `wformat_args` holding a reference
-/// to the contained array. This function will statically assert if any of the
+/// to the contained array.  This function will statically assert if any of the
 /// specified template parameters `t_ARGS` is of type `long double`.
 template <class... t_ARGS>
 auto make_wformat_args(t_ARGS&... args);
 
-
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write the result of this operation into the string
-/// addressed by the specified `out` parameter. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library, and the requires
-/// clause is necessary to avoid ambiguity.
+/// specified `fmtStr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library, and the
+/// requires clause is necessary to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 void format_to(t_STRING                 *out,
-               format_string<t_ARGS...>  fmtstr,
+               format_string<t_ARGS...>  fmtStr,
                t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write the result of this operation into the string
-/// addressed by the specified `out` parameter. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library, and the requires
-/// clause is necessary to avoid ambiguity.
+/// specified `fmtStr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library, and the
+/// requires clause is necessary to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 void format_to(t_STRING                  *out,
-               wformat_string<t_ARGS...>  fmtstr,
+               wformat_string<t_ARGS...>  fmtStr,
                t_ARGS&&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write the
+/// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library, and the requires clause is necessary to avoid
-/// ambiguity.
+/// parameter.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library, and the requires clause is necessary
+/// to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 void format_to(t_STRING                 *out,
                const std::locale&        loc,
-               format_string<t_ARGS...>  fmtstr,
+               format_string<t_ARGS...>  fmtStr,
                t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write the
+/// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library, and the requires clause is necessary to avoid
-/// ambiguity.
+/// parameter.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library, and the requires clause is necessary
+/// to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 void format_to(t_STRING                  *out,
                const std::locale&         loc,
-               wformat_string<t_ARGS...>  fmtstr,
+               wformat_string<t_ARGS...>  fmtStr,
                t_ARGS&&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// specified `fmtStr`, and write at most the specified `n` characters of the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. Return the number of characters that would have been written to
-/// `out` were such writing not truncated. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library, and the requires
-/// clause is necessary to avoid ambiguity.
+/// parameter.  Return the number of characters that would have been written to
+/// `out` were such writing not truncated.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library, and the
+/// requires clause is necessary to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 ptrdiff_t format_to_n(t_STRING                 *out,
                       ptrdiff_t                 n,
-                      format_string<t_ARGS...>  fmtstr,
+                      format_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write at most the specified `n` characters of the
+/// specified `fmtStr`, and write at most the specified `n` characters of the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. Return the number of characters that would have been written to
-/// `out` were such writing not truncated. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library, and the requires
-/// clause is necessary to avoid ambiguity.
+/// parameter.  Return the number of characters that would have been written to
+/// `out` were such writing not truncated.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library, and the
+/// requires clause is necessary to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 ptrdiff_t format_to_n(t_STRING                  *out,
                       ptrdiff_t                  n,
-                      wformat_string<t_ARGS...>  fmtstr,
+                      wformat_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write at most
+/// specified `fmtStr` in the locale of the specified `loc`, and write at most
 /// the specified `n` characters of the result of this operation into the
-/// string addressed by the specified `out` parameter. Return the number of
+/// string addressed by the specified `out` parameter.  Return the number of
 /// characters that would have been written to `out` were such writing not
-/// truncated. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library, and the requires clause is necessary to avoid
-/// ambiguity.
+/// truncated.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library, and the requires clause is necessary
+/// to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 ptrdiff_t format_to_n(t_STRING                 *out,
                       ptrdiff_t                 n,
                       const std::locale&        loc,
-                      format_string<t_ARGS...>  fmtstr,
+                      format_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...               args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write at most
+/// specified `fmtStr` in the locale of the specified `loc`, and write at most
 /// the specified `n` characters of the result of this operation into the
-/// string addressed by the specified `out` parameter. Return the number of
+/// string addressed by the specified `out` parameter.  Return the number of
 /// characters that would have been written to `out` were such writing not
-/// truncated. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library, and the requires clause is necessary to avoid
-/// ambiguity.
+/// truncated.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library, and the requires clause is necessary
+/// to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 ptrdiff_t format_to_n(t_STRING                  *out,
                       ptrdiff_t                  n,
                       const std::locale &        loc,
-                      wformat_string<t_ARGS...>  fmtstr,
+                      wformat_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` and return the result. In the event of an error the
+/// specified `fmtStr` and return the result.  In the event of an error the
 /// exception `format_error` is thrown.
-string vformat(std::string_view fmtstr, format_args args);
+string vformat(std::string_view fmtStr, format_args args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` and return the result. In the event of an error the
+/// specified `fmtStr` and return the result.  In the event of an error the
 /// exception `format_error` is thrown.
-wstring vformat(std::wstring_view fmtstr, wformat_args args);
+wstring vformat(std::wstring_view fmtStr, wformat_args args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc` and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// specified `fmtStr` in the locale of the specified `loc` and return the
+/// result.  In the event of an error the exception `format_error` is thrown.
 string vformat(const std::locale& loc,
-               std::string_view   fmtstr,
+               std::string_view   fmtStr,
                format_args        args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc` and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// specified `fmtStr` in the locale of the specified `loc` and return the
+/// result.  In the event of an error the exception `format_error` is thrown.
 wstring vformat(const std::locale& loc,
-                std::wstring_view  fmtstr,
+                std::wstring_view  fmtStr,
                 wformat_args       args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, using the specified `allocator` to supply memory (if
-/// required), and return the result. In the event of an error the exception
+/// specified `fmtStr`, using the specified `allocator` to supply memory (if
+/// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 string vformat(allocator<char>  alloc,
-               std::string_view fmtstr,
+               std::string_view fmtStr,
                format_args      args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, using the specified `allocator` to supply memory (if
-/// required), and return the result. In the event of an error the exception
+/// specified `fmtStr`, using the specified `allocator` to supply memory (if
+/// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 wstring vformat(allocator<wchar_t> alloc,
-                std::wstring_view  fmtstr,
+                std::wstring_view  fmtStr,
                 wformat_args       args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, using the
+/// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// result.  In the event of an error the exception `format_error` is thrown.
 string vformat(allocator<char>    alloc,
                const std::locale& loc,
-               std::string_view   fmtstr,
+               std::string_view   fmtStr,
                format_args        args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, using the
+/// specified `fmtStr` in the locale of the specified `loc`, using the
 /// specified `allocator` to supply memory (if required), and return the
-/// result. In the event of an error the exception `format_error` is thrown.
+/// result.  In the event of an error the exception `format_error` is thrown.
 wstring vformat(allocator<wchar_t> alloc,
                 const std::locale& loc,
-                std::wstring_view  fmtstr,
+                std::wstring_view  fmtStr,
                 wformat_args       args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write the result of this operation into the string
-/// addressed by the specified `out` parameter. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library.
-void vformat_to(string *out, std::string_view fmtstr, format_args args);
+/// specified `fmtStr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library.
+void vformat_to(string *out, std::string_view fmtStr, format_args args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr`, and write the result of this operation into the string
-/// addressed by the specified `out` parameter. In the event of an error the
-/// exception `format_error` is thrown. Behavior is undefined if `out` does not
-/// point to a valid `bsl::string` object. Note that this overload is provided
-/// in addition to the overloads in the standard library.
-void vformat_to(wstring *out, std::wstring_view fmtstr, wformat_args args);
+/// specified `fmtStr`, and write the result of this operation into the string
+/// addressed by the specified `out` parameter.  In the event of an error the
+/// exception `format_error` is thrown.  Behavior is undefined if `out` does
+/// not point to a valid `bsl::string` object.  Note that this overload is
+/// provided in addition to the overloads in the standard library.
+void vformat_to(wstring *out, std::wstring_view fmtStr, wformat_args args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write the
+/// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library.
+/// parameter.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library.
 void vformat_to(string             *out,
                 const std::locale&  loc,
-                std::string_view    fmtstr,
+                std::string_view    fmtStr,
                 format_args         args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtstr` in the locale of the specified `loc`, and write the
+/// specified `fmtStr` in the locale of the specified `loc`, and write the
 /// result of this operation into the string addressed by the specified `out`
-/// parameter. In the event of an error the exception `format_error` is thrown.
-/// Behavior is undefined if `out` does not point to a valid `bsl::string`
-/// object. Note that this overload is provided in addition to the overloads in
-/// the standard library.
+/// parameter.  In the event of an error the exception `format_error` is
+/// thrown.  Behavior is undefined if `out` does not point to a valid
+/// `bsl::string` object.  Note that this overload is provided in addition to
+/// the overloads in the standard library.
 void vformat_to(wstring            *out,
                 const std::locale&  loc,
-                std::wstring_view   fmtstr,
+                std::wstring_view   fmtStr,
                 wformat_args        args);
 
 
@@ -533,10 +529,7 @@ void vformat_to(wstring            *out,
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-
 // FREE FUNCTIONS
-
-
 template <class t_CONTEXT, class... t_ARGS>
 auto make_format_args(t_ARGS&... args)
 {
@@ -556,80 +549,80 @@ auto make_wformat_args(t_ARGS&... args)
 }
 
 template <class... t_ARGS>
-string format(format_string<t_ARGS...> fmtstr, t_ARGS&&... args)
+string format(format_string<t_ARGS...> fmtStr, t_ARGS&&... args)
 {
-    return bsl::vformat(fmtstr.get(),
+    return bsl::vformat(fmtStr.get(),
                         bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
-wstring format(wformat_string<t_ARGS...> fmtstr, t_ARGS&&... args)
+wstring format(wformat_string<t_ARGS...> fmtStr, t_ARGS&&... args)
 {
-    return bsl::vformat(fmtstr.get(),
+    return bsl::vformat(fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
 string format(const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args)
 {
     return bsl::vformat(loc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
 wstring format(const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args)
 {
     return bsl::vformat(loc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
 string format(allocator<char>          alloc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args)
 {
     return bsl::vformat(alloc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
 wstring format(allocator<wchar_t>        alloc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args)
 {
     return bsl::vformat(alloc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
 string format(allocator<char>          alloc,
               const std::locale&       loc,
-              format_string<t_ARGS...> fmtstr,
+              format_string<t_ARGS...> fmtStr,
               t_ARGS&&...              args)
 {
     return bsl::vformat(alloc,
                         loc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
 wstring format(allocator<char>           alloc,
                const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtstr,
+               wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args)
 {
     return bsl::vformat(alloc,
                         loc,
-                        fmtstr.get(),
+                        fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
 
@@ -710,22 +703,22 @@ wstring vformat(allocator<wchar_t> alloc,
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>) void format_to(
                                               t_STRING                 *out,
-                                              format_string<t_ARGS...>  fmtstr,
+                                              format_string<t_ARGS...>  fmtStr,
                                               t_ARGS&&...               args)
 {
     bsl::vformat_to(out,
-                    fmtstr.get(),
+                    fmtStr.get(),
                     bsl::make_format_args(args...));
 }
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 void format_to(t_STRING                  *out,
-               wformat_string<t_ARGS...>  fmtstr,
+               wformat_string<t_ARGS...>  fmtStr,
                t_ARGS&&...                args)
 {
     bsl::vformat_to(out,
-                    fmtstr.get(),
+                    fmtStr.get(),
                     bsl::make_wformat_args(args...));
 }
 
@@ -733,12 +726,12 @@ template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 void format_to(t_STRING                 *out,
                const std::locale&        loc,
-               format_string<t_ARGS...>  fmtstr,
+               format_string<t_ARGS...>  fmtStr,
                t_ARGS&&...               args)
 {
     bsl::vformat_to(out,
                     loc,
-                    fmtstr.get(),
+                    fmtStr.get(),
                     bsl::make_format_args(args...));
 }
 
@@ -746,12 +739,12 @@ template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 void format_to(t_STRING                  *out,
                const std::locale&         loc,
-               wformat_string<t_ARGS...>  fmtstr,
+               wformat_string<t_ARGS...>  fmtStr,
                t_ARGS&&...                args)
 {
     bsl::vformat_to(out,
                     loc,
-                    fmtstr.get(),
+                    fmtStr.get(),
                     bsl::make_wformat_args(args...));
 }
 
@@ -759,13 +752,13 @@ template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
 ptrdiff_t format_to_n(t_STRING                 *out,
                       ptrdiff_t                 n,
-                      format_string<t_ARGS...>  fmtstr,
+                      format_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...               args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
-                           fmtstr,
+                           fmtStr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
@@ -775,13 +768,13 @@ template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 ptrdiff_t format_to_n(t_STRING                  *out,
                       ptrdiff_t                  n,
-                      wformat_string<t_ARGS...>  fmtstr,
+                      wformat_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...                args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
-                           fmtstr,
+                           fmtStr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
@@ -791,14 +784,14 @@ requires(bsl::is_same_v<t_STRING, bsl::string>)
 ptrdiff_t format_to_n(t_STRING                 *out,
                       ptrdiff_t                 n,
                       const std::locale&        loc,
-                      format_string<t_ARGS...>  fmtstr,
+                      format_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...               args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
                            loc,
-                           fmtstr,
+                           fmtStr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }
@@ -808,14 +801,14 @@ requires(bsl::is_same_v<t_STRING, bsl::wstring>)
 ptrdiff_t format_to_n(t_STRING                  *out,
                       ptrdiff_t                  n,
                       const std::locale&         loc,
-                      wformat_string<t_ARGS...>  fmtstr,
+                      wformat_string<t_ARGS...>  fmtStr,
                       t_ARGS&&...                args)
 {
     out->clear();
     auto res = format_to_n(back_inserter(*out),
                            n,
                            loc,
-                           fmtstr,
+                           fmtStr,
                            std::forward<t_ARGS>(args)...);
     return res.size;
 }

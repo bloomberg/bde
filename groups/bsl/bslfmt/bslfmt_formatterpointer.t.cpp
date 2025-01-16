@@ -89,7 +89,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -218,7 +217,7 @@ int main(int argc, char **argv)
             { L_,   "{:*^12p}",  "*0x13579bdf*",   ptr,       true           },
         };
 
-        enum { NUM_CHAR_DATA = sizeof CHAR_DATA / sizeof *CHAR_DATA };
+        size_t NUM_CHAR_DATA = sizeof CHAR_DATA / sizeof *CHAR_DATA;
 
 
         static const struct {
@@ -269,11 +268,11 @@ int main(int argc, char **argv)
             { L_,   L"{:*^12p}", L"*0x13579bdf*",  ptr,       true           },
         };
 
-        enum { NUM_WCHAR_DATA = sizeof WCHAR_DATA / sizeof *WCHAR_DATA };
+        size_t NUM_WCHAR_DATA = sizeof WCHAR_DATA / sizeof *WCHAR_DATA;
 
         if (verbose) printf("\tTesting runtime processing.\n");
 
-        for (int i = 0; i < NUM_CHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_CHAR_DATA; ++i) {
             const int   LINE            = CHAR_DATA[i].d_line;
             const char *FORMAT          = CHAR_DATA[i].d_format_p;
             const char *EXPECTED        = CHAR_DATA[i].d_expected_p;
@@ -315,7 +314,7 @@ int main(int argc, char **argv)
             }
         }
 
-        for (int i = 0; i < NUM_WCHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_WCHAR_DATA; ++i) {
             const int      LINE            = WCHAR_DATA[i].d_line;
             const wchar_t *FORMAT          = WCHAR_DATA[i].d_format_p;
             const wchar_t *EXPECTED        = WCHAR_DATA[i].d_expected_p;

@@ -176,7 +176,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -297,12 +296,10 @@ int main(int argc, char **argv)
             { L_,   "{:#<5x}",    "5####",      5    },
         };
 
-        enum {
-            NUM_POSITIVE_CHAR_DATA = sizeof POSITIVE_CHAR_DATA /
-                                     sizeof *POSITIVE_CHAR_DATA
-        };
+        size_t NUM_POSITIVE_CHAR_DATA = sizeof POSITIVE_CHAR_DATA /
+                                        sizeof *POSITIVE_CHAR_DATA;
 
-         static const struct {
+        static const struct {
             int         d_line;        // source line number
             const char *d_format_p;    // format spec
             const char *d_expected_p;  // format
@@ -342,10 +339,8 @@ int main(int argc, char **argv)
             { L_,   "{:X}",        "-C",           -12   },
         };
 
-        enum {
-            NUM_NEGATIVE_CHAR_DATA = sizeof NEGATIVE_CHAR_DATA /
-                                     sizeof *NEGATIVE_CHAR_DATA
-        };
+        size_t NUM_NEGATIVE_CHAR_DATA = sizeof NEGATIVE_CHAR_DATA /
+                                        sizeof *NEGATIVE_CHAR_DATA;
 
         static const struct {
             int            d_line;        // source line number
@@ -399,10 +394,8 @@ int main(int argc, char **argv)
             { L_,   L"{:#<5x}",    L"5####",      5    },
         };
 
-        enum {
-            NUM_POSITIVE_WCHAR_DATA = sizeof POSITIVE_WCHAR_DATA /
-                                     sizeof *POSITIVE_WCHAR_DATA
-        };
+        size_t NUM_POSITIVE_WCHAR_DATA = sizeof POSITIVE_WCHAR_DATA /
+                                         sizeof *POSITIVE_WCHAR_DATA;
 
         static const struct {
             int            d_line;        // source line number
@@ -444,12 +437,10 @@ int main(int argc, char **argv)
             { L_,   L"{:X}",        L"-C",           -12   },
         };
 
-        enum {
-            NUM_NEGATIVE_WCHAR_DATA = sizeof NEGATIVE_WCHAR_DATA /
-                                     sizeof *NEGATIVE_WCHAR_DATA
-        };
+        size_t NUM_NEGATIVE_WCHAR_DATA = sizeof NEGATIVE_WCHAR_DATA /
+                                         sizeof *NEGATIVE_WCHAR_DATA;
 
-        for (int i = 0; i < NUM_POSITIVE_CHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_POSITIVE_CHAR_DATA; ++i) {
             const int           LINE     = POSITIVE_CHAR_DATA[i].d_line;
             const char         *FORMAT   = POSITIVE_CHAR_DATA[i].d_format_p;
             const char         *EXPECTED = POSITIVE_CHAR_DATA[i].d_expected_p;
@@ -481,7 +472,7 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 
-        for (int i = 0; i < NUM_NEGATIVE_CHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_NEGATIVE_CHAR_DATA; ++i) {
             const int        LINE     = NEGATIVE_CHAR_DATA[i].d_line;
             const char      *FORMAT   = NEGATIVE_CHAR_DATA[i].d_format_p;
             const char      *EXPECTED = NEGATIVE_CHAR_DATA[i].d_expected_p;
@@ -496,7 +487,7 @@ int main(int argc, char **argv)
 
         if (verbose) printf("\tTesting wstrings.\n");
 
-        for (int i = 0; i < NUM_POSITIVE_WCHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_POSITIVE_WCHAR_DATA; ++i) {
             const int            LINE     = POSITIVE_WCHAR_DATA[i].d_line;
             const wchar_t       *FORMAT   = POSITIVE_WCHAR_DATA[i].d_format_p;
             const wchar_t       *EXPECTED =
@@ -526,7 +517,7 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 
-        for (int i = 0; i < NUM_NEGATIVE_WCHAR_DATA; ++i) {
+        for (size_t i = 0; i < NUM_NEGATIVE_WCHAR_DATA; ++i) {
             const int        LINE     = NEGATIVE_WCHAR_DATA[i].d_line;
             const wchar_t   *FORMAT   = NEGATIVE_WCHAR_DATA[i].d_format_p;
             const wchar_t   *EXPECTED = NEGATIVE_WCHAR_DATA[i].d_expected_p;

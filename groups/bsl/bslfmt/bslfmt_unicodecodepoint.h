@@ -201,7 +201,6 @@ int UnicodeCodePoint::codePointWidth() const
 }  // close package namespace
 }  // close enterprise namespace
 
-
 #endif  // INCLUDED_BSLFMT_UNICODECODEPOINT
 
 // ----------------------------------------------------------------------------

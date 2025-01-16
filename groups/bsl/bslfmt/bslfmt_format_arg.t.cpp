@@ -444,7 +444,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -490,7 +489,7 @@ int main(int argc, char **argv)
         //     As it is not possible to access a contained handle in order to
         //     test handle::format other than using the visitor pattern, the
         //     visitor test must be combined with the handle::format test
-        // 
+        //
         // Concerns:
         //: 1 For all constructed types of 'bslfmt::basic_format_arg' we can
         //:   use the visitor member and free functions to extract the
@@ -568,7 +567,7 @@ int main(int argc, char **argv)
         {
             bool value = true;
             WFA arg   = makeTestArg<wchar_t>(value);
-            
+
             TestVisitor<wchar_t> visitor;
 
             arg.visit(visitor);
@@ -1618,7 +1617,7 @@ int main(int argc, char **argv)
       case 4: {
         // --------------------------------------------
         // TESTING BASIC ACCESSORS
-        // 
+        //
         // Concerns:
         //: 1 `operator BoolType()` for a default constructed
         //:   `bslfmt::basic_format_arg` will return false;
@@ -1748,7 +1747,7 @@ int main(int argc, char **argv)
       case 2: {
         // --------------------------------------------
         // TESTING PRIMARY MANIPULATORS: Not Applicable
-        // 
+        //
         // Testing:
         //   PRIMARY MANIPULATORS: Not Applicable
         // --------------------------------------------

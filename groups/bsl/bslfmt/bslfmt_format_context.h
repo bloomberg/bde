@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 ///Example: 1 Testing a user defined formatter's `format` method.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
-// are only a very limited number of public methods so this example is
+// directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
+// there are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
 // Suppose we have a user-defined formatter and want to test its `format`
@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 //  };
 // ```
 //
-// We can then write a test function. Note that it is not possible for users to
-// construct a context directly, so we are forced to abuse the
+// We can then write a test function.  Note that it is not possible for users
+// to construct a context directly, so we are forced to abuse the
 // internal-use-only types `Format_ContextOutputIteratorRef` and
 // `Format_ContextFactory` in order to write this usage example.
 //
@@ -152,9 +152,9 @@ typedef basic_format_context<Format_ContextOutputIteratorRef<char>, char>
 typedef basic_format_context<Format_ContextOutputIteratorRef<wchar_t>, wchar_t>
     wformat_context;
 
-               // ----------------------------------------------
-               // class Format_ContextOutputIteratorBase<t_CHAR>
-               // ----------------------------------------------
+               // ======================================
+               // class Format_ContextOutputIteratorBase
+               // ======================================
 
 /// This component-private type is an abstract base required to type-erase
 /// output iterators as required by the `format_context` and `wformat_context`
@@ -164,18 +164,18 @@ class Format_ContextOutputIteratorBase {
   public:
     // MANIPULATORS
 
-    /// Write the specified `character` to the contained iterator then
-    /// increment the contained iterator.
+    /// Write the specified `character` to the contained iterator and then
+    /// increment this iterator.
     virtual void put(t_CHAR character) = 0;
 };
 
-           // ------------------------------------------------------
-           // class Format_ContextOutputIteratorImpl<t_CHAR, t_ITER>
-           // ------------------------------------------------------
+                // ======================================
+                // class Format_ContextOutputIteratorImpl
+                // ======================================
 
 /// This type holds a reference to an iterator, and is used to type-erase
 /// output iterators as required by the `format_context` and `wformat_context`
-/// typedefs. It is solely for private use by other components of the `bslfmt`
+/// typedefs.  It is solely for private use by other components of the `bslfmt`
 /// package and should not be used directly.
 template <class t_CHAR, class t_ITER>
 class Format_ContextOutputIteratorImpl
@@ -193,25 +193,25 @@ class Format_ContextOutputIteratorImpl
 
     // MANIPULATORS
 
-    /// Write the specified `character` to the contained iterator then
-    /// increment the contained iterator.
+    /// Write the specified `character` to the contained iterator and then
+    /// increment this iterator.
     void put(t_CHAR character) BSLS_KEYWORD_OVERRIDE;
 };
 
-               // ---------------------------------------------
-               // class Format_ContextOutputIteratorRef<t_CHAR>
-               // ---------------------------------------------
+                  // =====================================
+                  // class Format_ContextOutputIteratorRef
+                  // =====================================
 
 /// This class provides a type-erased interface to an output iterator that it
 /// holds indirectly via a reference to a `Format_ContextOutputIteratorImpl`
-/// type. It is solely for private use by other components of the `bslfmt`
+/// type.  It is solely for private use by other components of the `bslfmt`
 /// package and should not be used directly.
 template <class t_CHAR>
 class Format_ContextOutputIteratorRef {
   private:
     // DATA
     Format_ContextOutputIteratorBase<t_CHAR> *d_base_p;
-        // Pointer to Format_ContextOutputIteratorImpl
+        // pointer to `Format_ContextOutputIteratorImpl`
 
   public:
     // TYPES
@@ -223,7 +223,7 @@ class Format_ContextOutputIteratorRef {
 
     // CREATORS
 
-    /// Construct an instance of this type. The specified `base` should be a
+    /// Create an instance of this type.  The specified `base` should be a
     /// pointer to an `Format_ContextOutputIteratorImpl` type whose lifetime
     /// must outlive that of the constructed instance.
     Format_ContextOutputIteratorRef(
@@ -231,7 +231,7 @@ class Format_ContextOutputIteratorRef {
 
     // MANIPULATORS
 
-    /// Return a reference to `*this`. This method is provided to enable this
+    /// Return a reference to `*this`.  This method is provided to enable this
     /// type to satisfy the requirements of [output.iterators].
     Format_ContextOutputIteratorRef& operator*();
 
@@ -242,18 +242,18 @@ class Format_ContextOutputIteratorRef {
     /// iterator then being incremented.
     void operator=(t_CHAR x);
 
-    /// Do nothing. This method is provided to enable this type to satisfy the
+    /// Do nothing.  This method is provided to enable this type to satisfy the
     /// requirements of [output.iterators].
     Format_ContextOutputIteratorRef& operator++();
 
-    /// Do nothing. This method is provided to enable this type to satisfy the
+    /// Do nothing.  This method is provided to enable this type to satisfy the
     /// requirements of [output.iterators].
     Format_ContextOutputIteratorRef operator++(int);
 };
 
-                 // -----------------------------------------
-                 // class basic_format_context<t_OUT, t_CHAR>
-                 // -----------------------------------------
+                        // ==========================
+                        // class basic_format_context
+                        // ==========================
 
 /// A format context for use by `formatter::format()` partial specialization.
 /// It provides access to the output iterator for writing the formatted value
@@ -266,7 +266,7 @@ class basic_format_context {
 
     // DATA
     basic_format_args<basic_format_context> d_args;  // format arguments
-    t_OUT                                   d_out;   // futput iterator
+    t_OUT                                   d_out;   // output iterator
 
   public:
     // TYPES
@@ -281,8 +281,8 @@ class basic_format_context {
   private:
     // PRIVATE CREATORS
 
-    /// Create a context that contains a copies of the output iterator
-    /// specified by `out` and of the arguments specified by `args`.
+    /// Create a context that contains a copies of the specified output
+    /// iterator `out` and of the specified arguments `args`.
     basic_format_context(t_OUT                                          out,
                          const basic_format_args<basic_format_context>& args);
 
@@ -296,32 +296,32 @@ class basic_format_context {
     /// Update the contained iterator to that specified by `it`.
     void advance_to(iterator it);
 
-    /// Return (by value) the contained output iterator. As this is returned by
-    /// value, any changes will not be reflected in the contained iterator
+    /// Return (by value) the contained output iterator.  As this is returned
+    /// by value, any changes will not be reflected in the contained iterator
     /// unless a subsequent call to `advance_to` is made.
     iterator out();
 
     // ACCESSORS
 
     /// Return a `basic_format_arg` type for the argument in the position
-    /// specified by `id`, with indexing starting at zero. If `id` is not less
+    /// specified by `id`, with indexing starting at zero.  If `id` is not less
     /// than the number of contained arguments, a default-constructed
     /// `basic_format_arg` object is returned.
     Arg arg(size_t id) const BSLS_KEYWORD_NOEXCEPT;
 };
 
-                        // ---------------------------
+                        // ===========================
                         // class Format_ContextFactory
-                        // ---------------------------
+                        // ===========================
 
 /// This class provides utility functions to enable manipulation of types
-/// declared by this component. It is solely for private use by other
+/// declared by this component.  It is solely for private use by other
 /// components of the `bslfmt` package and should not be used directly.
 class Format_ContextFactory {
   public:
     // CLASS METHODS
 
-    /// Construct a `basic_format_context` object holding the specified `out`
+    /// Create a `basic_format_context` object holding the specified `out`
     /// output iterator and a `basic_format_args` object containing the
     /// specified `fmt_args` values.
     template <class t_OUT, class t_CHAR>
@@ -335,23 +335,23 @@ class Format_ContextFactory {
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-           // ------------------------------------------------------
-           // class Format_ContextOutputIteratorImpl<t_CHAR, t_ITER>
-           // ------------------------------------------------------
+                 // --------------------------------------
+                 // class Format_ContextOutputIteratorImpl
+                 // --------------------------------------
 
 // CREATORS
 template <class t_CHAR, class t_ITER>
 inline
-Format_ContextOutputIteratorImpl<t_CHAR, t_ITER>::Format_ContextOutputIteratorImpl(
-                                                                  t_ITER& iter)
+Format_ContextOutputIteratorImpl<t_CHAR, t_ITER>::
+    Format_ContextOutputIteratorImpl(t_ITER& iter)
 : d_iter(iter)
 {
-    typedef typename bsl::iterator_traits<t_ITER>::value_type valuetype;
+    typedef typename bsl::iterator_traits<t_ITER>::value_type ValueType;
 
     // We allow void because the standard library
     // `back_insert_iterator` has a `value_type` of `void`.
-    BSLMF_ASSERT((bsl::is_same<valuetype, void>::value ||
-                  bsl::is_same<valuetype, t_CHAR>::value));
+    BSLMF_ASSERT((bsl::is_same<ValueType, void>::value ||
+                  bsl::is_same<ValueType, t_CHAR>::value));
 }
 
 // MANIPULATORS
@@ -363,9 +363,9 @@ void Format_ContextOutputIteratorImpl<t_CHAR, t_ITER>::put(t_CHAR character)
     ++d_iter;
 }
 
-               // ---------------------------------------------
-               // class Format_ContextOutputIteratorRef<t_CHAR>
-               // ---------------------------------------------
+                    // -------------------------------------
+                    // class Format_ContextOutputIteratorRef
+                    // -------------------------------------
 
 // CREATORS
 template <class t_CHAR>
@@ -408,12 +408,11 @@ Format_ContextOutputIteratorRef<t_CHAR>::operator++(int)
     return *this;
 }
 
-                 // -----------------------------------------
-                 // class basic_format_context<t_OUT, t_CHAR>
-                 // -----------------------------------------
+                          // --------------------------
+                          // class basic_format_context
+                          // --------------------------
 
 // PRIVATE CREATORS
-
 template <class t_OUT, class t_CHAR>
 inline
 basic_format_context<t_OUT, t_CHAR>::basic_format_context(
@@ -425,7 +424,6 @@ basic_format_context<t_OUT, t_CHAR>::basic_format_context(
 }
 
 // MANIPULATORS
-
 template <class t_OUT, class t_CHAR>
 inline
 typename basic_format_context<t_OUT, t_CHAR>::iterator
@@ -442,7 +440,6 @@ void basic_format_context<t_OUT, t_CHAR>::advance_to(iterator it)
 }
 
 // ACCESSORS
-
 template <class t_OUT, class t_CHAR>
 inline
 typename basic_format_context<t_OUT, t_CHAR>::Arg
@@ -456,7 +453,6 @@ basic_format_context<t_OUT, t_CHAR>::arg(size_t id) const BSLS_KEYWORD_NOEXCEPT
                         // ---------------------------
 
 // CLASS METHODS
-
 template <class t_OUT, class t_CHAR>
 inline
 basic_format_context<t_OUT, t_CHAR> Format_ContextFactory::construct(
@@ -467,8 +463,8 @@ basic_format_context<t_OUT, t_CHAR> Format_ContextFactory::construct(
 }
 
 
-}  // close namespace bslfmt
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMAT_CONTEXT
 

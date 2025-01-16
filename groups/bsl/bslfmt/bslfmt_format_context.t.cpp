@@ -167,7 +167,7 @@ void testFormatter(bslfmt::format_args args)
     bslfmt::Format_ContextOutputIteratorImpl<
         char, bsl::back_insert_iterator<bsl::string> >
                                            iter(backiter);
-    bslfmt::format_context fc = 
+    bslfmt::format_context fc =
         bslfmt::Format_ContextFactory::construct(
                       bslfmt::Format_ContextOutputIteratorRef<char>(&iter),
                       args);
@@ -187,7 +187,6 @@ int main(int argc, char **argv)
 {
     const int  test    = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose = argc > 2;
-    // const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -236,7 +235,7 @@ int main(int argc, char **argv)
 //      }
 //  };
 //..
-// 
+//
 // We can then write a test function. Note that it is not possible for users
 // to construct a context directly, so we are forced to abuse the
 // internal-use-only types `Format_ContextOutputIteratorRef` and
@@ -263,7 +262,7 @@ int main(int argc, char **argv)
 //      bslfmt::Format_ContextOutputIteratorImpl<
 //          char, bsl::back_insert_iterator<bsl::string> >
 //                                             iter(backiter);
-//      bslfmt::format_context fc = 
+//      bslfmt::format_context fc =
 //          bslfmt::Format_ContextFactory::construct(
 //                       bslfmt::Format_ContextOutputIteratorRef<char>(&iter),
 //                       args);
@@ -401,7 +400,7 @@ int main(int argc, char **argv)
       case 4: {
         // --------------------------------------------
         // TESTING BASIC ACCESSORS
-        // 
+        //
         // Concerns:
         //: 1 `get()` outside the range of contained values
         //:    will return a default-constructed `basic_format_arg`.

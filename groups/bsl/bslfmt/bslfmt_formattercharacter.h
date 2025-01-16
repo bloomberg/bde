@@ -125,9 +125,9 @@ struct FormatterCharacter_MakeUnsigned<wchar_t, 8> {
                                           // `wchar_t`
 };
 
-                         // =========================================
-                         // struct FormatterCharacter_CharacterOutput
-                         // =========================================
+                // =========================================
+                // struct FormatterCharacter_CharacterOutput
+                // =========================================
 
 /// This struct provides a function that outputs the specified `value` to the
 /// specified `out`.
@@ -213,7 +213,7 @@ struct FormatterCharacter_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
                                         t_VALUE           value,
                                         t_FORMAT_CONTEXT& formatContext) const;
 };
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -312,7 +312,7 @@ FormatterCharacter_Imp<t_VALUE, t_CHAR>::format(
     }
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERCHARACTER

@@ -9,9 +9,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a formatter customization for floating point types
 //
 //@CLASSES:
-// template bsl::formatter<float, t_CHAR>:       formatter for `float`
-// template bsl::formatter<double, t_CHAR>:      formatter for `double`
-// template bsl::formatter<long double, t_CHAR>: disabled formatter
+//  bsl::formatter<float, t_CHAR>:       formatter template for `float`
+//  bsl::formatter<double, t_CHAR>:      formatter template for `double`
+//  bsl::formatter<long double, t_CHAR>: disabled formatter template
 //
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for floating point types.  The component defines a
@@ -98,9 +98,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                 // ======================================
-                 // template struct FormatterFloating_Base
-                 // ======================================
+                 // =============================
+                 // struct FormatterFloating_Base
+                 // =============================
 
 /// This class template provides the implementation for all possible floating
 /// point formatting styles and the parsing of the format specification.  The
@@ -279,9 +279,9 @@ struct FormatterFloating_Base {
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                 // --------------------------------------
-                 // template struct FormatterFloating_Base
-                 // --------------------------------------
+                     // -----------------------------
+                     // struct FormatterFloating_Base
+                     // -----------------------------
 
 // PRIVATE CLASS METHODS
 template <class t_VALUE, class t_CHAR>
@@ -290,9 +290,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::applyDefaultAlternate(
                                                           char   *buf,
                                                           size_t  numberLength)
 {
-    // Note that this method has to work with 3 substantially
-    // different-looking formats: scientific, fixed, and the special values
-    // (NaN, infinity).
+    // Note that this method has to work with 3 substantially different-looking
+    // formats: scientific, fixed, and the special values (NaN, infinity).
 
     {
         const char lastChar = buf[numberLength - 1];
@@ -311,8 +310,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::applyDefaultAlternate(
     }
 
     if (dotPos == k_NO_POS) {
-        // When here, we need to insert the decimal point before the `e`
-        // if present, or at the end if we printed fixed-form.
+        // When here, we need to insert the decimal point before the `e` if
+        // present, or at the end if we printed fixed-form.
 
         size_t ePos = k_NO_POS;
         for (size_t i = 0; i < numberLength; ++i) {
@@ -365,10 +364,10 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::applyGeneralAlternate(
                                                           int     precision)
 {
     // This method adds a decimal point if it is not present and re-adds the
-    // removed trailing zeros up to the specified `precision` as required
-    // for the alternate format of the generic (`g` and `G`) formats.  Note
-    // that this method has to work with 3 substantially different-looking
-    // formats: scientific, fixed, and the special value (NaN, infinity).
+    // removed trailing zeros up to the specified `precision` as required for
+    // the alternate format of the generic (`g` and `G`) formats.  Note that
+    // this method has to work with 3 substantially different-looking formats:
+    // scientific, fixed, and the special value (NaN, infinity).
 
     {
         const char lastChar = buf[numberLength - 1];
@@ -394,8 +393,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::applyGeneralAlternate(
     }
 
     if (dotPos == k_NO_POS) {
-        // When here, we need to insert the decimal point before the `e`
-        // if present, or at the end if we printed fixed-form.
+        // When here, we need to insert the decimal point before the `e` if
+        // present, or at the end if we printed fixed-form.
 
         if (k_NO_POS == ePos) {
             buf[numberLength] = '.';
@@ -408,8 +407,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::applyGeneralAlternate(
         ++numberLength;
     }
 
-    // Alternate form also has to "put back" all removed trailing zeros
-    // up to the specified precision.
+    // Alternate form also has to "put back" all removed trailing zeros up to
+    // the specified precision.
     const ptrdiff_t digits = (k_NO_POS == ePos)
                             ? numberLength - 1
                             : ePos - 1;
@@ -1034,7 +1033,7 @@ struct formatter<long double, t_CHAR> {
 
 }  // close namespace bsl
 
-#endif  // INCLUDED_BSLFMT_FORMATTERBASE
+#endif  // INCLUDED_BSLFMT_FORMATTERFLOATING
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

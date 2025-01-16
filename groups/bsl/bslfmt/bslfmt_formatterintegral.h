@@ -9,6 +9,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a formatter customization for integer types
 //
 //@CLASSES:
+//  bsl::formatter<short, t_CHAR>: formatter specialization for `short`
+//  bsl::formatter<unsigned short, t_CHAR>: specialization for `unsigned short`
+//  bsl::formatter<int, t_CHAR>: formatter specialization for `int`
+//  bsl::formatter<unsigned, t_CHAR>: formatter specialization for `unsigned`
+//  bsl::formatter<long, t_CHAR>: formatter specialization for `long`
+//  bsl::formatter<unsigned long, t_CHAR>:  specialization for `unsigned long`
+//  bsl::formatter<long long, t_CHAR>: formatter specialization for `long long`
+//  bsl::formatter<unsigned long long, t_CHAR>: for `unsigned long long`
 //
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for integer types.
@@ -243,7 +251,7 @@ struct FormatterIntegral_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
                                         t_FORMAT_CONTEXT& formatContext) const;
 };
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -374,6 +382,7 @@ FormatterIntegral_Category<wchar_t>::category()
 {
     return FormatterSpecificationStandard_Enums::e_CATEGORY_CHARACTER;
 }
+
                          // ---------------------------
                          // class FormatterIntegralBase
                          // ---------------------------
@@ -727,9 +736,9 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::specification() const
     return d_spec;
 }
 
-                        // ============================
+                        // ----------------------------
                         // struct FormatterIntegral_Imp
-                        // ============================
+                        // ----------------------------
 
 template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
@@ -769,7 +778,7 @@ FormatterIntegral_Imp<t_VALUE, t_CHAR>::format(
                              formatContext);
 }
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BSLFMT_FORMATTERINTEGRAL
