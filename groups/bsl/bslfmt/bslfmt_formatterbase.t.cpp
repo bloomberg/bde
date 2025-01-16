@@ -13,10 +13,8 @@
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
 
-
 using namespace BloombergLP;
 using namespace bsl;
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -84,14 +82,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-namespace {
+namespace test_formatters {
 
                       // ==============================
                       // struct FormatterWithMacroTrait
                       // ==============================
 
 /// This struct provides a test class that simulates a custom formatter with a
-/// special type that prevents this formatter from being promoted to the `std`
+/// special trait that prevents this formatter from being promoted to the `std`
 /// namespace declared using conditional macro.
 struct FormatterWithMacroTrait {
     // TYPES
@@ -104,7 +102,7 @@ struct FormatterWithMacroTrait {
                       // =================================
 
 /// This struct provides a test class that simulates a custom formatter with an
-/// explicitly declared type that prevents this formatter from being promoted
+/// explicitly declared trait that prevents this formatter from being promoted
 /// to the `std` namespace.
 struct FormatterWithExplicitTrait {
     // TYPES
@@ -117,12 +115,16 @@ struct FormatterWithExplicitTrait {
                       // ============================
 
 /// This struct provides a test class that simulates a custom formatter with a
-/// missing type preventing this formatter from being promoted to the `std`
+/// missing trait preventing this formatter from being promoted to the `std`
 /// namespace.
 struct FormatterWithoutTrait {
     // TYPES
     typedef void ExistenceMarker;
 };
+
+}  // close namespace test_formatters
+
+namespace {
 
                       // =========================
                       // struct TestTypeMacroTrait
@@ -182,21 +184,21 @@ namespace bsl {
 /// `TestTypeMacroTrait`.
 template <class t_CHAR>
 struct formatter<TestTypeMacroTrait, t_CHAR>
-: FormatterWithMacroTrait {
+: test_formatters::FormatterWithMacroTrait {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the test type
 /// `TestTypeWithoutTrait`.
 template <class t_CHAR>
 struct formatter<TestTypeWithoutTrait, t_CHAR>
-: FormatterWithoutTrait {
+: test_formatters::FormatterWithoutTrait {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the test type
 /// `TestTypeExplicitTrait`.
 template <class t_CHAR>
 struct formatter<TestTypeExplicitTrait, t_CHAR>
-: FormatterWithExplicitTrait {
+: test_formatters::FormatterWithExplicitTrait {
 };
 
 /// Partial specialization of the `bsl::formatter` template for the type `int`.
@@ -206,7 +208,7 @@ struct formatter<TestTypeExplicitTrait, t_CHAR>
 /// `bsl` namespace.
 template <class t_CHAR>
 struct formatter<int, t_CHAR>
-: FormatterWithExplicitTrait {
+: test_formatters::FormatterWithExplicitTrait {
 };
 
 #endif
@@ -320,9 +322,6 @@ Date::Date(int year, int month, int day)
 , d_month(month)
 , d_day(day)
 {
-    ASSERT((1 <= year) && (9999 >= year));
-    ASSERT((1 <= month) && (12 >= month));
-    ASSERT((1 <= day) && (31 >= day));
 }
 
 // ACCESSORS

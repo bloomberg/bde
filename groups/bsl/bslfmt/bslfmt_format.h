@@ -105,14 +105,15 @@ BSLS_IDENT("$Id: $")
 //  int         value = 99;
 //  bsl::string res   = bsl::format("{:#06x}", value);
 //
-//  ASSERT(bsl::string("0x0063") == res);
+//  assert(bsl::string("0x0063") == res);
 // ```
 //
 ///Example 2: Creating custom formatter for user type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a custom type representing a date. And we want to output it
+// Suppose we have a custom type representing a date and we want to output it
 // to the stream in different formats depending on the circumstances using
-// `bsl::format` function. The following example shows how this can be done.
+// `bsl::format` function.  The following example demonstrates how such custom
+//// formatter may be implemented.
 //
 // First, we define our `Date` class:
 // ```
@@ -136,9 +137,9 @@ BSLS_IDENT("$Id: $")
 //      , d_month(month)
 //      , d_day(day)
 //      {
-//          ASSERT((1 <= year)  && (9999 >= year));
-//          ASSERT((1 <= month) && (12 >= month));
-//          ASSERT((1 <= day)   && (31 >= day));
+//          assert((1 <= year)  && (9999 >= year));
+//          assert((1 <= month) && (12 >= month));
+//          assert((1 <= day)   && (31 >= day));
 //      }
 //
 //      // ACCESSORS
@@ -153,11 +154,11 @@ BSLS_IDENT("$Id: $")
 //      int day() const { return d_day; }
 //  };
 // ```
-// Then, we define our custom formatter for this date class.  It is necessary
-// to define two functions: `parse()` and `format()`.  The first one parses the
-// format description itself.  The second one writes the passed value to a
-// string basing on the result of calling the first.  Both functions require
-// conformance to a specific interface.
+// Then, we define our custom formatter for this date class.  In it, two
+// methods are necessary: `parse()` and `format()`.  The `parse` method parses
+// the format string itself to determine the formatting to be used by the
+// `format` method, which writes the formatted date into a string.  Both
+// methods are required to conform to a specific interface.
 // ```
 //  /// This struct is a base class for `bsl::formatter` specializations for
 //  /// the `Date` class.
@@ -167,46 +168,45 @@ BSLS_IDENT("$Id: $")
 // ```
 // The convenience of using the `bsl::format` function is that the users can
 // come up with the description language themselves.  In our case, for
-// simplicity, we will display the date in two formats - numeric (`0001-01-01`)
-// and verbal (`1 January 1`).  Accordingly, to indicate the desired type, we
-// will use one of two letters in the format description: 'n' ('N') or 'v'
+// simplicity, we will display the date in two formats - numeric (`1999-10-23`)
+// and verbal (`23 October 1999`).  Accordingly, to indicate the desired type,
+// we will use one of two letters in the format description: 'n' ('N') or 'v'
 // ('V').  And one field is enough for us to store it.
 // ```
-//        // PRIVATE TYPES
+//      // PRIVATE TYPES
 //      enum Format {
-//          e_NUMERIC,  // 0001-01-01
-//          e_VERBAL    // 1 January 1
+//          e_NUMERIC,  // 1999-10-23
+//          e_VERBAL    // 23 October 1999
 //      };
 //
 //      // DATA
-//      Format d_format;  // output format type
+//      Format d_format;  // output format
 //
 //      // PRIVATE ACCESSORS
 //
-//      /// Output the specified `value` representing the year to the object
-//      /// represented by the specified `outIterator`.  The specified
-//      /// `paddingRequired` indicates whether additional characters need to
-//      /// be added to fill empty space.
+//      /// Output the specified `yearValue` to the specified `outIterator`.
+//      /// The specified `paddingRequired` indicates whether additional
+//      /// characters need to be added to fill empty space.
 //      template <class t_FORMAT_CONTEXT>
 //      void outputYear(
 //                  typename t_FORMAT_CONTEXT::iterator& outIterator,
-//                  int                                  value,
+//                  int                                  yearValue,
 //                  bool                                 paddingRequired) const
 //      {
 //          typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 //
 //          char  buffer[4];
-//          char *bufferEnd = NFUtil::toChars(buffer, buffer + 4, value);
+//          char *bufferEnd = NFUtil::toChars(buffer, buffer + 4, yearValue);
 //
 //          if (paddingRequired) {
 //              const char *paddingStr = "000";
 //              size_t      numPaddingCharacters = 0;
 //
-//              if (1000 > value) {
+//              if (1000 > yearValue) {
 //                  ++numPaddingCharacters;
-//                  if (100 > value) {
+//                  if (100 > yearValue) {
 //                      ++numPaddingCharacters;
-//                      if (10 > value) {
+//                      if (10 > yearValue) {
 //                          ++numPaddingCharacters;
 //                      }
 //                  }
@@ -224,23 +224,24 @@ BSLS_IDENT("$Id: $")
 //              t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
 //      }
 //
-//      /// Output the specified `value` representing the month or day to the
-//      /// object represented by the specified `outIterator`.  The specified
-//      /// `paddingRequired` indicates whether an additional character needs
-//      /// to be added to fill empty space.
+//      /// Output the specified `monthOrDayValue` to the specified
+//      /// `outIterator`.  The specified `paddingRequired` indicates whether
+//      /// an additional character needs to be added to fill empty space.
 //      template <class t_FORMAT_CONTEXT>
 //      void outputMonthDay(
 //                  typename t_FORMAT_CONTEXT::iterator& outIterator,
-//                  int                                  value,
+//                  int                                  monthOrDayValue,
 //                  bool                                 paddingRequired) const
 //      {
 //          typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 //
 //          char  buffer[2];
-//          char *bufferEnd = NFUtil::toChars(buffer, buffer + 2, value);
+//          char *bufferEnd = NFUtil::toChars(buffer,
+//                                            buffer + 2,
+//                                            monthOrDayValue);
 //
 //          if (paddingRequired) {
-//              if (10 > value) {
+//              if (10 > monthOrDayValue) {
 //                  outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                      t_CHAR>::outputFromChar('0', outIterator);
 //              }
@@ -248,41 +249,45 @@ BSLS_IDENT("$Id: $")
 //          outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //              t_CHAR>::outputFromChar(buffer, bufferEnd, outIterator);
 //      }
-//
+// ```
+// Notice that if the standard implementation of the format is supported by
+// your compiler, then the `parse` function as well as the constructor must be
+// declared as `constexpr`.
+// ```
 //    public:
 //      // CREATORS
 //
 //      /// Create a formatter that outputs values in the `e_NUMERIC` format.
-//      DateFormatter()
+//      /// Thus, numeric is the default format for the `Date` object.
+//      BSLS_KEYWORD_CONSTEXPR_CPP20 DateFormatter()
 //      : d_format(e_NUMERIC)
 //      {
 //      }
 //
 //      // MANIPULATORS
 //
-//      /// Parse the specified `parseContext` and return an iterator, pointing
-//      /// to the beginning of the format string.
+//      /// Parse the specified `context` and return end iterator of parsed
+//      /// range.
 //      template <class t_PARSE_CONTEXT>
 //      BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-//                                               t_PARSE_CONTEXT& parseContext)
+//                                                    t_PARSE_CONTEXT& context)
 //      {
 //          typedef typename bsl::iterator_traits<
 //              typename t_PARSE_CONTEXT::const_iterator>::value_type
 //              IteratorValueType;
 //          BSLMF_ASSERT((bsl::is_same<IteratorValueType, t_CHAR>::value));
 //
-//          typename t_PARSE_CONTEXT::const_iterator current =
-//                                                        parseContext.begin();
-//          typename t_PARSE_CONTEXT::const_iterator end = parseContext.end();
+//          typename t_PARSE_CONTEXT::const_iterator current = context.begin();
+//          typename t_PARSE_CONTEXT::const_iterator end     = context.end();
 // ```
 // `bsl::format` calls `parse()` function first and here we can configure our
 // formatter so that it then outputs values in the format we need.
-// `parseContext.begin()`returns an iterator pointing to the beginning of the
-// format description.
+// `context.begin()` returns an iterator pointing to the end of the parsed
+// range.
 // ```
 //          // Handling empty string or empty specification
 //          if (current == end || *current == '}') {
-//              return parseContext.begin();                          // RETURN
+//              return context.begin();                               // RETURN
 //          }
 //
 //          // Reading format specification
@@ -311,8 +316,8 @@ BSLS_IDENT("$Id: $")
 //                      "Too many symbols in format specification"));  // THROW
 //          }
 //
-//          parseContext.advance_to(current);
-//          return parseContext.begin();
+//          context.advance_to(current);
+//          return context.begin();
 //      }
 //
 //      // ACCESSORS
@@ -331,7 +336,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we outputting the date in accordance with the previously set settings:
 // ```
-//          if (e_VERBAL == d_format) {  // 1 January 2000
+//          if (e_VERBAL == d_format) {  // 23 October 1999
 //              static const char *const months[] = {"January",
 //                                                   "February",
 //                                                   "March",
@@ -364,8 +369,8 @@ BSLS_IDENT("$Id: $")
 //              // Outputting year
 //              outputYear<t_FORMAT_CONTEXT>(outIterator, value.year(), false);
 //          }
-//          else if (e_NUMERIC == d_format) {  // 2000-01-01
-//                          // Outputting year
+//          else if (e_NUMERIC == d_format) {  // 1999-10-23
+//              // Outputting year
 //              outputYear<t_FORMAT_CONTEXT>(outIterator, value.year(), true);
 //              outIterator = BloombergLP::bslfmt::FormatterCharUtil<
 //                  t_CHAR>::outputFromChar('-', outIterator);
@@ -387,11 +392,10 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 // ```
-// Now, we define `formatter` specialization for the `Date` as a child of our
-// `DateFormatter` which allows `bsl::format` to call methods of the latter
-// one.  An alternative way to create a custom formatter would be to define the
-// `parse()` and `format()` methods in the `formatter` specialization itself.
-// Note that specialization must be defined in the namespace `bsl`.
+// Now, we define the `bsl::formatter` specialization for our `Date` class
+// simply as a child-class of `DateFormatter`. Alternatively, we could have
+// placed the implementation directly into the `bsl::formatter` specialization.
+// Notice that the specialization must be defined in the `bsl` namespace.
 // ```
 //  namespace bsl {
 //
@@ -401,7 +405,16 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace bsl
 // ```
-
+// Finally, we create a `Date` object, output it to the string and verify the
+// result:
+// ```
+//  Date        date(1999, 10, 23);
+//  bsl::string result = bsl::format("{:v}", date);
+//  assert(bsl::string("23 October 1999") == result);
+//
+// result = bsl::format("{:N}", date);
+// assert(bsl::string("1999-10-23") == result);
+// ```
 
 #include <bslscm_version.h>
 

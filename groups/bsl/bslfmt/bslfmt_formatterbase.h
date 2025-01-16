@@ -193,24 +193,6 @@ requires(
 struct formatter<t_ARG, t_CHAR>
 : bsl::formatter<t_ARG, t_CHAR> {};
 
-/// Partial `formatter` specialization in the `std` namespace to enable use of
-/// formatters defined in the `bsl` namespace.
-template <class t_ARG, class t_CHAR>
-requires(
-    BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct MyTestTypeEnabled {};
-
-/// Partial `formatter` specialization in the `std` namespace to enable use of
-/// formatters defined in the `bsl` namespace.
-template <class t_ARG, class t_CHAR>
-requires(
-    false == BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct MyTestTypeNotEnabled {};
-
 }  // close namespace std
 #endif
 
