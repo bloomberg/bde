@@ -575,10 +575,10 @@ class TestAllocator : public Allocator {
     /// Restore the statistics from the specified `savedStatistics` by
     /// appropriately combining the current values and the saved values.  The
     /// behavior is undefined unless `savedStatistics` is a value returned by
-    /// the a previous call to `stashStatictics` on this same object, which has
-    /// not been passed to `restoreStatistics` yet.  This method restores the
-    /// state of the statistics as if the corresponding `stashStatistics` call
-    /// has never happened, in the following manner:
+    /// a previous call to `stashStatictics` on this same object, which has not
+    /// been passed to `restoreStatistics` yet.  This method restores the state
+    /// of the statistics as if the corresponding `stashStatistics` call has
+    /// never happened, in the following manner:
     ///
     /// Statistic        | Restore value as
     /// ---------------- | ---------------------------------------------------
@@ -592,8 +592,7 @@ class TestAllocator : public Allocator {
     /// numBytesTotal    | saved + current - saved.numBytesInUse
     ///
     /// See also `stashStatistics`.
-    void restoreStatistics(
-                          const TestAllocatorStashedStatistics& savedStatistics);
+    void restoreStatistics(TestAllocatorStashedStatistics *savedStatistics);
 
     /// Set the number of valid allocation requests before an exception is
     /// to be thrown for this allocator to the specified `limit`.  If
@@ -806,19 +805,19 @@ class TestAllocator : public Allocator {
 class TestAllocatorStashedStatistics {
   private:
     // DATA
-    mutable TestAllocator *d_origin_p;
+    TestAllocator      *d_origin_p;
 
-    bsls::Types::Int64     d_numBlocksInUse;
-    bsls::Types::Int64     d_numBytesInUse;
+    bsls::Types::Int64  d_numBlocksInUse;
+    bsls::Types::Int64  d_numBytesInUse;
 
-    bsls::Types::Int64     d_numAllocations;
-    bsls::Types::Int64     d_numDeallocations;
-    bsls::Types::Int64     d_numMismatches;
-    bsls::Types::Int64     d_numBoundsErrors;
-    bsls::Types::Int64     d_numBlocksMax;
-    bsls::Types::Int64     d_numBytesMax;
-    bsls::Types::Int64     d_numBlocksTotal;
-    bsls::Types::Int64     d_numBytesTotal;
+    bsls::Types::Int64  d_numAllocations;
+    bsls::Types::Int64  d_numDeallocations;
+    bsls::Types::Int64  d_numMismatches;
+    bsls::Types::Int64  d_numBoundsErrors;
+    bsls::Types::Int64  d_numBlocksMax;
+    bsls::Types::Int64  d_numBytesMax;
+    bsls::Types::Int64  d_numBlocksTotal;
+    bsls::Types::Int64  d_numBytesTotal;
 
   public:
     // CREATORS
@@ -834,14 +833,10 @@ class TestAllocatorStashedStatistics {
     /// restored and must not be used again with
     /// `TestAllocator::restoreStatistics`.  The behavior is undefined unless
     /// this method is called only once during the lifetime of this object.
-    /// Notice that this manipulator is a `const` method because we want the
-    /// users only keep `const TestAllocatorStashedStatistics` objects around.
-    void markRestored() const;
+    void markRestored();
 
-    /// Call `origin->restoreStatistics(*this)`.  Notice that this manipulator
-    /// is a `const` method because we want the users to only keep
-    /// `const TestAllocatorStashedStatistics` objects around.
-    void restore() const;
+    /// Call `origin->restoreStatistics(*this)`.
+    void restore();
 
     // ACCESSORS
 
@@ -1088,41 +1083,41 @@ TestAllocatorStashedStatistics TestAllocator::stashStatistics()
 
 inline
 void TestAllocator::restoreStatistics(
-                           const TestAllocatorStashedStatistics& savedStatistics)
+                               TestAllocatorStashedStatistics *savedStatistics)
 {
-    BSLS_ASSERT(savedStatistics.origin() == this);
+    BSLS_ASSERT(savedStatistics->origin() == this);
 
     bsls::BslLockGuard guard(&d_lock);
 
     d_numAllocations.storeRelaxed(
-        savedStatistics.numAllocations() - savedStatistics.numBlocksInUse()
+        savedStatistics->numAllocations() - savedStatistics->numBlocksInUse()
                                              + d_numAllocations.loadRelaxed());
     d_numDeallocations.storeRelaxed(
-        savedStatistics.numDeallocations() + d_numDeallocations.loadRelaxed());
+        savedStatistics->numDeallocations() + d_numDeallocations.loadRelaxed());
 
     d_numMismatches.storeRelaxed(
-              savedStatistics.numMismatches() + d_numMismatches.loadRelaxed());
+              savedStatistics->numMismatches() + d_numMismatches.loadRelaxed());
 
     d_numBoundsErrors.storeRelaxed(
-          savedStatistics.numBoundsErrors() + d_numBoundsErrors.loadRelaxed());
+          savedStatistics->numBoundsErrors() + d_numBoundsErrors.loadRelaxed());
 
-    if (d_numBlocksMax.loadRelaxed() < savedStatistics.numBlocksMax()) {
-        d_numBlocksMax.storeRelaxed(savedStatistics.numBlocksMax());
+    if (d_numBlocksMax.loadRelaxed() < savedStatistics->numBlocksMax()) {
+        d_numBlocksMax.storeRelaxed(savedStatistics->numBlocksMax());
     }
 
-    if (d_numBytesMax.loadRelaxed() < savedStatistics.numBytesMax()) {
-        d_numBytesMax.storeRelaxed(savedStatistics.numBytesMax());
+    if (d_numBytesMax.loadRelaxed() < savedStatistics->numBytesMax()) {
+        d_numBytesMax.storeRelaxed(savedStatistics->numBytesMax());
     }
 
     d_numBlocksTotal.storeRelaxed(
-        savedStatistics.numBlocksTotal() - savedStatistics.numBlocksInUse()
+        savedStatistics->numBlocksTotal() - savedStatistics->numBlocksInUse()
                                              + d_numBlocksTotal.loadRelaxed());
 
     d_numBytesTotal.storeRelaxed(
-        savedStatistics.numBytesTotal() - savedStatistics.numBytesInUse()
+        savedStatistics->numBytesTotal() - savedStatistics->numBytesInUse()
                                               + d_numBytesTotal.loadRelaxed());
 
-    savedStatistics.markRestored();
+    savedStatistics->markRestored();
 }
 
 inline
@@ -1329,7 +1324,7 @@ TestAllocatorStashedStatistics::TestAllocatorStashedStatistics(
 // MANIPULATORS
 
 inline
-void TestAllocatorStashedStatistics::markRestored() const
+void TestAllocatorStashedStatistics::markRestored()
 {
     BSLS_ASSERT(d_origin_p);
 
@@ -1337,11 +1332,11 @@ void TestAllocatorStashedStatistics::markRestored() const
 }
 
 inline
-void TestAllocatorStashedStatistics::restore() const
+void TestAllocatorStashedStatistics::restore()
 {
     BSLS_ASSERT(d_origin_p);
 
-    d_origin_p->restoreStatistics(*this);
+    d_origin_p->restoreStatistics(this);
 }
 
 // ACCESSORS

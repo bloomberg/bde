@@ -892,7 +892,7 @@ bool verifyBlockList(const bslma::TestAllocator&    ta,
 /// in verification.
 struct StatisticsStashGuard {
     // DATA
-    const bslma::TestAllocatorStashedStatistics d_stash;
+    bslma::TestAllocatorStashedStatistics d_stash;
 
     // CREATORS
     StatisticsStashGuard(bslma::TestAllocator *ta)
@@ -1323,12 +1323,11 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta;
             bslma::TestAllocator tb;
 
-            const bslma::TestAllocatorStashedStatistics stash =
-                                                          ta.stashStatistics();
+            bslma::TestAllocatorStashedStatistics stash = ta.stashStatistics();
             bsls::AssertTestHandlerGuard hG;
-            ASSERT_FAIL(tb.restoreStatistics(stash));
-            ASSERT_PASS(ta.restoreStatistics(stash));
-            ASSERT_FAIL(ta.restoreStatistics(stash));
+            ASSERT_FAIL(tb.restoreStatistics(&stash));
+            ASSERT_PASS(ta.restoreStatistics(&stash));
+            ASSERT_FAIL(ta.restoreStatistics(&stash));
         }
 #endif
       } break;
