@@ -62,9 +62,10 @@ namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     using std::align_val_t;
-//  As of Apr-2022, no one (libc++, libstdc++, MSVC) has implemented these.
-//     using std::hardware_constructive_interference_size;
-//     using std::hardware_destructive_interference_size;
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+    using std::hardware_constructive_interference_size;
+    using std::hardware_destructive_interference_size;
+# endif // BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
     using std::launder;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 

@@ -1118,6 +1118,11 @@ BSLS_IDENT("$Id: $")
   #define BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS                              1
 #endif
 
+#if defined(__cpp_lib_hardware_interference_size) &&                          \
+            __cpp_lib_hardware_interference_size >= 201703L
+  #define BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE                 1
+#endif
+
 #if defined(__cpp_impl_three_way_comparison) &&                              \
                                     __cpp_impl_three_way_comparison >= 201907L
   #if defined(__cpp_lib_three_way_comparison) &&                             \

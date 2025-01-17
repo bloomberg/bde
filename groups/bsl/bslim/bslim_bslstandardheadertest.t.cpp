@@ -952,6 +952,38 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 39: {
+        // --------------------------------------------------------------------
+        // HARDWARE_INTERFERENCE
+        //
+        // Concerns:
+        // 1. The `bsl::hardware_constructive_interference_size` variable is
+        //    available in `bsl` to users who include `bsl_new.h`.
+        // 2. The `bsl::hardware_destructive_interference_size` variable is
+        //    available in `bsl` to users who include `bsl_new.h`.
+        //
+        // Plan:
+        // 1. Create a simple example that uses the variables.  Compilation of
+        //    the example demonstrates that the function can be found in `bsl`,
+        //    but only if BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+        //    is defined.
+        //
+        // Testing
+        //   CONCERN: `hardware_constructive_interference_size` is in `bsl`.
+        //   CONCERN: `hardware_destructive_interference_size` is in `bsl`.
+        // --------------------------------------------------------------------
+        if (verbose) puts("\nHARDWARE_INTERFERENCE"
+                          "\n=====================");
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE)
+        if (verbose) puts("\nHW Interference variables are not supported "
+                          "on this platform");
+#else
+        const size_t con = bsl::hardware_constructive_interference_size;
+        const size_t dis = bsl::hardware_destructive_interference_size;
+        (void) con;
+        (void) dis;
+#endif
+      } break;
       case 38: {
         // --------------------------------------------------------------------
         // `bsl::copy_n`

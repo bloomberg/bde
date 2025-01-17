@@ -26,6 +26,10 @@
     #include <type_traits>  // For testing only
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+    #include <new>
+#endif
+
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
@@ -69,6 +73,7 @@
 // [ 8] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // [ 9] BSLS_COMPILERFEATURES_SUPPORT_FINAL
 // [10] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [41] BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
 // [23] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 // [35] BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
 // [11] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
@@ -94,7 +99,7 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [41] USAGE EXAMPLE
+// [42] USAGE EXAMPLE
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -1914,6 +1919,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE));
+#else
+    puts("UNDEFINED");
+#endif
+
     puts("\n\n==printFlags: bsls_compilerfeatures Referenced Macros==");
 
     fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
@@ -2184,7 +2196,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 41: {
+      case 42: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2265,6 +2277,37 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 41: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+        //
+        // Concerns:
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE` is defined
+        //    when the corresponding constants are defined.
+        //
+        // Plan:
+        // 1. Verify that the constants are defined when the macro is defined.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("_SUPPORT_HARDWARE_INTERFERENCE",
+                         "==============================");
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        ASSERT((std::is_same_v<
+                     const size_t, 
+                     decltype(std::hardware_destructive_interference_size)>));
+
+        ASSERT((std::is_same_v<
+                     const size_t, 
+                     decltype(std::hardware_constructive_interference_size)>));
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
       } break;
       case 40: {
           // ------------------------------------------------------------------
