@@ -725,7 +725,7 @@ void FormatterSpecificationSplitter<t_CHAR>::parseRawWidth(
 
     FSNValue::parse(&outSpec->d_rawWidth, start, end, false);
     // Non-relative widths must be strictly positive.
-    if (outSpec->d_rawWidth == FSNValue(0, FSNValue::e_VALUE)) {
+    if (outSpec->d_rawWidth == FSNValue(FSNValue::e_VALUE, 0)) {
         BSLS_THROW(bsl::format_error("Field widths must be > 0."));    // THROW
     }
 }
@@ -934,8 +934,8 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
         else if (outSpec->rawWidth().category() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawWidth = FormatterSpecificationNumericValue(
-                                static_cast<int>(parseContext->next_arg_id()),
-                                FormatterSpecificationNumericValue::e_ARG_ID);
+                                FormatterSpecificationNumericValue::e_ARG_ID,
+                                static_cast<int>(parseContext->next_arg_id()));
         }
     }
 
@@ -947,8 +947,8 @@ FormatterSpecificationSplitter<t_CHAR>::parse(
         else if (outSpec->rawPrecision().category() ==
                  FormatterSpecificationNumericValue::e_NEXT_ARG) {
             outSpec->d_rawPrecision = FormatterSpecificationNumericValue(
-                                static_cast<int>(parseContext->next_arg_id()),
-                                FormatterSpecificationNumericValue::e_ARG_ID);
+                                FormatterSpecificationNumericValue::e_ARG_ID,
+                                static_cast<int>(parseContext->next_arg_id()));
         }
     }
 
@@ -1001,10 +1001,6 @@ FormatterSpecificationSplitter<t_CHAR>::FormatterSpecificationSplitter()
 , d_sign(FormatterSpecificationSplitter::e_SIGN_DEFAULT)
 , d_alternativeFlag(false)
 , d_zeroPaddingFlag(false)
-, d_rawWidth(0, FormatterSpecificationNumericValue::e_DEFAULT)
-, d_rawPrecision(0, FormatterSpecificationNumericValue::e_DEFAULT)
-, d_postprocessedWidth(0, FormatterSpecificationNumericValue::e_DEFAULT)
-, d_postprocessedPrecision(0, FormatterSpecificationNumericValue::e_DEFAULT)
 , d_localeSpecificFlag(false)
 {}
 

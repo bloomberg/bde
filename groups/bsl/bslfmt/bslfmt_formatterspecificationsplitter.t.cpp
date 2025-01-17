@@ -240,10 +240,10 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(),
+                      FSValue(),
+                      FSValue(),
+                      FSValue(),
                       false,
                       "");
 
@@ -253,10 +253,10 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       true,
-                      FSValue(6, FSValue::e_VALUE),
-                      FSValue(6, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 6),
+                      FSValue(FSValue::e_VALUE, 6),
+                      FSValue(FSValue::e_VALUE, 3),
+                      FSValue(FSValue::e_VALUE, 3),
                       false,
                       "XYZ");
 
@@ -266,10 +266,10 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_ARG_ID),
-                      FSValue(99, FSValue::e_VALUE),
-                      FSValue(1, FSValue::e_ARG_ID),
-                      FSValue(98, FSValue::e_VALUE),
+                      FSValue(FSValue::e_ARG_ID,  0),
+                      FSValue(FSValue::e_VALUE,  99),
+                      FSValue(FSValue::e_ARG_ID,  1),
+                      FSValue(FSValue::e_VALUE,  98),
                       false,
                       "XYZ");
 
@@ -279,10 +279,10 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(1, FSValue::e_ARG_ID),
-                      FSValue(98, FSValue::e_VALUE),
-                      FSValue(2, FSValue::e_ARG_ID),
-                      FSValue(97, FSValue::e_VALUE),
+                      FSValue(FSValue::e_ARG_ID,  1),
+                      FSValue(FSValue::e_VALUE,  98),
+                      FSValue(FSValue::e_ARG_ID,  2),
+                      FSValue(FSValue::e_VALUE,  97),
                       false,
                       "XYZ");
 
@@ -292,10 +292,10 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(),
+                      FSValue(),
+                      FSValue(),
+                      FSValue(),
                       false,
                       L"");
 
@@ -305,10 +305,10 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       true,
-                      FSValue(6, FSValue::e_VALUE),
-                      FSValue(6, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 6),
+                      FSValue(FSValue::e_VALUE, 6),
+                      FSValue(FSValue::e_VALUE, 3),
+                      FSValue(FSValue::e_VALUE, 3),
                       false,
                       L"XYZ");
 
@@ -318,10 +318,10 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_ARG_ID),
-                      FSValue(99, FSValue::e_VALUE),
-                      FSValue(1, FSValue::e_ARG_ID),
-                      FSValue(98, FSValue::e_VALUE),
+                      FSValue(FSValue::e_ARG_ID,  0),
+                      FSValue(FSValue::e_VALUE,  99),
+                      FSValue(FSValue::e_ARG_ID,  1),
+                      FSValue(FSValue::e_VALUE,  98),
                       false,
                       L"XYZ");
 
@@ -331,10 +331,10 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(1, FSValue::e_ARG_ID),
-                      FSValue(98, FSValue::e_VALUE),
-                      FSValue(2, FSValue::e_ARG_ID),
-                      FSValue(97, FSValue::e_VALUE),
+                      FSValue(FSValue::e_ARG_ID,  1),
+                      FSValue(FSValue::e_VALUE,  98),
+                      FSValue(FSValue::e_ARG_ID,  2),
+                      FSValue(FSValue::e_VALUE,  97),
                       false,
                       L"XYZ");
 

@@ -422,8 +422,7 @@ inline
 Format_ArgsStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args...);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args...);
 }
 
 template <class... t_ARGS>
@@ -431,8 +430,7 @@ inline
 Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args...);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args...);
 }
 
 #endif

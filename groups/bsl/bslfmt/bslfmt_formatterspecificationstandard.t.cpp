@@ -229,8 +229,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(),
+                      FSValue(),
                       false,
                       FSC::e_STRING_DEFAULT);
 
@@ -241,8 +241,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(2, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 2),
+                      FSValue(FSValue::e_VALUE, 3),
                       false,
                       FSC::e_STRING_DEFAULT);
 
@@ -253,8 +253,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(96, FSValue::e_VALUE),
-                      FSValue(97, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 96),
+                      FSValue(FSValue::e_VALUE, 97),
                       false,
                       FSC::e_STRING_DEFAULT);
 
@@ -266,8 +266,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(98, FSValue::e_VALUE),
-                      FSValue(96, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 98),
+                      FSValue(FSValue::e_VALUE, 96),
                       false,
                       FSC::e_FLOATING_FIXED_UC);
 
@@ -279,8 +279,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(0, FSValue::e_DEFAULT),
-                      FSValue(0, FSValue::e_DEFAULT),
+                      FSValue(),
+                      FSValue(),
                       false,
                       FSW::e_STRING_DEFAULT);
 
@@ -291,8 +291,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(2, FSValue::e_VALUE),
-                      FSValue(3, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 2),
+                      FSValue(FSValue::e_VALUE, 3),
                       false,
                       FSC::e_STRING_DEFAULT);
 
@@ -303,8 +303,8 @@ int main(int argc, char **argv)
                       FSC::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(97, FSValue::e_VALUE),
-                      FSValue(98, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 97),
+                      FSValue(FSValue::e_VALUE, 98),
                       false,
                       FSC::e_STRING_DEFAULT);
 
@@ -316,8 +316,8 @@ int main(int argc, char **argv)
                       FSW::e_SIGN_DEFAULT,
                       false,
                       false,
-                      FSValue(99, FSValue::e_VALUE),
-                      FSValue(96, FSValue::e_VALUE),
+                      FSValue(FSValue::e_VALUE, 99),
+                      FSValue(FSValue::e_VALUE, 96),
                       false,
                       FSW::e_FLOATING_FIXED);
 
