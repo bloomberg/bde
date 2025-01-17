@@ -443,6 +443,7 @@ BSLS_IDENT("$Id: $")
 // * `BDE_BUILD_TARGET_OPT`
 // * `BDE_BUILD_TARGET_SAFE`
 // * `BDE_BUILD_TARGET_SAFE_2`
+//
 // seven (mutually exclusive) component-specific *assertion* *levels*:
 // * `BSLS_ASSERT_LEVEL_ASSERT_SAFE`
 // * `BSLS_ASSERT_LEVEL_ASSERT`
@@ -451,16 +452,19 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERT_LEVEL_ASSUME_OPT`
 // * `BSLS_ASSERT_LEVEL_ASSUME_ASSERT`
 // * `BSLS_ASSERT_LEVEL_ASSUME_SAFE`
+//
 // and four (mutually exclusive) component-specific *review* *levels*:
 // * `BSLS_REVIEW_LEVEL_REVIEW_SAFE`
 // * `BSLS_REVIEW_LEVEL_REVIEW`
 // * `BSLS_REVIEW_LEVEL_REVIEW_OPT`
 // * `BSLS_REVIEW_LEVEL_NONE`
+//
 // The above macros can be defined (externally) by the build environment to
 // affect which of the three *assert* *macros*:
 // * `BSLS_ASSERT_SAFE(boolean-valued expression)`
 // * `BSLS_ASSERT(boolean-valued expression)`
 // * `BSLS_ASSERT_OPT(boolean-valued expression)`
+//
 // will be enabled in assert mode, which will be in review mode, which will be
 // assumed, and which will be disabled.
 //
@@ -490,6 +494,7 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERT_SAFE_IS_ACTIVE`
 // * `BSLS_ASSERT_IS_ACTIVE`
 // * `BSLS_ASSERT_OPT_IS_ACTIVE`
+//
 // These three are defined if the corresponding macro is in review mode - and
 // thus the expression will be checked and the review violation handler will be
 // invoked on failure.  These will be defined when the review level has been
@@ -497,6 +502,7 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERT_SAFE_IS_REVIEW`
 // * `BSLS_ASSERT_IS_REVIEW`
 // * `BSLS_ASSERT_OPT_IS_REVIEW`
+//
 // These three are defined if the corresponding macro is being assumed, and it
 // will be hard undefined behavior to violate these expressions:
 // * `BSLS_ASSERT_SAFE_IS_ASSUMED`
@@ -517,26 +523,26 @@ BSLS_IDENT("$Id: $")
 // Which of these macros to use to conditionally compile supporting code is
 // based on when that supporting code needs to be compiled:
 // * Use `#if defined(..._IS_USED)` when:
-//   * Writing functions that are only accessible to and needed for assertions
+//   - Writing functions that are only accessible to and needed for assertions
 //     of the corresponding level.  This could be private member functions,
 //     static functions, or functions in an anonymous namespace.  See
 //     {Example 8} for details on this use.
 // * Use `#if !defined(..._IS_ACTIVE) && !defined(..._IS_ASSUMED)` when:
-//   * You are writing (test) code that will intentionally violate a contract
+//   - You are writing (test) code that will intentionally violate a contract
 //     when there is not going to be any intrinsic ill effect to that
 //     violation.  Generally this should only be required when there is a need
 //     to validate out-of-contract behavior of a component from within its own
 //     test driver.
 // * Use `#if defined(...IS_ACTIVE)` when:
-//   * You are doing negative testing and want to be sure that when you call
+//   - You are doing negative testing and want to be sure that when you call
 //     your function out of contract that the violation handler will be
 //     invoked.  See {`bsls_asserttest`} for tools to do this without having
 //     to manually check these macros.
-//   * Writing redundant defensive code that should only execute when the
+//   - Writing redundant defensive code that should only execute when the
 //     corresponding assertions are going to be enabled.  The assertion itself
 //     should also be included in the same preprocessor block.  See
 //     {Example 9} for details on this use.
-//   * Note that historically this was the only macro available, and it is
+//   - Note that historically this was the only macro available, and it is
 //     often used for blocks of code where the checks above would be more
 //     appropriate.  This can often lead to code that fails to compile with
 //     `BSLS_ASSERT_VALIDATE_DISABLED_MACROS` enabled or which will not work
@@ -1339,7 +1345,7 @@ BSLS_IDENT("$Id: $")
 //  }
 // ```
 ///Example 8: Conditional Compilation of Support Functions
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Occasionally a function may exist only to support a specific set of
 // assertions.  Often this can happen when a large expression that captures a
 // complicated precondition wants to be refactored into a distinct location to
