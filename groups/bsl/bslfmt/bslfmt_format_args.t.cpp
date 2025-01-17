@@ -19,7 +19,7 @@ using namespace BloombergLP;
 //                              --------
 // 'basic_format_args<basic_format_context<t_OUT, t_CHAR> >' where t_OUT is
 // an output iterator is a standard-compliant implementation of
-// 'std::basic_format_args'. It is hard to test standalone as it is designed
+// 'std::basic_format_args'.  It is hard to test standalone as it is designed
 // to be constructed only indirectly by the 'bslfmt::format' suite of
 // functions, and such testing requires the creation of "mock" contexts.
 //
@@ -523,8 +523,8 @@ int main(int argc, char **argv)
 ///Example: 1 Construct a `basic_format_args` object
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
-// are only a very limited number of public methods so this example is
+// directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
+// there are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
 // Suppose we want to construct a `basic_format_args` containing a single int.
@@ -540,12 +540,12 @@ int main(int argc, char **argv)
 ///Example 2: Non-default construction and value verification
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`. In addition, there
-// are only a very limited number of public methods so this example is
+// directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
+// there are only a very limited number of public methods so this example is
 // necessarily unrealistic.
 //
 // Suppose we want to construct a int-containing `basic_format_args` and verify
-// that it contains that int. Note the use of a function to workaround the
+// that it contains that int.  Note the use of a function to workaround the
 // lifetime issues specified above.
 //
 //..

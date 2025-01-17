@@ -398,9 +398,9 @@ class FormatterSpecificationSplitter
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-               // --------------------------------------------
-               // class FormatterSpecificationSplitter<t_CHAR>
-               // --------------------------------------------
+                   // ------------------------------------
+                   // class FormatterSpecificationSplitter
+                   // ------------------------------------
 
 // PRIVATE CLASS FUNCTIONS
 

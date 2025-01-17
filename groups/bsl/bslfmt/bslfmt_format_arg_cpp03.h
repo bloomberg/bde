@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 19 18:08:06 2024
+// Generated on Fri Jan 17 12:47:44 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -51,9 +51,9 @@ typedef basic_format_context<Format_ContextOutputIteratorRef<char>, char>
 typedef basic_format_context<Format_ContextOutputIteratorRef<wchar_t>, wchar_t>
     wformat_context;
 
-                   // -------------------------------------
-                   // class basic_format_arg<t_OUT, T_CHAR>
-                   // -------------------------------------
+                        // ======================
+                        // class basic_format_arg
+                        // ======================
 
 /// This class provides an STL-compliant `basic_format_arg` which holds (by
 /// value for scalar and pointer types, by reference for user-defined types).
@@ -69,13 +69,13 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     class handle {
       private:
         // DATA
-        const void *d_value_p;                  // Pointer to the referenced
-                                                // value.
+        const void *d_value_p;
+            // pointer to the referenced value
 
         void (*d_format_impl_p)(basic_format_parse_context<t_CHAR>&,
                                 basic_format_context<t_OUT, t_CHAR>&,
-                                const void *);  // Pointer to a format_impl
-                                                // instance.
+                                const void *);
+            // pointer to a format_impl instance
 
         // FRIENDS
         friend class basic_format_arg<basic_format_context<t_OUT, t_CHAR> >;
@@ -83,8 +83,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
         // PRIVATE CLASS METHODS
 
         /// Format the specified `value` using a `bsl::formatter` instance for
-        /// the specified template parameter `t_TYPE`. The constructed
-        /// formatter will parse the specifiecation in the specified `pc`
+        /// the specified template parameter `t_TYPE`.  The constructed
+        /// formatter will parse the specification in the specified `pc`
         /// context and write the output to the specified `fc` context.
         template <class t_TYPE>
         static void format_impl(basic_format_parse_context<t_CHAR>&   pc,
@@ -93,16 +93,16 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
         // PRIVATE CREATORS
 
-        /// Construct a `handle` referencing the specified `value` and
-        /// initialize the contained formatting function to an instance of
-        /// `format_impl` for the template parameter `t_TYPE`.
+        /// Create a `handle` referencing the specified `value` and initialize
+        /// the contained formatting function to an instance of `format_impl`
+        /// for the template parameter `t_TYPE`.
         template <class t_TYPE>
         explicit handle(const t_TYPE& value) BSLS_KEYWORD_NOEXCEPT;
 
       public:
         // CREATORS
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        /// Move-construct a `handle` from the specified `rhs`. This is
+        /// Move-construct a `handle` from the specified `rhs`.  This is
         /// required to support use within a bsl::variant on C++03, but must
         /// *not* be specified for C++11 and later as it will result in the
         /// implicit deletion of other defaulted special member functions.
@@ -112,10 +112,9 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
         // ACCESSORS
 
         /// Format the contained value using a formatter for the template
-        /// parameter `t_TYPE` used in the construction of this object. The
-        /// constructed formatter will parse the specifiecation in the
-        /// specified `pc` context and write the output to the specified `fc`
-        /// context.
+        /// parameter `t_TYPE` used in the construction of this object.  The
+        /// constructed formatter will parse the specification in the specified
+        /// `pc` context and write the output to the specified `fc` context.
         void format(basic_format_parse_context<t_CHAR>&  pc,
                     basic_format_context<t_OUT, t_CHAR>& fc) const;
     };
@@ -148,23 +147,23 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
         variant_type;
 
     // DATA
-    variant_type d_value;  // The contained value or a reference thereto.
+    variant_type d_value;  // the contained value or a reference thereto
 
     // FRIENDS
     friend class Format_ArgUtil;
 
     // PRIVATE CREATORS
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(bool value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(char_type value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value` widened from
-    /// type `char` to type `wchar_t`, which is then held by value. This
+    /// Create a `basic_format_arg` from the specified `value` widened from
+    /// type `char` to type `wchar_t`, which is then held by value.  This
     /// constructor only participates in overload resolution if `value` is of
     /// type `char` and `t_CHAR` is of type `wchar_t`.
     template <class t_TYPE>
@@ -174,8 +173,8 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
                                        bsl::is_same<char_type, wchar_t>::value,
                                    int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value. This constructor only participates in overload
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.  This constructor only participates in overload
     /// resolution if `value` is an signed integer type that can be held within
     /// a `long long` or an unsigned integer type that can be held within an
     /// `unsigned long long`.
@@ -188,13 +187,13 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
                                        (sizeof(t_TYPE) <= sizeof(long long)),
                                    int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by reference in a `basic_format_arg::handle`. This
-    /// constructor only participates in overload resolution if `value` is not
-    /// an integer or if `value` is an signed integer type that can not be held
-    /// within a `long long` or an unsigned integer type that can not be held
-    /// within an `unsigned long long`.  Participation in overload resolution
-    /// is also disabled if `value` is of type `long double`.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by reference in a `basic_format_arg::handle`.  This constructor
+    /// only participates in overload resolution if `value` is not an integer
+    /// or if `value` is an signed integer type that can not be held within a
+    /// `long long` or an unsigned integer type that can not be held within an
+    /// `unsigned long long`.  Participation in overload resolution is also
+    /// disabled if `value` is of type `long double`.
     template <class t_TYPE>
     explicit basic_format_arg(
          const t_TYPE& value,
@@ -203,12 +202,12 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
                                      (sizeof(t_TYPE) > sizeof(long long)),
                                  int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(float value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(double value) BSLS_KEYWORD_NOEXCEPT;
 
     /// Terminate by calling BSLMF_ASSERT.  This constructor only participates
@@ -222,65 +221,65 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
            typename bsl::enable_if<bsl::is_same<t_TYPE, long double>::value,
                                    int>::type = 0) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     template <class t_TRAITS>
     explicit basic_format_arg(
       bsl::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     template <class t_TRAITS>
     explicit basic_format_arg(
       std::basic_string_view<char_type, t_TRAITS> value) BSLS_KEYWORD_NOEXCEPT;
 #endif
 #endif
 
-    /// Construct a `basic_format_arg` holding (by value) a `string_view`
+    /// Create a `basic_format_arg` holding (by value) a `string_view`
     /// constructed from the specified `value`.
     template <class t_TRAITS, class t_ALLOC>
     explicit basic_format_arg(bsl::basic_string<char_type, t_TRAITS, t_ALLOC>&
                                   value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` holding (by value) a `string_view`
+    /// Create a `basic_format_arg` holding (by value) a `string_view`
     /// constructed from the specified `value`.
     template <class t_TRAITS, class t_ALLOC>
     explicit basic_format_arg(
                   const bsl::basic_string<char_type, t_TRAITS, t_ALLOC>& value)
         BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` holding (by value) a `string_view`
+    /// Create a `basic_format_arg` holding (by value) a `string_view`
     /// constructed from the specified `value`.
     template <class t_TRAITS, class t_ALLOC>
     explicit basic_format_arg(std::basic_string<char_type, t_TRAITS, t_ALLOC>&
                                   value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` holding (by value) a `string_view`
+    /// Create a `basic_format_arg` holding (by value) a `string_view`
     /// constructed from the specified `value`.
     template <class t_TRAITS, class t_ALLOC>
     explicit basic_format_arg(
                   const std::basic_string<char_type, t_TRAITS, t_ALLOC>& value)
         BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(char_type *value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(const char_type *value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(void *value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` from the specified `value`, which is
-    /// then held by value.
+    /// Create a `basic_format_arg` from the specified `value`, which is then
+    /// held by value.
     explicit basic_format_arg(const void *value) BSLS_KEYWORD_NOEXCEPT;
 
-    /// Construct a `basic_format_arg` which holds
+    /// Create a `basic_format_arg` which holds
     /// `static_cast<const void *>(nullptr)`.
     explicit basic_format_arg(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT;
 
@@ -295,14 +294,14 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
   public:
     // CREATORS
 
-    /// Construct a `basic_format_arg` which holds no value.
+    /// Create a `basic_format_arg` which holds no value.
     basic_format_arg() BSLS_KEYWORD_NOEXCEPT;
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    /// Move-construct a `basic_format_arg` from the specified `rhs`. This is
-    /// required to support use on C++03, but must
-    /// *not* be specified for C++11 and later as it will result in the
-    /// implicit deletion of other defaulted special member functions.
+    /// Move-construct a `basic_format_arg` from the specified `rhs`.  This is
+    /// required to support use on C++03, but must *not* be specified for C++11
+    /// and later as it will result in the implicit deletion of other defaulted
+    /// special member functions.
     basic_format_arg(
                 bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT;
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -315,10 +314,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     // MANIPULATORS
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    /// Move-assign a `basic_format_arg` from the specified `rhs`. This is
-    /// required to support use on C++03, but must
-    /// *not* be specified for C++11 and later as it will result in the
-    /// implicit deletion of other defaulted special member functions.
+    /// Move-assign a `basic_format_arg` from the specified `rhs`.  This is
+    /// required to support use on C++03, but must *not* be specified for C++11
+    /// and later as it will result in the implicit deletion of other defaulted
+    /// special member functions.
     basic_format_arg &operator=(
                 bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT;
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -377,9 +376,9 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 #endif
 };
 
-                            // --------------------
+                            // ====================
                             // class Format_ArgUtil
-                            // --------------------
+                            // ====================
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -575,9 +574,7 @@ class Format_ArgUtil {
 // }}} END GENERATED CODE
 #endif
 
-                               // --------------
-                               // FREE FUNCTIONS
-                               // --------------
+// FREE FUNCTIONS
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
@@ -611,7 +608,7 @@ decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
 
 /// Invoke the specified `visitor` functor on the value contained by the
 /// specified `arg`, providing that functor non-modifiable access to that
-/// value. `visitor` must be a functor that can be called as if it had the
+/// value.  `visitor` must be a functor that can be called as if it had the
 /// following signature:
 /// ```
 ///     void operator()(bsl::monostate) const;
@@ -638,9 +635,9 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-               // ---------------------------------------------
-               // class basic_format_arg<t_OUT, T_CHAR>::handle
-               // ---------------------------------------------
+                         // ----------------------
+                         // class basic_format_arg
+                         // ----------------------
 
 // PRIVATE CLASS METHODS
 template <class t_OUT, class t_CHAR>
@@ -692,9 +689,9 @@ void basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::handle::format(
     d_format_impl_p(pc, fc, d_value_p);
 }
 
-                   // -------------------------------------
-                   // class basic_format_arg<t_OUT, T_CHAR>
-                   // -------------------------------------
+                         // ----------------------
+                         // class basic_format_arg
+                         // ----------------------
 
 // MANIPULATORS
 
@@ -1449,10 +1446,6 @@ void Format_ArgUtil::makeFormatArgArray(
 // }}} END GENERATED CODE
 #endif
 
-                               // --------------
-                               // FREE FUNCTIONS
-                               // --------------
-
 // FREE FUNCTIONS
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) &&               \
@@ -1476,7 +1469,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 }
 #endif
 
-}  // close namespace bslfmt
+}  // close package namespace
 }  // close enterprise namespace
 
 #else // if ! defined(DEFINED_BSLFMT_FORMAT_ARG_H)
@@ -1486,7 +1479,7 @@ visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg)
 #endif // ! defined(INCLUDED_BSLFMT_FORMAT_ARG_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

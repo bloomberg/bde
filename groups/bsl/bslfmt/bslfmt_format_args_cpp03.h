@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Dec 12 17:26:25 2024
+// Generated on Fri Jan 17 12:47:44 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_args.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARGS_H
@@ -52,10 +52,9 @@ typedef basic_format_args<format_context> format_args;
 
 typedef basic_format_args<wformat_context> wformat_args;
 
-                   // -------------------------------------
-                   // class Format_ArgsStore<t_OUT, T_CHAR>
-                   // -------------------------------------
-
+                        // ======================
+                        // class Format_ArgsStore
+                        // ======================
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -491,10 +490,7 @@ class Format_ArgsStore {
 // }}} END GENERATED CODE
 #endif
 
-
-                               // --------------
-                               // FREE FUNCTIONS
-                               // --------------
+// FREE FUNCTIONS
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -920,22 +916,24 @@ Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
 #endif
 
 
-                     // ----------------------------------
-                     // class basic_format_args<t_CONTEXT>
-                     // ----------------------------------
+                         // =======================
+                         // class basic_format_args
+                         // =======================
 
-/// A class intended to provide access to formatting arguments. This should not
-/// be constructed directly but indirectly using one of the `make_format_args`
-/// or the `make_wformat_args` functions. Note that this type has reference
-/// semantics and users must ensure that this type does not outlive the
-/// arguments used in its construction.
+/// A class intended to provide access to formatting arguments.  This should
+/// not be constructed directly but indirectly using one of the
+/// `make_format_args` or the `make_wformat_args` functions.  Note that this
+/// type has reference semantics and users must ensure that this type does not
+/// outlive the arguments used in its construction.
 template <class t_CONTEXT>
 class basic_format_args {
   private:
     // DATA
-    size_t                             d_size;  // Number of arguments held
-    const basic_format_arg<t_CONTEXT> *d_data;  // Pointer to the first element
-                                                // of the contained array.
+    size_t                             d_size;    // number of arguments held
+
+    const basic_format_arg<t_CONTEXT> *d_data_p;  // pointer to the first
+                                                  // element of the contained
+                                                  // array.
 
     // PRIVATE ACCESSORS
 
@@ -948,7 +946,7 @@ class basic_format_args {
   public:
     // CREATORS
 
-    // Construct a `basic_format_args` object which contains no arguments.
+    // Create a `basic_format_args` object which contains no arguments.
     basic_format_args() BSLS_KEYWORD_NOEXCEPT;
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1855,7 +1853,7 @@ template <class t_CONTEXT>
 inline
 basic_format_args<t_CONTEXT>::basic_format_args() BSLS_KEYWORD_NOEXCEPT
 : d_size(0)
-, d_data(0)
+, d_data_p(0)
 {}
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1874,7 +1872,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_ArgsStore<t_CONTEXT>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 0u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 0
@@ -1887,7 +1885,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_ArgsStore<t_CONTEXT, t_ARGS_01>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 1u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 1
@@ -1902,7 +1900,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_02>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 2u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 2
@@ -1919,7 +1917,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_03>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 3u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 3
@@ -1938,7 +1936,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_04>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 4u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 4
@@ -1959,7 +1957,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_05>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 5u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 5
@@ -1982,7 +1980,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_06>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 6u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 6
@@ -2007,7 +2005,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_07>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 7u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 7
@@ -2034,7 +2032,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_08>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 8u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 8
@@ -2063,7 +2061,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_09>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size( 9u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 9
@@ -2094,7 +2092,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                                                         t_ARGS_10>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size(10u)
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_F >= 10
@@ -2109,7 +2107,7 @@ basic_format_args<t_CONTEXT>::basic_format_args(
                       const Format_ArgsStore<t_CONTEXT, t_ARGS...>& store)
     BSLS_KEYWORD_NOEXCEPT
 : d_size(sizeof...(t_ARGS))
-, d_data(store.d_args.data())
+, d_data_p(store.d_args.data())
 {
 }
 // }}} END GENERATED CODE
@@ -2121,7 +2119,7 @@ inline
 basic_format_arg<t_CONTEXT> basic_format_args<t_CONTEXT>::get(
                                         size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
-    return pos < d_size ? d_data[pos] : basic_format_arg<t_CONTEXT>();
+    return pos < d_size ? d_data_p[pos] : basic_format_arg<t_CONTEXT>();
 }
 
 
@@ -3255,8 +3253,8 @@ Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
 // }}} END GENERATED CODE
 #endif
 
-}  // close namespace bslfmt
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #else // if ! defined(DEFINED_BSLFMT_FORMAT_ARGS_H)
 # error Not valid except when included from bslfmt_format_args.h
@@ -3265,7 +3263,7 @@ Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
 #endif // ! defined(INCLUDED_BSLFMT_FORMAT_ARGS_CPP03)
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2023 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
