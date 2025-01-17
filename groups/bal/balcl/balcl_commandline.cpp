@@ -970,8 +970,8 @@ int CommandLine::parseImp(bsl::ostream& errorStream)
         // have to stop whenever an option isn't a flag, as in Gnu tar, e.g.,
         // "-zcvf filename".)
 
-        int         index;
-        const char *s = &d_arguments[i].c_str()[1];
+        int         index = 0;
+        const char *s     = &d_arguments[i].c_str()[1];
         while (*s && (index = findTag(*s)) != -1
             && OptionInfo::e_FLAG == d_options[index].argType()) {
 

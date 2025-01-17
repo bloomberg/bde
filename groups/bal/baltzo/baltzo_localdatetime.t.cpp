@@ -943,8 +943,8 @@ int main(int argc, char *argv[])
                     Obj  *objPtr = 0;
 
                     bslma::TestAllocator *objAllocatorPtr = 0;
-                    bsls::Types::Int64    s1Alloc = s1.numBytesInUse();
-                    bsls::Types::Int64    objAlloc;
+                    bsls::Types::Int64    s1Alloc         = s1.numBytesInUse();
+                    bsls::Types::Int64    objAlloc        = 0;
 
                     switch (CONFIG) {
                       case 'a': {
