@@ -143,7 +143,7 @@ BSLS_IDENT("$Id: $")
 // will have on the runtime performance of the function, and in some cases on
 // the size of the function.
 //
-// 1. BSLS_ASSERT_SAFE - This macro should be reserved for tests incurring an
+// 1. `BSLS_ASSERT_SAFE` - This macro should be reserved for tests incurring an
 //    expensive change to the performance of a function, either a very high
 //    constant time increase in execution time of the function, or an increase
 //    in the algorithmic complexity of a function.  Note especially that a
@@ -151,9 +151,9 @@ BSLS_IDENT("$Id: $")
 //    functions (e.g., an `O(n)` check in a function with a documented
 //    `O(log(n))` runtime speed) and so checks with that level of cost should
 //    be reserved for diagnostic use in "safe" builds.
-// 2. BSLS_ASSERT - For "inexpensive" checks with only a constant factor
+// 2. `BSLS_ASSERT` - For "inexpensive" checks with only a constant factor
 //    overhead.  The majority of checks should fall into this category.
-// 3. BSLS_ASSERT_OPT - For "negligible" checks that have little to no
+// 3. `BSLS_ASSERT_OPT` - For "negligible" checks that have little to no
 //    measurable overhead on a function.  This will often be the case for
 //    argument checking in larger functions, or very simple checks in smaller
 //    functions.  Keep in mind that these checks will be enabled in all
@@ -439,12 +439,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Conditional Compilation
 ///-----------------------
-// To recap, there are three (mutually compatible) general *build* *targets*:
+// To recap, there are three (mutually compatible) general **build targets**:
 // * `BDE_BUILD_TARGET_OPT`
 // * `BDE_BUILD_TARGET_SAFE`
 // * `BDE_BUILD_TARGET_SAFE_2`
 //
-// seven (mutually exclusive) component-specific *assertion* *levels*:
+// seven (mutually exclusive) component-specific **assertion levels**:
 // * `BSLS_ASSERT_LEVEL_ASSERT_SAFE`
 // * `BSLS_ASSERT_LEVEL_ASSERT`
 // * `BSLS_ASSERT_LEVEL_ASSERT_OPT`
@@ -453,14 +453,14 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERT_LEVEL_ASSUME_ASSERT`
 // * `BSLS_ASSERT_LEVEL_ASSUME_SAFE`
 //
-// and four (mutually exclusive) component-specific *review* *levels*:
+// and four (mutually exclusive) component-specific **review levels**:
 // * `BSLS_REVIEW_LEVEL_REVIEW_SAFE`
 // * `BSLS_REVIEW_LEVEL_REVIEW`
 // * `BSLS_REVIEW_LEVEL_REVIEW_OPT`
 // * `BSLS_REVIEW_LEVEL_NONE`
 //
 // The above macros can be defined (externally) by the build environment to
-// affect which of the three *assert* *macros*:
+// affect which of the three **assert macros**:
 // * `BSLS_ASSERT_SAFE(boolean-valued expression)`
 // * `BSLS_ASSERT(boolean-valued expression)`
 // * `BSLS_ASSERT_OPT(boolean-valued expression)`
@@ -536,7 +536,7 @@ BSLS_IDENT("$Id: $")
 // * Use `#if defined(...IS_ACTIVE)` when:
 //   - You are doing negative testing and want to be sure that when you call
 //     your function out of contract that the violation handler will be
-//     invoked.  See {`bsls_asserttest`} for tools to do this without having
+//     invoked.  See `bsls_asserttest` for tools to do this without having
 //     to manually check these macros.
 //   - Writing redundant defensive code that should only execute when the
 //     corresponding assertions are going to be enabled.  The assertion itself
@@ -557,7 +557,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------------------
 // An additional external macro, `BSLS_ASSERT_VALIDATE_DISABLED_MACROS`, can be
 // defined to control the compile time behavior of `bsls_assert`.  Enabling
-// this macro configures all *disabled* assert macros to still instantiate
+// this macro configures all **disabled** assert macros to still instantiate
 // their predicates (in a non-evaluated context) to be sure that the predicate
 // is still syntactically valid.  This can be used to ensure assertions that
 // are rarely enabled have valid expressions.
@@ -1270,7 +1270,7 @@ BSLS_IDENT("$Id: $")
 // Successfully writing bad data is among the most insidious of bugs, because a
 // latent error can persist and not be discovered until long after the program
 // terminates.  Writing the value of a corrupted `MyDate` object in a
-// *machine-readable* (binary) format is an error so serious as to warrant
+// **machine-readable** (binary) format is an error so serious as to warrant
 // invoking
 // ```
 // void testFunction(int d_serialDate) {
