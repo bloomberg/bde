@@ -1539,7 +1539,7 @@ STREAM& PackedIntArrayImp<STORAGE>::bdexStreamIn(STREAM& stream, int version)
             else {
                 bsl::size_t tmpLength;
                 {
-                    int v;
+                    int v = 0;
                     stream.getLength(v);
                     tmpLength = static_cast<bsl::size_t>(v);
                 }

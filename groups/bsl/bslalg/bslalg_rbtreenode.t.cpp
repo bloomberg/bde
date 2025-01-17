@@ -177,10 +177,7 @@ void debugprint(const Obj& val) {
 /// `left`, and `right`.
 static Obj& gg(Obj *result, Color color, Obj *parent, Obj *left, Obj *right)
 {
-    result->setColor(color);
-    result->setParent(parent);
-    result->setLeftChild(left);
-    result->setRightChild(right);
+    result->reset(parent, left, right, color);
     return *result;
 }
 

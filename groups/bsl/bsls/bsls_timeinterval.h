@@ -1245,8 +1245,8 @@ STREAM& TimeInterval::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            bsls::Types::Int64 seconds;
-            int                nanoseconds;
+            bsls::Types::Int64 seconds     = 0;
+            int                nanoseconds = 0;
             stream.getInt64(seconds);
             stream.getInt32(nanoseconds);
 

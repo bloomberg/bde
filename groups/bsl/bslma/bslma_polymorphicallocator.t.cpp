@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
 
             alloc.construct(&buf2.object());
             ASSERT(alloc == buf2.object().get_allocator());
-            ASSERTV(0, buf2.object().value(), 0 == buf1.object().value());
+            ASSERTV(buf2.object().value(), 0 == buf2.object().value());
             runDestroy(alloc, &buf2.object());
             ASSERTV(AATT::lastDestroyed() == buf2.address());
         }

@@ -2,6 +2,8 @@
 
 #include <bsls_blockgrowth.h>
 
+#include <bsls_platform.h>
+
 #include <iostream>
 
 #include <cstdlib>
@@ -240,6 +242,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting enumerator value and `toAscii`."
                           << endl;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_line;   // line number
             Enum        d_enum;   // enumerator
@@ -256,6 +263,11 @@ int main(int argc, char *argv[])
             { L_,     (Enum)10                  , "(* UNKNOWN *)",   -1  },
 #endif
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {

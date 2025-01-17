@@ -3,6 +3,7 @@
 #include <bsls_alignment.h>
 
 #include <bsls_bsltestutil.h>      // for testing only
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -285,6 +286,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting `enum` and `toAscii`"
                             "\n============================\n");
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -295,7 +301,6 @@ int main(int argc, char *argv[])
             {  L_,     Obj::BSLS_MAXIMUM,              "MAXIMUM"         },
             {  L_,     Obj::BSLS_NATURAL,              "NATURAL"         },
             {  L_,     Obj::BSLS_BYTEALIGNED,          "BYTEALIGNED"     },
-
 #ifndef BDE_BUILD_TARGET_UBSAN
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
@@ -303,6 +308,11 @@ int main(int argc, char *argv[])
             {  L_,     (Enum)99,                       UNKNOWN_FORMAT    }
 #endif
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) printf("\nVerify enumerator values are sequential.\n");

@@ -234,7 +234,7 @@ bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
     const TYPE *ptr;
     for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
                                    *idx = (*idx + 1) & d_bucketArrayMask) {
-        if (value == *ptr) {
+        if (value == +*ptr) {
             return true;                                              // RETURN
         }
     }

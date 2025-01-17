@@ -1540,7 +1540,7 @@ if (veryVerbose) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            double DATA[5];
+            double DATA[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
             Buf b;
 
@@ -1693,7 +1693,7 @@ if (veryVerbose) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            float DATA[5];
+            float DATA[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
 
             Buf b;
 

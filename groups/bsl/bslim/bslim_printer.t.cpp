@@ -199,7 +199,7 @@ struct TestEnumWithStreaming {
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          TestEnumWithStreaming::Enum value)
 {
-    const char *ascii;
+    const char *ascii = 0;
     switch (value) {
       case TestEnumWithStreaming::VALUE_A:
         ascii = "VALUE_A";

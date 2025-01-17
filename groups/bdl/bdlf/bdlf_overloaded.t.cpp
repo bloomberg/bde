@@ -598,7 +598,7 @@ int main(int argc, char *argv[])
         int someValue = 3;
 
         checkEm(bdlf::Overloaded{
-              [&someValue](void)           {return kVoid;}
+              [&someValue](void)  {  (void)someValue;  return kVoid;  }
             , FloatingPoint{}
             , FreeFN::HandleShort
             , FreeFN::HandleUnsignedShort

@@ -1021,6 +1021,8 @@ struct MyClassDef {
     int              *d_data_p;
     bslma::Allocator *d_allocator_p;
 
+    MyClassDef();
+    
     // In optimized builds, some compilers will elide some of the operations in
     // the destructors of the test classes defined below.  In order to force
     // the compiler to retain all of the code in the destructors, we provide
@@ -1035,6 +1037,13 @@ struct MyClassDef {
 };
 
 bool MyClassDef::s_forceDestructorCall = false;
+
+MyClassDef::MyClassDef()
+: d_value(0)
+, d_data_p(0)
+, d_allocator_p(0)
+{
+}
 
 void MyClassDef::dumpState()
 {

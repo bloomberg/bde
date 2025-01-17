@@ -757,9 +757,9 @@ class MockHashingAlgorithm {
   public:
     /// Create a new `MockHashingAlgorithm`
     MockHashingAlgorithm()
-    : d_length(0)
+    : d_data(0)
+    , d_length(0)
     {
-        d_data = new char[0];
     }
 
     /// Destroy this object

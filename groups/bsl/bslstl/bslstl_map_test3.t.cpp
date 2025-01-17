@@ -4086,7 +4086,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
     };
     const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-    const int MAX_LENGTH = 10;
+    const int MAX_LENGTH = 32;
 
     if (verbose) printf("\nTesting `emplace` with hint.\n");
     {
@@ -4771,7 +4771,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31()
     };
     const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-    const int MAX_LENGTH = 10;
+    const int MAX_LENGTH = 32;
 
     if (verbose) printf("\nTesting `emplace` without exceptions.\n");
     {
@@ -5451,7 +5451,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
     };
     const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-    const int MAX_LENGTH = 10;
+    const int MAX_LENGTH = 32;
 
     if (verbose) printf("\nTesting `insert` without exceptions.\n");
     {
