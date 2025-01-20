@@ -1,5 +1,35 @@
-bsl-internal (4.18.0.0) unstable; urgency=low
+bsl-internal (4.19.0.0) unstable; urgency=low
 
+  * 5243002f9 Bumped version to 4.19.0.0
+  * 34450f5fa reduce warnings (#5171)
+  * d53f30b9d Add 'BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE' (2) (#5167)
+  * 86f88edab reduce warnings (#5168)
+  * 9498c631e Bdljsn jsonnull constant drqs 175433360.1 (#4801) (#5163)
+  * 6d64ed8fb fix compile warning (#5165)
+  * cc781e107 Regenerate more source files for sim_cpp11 change (#5162)
+  * 1c047e5ab Do not rely on /usr/include existing in test (#5133)
+  * bf0ea8796 Optimize disassembleSharedPtr() to avoid temporary shared pointer copy - {DRQS 177653766} (#5139)
+  * 28f7de0a0 Apply new sim_cpp11_features with clang-format markup (#5160)
+  * 5f39e691e Documentation cleanup. (#5135)
+  * d596cfe38 Remove deprecated BDEU_* enum values (#5155)
+  * 6abdcb667 Update bsl::optional spaceship workaround for cpp23 (#5154)
+  * 367d73056 Copy ryu to bbryu. (#4300)
+  * 0ea7dfd78 Remove remnants of old build system. (#5151)
+  * 041e412dc Remove dynamic exception specifications. (#5111)
+  * aa08a56a4 Fix code block in docs (#5150)
+  * 0fd8d3f57 Clean up transparent tests in unordered containers. NFC (#5136)
+  * 111433702 Add transparent find/count/contains/at/equal_range to FlatHashMap/Set (#5105)
+  * 950d69642 Fix some bsl warnings on Clang 15 C++20 (DRQS 177671190) (#5134)
+  * 0ff1cf0dd Optimize getLogger() for common case of single singleton (saves ~45 ns) (#5138)
+  * 705fde904 Add std::string/string_view support to TransparentStringHash (#5115)
+  * 0a5da4911 Add real bdlat package documentation - part 2 (DRQS 149549180) (#5101)
+  * 5a689877c Fix html rendering in docs (#5113)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jan 2025 10:09:52 -0500
+
+bsl-internal (4.18.0.0) git; urgency=low
+
+  * ec094b445 Changelog for version 4.18.0.0
   * ba3c2ca61 Bumped version to 4.18.0.0
   * 169322442 add transparent insert and insert_or_assign to associative containers (#5109)
   * 6abd49b43 Enable .gob extension for component implementation files. (#5090)
@@ -22,7 +52,7 @@ bsl-internal (4.18.0.0) unstable; urgency=low
   * 4f3eb135f Merge pull request #5093 from hversche/add-removeAll-timequeue-drqs-177291899
   * c4df872a0 Add a release method to bdls_tempdirectoryguard (#5081)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Dec 2024 18:48:02 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 13 Dec 2024 18:51:12 +0000
 
 bsl-internal (4.17.0.0) git; urgency=low
 
