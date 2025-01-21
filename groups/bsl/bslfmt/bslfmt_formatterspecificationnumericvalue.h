@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bslstl_iterator.h>
 #include <bslstl_monostate.h>
@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                // -----------------------------------------
+                // =========================================
                 // struct FormatterSpecificationNumericValue
-                // -----------------------------------------
+                // =========================================
 
 /// Type holding a category plus an optional integral value.  This is a value
 /// semantic type primarily used to represent width and precision of a format

@@ -24,7 +24,7 @@ namespace {
 
     int testStatus = 0;
 
-    void aSsErT(bool condition, const char* message, int line)
+    void aSsErT(bool condition, const char *message, int line)
     {
         if (condition) {
             printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
@@ -353,19 +353,28 @@ struct MockNoArgsContext {
     mutable bool d_argAccessed;
 
     // CREATORS
+
+    /// Create a `MockNoArgsContext` object.
     MockNoArgsContext() : d_argAccessed(false) {}
 
     // MANIPULATORS
+
+    /// Reset the argument-access flag (see `argAccessed`) to `false`.
     void reset() {
         d_argAccessed = false;
     }
 
     // ACCESSORS
+
+    /// Return an empty (visits as `monostate`) `format_arg` and set the
+    /// `argAccessed` flag (to `true`).
     FormatArgType arg(int) const {
         d_argAccessed = true;
         return FormatArgType();
     }
 
+    /// Return `true` if any argument has been requested since construction or
+    /// the last call to `reset`, and `false` otherwise.
     bool argAccessed() const {
         return d_argAccessed;
     }
@@ -585,7 +594,9 @@ struct MockOneArgContext {
         return FormatArgType::createValue(d_value);
     }
 
-    /// Return the current value if the `wrongArgAccessed` attribute.
+    /// Return `true` if an argument with different ID than expected (the ID
+    /// specified during construction) has been requested since construction or
+    /// the last call to `reset`, and `false` otherwise.
     bool wrongArgAccessed() const {
         return d_wrongArgAccessed;
     }
@@ -784,11 +795,10 @@ struct MockBadArgContext {
 
     // ACCESSORS
 
-    /// Return the format argument for the specified argument `id`.  When `id`
-    /// is the same as the `argId` attribute return a `format_arg` with the
-    /// type `t_VALUE_TYPE` and an unspecified value.  Return an empty
-    /// (`monostate`) `format_arg` for every other ID and also set the
-    /// `wrongArgAccessed` attribute (to `true`).
+    /// Return a `format_arg` of `t_VALUE_TYPE` with an unspecified value if
+    /// the specified argument `id` is the same as the `argId` attribute.
+    /// Return an empty (`monostate`) `format_arg` for every other ID and also
+    /// set the `wrongArgAccessed` attribute (to `true`).
     FormatArgType arg(int id) const {
         if (id != d_argId) {
             d_wrongArgAccessed = true;
@@ -798,7 +808,9 @@ struct MockBadArgContext {
         return FormatArgType::createBadType();
     }
 
-    /// Return the current value if the `wrongArgAccessed` attribute.
+    /// Return `true` if an argument with different ID than expected (the ID
+    /// specified during construction) has been requested since construction or
+    /// the last call to `reset`, and `false` otherwise.
     bool wrongArgAccessed() const {
         return d_wrongArgAccessed;
     }
@@ -809,7 +821,7 @@ struct MockBadArgContext {
 //-----------------------------------------------------------------------------
 
 template <class t_CHAR>
-void verifyNoArgsMock()
+void verifyNoPostprocessing()
 {
     MockNoArgsContext<char> ctx;
     ASSERT(ctx.argAccessed() == false);
@@ -841,7 +853,7 @@ void verifyNoArgsMock()
 }
 
 template <class t_CHAR, class t_VALUE_TYPE>
-void verifyOneArgMockOnType()
+void verifyHasPostprocessingOnType()
 {
     typedef MockOneArgContext<t_CHAR, t_VALUE_TYPE> MockContext;
 
@@ -901,13 +913,13 @@ void verifyTooLargeValueOnType()
 }
 
 template <class t_CHAR>
-void verifyOneArgMock()
+void verifyHasPostprocessing()
 {
-    verifyOneArgMockOnType<t_CHAR, t_CHAR            >();
-    verifyOneArgMockOnType<t_CHAR, int               >();
-    verifyOneArgMockOnType<t_CHAR, unsigned          >();
-    verifyOneArgMockOnType<t_CHAR, long long         >();
-    verifyOneArgMockOnType<t_CHAR, unsigned long long>();
+    verifyHasPostprocessingOnType<t_CHAR, t_CHAR            >();
+    verifyHasPostprocessingOnType<t_CHAR, int               >();
+    verifyHasPostprocessingOnType<t_CHAR, unsigned          >();
+    verifyHasPostprocessingOnType<t_CHAR, long long         >();
+    verifyHasPostprocessingOnType<t_CHAR, unsigned long long>();
 
     verifyTooLargeValueOnType<t_CHAR, unsigned          >();
     verifyTooLargeValueOnType<t_CHAR, long long         >();
@@ -915,7 +927,7 @@ void verifyOneArgMock()
 }
 
 template <class t_CHAR, class t_VALUE_TYPE>
-void verifyBadArgMockOnType()
+void verifyBadArgumentTypeReferencedWithType()
 {
     typedef MockBadArgContext<t_CHAR, t_VALUE_TYPE> MockContext;
 
@@ -954,23 +966,25 @@ void verifyBadArgMockOnType()
 }
 
 template <class t_CHAR>
-void verifyBadArgMock()
+void verifyBadArgumentTypeReferenced()
 {
-    verifyBadArgMockOnType<t_CHAR, bool                           >();
-    verifyBadArgMockOnType<t_CHAR, float                          >();
-    verifyBadArgMockOnType<t_CHAR, double                         >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, bool                           >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, float                          >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, double                         >();
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    verifyBadArgMockOnType<t_CHAR, long double                    >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, long double                    >();
 #endif
-    verifyBadArgMockOnType<t_CHAR, const t_CHAR*                  >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, const t_CHAR*                  >();
 #if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
     defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-    verifyBadArgMockOnType<t_CHAR, std::basic_string_view<t_CHAR> >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR,
+                                            std::basic_string_view<t_CHAR> >();
 #endif
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
-    verifyBadArgMockOnType<t_CHAR, bsl::basic_string_view<t_CHAR> >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR,
+                                            bsl::basic_string_view<t_CHAR> >();
 #endif
-    verifyBadArgMockOnType<t_CHAR, const void*                    >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, const void*                    >();
     // We cannot create `handle` so we won't test it.
 }
 
@@ -1050,20 +1064,20 @@ int main(int argc, char** argv)
 
         if (veryVerbose) puts("\tNo arguments (empty) context");
         {
-            verifyNoArgsMock<char>();
-            verifyNoArgsMock<wchar_t>();
+            verifyNoPostprocessing<char>();
+            verifyNoPostprocessing<wchar_t>();
         }
 
         if (veryVerbose) puts("\tOne argument with value context");
         {
-            verifyOneArgMock<char>();
-            verifyOneArgMock<wchar_t>();
+            verifyHasPostprocessing<char>();
+            verifyHasPostprocessing<wchar_t>();
         }
 
         if (veryVerbose) puts("\tBad argument type context");
         {
-            verifyBadArgMock<char>();
-            verifyBadArgMock<wchar_t>();
+            verifyBadArgumentTypeReferenced<char>();
+            verifyBadArgumentTypeReferenced<wchar_t>();
         }
 
     } break;
@@ -1109,7 +1123,7 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse an empty width-like value");
         {
             const char  partialSpec[] = "}";
-            const char* start = partialSpec;
+            const char *start = partialSpec;
 
             Object obj;
             Object::parse(&obj, &start, start + sizeof partialSpec - 1, false);
@@ -1122,7 +1136,7 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse an empty precision-like value");
         {
             const char  partialSpec[] = "}";
-            const char* start = partialSpec;
+            const char *start = partialSpec;
 
             Object obj;
             Object::parse(&obj, &start, start + sizeof partialSpec - 1, true);
@@ -1135,8 +1149,8 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse a direct width-like value");
         {
             const char  partialSpec[] = "123}";
-            const char* start = partialSpec;
-            const char* const EXPECTED_START = start + sizeof partialSpec - 2;
+            const char *start = partialSpec;
+            const char *const EXPECTED_START = start + sizeof partialSpec - 2;
 
             Object obj;
             Object::parse(&obj, &start, start + sizeof partialSpec - 1, false);
@@ -1150,8 +1164,8 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse a direct precision-like value");
         {
             const char  partialSpec[] = ".14}";
-            const char* start = partialSpec;
-            const char* const EXPECTED_START = start + sizeof partialSpec - 2;
+            const char *start = partialSpec;
+            const char *const EXPECTED_START = start + sizeof partialSpec - 2;
 
             Object obj;
             Object::parse(&obj, &start, start + sizeof partialSpec - 1, true);
@@ -1165,7 +1179,7 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse a missing precision-like value");
         {
             const char  partialSpec[] = ".}";
-            const char* start = partialSpec;
+            const char *start = partialSpec;
 
             Object obj;
             bool   formatErrorCaught = false;
@@ -1189,7 +1203,7 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse a non-integer precision-like value");
         {
             const char  partialSpec[] = ".a}";
-            const char* start = partialSpec;
+            const char *start = partialSpec;
 
             Object obj;
             bool   formatErrorCaught = false;
@@ -1209,8 +1223,8 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse a too-large value");
         {
             const char  partialSpec[] = ".999999999999}";
-            const char* pstart = partialSpec;
-            const char* wstart = partialSpec + 1;
+            const char *pstart = partialSpec;
+            const char *wstart = partialSpec + 1;
 
             Object obj;
             bool   formatErrorCaught = false;
@@ -1243,9 +1257,9 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse next-argument specification");
         {
             const char  partialSpec[] = ".{}}";
-            const char* pstart = partialSpec;
-            const char* wstart = partialSpec + 1;
-            const char* const EXPECTED_START =
+            const char *pstart = partialSpec;
+            const char *wstart = partialSpec + 1;
+            const char *const EXPECTED_START =
                 pstart + sizeof partialSpec - 2;
 
             Object obj;
@@ -1268,9 +1282,9 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse argument ID specification");
         {
             const char  partialSpec[] = ".{123}}";
-            const char* pstart = partialSpec;
-            const char* wstart = partialSpec + 1;
-            const char* const EXPECTED_START =
+            const char *pstart = partialSpec;
+            const char *wstart = partialSpec + 1;
+            const char *const EXPECTED_START =
                 pstart + sizeof partialSpec - 2;
 
             Object obj;
@@ -1295,8 +1309,8 @@ int main(int argc, char** argv)
         if (veryVerbose) puts("\tParse bad argument ID");
         {
             const char  partialSpec[] = ".{gibberish}}";
-            const char* pstart = partialSpec;
-            const char* wstart = partialSpec + 1;
+            const char *pstart = partialSpec;
+            const char *wstart = partialSpec + 1;
 
             Object obj;
             bool   formatErrorCaught = false;
