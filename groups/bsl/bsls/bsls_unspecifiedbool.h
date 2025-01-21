@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // pointer types and, in particular, support testing for "null" or "empty"
 // pointer values as a simple boolean conversion in `if` and `while` clauses.
 // We here demonstrate how to create a simple smart pointer type, `SimplePtr`,
-// using this component to implement a safe the boolean conversion.
+// using this component to implement a safe boolean conversion.
 //
 // An object of type `SimplePtr` holds a pointer value, but does not claim
 // ownership or any responsibility for the lifetime of the referenced object.
