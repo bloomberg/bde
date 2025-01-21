@@ -723,7 +723,7 @@ void FormatterSpecificationSplitter<t_CHAR>::parseRawWidth(
 
     typedef FormatterSpecificationNumericValue     FSNValue;
 
-    FSNValue::parse(&outSpec->d_rawWidth, start, end, false);
+    outSpec->d_rawWidth.parse(start, end, false);
     // Non-relative widths must be strictly positive.
     if (outSpec->d_rawWidth == FSNValue(FSNValue::e_VALUE, 0)) {
         BSLS_THROW(bsl::format_error("Field widths must be > 0."));    // THROW
@@ -749,7 +749,7 @@ void FormatterSpecificationSplitter<t_CHAR>::parseRawPrecision(
 
     typedef FormatterSpecificationNumericValue FSNValue;
 
-    return FSNValue::parse(&outSpec->d_rawPrecision, start, end, true);
+    return outSpec->d_rawPrecision.parse(start, end, true);
 }
 
 template <class t_CHAR>
@@ -973,16 +973,12 @@ void FormatterSpecificationSplitter<t_CHAR>::postprocess(
 
     if (0 != (out->d_sections & e_SECTIONS_WIDTH)) {
         out->d_postprocessedWidth = out->d_rawWidth;
-        FormatterSpecificationNumericValue::postprocess(
-                                                    &out->d_postprocessedWidth,
-                                                    context);
+        out->d_postprocessedWidth.postprocess(context);
     }
 
     if (0 != (out->d_sections & e_SECTIONS_PRECISION)) {
         out->d_postprocessedPrecision = out->d_rawPrecision;
-        FormatterSpecificationNumericValue::postprocess(
-                                                &out->d_postprocessedPrecision,
-                                                context);
+        out->d_postprocessedPrecision.postprocess(context);
     }
 
     out->d_processingState = e_PARSING_POSTPROCESSED;

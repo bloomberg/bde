@@ -837,13 +837,13 @@ void verifyNoPostprocessing()
     ctx.reset();
 
     Object obj;
-    Object::postprocess(&obj, ctx);
+    obj.postprocess(ctx);
     ASSERT(ctx.argAccessed() == false);
 
     bool formatErrorCaught = false;
     obj = Object(Object::e_NEXT_ARG, 0);
     try {
-        Object::postprocess(&obj, ctx);
+        obj.postprocess(ctx);
     }
     catch (const bsl::format_error&) {
         formatErrorCaught = true;
@@ -869,7 +869,7 @@ void verifyHasPostprocessingOnType()
     ctx.reset();
 
     Object obj(Object::e_ARG_ID, 3);
-    Object::postprocess(&obj, ctx);
+    obj.postprocess(ctx);
     ASSERT(ctx.wrongArgAccessed() == false);
     ASSERT(obj.category() == Object::e_VALUE);
     ASSERT(obj.value() == 42);
@@ -877,7 +877,7 @@ void verifyHasPostprocessingOnType()
     obj = Object(Object::e_ARG_ID, 2);
     bool caughtFormatError = false;
     try {
-        Object::postprocess(&obj, ctx);
+        obj.postprocess(ctx);
     }
     catch (const bsl::format_error&) {
         caughtFormatError = true;
@@ -897,7 +897,7 @@ void verifyTooLargeValueOnType()
     Object obj(Object::e_ARG_ID, 12);
     bool caughtFormatError = false;
     try {
-        Object::postprocess(&obj, ctx);
+        obj.postprocess(ctx);
     }
     catch (const bsl::format_error&) {
         caughtFormatError = true;
@@ -906,7 +906,7 @@ void verifyTooLargeValueOnType()
     ASSERT(ctx.wrongArgAccessed() == false);
 
     ctx.setValue(INT_MAX);
-    Object::postprocess(&obj, ctx);
+    obj.postprocess(ctx);
     ASSERT(ctx.wrongArgAccessed() == false);
     ASSERT(obj.category() == Object::e_VALUE);
     ASSERT(obj.value() == INT_MAX);
@@ -945,7 +945,7 @@ void verifyBadArgumentTypeReferencedWithType()
     Object obj(Object::e_ARG_ID, 5);
     bool caughtFormatError = false;
     try {
-        Object::postprocess(&obj, ctx);
+        obj.postprocess(ctx);
     }
     catch (const bsl::format_error&) {
         caughtFormatError = true;
@@ -956,7 +956,7 @@ void verifyBadArgumentTypeReferencedWithType()
     obj = Object(Object::e_ARG_ID, 3);
     caughtFormatError = false;
     try {
-        Object::postprocess(&obj, ctx);
+        obj.postprocess(ctx);
     }
     catch (const bsl::format_error&) {
         caughtFormatError = true;
@@ -1126,7 +1126,7 @@ int main(int argc, char** argv)
             const char *start = partialSpec;
 
             Object obj;
-            Object::parse(&obj, &start, start + sizeof partialSpec - 1, false);
+            obj.parse(&start, start + sizeof partialSpec - 1, false);
 
             ASSERT(partialSpec == start);
 
@@ -1139,7 +1139,7 @@ int main(int argc, char** argv)
             const char *start = partialSpec;
 
             Object obj;
-            Object::parse(&obj, &start, start + sizeof partialSpec - 1, true);
+            obj.parse(&start, start + sizeof partialSpec - 1, true);
 
             ASSERT(partialSpec == start);
 
@@ -1153,7 +1153,7 @@ int main(int argc, char** argv)
             const char *const EXPECTED_START = start + sizeof partialSpec - 2;
 
             Object obj;
-            Object::parse(&obj, &start, start + sizeof partialSpec - 1, false);
+            obj.parse(&start, start + sizeof partialSpec - 1, false);
 
             ASSERT(EXPECTED_START == start);
 
@@ -1168,7 +1168,7 @@ int main(int argc, char** argv)
             const char *const EXPECTED_START = start + sizeof partialSpec - 2;
 
             Object obj;
-            Object::parse(&obj, &start, start + sizeof partialSpec - 1, true);
+            obj.parse(&start, start + sizeof partialSpec - 1, true);
 
             ASSERT(EXPECTED_START == start);
 
@@ -1184,10 +1184,7 @@ int main(int argc, char** argv)
             Object obj;
             bool   formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &start,
-                    start + sizeof partialSpec - 1,
-                    true);
+                obj.parse(&start, start + sizeof partialSpec - 1, true);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }
@@ -1208,10 +1205,7 @@ int main(int argc, char** argv)
             Object obj;
             bool   formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &start,
-                    start + sizeof partialSpec - 1,
-                    true);
+                obj.parse(&start, start + sizeof partialSpec - 1, true);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }
@@ -1229,10 +1223,9 @@ int main(int argc, char** argv)
             Object obj;
             bool   formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &wstart,
-                    partialSpec + sizeof partialSpec - 1,
-                    false);
+                obj.parse(&wstart,
+                          partialSpec + sizeof partialSpec - 1,
+                          false);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }
@@ -1242,10 +1235,7 @@ int main(int argc, char** argv)
 
             formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &pstart,
-                    partialSpec + sizeof partialSpec - 1,
-                    true);
+                obj.parse(&pstart, partialSpec + sizeof partialSpec - 1, true);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }
@@ -1263,18 +1253,12 @@ int main(int argc, char** argv)
                 pstart + sizeof partialSpec - 2;
 
             Object obj;
-            Object::parse(&obj,
-                &wstart,
-                partialSpec + sizeof partialSpec - 1,
-                false);
+            obj.parse(&wstart, partialSpec + sizeof partialSpec - 1, false);
             ASSERT(EXPECTED_START == wstart);
             ASSERTV(obj.category(), Object::e_NEXT_ARG == obj.category());
 
             obj = Object();
-            Object::parse(&obj,
-                &pstart,
-                partialSpec + sizeof partialSpec - 1,
-                true);
+            obj.parse(&pstart, partialSpec + sizeof partialSpec - 1, true);
             ASSERT(EXPECTED_START == pstart);
             ASSERTV(obj.category(), Object::e_NEXT_ARG == obj.category());
         }
@@ -1288,19 +1272,13 @@ int main(int argc, char** argv)
                 pstart + sizeof partialSpec - 2;
 
             Object obj;
-            Object::parse(&obj,
-                &wstart,
-                partialSpec + sizeof partialSpec - 1,
-                false);
+            obj.parse(&wstart, partialSpec + sizeof partialSpec - 1, false);
             ASSERT(EXPECTED_START == wstart);
             ASSERTV(obj.category(), Object::e_ARG_ID == obj.category());
             ASSERTV(obj.value(), 123 == obj.value());
 
             obj = Object();
-            Object::parse(&obj,
-                &pstart,
-                partialSpec + sizeof partialSpec - 1,
-                true);
+            obj.parse(&pstart, partialSpec + sizeof partialSpec - 1, true);
             ASSERT(EXPECTED_START == pstart);
             ASSERTV(obj.category(), Object::e_ARG_ID == obj.category());
             ASSERTV(obj.value(), 123 == obj.value());
@@ -1315,10 +1293,9 @@ int main(int argc, char** argv)
             Object obj;
             bool   formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &wstart,
-                    partialSpec + sizeof partialSpec - 1,
-                    false);
+                obj.parse(&wstart,
+                          partialSpec + sizeof partialSpec - 1,
+                          false);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }
@@ -1328,10 +1305,7 @@ int main(int argc, char** argv)
 
             formatErrorCaught = false;
             try {
-                Object::parse(&obj,
-                    &pstart,
-                    partialSpec + sizeof partialSpec - 1,
-                    true);
+                obj.parse(&pstart, partialSpec + sizeof partialSpec - 1, true);
             }
             catch (const bsl::format_error& e) {
                 if (veryVeryVerbose) { T_ T_ P(e.what()); }

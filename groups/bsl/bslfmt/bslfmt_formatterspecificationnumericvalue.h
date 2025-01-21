@@ -74,7 +74,7 @@ struct FormatterSpecificationNumericValue {
 
     // FRIENDS
 
-    friend struct FormatterSpecificationNumericValue_ArgVisitor;
+    friend class FormatterSpecificationNumericValue_ArgVisitor;
 
   public:
     // CREATORS
@@ -88,6 +88,30 @@ struct FormatterSpecificationNumericValue {
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatterSpecificationNumericValue(
                                                              Category category,
                                                              int      value);
+
+    // MANIPULATORS
+
+    /// Parse the string in the random-access-iterator range specified by
+    /// `start` and `end` to extract either a hard-coded integer or a nested
+    /// argument specification.  If the specified `needInitialDot` is true the
+    /// string is only parsed if `*start == '.'` and a `format_error` exception
+    /// is thrown if the string following the initial dot is empty.  If an
+    /// error occurs throw an exception of type `format_error`, otherwise
+    /// update the output `start` iterator to point to the first unparsed
+    /// character of the string and store the parsed result into this object.
+    template <class t_ITER>
+    void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(t_ITER *start,
+                                            t_ITER  end,
+                                            bool    needInitialDot);
+
+    /// If this object holds a non-dynamic nested value (i.e., `d_type` is
+    /// `e_ARG_ID`) update its value using the arguments stored in the
+    /// specified `context` and update the type to `e_VALUE`.  If this object
+    /// holds a dynamic nested value (i.e., `d_type` is `e_NEXT_ARG`) throw an
+    /// exception of type `format_error`.  Otherwise do nothing.
+    template <typename t_FORMAT_CONTEXT>
+    void postprocess(const t_FORMAT_CONTEXT& context);
+
     // ACCESSORS
 
     /// Return `true` if this object is equal to the specified `other` object,
@@ -103,34 +127,6 @@ struct FormatterSpecificationNumericValue {
     /// Return the `value` attribute of this object.  The behavior is undefined
     /// if `category` is either `e_DEFAULT` or `e_NEXT_ARG_ID`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int value() const;
-
-    // CLASS METHODS
-
-    /// Parse the string in the random-access-iterator range specified by
-    /// `start` and `end` to extract either a hard-coded integer or a nested
-    /// argument specification.  If the specified `needInitialDot` is true the
-    /// string is only parsed if `*start == '.'` and a `format_error` exception
-    /// is thrown if the string following the initial dot is empty.  If an
-    /// error occurs throw an exception of type `format_error`, otherwise
-    /// update the output `start` iterator to point to the first unparsed
-    /// character of the string and store the result into the specified
-    /// `outValue`.
-    template <class t_ITER>
-    static void BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
-                           FormatterSpecificationNumericValue *outValue,
-                           t_ITER                             *start,
-                           t_ITER                              end,
-                           bool                                needInitialDot);
-
-    /// If the specified output `outValue` holds a non-dynamic nested value
-    /// (i.e., `d_type` is `e_ARG_ID`) update its value using the arguments
-    /// stored in the specified `context` and update the type to `e_VALUE`.  If
-    /// `outValue` holds a dynamic nested value (i.e., `d_type` is
-    /// `e_NEXT_ARG`) throw an exception of type `format_error`.  Otherwise do
-    /// nothing.
-    template <typename t_FORMAT_CONTEXT>
-    static void postprocess(FormatterSpecificationNumericValue *outValue,
-                            const t_FORMAT_CONTEXT&             context);
 };
 
           // ===================================================
@@ -215,52 +211,17 @@ FormatterSpecificationNumericValue::FormatterSpecificationNumericValue(
 {
 }
 
-// ACCESSORS
-inline
-BSLS_KEYWORD_CONSTEXPR_CPP20
-bool FormatterSpecificationNumericValue::operator==(
-                        const FormatterSpecificationNumericValue& other) const
-{
-    return d_category == other.d_category && d_value == other.d_value;
-}
-
-inline
-BSLS_KEYWORD_CONSTEXPR_CPP20 int
-FormatterSpecificationNumericValue::value() const
-{
-    if (d_category == e_DEFAULT) {
-        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Access to unspecified "
-                                     "nested value in format spec.")); // THROW
-    }
-    if (d_category == e_NEXT_ARG) {
-        BSLS_THROW(
-            bsl::format_error("INTERNAL ERROR: Failed to identify arg-id for "
-                              "nested value in format spec."));        // THROW
-    }
-    return d_value;
-}
-
-inline
-BSLS_KEYWORD_CONSTEXPR_CPP20
-FormatterSpecificationNumericValue::Category
-FormatterSpecificationNumericValue::category() const
-{
-    return d_category;
-}
-
-// CLASS METHODS
-
+// MANIPULATORS
 template <class t_ITER>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void FormatterSpecificationNumericValue::parse(
-                           FormatterSpecificationNumericValue *outValue,
                            t_ITER                             *start,
                            t_ITER                              end,
                            bool                                needInitialDot)
 {
     // Handle empty string or empty specification.
     if (*start == end || **start == '}') {
-        outValue->d_category = e_DEFAULT;
+        d_category = e_DEFAULT;
         return;                                                       // RETURN
     }
 
@@ -291,9 +252,9 @@ void FormatterSpecificationNumericValue::parse(
 
         // Early exit for a non-numbered replacement field
         if (*current == '}') {
-            outValue->d_category = e_NEXT_ARG;
-            outValue->d_value    = 0;
-            *start               = current + 1;
+            d_category = e_NEXT_ARG;
+            d_value    = 0;
+            *start     = current + 1;
             return;                                                   // RETURN
         }
         isArgId = true;
@@ -325,13 +286,12 @@ void FormatterSpecificationNumericValue::parse(
             BSLS_THROW(bsl::format_error(
                      "Invalid precision (no digits following '.')"));  // THROW
         }
-        outValue->d_value    = 0;
-        outValue->d_category = e_DEFAULT;
+        d_category = e_DEFAULT;
     }
     // At least one digit
     else {
         // As we do not allow + or - the value must be non-negative.
-        outValue->d_value = value;
+        d_value = value;
 
         if (isArgId) {
             // Relative argument references must have a closing brace.
@@ -342,7 +302,7 @@ void FormatterSpecificationNumericValue::parse(
             ++current;
         }
 
-        outValue->d_category = isArgId ? e_ARG_ID : e_VALUE;
+        d_category = isArgId ? e_ARG_ID : e_VALUE;
     }
 
     *start = current;
@@ -351,12 +311,11 @@ void FormatterSpecificationNumericValue::parse(
 template <typename t_FORMAT_CONTEXT>
 inline
 void FormatterSpecificationNumericValue::postprocess(
-                                   FormatterSpecificationNumericValue *out,
-                                   const t_FORMAT_CONTEXT&             context)
+                                               const t_FORMAT_CONTEXT& context)
 {
     // Non-nested argument id: value does not change
-    if (out->d_category == FormatterSpecificationNumericValue::e_DEFAULT ||
-        out->d_category == FormatterSpecificationNumericValue::e_VALUE) {
+    if (d_category == FormatterSpecificationNumericValue::e_DEFAULT ||
+        d_category == FormatterSpecificationNumericValue::e_VALUE) {
         return;                                                       // RETURN
     }
 
@@ -364,20 +323,53 @@ void FormatterSpecificationNumericValue::postprocess(
     // (`e_NEXT_ARG`) into non-dynamic ones (`e_ARG_ID`).  As a result, if we
     // encounter a dynamic nested width at this stage it indicates a logic
     // error.
-    if (out->d_category == FormatterSpecificationNumericValue::e_NEXT_ARG) {
+    if (d_category == FormatterSpecificationNumericValue::e_NEXT_ARG) {
         BSLS_THROW(bsl::format_error(
              "INTERNAL ERROR: Unconverted dynamic nested argument"));  // THROW
     }
 
-    FormatterSpecificationNumericValue_ArgVisitor visitor(out);
+    FormatterSpecificationNumericValue_ArgVisitor visitor(this);
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         // Depending on the type of t_FORMAT_CONTEXT we may need to use
         // `visit_format_arg` from `bslfmt` or from `std`.
         using namespace std;
 #endif
-        visit_format_arg(visitor, context.arg(out->d_value));
+        visit_format_arg(visitor, context.arg(d_value));
     }
+}
+
+// ACCESSORS
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool FormatterSpecificationNumericValue::operator==(
+                        const FormatterSpecificationNumericValue& other) const
+{
+    return d_category == other.d_category && d_value == other.d_value;
+}
+
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20 int
+FormatterSpecificationNumericValue::value() const
+{
+    if (d_category == e_DEFAULT) {
+        BSLS_THROW(bsl::format_error("INTERNAL ERROR: Access to unspecified "
+                                     "nested value in format spec.")); // THROW
+    }
+    if (d_category == e_NEXT_ARG) {
+        BSLS_THROW(
+            bsl::format_error("INTERNAL ERROR: Failed to identify arg-id for "
+                              "nested value in format spec."));        // THROW
+    }
+    return d_value;
+}
+
+inline
+BSLS_KEYWORD_CONSTEXPR_CPP20
+FormatterSpecificationNumericValue::Category
+FormatterSpecificationNumericValue::category() const
+{
+    return d_category;
 }
 
             // ----------------------------------------------------
