@@ -310,7 +310,7 @@ BSLS_IDENT("$Id: $")
 //             // Success!  We've reached the end of input without
 //             // encountering any invalid UTF-8.
 //
-//             return 0;                                             // RETURN
+//             return 0;                                              // RETURN
 //         }
 //         else {
 //             // Invalid UTF-8 encountered; the value of `status` indicates
@@ -322,7 +322,7 @@ BSLS_IDENT("$Id: $")
 //                            bdlde::Utf8Util::toAscii(status),
 //                            static_cast<unsigned>(output->length()));
 //
-//             return -1;                                            // RETURN
+//             return -1;                                             // RETURN
 //         }
 //     }
 // }
@@ -336,6 +336,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iosfwd.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -360,7 +361,11 @@ struct Utf8Util {
     // PUBLIC TYPES
     typedef bsls::Types::size_type size_type;
     typedef bsls::Types::IntPtr    IntPtr;
+    typedef bsls::Types::UintPtr   UintPtr;
     typedef bsls::Types::Uint64    Uint64;
+
+    /// Default code point to be substituted for errors.
+    enum { k_ERROR_CODE_POINT = 0xfffd };
 
     /// Enumerate the error status values that are returned (possibly
     /// through an out parameter) from some methods in this utility.  Note
@@ -803,6 +808,27 @@ struct Utf8Util {
                                  size_type       outputBufferLength,
                                  bsl::streambuf *input);
 
+    /// Translate the specified `input`, which is UTF-8, replacing error
+    /// sequences in `input` with `utf32ErrorCode` translated to UTF-8, and
+    /// return the number of errors found, putting the result in `*output`.
+    /// Any previous contents of `*output` are discarded.  If `utf32ErrorCode`
+    /// is 0, error sequences will be simply deleted.  The behavior is
+    /// undefined unless `utf32ErrorCode` is a valid unicode value for UTF-8.
+    static size_type replaceErrors(
+                 bsl::string             *output,
+                 const bsl::string_view&  input,
+                 unsigned int             utf32ErrorCode = k_ERROR_CODE_POINT);
+    static size_type replaceErrors(
+                 std::string             *output,
+                 const bsl::string_view&  input,
+                 unsigned int             utf32ErrorCode = k_ERROR_CODE_POINT);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static size_type replaceErrors(
+                 std::pmr::string        *output,
+                 const bsl::string_view&  input,
+                 unsigned int             utf32ErrorCode = k_ERROR_CODE_POINT);
+#endif
+
     /// Return the non-modifiable string representation of the `ErrorStatus`
     /// enumerator matching the specified `value`, if it exists, and "(*
     /// unrecognized value *)" otherwise.  The string representation of an
@@ -822,11 +848,19 @@ struct Utf8Util {
 /// for clients, and are primarily exposed to allow for more thorough
 /// testing.
 struct Utf8Util_ImpUtil {
-
-    // TYPES
-    typedef bsls::Types::Uint64 Uint64;
-
     // CLASS METHODS
+
+    typedef bsls::Types::Uint64    Uint64;
+    typedef bsls::Types::size_type size_type;
+
+    /// Given a string referred to by the specified `input`, return the number
+    /// of bytes in first code point in the string, whether the code point is
+    /// valid or invalid.  Note that if the string begins with an invalid
+    /// header octet `(0xf8 == (*input & 0xf8))` only that octet is skipped,
+    /// any following continuation octets are seen as separate errors.  The
+    /// behavior is undefined if `input.empty()`.
+    static size_type advancePastValidOrInvalidCodePoint(
+                                                const bsl::string_view& input);
 
     /// For the specified `byteOffset` in the specified `input`, load the
     /// byte offset's line number into the specified `lineNumber`, the

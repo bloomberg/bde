@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_ios.h>
+#include <bsl_iterator.h>
+#include <bsl_limits.h>
 #include <bsl_streambuf.h>
 
 // LOCAL MACROS
@@ -25,10 +27,14 @@ BSLS_IDENT_RCSID(bdlde_utf8util_cpp,"$Id$ $CSID$")
 // LOCAL CONSTANTS
 
 namespace {
+namespace u {
 
 using namespace BloombergLP;
 
-typedef bdlde::Utf8Util Utf8Util;
+typedef bdlde::Utf8Util         Utf8Util;
+typedef bdlde::Utf8Util_ImpUtil Utf8Util_ImpUtil;
+typedef bsls::Types::IntPtr     IntPtr;
+typedef bsls::Types::size_type  size_type;
 
 enum {
     k_MIN_2_BYTE_VALUE = 0x80,     // min value that requires 2 bytes to encode
@@ -102,11 +108,11 @@ int utf8Size(char character)
 
 // BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
 
-/// Append the UTF-8 encoding of the specified Unicode `codePoint` to the
-/// specified `output` string.  Return 0 on success, and a non-zero value
-/// otherwise.
-template <class STRING>
-int appendUtf8CodePointImpl(STRING *output, unsigned int codePoint)
+/// Write the UTF-8 encoding of the specified Unicode `codePoint` to the
+/// specified `output` iterator.  Return the number of bytes output on success
+/// (always in the range `[ 1 .. 4 ]`) or 0 on failure.
+template <class ITERATOR>
+int appendUtf8CodePointImpl(ITERATOR output, unsigned int codePoint)
 {
     ///IMPLEMENTATION NOTES
     ///--------------------
@@ -128,42 +134,38 @@ int appendUtf8CodePointImpl(STRING *output, unsigned int codePoint)
     ////////////////////////// END VERBATIM RFC TEXT //////////////////////////
 
     if (codePoint < 0x80U) {
-        *output += static_cast<char>( codePoint);
-        return 0;                                                     // RETURN
+        *output++ = static_cast<char>( codePoint);
+        return 1;                                                     // RETURN
     }
     else if (codePoint < 0x800U) {
-        *output += static_cast<char>( (codePoint >>  6)          | 0xC0);
-        *output += static_cast<char>( (codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
+        *output++ = static_cast<char>( (codePoint >>  6)          | 0xC0);
+        *output++ = static_cast<char>( (codePoint        & 0x3FU) | 0x80);
+        return 2;                                                     // RETURN
     }
     else if (codePoint < 0x10000U) {
-        *output += static_cast<char>(( codePoint >> 12)          | 0xE0);
-        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
-        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
+        *output++ = static_cast<char>(( codePoint >> 12)          | 0xE0);
+        *output++ = static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output++ = static_cast<char>(( codePoint        & 0x3FU) | 0x80);
+        return 3;                                                     // RETURN
     }
     else if (codePoint < 0x110000U) {
-        *output += static_cast<char>(( codePoint >> 18)          | 0xF0);
-        *output += static_cast<char>(((codePoint >> 12) & 0x3FU) | 0x80);
-        *output += static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
-        *output += static_cast<char>(( codePoint        & 0x3FU) | 0x80);
-        return 0;                                                     // RETURN
+        *output++ = static_cast<char>(( codePoint >> 18)          | 0xF0);
+        *output++ = static_cast<char>(((codePoint >> 12) & 0x3FU) | 0x80);
+        *output++ = static_cast<char>(((codePoint >>  6) & 0x3FU) | 0x80);
+        *output++ = static_cast<char>(( codePoint        & 0x3FU) | 0x80);
+        return 4;                                                     // RETURN
     }
 
     // Invalid code point.
 
-    return k_VALUE_LARGER_THAN_0X10FFFF;
+    return 0;
 }
 
 // BDE_VERIFY pragma: pop
 
-}  // close unnamed namespace
-
-// STATIC HELPER FUNCTIONS
-
 /// Return `true` if the specified `value` is NOT a UTF-8 continuation byte,
 /// and `false` otherwise.
-static inline
+inline
 bool isNotContinuation(char value)
 {
     return 0x80 != (value & 0xc0);
@@ -171,7 +173,7 @@ bool isNotContinuation(char value)
 
 /// Return `true` if the specified `value` is a surrogate value, and `false`
 /// otherwise.
-static inline
+inline
 bool isSurrogateValue(int value)
 {
     enum { k_SURROGATE_MASK = 0xfffff800U };
@@ -183,7 +185,7 @@ bool isSurrogateValue(int value)
 /// 2-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
 /// is undefined unless the 2 bytes starting at `pc` contain a UTF-8
 /// sequence describing a single valid code point.
-static inline
+inline
 int get2ByteValue(const char *pc)
 {
     return ((*pc & 0x1f) << 6) | (pc[1] & k_CONT_VALUE_MASK);
@@ -193,7 +195,7 @@ int get2ByteValue(const char *pc)
 /// 3-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
 /// is undefined unless the 3 bytes starting at `pc` contain a UTF-8
 /// sequence describing a single valid code point.
-static inline
+inline
 int get3ByteValue(const char *pc)
 {
     return ((*pc & 0xf) << 12) | ((pc[1] & k_CONT_VALUE_MASK) << 6)
@@ -204,12 +206,89 @@ int get3ByteValue(const char *pc)
 /// 4-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
 /// is undefined unless the 4 bytes starting at `pc` contain a UTF-8
 /// sequence describing a single valid code point.
-static inline
+inline
 int get4ByteValue(const char *pc)
 {
     return ((*pc & 0x7) << 18) | ((pc[1] & k_CONT_VALUE_MASK) << 12)
                                | ((pc[2] & k_CONT_VALUE_MASK) <<  6)
                                |  (pc[3] & k_CONT_VALUE_MASK);
+}
+
+template <class STRING_TYPE>
+Utf8Util::size_type replaceErrors(STRING_TYPE      *output,
+                                  bsl::string_view  input,          // by value
+                                  unsigned int      utf32ErrorCode)
+{
+    BSLS_ASSERT(output);
+    BSLS_ASSERT(input.data());
+
+    char utf8ErrorCodeBuf[4];
+    int  errCodeLen = 0;
+    if (utf32ErrorCode) {
+        BSLS_ASSERT(!u::isSurrogateValue(utf32ErrorCode));
+        BSLS_ASSERT(utf32ErrorCode < 0x110000);
+
+        errCodeLen = u::appendUtf8CodePointImpl(utf8ErrorCodeBuf,
+                                                utf32ErrorCode);
+        BSLS_ASSERT(0 < errCodeLen && errCodeLen <= 4);
+    }
+    bsl::string_view utf8ErrorCode(utf8ErrorCodeBuf, errCodeLen);
+
+    output->clear();
+
+    size_type numErroneousCodePoints = 0;
+
+    while (!input.empty()) {
+        const char  *nextPc     = 0;
+        int          status     = 0;
+        size_type    codePoints = Utf8Util::advanceIfValid(
+                                           &status,
+                                           &nextPc,
+                                           input,
+                                           bsl::numeric_limits<IntPtr>::max());
+
+        // All of the asserts below are just enforcing internal consistency of
+        // this function -- it is not expected that any input the client passes
+        // can cause any of them to fail.
+
+        if (0 < codePoints) {
+            BSLS_ASSERT_SAFE(input.data() < nextPc);
+            BSLS_ASSERT_SAFE(nextPc <= input.data() + input.length());
+
+            // The overload 'std::string::append(STRING_VIEW_LIKE, pos, count)'
+            // does not exist prior to C++17, so we have to call this other
+            // overload.
+
+            const size_type len = nextPc - input.data();
+            output->append(input.data(), len);
+            input.remove_prefix(len);
+        }
+        else {
+            BSLS_ASSERT_SAFE(0 == codePoints);
+            BSLS_ASSERT_SAFE(0 != status);
+            BSLS_ASSERT_SAFE(input.data() == nextPc);
+        }
+
+        if (0 != status) {
+            // The overload 'std::string::append(STRING_VIEW_LIKE)' does not
+            // exist prior to C++17 so we have to call this other overload.
+
+            output->append(utf8ErrorCode.data(), utf8ErrorCode.length());
+            ++numErroneousCodePoints;
+
+            const size_type numBytes =
+                   Utf8Util_ImpUtil::advancePastValidOrInvalidCodePoint(input);
+            BSLS_ASSERT_SAFE(0 < numBytes);
+            BSLS_ASSERT_SAFE(numBytes <= input.length());
+
+            input.remove_prefix(numBytes);
+        }
+        else {
+            BSLS_ASSERT_SAFE(input.empty());
+        }
+    }
+
+    return numErroneousCodePoints;
 }
 
 /// Return the number of Unicode code points in the specified `string` if it
@@ -220,7 +299,6 @@ int get4ByteValue(const char *pc)
 /// `string` is necessarily null-terminated, so it cannot contain embedded
 /// null bytes.  Note that `string` may contain less than
 /// `bsl::strlen(string)` Unicode code points.
-static
 int validateAndCountCodePoints(const char **invalidString, const char *string)
 {
     // The following assertions are redundant with those in the CLASS METHODS.
@@ -360,9 +438,9 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
 /// embedded null bytes.  The behavior is undefined unless
 /// `0 <= IntPtr(length)`.  Note that `string` may contain less than
 /// `length` Unicode code points.
-static int validateAndCountCodePoints(const char             **invalidString,
-                                      const char              *string,
-                                      bsls::Types::size_type   length)
+int validateAndCountCodePoints(const char             **invalidString,
+                               const char              *string,
+                               bsls::Types::size_type   length)
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.
@@ -590,8 +668,10 @@ static int validateAndCountCodePoints(const char             **invalidString,
     return count;
 }
 
-namespace BloombergLP {
+}  // close namespace u
+}  // close unnamed namespace
 
+namespace BloombergLP {
 namespace bdlde {
 
                           // -----------------------
@@ -599,6 +679,69 @@ namespace bdlde {
                           // -----------------------
 
 // CLASS METHODS
+Utf8Util_ImpUtil::size_type
+Utf8Util_ImpUtil::advancePastValidOrInvalidCodePoint(
+                                                 const bsl::string_view& input)
+{
+    BSLS_ASSERT(!input.empty());
+
+    size_type numBytes = 1;
+
+    unsigned char c = input[0];
+    switch (c >> 4) {
+      case 0x0: BSLA_FALLTHROUGH;
+      case 0x1: BSLA_FALLTHROUGH;
+      case 0x2: BSLA_FALLTHROUGH;
+      case 0x3: BSLA_FALLTHROUGH;
+      case 0x4: BSLA_FALLTHROUGH;
+      case 0x5: BSLA_FALLTHROUGH;
+      case 0x6: BSLA_FALLTHROUGH;
+      case 0x7: {
+        // valid ascii, single code point
+      } break;
+      case 0x8: BSLA_FALLTHROUGH;
+      case 0x9: BSLA_FALLTHROUGH;
+      case 0xa: BSLA_FALLTHROUGH;
+      case 0xb: {
+        // unexpected continuation octet, single code point
+      } break;
+      case 0xc: BSLA_FALLTHROUGH;
+      case 0xd: {
+        // header for 2 byte sequence
+
+        if (numBytes < input.length() &&
+                                      !u::isNotContinuation(input[numBytes])) {
+            ++numBytes;
+        }
+      } break;
+      case 0xe: {
+        const size_type maxNumBytes = bsl::min<size_type>(3, input.length());
+        while (numBytes < maxNumBytes &&
+                                      !u::isNotContinuation(input[numBytes])) {
+            ++numBytes;
+        }
+      } break;
+      case 0xf: {
+        if (0x8 & c) {
+            // ill-formed header octet, don't skip continuations, single code
+            // point
+        }
+        else {
+            // binary: 11110xxx: legal start to 4 octet sequence
+
+            const size_type maxNumBytes =
+                                        bsl::min<size_type>(4, input.length());
+            while (numBytes < maxNumBytes &&
+                                      !u::isNotContinuation(input[numBytes])) {
+                ++numBytes;
+            }
+        }
+      } break;
+    }
+
+    return numBytes;
+}
+
 int Utf8Util_ImpUtil::getLineAndColumnNumber(
                                    Uint64         *lineNumber,
                                    Uint64         *utf8Column,
@@ -626,19 +769,21 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
     // lineNumber and currentColumn are computed using 0 based values (and +1
     // is added to the return)
 
-    Uint64 targetOffset = byteOffset;
+    bsl::size_t targetOffset = byteOffset;
 
-    Uint64 currentPosition    = 0;  // current byte offset in 'input'
-    Uint64 currentLineNum     = 0;  // current line number in 'input'
-    Uint64 startOfLinePostion = 0;  // start position of current line
+    bsl::size_t currentPosition    = 0;  // current byte offset in 'input'
+    bsl::size_t currentLineNum     = 0;  // current line number in 'input'
+    bsl::size_t startOfLinePostion = 0;  // start position of current line
 
     // 'remainder' is the number of bytes remaining to be processed in 'buffer'
     // on a new 'read' (if a code-point is split across reads)
-    Uint64 remainder = 0;
+
+    bsl::size_t remainder = 0;
 
     // 'currentColumnCodePoint' is the number of code-points from
     // 'startOfLinePosition'.
-    Uint64 currentColumnCodePoint = 0;
+
+    bsl::size_t currentColumnCodePoint = 0;
 
     while (true) {
 
@@ -647,17 +792,21 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
         bsl::streamsize numRead = input->sgetn(buffer + remainder,
                                                attemptToRead);
 
-        Uint64 onePastLastPosInBuffer = currentPosition + numRead + remainder;
+        bsl::size_t onePastLastPosInBuffer =
+                                         currentPosition + numRead + remainder;
         remainder = 0;
         if ((numRead < attemptToRead) &&
             (targetOffset >= onePastLastPosInBuffer)) {
+
             // The target offset is past the end of the 'input'.
+
             return k_LOCATION_NOT_FOUND;                              // RETURN
         }
 
         // 'position' is the location of 'currentPosition' in 'buffer'.  This
         // is *not* buffer[currentPosition] as currentPosition is the offset
         // from the start of 'input'.
+
         const char *position = buffer;
         while (currentPosition < onePastLastPosInBuffer) {
             int status;
@@ -667,32 +816,42 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
                         static_cast<Utf8Util::size_type>(onePastLastPosInBuffer
                                                            - currentPosition));
 
-            if (!isValid && status != k_END_OF_INPUT_TRUNCATION) {
-              // Invalid code point.
-              return status;                                          // RETURN
+            if (!isValid && status != u::k_END_OF_INPUT_TRUNCATION) {
+                // Invalid code point.
+
+                return status;                                        // RETURN
             }
 
             if (!isValid) {
-                BSLS_ASSERT(status == k_END_OF_INPUT_TRUNCATION);
+                BSLS_ASSERT(status == u::k_END_OF_INPUT_TRUNCATION);
 
                 // The current code-point is split across buffers.
+
                 remainder = onePastLastPosInBuffer - currentPosition;
 
                 BSLS_ASSERT(remainder >= 1 && remainder < 4);
 
                 switch (remainder) {
-                  case 3: buffer[2] = position[2]; // FALLTHROUGH
-                  case 2: buffer[1] = position[1]; // FALLTHROUGH
-                  case 1: buffer[0] = position[0];
-                    break;                                             // BREAK
-                  default:
+                  case 3: {
+                    buffer[2] = position[2];
+                    BSLA_FALLTHROUGH;
+                  }
+                  case 2: {
+                    buffer[1] = position[1];
+                    BSLA_FALLTHROUGH;
+                  }
+                  case 1: {
+                    buffer[0] = position[0];
+                  } break;                                             // BREAK
+                  default: {
                     BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+                  } break;                                             // BREAK
                 }
                 break;                                                 // BREAK
             }
             int numBytesInCodePoint = status;
             if (targetOffset < (currentPosition + numBytesInCodePoint)) {
-                *lineNumber      = currentLineNum + 1;
+                *lineNumber            = currentLineNum + 1;
                 *utf8Column            = currentColumnCodePoint + 1;
                 *startOfLineByteOffset = startOfLinePostion;
                 return 0;                                             // RETURN
@@ -800,7 +959,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           case 0xd: {
             // binary: 110xxxxx: 2-octet sequence
 
-            if (UNLIKELY(isNotContinuation(*next))) {
+            if (UNLIKELY(u::isNotContinuation(*next))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = !*next ? k_END_OF_INPUT_TRUNCATION
@@ -810,7 +969,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             ++next;
 
-            if (UNLIKELY(get2ByteValue(string) < k_MIN_2_BYTE_VALUE)) {
+            if (UNLIKELY(u::get2ByteValue(string) < u::k_MIN_2_BYTE_VALUE)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = k_OVERLONG_ENCODING;
@@ -822,11 +981,11 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
           case 0xe: {
             // binary: 1110xxxx: 3 octet sequence
 
-            if   (UNLIKELY(isNotContinuation(*next))
-               || UNLIKELY(isNotContinuation(*++next))) {
+            if   (UNLIKELY(u::isNotContinuation(*next))
+               || UNLIKELY(u::isNotContinuation(*++next))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = isNotContinuation(string[1])
+                *status = u::isNotContinuation(string[1])
                         ? (string[1] ? k_NON_CONTINUATION_OCTET
                                      : k_END_OF_INPUT_TRUNCATION)
                         : (string[2] ? k_NON_CONTINUATION_OCTET
@@ -837,16 +996,16 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             ++next;
 
-            int value = get3ByteValue(string);
+            int value = u::get3ByteValue(string);
 
-            if (UNLIKELY(value < k_MIN_3_BYTE_VALUE)) {
+            if (UNLIKELY(value < u::k_MIN_3_BYTE_VALUE)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = k_OVERLONG_ENCODING;
                 break;
             }
 
-            if (UNLIKELY(isSurrogateValue(value))) {
+            if (UNLIKELY(u::isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = k_SURROGATE;
@@ -870,15 +1029,15 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
 
             // binary: 11110xxx: legal start of 4 octet sequence
 
-            if   (UNLIKELY(isNotContinuation(*next))
-               || UNLIKELY(isNotContinuation(*++next))
-               || UNLIKELY(isNotContinuation(*++next))) {
+            if   (UNLIKELY(u::isNotContinuation(*next))
+               || UNLIKELY(u::isNotContinuation(*++next))
+               || UNLIKELY(u::isNotContinuation(*++next))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                *status = isNotContinuation(string[1])
+                *status = u::isNotContinuation(string[1])
                         ? (string[1] ? k_NON_CONTINUATION_OCTET
                                      : k_END_OF_INPUT_TRUNCATION)
-                        : isNotContinuation(string[2])
+                        : u::isNotContinuation(string[2])
                         ? (string[2] ? k_NON_CONTINUATION_OCTET
                                      : k_END_OF_INPUT_TRUNCATION)
                         : (string[3] ? k_NON_CONTINUATION_OCTET
@@ -890,16 +1049,16 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
             ++next;
 
 
-            int value = get4ByteValue(string);
+            int value = u::get4ByteValue(string);
 
-            if (UNLIKELY(value < k_MIN_4_BYTE_VALUE)) {
+            if (UNLIKELY(value < u::k_MIN_4_BYTE_VALUE)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = k_OVERLONG_ENCODING;
                 break;
             }
 
-            if (UNLIKELY(k_MAX_VALID < value)) {
+            if (UNLIKELY(u::k_MAX_VALID < value)) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 *status = k_VALUE_LARGER_THAN_0X10FFFF;
@@ -938,7 +1097,7 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
     // point being processed, and only advance it to the next code point
     // between iterations.
 
-    while(true) {
+    while (true) {
         if (UNLIKELY(string >= endOfInput)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
@@ -963,8 +1122,8 @@ Utf8Util::IntPtr Utf8Util::advanceIfValid(int         *status,
         }
         int cpStatus;
         if (!isValidCodePoint(&cpStatus, string, endOfInput - string)) {
-          *status = cpStatus;
-          break;
+            *status = cpStatus;
+            break;
         }
         string += cpStatus;
         ++ret;
@@ -1155,14 +1314,18 @@ int Utf8Util::appendUtf8CodePoint(bsl::string *output, unsigned int codePoint)
 {
     BSLS_ASSERT(output);
 
-    return appendUtf8CodePointImpl(output, codePoint);
+    return u::appendUtf8CodePointImpl(bsl::back_inserter(*output), codePoint)
+         ? 0
+         : k_VALUE_LARGER_THAN_0X10FFFF;
 }
 
 int Utf8Util::appendUtf8CodePoint(std::string *output, unsigned int codePoint)
 {
     BSLS_ASSERT(output);
 
-    return appendUtf8CodePointImpl(output, codePoint);
+    return u::appendUtf8CodePointImpl(bsl::back_inserter(*output), codePoint)
+         ? 0
+         : k_VALUE_LARGER_THAN_0X10FFFF;
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
@@ -1171,29 +1334,31 @@ int Utf8Util::appendUtf8CodePoint(std::pmr::string *output,
 {
     BSLS_ASSERT(output);
 
-    return appendUtf8CodePointImpl(output, codePoint);
+    return u::appendUtf8CodePointImpl(bsl::back_inserter(*output), codePoint)
+         ? 0
+         : k_VALUE_LARGER_THAN_0X10FFFF;
 }
 #endif
 
 int Utf8Util::codePointValue(const char *codePoint)
 {
     BSLS_ASSERT(codePoint);
-    BSLS_ASSERT(isValidUtf8CodePoint(codePoint));
+    BSLS_ASSERT(u::isValidUtf8CodePoint(codePoint));
 
     int value = 0;
 
-    switch (utf8Size(codePoint[0])) {
+    switch (u::utf8Size(codePoint[0])) {
       case 1: {
         value = static_cast<int>(*codePoint);
       } break;
       case 2: {
-        value = get2ByteValue(codePoint);
+        value = u::get2ByteValue(codePoint);
       } break;
       case 3: {
-        value = get3ByteValue(codePoint);
+        value = u::get3ByteValue(codePoint);
       } break;
       case 4: {
-        value = get4ByteValue(codePoint);
+        value = u::get4ByteValue(codePoint);
       } break;
     }
 
@@ -1203,9 +1368,9 @@ int Utf8Util::codePointValue(const char *codePoint)
 int Utf8Util::numBytesInCodePoint(const char *codePoint)
 {
     BSLS_ASSERT(codePoint);
-    BSLS_ASSERT(isValidUtf8CodePoint(codePoint));
+    BSLS_ASSERT(u::isValidUtf8CodePoint(codePoint));
 
-    return utf8Size(codePoint[0]);
+    return u::utf8Size(codePoint[0]);
 }
 
 bool Utf8Util::isValid(const char **invalidString, const char *string)
@@ -1213,7 +1378,7 @@ bool Utf8Util::isValid(const char **invalidString, const char *string)
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
 
-    return validateAndCountCodePoints(invalidString, string) >= 0;
+    return u::validateAndCountCodePoints(invalidString, string) >= 0;
 }
 
 bool Utf8Util::isValid(const char **invalidString,
@@ -1224,7 +1389,7 @@ bool Utf8Util::isValid(const char **invalidString,
     BSLS_ASSERT(string || 0 == length);
     BSLS_ASSERT(0 <= bsls::Types::IntPtr(length));
 
-    return validateAndCountCodePoints(invalidString, string, length) >= 0;
+    return u::validateAndCountCodePoints(invalidString, string, length) >= 0;
 }
 
 bool Utf8Util::isValid(const char              **invalidString,
@@ -1232,9 +1397,9 @@ bool Utf8Util::isValid(const char              **invalidString,
 {
     BSLS_ASSERT(invalidString);
 
-    return validateAndCountCodePoints(invalidString,
-                                      string.data(),
-                                      string.length()) >= 0;
+    return u::validateAndCountCodePoints(invalidString,
+                                         string.data(),
+                                         string.length()) >= 0;
 }
 
 bool Utf8Util::isValidCodePoint(int        *status,
@@ -1261,9 +1426,10 @@ bool Utf8Util::isValidCodePoint(int        *status,
       case 0x6: BSLA_FALLTHROUGH;
       case 0x7: {
         // binary: 0xxxxxxx: ASCII and possible '\0'
+
         *status = 1;
         return true;                                                  // RETURN
-      }
+      } break;
       case 0x8: BSLA_FALLTHROUGH;
       case 0x9: BSLA_FALLTHROUGH;
       case 0xa: BSLA_FALLTHROUGH;
@@ -1272,7 +1438,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
         *status = k_UNEXPECTED_CONTINUATION_OCTET;
         return false;                                                 // RETURN
-      }
+      } break;
       case 0xc: BSLA_FALLTHROUGH;
       case 0xd: {
         // binary: 110xxxxx: 2-octet sequence
@@ -1284,7 +1450,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
             return false;                                             // RETURN
         }
 
-        if (UNLIKELY(isNotContinuation(*next))) {
+        if (UNLIKELY(u::isNotContinuation(*next))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_NON_CONTINUATION_OCTET;
@@ -1293,7 +1459,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
         ++next;
 
-        if (UNLIKELY(get2ByteValue(codePoint) < k_MIN_2_BYTE_VALUE)) {
+        if (UNLIKELY(u::get2ByteValue(codePoint) < u::k_MIN_2_BYTE_VALUE)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_OVERLONG_ENCODING;
@@ -1301,23 +1467,22 @@ bool Utf8Util::isValidCodePoint(int        *status,
         }
         *status = 2;
         return true;                                                  // RETURN
-      }
-
+      } break;
       case 0xe: {
         // binary: 1110xxxx: 3 octet sequence
 
         if (UNLIKELY(codePoint + 3 > endOfInput)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            *status = (next + 1 == endOfInput && isNotContinuation(*next))
+            *status = (next + 1 == endOfInput && u::isNotContinuation(*next))
                           ? k_NON_CONTINUATION_OCTET
                           : k_END_OF_INPUT_TRUNCATION;
 
             return false;                                             // RETURN
         }
 
-        if (UNLIKELY(isNotContinuation(*next)) ||
-            UNLIKELY(isNotContinuation(*++next))) {
+        if (UNLIKELY(u::isNotContinuation(*next)) ||
+            UNLIKELY(u::isNotContinuation(*++next))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_NON_CONTINUATION_OCTET;
@@ -1327,16 +1492,16 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
         ++next;
 
-        int value = get3ByteValue(codePoint);
+        int value = u::get3ByteValue(codePoint);
 
-        if (UNLIKELY(value < k_MIN_3_BYTE_VALUE)) {
+        if (UNLIKELY(value < u::k_MIN_3_BYTE_VALUE)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_OVERLONG_ENCODING;
             return false;                                             // RETURN
         }
 
-        if (UNLIKELY(isSurrogateValue(value))) {
+        if (UNLIKELY(u::isSurrogateValue(value))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_SURROGATE;
@@ -1344,7 +1509,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
         }
         *status = 3;
         return true;                                                  // RETURN
-      }
+      } break;
       case 0xf: {
         if (UNLIKELY(0x8 & *codePoint)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1362,7 +1527,7 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
             *status = k_END_OF_INPUT_TRUNCATION;
             for (; next < endOfInput; ++next) {
-                if (isNotContinuation(*next)) {
+                if (u::isNotContinuation(*next)) {
                     *status = k_NON_CONTINUATION_OCTET;
 
                     break;                                             // BREAK
@@ -1372,9 +1537,9 @@ bool Utf8Util::isValidCodePoint(int        *status,
             return false;                                             // RETURN
         }
 
-        if (UNLIKELY(isNotContinuation(*next)) ||
-            UNLIKELY(isNotContinuation(*++next)) ||
-            UNLIKELY(isNotContinuation(*++next))) {
+        if (UNLIKELY(u::isNotContinuation(*next)) ||
+            UNLIKELY(u::isNotContinuation(*++next)) ||
+            UNLIKELY(u::isNotContinuation(*++next))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             *status = k_NON_CONTINUATION_OCTET;
@@ -1383,19 +1548,20 @@ bool Utf8Util::isValidCodePoint(int        *status,
 
         ++next;
 
-        int value = get4ByteValue(codePoint);
+        int value = u::get4ByteValue(codePoint);
 
-        if (UNLIKELY((k_MAX_VALID < value) || (value < k_MIN_4_BYTE_VALUE))) {
+        if (UNLIKELY((u::k_MAX_VALID < value) ||
+                                            (value < u::k_MIN_4_BYTE_VALUE))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            *status = k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
-                                          : k_OVERLONG_ENCODING;
+            *status = u::k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
+                                             : k_OVERLONG_ENCODING;
 
             return false;                                             // RETURN
         }
         *status = 4;
         return true;                                                  // RETURN
-      }
+      } break;
       default: {
         BSLS_ASSERT_INVOKE_NORETURN("unreachable");
       }
@@ -1416,8 +1582,8 @@ Utf8Util::IntPtr Utf8Util::numBytesRaw(const bsl::string_view& string,
     // validation functions our work is very simple.
 
     for (int i = 0; i < numCodePoints && numBytes < string.length(); ++i) {
-        BSLS_ASSERT(isValidUtf8CodePoint(&string[numBytes]));
-        numBytes += utf8Size(string[numBytes]);
+        BSLS_ASSERT(u::isValidUtf8CodePoint(&string[numBytes]));
+        numBytes += u::utf8Size(string[numBytes]);
     }
 
     if (numBytes > string.length()) {
@@ -1433,7 +1599,7 @@ Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
     BSLS_ASSERT(invalidString);
     BSLS_ASSERT(string);
 
-    return validateAndCountCodePoints(invalidString, string);
+    return u::validateAndCountCodePoints(invalidString, string);
 }
 
 Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
@@ -1444,7 +1610,7 @@ Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(const char **invalidString,
     BSLS_ASSERT(string || 0 == length);
     BSLS_ASSERT(0 <= bsls::Types::IntPtr(length));
 
-    return validateAndCountCodePoints(invalidString, string, length);
+    return u::validateAndCountCodePoints(invalidString, string, length);
 }
 
 Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(
@@ -1453,9 +1619,9 @@ Utf8Util::IntPtr Utf8Util::numCodePointsIfValid(
 {
     BSLS_ASSERT(invalidString);
 
-    return validateAndCountCodePoints(invalidString,
-                                      string.data(),
-                                      string.length());
+    return u::validateAndCountCodePoints(invalidString,
+                                         string.data(),
+                                         string.length());
 }
 
 Utf8Util::IntPtr Utf8Util::numCodePointsRaw(const char *string)
@@ -1628,12 +1794,12 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
             *tmpPtr++ = static_cast<char>(c);
 
-            const int value = get2ByteValue(tmpBuf);
-            if (UNLIKELY(isNotContinuation(tmpBuf[1])
-                       || (value < k_MIN_2_BYTE_VALUE))) {
+            const int value = u::get2ByteValue(tmpBuf);
+            if (UNLIKELY(u::isNotContinuation(tmpBuf[1])
+                       || (value < u::k_MIN_2_BYTE_VALUE))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                rc = isNotContinuation(tmpBuf[1]) ? k_NON_CONTINUATION_OCTET
+                rc = u::isNotContinuation(tmpBuf[1]) ? k_NON_CONTINUATION_OCTET
                                                   : k_OVERLONG_ENCODING;
                 break;
             }
@@ -1652,7 +1818,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
                 *tmpPtr++ = static_cast<char>(c);
 
-                if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
+                if (UNLIKELY(u::isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                     rc = k_NON_CONTINUATION_OCTET;
@@ -1660,13 +1826,13 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 }
             }
 
-            const int value = get3ByteValue(tmpBuf);
+            const int value = u::get3ByteValue(tmpBuf);
             if (UNLIKELY((0 != rc)
-                      || (value < k_MIN_3_BYTE_VALUE)
-                      || isSurrogateValue(value))) {
+                      || (value < u::k_MIN_3_BYTE_VALUE)
+                      || u::isSurrogateValue(value))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-                rc = rc ? rc : value < k_MIN_3_BYTE_VALUE
+                rc = rc ? rc : value < u::k_MIN_3_BYTE_VALUE
                              ? k_OVERLONG_ENCODING
                              : k_SURROGATE;
                 break;
@@ -1696,7 +1862,7 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
                 *tmpPtr++ = static_cast<char>(c);
 
-                if (UNLIKELY(isNotContinuation(tmpBuf[ii]))) {
+                if (UNLIKELY(u::isNotContinuation(tmpBuf[ii]))) {
                     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                     rc = k_NON_CONTINUATION_OCTET;
@@ -1704,15 +1870,15 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
                 }
             }
 
-            const int value = get4ByteValue(tmpBuf);
+            const int value = u::get4ByteValue(tmpBuf);
             if (UNLIKELY((0 != rc)
-                      || (value < k_MIN_4_BYTE_VALUE)
-                      || (value > k_MAX_VALID))) {
+                      || (value < u::k_MIN_4_BYTE_VALUE)
+                      || (value > u::k_MAX_VALID))) {
                 BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
                 rc = rc ? rc
-                        : k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
-                                              : k_OVERLONG_ENCODING;
+                        : u::k_MAX_VALID < value ? k_VALUE_LARGER_THAN_0X10FFFF
+                                                 : k_OVERLONG_ENCODING;
                 break;
             }
 
@@ -1753,6 +1919,32 @@ Utf8Util::size_type Utf8Util::readIfValid(int            *status,
 
     return out - outputBuffer;
 }
+
+Utf8Util::size_type Utf8Util::replaceErrors(
+                                       bsl::string             *output,
+                                       const bsl::string_view&  input,
+                                       unsigned int             utf32ErrorCode)
+{
+    return u::replaceErrors(output, input, utf32ErrorCode);
+}
+
+Utf8Util::size_type Utf8Util::replaceErrors(
+                                       std::string             *output,
+                                       const bsl::string_view&  input,
+                                       unsigned int             utf32ErrorCode)
+{
+    return u::replaceErrors(output, input, utf32ErrorCode);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+Utf8Util::size_type Utf8Util::replaceErrors(
+                                       std::pmr::string        *output,
+                                       const bsl::string_view&  input,
+                                       unsigned int             utf32ErrorCode)
+{
+    return u::replaceErrors(output, input, utf32ErrorCode);
+}
+#endif
 
 const char *Utf8Util::toAscii(IntPtr value)
 {
