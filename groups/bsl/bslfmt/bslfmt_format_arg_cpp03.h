@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 21 09:14:58 2025
+// Generated on Tue Jan 21 13:39:37 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -38,7 +38,7 @@ template <class t_OUT, class t_CHAR>
 class basic_format_context;
 
 template <class t_CONTEXT>
-class basic_format_arg;
+struct basic_format_arg;
 
 template <class t_VALUE>
 class Format_ContextOutputIteratorRef;

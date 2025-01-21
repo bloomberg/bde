@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jan 17 12:47:44 2025
+// Generated on Tue Jan 21 13:39:37 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_args.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARGS_H
@@ -2632,8 +2632,7 @@ inline
 Format_ArgsStore<format_context> make_format_args(
                                                            )
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  );
+    return Format_ArgsUtil::makeFormatArgs<format_context>();
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 0
 
@@ -2643,8 +2642,7 @@ inline
 Format_ArgsStore<format_context, t_ARGS_01> make_format_args(
                                                         t_ARGS_01& fmt_args_01)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 1
 
@@ -2657,9 +2655,8 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_01& fmt_args_01,
                                                         t_ARGS_02& fmt_args_02)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 2
 
@@ -2675,10 +2672,9 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_02& fmt_args_02,
                                                         t_ARGS_03& fmt_args_03)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 3
 
@@ -2697,11 +2693,10 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_03& fmt_args_03,
                                                         t_ARGS_04& fmt_args_04)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 4
 
@@ -2723,12 +2718,11 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_04& fmt_args_04,
                                                         t_ARGS_05& fmt_args_05)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 5
 
@@ -2753,13 +2747,12 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_05& fmt_args_05,
                                                         t_ARGS_06& fmt_args_06)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05,
+                                                           fmt_args_06);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 6
 
@@ -2787,14 +2780,13 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_06& fmt_args_06,
                                                         t_ARGS_07& fmt_args_07)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05,
+                                                           fmt_args_06,
+                                                           fmt_args_07);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 7
 
@@ -2825,15 +2817,14 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_07& fmt_args_07,
                                                         t_ARGS_08& fmt_args_08)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05,
+                                                           fmt_args_06,
+                                                           fmt_args_07,
+                                                           fmt_args_08);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 8
 
@@ -2867,16 +2858,15 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_08& fmt_args_08,
                                                         t_ARGS_09& fmt_args_09)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05,
+                                                           fmt_args_06,
+                                                           fmt_args_07,
+                                                           fmt_args_08,
+                                                           fmt_args_09);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 9
 
@@ -2913,17 +2903,16 @@ Format_ArgsStore<format_context, t_ARGS_01,
                                                         t_ARGS_09& fmt_args_09,
                                                         t_ARGS_10& fmt_args_10)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09,
-                                                                  fmt_args_10);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args_01,
+                                                           fmt_args_02,
+                                                           fmt_args_03,
+                                                           fmt_args_04,
+                                                           fmt_args_05,
+                                                           fmt_args_06,
+                                                           fmt_args_07,
+                                                           fmt_args_08,
+                                                           fmt_args_09,
+                                                           fmt_args_10);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 10
 
@@ -2933,8 +2922,7 @@ inline
 Format_ArgsStore<wformat_context> make_wformat_args(
                                                            )
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  );
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>();
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 0
 
@@ -2944,8 +2932,7 @@ inline
 Format_ArgsStore<wformat_context, t_ARGS_01> make_wformat_args(
                                                         t_ARGS_01& fmt_args_01)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 1
 
@@ -2958,9 +2945,8 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_01& fmt_args_01,
                                                         t_ARGS_02& fmt_args_02)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 2
 
@@ -2976,10 +2962,9 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_02& fmt_args_02,
                                                         t_ARGS_03& fmt_args_03)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 3
 
@@ -2998,11 +2983,10 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_03& fmt_args_03,
                                                         t_ARGS_04& fmt_args_04)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 4
 
@@ -3024,12 +3008,11 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_04& fmt_args_04,
                                                         t_ARGS_05& fmt_args_05)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 5
 
@@ -3054,13 +3037,12 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_05& fmt_args_05,
                                                         t_ARGS_06& fmt_args_06)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05,
+                                                            fmt_args_06);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 6
 
@@ -3088,14 +3070,13 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_06& fmt_args_06,
                                                         t_ARGS_07& fmt_args_07)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05,
+                                                            fmt_args_06,
+                                                            fmt_args_07);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 7
 
@@ -3126,15 +3107,14 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_07& fmt_args_07,
                                                         t_ARGS_08& fmt_args_08)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05,
+                                                            fmt_args_06,
+                                                            fmt_args_07,
+                                                            fmt_args_08);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 8
 
@@ -3168,16 +3148,15 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_08& fmt_args_08,
                                                         t_ARGS_09& fmt_args_09)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05,
+                                                            fmt_args_06,
+                                                            fmt_args_07,
+                                                            fmt_args_08,
+                                                            fmt_args_09);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 9
 
@@ -3214,17 +3193,16 @@ Format_ArgsStore<wformat_context, t_ARGS_01,
                                                         t_ARGS_09& fmt_args_09,
                                                         t_ARGS_10& fmt_args_10)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09,
-                                                                  fmt_args_10);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args_01,
+                                                            fmt_args_02,
+                                                            fmt_args_03,
+                                                            fmt_args_04,
+                                                            fmt_args_05,
+                                                            fmt_args_06,
+                                                            fmt_args_07,
+                                                            fmt_args_08,
+                                                            fmt_args_09,
+                                                            fmt_args_10);
 }
 #endif  // BSLFMT_FORMAT_ARGS_VARIADIC_LIMIT_H >= 10
 
@@ -3237,8 +3215,7 @@ inline
 Format_ArgsStore<format_context, t_ARGS...> make_format_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_ArgsUtil::makeFormatArgs<format_context>(
-                                                                  fmt_args...);
+    return Format_ArgsUtil::makeFormatArgs<format_context>(fmt_args...);
 }
 
 template <class... t_ARGS>
@@ -3246,8 +3223,7 @@ inline
 Format_ArgsStore<wformat_context, t_ARGS...> make_wformat_args(
                                                            t_ARGS&... fmt_args)
 {
-    return Format_ArgsUtil::makeFormatArgs<wformat_context>(
-                                                                  fmt_args...);
+    return Format_ArgsUtil::makeFormatArgs<wformat_context>(fmt_args...);
 }
 
 // }}} END GENERATED CODE
