@@ -220,6 +220,20 @@ static const bool k_threadNameCanBeEmpty = false;
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+#define STARTPOOL(x) \
+    if (0 != x.start()) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.start()) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.start()) { \
+                cout << "Thread start() failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
 void makeFunc(Func *f, void (*fptr)()) {
     *f = fptr;
 }
@@ -1635,7 +1649,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
     for (ii = 0; ii <= k_MAX_LOOP; ++ii) {
         Obj mX(defaultAttrs, k_MIN_THREADS, k_MAX_THREADS, k_MAX_IDLE, ta);
         const Obj& X = mX;
-        ASSERT(0 == mX.start());
+        STARTPOOL(mX);
 
         Sleeper::s_finished = 0;
         for (int i = 0; i < k_NUM_QUEUES; ++i) {
@@ -1692,7 +1706,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         ASSERT(now() - startTime >= SLEEP_HARDLY_TIME - jumpTheGun);
         ASSERT(2 * k_NUM_QUEUES == Sleeper::s_finished);
 
-        ASSERT(0 == mX.start());
+        STARTPOOL(mX);
         Sleeper::s_finished = 0;
         ASSERT(mX.isEnabled(queueIds[2]));
         ASSERT(0 == mX.enqueueJob(queueIds[2], sleepALittle));
@@ -1905,7 +1919,7 @@ int main(int argc, char *argv[]) {
             {
                 Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-                mX.start();
+                STARTPOOL(mX);
                 const int queueId = mX.createQueue();
                 mX.setBatchSize(queueId, batchSize);
                 mX.pauseQueue(queueId);
@@ -1975,7 +1989,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
 
             const int queueId = mX.createQueue();
 
@@ -1999,7 +2013,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
 
             const int queueId = mX.createQueue();
 
@@ -2024,7 +2038,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
 
             const int queueId = mX.createQueue();
 
@@ -2048,7 +2062,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
 
             const int queueId = mX.createQueue();
 
@@ -2156,7 +2170,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
 
-            mX.start();
+            STARTPOOL(mX);
 
             ASSERT(-1 == X.batchSize(0));
 
@@ -2196,7 +2210,7 @@ int main(int argc, char *argv[]) {
                     Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
                     const Obj& X = mX;
 
-                    mX.start();
+                    STARTPOOL(mX);
                     int queueId = mX.createQueue();
 
                     mX.setBatchSize(queueId, batchSize);
@@ -2244,7 +2258,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
             int queueId = mX.createQueue();
 
             ASSERT_SAFE_PASS(mX.setBatchSize(queueId,  1));
@@ -2275,7 +2289,7 @@ int main(int argc, char *argv[]) {
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 1000);  const Obj& X = mX;
 
-        mX.start();
+        STARTPOOL(mX);
 
         bsl::vector<int> queueId;
         {
@@ -2347,7 +2361,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-            mX.start();
+            STARTPOOL(mX);
             int queueId = mX.createQueue();
 
             bslmt::ThreadUtil::Handle pauseHandle;
@@ -2421,7 +2435,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-            mX.start();
+            STARTPOOL(mX);
             int queueId = mX.createQueue();
 
             bslmt::ThreadUtil::Handle pauseHandle;
@@ -2538,7 +2552,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < 100 && !haveDesiredCodePath; ++i) {
                 timedOut = 0;
 
-                mX.start();
+                STARTPOOL(mX);
                 int queueId = mX.createQueue();
 
                 // The enqueued job will set `timedOut` if the contained wait
@@ -2602,7 +2616,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
 
-            mX.start();
+            STARTPOOL(mX);
             int queueId = mX.createQueue();
 
             bslmt::ThreadUtil::Handle pauseHandle;
@@ -2683,7 +2697,7 @@ int main(int argc, char *argv[]) {
         {
             Obj mX(&pool);
 
-            mX.start();
+            STARTPOOL(mX);
             int queueId = mX.createQueue();
 
             mX.deleteQueue(queueId, case29Job);
@@ -2724,7 +2738,7 @@ int main(int argc, char *argv[]) {
 
         s_case28Obj_p = &mX;
 
-        mX.start();
+        STARTPOOL(mX);
         int queueId = mX.createQueue();
 
         ASSERT(0 == mX.enqueueJob(queueId, case28Job));
@@ -2765,7 +2779,7 @@ int main(int argc, char *argv[]) {
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-        mX.start();
+        STARTPOOL(mX);
         int queueId = mX.createQueue();
 
         Case27DrainThread         drainThread(&mX);
@@ -2811,7 +2825,7 @@ int main(int argc, char *argv[]) {
         bool         cleanupDone = false;
         bslmt::Latch latch(1);
 
-        mX.start();
+        STARTPOOL(mX);
         int queueId = mX.createQueue();
         mX.enqueueJob(queueId,
                           bdlf::BindUtil::bind(&case26WaitJob, &latch));
@@ -2854,7 +2868,7 @@ int main(int argc, char *argv[]) {
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-        mX.start();
+        STARTPOOL(mX);
 
         bslmt::Latch waitLatch(1);
 
@@ -2905,7 +2919,7 @@ int main(int argc, char *argv[]) {
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-        mX.start();
+        STARTPOOL(mX);
 
         bslmt::Latch waitLatch(1);
 
@@ -2963,7 +2977,7 @@ int main(int argc, char *argv[]) {
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-        mX.start();
+        STARTPOOL(mX);
 
         bslmt::Latch pauseLatch(1);
         bslmt::Latch doneLatch(1);
@@ -3016,11 +3030,12 @@ int main(int argc, char *argv[]) {
             bslmt::ThreadAttributes attr;
             bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
 
-            int rc = pool.start();
-            BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+            STARTPOOL(pool);
 
             const int queueId = pool.createQueue();
             BSLS_ASSERT_OPT(queueId);
+
+            int rc;
 
             rc = pool.enqueueJob(queueId, DoNothing());
             BSLS_ASSERT_OPT(rc == 0);
@@ -3056,11 +3071,12 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadAttributes attr;
         bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
 
-        int rc = pool.start();
-        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+        STARTPOOL(pool);
 
         const int queueId = pool.createQueue();
         BSLS_ASSERT_OPT(queueId);
+
+        int rc;
 
         rc = pool.enqueueJob(queueId, DoNothing());
         BSLS_ASSERT_OPT(rc == 0);
@@ -3095,7 +3111,7 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadAttributes attr;
         bdlmt::ThreadPool pool(attr, 5, 5, 300);
         bdlmt::MultiQueueThreadPool mq(&pool);
-        mq.start();
+        STARTPOOL(mq);
 
         int queue = mq.createQueue();
 
@@ -3127,8 +3143,7 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadAttributes   defaultAttrs;
 
         Obj mX(defaultAttrs, 1, 1, INT_MAX);
-        int rc = mX.start();
-        ASSERT(0 == rc);
+        STARTPOOL(mX);
 
         int id1;
         {
@@ -3298,8 +3313,7 @@ int main(int argc, char *argv[]) {
 
             Obj mX(defaultAttrs, NUM_THREADS, NUM_THREADS, INT_MAX);
             const Obj& X = mX;
-            int rc = mX.start();
-            ASSERT(0 == rc);
+            STARTPOOL(mX);
 
             bslmt::Barrier controlBarrier(2);
             bsls::AtomicInt count(0);
@@ -3468,7 +3482,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == count);
 
                 // Start
-                mX.start();
+                STARTPOOL(mX);
 
                 // Submit another job (queue should have been re-enabled even
                 // though paused)
@@ -3513,7 +3527,7 @@ int main(int argc, char *argv[]) {
         bslmt::ThreadAttributes threadAttrs;
         threadAttrs.setStackSize(1 << 20);      // one megabyte
         bdlmt::MultiQueueThreadPool tp(threadAttrs, 1, 1, 1000*1000, &ta);
-        ASSERT(0 == tp.start());
+        STARTPOOL(tp);
         int queue = tp.createQueue();
 
         double startTime = now();
@@ -3571,7 +3585,7 @@ int main(int argc, char *argv[]) {
                    k_MAX_IDLE,
                    &ta);
             const Obj& X = mX;
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
 
             enum {
                 k_REPRODUCE_COUNT = 10
@@ -3622,7 +3636,7 @@ int main(int argc, char *argv[]) {
                    k_MAX_THREADS,
                    k_MAX_IDLE,
                    &ta);
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
 
             enum {
                 k_REPRODUCE_COUNT = 50
@@ -3779,7 +3793,7 @@ int main(int argc, char *argv[]) {
 
                 if (veryVerbose)
                     cout << "Iteration " << i << "\n";
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 int  QUEUE_IDS[k_NUM_QUEUES];
                 Func QUEUE_NOOP[k_NUM_QUEUES];
 
@@ -3852,7 +3866,7 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(0 == X.numElements());
 
-                mX.start();
+                STARTPOOL(mX);
 
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
                     int rc = mX.deleteQueue(QUEUE_IDS[j]);
@@ -3881,7 +3895,7 @@ int main(int argc, char *argv[]) {
 
                 if (veryVerbose)
                     cout << "Iteration " << i << "\n";
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 int  QUEUE_IDS[k_NUM_QUEUES];
                 Func QUEUE_NOOP[k_NUM_QUEUES];
 
@@ -3961,7 +3975,7 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(0 == X.numElements());
 
-                mX.start();
+                STARTPOOL(mX);
 
                 for (int j = 0; j < k_NUM_QUEUES; ++j) {
                     int rc = mX.deleteQueue(QUEUE_IDS[j]);
@@ -3986,7 +4000,7 @@ int main(int argc, char *argv[]) {
 
                 int id = mX.createQueue();
 
-                mX.start();
+                STARTPOOL(mX);
 
                 int numEnqueued = -1, numExecuted = -1, numDeleted = -1;
                 mX.numProcessedReset(&numExecuted, &numEnqueued, &numDeleted);
@@ -4090,7 +4104,7 @@ int main(int argc, char *argv[]) {
             Func            count;        // increment `counter`
             makeFunc(&count, incrementCounter, &counter);
 
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
 
             int id1 = mX.createQueue();  ASSERT(0 != id1);
             int id2 = mX.createQueue();  ASSERT(0 != id2);  ASSERT(id1 != id2);
@@ -4212,7 +4226,7 @@ int main(int argc, char *argv[]) {
             makeFunc(&cleanupCb, case11CleanUp, &counter, &barrier);
 
             enum { k_NUM_ITERATIONS = 500 };
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
             for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
                 id = mX.createQueue();
                 ASSERTV(i, 0 != id);
@@ -4282,9 +4296,9 @@ int main(int argc, char *argv[]) {
         Sleeper sleepALot(   SLEEP_A_LOT_TIME);
 
         // less than k_MAX_THREADS + 1
-        ASSERT(0 == tp.start());
-        ASSERT(0 == mX.start());
-        ASSERT(0 == mY.start());
+        STARTPOOL(tp);
+        STARTPOOL(mX);
+        STARTPOOL(mY);
         double startTime = now();
 
         for (int i = 0; i < k_NUM_QUEUES; ++i) {
@@ -4322,8 +4336,8 @@ int main(int argc, char *argv[]) {
 
         Sleeper::s_finished = 0;
 
-        ASSERT(0 == mX.start());
-        ASSERT(0 == mY.start());
+        STARTPOOL(mX);
+        STARTPOOL(mY);
 
         startTime = now();
         ASSERT(0 == mX.enqueueJob(queueIds[0][k_IX], sleepALittle));
@@ -4491,7 +4505,7 @@ int main(int argc, char *argv[]) {
                        &ta);
                 const Obj& X = mX;
                 ASSERTV(i, LINE, 0 == X.numQueues());
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
 
                 if (verbose) {
                     P_(i); P_(LINE);
@@ -4600,7 +4614,7 @@ int main(int argc, char *argv[]) {
                    &ta);
             const Obj& X = mX;
 
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
             int id = mX.createQueue();
             ASSERT(0 != id);
             ASSERT(1 == X.numQueues());
@@ -4714,7 +4728,7 @@ int main(int argc, char *argv[]) {
 
                 pool.start();
 
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 ASSERT(0 == tp.numPendingJobs());
                 ASSERT(0 == tp.numActiveThreads());
                 ASSERT(k_MIN_THREADS == tp.numWaitingThreads());
@@ -4869,7 +4883,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != mX.enableQueue(id));
             ASSERT(0 != mX.disableQueue(id));
 
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
             ASSERT(0 == X.numQueues());
             id = mX.createQueue();
             ASSERT(0 != id);
@@ -5001,7 +5015,7 @@ int main(int argc, char *argv[]) {
                    &ta);
             const Obj& X = mX;
 
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
             ASSERT(0 == X.numQueues());
 
             bsls::AtomicInt counters[k_MAX_QUEUES];
@@ -5198,7 +5212,7 @@ int main(int argc, char *argv[]) {
                 cout << "Start pool.  Create and delete queues." << endl;
             }
             {
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 ASSERT(0 == tp.numPendingJobs());
                 ASSERT(0 == tp.numActiveThreads());
                 ASSERT(k_MIN_THREADS == tp.numWaitingThreads());
@@ -5317,7 +5331,7 @@ int main(int argc, char *argv[]) {
             }
             {
                 counter = 0;
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 ASSERT(2 == X.numQueues());
                 ASSERT(0 == X.numElements(id));
 
@@ -5334,7 +5348,7 @@ int main(int argc, char *argv[]) {
                 mX.stop();
                 ASSERT(1 == X.numElements(id));
 
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 mX.resumeQueue(id);
                 ASSERT(!X.isPaused(id));
                 mX.drain();
@@ -5353,7 +5367,7 @@ int main(int argc, char *argv[]) {
                 cout << "Re-start the pool." << endl;
             }
             {
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 ASSERT(1 == X.numQueues());
                 ASSERT(0 == X.numElements(id));
 
@@ -5420,7 +5434,7 @@ int main(int argc, char *argv[]) {
                 cout << "Re-start the pool." << endl;
             }
             {
-                ASSERT(0 == mX.start());
+                STARTPOOL(mX);
                 ASSERT(0 == X.numQueues());
                 ASSERT(-1 == X.numElements(id));
 
@@ -5552,7 +5566,7 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) {
                 cout << "\tCalling `start`" << endl;
             }
-            ASSERT(0 == mX.start());
+            STARTPOOL(mX);
             ASSERT(0 == mX.start());
             ASSERT(0 == tp.numPendingJobs());
             ASSERT(0 == tp.numActiveThreads());
