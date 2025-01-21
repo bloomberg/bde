@@ -747,8 +747,6 @@ void FormatterSpecificationSplitter<t_CHAR>::parseRawPrecision(
         return;                                                       // RETURN
     }
 
-    typedef FormatterSpecificationNumericValue FSNValue;
-
     return outSpec->d_rawPrecision.parse(start, end, true);
 }
 
