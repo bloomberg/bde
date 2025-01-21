@@ -26,6 +26,7 @@
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_removepointer.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -2243,12 +2244,18 @@ struct TestDriver {
         void release();
     };
 
-    struct HasOperatorLessThan : bsl::integral_constant<bool,
-                                            bsl::is_fundamental<TYPE>::value
-                                         || bsl::is_enum<TYPE>::value
-                                         || bsl::is_pointer<TYPE>::value
-                                         || bsl::is_same<TYPE, TTA>::value
-                                         || bsl::is_same<TYPE, TNA>::value> {};
+    /// Determines whether `TYPE` should be used to instantiate test cases
+    /// that use the relational operators or spaceship operator.  We exclude
+    /// function pointers because the comparison between two function pointers
+    /// always yields either "equal" or an unspecified result.
+    struct HasOperatorLessThan
+    : bsl::integral_constant<bool,
+        bsl::is_fundamental<TYPE>::value
+        || bsl::is_enum<TYPE>::value
+        || (bsl::is_pointer<TYPE>::value &&
+            !bsl::is_function<typename bsl::remove_pointer<TYPE>::type>::value)
+        || bsl::is_same<TYPE, TTA>::value
+        || bsl::is_same<TYPE, TNA>::value> {};
 
     struct IsMoveAware : bsl::integral_constant<bool,
                    bsl::is_same<TYPE, bsltf::MovableTestType>::value

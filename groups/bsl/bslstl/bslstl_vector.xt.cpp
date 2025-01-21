@@ -19747,8 +19747,7 @@ int main(int argc, char *argv[])
                       signed char,
                       const char *,
                       bsltf::AllocTestType,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      bsltf::TemplateTestFacility::ObjectPtr);
       } break;
       case 19: {
         // --------------------------------------------------------------------
