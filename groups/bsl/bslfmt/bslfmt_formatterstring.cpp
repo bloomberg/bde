@@ -120,11 +120,6 @@ static UnicodeData::GraphemeBreakCategory getGraphemeBreakCategory(
 /// `false` otherwise.
 static bool getExtendedPictogramValue(unsigned long int codePoint);
 
-/// Determine the width of the specified `codePoint` per the rules in the C++
-/// standard in [format.string.std].  Note that this width may differ from that
-/// specified by the Unicode standard.
-static int getCodepointWidth(unsigned long int codePoint);
-
                       // --------------------
                       // struct EndComparator
                       // --------------------
@@ -259,36 +254,6 @@ bool getExtendedPictogramValue(unsigned long int codePoint)
     }
 
     return true;
-}
-
-inline
-int getCodepointWidth(unsigned long int codePoint)
-{
-    const UnicodeData::BooleanRange *first =
-                                         UnicodeData::s_doubleFieldWidthRanges;
-
-    // Early exit for the common (ascii) case
-    if (codePoint < first->d_start) {
-        return 1;                                                     // RETURN
-    }
-
-    const UnicodeData::BooleanRange *last =
-                                     UnicodeData::s_doubleFieldWidthRanges +
-                                     UnicodeData::s_doubleFieldWidthRangeCount;
-
-    EndComparator<UnicodeData::BooleanRange> comparator;
-
-    const UnicodeData::BooleanRange *found =
-                          bsl::lower_bound(first, last, codePoint, comparator);
-
-    // Below the first element in the array
-    if ((found == last) ||
-        (found->d_start > codePoint) ||
-        (found->d_end   < codePoint)) {
-        return 1;                                                     // RETURN
-    }
-
-    return 2;
 }
 
 }  // close unnamed namespace

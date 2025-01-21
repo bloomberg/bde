@@ -303,8 +303,9 @@ namespace std {
 /// `monostate` state that represents a non-existent argument and our code
 /// should not use it in any way, so this is sufficient to make things compile.
 template <class t_CHAR>
-struct basic_format_arg<MockNoArgsContext<t_CHAR> >
-: basic_format_arg<typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
+class basic_format_arg<MockNoArgsContext<t_CHAR> >
+: public basic_format_arg<typename bsl::conditional<
+                                             bsl::is_same<t_CHAR, char>::value,
                                              format_context,
                                              wformat_context>::type>
 {
@@ -322,8 +323,9 @@ template <class t_CHAR>
 /// the class can be empty because we work only with `monostate` state that
 /// represents a non-existent argument and our code should not use it in any
 /// way, so this is sufficient to make things compile.
-struct basic_format_arg<MockNoArgsContext<t_CHAR> >
-: basic_format_arg<typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
+class basic_format_arg<MockNoArgsContext<t_CHAR> >
+: public basic_format_arg<typename bsl::conditional<
+                                             bsl::is_same<t_CHAR, char>::value,
                                              format_context,
                                              wformat_context>::type>
 {
@@ -399,11 +401,14 @@ namespace std {
 /// that does not have a specialization for our context type, only for
 /// `std::format_context` and `std::wformat_context`.  See `MockOneArgContext`.
 template <class t_CHAR, class t_VALUE_TYPE>
-struct basic_format_arg<MockOneArgContext<t_CHAR, t_VALUE_TYPE> >
-: basic_format_arg<typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
+class basic_format_arg<MockOneArgContext<t_CHAR, t_VALUE_TYPE> >
+: public basic_format_arg<typename bsl::conditional<
+                                             bsl::is_same<t_CHAR, char>::value,
                                              format_context,
                                              wformat_context>::type>
 {
+  public:
+
     // TYPES
 
     // The context type of the base class.
@@ -451,9 +456,11 @@ namespace bslfmt {
 /// context type, only for `format_context` and `wformat_context`.  See
 /// `MockOneArgContext`.
 template <class t_VALUE_TYPE>
-struct basic_format_arg<MockOneArgContext<char, t_VALUE_TYPE> >
-: basic_format_arg<format_context>
+class basic_format_arg<MockOneArgContext<char, t_VALUE_TYPE> >
+: public basic_format_arg<format_context>
 {
+  public:
+
     // CREATORS
 
     /// Create an empty argument that visits as `std::monostate`.
@@ -491,9 +498,11 @@ struct basic_format_arg<MockOneArgContext<char, t_VALUE_TYPE> >
 /// `make_format_args` function that does not have a specialization for our
 /// context type, only for `format_context` and `wformat_context`.
 template <class t_VALUE_TYPE>
-struct basic_format_arg<MockOneArgContext<wchar_t, t_VALUE_TYPE> >
-: basic_format_arg<wformat_context>
+class basic_format_arg<MockOneArgContext<wchar_t, t_VALUE_TYPE> >
+: public basic_format_arg<wformat_context>
 {
+  public:
+
     // CREATORS
 
     /// Create an empty argument that visits as `std::monostate`.
@@ -621,11 +630,14 @@ namespace std {
 /// that does not have a specialization for our context type, only for
 /// `std::format_context` and `std::wformat_context`.  See `MockBadArgContext`.
 template <class t_CHAR, class t_VALUE_TYPE>
-struct basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
-: basic_format_arg<typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
+class basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
+: public basic_format_arg<typename bsl::conditional<
+                                             bsl::is_same<t_CHAR, char>::value,
                                              format_context,
                                              wformat_context>::type>
 {
+  public:
+
     // TYPES
 
     /// The context type of the base class.
@@ -674,9 +686,11 @@ namespace bslfmt {
 /// context type, only for `format_context` and `wformat_context`.  See
 /// `MockBadArgContext`.
 template <class t_VALUE_TYPE>
-struct basic_format_arg<MockBadArgContext<char, t_VALUE_TYPE> >
-    : basic_format_arg<format_context>
+class basic_format_arg<MockBadArgContext<char, t_VALUE_TYPE> >
+: public basic_format_arg<format_context>
 {
+  public:
+
     // CREATORS
 
     /// Create an empty argument that visits as `std::monostate`.
@@ -714,9 +728,11 @@ struct basic_format_arg<MockBadArgContext<char, t_VALUE_TYPE> >
 /// context type, only for `format_context` and `wformat_context`.  See
 /// `MockBadArgContext`.
 template <class t_VALUE_TYPE>
-struct basic_format_arg<MockBadArgContext<wchar_t, t_VALUE_TYPE> >
-    : basic_format_arg<wformat_context>
+class basic_format_arg<MockBadArgContext<wchar_t, t_VALUE_TYPE> >
+: public basic_format_arg<wformat_context>
 {
+  public:
+
     // CREATORS
 
     /// Create an empty argument that visits as `std::monostate`.
