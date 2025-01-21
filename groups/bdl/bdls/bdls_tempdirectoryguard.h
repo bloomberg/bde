@@ -73,6 +73,7 @@ class TempDirectoryGuard {
     // DATA
     bsl::string d_dirName;      // path to the created directory
 
+  private:
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
     TempDirectoryGuard& operator=(const TempDirectoryGuard&);
@@ -95,9 +96,11 @@ class TempDirectoryGuard {
     /// created at construction.
     ~TempDirectoryGuard();
 
-    /// Remove the created temporary directory from management so that, upon this guards
-    /// destruction,  the created directory is not removed.  Calling `release` on a guard
-    /// that has previously been released has no effect.
+    // MANIPULATORS
+
+    /// Remove the created temporary directory from management so that, upon
+    /// this guards destruction, the created directory is not removed.  Calling
+    /// `release` on a guard that has previously been released has no effect.
     void release();
 
     // ACCESSORS

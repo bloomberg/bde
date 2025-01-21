@@ -21,15 +21,13 @@ TempDirectoryGuard::TempDirectoryGuard(const bsl::string_view&  prefix,
     int rc = FilesystemUtil::getSystemTemporaryDirectory(&tmpPath);
     if (0 != rc) {
         // use path relative to current directory
-        tmpPath = "";
+
+        tmpPath.clear();
     }
 
-    rc = bdls::PathUtil::appendIfValid(&tmpPath, prefix);
-    if (0 != rc) {
-        BSLS_ASSERT_INVOKE("Unable to form directory root name");
-    }
-
-    rc = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName, tmpPath);
+    rc = bdls::FilesystemUtil::createTemporarySubdirectory(&d_dirName,
+                                                           tmpPath,
+                                                           prefix);
     if (0 != rc) {
         BSLS_ASSERT_INVOKE("Unable to create temporary directory");
     }

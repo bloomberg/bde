@@ -14,6 +14,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>
@@ -273,7 +275,6 @@ int main(int argc, char *argv[])
                           << "TESTING: bootstrap" << endl
                           << "==================" << endl;
 
-
         bsl::string name;
 
         bslma::TestAllocator         da("default", veryVeryVerbose);
@@ -296,6 +297,8 @@ int main(int argc, char *argv[])
 
                 ASSERTV(name, bdls::FilesystemUtil::exists(name));
                 ASSERTV(name, bdls::FilesystemUtil::isDirectory(name));
+
+                if (veryVerbose) P(name);
 
                 bsl::string_view head, tail;
                 bdls::PathUtil::splitFilename(&head, &tail, name);
@@ -321,6 +324,8 @@ int main(int argc, char *argv[])
 
                 name = guard.getTempDirName();
 
+                if (veryVerbose) P(name);
+
                 ASSERTV(name, bdls::FilesystemUtil::exists(name));
                 ASSERTV(name, bdls::FilesystemUtil::isDirectory(name));
 
@@ -334,6 +339,42 @@ int main(int argc, char *argv[])
             ASSERTV(name, !bdls::FilesystemUtil::isDirectory(name));
         }
 
+#ifdef BSLS_PLATFORM_OS_UNIX
+        if (verbose) {
+            cout << "Test basic with no $TMPDIR" << endl;
+        }
+        {
+            bsl::string origTmpDir = bsl::getenv("TMPDIR");
+            ::setenv("TMPDIR", "", true);
+
+            const bsl::string_view prefix = "testCase2WithALongString_";
+
+            {
+                bdls::TempDirectoryGuard guard(prefix);
+
+                ASSERTV(da.numBytesInUse(), 0  < da.numBytesInUse());
+                ASSERTV(oa.numBytesInUse(), 0 == oa.numBytesInUse());
+
+                name = guard.getTempDirName();
+
+                if (veryVerbose) P(name);
+
+                ASSERTV(name, bsl::string::npos == name.find('/'));
+                ASSERTV(name, bdls::FilesystemUtil::exists(name));
+                ASSERTV(name, bdls::FilesystemUtil::isDirectory(name));
+
+                bsl::string_view head, tail;
+                bdls::PathUtil::splitFilename(&head, &tail, name);
+
+                ASSERTV(head, tail, tail.starts_with(prefix));
+            }
+
+            ASSERTV(name, !bdls::FilesystemUtil::exists(name));
+            ASSERTV(name, !bdls::FilesystemUtil::isDirectory(name));
+
+            ::setenv("TMPDIR", origTmpDir.c_str(), true);
+        }
+#endif
 
         if (verbose) {
             cout << "Test with an empty prefix" << endl;
@@ -345,6 +386,8 @@ int main(int argc, char *argv[])
                 bdls::TempDirectoryGuard guard(prefix);
 
                 name = guard.getTempDirName();
+
+                if (veryVerbose) P(name);
 
                 ASSERTV(name, bdls::FilesystemUtil::exists(name));
                 ASSERTV(name, bdls::FilesystemUtil::isDirectory(name));
@@ -369,6 +412,12 @@ int main(int argc, char *argv[])
                 name2 = guard2.getTempDirName();
                 name3 = guard3.getTempDirName();
 
+                if (veryVerbose) {
+                    P(name1);
+                    P(name2);
+                    P(name3);
+                }
+
                 ASSERTV(name1, name2, name1 != name2);
                 ASSERTV(name1, name3, name1 != name3);
                 ASSERTV(name2, name3, name2 != name3);
@@ -386,7 +435,6 @@ int main(int argc, char *argv[])
             ASSERTV(name1, !bdls::FilesystemUtil::exists(name1));
             ASSERTV(name2, !bdls::FilesystemUtil::exists(name2));
             ASSERTV(name3, !bdls::FilesystemUtil::exists(name3));
-
         }
       } break;
       case 1: {
