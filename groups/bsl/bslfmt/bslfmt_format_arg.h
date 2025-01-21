@@ -138,13 +138,13 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     class handle {
       private:
         // DATA
-        const void *d_value_p;
-            // pointer to the referenced value
+        const void  *d_value_p;
+                         // pointer to the referenced value
 
-        void (*d_format_impl_p)(basic_format_parse_context<t_CHAR>&,
-                                basic_format_context<t_OUT, t_CHAR>&,
-                                const void *);
-            // pointer to a format_impl instance
+        void       (*d_format_impl_p)(basic_format_parse_context<t_CHAR>&,
+                                      basic_format_context<t_OUT, t_CHAR>&,
+                                      const void *);
+                         // pointer to a format_impl instance
 
         // FRIENDS
         friend class basic_format_arg<basic_format_context<t_OUT, t_CHAR> >;
@@ -259,7 +259,7 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// Create a `basic_format_arg` from the specified `value`, which is then
     /// held by reference in a `basic_format_arg::handle`.  This constructor
     /// only participates in overload resolution if `value` is not an integer
-    /// or if `value` is an signed integer type that can not be held within a
+    /// or if `value` is a signed integer type that can not be held within a
     /// `long long` or an unsigned integer type that can not be held within an
     /// `unsigned long long`.  Participation in overload resolution is also
     /// disabled if `value` is of type `long double`.

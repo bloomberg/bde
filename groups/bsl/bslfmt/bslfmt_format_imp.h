@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component will provide, in the `bslfmt` namespace,
 // compliant implementations of the following free functions exposed by the
-// standard <format> header. These are available for C++03 and later.
+// standard <format> header.  These are available for C++03 and later.
 //
 // * format
 // * format_to
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 ///------------------------
 //
 // User-provided formatters are supported by the BSL implementation, just as
-// they are by the standard library implementation. However, in order for them
+// they are by the standard library implementation.  However, in order for them
 // to be compatible with both implementations, there are specific requirements,
 // notably:
 //
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //   users forgetting to include the header for the formatter.
 // - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
 //   template arguments for the format context and parse context
-//   parameters. This is essential as the parameter type passed in will
+//   parameters.  This is essential as the parameter type passed in will
 //   depend upon underlying implementation.
 // - The `parse` function should be constexpr in C++20, but this is not
 //   required (and may not be possible) for earlier C++ standards.
@@ -68,6 +68,7 @@ BSLS_IDENT("$Id: $")
 //
 // }  // close namespace bsl
 // ```
+//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
@@ -207,7 +208,7 @@ class Format_Imp_TruncatingIterator {
 
     // MANIPULATORS
 
-    /// Do nothing and return a reference to this object. This is included to
+    /// Do nothing and return a reference to this object.  This is included to
     /// ensure compliance with the C++ Standard's LegacyOutputIterator
     /// requirements.
     Format_Imp_TruncatingIterator& operator*();
@@ -218,14 +219,14 @@ class Format_Imp_TruncatingIterator {
     /// stored underlying iterator.
     void operator=(t_VALUE_TYPE x);
 
-    /// Do nothing and return a reference to this object. This is included to
+    /// Do nothing and return a reference to this object.  This is included to
     /// ensure compliance with the C++ Standard's LegacyOutputIterator
     /// requirements.
     Format_Imp_TruncatingIterator& operator++();
 
     // ACCESSORS
 
-    /// Return the current character count. Note that this is the number of
+    /// Return the current character count.  Note that this is the number of
     /// calls to `operator=` regardless of whether the limit has been breached.
     t_DIFF_TYPE count() const;
 
@@ -346,7 +347,7 @@ struct Format_Imp_Processor {
 
     /// Format the specified `args` according to the format string specified by
     /// `fmtStr` and write the result to the output iterator specified by
-    /// `out`. Return an iterator one past the end of the output range. This
+    /// `out`.  Return an iterator one past the end of the output range.  This
     /// function participates in overload resolution if `out` is of
     /// `Format_ContextOutputIteratorRef` type.
     static Format_ContextOutputIteratorRef<t_CHAR>
@@ -533,64 +534,64 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChar` characters
-/// of the result of this operation into the string addressed by the specified
-/// `out` parameter.  Return the number of characters that would have been
-/// written to `out` were such writing not truncated.  In the event of an error
-/// the exception `format_error` is thrown.  Behavior is undefined if `out`
-/// does not point to a valid `bsl::string` object.
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation into the string addressed by the
+/// specified `out` parameter.  Return the number of characters that would have
+/// been written to `out` were such writing not truncated.  In the event of an
+/// error the exception `format_error` is thrown.  Behavior is undefined if
+/// `out` does not point to a valid `bsl::string` object.
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChar,
+                      ptrdiff_t                       maxNumChars,
                       BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                       const t_ARGS&...                args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChar` characters
-/// of the result of this operation into the string addressed by the specified
-/// `out` parameter.  Return the number of characters that would have been
-/// written to `out` were such writing not truncated.  In the event of an error
-/// the exception `format_error` is thrown.  Behavior is undefined if `out`
-/// does not point to a valid `bsl::string` object.
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation into the string addressed by the
+/// specified `out` parameter.  Return the number of characters that would have
+/// been written to `out` were such writing not truncated.  In the event of an
+/// error the exception `format_error` is thrown.  Behavior is undefined if
+/// `out` does not point to a valid `bsl::string` object.
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChar,
+                      ptrdiff_t                        maxNumChars,
                       BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                       const t_ARGS&...                 args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChar` characters
-/// of the result of this operation into the output iterator referenced by the
-/// specified `out` parameter.  Return a `format_to_n_result` object whose
-/// `size` member holds the number of characters that would have been written
-/// to `out` were such writing not truncated, and whose `out` member holds an
-/// iterator one past the end of the output range.  In the event of an error
-/// the exception `format_error` is thrown.  Behavior is undefined if `out`
-/// does not point to a valid output iterator.
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation into the output iterator
+/// referenced by the specified `out` parameter.  Return a `format_to_n_result`
+/// object whose `size` member holds the number of characters that would have
+/// been written to `out` were such writing not truncated, and whose `out`
+/// member holds an iterator one past the end of the output range.  In the
+/// event of an error the exception `format_error` is thrown.  Behavior is
+/// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,
-            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChar,
+            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
             const t_ARGS&...                                      args);
 
 /// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChar` characters
-/// of the result of this operation into the output iterator referenced by the
-/// specified `out` parameter.  Return a `format_to_n_result` object whose
-/// `size` member holds the number of characters that would have been written
-/// to `out` were such writing not truncated, and whose `out` member holds an
-/// iterator one past the end of the output range.  In the event of an error
-/// the exception `format_error` is thrown.  Behavior is undefined if `out`
-/// does not point to a valid output iterator.
+/// specified `fmtStr`, and write at most the specified `maxNumChars`
+/// characters of the result of this operation into the output iterator
+/// referenced by the specified `out` parameter.  Return a `format_to_n_result`
+/// object whose `size` member holds the number of characters that would have
+/// been written to `out` were such writing not truncated, and whose `out`
+/// member holds an iterator one past the end of the output range.  In the
+/// event of an error the exception `format_error` is thrown.  Behavior is
+/// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,
-            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChar,
+            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
             const t_ARGS&...                                      args);
 
@@ -803,9 +804,9 @@ void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(const handle& h) const
     h.format(*d_parseContext_p, *d_formatContext_p);
 }
 
-                     // --------------------------
-                     // class Format_Imp_Processor
-                     // --------------------------
+                        // --------------------------
+                        // class Format_Imp_Processor
+                        // --------------------------
 
 template <class t_CHAR>
 template <class t_OUT>
@@ -1094,12 +1095,12 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChar,
+                      ptrdiff_t                       maxNumChars,
                       BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                       const t_ARGS&...                args)
 {
-    if (maxNumChar < 0)
-        maxNumChar = 0;
+    if (maxNumChars < 0)
+        maxNumChars = 0;
     out->clear();
 
     typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
@@ -1107,7 +1108,7 @@ ptrdiff_t format_to_n(bsl::string                    *out,
                                                    TruncatingIterator;
 
     UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChar);
+    TruncatingIterator it(bit, maxNumChars);
 
     TruncatingIterator end = format_to(it, fmtStr, args...);
     return end.count();
@@ -1115,12 +1116,12 @@ ptrdiff_t format_to_n(bsl::string                    *out,
 
 template <class... t_ARGS>
 ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChar,
+                      ptrdiff_t                        maxNumChars,
                       BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                       const t_ARGS&...                 args)
 {
-    if (maxNumChar < 0)
-        maxNumChar = 0;
+    if (maxNumChars < 0)
+        maxNumChars = 0;
     out->clear();
 
     typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
@@ -1130,7 +1131,7 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
                                                     TruncatingIterator;
 
     UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChar);
+    TruncatingIterator it(bit, maxNumChars);
 
     TruncatingIterator end = format_to(it, fmtStr, args...);
     return end.count();
@@ -1141,12 +1142,12 @@ typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,
-            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChar,
+            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
             const t_ARGS&...                                      args)
 {
-    if (maxNumChar < 0)
-        maxNumChar = 0;
+    if (maxNumChars < 0)
+        maxNumChars = 0;
 
     typedef Format_Imp_TruncatingIterator<
         t_OUT,
@@ -1154,7 +1155,7 @@ format_to_n(t_OUT                                                 out,
         typename bsl::iterator_traits<t_OUT>::difference_type>
         TruncatingIterator;
 
-    TruncatingIterator it(out, maxNumChar);
+    TruncatingIterator it(out, maxNumChars);
 
     TruncatingIterator end = format_to(it, fmtStr, args...);
 
@@ -1169,12 +1170,12 @@ typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     format_to_n_result<t_OUT> >::type
 format_to_n(t_OUT                                                 out,
-            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChar,
+            typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
             const t_ARGS&...                                      args)
 {
-    if (maxNumChar < 0)
-        maxNumChar = 0;
+    if (maxNumChars < 0)
+        maxNumChars = 0;
 
     typedef Format_Imp_TruncatingIterator<
         t_OUT,
@@ -1182,7 +1183,7 @@ format_to_n(t_OUT                                                 out,
         typename bsl::iterator_traits<t_OUT>::difference_type>
         TruncatingIterator;
 
-    TruncatingIterator it(out, maxNumChar);
+    TruncatingIterator it(out, maxNumChars);
 
     TruncatingIterator end = format_to(it, fmtStr, args...);
 
