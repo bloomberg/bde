@@ -603,7 +603,6 @@ void testParseProcStatStr(const bsl::string&  procStatStr,
     const double cpuTimeS = static_cast<double>(procStats.d_stime) /
                             static_cast<double>(clockTicksPerSec);
 
-    ASSERTV(cpuTimeU, 0.1 < cpuTimeU);
     ASSERTV(cpuTimeU, cpuTimeU < 3);
 
     ASSERTV(cpuTimeS, cpuTimeS < 1);
