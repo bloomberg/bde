@@ -107,7 +107,7 @@ template <class t_OUT, class t_CHAR>
 class basic_format_context;
 
 template <class t_CONTEXT>
-struct basic_format_arg;
+class basic_format_arg;
 
 template <class t_VALUE>
 class Format_ContextOutputIteratorRef;
