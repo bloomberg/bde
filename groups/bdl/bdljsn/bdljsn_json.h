@@ -2309,8 +2309,7 @@ class Json_Initializer {
     /// containing the specified `sv`.
     Json_Initializer(const bsl::string_view& sv);                   // IMPLICIT
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
     /// Create a `Json_Initializer` object containing a `bsl::string_view`
     /// containing the specified `sv`.
     Json_Initializer(const std::string_view& sv);                   // IMPLICIT
@@ -2371,8 +2370,7 @@ class Json_MemberInitializer {
     Json_MemberInitializer(const bsl::string_view& sv,
                            const Json_Initializer& ji);
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
     // Create a `Json_MemberInitializer` object a key whose value is equal to
     // the specified `sv` and whose value is equal to the specified `ji`.
     Json_MemberInitializer(const std::string_view& sv,
@@ -5064,8 +5062,7 @@ Json_Initializer::Json_Initializer(const bsl::string_view& sv)
 {
 }
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
 inline
 Json_Initializer::Json_Initializer(const std::string_view& sv)
 : d_storage(bsl::string_view(sv.data(), sv.size()))
@@ -5149,8 +5146,7 @@ Json_MemberInitializer::Json_MemberInitializer(const bsl::string_view& sv,
 {
 }
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
 inline
 Json_MemberInitializer::Json_MemberInitializer(const std::string_view& sv,
                                                const Json_Initializer& ji)
