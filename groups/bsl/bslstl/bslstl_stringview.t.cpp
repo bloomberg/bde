@@ -1403,16 +1403,16 @@ void TestDriver<TYPE,TRAITS>::testCase22()
             const ObjC::value_type *STRING   = TestDriver<char>::s_testString;
             const ObjC::value_type *NULL_PTR = 0;
 
-			// afeher: for some reason the using directive above does not work
+            // afeher: for some reason the using directive above does not work
             ASSERT_SAFE_PASS(
-			             bsl::string_view_literals::operator ""_sv(STRING, 0));
+                         bsl::string_view_literals::operator ""_sv(STRING, 0));
             ASSERT_SAFE_PASS(
-			             bsl::string_view_literals::operator ""_sv(STRING, 5));
+                         bsl::string_view_literals::operator ""_sv(STRING, 5));
 
             ASSERT_SAFE_PASS(
-			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
+                       bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
             ASSERT_SAFE_FAIL(
-			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
+                       bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
         }
 #endif
     }
@@ -1495,16 +1495,16 @@ void TestDriver<TYPE,TRAITS>::testCase22()
                                              TestDriver<wchar_t>::s_testString;
             const ObjW::value_type *NULL_PTR = 0;
 
-			// afeher: for some reason the using directive above does not work
+            // afeher: for some reason the using directive above does not work
             ASSERT_SAFE_PASS(
-			             bsl::string_view_literals::operator ""_sv(STRING, 0));
+                         bsl::string_view_literals::operator ""_sv(STRING, 0));
             ASSERT_SAFE_PASS(
-			             bsl::string_view_literals::operator ""_sv(STRING, 5));
+                         bsl::string_view_literals::operator ""_sv(STRING, 5));
 
             ASSERT_SAFE_PASS(
-			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
+                       bsl::string_view_literals::operator ""_sv(NULL_PTR, 0));
             ASSERT_SAFE_FAIL(
-			           bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
+                       bsl::string_view_literals::operator ""_sv(NULL_PTR, 5));
         }
 #endif
     }
