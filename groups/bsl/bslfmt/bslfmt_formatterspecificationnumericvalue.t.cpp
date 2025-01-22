@@ -285,113 +285,16 @@ ArgType::Enum getArgType(const bslfmt::basic_format_arg<t_CONTEXT>& arg)
     return visitor.argType();
 }
 
-                    // ========================
-                    // struct MockNoArgsContext
-                    // ========================
+                        // ======================
+                        // struct MockArgsContext
+                        // ======================
 
-template <class t_CHAR>
-struct MockNoArgsContext;
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-namespace std {
-/// This specialization of `basic_arg_format` for `MockNoArgsContext` is used
-/// when the standard library supports a sufficiently functional format library
-/// so that we do not use our own, but rather extend the existing one.  This
-/// specialization has to inherit from `basic_format_arg` of `format_context`
-/// or `wformat_context` because `std::visit_format_arg` only exists for those.
-/// For `MockNoArgsContext` the class can be empty because we work only with
-/// `monostate` state that represents a non-existent argument and our code
-/// should not use it in any way, so this is sufficient to make things compile.
-template <class t_CHAR>
-class basic_format_arg<MockNoArgsContext<t_CHAR> >
-: public basic_format_arg<typename bsl::conditional<
-                                             bsl::is_same<t_CHAR, char>::value,
-                                             format_context,
-                                             wformat_context>::type>
-{
-};
-}  // close namespace std
-#else
-namespace BloombergLP {
-namespace bslfmt {
-template <class t_CHAR>
-/// This specialization of `basic_arg_format` for `MockNoArgsContext` is used
-/// when the standard library does not provide a sufficiently functional format
-/// library so we have to implement our own.  This specialization has to
-/// inherit from `basic_format_arg` of `format_context` or `wformat_context`
-/// because `visit_format_arg` only exists for those.  For `MockNoArgsContext`
-/// the class can be empty because we work only with `monostate` state that
-/// represents a non-existent argument and our code should not use it in any
-/// way, so this is sufficient to make things compile.
-class basic_format_arg<MockNoArgsContext<t_CHAR> >
-: public basic_format_arg<typename bsl::conditional<
-                                             bsl::is_same<t_CHAR, char>::value,
-                                             format_context,
-                                             wformat_context>::type>
-{
-};
-}  // close package namespace
-}  // close enterprise namespace
-#endif
-
-/// A format context that implements the bare minimum of functionality required
-/// by the `postprocess` method (the `arg` method) and returns an "no such
-/// argument" for each argument identifier (`monostate`) as well as sets a flag
-/// that indicates that there was an attempt to access an argument.  This
-/// context exists so that we can verify those cases where `postprocess` must
-/// not access arguments either because there is nothing to process, or because
-/// state is `d_NEXT_ARG` which should lead to an exception.
-template <class t_CHAR>
-struct MockNoArgsContext {
-    // TYPES
-    typedef t_CHAR char_type;
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    typedef std::basic_format_arg<MockNoArgsContext>    FormatArgType;
-#else
-    typedef bslfmt::basic_format_arg<MockNoArgsContext> FormatArgType;
-#endif
-
-    // DATA
-    mutable bool d_argAccessed;
-
-    // CREATORS
-
-    /// Create a `MockNoArgsContext` object.
-    MockNoArgsContext() : d_argAccessed(false) {}
-
-    // MANIPULATORS
-
-    /// Reset the argument-access flag (see `argAccessed`) to `false`.
-    void reset() {
-        d_argAccessed = false;
-    }
-
-    // ACCESSORS
-
-    /// Return an empty (visits as `monostate`) `format_arg` and set the
-    /// `argAccessed` flag (to `true`).
-    FormatArgType arg(int) const {
-        d_argAccessed = true;
-        return FormatArgType();
-    }
-
-    /// Return `true` if any argument has been requested since construction or
-    /// the last call to `reset`, and `false` otherwise.
-    bool argAccessed() const {
-        return d_argAccessed;
-    }
-};
-
-                        // ========================
-                        // struct MockOneArgContext
-                        // ========================
-
-template <class t_CHAR, class t_VALUE_TYPE>
-struct MockOneArgContext;
+template <class t_CHAR, class t_VALUE_TYPE, class t_BAD_TYPE>
+struct MockArgsContext;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace std {
-/// This specialization of `basic_arg_format` for `MockOneArgContext` is used
+/// This specialization of `basic_arg_format` for `MockArgsContext` is used
 /// when the standard library supports a sufficiently functional format library
 /// so that we do not use our own, but rather extend the existing one.  This
 /// specialization has to inherit from `basic_format_arg` of `format_context`
@@ -399,238 +302,9 @@ namespace std {
 /// The conversion constructor from the base class exists so that we can use
 /// (the only way of creating format-arguments the) `make_format_args` function
 /// that does not have a specialization for our context type, only for
-/// `std::format_context` and `std::wformat_context`.  See `MockOneArgContext`.
-template <class t_CHAR, class t_VALUE_TYPE>
-class basic_format_arg<MockOneArgContext<t_CHAR, t_VALUE_TYPE> >
-: public basic_format_arg<typename bsl::conditional<
-                                             bsl::is_same<t_CHAR, char>::value,
-                                             format_context,
-                                             wformat_context>::type>
-{
-  public:
-
-    // TYPES
-
-    // The context type of the base class.
-    typedef typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
-                                      format_context,
-                                      wformat_context>::type       BaseContext;
-
-    // CREATORS
-
-    /// Create an empty argument that visits as `std::monostate`.
-    basic_format_arg() {}
-
-    /// Create a `basic_format_arg` (of a `MockArgContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
-    basic_format_arg(const basic_format_arg<BaseContext>& other)    // IMPLICIT
-    : basic_format_arg<BaseContext>(other)
-    {
-    }
-
-    // CLASS METHODS
-
-    /// Create a `basic_format_arg` (of a `MockOneArgContext` type) with the
-    /// specified `value` and having `t_VALUE_TYPE` as its type.
-    static basic_format_arg createValue(long long value)
-    {
-        static t_VALUE_TYPE typedValue;
-        typedValue = static_cast<t_VALUE_TYPE>(value);
-        return basic_format_args(
-            make_format_args<BaseContext, t_VALUE_TYPE>(typedValue)).get(0);
-    }
-};
-}  // close namespace std
-#else
-namespace BloombergLP {
-namespace bslfmt {
-/// This specialization of `basic_arg_format` for a `char`-based
-/// `MockOneArgContext` is used when the standard library does not provide a
-/// sufficiently functional format library so that we have to implement our
-/// own.  This specialization has to inherit from `basic_format_arg` of
-/// `format_context` or `wformat_context` because `visit_format_arg` only
-/// exists for those.  The conversion constructor from the base class exists so
-/// that we can use (the only way of creating format-arguments the)
-/// `make_format_args` function that does not have a specialization for our
-/// context type, only for `format_context` and `wformat_context`.  See
-/// `MockOneArgContext`.
-template <class t_VALUE_TYPE>
-class basic_format_arg<MockOneArgContext<char, t_VALUE_TYPE> >
-: public basic_format_arg<format_context>
-{
-  public:
-
-    // CREATORS
-
-    /// Create an empty argument that visits as `std::monostate`.
-    basic_format_arg() {}
-
-    /// Create a `basic_format_arg` (of a `MockArgContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
-    basic_format_arg(const basic_format_arg<format_context>& other)
-        : basic_format_arg<format_context>(other)
-    {
-    }
-
-    // CLASS METHODS
-
-    /// Create a `basic_format_arg` (of a `MockOneArgContext` type) with the
-    /// specified `value` and having `t_VALUE_TYPE` as its type.
-    static basic_format_arg createValue(long long value)
-    {
-        using namespace bslfmt;
-
-        static t_VALUE_TYPE typedValue;
-        typedValue = static_cast<t_VALUE_TYPE>(value);
-        return format_args(make_format_args(typedValue)).get(0);
-    }
-};
-
-/// This specialization of `basic_arg_format` for a `wchar_t`-based
-/// `MockOneArgContext` is used when the standard library does not provide a
-/// sufficiently functional format library so that we have to implement our
-/// own.  This specialization has to inherit from `basic_format_arg` of
-/// `format_context` or `wformat_context` because `visit_format_arg` only
-/// exists for those.  The conversion constructor from the base class exists so
-/// that we can use (the only way of creating format-arguments the)
-/// `make_format_args` function that does not have a specialization for our
-/// context type, only for `format_context` and `wformat_context`.
-template <class t_VALUE_TYPE>
-class basic_format_arg<MockOneArgContext<wchar_t, t_VALUE_TYPE> >
-: public basic_format_arg<wformat_context>
-{
-  public:
-
-    // CREATORS
-
-    /// Create an empty argument that visits as `std::monostate`.
-    basic_format_arg() {}
-
-    /// Create a `basic_format_arg` (of a `MockArgContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
-    basic_format_arg(const basic_format_arg<wformat_context>& other)
-        : basic_format_arg<wformat_context>(other)
-    {
-    }
-
-    // CLASS METHODS
-
-    /// Create a `basic_format_arg` (of a `MockOneArgContext` type) with the
-    /// specified `value` and having `t_VALUE_TYPE` as its type.
-    static basic_format_arg createValue(long long value)
-    {
-        using namespace bslfmt;
-
-        static t_VALUE_TYPE typedValue;
-        typedValue = static_cast<t_VALUE_TYPE>(value);
-        return wformat_args(make_wformat_args(typedValue)).get(0);
-    }
-};
-
-}  // close package namespace
-}  // close enterprise namespace
-#endif
-
-/// A format context that implements the bare minimum of functionality required
-/// by the `postprocess` method (the `arg` method).  It serves one argument
-/// for an argument identifier and value stored as attributes, and the
-/// `t_VALUE_TYPE` type.  All other argument identifiers will return an "empty
-/// argument" (`monostate`) as well as sets a flag that indicates that there
-/// was an attempt to access a wrong argument.  This context exists so that we
-/// can verify the `e_ARG_ID` case where `postprocess` must access an argument
-/// to retrieve the numeric value, and must not access any other argument.  For
-/// this to work `t_VALUE_TYPE` must be one of the acceptable integral types of
-/// `char_type`, `int`, `unsigned`, `long long`, or `unsigned long long`.
-template <class t_CHAR, class t_VALUE_TYPE>
-struct MockOneArgContext {
-    // TYPES
-    typedef t_CHAR       char_type;  // Required by `ArgTypingVisitor`
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    typedef std::basic_format_arg<MockOneArgContext>    FormatArgType;
-#else
-    typedef bslfmt::basic_format_arg<MockOneArgContext> FormatArgType;
-#endif
-
-    // DATA
-    int          d_argId;
-    long long    d_value;
-
-    mutable bool d_wrongArgAccessed;
-
-    // CREATORS
-
-    /// Create a `MockOneArgContext` that provides the specified `value` with
-    /// the type `t_VALUE_TYPE` for the specified `argId` while providing empty
-    /// (`monostate`) arguments for any other argument id, and has its
-    /// `wrongArgAccessed` attribute reset.
-    MockOneArgContext(int argId, long long value)
-    : d_argId(argId)
-    , d_value(value)
-    , d_wrongArgAccessed(false)
-    {
-    }
-
-    // MANIPULATORS
-
-    // Reset (to `false`) this object's `wrongArgAccessed` attribute.
-    void reset() {
-        d_wrongArgAccessed = false;
-    }
-
-    /// Change the `value` attribute of this object (the value it provides for
-    /// the one argument of `argId`).
-    void setValue(long long value) {
-        d_value = value;
-    }
-
-    // ACCESSORS
-
-    /// Return the format argument for the specified argument `id`.  When `id`
-    /// is the same as the `argId` attribute return a `format_arg` with the
-    /// type `t_VALUE_TYPE` and the value of the `value` attribute.  Return an
-    /// empty (`monostate`) `format_arg` for every other ID and also set the
-    /// `wrongArgAccessed` attribute (to `true`).
-    FormatArgType arg(int id) const {
-        if (id != d_argId) {
-            d_wrongArgAccessed = true;
-            return FormatArgType();                                   // RETURN
-        }
-
-        return FormatArgType::createValue(d_value);
-    }
-
-    /// Return `true` if an argument with different ID than expected (the ID
-    /// specified during construction) has been requested since construction or
-    /// the last call to `reset`, and `false` otherwise.
-    bool wrongArgAccessed() const {
-        return d_wrongArgAccessed;
-    }
-};
-
-                        // ========================
-                        // struct MockBadArgContext
-                        // ========================
-
-template <class t_CHAR, class t_VALUE_TYPE>
-struct MockBadArgContext;
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-namespace std {
-/// This specialization of `basic_arg_format` for `MockBadArgContext` is used
-/// when the standard library supports a sufficiently functional format library
-/// so that we do not use our own, but rather extend the existing one.  This
-/// specialization has to inherit from `basic_format_arg` of `format_context`
-/// or `wformat_context` because `std::visit_format_arg` only exists for those.
-/// The conversion constructor from the base class exists so that we can use
-/// (the only way of creating format-arguments the) `make_format_args` function
-/// that does not have a specialization for our context type, only for
-/// `std::format_context` and `std::wformat_context`.  See `MockBadArgContext`.
-template <class t_CHAR, class t_VALUE_TYPE>
-class basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
+/// `std::format_context` and `std::wformat_context`.  See `MockArgsContext`.
+template <class t_CHAR, class t_VALUE_TYPE, class t_BAD_TYPE>
+class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
 : public basic_format_arg<typename bsl::conditional<
                                              bsl::is_same<t_CHAR, char>::value,
                                              format_context,
@@ -650,9 +324,10 @@ class basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
     /// Create an empty argument that visits as `std::monostate`.
     basic_format_arg() {}
 
-    /// Create a `basic_format_arg` (of a `MockBadContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
+    /// object of its base class.  This constructor is necessary to make the
+    /// conversion in the return statement of `createIntegralValue` and
+    /// `createBadValue` work.
     basic_format_arg(const basic_format_arg<BaseContext>& other)    // IMPLICIT
     : basic_format_arg<BaseContext>(other)
     {
@@ -660,14 +335,24 @@ class basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
 
     // CLASS METHODS
 
-    /// Create a `basic_format_arg` (of a `MockBadArgContext` type) with an
-    /// unspecified value and having `t_VALUE_TYPE` as its type.  This method
-    /// is used to create type that cannot be used as numeric values (width or
-    /// precision).
-    static basic_format_arg createBadType()
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
+    /// specified `value` and having `t_VALUE_TYPE` as its type.
+    static basic_format_arg createIntegralValue(long long value)
     {
-        static t_VALUE_TYPE x;
-        basic_format_args fas = make_format_args<BaseContext, t_VALUE_TYPE>(x);
+        static t_VALUE_TYPE typedValue;
+        typedValue = static_cast<t_VALUE_TYPE>(value);
+        return basic_format_args(
+            make_format_args<BaseContext, t_VALUE_TYPE>(typedValue)).get(0);
+    }
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
+    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
+    /// used to create type that cannot be used as numeric values (width or
+    /// precision).
+    static basic_format_arg createBadValue()
+    {
+        static t_BAD_TYPE x;
+        basic_format_args fas = make_format_args<BaseContext, t_BAD_TYPE>(x);
         return fas.get(0);
     }
 };
@@ -676,7 +361,7 @@ class basic_format_arg<MockBadArgContext<t_CHAR, t_VALUE_TYPE> >
 namespace BloombergLP {
 namespace bslfmt {
 /// This specialization of `basic_arg_format` for a `char`-based
-/// `MockBadArgContext` is used when the standard library does not provide a
+/// `MockArgsContext` is used when the standard library does not provide a
 /// sufficiently functional format library so that we have to implement our
 /// own.  This specialization has to inherit from `basic_format_arg` of
 /// `format_context` or `wformat_context` because `visit_format_arg` only
@@ -684,9 +369,9 @@ namespace bslfmt {
 /// that we can use (the only way of creating format-arguments the)
 /// `make_format_args` function that does not have a specialization for our
 /// context type, only for `format_context` and `wformat_context`.  See
-/// `MockBadArgContext`.
-template <class t_VALUE_TYPE>
-class basic_format_arg<MockBadArgContext<char, t_VALUE_TYPE> >
+/// `MockArgsContext`.
+template <class t_VALUE_TYPE, class t_BAD_TYPE>
+class basic_format_arg<MockArgsContext<char, t_VALUE_TYPE, t_BAD_TYPE> >
 : public basic_format_arg<format_context>
 {
   public:
@@ -696,39 +381,52 @@ class basic_format_arg<MockBadArgContext<char, t_VALUE_TYPE> >
     /// Create an empty argument that visits as `std::monostate`.
     basic_format_arg() {}
 
-    /// Create a `basic_format_arg` (of a `MockBadContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
+    /// object of its base class.  This constructor is necessary to make the
+    /// conversion in the return statement of `createIntegralValue` and
+    /// `createBadValue` work.
     basic_format_arg(const basic_format_arg<format_context>& other)
-    : basic_format_arg<format_context>(other) {}
+    : basic_format_arg<format_context>(other)
+    {
+    }
 
     // CLASS METHODS
 
-    /// Create a `basic_format_arg` (of a `MockBadArgContext` type) with an
-    /// unspecified value and having `t_VALUE_TYPE` as its type.  This method
-    /// is used to create type that cannot be used as numeric values (width or
-    /// precision).
-    static basic_format_arg createBadType()
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
+    /// specified `value` and having `t_VALUE_TYPE` as its type.
+    static basic_format_arg createIntegralValue(long long value)
     {
         using namespace bslfmt;
 
-        static t_VALUE_TYPE x;
+        static t_VALUE_TYPE typedValue;
+        typedValue = static_cast<t_VALUE_TYPE>(value);
+        return format_args(make_format_args(typedValue)).get(0);
+    }
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
+    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
+    /// used to create type that cannot be used as numeric values (width or
+    /// precision).
+    static basic_format_arg createBadValue()
+    {
+        using namespace bslfmt;
+
+        static t_BAD_TYPE x;
         return format_args(make_format_args(x)).get(0);
     }
 };
 
 /// This specialization of `basic_arg_format` for a `wchar_t`-based
-/// `MockBadArgContext` is used when the standard library does not provide a
+/// `MockArgaContext` is used when the standard library does not provide a
 /// sufficiently functional format library so that we have to implement our
 /// own.  This specialization has to inherit from `basic_format_arg` of
 /// `format_context` or `wformat_context` because `visit_format_arg` only
 /// exists for those.  The conversion constructor from the base class exists so
 /// that we can use (the only way of creating format-arguments the)
 /// `make_format_args` function that does not have a specialization for our
-/// context type, only for `format_context` and `wformat_context`.  See
-/// `MockBadArgContext`.
-template <class t_VALUE_TYPE>
-class basic_format_arg<MockBadArgContext<wchar_t, t_VALUE_TYPE> >
+/// context type, only for `format_context` and `wformat_context`.
+template <class t_VALUE_TYPE, class t_BAD_TYPE>
+class basic_format_arg<MockArgsContext<wchar_t, t_VALUE_TYPE, t_BAD_TYPE> >
 : public basic_format_arg<wformat_context>
 {
   public:
@@ -738,97 +436,152 @@ class basic_format_arg<MockBadArgContext<wchar_t, t_VALUE_TYPE> >
     /// Create an empty argument that visits as `std::monostate`.
     basic_format_arg() {}
 
-    /// Create a `basic_format_arg` (of a `MockBadContext` type) from an object
-    /// of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createValue` work.
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
+    /// object of its base class.  This constructor is necessary to make the
+    /// conversion in the return statement of `createIntegralValue` and
+    /// `createBadValue` work.
     basic_format_arg(const basic_format_arg<wformat_context>& other)
-    : basic_format_arg<wformat_context>(other) {}
+    : basic_format_arg<wformat_context>(other)
+    {
+    }
 
     // CLASS METHODS
 
-    /// Create a `basic_format_arg` (of a `MockBadArgContext` type) with an
-    /// unspecified value and having `t_VALUE_TYPE` as its type.  This method
-    /// is used to create type that cannot be used as numeric values (width or
-    /// precision).
-    static basic_format_arg createBadType()
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
+    /// specified `value` and having `t_VALUE_TYPE` as its type.
+    static basic_format_arg createIntegralValue(long long value)
     {
         using namespace bslfmt;
 
-        static t_VALUE_TYPE x;
-        return wformat_args(make_wformat_args(x)).get(0);;
+        static t_VALUE_TYPE typedValue;
+        typedValue = static_cast<t_VALUE_TYPE>(value);
+        return wformat_args(make_wformat_args(typedValue)).get(0);
+    }
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
+    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
+    /// used to create type that cannot be used as numeric values (width or
+    /// precision).
+    static basic_format_arg createBadValue()
+    {
+        using namespace bslfmt;
+
+        static t_BAD_TYPE x;
+        return wformat_args(make_wformat_args(x)).get(0);
     }
 };
+
 }  // close package namespace
 }  // close enterprise namespace
 #endif
 
+/// The states of `MockArgsContext` argument-access detection.
+struct MockArgsContextStatus{
+    // TYPES
+    enum Enum {
+        e_NOT_ACCESSED,
+        e_EMPTY_ARG_ACCESSED,
+        e_INTEGRAL_ARG_ACCESSED,
+        e_BAD_TYPE_ARG_ACCESSED,
+        e_MORE_THAN_ONE_ARG_ACCESSED
+    };
+};
+
+
 /// A format context that implements the bare minimum of functionality required
 /// by the `postprocess` method (the `arg` method).  It serves one argument
-/// for an argument identifier stored as attribute with an unspecified value,
-/// and the `t_VALUE_TYPE` type.  All other argument identifiers will return an
-/// "empty argument" (`monostate`) as well as sets a flag that indicates that
-/// there was an attempt to access a wrong argument.  This context exists so
-/// that we can verify the `e_ARG_ID` case where `postprocess` must access an
-/// argument to retrieve the numeric value (and must not access any other
-/// argument), but that argument is of the wrong type.  For this to work
-/// `t_VALUE_TYPE` must be one of the not-acceptable types of
-/// `bool`, `float`, `double`, `long double`, `const cnhar_type *`, `handle`,
-/// `const void *`, or `basic_string_view<char_type>`.
-template <class t_CHAR, class t_VALUE_TYPE>
-struct MockBadArgContext {
+/// for an argument identifier and value stored as attributes, and the
+/// `t_VALUE_TYPE` type.  For `argId + 1` it serves an argument of `t_BAD_TYPE`
+/// with an unspecified value.  All other argument identifiers will return an
+/// "empty argument" (visits as `monostate`).  The object also maintains an
+/// argument-access status that starts out as "not accessed", and may be set
+/// to "empty argument access", "integral argument accessed", bad-type argument
+/// accessed", or "more than one argument accessed" during a call to the `arg`
+/// method.
+template <class t_CHAR, class t_INT_TYPE, class t_BAD_TYPE>
+struct MockArgsContext {
     // TYPES
-    typedef t_CHAR       char_type;
+
+    typedef MockArgsContextStatus Status;
+    typedef Status::Enum          StatusEnum;
+
+    typedef t_CHAR char_type;  // Required by `ArgTypingVisitor`
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    typedef std::basic_format_arg<MockBadArgContext>    FormatArgType;
+    typedef std::basic_format_arg<MockArgsContext>    FormatArgType;
 #else
-    typedef bslfmt::basic_format_arg<MockBadArgContext> FormatArgType;
+    typedef bslfmt::basic_format_arg<MockArgsContext> FormatArgType;
 #endif
 
     // DATA
-    int          d_argId;
+    mutable StatusEnum d_status;  // Argument-access status
 
-    mutable bool d_wrongArgAccessed;
+    int                d_argId;
+    long long          d_value;
 
     // CREATORS
 
-    /// Create a `MockBadArgContext` that provides an unspecified value with
-    /// the type `t_VALUE_TYPE` for the specified `argId` while providing empty
-    /// (`monostate`) arguments for any other argument id, and has its
-    /// `wrongArgAccessed` attribute reset.
-    MockBadArgContext(int argId)
-    : d_argId(argId)
-    , d_wrongArgAccessed(false)
+    /// Create a `MockArgsContext` that provides the specified `value` with
+    /// the type `t_VALUE_TYPE` for the specified `argId`, an argument with of
+    /// `e_BAD_TYPE` with an unspecified value for `argId + 1`, while providing
+    /// empty (`monostate`) arguments for any other argument id.
+    MockArgsContext(int argId, long long value)
+    : d_status(Status::e_NOT_ACCESSED)
+    , d_argId(argId)
+    , d_value(value)
     {
     }
 
     // MANIPULATORS
 
-    // Reset (to `false`) this object's `wrongArgAccessed` attribute.
+    // Reset this object's `status` to `e_NOT_ACCESSED`.
     void reset() {
-        d_wrongArgAccessed = false;
+        d_status = Status::e_NOT_ACCESSED;
+    }
+
+    /// Change the `value` attribute of this object (the value it provides for
+    /// the argument of `argId`).
+    void setValue(long long value) {
+        d_value = value;
     }
 
     // ACCESSORS
 
-    /// Return a `format_arg` of `t_VALUE_TYPE` with an unspecified value if
-    /// the specified argument `id` is the same as the `argId` attribute.
-    /// Return an empty (`monostate`) `format_arg` for every other ID and also
-    /// set the `wrongArgAccessed` attribute (to `true`).
+    /// Return the format argument for the specified argument `id`.  When `id`
+    /// is the same as the `argId` attribute return a `format_arg` with the
+    /// type `t_VALUE_TYPE` and the value of the `value` attribute.  When `id`
+    /// is `argId + 1 ` return an argument of `e_BAD_TYPE` with an unspecified
+    /// value.  Return an empty (`monostate`) `format_arg` for every other ID.
+    /// Also set the argument access `status` of the object to the appropriate
+    /// value.
     FormatArgType arg(int id) const {
-        if (id != d_argId) {
-            d_wrongArgAccessed = true;
-            return FormatArgType();                                   // RETURN
+        if (d_status != Status::e_NOT_ACCESSED) {
+            d_status = Status::e_MORE_THAN_ONE_ARG_ACCESSED;
         }
 
-        return FormatArgType::createBadType();
+        if (id == d_argId) {
+            if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
+                d_status = Status::e_INTEGRAL_ARG_ACCESSED;
+            }
+            return FormatArgType::createIntegralValue(d_value);       // RETURN
+        }
+
+        if (id == d_argId + 1) {
+            if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
+                d_status = Status::e_BAD_TYPE_ARG_ACCESSED;
+            }
+            return FormatArgType::createBadValue();                   // RETURN
+        }
+
+        if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
+            d_status = Status::e_EMPTY_ARG_ACCESSED;
+        }
+        return FormatArgType();
     }
 
-    /// Return `true` if an argument with different ID than expected (the ID
-    /// specified during construction) has been requested since construction or
-    /// the last call to `reset`, and `false` otherwise.
-    bool wrongArgAccessed() const {
-        return d_wrongArgAccessed;
+    /// Return the argument-access `status` of this object.  See also `reset`.
+    StatusEnum status() const {
+        return d_status;
     }
 };
 
@@ -837,25 +590,35 @@ struct MockBadArgContext {
 //-----------------------------------------------------------------------------
 
 template <class t_CHAR>
+void verifyMockArgsContext()
+{
+    typedef MockArgsContext<t_CHAR, char, bool> MockContext;
+
+    MockContext ctx(12, 123);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_NOT_ACCESSED);
+
+    typename MockContext::FormatArgType arg = ctx.arg(0);
+    ASSERT(getArgType(arg) == ArgType::e_MONOSTATE);
+
+    arg = ctx.arg(12);
+    ASSERT(getArgType(arg) == ArgType::e_CHAR_TYPE);
+
+    arg = ctx.arg(13);
+    ASSERT(getArgType(arg) == ArgType::e_BOOL);
+}
+
+template <class t_CHAR>
 void verifyNoPostprocessing()
 {
-    MockNoArgsContext<char> ctx;
-    ASSERT(ctx.argAccessed() == false);
-    MockNoArgsContext<char>::FormatArgType arg = ctx.arg(0);
-    ASSERT(getArgType(arg) == ArgType::e_MONOSTATE);
+    typedef MockArgsContext<t_CHAR, int, bool> MockContext;
 
-    ASSERT(ctx.argAccessed() == true);
-    ctx.reset();
-
-    arg = ctx.arg(1234);
-    ASSERT(getArgType(arg) == ArgType::e_MONOSTATE);
-    ASSERT(ctx.argAccessed() == true);
-    ctx.reset();
+    MockContext ctx(42, 42);
 
     Object obj;
     obj.postprocess(ctx);
-    ASSERT(ctx.argAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_NOT_ACCESSED);
 
+    ctx.reset();
     bool formatErrorCaught = false;
     obj = Object(Object::e_NEXT_ARG, 0);
     try {
@@ -865,31 +628,23 @@ void verifyNoPostprocessing()
         formatErrorCaught = true;
     }
     ASSERT(formatErrorCaught);
-    ASSERT(ctx.argAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_NOT_ACCESSED);
 }
 
 template <class t_CHAR, class t_VALUE_TYPE>
 void verifyHasPostprocessingOnType()
 {
-    typedef MockOneArgContext<t_CHAR, t_VALUE_TYPE> MockContext;
+    typedef MockArgsContext<t_CHAR, t_VALUE_TYPE, bool> MockContext;
 
-    MockContext ctx(3, 42);
-
-    typename MockContext::FormatArgType arg = ctx.arg(3);
-    ASSERT((getArgType(arg) == TypeToEnum<t_CHAR, t_VALUE_TYPE>::value));
-    ASSERT(ctx.wrongArgAccessed() == false);
-
-    arg = ctx.arg(1);
-    ASSERT(getArgType(arg) == ArgType::e_MONOSTATE);
-    ASSERT(ctx.wrongArgAccessed() == true);
-    ctx.reset();
+    MockContext ctx(3, 127);
 
     Object obj(Object::e_ARG_ID, 3);
     obj.postprocess(ctx);
-    ASSERT(ctx.wrongArgAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_INTEGRAL_ARG_ACCESSED);
     ASSERT(obj.category() == Object::e_VALUE);
-    ASSERT(obj.value() == 42);
+    ASSERT(obj.value() == 127);
 
+    ctx.reset();
     obj = Object(Object::e_ARG_ID, 2);
     bool caughtFormatError = false;
     try {
@@ -899,13 +654,13 @@ void verifyHasPostprocessingOnType()
         caughtFormatError = true;
     }
     ASSERT(caughtFormatError);
-    ASSERT(ctx.wrongArgAccessed() == true);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_EMPTY_ARG_ACCESSED);
 }
 
 template <class t_CHAR, class t_VALUE_TYPE>
 void verifyTooLargeValueOnType()
 {
-    typedef MockOneArgContext<t_CHAR, t_VALUE_TYPE> MockContext;
+    typedef MockArgsContext<t_CHAR, t_VALUE_TYPE, bool> MockContext;
 
     long long tooLarge = static_cast<long long>(INT_MAX) + 1;
     MockContext ctx(12, tooLarge);
@@ -919,11 +674,12 @@ void verifyTooLargeValueOnType()
         caughtFormatError = true;
     }
     ASSERT(caughtFormatError);
-    ASSERT(ctx.wrongArgAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_INTEGRAL_ARG_ACCESSED);
 
+    ctx.reset();
     ctx.setValue(INT_MAX);
     obj.postprocess(ctx);
-    ASSERT(ctx.wrongArgAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_INTEGRAL_ARG_ACCESSED);
     ASSERT(obj.category() == Object::e_VALUE);
     ASSERT(obj.value() == INT_MAX);
 }
@@ -942,23 +698,14 @@ void verifyHasPostprocessing()
     verifyTooLargeValueOnType<t_CHAR, unsigned long long>();
 }
 
-template <class t_CHAR, class t_VALUE_TYPE>
+template <class t_CHAR, class t_BAD_TYPE>
 void verifyBadArgumentTypeReferencedWithType()
 {
-    typedef MockBadArgContext<t_CHAR, t_VALUE_TYPE> MockContext;
+    typedef MockArgsContext<t_CHAR, int, t_BAD_TYPE> MockContext;
 
-    MockContext ctx(5);
+    MockContext ctx(5, 42);
 
-    typename MockContext::FormatArgType arg = ctx.arg(5);
-    ASSERT((getArgType(arg) == TypeToEnum<t_CHAR, t_VALUE_TYPE>::value));
-    ASSERT(ctx.wrongArgAccessed() == false);
-
-    arg = ctx.arg(1);
-    ASSERT(getArgType(arg) == ArgType::e_MONOSTATE);
-    ASSERT(ctx.wrongArgAccessed() == true);
-    ctx.reset();
-
-    Object obj(Object::e_ARG_ID, 5);
+    Object obj(Object::e_ARG_ID, 6);
     bool caughtFormatError = false;
     try {
         obj.postprocess(ctx);
@@ -967,9 +714,10 @@ void verifyBadArgumentTypeReferencedWithType()
         caughtFormatError = true;
     }
     ASSERT(caughtFormatError);
-    ASSERT(ctx.wrongArgAccessed() == false);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_BAD_TYPE_ARG_ACCESSED);
 
-    obj = Object(Object::e_ARG_ID, 3);
+    ctx.reset();
+    obj = Object(Object::e_ARG_ID, 7);
     caughtFormatError = false;
     try {
         obj.postprocess(ctx);
@@ -978,19 +726,19 @@ void verifyBadArgumentTypeReferencedWithType()
         caughtFormatError = true;
     }
     ASSERT(caughtFormatError);
-    ASSERT(ctx.wrongArgAccessed() == true);
+    ASSERT(ctx.status() == MockArgsContextStatus::e_EMPTY_ARG_ACCESSED);
 }
 
 template <class t_CHAR>
 void verifyBadArgumentTypeReferenced()
 {
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, bool                           >();
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, float                          >();
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, double                         >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, bool       >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, float      >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, double     >();
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, long double                    >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, long double>();
 #endif
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, const t_CHAR*                  >();
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, const t_CHAR *>();
 #if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
     defined(BSLSTL_STRING_VIEW_IS_ALIASED)
     verifyBadArgumentTypeReferencedWithType<t_CHAR,
@@ -1000,8 +748,10 @@ void verifyBadArgumentTypeReferenced()
     verifyBadArgumentTypeReferencedWithType<t_CHAR,
                                             bsl::basic_string_view<t_CHAR> >();
 #endif
-    verifyBadArgumentTypeReferencedWithType<t_CHAR, const void*                    >();
-    // We cannot create `handle` so we won't test it.
+    verifyBadArgumentTypeReferencedWithType<t_CHAR, const void *>();
+
+    // We cannot create an `std::handle` because it is an unspecified type, so
+    // for now we do not test `handle` (even though we could for `bslfmt`).
 }
 
 //=============================================================================
@@ -1018,9 +768,9 @@ int main(int argc, char** argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) { case 0:
-    case 2: {
+    case 3: {
         // --------------------------------------------------------------------
-        // MOCK CONTEXTS AND POSTPROCESS
+        // POSTPROCESS METHOD
         //
         // Concerns:
         // 1. The contexts for testing the `postprocess` method are functional.
@@ -1072,11 +822,11 @@ int main(int argc, char** argv)
         //    everywhere else).
         //
         // Testing:
-        //   MOCK CONTEXTS AND POSTPROCESS
+        //   POSTPROCESS METHOD
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nMOCK CONTEXTS AND POSTPROCESS"
-                          "\n=============================");
+        if (verbose) puts("\nPOSTPROCESS METHOD"
+                          "\n==================");
 
         if (veryVerbose) puts("\tNo arguments (empty) context");
         {
@@ -1096,6 +846,28 @@ int main(int argc, char** argv)
             verifyBadArgumentTypeReferenced<wchar_t>();
         }
 
+    } break;
+    case 2: {
+        // --------------------------------------------------------------------
+        // MOCK CONTEXT
+        //
+        // Concerns:
+        // 1. The mock contexts for testing the `postprocess`
+        //    1. returns the expected kind of argument for each argument id.
+        //    2. maintains the proper argument-access status
+        //
+        // Plan:
+        // 1. Verify everything with both `char` and `wchar_t` char types.
+        //
+        // Testing:
+        //   MOCK CONTEXT
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nMOCK CONTEXT"
+                          "\n============");
+
+        verifyMockArgsContext<char>();
+        verifyMockArgsContext<wchar_t>();
     } break;
     case 1: {
         // --------------------------------------------------------------------
