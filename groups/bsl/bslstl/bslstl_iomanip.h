@@ -529,10 +529,7 @@ bsl::quoted(bsl::basic_string<t_CHAR_TYPE, t_CHAR_TRAITS, t_ALLOC>& value,
                                                                        escape);
 }
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) || \
-    (defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
-    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20))
-
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS>
 BloombergLP::bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
                                                        t_CHAR_TRAITS>
@@ -549,7 +546,7 @@ bsl::quoted(const bsl::basic_string_view<t_CHAR_TYPE, t_CHAR_TRAITS>& value,
                                                                        delim,
                                                                        escape);
 }
-#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY || disabled
+#endif  // not BSLSTL_STRING_VIEW_IS_ALIASED
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #endif
