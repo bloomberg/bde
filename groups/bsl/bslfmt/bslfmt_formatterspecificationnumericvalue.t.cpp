@@ -773,53 +773,28 @@ int main(int argc, char** argv)
         // POSTPROCESS METHOD
         //
         // Concerns:
-        // 1. The contexts for testing the `postprocess` method are functional.
+        // 1. `postprocess` does not change the numeric value if it has
+        //    `e_DEFAULT` or `e_VALUE` category, and in such cases it will not
+        //    try to access any argument value (via the context)..
+        //
+        // 2. `postprocess` throws a `format_error` exception if the numeric
+        //    value has `e_NEXT_ARG` category, and in such cases it will not
+        //    try to access any argument value (via the context)..
+        //
+        // 3. `postprocess` for `e_ARG_ID` category:
+        //    1. accesses the argument with the given id and no other argument
+        //
+        //    2. throws `format_error` for wrong types (including `bool`)
+        //
+        //    3. throws `format_error` if the value is larger than `INT_MAX`
+        //
+        //    4. in case of valid type and value the numeric value is set to
+        //       that value with `e_VALUE` category.
         //
         // Plan:
         // 1. Verify everything with both `char` and `wchar_t` char types.
         //
-        // 2. Verify that the "empty" mock context gives empty (`monostate`)
-        //    arguments for any argument ID.
-        //
-        // 3. Use the empty mock context to verify that numeric values of
-        //    states `e_DEFAULT` and `e_VALUE` are not changed during
-        //    postprocessing.  The empty mock context serves to verify that the
-        //    postprocessing does not attempt to access any arguments.
-        //
-        // 4. Use the empty mock context to verify that numeric values of
-        //    state `e_NEXT_ARG` result in a `bsl::format_error` thrown during
-        //    postprocessing.  The empty mock context serves to verify that the
-        //    postprocessing does not attempt to access any arguments.
-        //
-        // 5. Verify that the "one argument" mock context gives empty
-        //    (`monostate`) for arguments for any argument ID except the one
-        //    with value, and that the one with value gives a value with the
-        //    requested type.
-        //
-        // 6. Use the one-argument mock context to verify that numeric values
-        //    state `e_ARG_ID` postprocess into an `e_VALUE` with the given
-        //    value that the mock context provides.  Also verify that a
-        //    non-matching (to the value) argument ID results in
-        //    `bsl::format_error` exception thrown.  Do that for all accepted
-        //    value types (`char_type`, `int`, `unsigned`, `long long`,
-        //    `unsigned long long`).
-        //
-        // 7. With a one-argument mock context that provides a too large value
-        //    (one that does not fit an integer) verify that postprocessing
-        //    results in `bsl::format_error` exception thrown.  Also verify
-        //    that the just-acceptable maximum (`INT_MAX`) is accepted.  Do
-        //    that for all value types that may store such large number
-        //    (`unsigned`, `long long`, `unsigned long long`).
-        //
-        // 8. Verify that the bad-argument mock context gives the requested
-        //    argument type for the given argument ID, and `monostate` for all
-        //    others.
-        //
-        // 9. Using the bad-argument mock context verify that prostprocessing
-        //    a `e_ARG_ID` that refers to a bad argument type results in a
-        //    `bsl::format_error` exception thrown.  Do this for all types that
-        //    are not supported (except for `monostate` as we have tested that
-        //    everywhere else).
+        // 2. Use the mock context to verify the concerns.
         //
         // Testing:
         //   POSTPROCESS METHOD
