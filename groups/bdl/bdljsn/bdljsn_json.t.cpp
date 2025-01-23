@@ -14,17 +14,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bsltf_nondefaultconstructibletesttype.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bslmt_once.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_compilerfeatures.h>
-#include <bsls_nameof.h>
-#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_climits.h>
@@ -56,15 +50,14 @@ using bsl::flush;
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 // Note that this component is comprised of three different classes, no one of
-// which can be described without describing the others.  Classes
-// 'bdljsn::Json', 'bdljsn::JsonObject', and 'bdljsn::JsonArray' are
-// essentially specializations of 'bdlb::Variant', 'bsl::unordered_map', and
-// 'bsl::vector', respectively.
+// which can be described without describing the others.  Classes bdljsn::Json,
+// bdljsn::JsonObject, and bdljsn::JsonArray are essentially specializations of
+// bdlb::Variant, bsl::unordered_map, and bsl::vector, respectively.
 //
 //                                 Overview
 //                                 --------
 //
-// The first class to be tested is 'JsonArray.' The testing methodology will be
+// The first class to be tested is JsonArray.  The testing methodology will be
 // that of a value-semantic type.
 //
 // Primary Manipulators:
@@ -119,27 +112,6 @@ using bsl::flush;
 // [13] JsonArray::operator=(initializer_list<Json> l);
 // [ 2] JsonArray::pushBack(const Json& j);
 // [13] JsonArray::pushBack(MovableRef<Json> j);
-// [43] JsonArray::pushBack(const JsonArray&  array);
-// [43] JsonArray::pushBack(const JsonObject& object);
-// [43] JsonArray::pushBack(const JsonNumber& number);
-// [43] JsonArray::pushBack(bslmf::MovableRef<JsonArray>  array);
-// [43] JsonArray::pushBack(bslmf::MovableRef<JsonObject> object);
-// [43] JsonArray::pushBack(bslmf::MovableRef<JsonNumber> number);
-// [43] JsonArray::pushBack(const JsonNull&    value);
-// [43] JsonArray::pushBack(bool               value);
-// [43] JsonArray::pushBack(int                value);
-// [43] JsonArray::pushBack(unsigned int       value);
-// [43] JsonArray::pushBack(long               value);
-// [43] JsonArray::pushBack(unsigned long      value);
-// [43] JsonArray::pushBack(long long          value);
-// [43] JsonArray::pushBack(unsigned long long value);
-// [43] JsonArray::pushBack(float              value);
-// [43] JsonArray::pushBack(double             value);
-// [43] JsonArray::pushBack(bdldfp::Decimal64  value);
-// [43] JsonArray::pushBack(const char              *string);
-// [43] JsonArray::pushBack(const bsl::string_view&  string);
-// [43] JsonArray::pushBack(bsl::string&&            string);
-// [46] JsonArray::pushBack(Json_Initializer init);
 // [13] Json& JsonArray::operator[](size_t i);
 // [13] JsonArray::assign(initializer_list<Json> l);
 // [13] JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -196,7 +168,6 @@ using bsl::flush;
 // [21] JsonObject(MovableRef<JsonObject> o, *a);
 // [16] JsonObject(INPUT_ITER first, INPUT_ITER last, *a);
 // [26] JsonObject(initializer_list<Member> members, *a);
-// [26] JsonObject(initializer_list<Json_MemberInitializer> members, *a);
 // [15] ~JsonObject();
 //
 // MANIPULATORS
@@ -209,9 +180,8 @@ using bsl::flush;
 // [26] void JsonObject::clear();
 // [26] pair<Iterator, bool> JsonObject::insert(const Member& m);
 // [26] pair<Iterator, bool> JsonObject::insert(MovableRef<Member> m);
-// [26] JsonObject& JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
-// [26] JsonObject& JsonObject::insert(initializer_list<Member> members);
-// [46] JsonObject::insert(string_view, Json_Initializer init);
+// [26] void JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
+// [26] void JsonObject::insert(initializer_list<Member> members);
 // [26] pair<Iterator, bool> JsonObject::insert(string_view key, V&& v);
 // [26] bsl::size_t JsonObject::erase(const bsl::string_view& key);
 // [26] Iterator JsonObject::erase(Iterator position);
@@ -250,41 +220,36 @@ using bsl::flush;
 // [33] Json(const Json &original, *a);
 // [34] Json(bslmf::MovableRef<Json> original);
 // [34] Json(bslmf::MovableRef<Json> original, *a);
-// [29] Json(bool            boolean, *a);
-// [29] Json(const JsonNull& null,    *a);
-// [29] Json(const JsonArray&   array,  *a);
-// [29] Json(const JsonObject&  object, *a);
-// [29] Json(const JsonNumber&  number, *a);
-// [29] Json(bslmf::MovableRef<JsonArray>  array,  *a);
-// [29] Json(bslmf::MovableRef<JsonObject> object, *a);
+// [29] Json(const JsonArray &array, *a);
+// [29] Json(bslmf::MovableRef<JsonArray> array, *a);
+// [29] Json(bool boolean, *a);
+// [29] Json(const JsonNull& null, *a);
+// [29] Json(float number, *a);
+// [29] Json(double number, *a);
+// [29] Json(bdldfp::Decimal64 number, *a);
+// [29] Json(int number, *a);
+// [29] Json(unsigned int number, *a);
+// [29] Json(bsls::Types::Int64 number, *a);
+// [29] Json(bsls::Types::Uint64 number, *a);
+// [29] Json(const JsonNumber& number, *a);
 // [29] Json(bslmf::MovableRef<JsonNumber> number, *a);
-// [29] Json(int                  number, *a);
-// [29] Json(unsigned int         number, *a);
-// [29] Json(long                 number, *a);
-// [29] Json(unsigned long        number, *a);
-// [29] Json(long long            number, *a);
-// [29] Json(unsigned long long   number, *a);
-// [29] Json(float                number, *a);
-// [29] Json(double               number, *a);
-// [29] Json(bdldfp::Decimal64    number, *a);
-// [29] Json(const char              *string, *a);
-// [29] Json(const bsl::string_view&  string, *a);
-// [29] Json(STRING&&                 string, *a);
-// [46] Json(const Json_Initializer, bslma::Allocator *);
+// [29] Json(const JsonObject& object, *a);
+// [29] Json(bslmf::MovableRef<JsonObject> object, *a);
+// [29] Json(const char *string, *a);
+// [29] Json(const bsl::string_view& string, *a);
+// [29] Json(STRING&& string, *a);
 // [28] ~Json();
 //
 // MANIPULATORS
 // [36] Json& Json::operator=(const Json& rhs);
 // [37] Json& Json::operator=(bslmf::MovableRef<Json> rhs);
-// [39] Json& Json::operator=(int                rhs);
-// [39] Json& Json::operator=(unsigned int       rhs);
-// [39] Json& Json::operator=(long               rhs);
-// [39] Json& Json::operator=(unsigned long      rhs);
-// [39] Json& Json::operator=(long long          rhs);
-// [39] Json& Json::operator=(unsigned long long rhs);
-// [39] Json& Json::operator=(float              rhs);
-// [39] Json& Json::operator=(double             rhs);
-// [39] Json& Json::operator=(bdldfp::Decimal64  rhs);
+// [39] Json& Json::operator=(float rhs);
+// [39] Json& Json::operator=(double rhs);
+// [39] Json& Json::operator=(bdldfp::Decimal64 rhs);
+// [39] Json& Json::operator=(int rhs);
+// [39] Json& Json::operator=(unsigned int rhs);
+// [39] Json& Json::operator=(bsls::Types::Int64 rhs);
+// [39] Json& Json::operator=(bsls::Types::Uint64 rhs);
 // [39] Json& Json::operator=(const JsonNumber& rhs);
 // [39] Json& Json::operator=(bslmf::MovableRef<JsonNumber> rhs);
 // [39] Json& Json::operator=(const char *rhs);
@@ -325,40 +290,16 @@ using bsl::flush;
 // [39] Json::operator BloombergLP::bdljsn::JsonNumber &();
 // [39] Json::operator BloombergLP::bdljsn::JsonObject &();
 // [39] Json::operator bsl::string &();
-// [44] Json& Json::pushBack(const Json&       json);
-// [44] Json& Json::pushBack(const JsonArray&  array);
-// [44] Json& Json::pushBack(const JsonObject& object);
-// [44] Json& Json::pushBack(const JsonNumber& number);
-// [44] Json& Json::pushBack(bslmf::MovableRef<Json>       json);
-// [44] Json& Json::pushBack(bslmf::MovableRef<JsonArray>  array);
-// [44] Json& Json::pushBack(bslmf::MovableRef<JsonObject> object);
-// [44] Json& Json::pushBack(bslmf::MovableRef<JsonNumber> number);
-// [44] Json& Json::pushBack(const JsonNull&    value);
-// [44] Json& Json::pushBack(bool               value);
-// [44] Json& Json::pushBack(int                value);
-// [44] Json& Json::pushBack(unsigned int       value);
-// [44] Json& Json::pushBack(long               value);
-// [44] Json& Json::pushBack(unsigned long      value);
-// [44] Json& Json::pushBack(long long          value);
-// [44] Json& Json::pushBack(unsigned long long value);
-// [44] Json& Json::pushBack(float              value);
-// [44] Json& Json::pushBack(double             value);
-// [44] Json& Json::pushBack(bdldfp::Decimal64  value);
-// [44] Json& Json::pushBack(const char              *string);
-// [44] Json& Json::pushBack(const bsl::string_view&  string);
-// [44] Json& Json::pushBack(bsl::string&&            string);
-// [47] template RT             visit<RT>(FORWARD_REF visitor);
-// [47] template decltype(auto) visit    (FORWARD_REF visitor);
 //
 // [35] void Json::swap(Json& other);
 //
 // ACCESSORS
-// [40] bool Json::isArray()   const;
+// [40] bool Json::isArray() const;
 // [40] bool Json::isBoolean() const;
-// [40] bool Json::isNull()    const;
-// [40] bool Json::isNumber()  const;
-// [40] bool Json::isObject()  const;
-// [40] bool Json::isString()  const;
+// [40] bool Json::isNull() const;
+// [40] bool Json::isNumber() const;
+// [40] bool Json::isObject() const;
+// [40] bool Json::isString() const;
 // [30] const JsonArray& Json::theArray() const;
 // [30] const bool& Json::theBoolean() const;
 // [30] const JsonNull& Json::theNull() const;
@@ -366,18 +307,12 @@ using bsl::flush;
 // [30] const JsonObject& Json::theObject() const;
 // [30] const bsl::string& Json::theString() const;
 // [30] JsonType::Enum Json::type() const;
-// [40] int Json::asShort   (short     *r) const;
-// [40] int Json::asInt     (int       *r) const;
-// [40] int Json::asLong    (long      *r) const;
-// [40] int Json::asLonglong(long long *r) const;
-// [40] int Json::asInt64   (Int64     *r) const;
-// [40] int Json::asUshort   (unsigned short     *r) const;
-// [40] int Json::asUint     (unsigned int       *r) const;
-// [40] int Json::asUlong    (unsigned long      *r) const;
-// [40] int Json::asUlonglong(unsigned long long *r) const;
-// [40] int Json::asUint64   (Uint64             *r) const;
-// [40] float     Json::asFloat()     const;
-// [40] double    Json::asDouble()    const;
+// [40] int Json::asInt(int *r) const;
+// [40] int Json::asInt64(Int64 *r) const;
+// [40] int Json::asUint(unsigned int *r) const;
+// [40] int Json::asUint64(Uint64 *r) const;
+// [40] float Json::asFloat() const;
+// [40] double Json::asDouble() const;
 // [40] Decimal64 Json::asDecimal64() const;
 // [40] int Json::asDecimal64Exact(Decimal64 *r) const;
 // [40] const Json& Json::operator[](const string_view& key) const;
@@ -389,8 +324,6 @@ using bsl::flush;
 // [40] Json::operator const BloombergLP::bdljsn::JsonNumber &() const;
 // [40] Json::operator const BloombergLP::bdljsn::JsonObject &() const;
 // [40] Json::operator const bsl::basic_string &() const;
-// [47] template RT             visit<RT>(FORWARD_REF visitor) const;
-// [47] template decltype(auto) visit    (FORWARD_REF visitor) const;
 //
 // [40] bslma::Allocator* Json::allocator() const;
 // [31] ostream& Json::print(ostream& stream, int l, int spl) const;
@@ -399,84 +332,9 @@ using bsl::flush;
 // [31] ostream& operator<<(ostream&, const Json&);
 // [32] bool operator==(const Json& lhs, rhs);
 // [32] bool operator!=(const Json& lhs, rhs);
-// [43] operator==(const JsonArray&         , const Json&              );
-// [43] operator==(const JsonObject&        , const Json&              );
-// [43] operator==(const JsonNumber&        , const Json&              );
-// [43] operator==(const JsonNull&          , const Json&              );
-// [43] operator==(bool                     , const Json&              );
-// [43] operator==(int                      , const Json&              );
-// [43] operator==(unsigned int             , const Json&              );
-// [43] operator==(bsls::Types::Int64       , const Json&              );
-// [43] operator==(bsls::Types::Uint64      , const Json&              );
-// [43] operator==(float                    , const Json&              );
-// [43] operator==(double                   , const Json&              );
-// [43] operator==(bdldfp::Decimal64        , const Json&              );
-// [43] operator==(const char              *, const Json&              );
-// [43] operator==(const bsl::string_view&  , const Json&              );
-// [43] operator==(const Json&              , const JsonArray&         );
-// [43] operator==(const Json&              , const JsonObject&        );
-// [43] operator==(const Json&              , const JsonNumber&        );
-// [43] operator==(const Json&              , const JsonNull&          );
-// [43] operator==(const Json&              , bool                     );
-// [43] operator==(const Json&              , int                      );
-// [43] operator==(const Json&              , unsigned int             );
-// [43] operator==(const Json&              , bsls::Types::Int64       );
-// [43] operator==(const Json&              , bsls::Types::Uint64      );
-// [43] operator==(const Json&              , float                    );
-// [43] operator==(const Json&              , double                   );
-// [43] operator==(const Json&              , bdldfp::Decimal64        );
-// [43] operator==(const Json&              , const char              *);
-// [43] operator==(const Json&              , const bsl::string_view&  );
-// [43] operator!=(const JsonArray&         , const Json&              );
-// [43] operator!=(const JsonObject&        , const Json&              );
-// [43] operator!=(const JsonNumber&        , const Json&              );
-// [43] operator!=(const JsonNull&          , const Json&              );
-// [43] operator!=(bool                     , const Json&              );
-// [43] operator!=(int                      , const Json&              );
-// [43] operator!=(unsigned int             , const Json&              );
-// [43] operator!=(bsls::Types::Int64       , const Json&              );
-// [43] operator!=(bsls::Types::Uint64      , const Json&              );
-// [43] operator!=(float                    , const Json&              );
-// [43] operator!=(double                   , const Json&              );
-// [43] operator!=(bdldfp::Decimal64        , const Json&              );
-// [43] operator!=(const char              *, const Json&              );
-// [43] operator!=(const bsl::string_view&  , const Json&              );
-// [43] operator!=(const Json&              , const JsonArray&         );
-// [43] operator!=(const Json&              , const JsonObject&        );
-// [43] operator!=(const Json&              , const JsonNumber&        );
-// [43] operator!=(const Json&              , const JsonNull&          );
-// [43] operator!=(const Json&              , bool                     );
-// [43] operator!=(const Json&              , int                      );
-// [43] operator!=(const Json&              , unsigned int             );
-// [43] operator!=(const Json&              , bsls::Types::Int64       );
-// [43] operator!=(const Json&              , bsls::Types::Uint64      );
-// [43] operator!=(const Json&              , float                    );
-// [43] operator!=(const Json&              , double                   );
-// [43] operator!=(const Json&              , bdldfp::Decimal64        );
-// [43] operator!=(const Json&              , const char              *);
-// [43] operator!=(const Json&              , const bsl::string_view&  );
 //
 // FREE FUNCTIONS
 // [35] void swap(Json& lhs, rhs);
-//
-// JSON_INITIALIZER CLASS METHODS
-//
-// [45] Json_Initializer();
-// [45] Json_Initializer(const JsonNull &);
-// [45] Json_Initializer(bool b);
-// [45] Json_Initializer(NUMBER num);
-// [45] Json_Initializer(float f);
-// [45] Json_Initializer(double d);
-// [45] Json_Initializer(const char *p);
-// [45] Json_Initializer(const bsl::string &s);
-// [45] Json_Initializer(const std::string &s);
-// [45] Json_Initializer(bsl::string_view sv);
-// [45] Json_Initializer(std::initializer_list<Json_Initializer> il);
-// [45] Json_Initializer(const JsonObject &jObj);
-// [45] Json_Initializer(const JsonArray &jArr);
-// [45] Json_Initializer(const JsonNumber &jNum);
-// [45] Json_Initializer(const Json &json);
-// [45] const storage& get_storage() const;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -663,7 +521,7 @@ int ggg(Json *object, const char *spec, int verbose)
                 stack.emplace_back(e_OBJECT_EXPECT_MEMBER, state.d_json_p);
               } break;
               default: {
-                ASSERT(false && "illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -698,7 +556,7 @@ int ggg(Json *object, const char *spec, int verbose)
                                    &stack.back().d_json_p->theArray().back());
               } break;
               default: {
-                ASSERT(false && "illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -716,7 +574,7 @@ int ggg(Json *object, const char *spec, int verbose)
                 stack.pop_back();
               } break;
               default: {
-                ASSERT(false && "illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
@@ -773,12 +631,12 @@ int ggg(Json *object, const char *spec, int verbose)
                                 .d_json_p->theObject()[stack.back().d_member]);
               } break;
               default: {
-                ASSERT(false && "illegal");
+                ASSERT(0 == "illegal");
               } break;
             }
           } break;
           default: {
-            ASSERT(false && "illegal");
+            ASSERT(0 == "illegal");
           } break;
         }
     }
@@ -923,12 +781,12 @@ static const DefaultDataRow DEFAULT_DATA[] =
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
-const char KEY0[] = "zero";
-const char KEY1[] = "one";
-const char KEY2[] = "two";
-const char KEY3[] = "three";
+char KEY0[] = "zero";
+char KEY1[] = "one";
+char KEY2[] = "two";
+char KEY3[] = "three";
 
-const char *const KEYS[] = {KEY0, KEY1, KEY2, KEY3};
+const char* KEYS[] = {KEY0, KEY1, KEY2, KEY3};
 
 template <class TYPE>
 class TemplatedJsonObjectInsertionTest {
@@ -1012,8 +870,7 @@ class ReorderExpectedJsonObjectString {
         for (int i = 0; i < 4; ++i) {
             pos = input.find('\"', prev = pos);
             if (bsl::string::npos == pos) {
-                ASSERTV(i, input, false &&
-                                         "Quote character number i not found");
+                ASSERTV(i, input, 0 != "Quote character number i not found");
                 return "";                                            // RETURN
             }
             format[i] = input.substr(prev, pos - prev);
@@ -1021,21 +878,22 @@ class ReorderExpectedJsonObjectString {
             const char delim = (i == 3 ? ']' : ',');
             pos = input.find(delim, prev = pos);
             if (bsl::string::npos == pos) {
-                ASSERTV(delim, i, input, false && "delimiter not found");
+                ASSERTV(delim, i, input, 0 != "delimiter not found");
                 return "";                                            // RETURN
             }
             if (delim == ']') {
                 ++pos;
                 if (pos == input.size()) {
-                    ASSERTV(i, input, false &&
-                                         "\']\' character was last in string");
+                    ASSERTV(i,
+                            input,
+                            0 != "']' character was last in string");
                     return "";                                        // RETURN
                 }
             }
             const bsl::string::size_type secondQuote = input.find('\"',
                                                                   prev + 1);
             if (secondQuote == bsl::string::npos) {
-                ASSERTV(i, input, false && "second quote not found");
+                ASSERTV(i, input, 0 != "second quote not found");
                 return "";                                            // RETURN
             }
             data[input.substr(prev + 1, secondQuote - (prev + 1))] =
@@ -1231,8 +1089,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     // Intializer-List Assignment
     {
         JsonArray mX;
-        ASSERT(&mX == &mX.assign({g("1"), g("s")}));
-        ASSERT( mX == ga("[1s]"));
+        mX.assign({g("1"), g("s")});
+        ASSERT(mX == ga("[1s]"));
     }
 #endif
 
@@ -1241,8 +1099,8 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         Json range[3] = {g("n"), g("n"), g("n")};
 
         JsonArray mX;
-        ASSERT(&mX == &mX.assign(range, range + 3));
-        ASSERT( mX == ga("[nnn]"));
+        mX.assign(range, range + 3);
+        ASSERT(mX == ga("[nnn]"));
     }
 
     // Begin and End
@@ -2554,38 +2412,6 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(m8Value == 1);
         ASSERT(m8.allocator() == &ta);
 
-        Json m7a(1L);
-        ASSERT(m7a.isNumber());
-        long m7aValue;
-        rc = m7a.asLong(&m7aValue);
-        ASSERT(rc == 0);
-        ASSERT(m7aValue == 1L);
-        ASSERT(m7a.allocator() == bslma::Default::allocator());
-
-        Json m8a(1L, &ta);
-        ASSERT(m8a.isNumber());
-        long m8aValue;
-        rc = m8a.asLong(&m8aValue);
-        ASSERT(rc == 0);
-        ASSERT(m8aValue == 1L);
-        ASSERT(m8a.allocator() == &ta);
-
-        Json m7b(1LL);
-        ASSERT(m7b.isNumber());
-        long long m7bValue;
-        rc = m7b.asLonglong(&m7bValue);
-        ASSERT(rc == 0);
-        ASSERT(m7bValue == 1LL);
-        ASSERT(m7b.allocator() == bslma::Default::allocator());
-
-        Json m8b(1LL, &ta);
-        ASSERT(m8b.isNumber());
-        long long m8bValue;
-        rc = m8b.asLonglong(&m8bValue);
-        ASSERT(rc == 0);
-        ASSERT(m8bValue == 1LL);
-        ASSERT(m8b.allocator() == &ta);
-
         Json         m9(1u);
         unsigned int m9Value;
         rc = m9.asUint(&m9Value);
@@ -2599,34 +2425,6 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(rc == 0);
         ASSERT(m10Value == 1u);
         ASSERT(m10.allocator() == &ta);
-
-        Json          m9a(1ul);
-        unsigned long m9aValue;
-        rc = m9a.asUlong(&m9aValue);
-        ASSERT(rc == 0);
-        ASSERT(m9aValue == 1ul);
-        ASSERT(m9a.allocator() == bslma::Default::allocator());
-
-        Json          m10a(1ul, &ta);
-        unsigned long m10aValue;
-        rc = m10a.asUlong(&m10aValue);
-        ASSERT(rc == 0);
-        ASSERT(m10aValue == 1ul);
-        ASSERT(m10a.allocator() == &ta);
-
-        Json               m9b(1ull);
-        unsigned long long m9bValue;
-        rc = m9b.asUlonglong(&m9bValue);
-        ASSERT(rc == 0);
-        ASSERT(m9bValue == 1ull);
-        ASSERT(m9b.allocator() == bslma::Default::allocator());
-
-        Json               m10b(1ull, &ta);
-        unsigned long long m10bValue;
-        rc = m10b.asUlonglong(&m10bValue);
-        ASSERT(rc == 0);
-        ASSERT(m10bValue == 1ul);
-        ASSERT(m10b.allocator() == &ta);
 
         Json               m11(static_cast<bsls::Types::Int64>(1));
         bsls::Types::Int64 m11Value;
@@ -3550,13 +3348,6 @@ template <>
 class JsonValueConstructorHelper<JsonNull>
 {
   public:
-    /// Returns the value of specified type from the specified 'json',
-    /// suitable for comparison to the value used in construction.
-    static const JsonNull& extractFromJson(const Json& json, int , char )
-    {
-        return json.theNull();
-    }
-
     /// Returns the `JsonType::Enum` of the specified type
     static JsonType::Enum getType()
     {
@@ -3569,6 +3360,7 @@ class JsonValueConstructorHelper<JsonNull>
         return JsonNull();
     }
 };
+
 
 template <>
 class JsonValueConstructorHelper<bool>
@@ -3586,6 +3378,7 @@ class JsonValueConstructorHelper<bool>
     {
         return JsonType::e_BOOLEAN;
     }
+
 
     /// Returns a `const` reference to a value of the specified type
     static bool getValue()
@@ -3611,6 +3404,7 @@ class JsonValueConstructorHelper<float>
         return JsonType::e_NUMBER;
     }
 
+
     /// Returns a `const` reference to a value of the specified type
     static float getValue()
     {
@@ -3635,6 +3429,7 @@ class JsonValueConstructorHelper<double>
         return JsonType::e_NUMBER;
     }
 
+
     /// Returns a `const` reference to a value of the specified type
     static double getValue()
     {
@@ -3658,6 +3453,7 @@ class JsonValueConstructorHelper<JsonArray>
     {
         return JsonType::e_ARRAY;
     }
+
 
     /// Returns a `const` reference to a value of the specified type
     static const JsonArray& getValue()
@@ -3750,7 +3546,7 @@ class JsonValueConstructorHelper<unsigned int>
 };
 
 template <>
-class JsonValueConstructorHelper<long>
+class JsonValueConstructorHelper<bsls::Types::Int64>
 {
   public:
     /// Returns the value of specified type from the specified `json`,
@@ -3761,67 +3557,8 @@ class JsonValueConstructorHelper<long>
                                               int         ALLOC_CONFIG,
                                               char        CONFIG)
     {
-        long value;
-        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber().asLong(&value));
-        return value;
-    }
-    static JsonType::Enum getType()
-        // Returns the 'JsonType::Enum' of the specified type
-    {
-        return JsonType::e_NUMBER;
-    }
-
-    static long getValue()
-        // Returns a 'const' reference to a value of the specified type
-    {
-        return -54321L;
-    }
-};
-
-template <>
-class JsonValueConstructorHelper<unsigned long>
-{
-  public:
-    static unsigned long extractFromJson(const Json& json,
-                                         long        ALLOC_CONFIG,
-                                         char        CONFIG)
-        // Returns the value of specified type from the specified 'json',
-        // suitable for comparison to the value used in construction.  The
-        // specified 'ALLOC_CONFIG' and the specified 'CONFIG' will be used to
-        // report any failure to convert.
-    {
-        unsigned long value;
-        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber().asUlong(&value));
-        return value;
-    }
-    static JsonType::Enum getType()
-        // Returns the 'JsonType::Enum' of the specified type
-    {
-        return JsonType::e_NUMBER;
-    }
-
-    static unsigned long getValue()
-        // Returns a 'const' reference to a value of the specified type
-    {
-        return 98765UL;
-    }
-};
-
-template <>
-class JsonValueConstructorHelper<long long>
-{
-  public:
-    static long long extractFromJson(const Json& json,
-                                     int         ALLOC_CONFIG,
-                                     char        CONFIG)
-        // Returns the value of specified type from the specified 'json',
-        // suitable for comparison to the value used in construction.  The
-        // specified 'ALLOC_CONFIG' and the specified 'CONFIG' will be used to
-        // report any failure to convert.
-    {
-        long long value;
-        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber()
-                                               .asLonglong(&value));
+        bsls::Types::Int64 value;
+        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber().asInt64(&value));
         return value;
     }
     /// Returns the `JsonType::Enum` of the specified type
@@ -3838,7 +3575,7 @@ class JsonValueConstructorHelper<long long>
 };
 
 template <>
-class JsonValueConstructorHelper<unsigned long long>
+class JsonValueConstructorHelper<bsls::Types::Uint64>
 {
   public:
     /// Returns the value of specified type from the specified `json`,
@@ -3849,9 +3586,8 @@ class JsonValueConstructorHelper<unsigned long long>
                                                int         ALLOC_CONFIG,
                                                char        CONFIG)
     {
-        unsigned long long value;
-        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber()
-                                               .asUlonglong(&value));
+        bsls::Types::Uint64 value;
+        ASSERTV(ALLOC_CONFIG, CONFIG, 0 == json.theNumber().asUint64(&value));
         return value;
     }
     /// Returns the `JsonType::Enum` of the specified type
@@ -3863,7 +3599,7 @@ class JsonValueConstructorHelper<unsigned long long>
     /// Returns a `const` reference to a value of the specified type
     static bsls::Types::Uint64 getValue()
     {
-        return 0x987654321ULL;
+        return 0x987654321LL;
     }
 };
 
@@ -3933,7 +3669,7 @@ class JsonValueConstructorHelper<JsonObject>
 };
 
 template <>
-class JsonValueConstructorHelper<const char *>
+class JsonValueConstructorHelper<const char*>
 {
   public:
     /// Returns the value of specified type from the specified `json`,
@@ -3997,6 +3733,7 @@ class JsonValueConstructorHelper<bsl::string>
     {
         return JsonType::e_STRING;
     }
+
 
     /// Returns a `const` reference to a value of the specified type
     static const bsl::string& getValue()
@@ -4075,2246 +3812,20 @@ class JsonValueEnumeration
             allocated = true;
           } break;
           default: {
-            BSLS_ASSERT_OPT(false && "Bad JSON value enumerator config");
+            BSLS_ASSERT_OPT(0 == "Bad JSON value enumerator config");
             allocated = false;
           } break;
         }
         return allocated;
     }
 };
-
-template <class TYPE>
-void testJsonPushBack(char cfg, int numBlocksPush, bool verbose)
-    // Test the correctness of a 'Json::pushBack' of a (template argument)
-    // 'TYPE' onto an null 'Json' object.  Use the specified 'cfg' in
-    // diagnostic messages, if any.  The specified 'numBlocksPush' is the
-    // expected number of allocations by the 'pushBack' call.  The specified
-    // 'verbose', if 'true', sets the 'TestAllocator' to log.  The value pushed
-    // is obtained from 'JsonValueConstructorHelper<TYPE>::getValue()'.  Also
-    // perform a negative test that an initial type other than array or null
-    // fails the defensive check.
-{
-    if (verbose) {
-        P(bsls::NameOf<TYPE>());
-    }
-
-    typedef JsonValueConstructorHelper<TYPE> Helper;
-    typedef bdljsn::Json                     Obj;
-
-    const int  ALLOC_CONFIG = -777;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testJsonPushBack", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    Obj obj(&ta);
-    ASSERTV(obj.isNull());
-
-    ASSERT(&obj == &obj.pushBack(Helper::getValue()));                  // TEST
-
-    ASSERTV(obj.isArray());
-    ASSERTV(obj.size(), 1 == obj.size());
-
-    Obj *objPtr = &obj[0];
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            numBlocksPush,   tam.numBlocksInUseChange(),
-            numBlocksPush == tam.numBlocksInUseChange());
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::getType(),
-            objPtr->type(),
-            Helper::getType() == objPtr->type());
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::extractFromJson(*objPtr,
-                                    ALLOC_CONFIG,
-                                    CONFIG),
-            Helper::getValue(),
-            Helper::extractFromJson(*objPtr,
-                                    ALLOC_CONFIG,
-                                    CONFIG)
-            == Helper::getValue());
-
-#ifdef BDE_BUILD_TARGET_EXC
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        Obj thingNull;     thingNull   .makeNull();
-        Obj thingArray;    thingArray  .makeArray();
-
-        ASSERT_PASS(thingNull .pushBack(Helper::getValue()));
-        ASSERT_PASS(thingArray.pushBack(Helper::getValue()));
-
-        Obj thingBoolean;  thingBoolean.makeBoolean();
-        Obj thingNumber;   thingNumber .makeNumber();
-        Obj thingString;   thingString .makeString(bsl::string());
-        Obj thingObject;   thingObject .makeObject();
-
-        ASSERT_FAIL(thingBoolean.pushBack(Helper::getValue()));
-        ASSERT_FAIL(thingNumber .pushBack(Helper::getValue()));
-        ASSERT_FAIL(thingString .pushBack(Helper::getValue()));
-        ASSERT_FAIL(thingObject .pushBack(Helper::getValue()));
-    }
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(obj.pushBack(Helper::getValue()));
-
-        static_assert(bsl::is_same<Obj&, RetType>::value, "");
-    }
-#endif
-}
-
-template <>
-void testJsonPushBack<Json>(char cfg, int numBlocksPush, bool verbose)
-    // Test the correctness of a 'Json::pushBack<const char *>' onto an null
-    // 'Json' object.  Use the specified 'cfg' in diagnostic messages, if any.
-    // The specified 'numBlocksPush' is the expected number of allocations by
-    // the 'pushBack' call.  The specified 'verbose', if 'true', sets the
-    // 'TestAllocator' to log.  The value pushed is composed manually using
-    // 'JsonValueConstructorHelper<TYPE>::getValue()' to get values for the
-    // constituent types.  Also perform a negative test that initial type other
-    // than array or null fails the defensive check.
-{
-    if (verbose) {
-        P(bsls::NameOf<Json>());
-    }
-
-    typedef bdljsn::Json Obj;
-    typedef bdljsn::Json Value;
-
-    const int  ALLOC_CONFIG = -888;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testJsonPushBack", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    Value value; const Value& cValue = value;
-    value.makeArray();
-    value.pushBack(JsonValueConstructorHelper<JsonNull          >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bool              >::getValue());
-    value.pushBack(JsonValueConstructorHelper<int               >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned int      >::getValue());
-    value.pushBack(JsonValueConstructorHelper<long              >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned long     >::getValue());
-    value.pushBack(JsonValueConstructorHelper<long long         >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned long long>::getValue());
-    value.pushBack(JsonValueConstructorHelper<float             >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bdldfp::Decimal64 >::getValue());
-    value.pushBack(JsonValueConstructorHelper<const char *      >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bsl::string_view  >::getValue());
-
-    Obj obj(&ta);
-    ASSERTV(obj.isNull());
-
-    ASSERT(&obj == &obj.pushBack(cValue));                              // TEST
-
-    ASSERTV(obj.isArray());
-    ASSERTV(obj.size(), 1 == obj.size());
-
-    ASSERTV(obj[0] == cValue);
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            numBlocksPush,   tam.numBlocksInUseChange(),
-            numBlocksPush == tam.numBlocksInUseChange());
-
-#ifdef BDE_BUILD_TARGET_EXC
-    {
-        bsls::AssertTestHandlerGuard hG;
-
-        Obj thingNull;     thingNull   .makeNull();
-        Obj thingArray;    thingArray  .makeArray();
-
-        ASSERT_PASS(thingNull .pushBack(cValue));
-        ASSERT_PASS(thingArray.pushBack(cValue));
-
-        Obj thingBoolean;  thingBoolean.makeBoolean();
-        Obj thingNumber;   thingNumber .makeNumber();
-        Obj thingString;   thingString .makeString(bsl::string());
-        Obj thingObject;   thingObject .makeObject();
-
-        ASSERT_FAIL(thingBoolean.pushBack(cValue));
-        ASSERT_FAIL(thingNumber .pushBack(cValue));
-        ASSERT_FAIL(thingString .pushBack(cValue));
-        ASSERT_FAIL(thingObject .pushBack(cValue));
-    }
-#endif
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(obj.pushBack(cValue));
-
-        static_assert(bsl::is_same<Obj&, RetType>::value, "");
-    }
-#endif
-}
-
-template <class TYPE>
-void testJsonPushBackMoveRef(char cfg, bool verbose)
-    // Test the correctness of a 'Json::pushBack' of a moveable reference of
-    // (template argument) 'TYPE' onto an null 'Json' object.  The value pushed
-    // is obtained from JsonValueConstructorHelper<TYPE>::getValue()'.  Since
-    // each object pushed is (here) constructed using the same allocator as the
-    // 'JsonArray', each 'pushBack' takes one allocation so the array can hold
-    // the added object but none for the object itself.  The specified 'cfg' is
-    // used in diagnostic messages, if any.  The specified 'verbose', if
-    // 'true', sets the 'TestAllocator' to log.  Also perform a negative test
-    // that initial type other than array or null fails the defensive check.
-{
-    typedef JsonValueConstructorHelper<TYPE> Helper;
-    typedef bdljsn::Json                     Obj;
-
-    const int  ALLOC_CONFIG = -42;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testJsonPushBackMoveRef", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    TYPE element(Helper::getValue(), &ta); // same allocator as 'obj'.
-
-    tam.reset();
-
-    Obj  obj(&ta);
-    ASSERTV(obj.isNull());
-
-    ASSERT(&obj == &obj.pushBack(bslmf::MovableRefUtil::move(element)));// TEST
-
-    ASSERTV(obj.isArray());
-    ASSERTV(obj.size(), 1 == obj.size());
-
-    Obj *objPtr = &obj[0];
-
-    ASSERTV(ALLOC_CONFIG,
-            tam.numBlocksInUseChange(),
-            CONFIG,
-            1 == tam.numBlocksInUseChange());
-                // One allocation to expand the array's data to hold the new
-                // element.  Constructing that element requires no additional
-                // allocation it is moved from an object that uses the same
-                // allocator.
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::getType(),
-            objPtr->type(),
-            Helper::getType() == objPtr->type());
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::extractFromJson(*objPtr,
-                                     ALLOC_CONFIG,
-                                     CONFIG),
-            Helper::getValue(),
-            Helper::extractFromJson(*objPtr,
-                                     ALLOC_CONFIG,
-                                     CONFIG)
-            == Helper::getValue());
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(
-                           obj.pushBack(bslmf::MovableRefUtil::move(element)));
-
-        static_assert(bsl::is_same<Obj&, RetType>::value, "");
-    }
-#endif
-}
-
-template <>
-void testJsonPushBackMoveRef<Json>(char cfg, bool verbose)
-    // Test the correctness of a 'Json::pushBack' of a moveable reference of
-    // (template argument) 'TYPE' onto an null 'Json' object.  Since each
-    // object pushed is (here) constructed using the same allocator as the
-    // 'Json', each 'pushBack' takes one allocation so the array can hold the
-    // added object but none for the object itself.  The specified 'cfg' is
-    // used in diagnostic messages, if any.  The specified 'verbose', if
-    // 'true', sets the 'TestAllocator' to log.  The value pushed is composed
-    // manually using 'JsonValueConstructorHelper<TYPE>::getValue()' to get
-    // values for the constituent types.  Also perform a negative test that
-    // initial type other than array or null fails the defensive check.
-{
-    typedef bdljsn::Json Obj;
-    typedef bdljsn::Json Value;
-
-    const int  ALLOC_CONFIG = -42;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testJsonPushBackMoveRef<Json>", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    Value value(&ta); // same allocator as 'obj' below
-    value.makeArray();
-    value.pushBack(JsonValueConstructorHelper<JsonArray         >::getValue());
-    value.pushBack(JsonValueConstructorHelper<JsonObject        >::getValue());
-    value.pushBack(JsonValueConstructorHelper<JsonNumber        >::getValue());
-    value.pushBack(JsonValueConstructorHelper<JsonNull          >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bool              >::getValue());
-    value.pushBack(JsonValueConstructorHelper<int               >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned int      >::getValue());
-    value.pushBack(JsonValueConstructorHelper<long              >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned long     >::getValue());
-    value.pushBack(JsonValueConstructorHelper<long long         >::getValue());
-    value.pushBack(JsonValueConstructorHelper<unsigned long long>::getValue());
-    value.pushBack(JsonValueConstructorHelper<float             >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bdldfp::Decimal64 >::getValue());
-    value.pushBack(JsonValueConstructorHelper<const char *      >::getValue());
-    value.pushBack(JsonValueConstructorHelper<bsl::string_view  >::getValue());
-
-    const Value savedValue(value);
-
-    tam.reset();
-
-    Obj  obj(&ta);
-    ASSERTV(obj.isNull());
-
-    ASSERTV(&obj == &obj.pushBack(bslmf::MovableRefUtil::move(value))); // TEST
-
-    ASSERTV(obj.isArray());
-    ASSERTV(obj.size(), 1 == obj.size());
-    ASSERTV(savedValue,   obj[0],
-            savedValue == obj[0]);
-
-    ASSERTV(ALLOC_CONFIG,
-            tam.numBlocksInUseChange(),
-            CONFIG,
-            1 == tam.numBlocksInUseChange());
-                // One allocation to expand the array's data to hold the new
-                // element.  Constructing that element requires no additional
-                // allocation it is moved from an object that uses the same
-                // allocator.
-
-#ifdef BDE_BUILD_TARGET_EXC
-    {
-        Value valueForNull   (savedValue);
-        Value valueForArray  (savedValue);
-        Value valueForBoolean(savedValue);
-        Value valueForNumber (savedValue);
-        Value valueForString (savedValue);
-        Value valueForObject (savedValue);
-
-        Obj thingNull;     thingNull   .makeNull();
-        Obj thingArray;    thingArray  .makeArray();
-        Obj thingBoolean;  thingBoolean.makeBoolean();
-        Obj thingNumber;   thingNumber .makeNumber();
-        Obj thingString;   thingString .makeString(bsl::string());
-        Obj thingObject;   thingObject .makeObject();
-
-        typedef bslmf::MovableRefUtil MRU;
-
-        bsls::AssertTestHandlerGuard hG;
-
-        ASSERT_PASS(thingNull   .pushBack(MRU::move(valueForNull   )));
-        ASSERT_PASS(thingArray  .pushBack(MRU::move(valueForArray  )));
-
-        ASSERT_FAIL(thingBoolean.pushBack(MRU::move(valueForBoolean)));
-        ASSERT_FAIL(thingNumber .pushBack(MRU::move(valueForNumber )));
-        ASSERT_FAIL(thingString .pushBack(MRU::move(valueForString )));
-        ASSERT_FAIL(thingObject .pushBack(MRU::move(valueForObject )));
-    }
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(
-                             obj.pushBack(bslmf::MovableRefUtil::move(value)));
-
-        static_assert(bsl::is_same<Obj&, RetType>::value, "");
-    }
-#endif
-}
-
-template <class TYPE>
-void testArrayPushBack(char cfg, int numBlocksPush, bool verbose)
-    // Test the correctness of a 'JsonArray::pushBack' of a (template argument)
-    // 'TYPE' onto an empty 'JsonArray'.  Use the specified 'cfg' in diagnostic
-    // messages, if any.  The specified 'numBlocksPush' is the expected number
-    // of allocations by the 'pushBack' call.  The specified 'verbose', if
-    // 'true', sets the 'TestAllocator' to log.  The value pushed is obtained
-    // from 'JsonValueConstructorHelper<TYPE>::getValue()'.
-{
-    if (verbose) {
-        P(bsls::NameOf<TYPE>());
-    }
-
-    typedef JsonValueConstructorHelper<TYPE> Helper;
-    typedef bdljsn::Json                     Obj;
-    typedef bdljsn::JsonArray                Array;
-
-    const int  ALLOC_CONFIG = -666;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testArrayPushBack", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    Array array(&ta);
-    ASSERT(&array == &array.pushBack(Helper::getValue()));              // TEST
-    ASSERTV(array.size(), 1 == array.size());
-
-    Obj *objPtr = &array[0];
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            numBlocksPush,   tam.numBlocksInUseChange(),
-            numBlocksPush == tam.numBlocksInUseChange());
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::getType(),
-            objPtr->type(),
-            Helper::getType() == objPtr->type());
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::extractFromJson(*objPtr,
-                                    ALLOC_CONFIG,
-                                    CONFIG),
-            Helper::getValue(),
-            Helper::extractFromJson(*objPtr,
-                                    ALLOC_CONFIG,
-                                    CONFIG)
-            == Helper::getValue());
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(array.pushBack(Helper::getValue()));
-
-        static_assert(bsl::is_same<Array&, RetType>::value, "");
-    }
-#endif
-}
-
-template <class TYPE>
-void testArrayPushBackMoveRef(char cfg, bool verbose)
-    // Test the correctness of a 'JsonArray::pushBack' of a moveable reference
-    // of (template argument) 'TYPE' onto an empty 'JsonArray'.  The value
-    // pushed is obtained from JsonValueConstructorHelper<TYPE>::getValue()'.
-    // Since each object pushed is (here) constructed using the same allocator
-    // as the 'JsonArray' each 'pushBack' takes one allocation so the array can
-    // hold the added object but none for the object itself.  The specified
-    // 'cfg' is used in diagnostic messages, if any.  The specified 'verbose',
-    // if 'true', sets the 'TestAllocator' to log.
-{
-    typedef JsonValueConstructorHelper<TYPE> Helper;
-    typedef bdljsn::Json                     Obj;
-    typedef bdljsn::JsonArray                Array;
-
-    const int  ALLOC_CONFIG = -42;  // Arbitrary diagnostic value.
-    const char CONFIG       = cfg;
-
-    bslma::TestAllocator        ta("testArrayPushBackMoveRef", verbose);
-    bslma::TestAllocatorMonitor tam(&ta);
-
-    Array array(&ta);
-    TYPE  element(Helper::getValue(), &ta); // same allocator
-
-    tam.reset();
-
-    ASSERT(&array == &array.pushBack(bslmf::MovableRefUtil::move(element)));
-                                                                        // TEST
-    ASSERTV(array.size(), 1 == array.size());
-
-    Obj *objPtr = &array[0];
-
-    ASSERTV(ALLOC_CONFIG,
-            tam.numBlocksInUseChange(),
-            CONFIG,
-            1 == tam.numBlocksInUseChange());
-                // One allocation to expand the array's data to hold the new
-                // element.  Constructing that element requires no additional
-                // allocation it is moved from an object that uses the same
-                // allocator.
-
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::getType(),
-            objPtr->type(),
-            Helper::getType() == objPtr->type());
-    ASSERTV(ALLOC_CONFIG,
-            CONFIG,
-            Helper::extractFromJson(*objPtr,
-                                     ALLOC_CONFIG,
-                                     CONFIG),
-            Helper::getValue(),
-            Helper::extractFromJson(*objPtr,
-                                     ALLOC_CONFIG,
-                                     CONFIG)
-            == Helper::getValue());
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    {
-        using RetType = decltype(array.pushBack(Helper::getValue()));
-
-        static_assert(bsl::is_same<Array&, RetType>::value, "");
-    }
-#endif
-}
-
-template <class TYPE>
-void testEqualityOverloadsRef()
-    // Test equality comparison operators between a 'Json' and a 'const'-
-    // reference of a (template parameter) 'TYPE'.  Comparisons are made with
-    // the 'Json' on the left and the 'TYPE' on the right, and vice versa.
-    // Each test of equality is mirrored by a test of inequality.
-    // Additionally, comparisons of 'TYPE' and 'JsonNull' are tested.
-{
-    const TYPE& notaJsonD= TYPE();
-    const TYPE& notaJsonA = JsonValueConstructorHelper<TYPE>::getValue();
-
-    typedef bdljsn::Json Obj;
-
-    const Obj& objD = Obj(notaJsonD);
-    const Obj& objA = Obj(notaJsonA);
-
-    // operator==   value, obj
-    ASSERT(  notaJsonD == objD   );
-    ASSERT(!(notaJsonD == objA)  );
-    ASSERT(!(notaJsonA == objD)  );
-    ASSERT(  notaJsonA == objA   );
-
-    // operator!=   value, obj
-    ASSERT(!(notaJsonD != objD)  );
-    ASSERT(  notaJsonD != objA   );
-    ASSERT(  notaJsonA != objD   );
-    ASSERT(!(notaJsonA != objA)  );
-
-    // operator==   obj, value
-    ASSERT(  objD   == notaJsonD );
-    ASSERT(!(objD   == notaJsonA));
-    ASSERT(!(objA   == notaJsonD));
-    ASSERT(  objA   == notaJsonA );
-
-    // operator!=   obj, value
-    ASSERT(!(objD   != notaJsonD));
-    ASSERT(  objD   != notaJsonA );
-    ASSERT(  objA   != notaJsonD );
-    ASSERT(!(objA   != notaJsonA));
-
-    // Test 'const JsonNull&'
-
-    typedef bdljsn::JsonNull Null;
-
-    const Null& null = Null();  // "default" is the only value.
-
-    // operator==   null, obj
-    ASSERT(!(null   == objA)  );
-    ASSERT(!(null   == objD)  );
-
-    // operator!=   null, obj
-    ASSERT(  null   != objA   );
-    ASSERT(  null   != objD   );
-
-    // operator==   obj, value
-    ASSERT(!(objD   == null  ));
-    ASSERT(!(objA   == null  ));
-
-    // operator!=   obj, value
-    ASSERT(  objD   != null   );
-    ASSERT(  objA   != null   );
-}
-
-template <class VALUE>
-void testEqualityOverloadsVal()
-    // Test equality comparison operators between a 'Json' and a value of
-    // (template parameter) 'TYPE'.  Comparisons are made with the 'Json' on
-    // the left and the 'TYPE' on the right, and vice versa.  Each test of
-    // equality is mirrored by a test of inequality.  Additionally, comparisons
-    // of 'TYPE' and 'JsonNull' are tested.
-{
-    VALUE valueD = VALUE(0);
-    VALUE valueA = JsonValueConstructorHelper<VALUE>::getValue();
-
-    typedef bdljsn::Json     Obj;
-
-    const Obj& objD = Obj(valueD);
-    const Obj& objA = Obj(valueA);
-
-    // operator==   value, obj
-    ASSERT(  valueD == objD   );
-    ASSERT(!(valueD == objA)  );
-    ASSERT(!(valueA == objD)  );
-    ASSERT(  valueA == objA   );
-
-    // operator!=   value, obj
-    ASSERT(!(valueD != objD)  );
-    ASSERT(  valueD != objA   );
-    ASSERT(  valueA != objD   );
-    ASSERT(!(valueA != objA)  );
-
-    // operator==   obj, value
-    ASSERT(  objD   == valueD );
-    ASSERT(!(objD   == valueA));
-    ASSERT(!(objA   == valueD));
-    ASSERT(  objA   == valueA );
-
-    // operator!=   obj, value
-    ASSERT(!(objD   != valueD));
-    ASSERT(  objD   != valueA );
-    ASSERT(  objA   != valueD );
-    ASSERT(!(objA   != valueA));
-
-    // Test 'const JsonNull&'
-    //
-    typedef bdljsn::JsonNull Null;
-
-    const Null& null = Null();  // "default" is the only value.
-
-    // operator==   null, obj
-    ASSERT(!(null   == objA)  );
-    ASSERT(!(null   == objD)  );
-
-    // operator!=   null, obj
-    ASSERT(  null   != objA   );
-    ASSERT(  null   != objD   );
-
-    // operator==   obj, value
-    ASSERT(!(objD   == null  ));
-    ASSERT(!(objA   == null  ));
-
-    // operator!=   obj, value
-    ASSERT(  objD   != null   );
-    ASSERT(  objA   != null   );
-}
-
-void testEqualityOverloadsStr()
-    // Test equality comparison operators between a 'Json' and the
-    // 'const char *' type.  Comparisons are made with the 'Json' on the left
-    // and the 'TYPE' on the right, and vice versa.  Each test of equality is
-    // mirrored by a test of inequality.  The defensive check for the
-    // precondition -- the address is non-null- is tested.  Additionally,
-    // comparisons of 'TYPE' and 'JsonNull' are tested.
-{
-    const char *strD = "";
-    const char *strA = JsonValueConstructorHelper<const char *>::getValue();
-
-    typedef bdljsn::Json Obj;
-
-    const Obj& objD = Obj(strD);
-    const Obj& objA = Obj(strA);
-
-    // operator==   str, obj
-    ASSERT(  strD == objD );
-    ASSERT(!(strD == objA));
-    ASSERT(!(strA == objD));
-    ASSERT(  strA == objA );
-
-    // operator!=   str, obj
-    ASSERT(!(strD != objD));
-    ASSERT(  strD != objA );
-    ASSERT(  strA != objD );
-    ASSERT(!(strA != objA));
-
-    // operator==   obj, str
-    ASSERT(  objD == strD );
-    ASSERT(!(objD == strA));
-    ASSERT(!(objA == strD));
-    ASSERT(  objA == strA );
-
-    // operator!=   obj, str
-    ASSERT(!(objD != strD));
-    ASSERT(  objD != strA );
-    ASSERT(  objA != strD );
-    ASSERT(!(objA != strA));
-
-#ifdef BDE_BUILD_TARGET_EXC
-    bsls::AssertTestHandlerGuard hG;
-
-    const char *const    nullStr = 0;
-    const char *const notNullStr = "non-empty string literal";
-
-    ASSERT_FAIL(   nullStr    == objA);
-    ASSERT_PASS(notNullStr ==    objA);
-
-    ASSERT_FAIL(   nullStr !=    objA);
-    ASSERT_PASS(notNullStr !=    objA);
-
-    ASSERT_FAIL(   objA ==    nullStr);
-    ASSERT_PASS(   objA == notNullStr);
-
-    ASSERT_FAIL(   objA !=    nullStr);
-    ASSERT_PASS(   objA != notNullStr);
-#endif
-}
-
-template <class TYPE>
-void compileCheckEqualitySignature()
-    // Use the "function pointer' idiom to confirm that the equality (and
-    // inequality operators between 'Json' and the (template parameter) 'TYPE'
-    // have the expected signatures.  'Json' and 'TYPE' are compared in the
-    // positions of 'lhs' and 'rhs', and vice versa.  Successful compilation of
-    // this function indicates correctness.
-{
-    typedef bdljsn::Json Obj;
-
-    typedef bool (*operatorPtrA)(TYPE, const Obj&);
-
-    operatorPtrA operatorEqA = operator==;  (void) operatorEqA;
-    operatorPtrA operatorNeA = operator!=;  (void) operatorNeA;
-
-    typedef bool (*operatorPtrB)(const Obj& , TYPE );
-
-    operatorPtrB operatorEqB = operator==;  (void) operatorEqB;
-    operatorPtrB operatorNeB = operator!=;  (void) operatorNeB;
-}
-
-template <class TYPE>
-struct ConvertibleTo {
-    operator TYPE() const
-        // Return a default-constructed object of type 'TYPE'.
-    {
-        return TYPE();
-    }
-};
-
-// ============================================================================
-//                               HELPERS for 'visit'
-// ----------------------------------------------------------------------------
-
-                        // ============================
-                        // class TestJsonVisitorReturns
-                        // ============================
-
-template <class RETURN_TYPE>
-class TestJsonVisitorReturns
-{
-    bsl::vector<int> *d_output_p;
-    bool              d_isVerbose;
-
-  public:
-    // CREATORS
-    explicit TestJsonVisitorReturns(bsl::vector<int> *output    = 0,
-                                    bool              isVerbose = false);
-        // Create a 'TestJsonVistorReturns' object having all overloads
-        // required for the manipulator overloads of 'Json::visit'.  Optionally
-        // specify 'isVerbose' for the generation of trace statements to
-        // standard output.  Optionally specify 'output', a vector to which the
-        // returned value is pushed.  Note that 'output' is useful when the
-        // return type is 'void'.
-
-    // ACCESSORS
-    RETURN_TYPE operator()(JsonObject  *object ) const;
-    RETURN_TYPE operator()(JsonArray   *array  ) const;
-    RETURN_TYPE operator()(bsl::string *string ) const;
-    RETURN_TYPE operator()(JsonNumber  *number ) const;
-    RETURN_TYPE operator()(bool        *boolean) const;
-    RETURN_TYPE operator()(JsonNull    *null   ) const;
-        // Return 'RETURN_TYPE()'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.  Push the
-        // '-(type() + 1)' to 'output' if provided on construction.
-
-    RETURN_TYPE operator()(const JsonObject&  object ) const;
-    RETURN_TYPE operator()(const JsonArray&   array  ) const;
-    RETURN_TYPE operator()(const bsl::string& string ) const;
-    RETURN_TYPE operator()(const JsonNumber&  number ) const;
-    RETURN_TYPE operator()(const bool&        boolean) const;
-    RETURN_TYPE operator()(const JsonNull&    null   ) const;
-        // Return 'RETURN_TYPE()'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.  Push the
-        // 'type() + 1' to 'output' if provided on construction.
-};
-
-                        // ----------------------------
-                        // class TestJsonVisitorReturns
-                        // ----------------------------
-
-// CREATORS
-template <class RETURN_TYPE>
-TestJsonVisitorReturns<RETURN_TYPE>::TestJsonVisitorReturns(
-                                                   bsl::vector<int> *output,
-                                                   bool              isVerbose)
-: d_output_p(output)
-, d_isVerbose(isVerbose)
-{
-}
-
-// ACCESSOR
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(JsonObject *object) const
-{
-    BSLS_ASSERT(object);
-
-    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
-
-    if (d_isVerbose) { P_(object) Q(OBJECT: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(JsonArray *array) const
-{
-    BSLS_ASSERT(array);
-
-    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
-
-    if (d_isVerbose) { P_(array) Q(ARRAY: Returns);   }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(bsl::string *string) const
-{
-    BSLS_ASSERT(string);
-
-    const int value = -(bdljsn::JsonType::e_STRING + 1);
-
-    if (d_isVerbose) { P_(string) Q(STRING: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(JsonNumber *number) const
-{
-    BSLS_ASSERT(number);
-
-    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
-
-    if (d_isVerbose) { P_(number) Q(NUMBER: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return RETURN_TYPE();
-
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(bool *boolean) const
-{
-    BSLS_ASSERT(boolean);
-
-    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
-
-    if (d_isVerbose) { P_(boolean) Q(BOOLEAN: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(JsonNull *null) const
-{
-    BSLS_ASSERT(null);
-
-    const int value = -(bdljsn::JsonType::e_NULL + 1);
-
-    if (d_isVerbose) { P_(null) Q(NULL: Returns);    }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const JsonObject& object) const
-{
-    (void) object;
-
-    const int value = bdljsn::JsonType::e_OBJECT + 1;
-
-    if (d_isVerbose) { Q(OBJECT: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const JsonArray& array) const
-{
-    (void) array;
-
-    const int value = bdljsn::JsonType::e_ARRAY + 1;
-
-    if (d_isVerbose) { Q(ARRAY: Returns);            }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const bsl::string& string)
-                                                                          const
-{
-    (void) string;
-
-    const int value = bdljsn::JsonType::e_STRING + 1;
-
-    if (d_isVerbose) { Q(STRING: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const JsonNumber& number) const
-{
-    (void) number;
-
-    const int value = bdljsn::JsonType::e_NUMBER + 1;
-
-    if (d_isVerbose) { Q(NUMBER: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const bool& boolean) const
-{
-    (void) boolean;
-
-    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
-
-    if (d_isVerbose) { Q(BOOLEAN: Returns);          }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorReturns<RETURN_TYPE>::operator()(const JsonNull& null) const
-{
-    (void) null;
-
-    const int value = bdljsn::JsonType::e_NULL + 1;
-
-    if (d_isVerbose) { Q(NULL: Returns);             }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return RETURN_TYPE();
-}
-
-    //---------------------------------------------------------------------
-    // class TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>
-    //---------------------------------------------------------------------
-
-// ACCESSOR
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                      JsonObject *object) const
-{
-    BSLS_ASSERT(object);
-
-    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
-
-    if (d_isVerbose) { P_(object) Q(OBJECT: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                        JsonArray *array) const
-{
-    BSLS_ASSERT(array);
-
-    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
-
-    if (d_isVerbose) { P_(array) Q(ARRAY: Returns);   }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                     bsl::string *string) const
-{
-    BSLS_ASSERT(string);
-
-    const int value = -(bdljsn::JsonType::e_STRING + 1);
-
-    if (d_isVerbose) { P_(string) Q(STRING: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                      JsonNumber *number) const
-{
-    BSLS_ASSERT(number);
-
-    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
-
-    if (d_isVerbose) { P_(number) Q(NUMBER: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                           bool *boolean) const
-{
-    BSLS_ASSERT(boolean);
-
-    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
-
-    if (d_isVerbose) { P_(boolean) Q(BOOLEAN: Returns); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                          JsonNull *null) const
-{
-    BSLS_ASSERT(null);
-
-    const int value = -(bdljsn::JsonType::e_NULL + 1);
-
-    if (d_isVerbose) { P_(null) Q(NULL: Returns);    }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                const JsonObject& object) const
-{
-    (void) object;
-
-    const int value = bdljsn::JsonType::e_OBJECT + 1;
-
-    if (d_isVerbose) { Q(OBJECT: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                  const JsonArray& array) const
-{
-    (void) array;
-
-    const int value = bdljsn::JsonType::e_ARRAY + 1;
-
-    if (d_isVerbose) { Q(ARRAY: Returns);            }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                               const bsl::string& string) const
-{
-    (void) string;
-
-    const int value = bdljsn::JsonType::e_STRING + 1;
-
-    if (d_isVerbose) { Q(STRING: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                const JsonNumber& number) const
-{
-    (void) number;
-
-    const int value = bdljsn::JsonType::e_NUMBER + 1;
-
-    if (d_isVerbose) { Q(NUMBER: Returns);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                     const bool& boolean) const
-{
-    (void) boolean;
-
-    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
-
-    if (d_isVerbose) { Q(BOOLEAN: Returns);          }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-template <>
-bsltf::NonDefaultConstructibleTestType
-TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
-                                                    const JsonNull& null) const
-{
-    (void) null;
-
-    const int value = bdljsn::JsonType::e_NULL + 1;
-
-    if (d_isVerbose) { Q(NULL: Returns);             }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return bsltf::NonDefaultConstructibleTestType(0);
-}
-
-                        // ==============================
-                        // class TestJsonVisitorManipAvec
-                        // ==============================
-
-class TestJsonVisitorManipAvec
-{
-    // This class defines 'operator()' overloads for the *manipulator*
-    // overloads of the 'Json' 'visitor' method.  These 'operator()' overloads
-    // have the 'const'-qualification ("avec") that prevents modifying the
-    // 'visitor' argument.
-
-    bsl::vector<int> *d_output_p;
-    bool              d_isVerbose;
-
-  public:
-    // CREATORS
-    explicit TestJsonVisitorManipAvec(bsl::vector<int> *output    = 0,
-                                      bool              isVerbose = false);
-        // Create a 'TestJsonVistorManipAces' object having all overloads
-        // required for the manipulator overloads of 'Json::visit'.  Optionally
-        // specify 'isVerbose' for the generation of trace statements to
-        // standard output.  Optionally specify 'output', a vector to which the
-        // returned value is pushed.  Note that 'output' is useful when the
-        // return type is 'void'.
-
-    // ACCESSORS
-    int operator()(JsonObject  *object ) const;
-    int operator()(JsonArray   *array  ) const;
-    int operator()(bsl::string *string ) const;
-    int operator()(JsonNumber  *number ) const;
-    int operator()(bool        *boolean) const;
-    int operator()(JsonNull    *null   ) const;
-        // Return '-(type() + 1)'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.
-};
-
-                        // ------------------------------
-                        // class TestJsonVisitorManipAvec
-                        // ------------------------------
-
-// CREATORS
-TestJsonVisitorManipAvec::TestJsonVisitorManipAvec(bsl::vector<int> *output,
-                                                   bool              isVerbose)
-: d_output_p(output)
-, d_isVerbose(isVerbose)
-{
-}
-
-// ACCESSOR
-int
-TestJsonVisitorManipAvec::operator()(JsonObject *object) const
-{
-    BSLS_ASSERT(object);
-
-    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
-
-    if (d_isVerbose) { P_(object) Q(OBJECT: ManipAvec); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipAvec::operator()(JsonArray *array) const
-{
-    BSLS_ASSERT(array);
-
-    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
-
-    if (d_isVerbose) { P_(array) Q(ARRAY: ManipAvec); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipAvec::operator()(bsl::string *string) const
-{
-    BSLS_ASSERT(string);
-
-    const int value = -(bdljsn::JsonType::e_STRING + 1);
-
-    if (d_isVerbose) { P_(string) Q(STRING: ManipAvec); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipAvec::operator()(JsonNumber *number) const
-{
-    BSLS_ASSERT(number);
-
-    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
-
-    if (d_isVerbose) { P_(number) Q(NUMER: ManipAvec); }
-    if (d_output_p)  { d_output_p->push_back(value);   }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipAvec::operator()(bool *boolean) const
-{
-    BSLS_ASSERT(boolean);
-
-    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
-
-    if (d_isVerbose) { P_(boolean) Q(BOOLEAN: ManipAvec); }
-    if (d_output_p)  { d_output_p->push_back(value);      }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipAvec::operator()(JsonNull *null) const
-{
-    BSLS_ASSERT(null);
-
-    const int value = -(bdljsn::JsonType::e_NULL + 1);
-
-    if (d_isVerbose) { P_(null) Q(NULL: ManipAvec);  }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-                        // ==============================
-                        // class TestJsonVisitorAccesAvec
-                        // ==============================
-
-class TestJsonVisitorAccesAvec
-{
-    // This class defines 'operator()' overloads for the *accessor* overloads
-    // of the 'Json' 'visitor' method.  These 'operator()' overloads have the
-    // 'const'-qualification ("avec") that prevents modifying the 'visitor'
-    // argument.
-
-    bsl::vector<int> *d_output_p;
-    bool              d_isVerbose;
-
-  public:
-    // CREATORS
-    explicit TestJsonVisitorAccesAvec(bsl::vector<int> *output    = 0,
-                                      bool              isVerbose = false) ;
-        // Create a 'TestJsonVistorManipAvec' object having all overloads
-        // required for the accessor overloads of 'Json::visit'.  Optionally
-        // specify 'isVerbose' for the generation of trace statements to
-        // standard output.  Optionally specify 'output', a vector to which the
-        // returned value is pushed.  Note that 'output' is useful when the
-        // return type is 'void'.
-
-    // ACCESSORS
-    int operator()(const JsonObject&  object ) const;
-    int operator()(const JsonArray&   array  ) const;
-    int operator()(const bsl::string& string ) const;
-    int operator()(const JsonNumber&  number ) const;
-    int operator()(const bool&        boolean) const;
-    int operator()(const JsonNull&    null   ) const;
-        // Return 'type() + 1'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.
-};
-
-                        // ------------------------------
-                        // class TestJsonVisitorAccesAvec
-                        // ------------------------------
-
-// CREATORS
-TestJsonVisitorAccesAvec::TestJsonVisitorAccesAvec(bsl::vector<int> *output,
-                                                   bool              isVerbose)
-: d_output_p(output)
-, d_isVerbose(isVerbose)
-{
-}
-
-// ACCESSORS
-int
-TestJsonVisitorAccesAvec::operator()(const JsonObject& object) const
-{
-    (void) object;
-
-    const int value = bdljsn::JsonType::e_OBJECT + 1;
-
-    if (d_isVerbose) { Q(OBJECT: AcessAvec);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesAvec::operator()(const JsonArray& array) const
-{
-    (void) array;
-
-    const int value = bdljsn::JsonType::e_ARRAY + 1;
-
-    if (d_isVerbose) { Q(ARRAY: AcessAvec);          }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesAvec::operator()(const bsl::string& string) const
-{
-    (void) string;
-
-    const int value = bdljsn::JsonType::e_STRING + 1;
-
-    if (d_isVerbose) { Q(STRING: AcessAvec);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesAvec::operator()(const JsonNumber& number) const
-{
-    (void) number;
-
-    const int value = bdljsn::JsonType::e_NUMBER + 1;
-
-    if (d_isVerbose) { Q(NUMBER: AcessAvec);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesAvec::operator()(const bool& boolean) const
-{
-    (void) boolean;
-
-    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
-
-    if (d_isVerbose) { Q(BOOLEAN: AcessAvec);        }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesAvec::operator()(const JsonNull& null) const
-{
-    (void) null;
-
-    const int value = bdljsn::JsonType::e_NULL + 1;
-
-    if (d_isVerbose) { Q(NULL: AcessAvec);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-                        // ==============================
-                        // class TestJsonVisitorManipSans
-                        // ==============================
-
-class TestJsonVisitorManipSans
-{
-    // This class defines 'operator()' overloads for the *manipulator*
-    // overloads of the 'Json' 'visitor' method.  These 'operator()' overloads
-    // lack 'const'-qualification ("sans") that prevents modifying the
-    // 'visitor' argument.
-
-    bsl::vector<int> *d_output_p;
-    bool              d_isVerbose;
-
-  public:
-    // CREATORS
-    explicit TestJsonVisitorManipSans(bsl::vector<int> *output    = 0,
-                                      bool              isVerbose = false);
-        // Create a 'TestJsonVistorManipSans' object having all overloads
-        // required for the manipulator overloads of 'Json::visit'.  Optionally
-        // specify 'isVerbose' for the generation of trace statements to
-        // standard output.  Optionally specify 'output', a vector to which the
-        // returned value is pushed.  Note that 'output' is useful when the
-        // return type is 'void'.
-
-    // ACCESSORS
-    int operator()(JsonObject  *object );
-    int operator()(JsonArray   *array  );
-    int operator()(bsl::string *string );
-    int operator()(JsonNumber  *number );
-    int operator()(bool        *boolean);
-    int operator()(JsonNull    *null   );
-        // Return '-(type() + 1)'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.
-};
-
-                        // ------------------------------
-                        // class TestJsonVisitorManipSans
-                        // ------------------------------
-
-// CREATORS
-TestJsonVisitorManipSans::TestJsonVisitorManipSans(bsl::vector<int> *output,
-                                                   bool              isVerbose)
-: d_output_p(output)
-, d_isVerbose(isVerbose)
-{
-}
-
-// ACCESSOR
-int
-TestJsonVisitorManipSans::operator()(JsonObject *object)
-{
-    BSLS_ASSERT(object);
-
-    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
-
-    if (d_isVerbose) { P_(object) Q(OBJECT: ManipSans); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipSans::operator()(JsonArray *array)
-{
-    BSLS_ASSERT(array);
-
-    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
-
-    if (d_isVerbose) { P_(array) Q(ARRAY: ManipSans); }
-    if (d_output_p)  { d_output_p->push_back(value);  }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipSans::operator()(bsl::string *string)
-{
-    BSLS_ASSERT(string);
-
-    const int value = -(bdljsn::JsonType::e_STRING + 1);
-
-    if (d_isVerbose) { P_(string) Q(STRING: ManipSans); }
-    if (d_output_p)  { d_output_p->push_back(value);    }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipSans::operator()(JsonNumber *number)
-{
-    BSLS_ASSERT(number);
-
-    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
-
-    if (d_isVerbose) { P_(number) Q(NUMER: ManipSans); }
-    if (d_output_p)  { d_output_p->push_back(value);   }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipSans::operator()(bool *boolean)
-{
-    BSLS_ASSERT(boolean);
-
-    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
-
-    if (d_isVerbose) { P_(boolean) Q(BOOLEAN: ManipSans); }
-    if (d_output_p)  { d_output_p->push_back(value);      }
-
-    return value;
-}
-
-int
-TestJsonVisitorManipSans::operator()(JsonNull *null)
-{
-    BSLS_ASSERT(null);
-
-    const int value = -(bdljsn::JsonType::e_NULL + 1);
-
-    if (d_isVerbose) { P_(null) Q(NULL: ManipSans);  }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-                        // ==============================
-                        // class TestJsonVisitorAccesSans
-                        // ==============================
-
-class TestJsonVisitorAccesSans
-{
-    // This class defines 'operator()' overloads for the *accessor* overloads
-    // of the 'Json' 'visitor' method.  These 'operator()' overloads lack
-    // 'const'-qualification ("sans") that prevents modifying the 'visitor'
-    // argument.
-
-    bsl::vector<int> *d_output_p;
-    bool              d_isVerbose;
-
-  public:
-    // CREATORS
-    explicit TestJsonVisitorAccesSans(bsl::vector<int> *output    = 0,
-                                      bool              isVerbose = false) ;
-        // Create a 'TestJsonVistorManipSans' object having all overloads
-        // required for the accessor overloads of 'Json::visit'.  Optionally
-        // specify 'isVerbose' for the generation of trace statements to
-        // standard output.  Optionally specify 'output', a vector to which the
-        // returned value is pushed.  Note that 'output' is useful when the
-        // return type is 'void'.
-
-    // ACCESSORS
-    int operator()(const JsonObject&  object );
-    int operator()(const JsonArray&   array  );
-    int operator()(const bsl::string& string );
-    int operator()(const JsonNumber&  number );
-    int operator()(const bool&        boolean);
-    int operator()(const JsonNull&    null   );
-        // Return 'type() + 1'.  The specified
-        // 'object/array/string/number/boolean/null' is ignored.
-};
-
-                        // ------------------------------
-                        // class TestJsonVisitorAccesSans
-                        // ------------------------------
-
-// CREATORS
-TestJsonVisitorAccesSans::TestJsonVisitorAccesSans(bsl::vector<int> *output,
-                                                   bool              isVerbose)
-: d_output_p(output)
-, d_isVerbose(isVerbose)
-{
-}
-
-// ACCESSORS
-int
-TestJsonVisitorAccesSans::operator()(const JsonObject& object)
-{
-    (void) object;
-
-    const int value = bdljsn::JsonType::e_OBJECT + 1;
-
-    if (d_isVerbose) { Q(OBJECT: AccesSans);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesSans::operator()(const JsonArray& array)
-{
-    (void) array;
-
-    const int value = bdljsn::JsonType::e_ARRAY + 1;
-
-    if (d_isVerbose) { Q(ARRAY: AccesSans);          }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesSans::operator()(const bsl::string& string)
-{
-    (void) string;
-
-    const int value = bdljsn::JsonType::e_STRING + 1;
-
-    if (d_isVerbose) { Q(STRING: AccesSans);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesSans::operator()(const JsonNumber& number)
-{
-    (void) number;
-
-    const int value = bdljsn::JsonType::e_NUMBER + 1;
-
-    if (d_isVerbose) { Q(NUMBER: AccesSans);         }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesSans::operator()(const bool& boolean)
-{
-    (void) boolean;
-
-    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
-
-    if (d_isVerbose) { Q(BOOLEAN: AccesSans);        }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-int
-TestJsonVisitorAccesSans::operator()(const JsonNull& null)
-{
-    (void) null;
-
-    const int value = bdljsn::JsonType::e_NULL + 1;
-
-    if (d_isVerbose) { Q(NULL: AccesSans);           }
-    if (d_output_p)  { d_output_p->push_back(value); }
-
-    return value;
-}
-
-                        // =========================
-                        // class TestJsonVisitorNoop
-                        // =========================
-
-template <class RETURN_TYPE>
-class TestJsonVisitorNoop
-{
-  public:
-    // ACCESSORS
-    template <class VALUE_TYPE>
-    RETURN_TYPE operator()(      VALUE_TYPE  *argument) const;
-        // Return 'RETURN_TYPE()'.  The specified 'argument' is ignored.
-
-    template <class VALUE_TYPE>
-    RETURN_TYPE operator()(const VALUE_TYPE&  argument) const;
-        // Return 'RETURN_TYPE()'.  The specified 'argument' is ignored.
-};
-
-                        // -------------------------
-                        // class TestJsonVisitorNoop
-                        // -------------------------
-
-template <class RETURN_TYPE>
-template <class  VALUE_TYPE>
-RETURN_TYPE TestJsonVisitorNoop<RETURN_TYPE>::operator()(
-                                                    VALUE_TYPE *argument) const
-{
-    (void) argument;
-    return RETURN_TYPE();
-}
-
-template <class RETURN_TYPE>
-template <class  VALUE_TYPE>
-RETURN_TYPE TestJsonVisitorNoop<RETURN_TYPE>::operator()(
-                                              const VALUE_TYPE& argument) const
-{
-    (void) argument;
-    return RETURN_TYPE();
-}
-
-                        // =========================
-                        // class TestJsonVisitorDoop
-                        // =========================
-
-template <class RETURN_TYPE>
-class TestJsonVisitorDoop : public TestJsonVisitorNoop<RETURN_TYPE>
-{
-  public:
-    // CREATORS
-    //! TestJsonVisitorDoop();
-       // Create a 'TestJsonVisitorDoop' object that defined all overloads
-       // required by both the accessor and manipulator overloads of
-       // 'Json::visit' where the two overloads:
-       //..
-       //  RETURN_TYPE operator()(JsonObject         *object ) const;
-       //  RETURN_TYPE operator()(const bsl::string&  string ) const;
-       //..
-       // have the same behavior as those of 'TestJsonVistor*' and all other
-       // overloads have the same behavior as those of 'TestJsonVisitorNoop'.
-
-    // ACCESSORS
-    using TestJsonVisitorNoop<RETURN_TYPE>::operator();
-
-    RETURN_TYPE operator()(JsonObject         *object ) const;
-        // Return 'RETURN_TYPE(-(type() + 1))'.  The specified 'object' is
-        // ignored.
-
-    RETURN_TYPE operator()(const bsl::string&  string ) const;
-        // Return 'RETURN_TYPE(type() + 1)'.  The specified 'string' is
-        // ignored.
-};
-
-                        // -------------------------
-                        // class TestJsonVisitorDoop
-                        // -------------------------
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorDoop<RETURN_TYPE>::operator()(JsonObject *object) const
-{
-    BSLS_ASSERT(object);
-    P_(object) Q(OBJECT);
-    return RETURN_TYPE(-1);
-}
-
-template <class RETURN_TYPE>
-RETURN_TYPE
-TestJsonVisitorDoop<RETURN_TYPE>::operator()(const bsl::string& string) const
-{
-    Q(STRING: const);  (void) string;
-    return RETURN_TYPE(3);
-}
-
-                        // ================================
-                        // class TestJsonVisitorSetStringOK
-                        // ================================
-
-class TestJsonVisitorSetStringOK: public TestJsonVisitorNoop<void> {
-
-  public:
-    // ACCESSORS
-    using TestJsonVisitorNoop<void>::operator();
-
-    void operator()(bsl::string *string) const
-        // Test the specified 'string' to a valid UTF-8 sequence.
-    {
-        BSLS_ASSERT(string);
-
-        string->assign("Hello world!!!!!");
-    }
-};
-
-                        // ================================
-                        // class TestJsonVisitorSetStringNG
-                        // ================================
-
-class TestJsonVisitorSetStringNG: public TestJsonVisitorNoop<void> {
-
-  public:
-    // ACCESSORS
-    using TestJsonVisitorNoop<void>::operator();
-
-    void operator()(bsl::string *string) const
-        // Set the specified 'string' to an invalid UTF-8 sequence copied from
-        // 'bdlde_utf8util.t.cpp'.
-    {
-        BSLS_ASSERT(string);
-
-        string->assign("\xf0\x80\x80\x80");
-    }
-};
-
-                        // ===========================
-                        // class TestJsonVisitorSetGet
-                        // ===========================
-
-class TestJsonVisitorSetGet
-{
-  public:
-    // ACCESSORS
-    void operator()(JsonObject  *object ) const;
-    void operator()(JsonArray   *array  ) const;
-    void operator()(bsl::string *string ) const;
-    void operator()(JsonNumber  *number ) const;
-    void operator()(bool        *boolean) const;
-    void operator()(JsonNull    *null   ) const;
-        // Test whether or not the value of the specified
-        // 'object'/'array'/'string'/'number'/'boolean'/'null' is the default
-        // value for for the corresponding 'type()' of the 'Json' object and
-        // then set that value to the value obtained from
-        // 'JsonValueConstructorHelper'.
-
-    void operator()(const JsonObject&  object ) const;
-    void operator()(const JsonArray&   array  ) const;
-    void operator()(const bsl::string& string ) const;
-    void operator()(const JsonNumber&  number ) const;
-    void operator()(const bool&        boolean) const;
-    void operator()(const JsonNull&    null   ) const;
-        // Test whether or not the value of the specified
-        // 'object'/'array'/'string'/'number'/'boolean'/'null' has the same
-        // value as that obtained from 'JsonValueConstructorHelper' for the
-        // 'type()' of the 'Json' object.
-};
-
-                        // ---------------------------
-                        // class TestJsonVisitorSetGet
-                        // ---------------------------
-
-// ACCESSORS
-void TestJsonVisitorSetGet::operator()(JsonObject *object) const
-{
-    BSLS_ASSERT(object);
-    ASSERTV(*object, JsonObject() == *object);
-    *object = JsonValueConstructorHelper<JsonObject>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(JsonArray *array) const
-{
-    BSLS_ASSERT(array);
-    ASSERTV(*array, JsonArray() == *array);
-    *array = JsonValueConstructorHelper<JsonArray>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(bsl::string *string) const
-{
-    BSLS_ASSERT(string);
-    ASSERTV(*string, bsl::string() == *string);
-    *string = JsonValueConstructorHelper<bsl::string>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(JsonNumber *number) const
-{
-    BSLS_ASSERT(number);
-    ASSERTV(*number, JsonNumber() == *number);
-    *number = JsonValueConstructorHelper<JsonNumber>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(bool *boolean) const
-{
-    BSLS_ASSERT(boolean);
-    ASSERTV(*boolean, bool() == *boolean);
-    *boolean = JsonValueConstructorHelper<bool>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(JsonNull *null) const
-{
-    BSLS_ASSERT(null);
-    ASSERTV(*null, JsonNull() == *null);
-    *null = JsonValueConstructorHelper<JsonNull>::getValue();
-}
-
-void TestJsonVisitorSetGet::operator()(const JsonObject& object) const
-{
-    ASSERTV(object,   JsonValueConstructorHelper<JsonObject>::getValue(),
-            object == JsonValueConstructorHelper<JsonObject>::getValue());
-}
-
-void TestJsonVisitorSetGet::operator()(const JsonArray& array) const
-{
-    ASSERTV(array,   JsonValueConstructorHelper<JsonArray>::getValue(),
-            array == JsonValueConstructorHelper<JsonArray>::getValue());
-}
-
-void TestJsonVisitorSetGet::operator()(const bsl::string& string) const
-{
-    ASSERTV(string,   JsonValueConstructorHelper<bsl::string>::getValue(),
-            string == JsonValueConstructorHelper<bsl::string>::getValue());
-}
-
-void TestJsonVisitorSetGet::operator()(const JsonNumber& number) const
-{
-    ASSERTV(number,   JsonValueConstructorHelper<JsonNumber>::getValue(),
-            number == JsonValueConstructorHelper<JsonNumber>::getValue());
-}
-
-void TestJsonVisitorSetGet::operator()(const bool& boolean) const
-{
-    ASSERTV(boolean,   JsonValueConstructorHelper<bool>::getValue(),
-            boolean == JsonValueConstructorHelper<bool>::getValue());
-}
-
-void TestJsonVisitorSetGet::operator()(const JsonNull& null) const
-{
-    ASSERTV(null,   JsonValueConstructorHelper<JsonNull>::getValue(),
-            null == JsonValueConstructorHelper<JsonNull>::getValue());
-}
-
-                        // ===================
-                        // struct TestTemplate
-                        // ===================
-
-template <class RETURN_TYPE>
-struct TestTemplate {
-    static void testCase45(bool isVerbose = false);
-        // Test 'visit' with a spectrum of 'return' types.  Optionally specify
-        // 'isVerbose' to generate trace statements to standard output.
-};
-
-                        // -------------------
-                        // struct TestTemplate
-                        // -------------------
-
-template <class RETURN_TYPE>
-void TestTemplate<RETURN_TYPE>::testCase45(bool isVerbose)
-{
-    if (isVerbose) {
-        P(bsls::NameOf<RETURN_TYPE>());
-    }
-
-    bsl::vector<int> expected; const bsl::vector<int>& Expected = expected;
-
-    expected.push_back(-1);
-    expected.push_back(-2);
-    expected.push_back(-3);
-    expected.push_back(-4);
-    expected.push_back(-5);
-    expected.push_back(-6);
-    expected.push_back( 1);
-    expected.push_back( 2);
-    expected.push_back( 3);
-    expected.push_back( 4);
-    expected.push_back( 5);
-    expected.push_back( 6);
-
-    ASSERTV(Expected.size(), 12 == Expected.size());
-
-#define TEST(RETURN_TYPE, VISITOR)                                            \
-    {                                                                         \
-        typedef bdljsn::Json Obj;                                             \
-        Obj mX; const Obj& X = mX;                                            \
-                                                                              \
-        mX.makeObject();   mX.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeArray();    mX.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeString(""); mX.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeNumber();   mX.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeBoolean();  mX.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeNull();     mX.visit<RETURN_TYPE>(VISITOR);                    \
-                                                                              \
-        mX.makeObject();    X.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeArray();     X.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeString("");  X.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeNumber();    X.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeBoolean();   X.visit<RETURN_TYPE>(VISITOR);                    \
-        mX.makeNull();      X.visit<RETURN_TYPE>(VISITOR);                    \
-    }
-
-    bsl::vector<int>                    output;
-    TestJsonVisitorReturns<RETURN_TYPE> tjvReturns(&output);
-
-    TEST(RETURN_TYPE, tjvReturns)                                       // TEST
-
-    ASSERTV(output.size(), 12 == output.size());
-    ASSERTV(Expected == output);
-
-    if (isVerbose) {
-        for (int i = 0 ; i < 12; ++i) {
-            P_(i) P_(Expected[i]); P(output[i])
-        }
-    }
-
-    output.resize(0);
-    ASSERTV(output.size(),  0 == output.size());
-
-    TEST(RETURN_TYPE, bslmf::MovableRefUtil::move(tjvReturns));         // TEST
-
-    ASSERTV(output.size(), 12 == output.size());
-    ASSERTV(Expected == output);
-
-    if (isVerbose) {
-        for (int i = 0 ; i < 12; ++i) {
-            P_(i) P_(Expected[i]); P(output[i])
-        }
-    }
-
-    output.resize(0);
-    ASSERTV(output.size(),  0 == output.size());
-#undef TEST
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#define TEST(VISITOR)                                                         \
-    {                                                                         \
-        typedef bdljsn::Json Obj;                                             \
-        Obj mX; const Obj& X = mX;                                            \
-                                                                              \
-        mX.makeObject();   mX.visit(VISITOR);                                 \
-        mX.makeArray();    mX.visit(VISITOR);                                 \
-        mX.makeString(""); mX.visit(VISITOR);                                 \
-        mX.makeNumber();   mX.visit(VISITOR);                                 \
-        mX.makeBoolean();  mX.visit(VISITOR);                                 \
-        mX.makeNull();     mX.visit(VISITOR);                                 \
-                                                                              \
-        mX.makeObject();    X.visit(VISITOR);                                 \
-        mX.makeArray();     X.visit(VISITOR);                                 \
-        mX.makeString("");  X.visit(VISITOR);                                 \
-        mX.makeNumber();    X.visit(VISITOR);                                 \
-        mX.makeBoolean();   X.visit(VISITOR);                                 \
-        mX.makeNull();      X.visit(VISITOR);                                 \
-    }
-
-    TestJsonVisitorReturns<RETURN_TYPE> tjvReturnsDeduced(&output);
-
-    TEST(tjvReturnsDeduced)                                             // TEST
-
-    ASSERTV(output.size(), 12 == output.size());
-    ASSERTV(Expected == output);
-
-    if (isVerbose) {
-        for (int i = 0 ; i < 12; ++i) {
-            P_(i) P_(Expected[i]); P(output[i])
-        }
-    }
-
-    output.resize(0);
-    ASSERTV(output.size(),  0 == output.size());
-
-    TEST(bslmf::MovableRefUtil::move(tjvReturnsDeduced));               // TEST
-
-    ASSERTV(output.size(), 12 == output.size());
-    ASSERTV(Expected == output);
-
-    if (isVerbose) {
-        for (int i = 0 ; i < 12; ++i) {
-            P_(i) P_(Expected[i]); P(output[i])
-        }
-    }
-
-    output.resize(0);
-    ASSERTV(output.size(),  0 == output.size());
-#undef TEST
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-}
-
-// ============================================================================
-//                               USAGE EXAMPLES
-// ----------------------------------------------------------------------------
-
-bdljsn::Json example1(bslma::Default::globalAllocator());
-bdljsn::Json example2(bslma::Default::globalAllocator());
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-// BDE_VERIFY pragma: -FD01 'operator()' overloads do not have contracts
-
-namespace Example3 {
-//
-///Example 3: Using the 'visit' Method to Traverse a 'Json' Object
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'Json' class provides the (overloaded) 'visit' method that invokes a
-// user-supplied "visitor" functor according to the current 'type()' of the
-// 'Json' object.
-//
-// For example, suppose one needs to survey the structure of the 'Json' object
-// created in {Example 1} (and again in {Example 2}) and, in doing so, compile
-// a tally of each of each of the 'Json' sub-objects and their their types
-// (i.e., object, array, string, ...).
-//
-// First, we define a compliant visitor class, 'TallyByTypeVisitor':
-//..
-                                // ==================
-                                // TallyByTypeVisitor
-                                // ==================
-
-    class TallyByTypeVisitor {
-
-        int d_tally[6];
-
-      public:
-        // CREATORS
-        explicit TallyByTypeVisitor();
-            // Create a 'TallyByTypeVisitor' object that when passed to the
-            // 'Json::visit' method will increment the specified 'tally' array
-            // according to 'type()' and visit subordinate 'Json' objects, if
-            // any.  The behavior is undefined unless 'tally' has at least
-            // 6 elements.
-
-        // ACCESSORS
-        void operator()(const JsonObject& object);
-            // Increment the element corresponding to object in the tally array
-            // supplied at construction and visit the value of each member of
-            // the specified 'object'.
-
-        void operator()(const JsonArray& array);
-            // Increment the element corresponding to array in the tally array
-            // supplied at construction and visit each element of the specified
-            // 'array'.
-
-        void operator()(const bsl::string& string );
-        void operator()(const JsonNumber&  number );
-        void operator()(const bool&        boolean);
-        void operator()(const JsonNull&    null   );
-            // Increment the element corresponding to
-            // string/number/boolean/null in the tally array supplied at
-            // construction.  Ignore the specified
-            // 'string'/'number'/'boolean'/'null'.
-
-        const int *tally() const;
-            // Return the address of an array of 6 elements containing the
-            // tally by type.  The array is ordered according to
-            // 'JsonType::Enum'.
-    };
-//..
-// Notice that we have no need to change the value of the examined 'Json'
-// objects so we use a set of 'operator()' overloads compatible with the
-// 'visit' accessor method.  Accordingly, we careful below to use this visitor
-// only with 'const'-qualified 'Json' objects
-//
-// Then, we define the constructor and the six 'operator()' overloads.  In each
-// overload by type we increment the appropriate element in the user-supplied
-// array of integers.
-//..
-                                // ------------------
-                                // TallyByTypeVisitor
-                                // ------------------
-
-    // CREATORS
-    TallyByTypeVisitor::TallyByTypeVisitor()
-    {
-        d_tally[bdljsn::JsonType::e_OBJECT ] =
-        d_tally[bdljsn::JsonType::e_ARRAY  ] =
-        d_tally[bdljsn::JsonType::e_STRING ] =
-        d_tally[bdljsn::JsonType::e_NUMBER ] =
-        d_tally[bdljsn::JsonType::e_BOOLEAN] =
-        d_tally[bdljsn::JsonType::e_NULL   ] = 0;
-    }
-
-    // ACCESSORS
-    void TallyByTypeVisitor::operator()(const bsl::string& string)
-    {
-        (void) string;
-        ++d_tally[bdljsn::JsonType::e_STRING];
-    }
-
-    void TallyByTypeVisitor::operator()(const JsonNumber& number)
-    {
-        (void) number;
-        ++d_tally[bdljsn::JsonType::e_NUMBER];
-    }
-
-    void TallyByTypeVisitor::operator()(const bool& boolean)
-    {
-        (void) boolean;
-        ++d_tally[bdljsn::JsonType::e_BOOLEAN];
-    }
-
-    void TallyByTypeVisitor::operator()(const JsonNull& null)
-    {
-        (void) null;
-        ++d_tally[bdljsn::JsonType::e_NULL];
-    }
-//..
-// Next, we define the visitor overload for array types.  After incrementing
-// the tally array we pass this same visitor object to the 'Json' object in the
-// array so those objects are included in the tally.
-//..
-    void TallyByTypeVisitor::operator()(const JsonArray& array)
-    {
-         ++d_tally[bdljsn::JsonType::e_ARRAY];
-
-        typedef JsonArray::ConstIterator ConstItr;
-
-        for (ConstItr cur  = array.cbegin(),
-                      end  = array.cend();
-                      end != cur; ++cur) {
-            const Json constElement = *cur;
-            constElement.visit<void>(*this);
-        }
-    }
-
-    const int *TallyByTypeVisitor::tally() const
-    {
-        return d_tally;
-    }
-//..
-// Notice that 'element' is 'const'-qualified so the accessor 'visit' method is
-// invoked.
-//
-// Then, we implement the visitor overload for the object type.  Examination
-// of the object produces a sequence of name-value pairs where the 'second'
-// part is a 'Json' object that we must visit.
-//..
-    void TallyByTypeVisitor::operator()(const JsonObject& object)
-    {
-         ++d_tally[bdljsn::JsonType::e_OBJECT];
-
-        typedef JsonObject::ConstIterator ConstItr;
-
-        for (ConstItr cur  = object.cbegin(),
-                      end  = object.cend();
-                      end != cur; ++cur) {
-            const bsl::pair<const bsl::string, Json> member = *cur;
-            const Json&                              json   = member.second;
-            json.visit<void>(*this);
-        }
-    }
-//..
-// Again, notice that this visitor is used as an argument to a
-// 'const'-qualified 'Json' object.
-//
-// Finally, we make a survey of the 'Json' object created in {Example 1} (and
-// duplicated in {Example 2}).  From visual inspection of the source JSON
-// document we expect 10 'Json' objects distributed thus:
-//
-//: o Object
-//:   1 top-level of the document is an object
-//:   2 '{"boolean": false }', interior object
-//:
-//: o Array
-//:   1 '[2.76, true]'
-//:
-//: o String
-//:   1 '"text"'
-//:
-//: o Number
-//:   1 '2.76'
-//:   2 '3.14'
-//:
-//: o Boolean
-//:   1 'false', from the internal object
-//:   2 'true', from the array
-//:   3 'true', from top-level object
-//:
-//: o Null
-//:   1 null
-//
-// Use of our visitor functor on 'example1' confirms these observations:
-//..
-    int main()
-    {
-        TallyByTypeVisitor visitor;
-
-        const Json& constExample1 = example1;
-
-        constExample1.visit<void>(&visitor);
-
-        const int *const tally = visitor.tally();
-
-        ASSERT(2 == tally[bdljsn::JsonType::e_OBJECT ]);
-        ASSERT(1 == tally[bdljsn::JsonType::e_ARRAY  ]);
-        ASSERT(1 == tally[bdljsn::JsonType::e_STRING ]);
-        ASSERT(2 == tally[bdljsn::JsonType::e_NUMBER ]);
-        ASSERT(3 == tally[bdljsn::JsonType::e_BOOLEAN]);
-        ASSERT(1 == tally[bdljsn::JsonType::e_NULL   ]);
-
-        return 0;
-    }
-//..
-
-}  // close namespace Example3
-
-// BDE_VERIFY pragma: +FD01 'operator()' overloads do not have contracts
-
-#endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 using namespace BloombergLP;
 
-typedef bsls::Types:: Int64  Int64;
+typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
 int main(int argc, char *argv[])
@@ -6339,1259 +3850,6 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 47: {
-        // --------------------------------------------------------------------
-        // TEST: 'visit'
-        //
-        // Concerns:
-        //: 1 Each 'visit' overload dispatches to the intended 'operator()'
-        //:   overload of the supplied 'visitor'.
-        //:
-        //: 2 The accessor overloads of 'visit' allow the 'visitor' to access
-        //:   the 'Json' value.  The manipulator overloads of 'visit' allow the
-        //:   'visitor' to access *and* change the value of the 'Json' object.
-        //:
-        //:   o Caveat: When 'isNull()' the value cannot be changed because the
-        //:     null value is a singleton.
-        //:
-        //: 3 The return type of the 'visitor' can be 'void', can be any
-        //:   primitive type, and can even be "exotic" types having "odd"
-        //:   behaviors.
-        //:
-        //: 4 Each 'visit' overload behaves identically whether the 'visitor'
-        //:   is supplied as an lvalue or an rvalue.
-        //:
-        //: 5 Each 'visit' overload behaves identically whether the return type
-        //:   of the is specified explicitly or, for C++14 or later, that
-        //:   return type is deduced.
-        //:
-        //: 6 The supplied visitor object can have overloads for both the
-        //:   accessor and manipulator overloads of 'visit' without interfering
-        //:   with each other.
-        //:
-        //: 7 The 'visitor' can be passed as a 'const' reference -- assuming
-        //:   its overloads are also 'const' qualified -- or, for C++11 or
-        //:   later, by address or by a non-'const' reference.
-        //:
-        //: 8 QoI: The expected behavior is observed when a
-        //:   manipulator-compliant 'visitor' is passed to an accessor 'visit'
-        //:   overload: All calls are dispatched to the 'operator()' that
-        //:   accepts a 'bool' (since all pointers can be converted to a
-        //:   'bool').
-        //:
-        //: 9 QoI: Asserted precondition violations are detected when enabled.
-        //:
-        //:   o The 'visitor' overload having the signature
-        //:     'operator()(bsl::string *string)' must preserve the UTF-8
-        //:     correctness of the JSON string.
-        //
-        // Plan:
-        //: 1 Each test will be exercised in the following variations:
-        //
-        //:   1 Once in which the 'visitor' is passed as an lvalue and again
-        //:     with the visitor passed as an rvalue.
-        //:
-        //:   2 Similarly, each test is repeated with a the return type
-        //:     explicitly specified and (for C++14 and later) with that type
-        //:     deduced.
-        //:
-        //: 2 Define four test classes:
-        //:   o  'TestJsonVisitorManipAvec'
-        //:   o  'TestJsonVisitorManipSans'
-        //:   o  'TestJsonVisitorAccesAvec'
-        //:   o  'TestJsonVisitorAccesSans'
-        //:
-        //:   o Each test class return a distinctive value for each overload
-        //:     and confirm that the intended overload was called for the
-        //:     current 'type()' of the 'Json' object.
-        //
-        //:   o The two test classes with 'Manip' in their name have overloads
-        //:     that accept pointers to the 'Json' value whereas the the two
-        //:     test classes with 'Acces' in their name have overloads that
-        //:     accept 'const'-references to those values.
-        //:
-        //:   o The two test classes with 'Avec' in their name have overloads
-        //:     that are 'const' qualified whereas the two test classes that
-        //:     have 'Sans' in their name have overloads that are not
-        //:     'const' qualified.
-        //:
-        //: 3 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' is used to exercise
-        //:   each 'visit' overload with a while assortment of 'return' types
-        //:   -- including 'void'.  Since 'void' disallows the use of a return
-        //:   value to confirm correct dispatch, 'TestJsonVisitorReturns<RT>'
-        //:   uses an output vector instead.  Also, that test visitor has
-        //:   overloads for both the manipulator and visitor overloads of
-        //:   'visit' thereby showing that the implementation always calls the
-        //:   correct visitor overload.
-        //:
-        //: 4 Use the 'TestJsonVisitorSetGet' class to confirm that for each
-        //:   'Json' object type:
-        //:
-        //:   1 The manipulator 'visit' sees the expected value (the default)
-        //:     and can change that value (to a value obtained from the
-        //:     'JsonValueConstructorHelper'.
-        //:
-        //:   2 The accessor 'visit' overload sees that changed value.
-        //:
-        //: 5 Confirm that 'TestJsonVisitorNoop', a helper class needed
-        //:   for the negative test, works as expected.
-        //:
-        //: 6 QoI: Precondition violations are detected when enabled.
-        //:
-        //:   1 Use helper classes 'TestJsonVisitorSetStringOK' and
-        //:     'TestJsonVisitorSetStringNG' in concert wit the
-        //:     'BSLS_ASSERTTEST_*' macros.
-        //
-        // Testing:
-        //   template RT             visit<RT>(FORWARD_REF visitor);
-        //   template RT             visit<RT>(FORWARD_REF visitor) const;
-        //   template decltype(auto) visit    (FORWARD_REF visitor);
-        //   template decltype(auto) visit    (FORWARD_REF visitor) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TEST: 'visit'" << endl
-                          << "=============" << endl;
-
-        if (veryVerbose) cout <<
-                  "Test dispatch to correct overload per 'const'-ness combos."
-                                                                       << endl;
-        {
-#define TEST(RT, vMANIP, vACCES)                                              \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();   ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -1 == ret);   \
-    mX.makeArray();    ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -2 == ret);   \
-    mX.makeString(""); ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -3 == ret);   \
-    mX.makeNumber();   ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -4 == ret);   \
-    mX.makeBoolean();  ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -5 == ret);   \
-    mX.makeNull();     ret = mX.visit<RT>(vMANIP); ASSERTV(ret, -6 == ret);   \
-                                                                              \
-    mX.makeObject();   ret =  X.visit<RT>(vACCES); ASSERTV(ret,  1 == ret);   \
-    mX.makeArray();    ret =  X.visit<RT>(vACCES); ASSERTV(ret,  2 == ret);   \
-    mX.makeString(""); ret =  X.visit<RT>(vACCES); ASSERTV(ret,  3 == ret);   \
-    mX.makeNumber();   ret =  X.visit<RT>(vACCES); ASSERTV(ret,  4 == ret);   \
-    mX.makeBoolean();  ret =  X.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeNull();     ret =  X.visit<RT>(vACCES); ASSERTV(ret,  6 == ret);   \
-}
-            TestJsonVisitorManipAvec tjvManipAvec;
-            TestJsonVisitorAccesAvec tjvAccesAvec;
-
-            TEST(int,                             tjvManipAvec,
-                                                  tjvAccesAvec);
-            TEST(int, bslmf::MovableRefUtil::move(tjvManipAvec),
-                      bslmf::MovableRefUtil::move(tjvAccesAvec));
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            TestJsonVisitorManipSans tjvManipSans;
-            TestJsonVisitorAccesSans tjvAccesSans;
-
-            TEST(int,                              tjvManipSans,
-                                                   tjvAccesSans);
-            TEST(int, bslmf::MovableRefUtil::move( tjvManipSans),
-                      bslmf::MovableRefUtil::move( tjvAccesSans));
-
-            TEST(int,                              tjvManipSans,
-                                                   tjvAccesSans);
-            TEST(int, bslmf::MovableRefUtil::move(&tjvManipSans),
-                      bslmf::MovableRefUtil::move(&tjvAccesSans));
-#endif
-#undef TEST
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#define TEST(RT, vMANIP, vACCES)                                              \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();       ret = mX.visit(vMANIP); ASSERTV(ret, -1 == ret);   \
-    mX.makeArray();        ret = mX.visit(vMANIP); ASSERTV(ret, -2 == ret);   \
-    mX.makeString("");     ret = mX.visit(vMANIP); ASSERTV(ret, -3 == ret);   \
-    mX.makeNumber();       ret = mX.visit(vMANIP); ASSERTV(ret, -4 == ret);   \
-    mX.makeBoolean();      ret = mX.visit(vMANIP); ASSERTV(ret, -5 == ret);   \
-    mX.makeNull();         ret = mX.visit(vMANIP); ASSERTV(ret, -6 == ret);   \
-                                                                              \
-    mX.makeObject();       ret =  X.visit(vACCES); ASSERTV(ret,  1 == ret);   \
-    mX.makeArray();        ret =  X.visit(vACCES); ASSERTV(ret,  2 == ret);   \
-    mX.makeString("");     ret =  X.visit(vACCES); ASSERTV(ret,  3 == ret);   \
-    mX.makeNumber();       ret =  X.visit(vACCES); ASSERTV(ret,  4 == ret);   \
-    mX.makeBoolean();      ret =  X.visit(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeNull();         ret =  X.visit(vACCES); ASSERTV(ret,  6 == ret);   \
-}
-            TestJsonVisitorManipAvec tjvManipAvecDeduce;
-            TestJsonVisitorAccesAvec tjvAccesAvecDeduce;
-
-            TEST(int,                             tjvManipAvecDeduce,
-                                                  tjvAccesAvecDeduce);
-            TEST(int, bslmf::MovableRefUtil::move(tjvManipAvecDeduce),
-                      bslmf::MovableRefUtil::move(tjvAccesAvecDeduce));
-#undef TEST
-#endif
-        }
-
-        if (veryVerbose) cout << "Test assorted 'return' types." << endl;
-        {
-            BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
-                                    TestTemplate,
-                                    testCase45,
-                                    void,  // Be sure 'void' is tested.
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
-        }
-
-        if (veryVerbose) cout << "Test setting and getting values" << endl;
-        {
-#define TEST(VISITOR)                                                         \
-    {                                                                         \
-        typedef bdljsn::Json Obj;                                             \
-        Obj mX; const Obj& X = mX;                                            \
-                                                                              \
-        mX.makeObject();   mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-        mX.makeArray();    mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-        mX.makeString(""); mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-        mX.makeNumber();   mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-        mX.makeBoolean();  mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-        mX.makeNull();     mX.visit<void>(VISITOR);  X.visit<void>(VISITOR);  \
-    }
-            TestJsonVisitorSetGet tjvSetGet;
-
-            TEST(                            tjvSetGet );
-            TEST(bslmf::MovableRefUtil::move(tjvSetGet));
-#undef TEST
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#define TEST(VISITOR)                                                         \
-    {                                                                         \
-        typedef bdljsn::Json Obj;                                             \
-        Obj mX; const Obj& X = mX;                                            \
-                                                                              \
-        mX.makeObject();   mX.visit(VISITOR);  X.visit(VISITOR);              \
-        mX.makeArray();    mX.visit(VISITOR);  X.visit(VISITOR);              \
-        mX.makeString(""); mX.visit(VISITOR);  X.visit(VISITOR);              \
-        mX.makeNumber();   mX.visit(VISITOR);  X.visit(VISITOR);              \
-        mX.makeBoolean();  mX.visit(VISITOR);  X.visit(VISITOR);              \
-        mX.makeNull();     mX.visit(VISITOR);  X.visit(VISITOR);              \
-    }                                                                         \
-
-            TestJsonVisitorSetGet            tjvSetGetDeduce;
-            TEST(                            tjvSetGetDeduce );
-            TEST(bslmf::MovableRefUtil::move(tjvSetGetDeduce));
-
-#undef TEST
-#endif
-        }
-
-        if (veryVerbose) cout << "Test mismatch scenario." << endl;
-        {
-            // The "mismatch" scenario -- using a visitor intended for a
-            // 'const' object on a non-'const' object is deemed undefined
-            // behavior but well understood and is here tested.  Failure here
-            // would be indicative of a significant implementation change.
-
-#define TEST_MISMATCH(RT, vACCES)                                             \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX;                                                                   \
-                                                                              \
-    int ret;                                                                  \
-                                                                              \
-    mX.makeObject();   ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeArray();    ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeString(""); ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeNumber();   ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeBoolean();  ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-    mX.makeNull();     ret = mX.visit<RT>(vACCES); ASSERTV(ret,  5 == ret);   \
-}
-            TestJsonVisitorAccesAvec tjvAccesAvec;
-
-            TEST_MISMATCH(int,                             tjvAccesAvec) ;
-            TEST_MISMATCH(int, bslmf::MovableRefUtil::move(tjvAccesAvec));
-        }
-
-        if (veryVerbose) cout << "Test '*Noop' helper class" << endl;
-        {
-#define TEST(RT, VISITOR)                                                     \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();   ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeArray();    ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString(""); ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNumber();   ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();  ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();     ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-                                                                              \
-    mX.makeObject();   ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeArray();    ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString(""); ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNumber();   ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();  ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();     ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-}
-            TestJsonVisitorNoop<double>              tjvNoop;
-            TEST(double,                             tjvNoop );
-            TEST(double, bslmf::MovableRefUtil::move(tjvNoop));
-
-#undef TEST
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#define TEST(RT, VISITOR)                                                     \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();  ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeArray();   ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeString("");ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeNumber();  ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeBoolean(); ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeNull();    ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-                                                                              \
-    mX.makeObject();  ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeArray();   ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeString("");ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeNumber();  ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeBoolean(); ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-    mX.makeNull();    ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);       \
-}
-            TestJsonVisitorNoop<double>              tjvNoopDeduce;
-            TEST(double,                             tjvNoopDeduce );
-            TEST(double, bslmf::MovableRefUtil::move(tjvNoopDeduce));
-
-#undef TEST
-#endif
-        }
-
-        if (veryVerbose) cout << "Test '*Doop' helper class" << endl;
-        {
-#define TEST(RT, VISITOR)                                                     \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();   ret = mX.visit<RT>(VISITOR); ASSERTV(ret, -1 == ret);  \
-                                                              /* ^^ */        \
-    mX.makeArray();    ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString(""); ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNumber();   ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();  ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();     ret = mX.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-                                                                              \
-    mX.makeObject();   ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeArray();    ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString(""); ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  3 == ret);  \
-                                                               /* ^ */        \
-    mX.makeNumber();   ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();  ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();     ret =  X.visit<RT>(VISITOR); ASSERTV(ret,  0 == ret);  \
-}
-            TestJsonVisitorDoop<short>              tjvDoop;
-
-            TEST(short,                             tjvDoop );
-            TEST(short, bslmf::MovableRefUtil::move(tjvDoop));
-#undef TEST
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#define TEST(RT, VISITOR)                                                     \
-{                                                                             \
-    typedef bdljsn::Json Obj;                                                 \
-    Obj mX; const Obj& X = mX;                                                \
-                                                                              \
-    RT ret;                                                                   \
-                                                                              \
-    mX.makeObject();       ret = mX.visit(VISITOR); ASSERTV(ret, -1 == ret);  \
-                                                              /* ^^ */        \
-    mX.makeArray();        ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString("");     ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNumber();       ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();      ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();         ret = mX.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-                                                                              \
-    mX.makeObject();       ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeArray();        ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeString("");     ret =  X.visit(VISITOR); ASSERTV(ret,  3 == ret);  \
-                                                               /* ^ */        \
-    mX.makeNumber();       ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeBoolean();      ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-    mX.makeNull();         ret =  X.visit(VISITOR); ASSERTV(ret,  0 == ret);  \
-}
-            TestJsonVisitorDoop<short>              tjvDoopDeduce;
-
-            TEST(short,                             tjvDoopDeduce );
-            TEST(short, bslmf::MovableRefUtil::move(tjvDoopDeduce));
-#undef TEST
-#endif
-        }
-
-        if (veryVerbose) cout << "Negative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            typedef bdljsn::Json Obj;
-            Obj obj;
-
-            obj.makeString("");
-
-            TestJsonVisitorSetStringOK tjvSetStringOK;
-            TestJsonVisitorSetStringNG tjvSetStringNG;
-
-            ASSERT_PASS(obj.visit<void>(tjvSetStringOK));
-            ASSERT_FAIL(obj.visit<void>(tjvSetStringNG));
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-            TestJsonVisitorSetStringOK tjvSetStringOKdeduce;
-            TestJsonVisitorSetStringNG tjvSetStringNGdeduce;
-
-            ASSERT_PASS(obj.visit(tjvSetStringOKdeduce));
-            ASSERT_FAIL(obj.visit(tjvSetStringNGdeduce));
-#endif
-        }
-      } break;
-      case 46: {
-        // --------------------------------------------------------------------
-        // TESTING CONSUMPTION OF JSON_INITIALIZER
-        //
-        // Concerns:
-        //: 1 Each constructor captures the (single) parameter and stores it
-        //:   into the variant.
-        //:
-        // Plan:
-        //: 1 Construct a series of 'Json_Initializer' objects, and confirm
-        //:   that the type and the value for each one is as expected.
-        //
-        // Testing:
-        //   Json(const Json_Initializer, bslma::Allocator *);
-        //   JsonArray::pushBack(Json_Initializer init);
-        //   JsonObject::insert(string_view, Json_Initializer init);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING CONSUMPTION OF JSON_INITIALIZER" << endl
-                          << "=======================================" << endl;
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-        {
-            Json j1 = {
-                "Hello, World!",
-                42,
-                JsonArray { "some", "elements", "in", "an", "array" },
-                JsonObject { {"key1", "value1"}, {"key2", 42 } }
-            };
-
-            ASSERT(j1.isArray());
-            const JsonArray &j1Arr = j1.theArray();
-
-            ASSERT(4 == j1Arr.size());
-            ASSERT(j1Arr[0].isString());
-            ASSERT(j1Arr[1].isNumber());
-            ASSERT(j1Arr[2].isArray());
-            ASSERT(j1Arr[3].isObject());
-            ASSERT(2 == j1Arr[3].theObject().size());
-
-            Json j2({
-                "Hello, World!",
-                42,
-                JsonArray { "some", "elements", "in", "an", "array" },
-                JsonObject { {"key1", "value1"}, {"key2", 42 } }
-            });
-
-            ASSERT(j2.isArray());
-            const JsonArray &j2Arr = j2.theArray();
-            ASSERT(4 == j2Arr.size());
-            ASSERT(j2Arr[0].isString());
-            ASSERT(j2Arr[1].isNumber());
-            ASSERT(j2Arr[2].isArray());
-            ASSERT(j2Arr[3].isObject());
-            ASSERT(2 == j2Arr[3].theObject().size());
-
-        }
-
-        {
-            JsonObject jo ({{"play", "Waiting for Godot"},
-                            {"chars", { "Didi", "Gogo", "Pozzo", "Lucky"}}});
-
-            ASSERT(2 == jo.size());
-            ASSERT(jo["play"].isString());
-            ASSERT(jo["chars"].isArray());
-
-            jo.insert("KEY", 123);
-            ASSERT(3 == jo.size());
-            ASSERT(jo["KEY"].isNumber());
-        }
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-        // In general, there are several ways to initialize an object:
-        //..
-        //  Foo x(a, b, c);   -- a sequence of parameters inside parameters
-        //  Foo x{a, b, c};   -- a sequence of parameters inside braces
-        //  Foo x = y;
-        //  Foo x = {a, b, c};
-        //..
-        //
-        // 'Json'/'JsonObject'/'JsonArray' do not support all of these methods,
-        // but I have put them all here in the test driver for completenes.
-        // When they are not supported, then the tests are commented out,
-        // ideally with a comment about why they are not supported.
-        {
-            using namespace std::literals::string_view_literals;
-
-            bsl::string      s = "ABC";
-            Json             j0;
-            Json_Initializer ji("ABC");
-
-            {
-            Json j1 (2);
-            ASSERT(j1.isNumber());
-            ASSERT(2 == j1);
-
-            Json j2 (true);
-            ASSERT(j2.isBoolean());
-            ASSERT(j2.theBoolean());
-
-            Json j3 (2.4);
-            ASSERT(j3.isNumber());
-            ASSERT(2.4 == j3.theNumber().asDouble());
-
-            Json j4 ("abc");
-            ASSERT(j4.isString());
-            ASSERT("abc" == j4.theString());
-
-            Json j5 ("def"sv);
-            ASSERT(j5.isString());
-            ASSERT("def" == j5.theString());
-
-        //  Json j6 ( "abc", 1L, false ); // Json does not have a sequence ctor
-        //  Json j7 ( "abc", {1UL});      // Json does not have a sequence ctor
-        //  Json j8 ( "abc", Json {1UL}); // Json does not have a sequence ctor
-
-            Json j9 (s);
-            ASSERT(j9.isString());
-            ASSERT(s == j9.theString());
-            }
-
-            {
-            Json j1 {2};
-            ASSERT(j1.isArray());
-            ASSERT(1 == j1.theArray().size());
-            ASSERT(j1.theArray()[0].isNumber());
-            ASSERT(2 == j1.theArray()[0]);
-
-            Json j2 {true};
-            ASSERT(j2.isArray());
-            ASSERT(1 == j2.theArray().size());
-            ASSERT(j2.theArray()[0].isBoolean());
-            ASSERT(j2.theArray()[0].theBoolean());
-
-            Json j3 {2.4};
-            ASSERT(j3.isArray());
-            ASSERT(1 == j3.theArray().size());
-            ASSERT(j3.theArray()[0].isNumber());
-            ASSERT(2.4 == j3.theArray()[0].asDouble());
-
-            Json j4 {"abc"};
-            ASSERT(j4.isArray());
-            ASSERT(1 == j4.theArray().size());
-            ASSERT(j4.theArray()[0].isString());
-            ASSERT("abc" == j4.theArray()[0].theString());
-
-            Json j5 {"def"sv};
-            ASSERT(j5.isArray());
-            ASSERT(1 == j5.theArray().size());
-            ASSERT(j5.theArray()[0].isString());
-            ASSERT("def" == j5.theArray()[0].theString());
-
-            Json j6 {"abc", 1L, false};
-            ASSERT(j6.isArray());
-            ASSERT(3 == j6.theArray().size());
-            ASSERT(j6.theArray()[0].isString());
-            ASSERT(j6.theArray()[1].isNumber());
-            ASSERT(j6.theArray()[2].isBoolean());
-            ASSERT("abc" == j6.theArray()[0].theString());
-            ASSERT(1L ==    j6.theArray()[1]);
-            ASSERT(!        j6.theArray()[2].theBoolean());
-
-            Json j7 {"abc", {1UL}};
-            ASSERT(j7.isArray());
-            ASSERT(2 == j7.theArray().size());
-            ASSERT(j7.theArray()[0].isString());
-            ASSERT(j7.theArray()[1].isArray());
-            ASSERT("abc" == j7.theArray()[0].theString());
-            ASSERT(1UL   == j7.theArray()[1].theArray()[0]);
-
-            Json j8 {"abc", Json {1UL}};
-            ASSERT(j8.isArray());
-            ASSERT(2 == j8.theArray().size());
-            ASSERT(j8.theArray()[0].isString());
-            ASSERT(j8.theArray()[1].isArray());
-            ASSERT("abc" == j8.theArray()[0].theString());
-            ASSERT(1UL   == j8.theArray()[1].theArray()[0]);
-
-            Json j9 {s};
-            ASSERT(j9.isArray());
-            ASSERT(1 == j9.theArray().size());
-            ASSERT(j9.theArray()[0].isString());
-            ASSERT(s == j9.theArray()[0].theString());
-            }
-
-            {
-            // All of these constructors fail because the JSON constructors
-            // are 'explicit'.
-        //  Json j1 = 2;
-        //  Json j2 = true;
-        //  Json j3  = 2.4;
-        //  Json j4 = "abc";
-        //  Json j5 = "abc"sv;
-        //  Json j6 = {"def", 1L, false };
-        //  Json j7 = {"abc", {1UL}};
-        //  Json j8 = {"abc", Json {1UL}});
-        //  Json j8 = s;
-            }
-
-            {
-        //  Nathan says we don't need to support this case.
-        //  JsonArray j1   (2, 3.5, false, "ABC"sv);
-
-            JsonArray j2   {2, 3.5, false, "ABC"sv};
-            ASSERT(4 == j2.size());
-            ASSERT(j2[0].isNumber());
-            ASSERT(j2[1].isNumber());
-            ASSERT(j2[2].isBoolean());
-            ASSERT(j2[3].isString());
-            ASSERT(2     == j2[0]);
-            ASSERT(3.5   == j2[1].asDouble());
-            ASSERT(!        j2[2].theBoolean());
-            ASSERT("ABC" == j2[3].theString());
-
-            JsonArray j3 = {2, 3.5, false, "DEF"sv};
-            ASSERT(4 == j3.size());
-            ASSERT(j3[1].isNumber());
-            ASSERT(j3[0].isNumber());
-            ASSERT(j3[1].isNumber());
-            ASSERT(j3[2].isBoolean());
-            ASSERT(j3[3].isString());
-            ASSERT(2     == j3[0]);
-            ASSERT(3.5   == j3[1].asDouble());
-            ASSERT(!        j3[2].theBoolean());
-            ASSERT("DEF" == j3[3].theString());
-
-            JsonArray j4  ({2, 3.5, false, "XYZ"sv});
-            ASSERT(4 == j4.size());
-            ASSERT(j4[2].isBoolean());
-            ASSERT(j4[0].isNumber());
-            ASSERT(j4[1].isNumber());
-            ASSERT(j4[2].isBoolean());
-            ASSERT(j4[3].isString());
-            ASSERT(2     == j4[0]);
-            ASSERT(3.5   == j4[1].asDouble());
-            ASSERT(!        j4[2].theBoolean());
-            ASSERT("XYZ" == j4[3].theString());
-
-            JsonArray j5;
-            ASSERT(0 == j5.size());
-
-        //  JsonArray j6  (false);
-
-            JsonArray j7  {false};
-            ASSERT(1 == j7.size());
-            ASSERT(j7[0].isBoolean());
-            ASSERT(!j7[0].theBoolean());
-
-        //  This requires two conversions: 'Json_Initializer', then 'Json'.
-        //  JsonArray j8 = false;
-            }
-
-            {
-         // Nathan says we don't need to support this case. But we do anyway.
-            JsonObject j1   ("ABC"sv, 2.34);
-            ASSERT(1 == j1.size());
-            ASSERT(j1.contains("ABC"sv));
-            ASSERT(2.34 == j1["ABC"sv].asDouble());
-
-            JsonObject j2   {"DEF"sv, 2.34};
-            ASSERT(1 == j2.size());
-            ASSERT(j2.contains("DEF"sv));
-            ASSERT(2.34 == j2["DEF"sv].asDouble());
-
-            JsonObject j3 = {"GHI"sv, 2.34};
-            ASSERT(1 == j3.size());
-            ASSERT(j3.contains("GHI"sv));
-            ASSERT(2.34 == j3["GHI"sv].asDouble());
-
-        //  Nathan says we don't need to support this case. But we do anyway.
-            JsonObject j4  ({"ABC"sv, 2.34});
-            ASSERT(1 == j4.size());
-            ASSERT(j4.contains("ABC"sv));
-            ASSERT(2.34 == j4["ABC"sv].asDouble());
-
-            JsonObject j5  ({{"ABC"sv, 2.34}, {"DEF"sv, 5.67}});
-            ASSERT(2 == j5.size());
-            ASSERT(j5.contains("ABC"sv));
-            ASSERT(2.34 == j5["ABC"sv].asDouble());
-            ASSERT(j5.contains("DEF"sv));
-            ASSERT(5.67 == j5["DEF"sv].asDouble());
-
-            JsonObject j6 = {{"PDQ"sv, 2.34}, {"XYZ"sv, 5.67}};
-            ASSERT(2 == j6.size());
-            ASSERT(j6.contains("PDQ"sv));
-            ASSERT(2.34 == j6["PDQ"sv].asDouble());
-            ASSERT(j6.contains("XYZ"sv));
-            ASSERT(5.67 == j6["XYZ"sv].asDouble());
-            }
-
-            {
-        //  Nathan says we don't need to support this case.
-        //  Json j1   (2, 3.5, false, "ABC"sv);  // would use the sequence ctor
-
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j2   {2, 3.5, false, "ABC"sv};
-            ASSERT(j2.isArray());    ASSERT(4 == j2.theArray().size());
-
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j3 = {2, 3.5, false, "ABC"sv};
-            ASSERT(j3.isArray());    ASSERT(4 == j3.theArray().size());
-
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j4  ({2, 3.5, false, "ABC"sv});
-            ASSERT(j4.isArray());    ASSERT(4 == j4.theArray().size());
-
-            Json j5  (JsonArray{2, 3.5, false, "ABC"sv});
-            ASSERT(j5.isArray());    ASSERT(4 == j5.theArray().size());
-
-            Json j6 = JsonArray{2, 3.5, false, "ABC"sv};
-            ASSERT(j6.isArray());    ASSERT(4 == j6.theArray().size());
-
-            Json j7  (JsonObject{"ABC"sv, 2.34});
-            ASSERT(j7.isObject());   ASSERT(1 == j7.theObject().size());
-
-            Json j8 = JsonObject{"ABC"sv, 2.34};
-            ASSERT(j8.isObject());   ASSERT(1 == j8.theObject().size());
-
-        //  Json j9 ({ConvertibleTo<int>{}});       // Ambiguous
-        //  Json jA ({1, ConvertibleTo<int>{}});    // two conversions
-        //  Json jB[] = { ConvertibleTo<int>{} };   // two conversions
-            }
-
-            {
-            JsonArray jArr;
-
-            Json j1 (j0);  // this calls the copy ctor
-            Json j2 ({ {1L}, j0 });
-            Json j3 ({ {j0}, 2.3 });
-            Json j4 ({ {j0}, j0 });
-            Json j5 ({ {{j0}}, {j0}});
-            Json j6 (ConvertibleTo<int>{});
-            Json j7 (s);
-            Json j8 (bsl::string("DEF"));      // uses Json(STRING_TYPE &&)
-            Json j9 (std::move(s));            // uses Json(STRING_TYPE &&)
-            Json jA (jArr);                    // uses Json(const JsonArray &)
-            Json jB (JsonArray{});             // uses Json(      JsonArray &&)
-            Json jC (std::move(jArr));         // uses Json(      JsonArray &&)
-            }
-
-            {
-            JsonArray jArr;
-
-            Json j1 {j0};  // this calls the copy ctor
-            Json j2 { Json {1L}, j0 };
-            Json j3 { Json {j0}, 2.3 };
-            Json j4 { Json {j0}, j0 };
-            Json j5 { JsonArray { Json {j0}}, Json {j0}};
-            Json j6 {ConvertibleTo<int>{}};
-            Json j7 {s};
-            Json j8 {bsl::string("DEF")};      // uses Json(STRING_TYPE &&)
-            Json j9 {std::move(s)};            // uses Json(STRING_TYPE &&)
-            Json jA {jArr};                    // uses Json(const JsonArray &)
-            Json jB {JsonArray{}};             // uses Json(      JsonArray &&)
-            Json jC {std::move(jArr)};         // uses Json(      JsonArray &&)
-            }
-
-            {
-            JsonArray jArr;
-
-            Json j1 = j0;  // this calls the copy ctor
-            Json j2 = Json { Json {1L}, j0 };
-            Json j3 = Json { Json {j0}, 2.3 };
-            Json j4 = Json { Json {j0}, j0 };
-            Json j5 = Json { JsonArray { Json {j0}}, Json {j0}};
-        //  Json j6 = ConvertibleTo<int>{};  // Two Conversions: int, then Json
-        //  Json j7 = s;             // Two Conversions: string_view, then Json
-            Json j8 = bsl::string("DEF");      // uses Json(STRING_TYPE &&)
-            Json j9 = std::move(s);            // uses Json(STRING_TYPE &&)
-            Json jA = jArr;                    // uses Json(const JsonArray &)
-            Json jB = JsonArray{};             // uses Json(      JsonArray &&)
-            Json jC = std::move(jArr);         // uses Json(      JsonArray &&)
-            }
-        }
-#endif
-
-        {
-            JsonArray j1;
-
-            ASSERT(0 == j1.size());
-            j1.pushBack("ABC");
-            ASSERT(1 == j1.size());
-            ASSERT(j1[0].isString());
-            ASSERT("ABC" == j1[0].theString());
-            j1.pushBack(JsonArray {1, false});
-            ASSERT(2 == j1.size());
-        }
-
-#endif
-      } break;
-      case 45: {
-        // --------------------------------------------------------------------
-        // TESTING JSON_INITIALIZER
-        //
-        // Concerns:
-        //: 1 Each constructor captures the (single) parameter and stores it
-        //:   into the variant.
-        //:
-        // Plan:
-        //: 1 Construct a series of 'Json_Initializer' objects, and confirm
-        //:   that the type and the value for each one is as expected.
-        //
-        // Testing:
-        //   Json_Initializer();
-        //   Json_Initializer(const JsonNull &);
-        //   Json_Initializer(bool b);
-        //   Json_Initializer(NUMBER num);
-        //   Json_Initializer(float f);
-        //   Json_Initializer(double d);
-        //   Json_Initializer(const char *p);
-        //   Json_Initializer(const bsl::string &s);
-        //   Json_Initializer(const std::string &s);
-        //   Json_Initializer(bsl::string_view sv);
-        //   Json_Initializer(std::initializer_list<Json_Initializer> il);
-        //   Json_Initializer(const JsonObject &jObj);
-        //   Json_Initializer(const JsonArray &jArr);
-        //   Json_Initializer(const JsonNumber &jNum);
-        //   Json_Initializer(const Json &json);
-        //   const storage& get_storage() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING JSON_INITIALIZER" << endl
-                          << "========================" << endl;
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-        bsl::string abcString = "ABC";
-        JsonNull    jNull;
-        JsonObject  jObj;
-        JsonArray   jArr;
-        JsonNumber  jNum;
-        Json        json;
-
-        Json_Initializer j0;
-        ASSERT(j0.get_storage().is<JsonNull>());
-        ASSERT(JsonNull() == j0.get_storage().the<JsonNull>());
-
-        Json_Initializer j1(jNull);
-        ASSERT(j1.get_storage().is<JsonNull>());
-        ASSERT(JsonNull() == j1.get_storage().the<JsonNull>());
-
-        Json_Initializer j2[] = { 2, 2L, 2LL };
-        for (const auto& j: j2) {
-            ASSERT(j.get_storage().is<long long>());
-            ASSERT(2 == j.get_storage().the<long long>());
-        }
-
-        Json_Initializer j3[] = { 3U, 3UL, 3ULL };
-        for (const auto& j: j3) {
-            ASSERT(j.get_storage().is<unsigned long long>());
-            ASSERT(3 == j.get_storage().the<unsigned long long>());
-        }
-
-        Json_Initializer j4(4.25f);
-        ASSERT(j4.get_storage().is<double>());
-        ASSERT(4.25 == j4.get_storage().the<double>());
-
-        Json_Initializer j5(4.25);
-        ASSERT(j5.get_storage().is<double>());
-        ASSERT(4.25 == j5.get_storage().the<double>());
-
-        Json_Initializer j6[] = { "ABC", abcString, bsl::string_view("ABC") };
-        for (const auto& j: j6) {
-            ASSERT(j.get_storage().is<bsl::string_view>());
-            ASSERT("ABC" == j.get_storage().the<bsl::string_view>());
-        }
-
-        Json_Initializer j7 = { false, "DEF", 42 };
-        ASSERT(j7.get_storage().is<std::initializer_list<Json_Initializer>>());
-
-        Json_Initializer j8(jObj);
-        ASSERT(j8.get_storage().is<const JsonObject *>());
-        ASSERT(&jObj == j8.get_storage().the<const JsonObject *>());
-
-        Json_Initializer j9(jArr);
-        ASSERT(j9.get_storage().is<const JsonArray *>());
-        ASSERT(&jArr == j9.get_storage().the<const JsonArray *>());
-
-        Json_Initializer j10(jNum);
-        ASSERT(j10.get_storage().is<const JsonNumber *>());
-        ASSERT(&jNum == j10.get_storage().the<const JsonNumber *>());
-
-        Json_Initializer j11(json);
-        ASSERT(j11.get_storage().is<const Json *>());
-        ASSERT(&json == j11.get_storage().the<const Json *>());
-#endif
-      } break;
-      case 44: {
-        // --------------------------------------------------------------------
-        // PROMOTE-FROM-NULL MANIPULATORS
-        //   The 'Json' class has 'pushBack' methods that will automatically
-        //   "promote" a 'Json' object from the null type to the array type.
-        //
-        // Concerns:
-        //: 1 Invocation of any of the 22 'pushBack' overloads on a 'Json'
-        //:   object changes the type of that object to array and completes the
-        //:   operation.
-        //:
-        //: 2 The result of each 'Json::pushBack' method invocation is
-        //:   identical to invoking the corresponding method on a 'JsonArray'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
-        //:   Note that 'Json::pushBack(const char * )' has an extra defensive
-        //:   check for the null pointer.
-        //
-        // Plan:
-        //: 1 Defined two function templates, 'testJsonPushBack' and
-        //:   'testJsonPushBackMoveRef', modeled on 'testArrayPushBack' and
-        //:   'testArrayPushBackMoveRef' that were used in TC 23 to test the
-        //:   'JsonArray::pushBack' overloads.  The arguments to these
-        //:   functions here match those appearing in TC 23.
-        //:
-        //:   1 The new functions have an addition tests to confirm the change
-        //:     type of the initially null 'Json' to the array type.
-        //:
-        //:   2 The new functions also test the defensive checks on initial
-        //:     'Json' type (null or array).
-        //:
-        //:   3 Note that these functions also use the
-        //:     'JsonValueConstructorHelper' class template as a source of
-        //:     input values for the 'pushBack' methods; however, since that
-        //:     helper class does not allow 'Json' itself as a type,
-        //:     specializations 'testJsonPushBack<Json>' and
-        //:     'testJsonPushBackMoveRef<Json>' are defined.
-        //:
-        //: 2 Perform a separate negative test for the null pointer check in
-        //:   'Json::pushBack(const char * )'.
-        //
-        // Testing:
-        //   Json& Json::pushBack(const Json&       json);
-        //   Json& Json::pushBack(const JsonArray&  array);
-        //   Json& Json::pushBack(const JsonObject& object);
-        //   Json& Json::pushBack(const JsonNumber& number);
-        //   Json& Json::pushBack(bslmf::MovableRef<Json>       json);
-        //   Json& Json::pushBack(bslmf::MovableRef<JsonArray>  array);
-        //   Json& Json::pushBack(bslmf::MovableRef<JsonObject> object);
-        //   Json& Json::pushBack(bslmf::MovableRef<JsonNumber> number);
-        //   Json& Json::pushBack(const JsonNull&    value);
-        //   Json& Json::pushBack(bool               value);
-        //   Json& Json::pushBack(int                value);
-        //   Json& Json::pushBack(unsigned int       value);
-        //   Json& Json::pushBack(long               value);
-        //   Json& Json::pushBack(unsigned long      value);
-        //   Json& Json::pushBack(long long          value);
-        //   Json& Json::pushBack(unsigned long long value);
-        //   Json& Json::pushBack(float              value);
-        //   Json& Json::pushBack(double             value);
-        //   Json& Json::pushBack(bdldfp::Decimal64  value);
-        //   Json& Json::pushBack(const char              *string);
-        //   Json& Json::pushBack(const bsl::string_view&  string);
-        //   Json& Json::pushBack(bsl::string&&            string);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PROMOTE-FROM-NULL MANIPULATORS" << endl
-                          << "==============================" << endl;
-
-        if (verbose) cout << "Test 'Json::pushBack' Overloads" << endl;
-        {
-            testJsonPushBack        <Json>               ('y', 2, verbose);
-            testJsonPushBackMoveRef <Json>               ('z',    verbose);
-
-            testJsonPushBack        <JsonArray>          ('a', 2, verbose);
-            testJsonPushBack        <JsonObject>         ('b', 3, verbose);
-            testJsonPushBack        <JsonNumber>         ('c', 2, verbose);
-
-            testJsonPushBackMoveRef <JsonArray>          ('d',    verbose);
-            testJsonPushBackMoveRef <JsonNumber>         ('e',    verbose);
-            testJsonPushBackMoveRef <JsonObject>         ('f',    verbose);
-
-            testJsonPushBack        <JsonNull>           ('g', 1, verbose);
-
-            testJsonPushBack        <bool>               ('h', 1, verbose);
-            testJsonPushBack        <int>                ('i', 1, verbose);
-            testJsonPushBack        <unsigned int>       ('j', 1, verbose);
-            testJsonPushBack        <long>               ('k', 1, verbose);
-            testJsonPushBack        <unsigned long>      ('l', 1, verbose);
-            testJsonPushBack        <long long>          ('m', 1, verbose);
-            testJsonPushBack        <unsigned long long> ('n', 1, verbose);
-            testJsonPushBack        <float>              ('o', 1, verbose);
-            testJsonPushBack        <double>             ('p', 1, verbose);
-            testJsonPushBack        <bdldfp::Decimal64>  ('q', 1, verbose);
-
-            testJsonPushBack        <const char *>       ('r', 1, verbose);
-            testJsonPushBack        <bsl::string_view>   ('s', 1, verbose);
-            testArrayPushBackMoveRef<bsl::string>        ('t',    verbose);
-        }
-
-        if (verbose) cout << "Negative test: 'Json::pushBack(const char *)'"
-                           << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            const char *const    nullStr = 0;
-            const char *const notNullStr = "non-empty string literal";
-
-            typedef bdljsn::Json Obj;
-
-            Obj objExpectFail;
-            Obj objExpectPass;
-
-            ASSERT_FAIL(objExpectFail.pushBack(   nullStr));
-            ASSERT_PASS(objExpectPass.pushBack(notNullStr));
-        }
-
-      } break;
-      case 43: {
-        // --------------------------------------------------------------------
-        // CONVENIENCE OVERLOADS
-        //
-        // Concerns:
-        //: 1 Each 'pushBack' overload adds to 'JsonArray' an element having
-        //:   the expected value and JSON type.
-        //:
-        //: 2 Each 'pushBack' overload that takes a 'bslmf::MovableRef'
-        //:   argument dispatches to an overload that can perform a "move"
-        //:   operation.
-        //:
-        //: 3 The types that accepted used in a 'Json' value constructor must
-        //:   be equality comparable to a 'Json' object.  There are 16 types in
-        //:   that set.  Note that 'bslmf::MovableRef' types appearing in the
-        //:   value constructor are *not* included in this set as we don't use
-        //:   such types in equality comparison.  Also note that there are 4
-        //:   overloads for each of these types: equality/inequality, the value
-        //:   type as 'lhs'/'rhs' -- thus 56 in total.
-        //:
-        //:   1 Does each of these overloads have the standard signature.
-        //:
-        //:   2 Does each of these overloads validly compare their arguments
-        //:     for equality/inequality?
-        //
-        // Plan:
-        //: 1 Use the 'JsonValueConstructorHelper' class template -- used in
-        //:   TC 28 (JSON VALUE CTOR) and elsewhere -- as a source of test
-        //:   value/type pairs.  Then:
-        //:   o Pass the value to the 'pushBack' method of a 'JsonArray'.
-        //:   o Confirm that an ('Json') element has been added to the array.
-        //:   o Compare the type and value of the added element to those of the
-        //:     'pushBack' argument.
-        //:
-        //: 2 For overloads that take a 'bslmf::MovableRef', construct the
-        //:   element to be added using the same 'bslma::TestAllocator' that
-        //:   supplies memory to the array (thereby making the 'pushBack'
-        //:   eligible for a move).  Use the 'TestAllocator' features to
-        //:   demonstrate that pushing does not trigger any allocation for
-        //:   creating the added element.
-        //:
-        //: 3 Confirm the signature of the equality/inequality operators using
-        //:   the function-address idiom as encapsulated in the
-        //:   'compileCheckEqualitySignature' function template.
-        //:
-        //: 4 Confirm that each of overloaded equality/inequality operators
-        //:   returns the expected value for several combinations of known
-        //:   input: the default value of the value type and the value returned
-        //:   from 'JsonValueConstructorHelper::getValue()' for the value type.
-        //:
-        //:   o Most of these  tests are encapsulated in function templates
-        //:     'testEqualityOverloadsRef' and 'testEqualityOverloadsVal',
-        //:     each having different initialization patterns.
-        //:
-        //:   o 'testEqualityOverloadsStr' handles the special case of
-        //:     setting the default value of a 'const char *' to '""'.
-        //:
-        //:   o The tests of 'JsonNull' follow a significantly different
-        //:     pattern than the others since it has no value that is not
-        //:     the default and it compares unequal to anything but it self.
-        //:     Tests for 'JsonNull' are integrated with the tests described
-        //:     above where it is compared for inequality with a wide variety
-        //:     of other 'Json' objects.
-        //
-        // Testing:
-        //   JsonArray::pushBack(const JsonArray&  array);
-        //   JsonArray::pushBack(const JsonObject& object);
-        //   JsonArray::pushBack(const JsonNumber& number);
-        //   JsonArray::pushBack(bslmf::MovableRef<JsonArray>  array);
-        //   JsonArray::pushBack(bslmf::MovableRef<JsonObject> object);
-        //   JsonArray::pushBack(bslmf::MovableRef<JsonNumber> number);
-        //   JsonArray::pushBack(const JsonNull&    value);
-        //   JsonArray::pushBack(bool               value);
-        //   JsonArray::pushBack(int                value);
-        //   JsonArray::pushBack(unsigned int       value);
-        //   JsonArray::pushBack(long               value);
-        //   JsonArray::pushBack(unsigned long      value);
-        //   JsonArray::pushBack(long long          value);
-        //   JsonArray::pushBack(unsigned long long value);
-        //   JsonArray::pushBack(float              value);
-        //   JsonArray::pushBack(double             value);
-        //   JsonArray::pushBack(bdldfp::Decimal64  value);
-        //   JsonArray::pushBack(const char              *string);
-        //   JsonArray::pushBack(const bsl::string_view&  string);
-        //   JsonArray::pushBack(bsl::string&&            string);
-        //   operator==(const JsonArray&         , const Json&              );
-        //   operator==(const JsonObject&        , const Json&              );
-        //   operator==(const JsonNumber&        , const Json&              );
-        //   operator==(const JsonNull&          , const Json&              );
-        //   operator==(bool                     , const Json&              );
-        //   operator==(int                      , const Json&              );
-        //   operator==(unsigned int             , const Json&              );
-        //   operator==(bsls::Types::Int64       , const Json&              );
-        //   operator==(bsls::Types::Uint64      , const Json&              );
-        //   operator==(float                    , const Json&              );
-        //   operator==(double                   , const Json&              );
-        //   operator==(bdldfp::Decimal64        , const Json&              );
-        //   operator==(const char              *, const Json&              );
-        //   operator==(const bsl::string_view&  , const Json&              );
-        //   operator==(const Json&              , const JsonArray&         );
-        //   operator==(const Json&              , const JsonObject&        );
-        //   operator==(const Json&              , const JsonNumber&        );
-        //   operator==(const Json&              , const JsonNull&          );
-        //   operator==(const Json&              , bool                     );
-        //   operator==(const Json&              , int                      );
-        //   operator==(const Json&              , unsigned int             );
-        //   operator==(const Json&              , bsls::Types::Int64       );
-        //   operator==(const Json&              , bsls::Types::Uint64      );
-        //   operator==(const Json&              , float                    );
-        //   operator==(const Json&              , double                   );
-        //   operator==(const Json&              , bdldfp::Decimal64        );
-        //   operator==(const Json&              , const char              *);
-        //   operator==(const Json&              , const bsl::string_view&  );
-        //   operator!=(const JsonArray&         , const Json&              );
-        //   operator!=(const JsonObject&        , const Json&              );
-        //   operator!=(const JsonNumber&        , const Json&              );
-        //   operator!=(const JsonNull&          , const Json&              );
-        //   operator!=(bool                     , const Json&              );
-        //   operator!=(int                      , const Json&              );
-        //   operator!=(unsigned int             , const Json&              );
-        //   operator!=(bsls::Types::Int64       , const Json&              );
-        //   operator!=(bsls::Types::Uint64      , const Json&              );
-        //   operator!=(float                    , const Json&              );
-        //   operator!=(double                   , const Json&              );
-        //   operator!=(bdldfp::Decimal64        , const Json&              );
-        //   operator!=(const char              *, const Json&              );
-        //   operator!=(const bsl::string_view&  , const Json&              );
-        //   operator!=(const Json&              , const JsonArray&         );
-        //   operator!=(const Json&              , const JsonObject&        );
-        //   operator!=(const Json&              , const JsonNumber&        );
-        //   operator!=(const Json&              , const JsonNull&          );
-        //   operator!=(const Json&              , bool                     );
-        //   operator!=(const Json&              , int                      );
-        //   operator!=(const Json&              , unsigned int             );
-        //   operator!=(const Json&              , bsls::Types::Int64       );
-        //   operator!=(const Json&              , bsls::Types::Uint64      );
-        //   operator!=(const Json&              , float                    );
-        //   operator!=(const Json&              , double                   );
-        //   operator!=(const Json&              , bdldfp::Decimal64        );
-        //   operator!=(const Json&              , const char              *);
-        //   operator!=(const Json&              , const bsl::string_view&  );
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "CONVENIENCE OVERLOADS" << endl
-                          << "=====================" << endl;
-
-        if (verbose) cout << "Test 'JsonArray::pushBack' Overloads" << endl;
-        {
-            testArrayPushBack       <JsonArray>          ('a', 2, verbose);
-            testArrayPushBack       <JsonObject>         ('b', 3, verbose);
-            testArrayPushBack       <JsonNumber>         ('c', 2, verbose);
-
-            testArrayPushBackMoveRef<JsonArray>          ('d',    verbose);
-            testArrayPushBackMoveRef<JsonNumber>         ('e',    verbose);
-            testArrayPushBackMoveRef<JsonObject>         ('f',    verbose);
-
-            testArrayPushBack       <JsonNull>           ('g', 1, verbose);
-
-            testArrayPushBack       <bool>               ('h', 1, verbose);
-            testArrayPushBack       <int>                ('i', 1, verbose);
-            testArrayPushBack       <unsigned int>       ('j', 1, verbose);
-            testArrayPushBack       <long>               ('k', 1, verbose);
-            testArrayPushBack       <unsigned long>      ('l', 1, verbose);
-            testArrayPushBack       <long long>          ('m', 1, verbose);
-            testArrayPushBack       <unsigned long long> ('n', 1, verbose);
-            testArrayPushBack       <float>              ('o', 1, verbose);
-            testArrayPushBack       <double>             ('p', 1, verbose);
-            testArrayPushBack       <bdldfp::Decimal64>  ('q', 1, verbose);
-
-            testArrayPushBack       <const char *>       ('r', 1, verbose);
-            testArrayPushBack       <bsl::string_view>   ('s', 1, verbose);
-
-            testArrayPushBackMoveRef<bsl::string>        ('t',    verbose);
-        }
-
-        if (verbose) cout << "\nAssign the address of each "
-                             "'operator==' (and 'operator!=') to a variable"
-                          << endl;
-        {
-            compileCheckEqualitySignature<const JsonArray&         >();  // 01
-            compileCheckEqualitySignature<const JsonObject&        >();  // 02
-            compileCheckEqualitySignature<const JsonNumber&        >();  // 03
-            compileCheckEqualitySignature<const JsonNull&          >();  // 04
-            compileCheckEqualitySignature<bool                     >();  // 05
-            compileCheckEqualitySignature<int                      >();  // 06
-            compileCheckEqualitySignature<unsigned int             >();  // 07
-            compileCheckEqualitySignature<long                     >();  // 08
-            compileCheckEqualitySignature<unsigned long            >();  // 09
-            compileCheckEqualitySignature<long long                >();  // 10
-            compileCheckEqualitySignature<unsigned long long       >();  // 11
-            compileCheckEqualitySignature<float                    >();  // 12
-            compileCheckEqualitySignature<double                   >();  // 13
-            compileCheckEqualitySignature<bdldfp::Decimal64        >();  // 14
-            compileCheckEqualitySignature<const char              *>();  // 15
-            compileCheckEqualitySignature<const bsl::string_view&  >();  // 16
-        }
-
-        if (verbose) cout << endl
-                          << "Test 'Json::operator==' Overloads" << endl;
-        {
-            testEqualityOverloadsRef<JsonArray          >();  // 01
-            testEqualityOverloadsRef<JsonObject         >();  // 02
-            testEqualityOverloadsRef<JsonNumber         >();  // 03
-
-            // 'JsonNull' tests distributed among the others in this series.
-                                                              // 04
-
-            testEqualityOverloadsVal<bool               >();  // 05
-            testEqualityOverloadsVal<int                >();  // 06
-            testEqualityOverloadsVal<unsigned int       >();  // 07
-            testEqualityOverloadsVal<long               >();  // 08
-            testEqualityOverloadsVal<unsigned long      >();  // 09
-            testEqualityOverloadsVal<long long          >();  // 10
-            testEqualityOverloadsVal<unsigned long long >();  // 11
-            testEqualityOverloadsVal<float              >();  // 12
-            testEqualityOverloadsVal<double             >();  // 13
-            testEqualityOverloadsVal<bdldfp::Decimal64  >();  // 14
-
-            testEqualityOverloadsStr                     (); // 'const char *'
-                                                             //  16
-
-            testEqualityOverloadsRef<bsl::string_view   >(); //  16
-        }
-
-      } break;
       case 42: {
         // --------------------------------------------------------------------
         // DRQS 171793948
@@ -7664,16 +3922,12 @@ int main(int argc, char *argv[])
             ASSERTV(obj.size(), 4 == obj.size());
         }
 
-// BDE_VERIFY pragma: -IND01
-
         const std::string      s0 = "s0";
               std::string      s1 = "s1";
         const bsl::string      s2 = "s2";
               bsl::string      s3 = "s3";
         const bsl::string_view s4 = "s4";
               bsl::string_view s5 = "s5";
-
-// BDE_VERIFY pragma: +IND01
 
         bdljsn::JsonObject obj;
 
@@ -7839,8 +4093,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS) &&     \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-        if (veryVerbose) cout << "Example 1" << endl;
+        bdljsn::Json example1, example2;
         {
 
 ///Usage
@@ -7898,8 +4151,6 @@ int main(int argc, char *argv[])
             }
             example1 = json;
         }
-
-        if (veryVerbose) cout << "Example 2" << endl;
         {
 ///Example 2: More Efficiently Creating a `bdljsn::Json`
 ///-----------------------------------------------------
@@ -7934,11 +4185,6 @@ int main(int argc, char *argv[])
             example2 = json;
         }
         ASSERTV(example1, example2, example1 == example2);
-
-        if (veryVerbose) cout << "Example 3" << endl;
-        {
-            Example3::main();
-        }
 #endif
       } break;
       case 40: {
@@ -7988,24 +4234,18 @@ int main(int argc, char *argv[])
         //    allocator.
         //
         // Testing:
-        //   bool Json::isArray()   const;
+        //   bool Json::isArray() const;
         //   bool Json::isBoolean() const;
-        //   bool Json::isNull()    const;
-        //   bool Json::isNumber()  const;
-        //   bool Json::isObject()  const;
-        //   bool Json::isString()  const;
-        //   int Json::asShort   (short     *r) const;
-        //   int Json::asInt     (int       *r) const;
-        //   int Json::asLong    (long      *r) const;
-        //   int Json::asLonglong(long long *r) const;
-        //   int Json::asInt64   (Int64     *r) const;
-        //   int Json::asUshort   (unsigned short     *r) const;
-        //   int Json::asUint     (unsigned int       *r) const;
-        //   int Json::asUlong    (unsigned long      *r) const;
-        //   int Json::asUlonglong(unsigned long long *r) const;
-        //   int Json::asUint64   (Uint64             *r) const;
-        //   float     Json::asFloat()     const;
-        //   double    Json::asDouble()    const;
+        //   bool Json::isNull() const;
+        //   bool Json::isNumber() const;
+        //   bool Json::isObject() const;
+        //   bool Json::isString() const;
+        //   int Json::asInt(int *r) const;
+        //   int Json::asInt64(Int64 *r) const;
+        //   int Json::asUint(unsigned int *r) const;
+        //   int Json::asUint64(Uint64 *r) const;
+        //   float Json::asFloat() const;
+        //   double Json::asDouble() const;
         //   Decimal64 Json::asDecimal64() const;
         //   int Json::asDecimal64Exact(Decimal64 *r) const;
         //   const Json& Json::operator[](const string_view& key) const;
@@ -8076,25 +4316,21 @@ int main(int argc, char *argv[])
                 JsonNumber(1, &xa),
                 JsonNumber(0, &xa),
                 JsonNumber(-1, &xa),
-                JsonNumber(bsl::numeric_limits<short>::max(), &xa),
                 JsonNumber(bsl::numeric_limits<int>::max(), &xa),
                 JsonNumber(bsl::numeric_limits<unsigned int>::max(), &xa),
                 JsonNumber(bsl::numeric_limits<bsls::Types::Int64>::max(),
                            &xa),
                 JsonNumber(bsl::numeric_limits<bsls::Types::Uint64>::max(),
                            &xa),
-                JsonNumber(bsl::numeric_limits<short>::min(), &xa),
                 JsonNumber(bsl::numeric_limits<int>::min(), &xa),
                 JsonNumber(bsl::numeric_limits<bsls::Types::Int64>::min(),
                            &xa),
                 JsonNumber(bsl::numeric_limits<int>::max() + 1ll, &xa),
-                JsonNumber(bsl::numeric_limits<short>::max() + 1ll, &xa),
                 JsonNumber(bsl::numeric_limits<unsigned int>::max() + 1ll,
                            &xa),
                 JsonNumber(bsl::numeric_limits<bsls::Types::Int64>::max()
                            + 1ull,
                            &xa),
-                JsonNumber(bsl::numeric_limits<short>::min() - 1ll, &xa),
                 JsonNumber(bsl::numeric_limits<int>::min() - 1ll, &xa),
                 JsonNumber(
                     static_cast<double>(
@@ -8116,8 +4352,7 @@ int main(int argc, char *argv[])
 
             for (long unsigned int i = 0;
                  i < (sizeof(NUMBERS)/sizeof(*NUMBERS));
-                 ++i)
-            {
+                 ++i) {
                 const JsonNumber& N = NUMBERS[i];
                 const Obj         X(N, &xa);
 
@@ -8126,41 +4361,12 @@ int main(int argc, char *argv[])
                 int jsRC;
                 int nRC;
 
-                if (veryVerbose) cout <<
-                                        "int Json::asShort(short *r) const;\n";
-                {
-                    short jsValue;
-                    short nValue;
-                    jsRC = X.asShort(&jsValue);
-                    nRC = N.asShort(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
                 if (veryVerbose) cout << "int Json::asInt(int *r) const;\n";
                 {
                     int jsValue;
                     int nValue;
                     jsRC = X.asInt(&jsValue);
                     nRC = N.asInt(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
-                if (veryVerbose) cout << "int Json::asLong(int *r) const;\n";
-                {
-                    long jsValue;
-                    long nValue;
-                    jsRC = X.asLong(&jsValue);
-                    nRC = N.asLong(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
-                if (veryVerbose) cout <<
-                                       "int Json::asLonglong(int *r) const;\n";
-                {
-                    long long jsValue;
-                    long long nValue;
-                    jsRC = X.asLonglong(&jsValue);
-                    nRC = N.asLonglong(&nValue);
                     ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
                     ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
                 }
@@ -8171,35 +4377,6 @@ int main(int argc, char *argv[])
                     bsls::Types::Int64 nValue;
                     jsRC = X.asInt64(&jsValue);
                     nRC = N.asInt64(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
-                if (veryVerbose) cout << "int Json::asUlong(int *r) const;\n";
-                {
-                    unsigned long jsValue;
-                    unsigned long nValue;
-                    jsRC = X.asUlong(&jsValue);
-                    nRC = N.asUlong(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
-                if (veryVerbose) cout <<
-                                      "int Json::asUlonglong(int *r) const;\n";
-                {
-                    unsigned long long jsValue;
-                    unsigned long long nValue;
-                    jsRC = X.asUlonglong(&jsValue);
-                    nRC = N.asUlonglong(&nValue);
-                    ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
-                    ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
-                }
-                if (veryVerbose)
-                    cout << "int Json::asUshort(unsigned short *r) const;\n";
-                {
-                    unsigned short jsValue;
-                    unsigned short nValue;
-                    jsRC = X.asUshort(&jsValue);
-                    nRC = N.asUshort(&nValue);
                     ASSERTV(N, X, jsRC, nRC, jsRC == nRC);
                     ASSERTV(N, X, jsValue, nValue, jsValue == nValue);
                 }
@@ -8483,15 +4660,13 @@ int main(int argc, char *argv[])
         //    12Verify that the default allocator did not allocate.
         //
         // Testing:
-        //   Json& Json::operator=(int                rhs);
-        //   Json& Json::operator=(unsigned int       rhs);
-        //   Json& Json::operator=(long               rhs);
-        //   Json& Json::operator=(unsigned long      rhs);
-        //   Json& Json::operator=(long long          rhs);
-        //   Json& Json::operator=(unsigned long long rhs);
-        //   Json& Json::operator=(float              rhs);
-        //   Json& Json::operator=(double             rhs);
-        //   Json& Json::operator=(bdldfp::Decimal64  rhs);
+        //   Json& Json::operator=(float rhs);
+        //   Json& Json::operator=(double rhs);
+        //   Json& Json::operator=(bdldfp::Decimal64 rhs);
+        //   Json& Json::operator=(int rhs);
+        //   Json& Json::operator=(unsigned int rhs);
+        //   Json& Json::operator=(bsls::Types::Int64 rhs);
+        //   Json& Json::operator=(bsls::Types::Uint64 rhs);
         //   Json& Json::operator=(const JsonNumber& rhs);
         //   Json& Json::operator=(bslmf::MovableRef<JsonNumber> rhs);
         //   Json& Json::operator=(const char *rhs);
@@ -8627,69 +4802,33 @@ int main(int argc, char *argv[])
             ASSERTV(sa.numBytesTotal(), 0 == sa.numBytesTotal());
             ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
         }
-        //   Json& Json::operator=(long rhs);
+        //   Json& Json::operator=(bsls::Types::Int64 rhs);
         {
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
             bslma::TestAllocator xa("scratch",  veryVeryVeryVerbose);
 
             Obj mX(&sa);  const Obj& X = mX;
 
-            const long       v = 1L;
-            const JsonNumber expected(v, &xa);
-
-            Json& result = (mX = v);
-
-            ASSERTV(&X, &result, &X == &result);
-            ASSERTV(X.type(), JsonType::e_NUMBER == X.type());
-            ASSERTV(X.theNumber(), expected == X.theNumber());
-            ASSERTV(sa.numBytesTotal(), 0 == sa.numBytesTotal());
-            ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
-        }
-        //   Json& Json::operator=(unsigned long rhs);
-        {
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
-            bslma::TestAllocator xa("scratch",  veryVeryVeryVerbose);
-
-            Obj mX(&sa);  const Obj& X = mX;
-
-            const unsigned long v = 1UL;
-            const JsonNumber    expected(v, &xa);
-
-            Json& result = (mX = v);
-
-            ASSERTV(&X, &result, &X == &result);
-            ASSERTV(X.type(), JsonType::e_NUMBER == X.type());
-            ASSERTV(X.theNumber(), expected == X.theNumber());
-            ASSERTV(sa.numBytesTotal(), 0 == sa.numBytesTotal());
-            ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
-        }
-        //   Json& Json::operator=(long long rhs);
-        {
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
-            bslma::TestAllocator xa("scratch",  veryVeryVeryVerbose);
-
-            Obj mX(&sa);  const Obj& X = mX;
-
-            const long long  v = 1LL;
-            const JsonNumber expected(v, &xa);
-
-            Json& result = (mX = v);
-
-            ASSERTV(&X, &result, &X == &result);
-            ASSERTV(X.type(), JsonType::e_NUMBER == X.type());
-            ASSERTV(X.theNumber(), expected == X.theNumber());
-            ASSERTV(sa.numBytesTotal(), 0 == sa.numBytesTotal());
-            ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
-        }
-        //   Json& Json::operator=(unsigned long long rhs);
-        {
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
-            bslma::TestAllocator xa("scratch",  veryVeryVeryVerbose);
-
-            Obj mX(&sa);  const Obj& X = mX;
-
-            const unsigned long long v = 1ULL;
+            const bsls::Types::Int64 v = 1;
             const JsonNumber         expected(v, &xa);
+
+            Json& result = (mX = v);
+
+            ASSERTV(&X, &result, &X == &result);
+            ASSERTV(X.type(), JsonType::e_NUMBER == X.type());
+            ASSERTV(X.theNumber(), expected == X.theNumber());
+            ASSERTV(sa.numBytesTotal(), 0 == sa.numBytesTotal());
+            ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
+        }
+        //   Json& Json::operator=(bsls::Types::Uint64 rhs);
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator xa("scratch",  veryVeryVeryVerbose);
+
+            Obj mX(&sa);  const Obj& X = mX;
+
+            const bsls::Types::Uint64 v = 1;
+            const JsonNumber          expected(v, &xa);
 
             Json& result = (mX = v);
 
@@ -8952,11 +5091,7 @@ int main(int argc, char *argv[])
 
             Obj mX(&sa);  const Obj& X = mX;
 
-#if BSLS_PLATFORM_CMP_IBM
-            const JsonNull v = { };
-#else
             const JsonNull v;
-#endif
             const JsonNull expected(v);
 
             Json& result = (mX = v);
@@ -9239,68 +5374,17 @@ int main(int argc, char *argv[])
         }
         //   Json& Json::operator[](const string_view& key);
         {
-            bslma::TestAllocator        sa("supplied", true);
-            bslma::TestAllocatorMonitor sam(&sa);
-            bsl::string_view            key = "key";
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bsl::string_view     key = "key";
 
             Obj mX(&sa);  const Obj& X = mX;
-
             mX.makeObject().insert(key, 1);
-            ASSERTV(sam.isTotalUp());
-            ASSERTV(sam.numBlocksInUseChange(),
-                    sam.numBlocksInUseChange() == 2);
 
-            sam.reset();
-
+            bslma::TestAllocatorMonitor sam(&sa);
             Json&                       result   = mX[key];
             const Json&                 expected = X.theObject()[key];
             ASSERTV(&result == &expected);
             ASSERTV(sam.isTotalSame());
-
-            {
-                Obj mY(&sa); const Obj& Y = mY;
-                ASSERTV(Y.isNull());
-                ASSERTV(sam.numBlocksInUseChange(),
-                        sam.isTotalSame());
-
-                sam.reset();
-
-                Json& result = (mY[key] = 2) ;                          // TEST
-
-                ASSERTV(Y.isObject());
-                ASSERTV(sam.numBlocksInUseChange(),
-                        sam.numBlocksInUseChange() == 2);
-
-                const Json& expected = Y.theObject()[key];
-                ASSERTV(&result == &expected);
-                ASSERTV(expected.type(), expected.isNumber());
-                ASSERTV(expected, expected == 2);
-
-                sa.setVerbose(false);
-
-#ifdef BDE_BUILD_TARGET_EXC
-                // Negative test
-                {
-                    bsls::AssertTestHandlerGuard hG;
-
-                    Obj thingNull;     thingNull   .makeNull();
-                    Obj thingObject;   thingObject .makeObject();
-
-                    ASSERT_PASS(thingNull  [KEY0] = 0);
-                    ASSERT_PASS(thingObject[KEY1] = 1);
-
-                    Obj thingBoolean;  thingBoolean.makeBoolean();
-                    Obj thingNumber;   thingNumber .makeNumber();
-                    Obj thingString;   thingString .makeString(bsl::string());
-                    Obj thingArray;    thingArray  .makeArray();
-
-                    ASSERT_FAIL(thingBoolean[KEY0] = 0);
-                    ASSERT_FAIL(thingNumber [KEY1] = 1);
-                    ASSERT_FAIL(thingString [KEY2] = 2);
-                    ASSERT_FAIL(thingArray  [KEY3] = 3);
-                }
-#endif
-            }
         }
         //   Json& Json::operator[](size_t index);
         {
@@ -9682,6 +5766,7 @@ int main(int argc, char *argv[])
                             X,
                             (F == X) == (VALUE_CONFIG1 == VALUE_CONFIG2));
 
+
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -9715,6 +5800,7 @@ int main(int argc, char *argv[])
                                 &s1,
                                 F.allocator(),
                                 &s1 == F.allocator());
+
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if (!MEMDST2 && MEMSRC1) {
@@ -10033,6 +6119,7 @@ int main(int argc, char *argv[])
                                 mR,
                                 &mX,
                                 mR == &mX);
+
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if (!MEM2 && MEM1) {
@@ -10711,7 +6798,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(VALUE_CONFIG,
@@ -10773,7 +6860,7 @@ int main(int argc, char *argv[])
                         // No allocator.
                     }
                     else {
-                        BSLS_ASSERT_OPT(false && "JSON is no known type");
+                        BSLS_ASSERT_OPT(0 == "JSON is no known type");
                     }
                     ASSERTV(VALUE_CONFIG, CONFIG, &oa == X.allocator());
                     ASSERTV(VALUE_CONFIG, CONFIG, &scratch == Z.allocator());
@@ -11060,7 +7147,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(VALUE_CONFIG,
@@ -11109,7 +7196,7 @@ int main(int argc, char *argv[])
                         // No allocator.
                     }
                     else {
-                        BSLS_ASSERT_OPT(false && "JSON is no known type");
+                        BSLS_ASSERT_OPT(0 == "JSON is no known type");
                     }
 
                     // Also invoke the object's `allocator` accessor, as well
@@ -11481,9 +7568,11 @@ int main(int argc, char *argv[])
         scratchArray.pushBack(Json(scratchNumber));
         scratchArray.pushBack(Json(scratchString));
 
+
         JsonObject scratchObject;
         scratchObject["number"] = Json(scratchNumber);
         scratchObject["string"] = Json(scratchString);
+
 
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
         bslma::TestAllocator da("default",  veryVeryVeryVerbose);
@@ -11661,26 +7750,24 @@ int main(int argc, char *argv[])
         // 2. Testing with injected exceptions (TODO).
         //
         // Testing:
-        //   Json(bool            boolean, *a);
-        //   Json(const JsonNull& null,    *a);
-        //   Json(const JsonArray&   array,  *a);
-        //   Json(const JsonObject&  object, *a);
-        //   Json(const JsonNumber&  number, *a);
-        //   Json(bslmf::MovableRef<JsonArray>  array,  *a);
-        //   Json(bslmf::MovableRef<JsonObject> object, *a);
+        //   Json(const JsonArray &array, *a);
+        //   Json(bslmf::MovableRef<JsonArray> array, *a);
+        //   Json(bool boolean, *a);
+        //   Json(const JsonNull& null, *a);
+        //   Json(float number, *a);
+        //   Json(double number, *a);
+        //   Json(bdldfp::Decimal64 number, *a);
+        //   Json(int number, *a);
+        //   Json(unsigned int number, *a);
+        //   Json(bsls::Types::Int64 number, *a);
+        //   Json(bsls::Types::Uint64 number, *a);
+        //   Json(const JsonNumber& number, *a);
         //   Json(bslmf::MovableRef<JsonNumber> number, *a);
-        //   Json(int                  number, *a);
-        //   Json(unsigned int         number, *a);
-        //   Json(long                 number, *a);
-        //   Json(unsigned long        number, *a);
-        //   Json(long long            number, *a);
-        //   Json(unsigned long long   number, *a);
-        //   Json(float                number, *a);
-        //   Json(double               number, *a);
-        //   Json(bdldfp::Decimal64    number, *a);
-        //   Json(const char              *string, *a);
-        //   Json(const bsl::string_view&  string, *a);
-        //   Json(STRING&&                 string, *a);
+        //   Json(const JsonObject& object, *a);
+        //   Json(bslmf::MovableRef<JsonObject> object, *a);
+        //   Json(const char *string, *a);
+        //   Json(const bsl::string_view& string, *a);
+        //   Json(STRING&& string, *a);
         // --------------------------------------------------------------------
 
         typedef bdljsn::Json Obj;
@@ -11689,7 +7776,7 @@ int main(int argc, char *argv[])
                                   << "===============" << endl;
 
         for (int allocCfg = 0; allocCfg < 3; ++allocCfg) {
-            for (char cfg = 'a'; cfg <= 'u'; ++cfg) {
+            for (char cfg = 'a'; cfg <= 's'; ++cfg) {
                 const int  ALLOC_CONFIG = allocCfg;
                 const char CONFIG       = cfg;
 
@@ -11718,7 +7805,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11766,7 +7853,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11797,7 +7884,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11831,7 +7918,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11855,7 +7942,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11889,7 +7976,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11923,7 +8010,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11957,7 +8044,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -11991,7 +8078,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12025,7 +8112,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12059,7 +8146,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12093,11 +8180,8 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            1 == objAllocatorPtr->numBlocksTotal());
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
                             Helper::getType(),
@@ -12154,7 +8238,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12195,7 +8279,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12243,7 +8327,7 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12274,7 +8358,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12305,7 +8389,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12336,7 +8420,7 @@ int main(int argc, char *argv[])
                         objAllocatorPtr = &sa;
                         objPtr = new (fa) Obj(Helper::getValue(), &sa);
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
@@ -12383,76 +8467,8 @@ int main(int argc, char *argv[])
                                              &sa);
                         ASSERTV(CONFIG, tam.isTotalSame());
                     } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                     }
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            Helper::getType(),
-                            objPtr->type(),
-                            Helper::getType() == objPtr->type());
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            Helper::extractFromJson(*objPtr,
-                                                     ALLOC_CONFIG,
-                                                     CONFIG),
-                            Helper::getValue(),
-                            Helper::extractFromJson(*objPtr,
-                                                     ALLOC_CONFIG,
-                                                     CONFIG)
-                            == Helper::getValue());
-                  } break;
-                  case 't': {  //   Json(long number, *a);
-                    typedef int TheType;
-                    typedef JsonValueConstructorHelper<TheType> Helper;
-                    if (0 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &da;
-                        objPtr = new (fa) Obj(Helper::getValue());
-                    } else if (1 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &da;
-                        objPtr = new (fa) Obj(Helper::getValue(), 0);
-                    } else if (2 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &sa;
-                        objPtr = new (fa) Obj(Helper::getValue(), &sa);
-                    } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
-                    }
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            0 == objAllocatorPtr->numBlocksTotal());
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            Helper::getType(),
-                            objPtr->type(),
-                            Helper::getType() == objPtr->type());
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            Helper::extractFromJson(*objPtr,
-                                                     ALLOC_CONFIG,
-                                                     CONFIG),
-                            Helper::getValue(),
-                            Helper::extractFromJson(*objPtr,
-                                                     ALLOC_CONFIG,
-                                                     CONFIG)
-                            == Helper::getValue());
-                  } break;
-                  case 'u': {  //   Json(unsigned long number, *a);
-                    typedef unsigned int TheType;
-                    typedef JsonValueConstructorHelper<TheType> Helper;
-                    if (0 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &da;
-                        objPtr = new (fa) Obj(Helper::getValue());
-                    } else if (1 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &da;
-                        objPtr = new (fa) Obj(Helper::getValue(), 0);
-                    } else if (2 == ALLOC_CONFIG) {
-                        objAllocatorPtr = &sa;
-                        objPtr = new (fa) Obj(Helper::getValue(), &sa);
-                    } else {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
-                    }
-                    ASSERTV(ALLOC_CONFIG,
-                            CONFIG,
-                            0 == objAllocatorPtr->numBlocksTotal());
                     ASSERTV(ALLOC_CONFIG,
                             CONFIG,
                             Helper::getType(),
@@ -12470,7 +8486,7 @@ int main(int argc, char *argv[])
                             == Helper::getValue());
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(false && "Bad constructor config.");
+                    BSLS_ASSERT_OPT(0 == "Bad constructor config.");
                   } break;
                 }
 
@@ -12643,7 +8659,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 
@@ -13002,14 +9018,13 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   JsonObject(initializer_list<Member> members, *a);
-        //   JsonObject(initializer_list<Json_MemberInitializer> members, *a);
         //   JsonObject::operator=(initializer_list<Member> members);
         //   Iterator JsonObject::begin();
         //   Iterator JsonObject::end();
         //   pair<Iterator, bool> JsonObject::insert(const Member& m);
         //   pair<Iterator, bool> JsonObject::insert(MovableRef<Member> m);
-        //   JsonObject& JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
-        //   JsonObject& JsonObject::insert(initializer_list<Member> members);
+        //   void JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
+        //   void JsonObject::insert(initializer_list<Member> members);
         //   pair<Iterator, bool> JsonObject::insert(string_view key, V&& v);
         //   void JsonObject::clear();
         //   Iterator JsonObject::erase(Iterator position);
@@ -13104,127 +9119,6 @@ int main(int argc, char *argv[])
             ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
             ASSERTV(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
         }
-
-        {
-            bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
-
-            {  // don't pass the allocator to the constructor
-                bslma::TestAllocator         da2("default2",
-                                                  veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da2);
-
-                Obj j1 {{"ABC", 23},
-                        {"DEF", 2.4},
-                        {"GHI", JsonArray{2, 3.5, false, "ABC"}}};
-
-                ASSERT(3 == j1.size());
-                ASSERT( j1.contains("ABC"));
-                ASSERT( j1.contains("DEF"));
-                ASSERT( j1.contains("GHI"));
-                ASSERT(!j1.contains("XYZ"));
-
-                ASSERT(23  == j1["ABC"]);
-                ASSERT(2.4 == j1["DEF"].asDouble());
-                ASSERT(j1["GHI"].isArray());
-                ASSERT(4   == j1["GHI"].theArray().size());
-
-                ASSERTV(da2.numBlocksInUse(), 0 <  da2.numBlocksInUse());
-                ASSERTV(sa2.numBlocksTotal(), 0 == sa2.numBlocksTotal());
-            }
-
-            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
-
-            {   // pass the allocator to the constructor
-                bslma::TestAllocator         da2("default2",
-                                                  veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da2);
-
-                Obj j1 ({{"ABC", 23},
-                         {"DEF", 2.4},
-                         {"GHI", JsonArray{2, 3.5, false, "ABC"}}},
-                        &sa2);
-
-                ASSERT(3 == j1.size());
-                ASSERT( j1.contains("ABC"));
-                ASSERT( j1.contains("DEF"));
-                ASSERT( j1.contains("GHI"));
-                ASSERT(!j1.contains("XYZ"));
-
-                ASSERT(23  == j1["ABC"]);
-                ASSERT(2.4 == j1["DEF"].asDouble());
-                ASSERT(j1["GHI"].isArray());
-                ASSERT(4   == j1["GHI"].theArray().size());
-
-            //  the ephemeral JSONArray in the initializer_list uses the
-            //  default allocator, but then that is deallocated and the
-            //  supplied allocator is used
-                ASSERTV(da2.numBlocksInUse(), 0 == da2.numBlocksInUse());
-                ASSERTV(da2.numBlocksTotal(), 0 <  da2.numBlocksTotal());
-                ASSERTV(sa2.numBlocksTotal(), 0 <  sa2.numBlocksTotal());
-            }
-
-            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
-
-            {  // use a naked set of braces rather than saying 'JsonArray'
-                bslma::TestAllocator         da2("default2",
-                                                  veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da2);
-
-                Obj j1 {{"ABC", 23},
-                        {"DEF", 2.4},
-                        {"GHI", {2, 3.5, false, "ABC"}}};
-
-                ASSERT(3 == j1.size());
-                ASSERT( j1.contains("ABC"));
-                ASSERT( j1.contains("DEF"));
-                ASSERT( j1.contains("GHI"));
-                ASSERT(!j1.contains("XYZ"));
-
-                ASSERT(23  == j1["ABC"]);
-                ASSERT(2.4 == j1["DEF"].asDouble());
-                ASSERT(j1["GHI"].isArray());
-                ASSERT(4   == j1["GHI"].theArray().size());
-
-                ASSERTV(da2.numBlocksInUse(), 0 <  da2.numBlocksInUse());
-                ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
-            }
-
-            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
-
-            {  // use a naked set of braces rather than saying 'JsonArray'
-                bslma::TestAllocator         da2("default2",
-                                                  veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da2);
-
-                Obj j1 ({{"ABC", 23},
-                         {"DEF", 2.4},
-                         {"GHI", {2, 3.5, false, "ABC"}}},
-                        &sa2);
-
-                ASSERT(3 == j1.size());
-                ASSERT( j1.contains("ABC"));
-                ASSERT( j1.contains("DEF"));
-                ASSERT( j1.contains("GHI"));
-                ASSERT(!j1.contains("XYZ"));
-
-                ASSERT(23  == j1["ABC"]);
-                ASSERT(2.4 == j1["DEF"].asDouble());
-                ASSERT(j1["GHI"].isArray());
-                ASSERT(4   == j1["GHI"].theArray().size());
-
-            //  the ephemeral JSONArray in the initializer_list uses the
-            //  default allocator, but then that is deallocated and the
-            //  supplied allocator is used
-                ASSERTV(da2.numBlocksInUse(), 0 == da2.numBlocksInUse());
-                ASSERTV(da2.numBlocksTotal(), 0 <  da2.numBlocksTotal());
-                ASSERTV(sa2.numBlocksTotal(), 0 <  sa2.numBlocksTotal());
-            }
-
-            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
-            // We didn't use the previous default allocator at all
-            ASSERTV(da.numBlocksTotal(),  0 ==  da.numBlocksTotal());
-        }
-
 #endif
 
         for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
@@ -13270,7 +9164,7 @@ int main(int argc, char *argv[])
                 mX.find(KEY)->second = GOOD;
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -13312,7 +9206,7 @@ int main(int argc, char *argv[])
                 ASSERT(!r2);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -13360,14 +9254,14 @@ int main(int argc, char *argv[])
               } break;
               case 'l': {
                 if (veryVerbose) cout << "void insert(Iter f, Iter l);\n";
-                ASSERT(&mX == &mX.insert(&GOOD_MEMBER, &GOOD_MEMBER + 1));
+                mX.insert(&GOOD_MEMBER, &GOOD_MEMBER + 1);
               } break;
               case 'm': {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
                 if (veryVerbose) cout <<
                                     "void insert(initializer_list<Member> m);";
-                ASSERT(&mX == &mX.insert({{KEY, GOOD}}));
+                mX.insert({{KEY, GOOD}});
 #else
                 if (veryVerbose) cout << "init list insertion elided.\n";
                 elided = true;
@@ -13385,7 +9279,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == r2.second);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, elided, (K == X) || elided);
@@ -13754,6 +9648,7 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
 
+
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -13767,6 +9662,7 @@ int main(int argc, char *argv[])
                                &s2 == X.allocator());
                         ASSERTV(LINE1, LINE2, &s1, F.allocator(),
                                &s1 == F.allocator());
+
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
@@ -14749,7 +10645,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -15068,7 +10964,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -16012,7 +11908,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
 
@@ -16313,7 +12209,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 
@@ -16708,7 +12604,7 @@ int main(int argc, char *argv[])
               case 'c': {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
                 if (veryVerbose) cout << "assign(initializer_list<Json> l);\n";
-                ASSERT(&mX == &mX.assign({GOOD}));
+                mX.assign({GOOD});
 #else
                 if (veryVerbose) cout << "init list assign member elided.\n";
                 continue;
@@ -16717,7 +12613,7 @@ int main(int argc, char *argv[])
               case 'd': {
                 if (veryVerbose) cout <<
                         "assign(INPUT_ITERATOR first, INPUT_ITERATOR last);\n";
-                ASSERT(&mX == &mX.assign(&GOOD, &GOOD + 1));
+                mX.assign(&GOOD, &GOOD + 1);
               } break;
               case 'e': {
                 if (veryVerbose) cout << "Iterator begin();\n";
@@ -16736,7 +12632,7 @@ int main(int argc, char *argv[])
                 mX.back() = GOOD;
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -16777,7 +12673,7 @@ int main(int argc, char *argv[])
                 mX.popBack();
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -16839,7 +12735,7 @@ int main(int argc, char *argv[])
                 ASSERT(r == mX.begin());
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad test case config.");
+                BSLS_ASSERT_OPT(0 == "Bad test case config.");
               } break;
             }
             ASSERTV(CONFIG, K, X, K == X);
@@ -17165,6 +13061,7 @@ int main(int argc, char *argv[])
 
                     ASSERTV(LINE1, LINE2, F, X, (F == X) == (LINE1 == LINE2));
 
+
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(s2) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -17178,6 +13075,7 @@ int main(int argc, char *argv[])
                                &s2 == X.allocator());
                         ASSERTV(LINE1, LINE2, &s1, F.allocator(),
                                &s1 == F.allocator());
+
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
@@ -17475,6 +13373,7 @@ int main(int argc, char *argv[])
                         Obj *mR = &(mX = Z);
                         ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
 
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
@@ -18122,7 +14021,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -18440,7 +14339,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -19443,7 +15342,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
 
@@ -19740,7 +15639,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 
@@ -19756,7 +15655,7 @@ int main(int argc, char *argv[])
 
             // Verify no allocation from the object/non-object allocators
 
-            ASSERTV(CONFIG,  oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             // ---------------------------------
@@ -19940,20 +15839,21 @@ int main(int argc, char *argv[])
             bdljsn::JsonObject::Member("a", Json()),
             bdljsn::JsonObject::Member("b", Json(1))};
 
-        ASSERT(&object == &object.insert(ARRAY, ARRAY + 2));
-        object.insert("bool",    true);
-        object.insert("int",     1);
-        object.insert("double",  3.1415);
+        object.insert(ARRAY, ARRAY + 2);
+        object.insert("bool", true);
+        object.insert("int", 1);
+        object.insert("double", 3.1415);
         object.insert("cstring", "JsonObject");
-        object.insert("string",  bsl::string("bsl::string"));
+        object.insert("string", bsl::string("bsl::string"));
 
-        ASSERT(bdljsn::Json(true)          == object["bool"]);
-        ASSERT(bdljsn::Json(1)             == object["int"]);
-        ASSERT(bdljsn::Json(3.1415)        == object["double"]);
-        ASSERT(bdljsn::Json("JsonObject")  == object["cstring"]);
+
+        ASSERT(bdljsn::Json(true) == object["bool"]);
+        ASSERT(bdljsn::Json(1) == object["int"]);
+        ASSERT(bdljsn::Json(3.1415) == object["double"]);
+        ASSERT(bdljsn::Json("JsonObject") == object["cstring"]);
         ASSERT(bdljsn::Json("bsl::string") == object["string"]);
-        ASSERT(bdljsn::Json()              == object["a"]);
-        ASSERT(bdljsn::Json(1)             == object["b"]);
+        ASSERT(bdljsn::Json() == object["a"]);
+        ASSERT(bdljsn::Json(1) == object["b"]);
 
         if (veryVerbose)
             cout << endl

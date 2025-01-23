@@ -63,8 +63,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslh_hash.h> // 'hashAppend(HASH_ALG, int)'
 
-#include <bsls_compilerfeatures.h>
-
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -83,7 +81,7 @@ class JsonNull {
 
     /// Create a "null" JSON respresentation.  The created object is equal
     /// to all other `JsonNull` objects.
-//! JsonNull() = default;
+    JsonNull();
 
     // ACCESSORS
 
@@ -135,17 +133,6 @@ void hashAppend(HASHALG& hashAlgorithm, const JsonNull& object);
 /// operation is a no-op.
 void swap(JsonNull& a, JsonNull& b);
 
-                               // ===============
-                               // object jsonNull
-                               // ===============
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-inline constexpr JsonNull jsonNull = { };
-#else
-extern const     JsonNull jsonNull;
-#endif
-    // An object having the (singular) value of the 'JsonNull' type.
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -155,6 +142,10 @@ extern const     JsonNull jsonNull;
                               // --------------
 
 // CREATORS
+inline
+JsonNull::JsonNull()
+{
+}
 
 }  // close package namespace
 

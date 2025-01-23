@@ -388,11 +388,11 @@ int main(int argc, char *argv[])
                   } break;
                   case 'i': { ASSERTV(EXPECTED, Util::e_EITHER == EXPECTED);
                   } break;
-                  default:  { ASSERTV(TEST_NAME[0], false && "expected value");
+                  default:  { ASSERTV(TEST_NAME[0], 0 == "expected value");
                   } break;
                 }
             } else {
-                ASSERTV(TEST_NAME, false && "well-formed 'TEST_NAME'");
+                ASSERTV(TEST_NAME, 0 == "well-formed `TEST_NAME`");
             }
 
             bsl::string PATH = testParsingDir + "/" + bsl::string(TEST_NAME);
