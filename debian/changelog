@@ -1,5 +1,13 @@
-bsl-internal (4.19.0.0) unstable; urgency=low
+bsl-internal (4.19.1.0) unstable; urgency=low
 
+  * 88b47104a Bumped version to 4.19.1.0
+  * f081af0fd Revert "Bdljsn jsonnull constant drqs 175433360.1 (#4801) (#5163)" (#5177)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 23 Jan 2025 07:52:06 -0500
+
+bsl-internal (4.19.0.0) git; urgency=low
+
+  * dd32267b3 Changelog for version 4.19.0.0
   * 5243002f9 Bumped version to 4.19.0.0
   * 34450f5fa reduce warnings (#5171)
   * d53f30b9d Add 'BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE' (2) (#5167)
@@ -25,7 +33,7 @@ bsl-internal (4.19.0.0) unstable; urgency=low
   * 0a5da4911 Add real bdlat package documentation - part 2 (DRQS 149549180) (#5101)
   * 5a689877c Fix html rendering in docs (#5113)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jan 2025 10:09:52 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jan 2025 10:19:54 -0500
 
 bsl-internal (4.18.0.0) git; urgency=low
 
