@@ -6,8 +6,6 @@ BSLS_IDENT_RCSID(bdljsn_json_cpp, "$Id$ $CSID$")
 
 #include <bdljsn_stringutil.h>
 
-#include <bsla_unreachable.h>
-
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
@@ -93,156 +91,9 @@ void PrintVisitor::operator()(const JsonArray& value) const
 
 void PrintVisitor::operator()(bslmf::Nil) const
 {
-    BSLA_UNREACHABLE;
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT(false);
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-                    // ======================
-                    // class ConstructVisitor
-                    // ======================
-
-class ConstructVisitor {
-    Json *d_this_p;
-
-  public:
-    explicit ConstructVisitor(Json *json);
-        // Create a 'ConstructVisitor' object configured write into the
-        // specified 'json'.
-
-    void operator()(const JsonNull &jNull) const;
-        // Store the specified 'jNull' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(bool b) const;
-        // Store the specified 'b' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(long long ll) const;
-        // Store the specified 'll' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(unsigned long long ull) const;
-        // Store the specified 'ull' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(double d) const;
-        // Store the specified 'd' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(bdldfp::Decimal64 value) const;
-        // Store the specified 'value' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(const bsl::string_view& sv) const;
-        // Store the specified 'sv' into the Json object pointed to by
-        // 'd_this_p'.
-
-    void operator()(const JsonObject *jObj) const;
-        // Store the object pointed to by the specified 'jObj' to the 'Json'
-        // object pointed to by 'd_this_p'.
-
-    void operator()(const JsonArray *jArr) const;
-        // Store the object pointed to by the specified 'jArr' to the 'Json'
-        // object pointed to by 'd_this_p'.
-
-    void operator()(const JsonNumber *jNum) const;
-        // Store the object pointed to by the specified 'jNum' to the 'Json'
-        // object pointed to by 'd_this_p'.
-
-    void operator()(const Json *json) const;
-        // Store the object pointed to by the specified 'json' to the 'Json'
-        // object pointed to by 'd_this_p'.
-
-    void operator()(std::initializer_list<Json_Initializer> il) const;
-        // Store a JsonArray containing the elements of the specified 'il' into
-        // the Json object pointed to by 'd_this_p'.
-
-    void operator()(bslmf::Nil) const;
-        // The behavior is undefined when this method is called.
-};
-
-                    // ---------------------
-                    // class ConstructVisitor
-                    // ---------------------
-
-ConstructVisitor::ConstructVisitor(Json *json)
-: d_this_p(json)
-{
-}
-
-void ConstructVisitor::operator()(const JsonNull &jNull) const
-{
-    (void)jNull;
-}
-
-void ConstructVisitor::operator()(bool b) const
-{
-    d_this_p->makeBoolean(b);
-}
-
-void ConstructVisitor::operator()(long long ll) const
-{
-    d_this_p->makeNumber(JsonNumber(ll));
-}
-
-void ConstructVisitor::operator()(unsigned long long ull) const
-{
-    d_this_p->makeNumber(JsonNumber(ull));
-}
-
-void ConstructVisitor::operator()(double d) const
-{
-    d_this_p->makeNumber(JsonNumber(d));
-}
-
-void ConstructVisitor::operator()(bdldfp::Decimal64 value) const
-{
-    d_this_p->makeNumber(JsonNumber(value));
-}
-
-void ConstructVisitor::operator()(const bsl::string_view& sv) const
-{
-    d_this_p->makeString(sv);
-}
-
-void ConstructVisitor::operator()(const JsonObject *jObj) const
-{
-    d_this_p->makeObject(*jObj);
-}
-
-void ConstructVisitor::operator()(const JsonArray *jArr) const
-{
-    d_this_p->makeArray(*jArr);
-}
-
-void ConstructVisitor::operator()(const JsonNumber *jNum) const
-{
-    d_this_p->makeNumber(*jNum);
-}
-
-void ConstructVisitor::operator()(const Json *json) const
-{
-    *d_this_p = *json;
-}
-
-void ConstructVisitor::operator()(
-                              std::initializer_list<Json_Initializer> il) const
-{
-    JsonArray arr;
-    for (const auto & val : il) {
-        arr.pushBack(val);
-    }
-    d_this_p->makeArray(bslmf::MovableRefUtil::move(arr));
-}
-
-void ConstructVisitor::operator()(bslmf::Nil) const
-{
-    BSLA_UNREACHABLE;
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
-}
-
-#endif
 }  // close unnamed namespace
 
                               // ---------------
@@ -282,19 +133,6 @@ bsl::ostream& JsonArray::print(bsl::ostream& stream,
                               // class JsonObject
                               // ----------------
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
-                                                  const bsl::string_view& key,
-                                                  const Json_Initializer& init)
-{
-    BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
-    Json   json(init, allocator());
-    Member member(key, Json(), allocator());
-    member.second = bslmf::MovableRefUtil::move(json);
-    return insert(bslmf::MovableRefUtil::move(member));
-}
-#endif
-
 bsl::ostream& JsonObject::print(bsl::ostream& stream,
                                 int           level,
                                 int           spacesPerLevel) const
@@ -330,14 +168,6 @@ bsl::ostream& JsonObject::print(bsl::ostream& stream,
                                  // ----------
                                  // class Json
                                  // ----------
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-Json::Json(const Json_Initializer& init, bslma::Allocator *basicAllocator)
-: d_value(JsonNull(), basicAllocator)
-{
-    init.get_storage().apply(ConstructVisitor(this));
-}
-#endif
 
 bsl::ostream& Json::print(bsl::ostream& stream,
                           int           level,
