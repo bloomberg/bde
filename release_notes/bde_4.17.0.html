@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Release Notes &mdash; BDE Documentation  documentation</title>
+  <title>BDE 4.17.0 Release &mdash; BDE Documentation  documentation</title>
   
 
   
@@ -22,7 +22,7 @@
   
 
   
-    <link rel="canonical" href="https://bloomberg.github.io/release_notes/release_notes.html" />
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.17.0.html" />
 
   
   <!--[if lt IE 9]>
@@ -41,8 +41,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BDE 4.18.0 Release" href="bde_4.18.0.html" />
-    <link rel="prev" title="Supported Platforms" href="../library_information/supported_platforms.html" /> 
+    <link rel="next" title="BDE 4.16.0 Release" href="bde_4.16.0.html" />
+    <link rel="prev" title="BDE 4.18.0 Release" href="bde_4.18.0.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,9 +93,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Release Notes</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="bde_4.18.0.html">BDE 4.18.0 Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bde_4.17.0.html">BDE 4.17.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.17.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-17-0-release-highlights">BDE 4.17.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bde_4.16.0.html">BDE 4.16.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_4.15.0.html">BDE 4.15.0 Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
@@ -166,7 +173,9 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Release Notes</li>
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.17.0 Release</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -180,10 +189,10 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
-        <a href="bde_4.18.0.html" class="btn btn-neutral float-right" title="BDE 4.18.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bde_4.16.0.html" class="btn btn-neutral float-right" title="BDE 4.16.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
       
       
-        <a href="../library_information/supported_platforms.html" class="btn btn-neutral float-left" title="Supported Platforms" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bde_4.18.0.html" class="btn btn-neutral float-left" title="BDE 4.18.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
       
   </div>
   
@@ -192,17 +201,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="release-notes">
-<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="bde_4.18.0.html">BDE 4.18.0 Release</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bde_4.17.0.html">BDE 4.17.0 Release</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bde_4.16.0.html">BDE 4.16.0 Release</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bde_4.15.0.html">BDE 4.15.0 Release</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
-<li class="toctree-l1"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+  <div class="section" id="bde-4-17-0-release">
+<span id="bde4-17-0-top"></span><h1>BDE 4.17.0 Release<a class="headerlink" href="#bde-4-17-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-17-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.17.0 production release was
+completed on <strong>Monday, Nov 18th, 2024</strong>.</p></li>
 </ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-17-0-release-highlights">
+<h2>BDE 4.17.0 Release Highlights<a class="headerlink" href="#bde-4-17-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fixed-drqss">
+<h3>Fixed DRQSs<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h3>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Please, fail compilation in a placement operator new[]</p></td>
+</tr>
+<tr class="row-odd"><td><p>Allocators should not return nullptr when using the memory_resource interface</p></td>
+</tr>
+<tr class="row-even"><td><p>balst: DWARF problem with gcc-13 C++20</p></td>
+</tr>
+<tr class="row-odd"><td><p>Moving instead of copying jobs bdlmt Threadpool</p></td>
+</tr>
+<tr class="row-even"><td><p>please correct two clang-15 bslma td warnings</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please investigate avoiding data race in StripedUnorderedMap</p></td>
+</tr>
+<tr class="row-even"><td><p>bde-platform-checks fails to build on RHEL8 and requires updates (aka link coercion)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add missing toChars support except long double</p></td>
+</tr>
+<tr class="row-even"><td><p>a_cdb2: Missing BSLS_KEYWORD_OVERRIDE</p></td>
+</tr>
+<tr class="row-odd"><td><p>Documentation for ‘bsl::is_trivially_default_constructible’ is out of date</p></td>
+</tr>
+<tr class="row-even"><td><p>bsls_stackaddressutil: please zero-pad stack addresses to ptr width</p></td>
+</tr>
+<tr class="row-odd"><td><p>please correct/reduce ball_asyncfileobserver case 6 intermittent issue</p></td>
+</tr>
+<tr class="row-even"><td><p>please correct/reduce balm_publicationscheduler case 5 intermittent issue</p></td>
+</tr>
+<tr class="row-odd"><td><p>balst_stacktracetestallocator TC 2 fails sun gcc opt: longjmp in dtor compiler bug</p></td>
+</tr>
+<tr class="row-even"><td><p>please correct/reduce baecs_journal case 9 intermittent issue</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please implement P2870: remove zero-argument <cite>reserve</cite> from <cite>basic_string</cite></p></td>
+</tr>
+<tr class="row-even"><td><p>ball::Atttribute makes unnecessary copy because it uses default allocator for a member of object with specified allocator</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add missing C++20 &lt;type_traits&gt; features to bsl_type_traits.h</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlt_datetimetz.h fails with maybe-uninitialized against cxxinfralnx-dts13</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please deprecate bdeimp_fuzzy</p></td>
+</tr>
+<tr class="row-even"><td><p>Add C++20 constexpr and consteval macros</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlb::DoubleCompareUtil ensure zero tolerance behaves the same way as negative would</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::string_view::contains(const char <a href="#id1"><span class="problematic" id="id2">*</span></a>) should not be noexcept</p></td>
+</tr>
+<tr class="row-odd"><td><p>MSVC 2022 c++20 compilation error for bslmf_detectnestedtrait.t.cpp</p></td>
+</tr>
+<tr class="row-even"><td><p>Add transparent ‘bucket’ call to unordered containers</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix MSVC bslmf test driver compilation errors related to (…) functions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 

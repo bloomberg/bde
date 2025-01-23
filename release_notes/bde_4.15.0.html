@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.15.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.15.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.14.0 Release" href="bde_4.14.0.html" />
+    <link rel="prev" title="BDE 4.16.0 Release" href="bde_4.16.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.18.0.html">BDE 4.18.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.17.0.html">BDE 4.17.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.16.0.html">BDE 4.16.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.15.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-15-0-release-highlights">BDE 4.15.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bdlb-numericformatterutil-parsedouble-behavior-changes"><code class="docutils literal notranslate"><span class="pre">bdlb::NumericFormatterUtil::parseDouble</span></code> Behavior Changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#naming-hierarchy-for-thread-enabled-object-monitoring">Naming Hierarchy for Thread Enabled Object Monitoring</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#balst-stacktracetestallocator-now-usable-with-bslma-testallocator-exception-test-begin-end-macros"><code class="docutils literal notranslate"><span class="pre">balst::StackTraceTestAllocator</span></code> Now Usable With <code class="docutils literal notranslate"><span class="pre">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN/END</span></code> Macros</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bslmt-threadlocalvariable-is-now-available-for-general-use-on-all-platforms"><code class="docutils literal notranslate"><span class="pre">bslmt::ThreadLocalVariable</span></code> Is Now Available For General Use on All Platforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.15.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.14.0.html" class="btn btn-neutral float-right" title="BDE 4.14.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="bde_4.16.0.html" class="btn btn-neutral float-left" title="BDE 4.16.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-15-0-release">
+<span id="bde4-15-0-top"></span><h1>BDE 4.15.0 Release<a class="headerlink" href="#bde-4-15-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-15-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.15.0 production release was
+completed on <strong>Monday, Oct 7th, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-15-0-release-highlights">
+<h2>BDE 4.15.0 Release Highlights<a class="headerlink" href="#bde-4-15-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bdlb-numericformatterutil-parsedouble-behavior-changes">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlb::NumericFormatterUtil::parseDouble</span></code> Behavior Changes<a class="headerlink" href="#bdlb-numericformatterutil-parsedouble-behavior-changes" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlb::NumericFormatterUtil::parseDouble</span></code> method has been updated to conform to its contract and not parse hexfloat strings, as well as to report over and underflow during parsing by returning <code class="docutils literal notranslate"><span class="pre">ERANGE</span></code> instead of 0 (success).  When the method returns <code class="docutils literal notranslate"><span class="pre">ERANGE</span></code> it still sets the resulting <code class="docutils literal notranslate"><span class="pre">double</span></code> to +/-0 or +/-infinity so code may continue to rely on parsing underflow and overflow values floating point values (but now additional status information will be available).    Note that support for hexfloat parsing was not intentional and available only on a subset of production platforms.</p>
+<p>As a preparation for this change <code class="docutils literal notranslate"><span class="pre">BSLS_REVIEW</span></code> macros were introduced into the <code class="docutils literal notranslate"><span class="pre">parseDouble</span></code> code in 2023 that have been producing logged warnings for code inadvertently relying on underflow, overflow, or hexfloat conversions (for over a year). We have reached out to all teams producing those messages on managed machines for which alerts for logged messages were available and ensured that this change would not result in breakages.</p>
+</div>
+<div class="section" id="naming-hierarchy-for-thread-enabled-object-monitoring">
+<h3>Naming Hierarchy for Thread Enabled Object Monitoring<a class="headerlink" href="#naming-hierarchy-for-thread-enabled-object-monitoring" title="Permalink to this headline">¶</a></h3>
+<p>The thread-enabled objects <code class="docutils literal notranslate"><span class="pre">bdlmt::ThreadPool</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlmt::FixedThreadPool</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlmt::EventScheduler</span></code>, and <code class="docutils literal notranslate"><span class="pre">bdlmt::TimerEventScheduler</span></code> now implement a consistant algorithm for naming owned threads.  If the supplied thread attributes has a non-empty thread name, this name is used.  Otherwise, if a non-empty name was supplied to the thread-enabled object at construction, this name is used.  Finally, if both of those names are empty, a type-specific default is used.  Note that the thread attributes for the event schedulers is supplied in the <code class="docutils literal notranslate"><span class="pre">start</span></code> method.</p>
+</div>
+<div class="section" id="balst-stacktracetestallocator-now-usable-with-bslma-testallocator-exception-test-begin-end-macros">
+<h3><code class="docutils literal notranslate"><span class="pre">balst::StackTraceTestAllocator</span></code> Now Usable With <code class="docutils literal notranslate"><span class="pre">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN/END</span></code> Macros<a class="headerlink" href="#balst-stacktracetestallocator-now-usable-with-bslma-testallocator-exception-test-begin-end-macros" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</span></code> and <code class="docutils literal notranslate"><span class="pre">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</span></code> macros provide useful and important testing for exception neutrality.  Previously these macros only worked with <code class="docutils literal notranslate"><span class="pre">bslma::TestAllocator</span></code>.  This update, allowing the combination of these marcros with a <code class="docutils literal notranslate"><span class="pre">balst::StackTraceTestAllocator</span></code>, combines the power of the macros with convenient stack information made available by the allocator.</p>
+</div>
+<div class="section" id="bslmt-threadlocalvariable-is-now-available-for-general-use-on-all-platforms">
+<h3><code class="docutils literal notranslate"><span class="pre">bslmt::ThreadLocalVariable</span></code> Is Now Available For General Use on All Platforms<a class="headerlink" href="#bslmt-threadlocalvariable-is-now-available-for-general-use-on-all-platforms" title="Permalink to this headline">¶</a></h3>
+<p>The platform restrictions on <code class="docutils literal notranslate"><span class="pre">bslmt::ThreadLocalVariable</span></code> have been relaxed.</p>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bslmt_threadlocalvariable - revisit platform notes?</p></td>
+</tr>
+<tr class="row-odd"><td><p>NumericParseUtil::parseDouble contract/BSLS_REVIEW follow-up</p></td>
+</tr>
+<tr class="row-even"><td><p>bdljsn::JsonObject::operator[](const bsl::string_view&amp;) double lookup and string copy</p></td>
+</tr>
+<tr class="row-odd"><td><p>use thread pool name from attributes and vice versa</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlt_datetime.h: Compilation warnings from bas code gen - RelWithDebInfo</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ability to use BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN/END with StackTraceTestAllocator</p></td>
+</tr>
+<tr class="row-even"><td><p>add checks in bslmt to verify threading library is consistant with std</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please catch exception by reference in bslma_bufferallocator</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix C++20 bslim_bslstandardheadertest.t on MacOS with clang</p></td>
+</tr>
+<tr class="row-odd"><td><p>Address UBSAN issues in bdlbb_blobstreambuf</p></td>
+</tr>
+<tr class="row-even"><td><p>Address UBSAN issues in bdlc_packedintarray.h</p></td>
+</tr>
+<tr class="row-odd"><td><p>Address UBSAN issues in bdld_datumbinaryref.h</p></td>
+</tr>
+<tr class="row-even"><td><p>Address UBSAN issues in bdlsb_overflowmemoutstreambuf</p></td>
+</tr>
+<tr class="row-odd"><td><p>UBSAN fixes for test files, except for invalid enum values</p></td>
+</tr>
+<tr class="row-even"><td><p>please address balst_stacktracetestallocator.t run failure on all platforms and ufids</p></td>
+</tr>
+<tr class="row-odd"><td><p>Address UBSAN issues with invalid enum values in tests</p></td>
+</tr>
+<tr class="row-even"><td><p>please address balst_stacktraceallocator.t run failures</p></td>
+</tr>
+<tr class="row-odd"><td><p>please correct bdljsn_json.t.cpp compile warning on gcc-12</p></td>
+</tr>
+<tr class="row-even"><td><p>Crash in bdlcc::skipList</p></td>
+</tr>
+<tr class="row-odd"><td><p>bbs_build build –target JUNK tries to build</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

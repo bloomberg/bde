@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>BDE 4.18.0 Release &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.18.0.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.17.0 Release" href="bde_4.17.0.html" />
+    <link rel="prev" title="Release Notes" href="release_notes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.18.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-18-0-release-highlights">BDE 4.18.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-transparent-hasher-tailored-for-strings-bdlb-transparentstringhash">New Transparent Hasher Tailored for Strings: <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentStringHash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bslim-printer-now-supports-tuples"><code class="docutils literal notranslate"><span class="pre">bslim::Printer</span></code> Now Supports Tuples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-drqss">Fixed DRQSs:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.17.0.html">BDE 4.17.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.16.0.html">BDE 4.16.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.15.0.html">BDE 4.15.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.14.0.html">BDE 4.14.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="release_notes.html">Release Notes</a> &raquo;</li>
+        
+      <li>BDE 4.18.0 Release</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="bde_4.17.0.html" class="btn btn-neutral float-right" title="BDE 4.17.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="release_notes.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bde-4-18-0-release">
+<span id="bde4-18-0-top"></span><h1>BDE 4.18.0 Release<a class="headerlink" href="#bde-4-18-0-release" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="schedule">
+<span id="bde4-18-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.18.0 production release was
+completed on <strong>Monday, Dec 16th, 2024</strong>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="bde-4-18-0-release-highlights">
+<h2>BDE 4.18.0 Release Highlights<a class="headerlink" href="#bde-4-18-0-release-highlights" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="new-transparent-hasher-tailored-for-strings-bdlb-transparentstringhash">
+<h3>New Transparent Hasher Tailored for Strings: <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentStringHash</span></code><a class="headerlink" href="#new-transparent-hasher-tailored-for-strings-bdlb-transparentstringhash" title="Permalink to this headline">¶</a></h3>
+<p>This release introduces the component <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentStringHash</span></code> that
+provides a transparent hash function that is specifically tailored to be used
+with <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> keys.</p>
+<p>A transparent hash function combined with using a transparent comparator allows
+to avoid unnecessary conversions when looking up a key in unordered containers.
+The most common use case is to avoid constructing a <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> when
+looking up a string key represented by a <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> or
+<code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>.  Without transparent hash and comparator, looking up a
+<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> in a <code class="docutils literal notranslate"><span class="pre">bsl::unordered_set&lt;bsl::string&gt;</span></code> would incur a
+conversion to <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> and possibly an unnecessary allocation.
+Furthermore, attempting to look up a <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> fails to compile
+since there is no implicit conversion from <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> to
+<code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">set</span><span class="p">{</span><span class="s">&quot;hello&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;goodbye&quot;</span><span class="p">};</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">));</span><span class="w">                    </span><span class="c1">// Passes, but creates a temporary ``bsl::string``!</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)));</span><span class="w">  </span><span class="c1">// Does not compile - no implicit conversion!</span>
+</pre></div>
+</div>
+<p>Although using <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentHash</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentEqualTo</span></code>
+allows to look up a <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> and removes the unnecessary
+conversion, it comes with a surprising result where strings seemingly having
+the same value are no longer found in the set:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdlb</span><span class="o">::</span><span class="n">TransparentHash</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdlb</span><span class="o">::</span><span class="n">TransparentEqualTo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">set</span><span class="p">{</span><span class="s">&quot;hello&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;goodbye&quot;</span><span class="p">};</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">));</span><span class="w">                    </span><span class="c1">// No allocation, assertion FAILS!</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)));</span><span class="w">  </span><span class="c1">// No allocation, assertion PASSES.</span>
+</pre></div>
+</div>
+<p>This behavior is due to the default hasher, to which <code class="docutils literal notranslate"><span class="pre">bdlb::TransparentHash</span></code>
+delegates, not treating <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> as a string, but rather as a raw
+pointer, hashing the pointer value itself.  With
+<code class="docutils literal notranslate"><span class="pre">bdlb::TransparentStringHash</span></code>, however, <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> is treated as a
+C-style string and is hashed accordingly, producing the expected result:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdlb</span><span class="o">::</span><span class="n">TransparentStringHash</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">bdlb</span><span class="o">::</span><span class="n">TransparentEqualTo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">set</span><span class="p">{</span><span class="s">&quot;hello&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;goodbye&quot;</span><span class="p">};</span><span class="w"></span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">));</span><span class="w">                    </span><span class="c1">// No allocation, assertion PASSES.</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">set</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)));</span><span class="w">  </span><span class="c1">// No allocation, assertion PASSES.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bslim-printer-now-supports-tuples">
+<h3><code class="docutils literal notranslate"><span class="pre">bslim::Printer</span></code> Now Supports Tuples<a class="headerlink" href="#bslim-printer-now-supports-tuples" title="Permalink to this headline">¶</a></h3>
+<p>This release adds support to <code class="docutils literal notranslate"><span class="pre">bslim::Printer</span></code> for printing objects of type
+<code class="docutils literal notranslate"><span class="pre">bsl::tuple</span></code>, provided that each element type can be printed using
+<code class="docutils literal notranslate"><span class="pre">bslim::Printer</span></code>.  For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14</span><span class="p">);</span><span class="w"></span>
+<span class="n">bslim</span><span class="o">::</span><span class="n">Printer</span><span class="w">                       </span><span class="nf">p</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">printAttribute</span><span class="p">(</span><span class="s">&quot;tuple&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>will output:</p>
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">tuple = [ 1 &quot;two&quot; 3.14 ]</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">bsl::tuple</span></code> is an alias to <code class="docutils literal notranslate"><span class="pre">std::tuple</span></code>.</p>
+</div>
+</div>
+<div class="section" id="fixed-drqss">
+<h2>Fixed DRQSs:<a class="headerlink" href="#fixed-drqss" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bdlt::Datetime::add*IfValid – internal over/underflow undermines wide contracts</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add support for Linux ARM64 - fix tests</p></td>
+</tr>
+<tr class="row-even"><td><p>Support bsl::tuple in bslim::Printer</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlde_base64-en-de-coderoptions documentation</p></td>
+</tr>
+<tr class="row-even"><td><p>please correct/reduce bdlcc_deque case 15 intermittent issue</p></td>
+</tr>
+<tr class="row-odd"><td><p>Backport some C++20 type traits</p></td>
+</tr>
+<tr class="row-even"><td><p>Add a <cite>release</cite> method to TempDirectoryGuard</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add bdlcc::TimeQueue::removeIf w/ predicate</p></td>
+</tr>
+<tr class="row-even"><td><p>Transparent Comparators For String</p></td>
+</tr>
+<tr class="row-odd"><td><p>Restore comments regarding key construction in map</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix ryu build for cmake_build.py</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix build error in bslmf_unwrapreference</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

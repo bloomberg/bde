@@ -189,6 +189,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#r-3-4-rationale-template-parameters">R.3.4 Rationale: Template Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#r-4-4-rationale-using-includes-rather-than-forward-declarations">R.4.4 Rationale: Using Includes Rather Than Forward Declarations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#r-6-10-rationale-hidden-friends">R.6.10 Rationale: Hidden Friends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#r-7-2-interface-conventions">R.7.2 Interface Conventions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#r-7-3-rationale-function-signatures">R.7.3 Rationale: Function Signatures</a></li>
 </ul>
 </li>
@@ -286,7 +287,7 @@
 <div><div class="line-block">
 <div class="line"><br /></div>
 <div class="line-block">
-<div class="line"><em>October 1, 2024</em></div>
+<div class="line"><em>December 16, 2024</em></div>
 </div>
 </div>
 </div></blockquote>
@@ -399,7 +400,8 @@
 <li><p><a class="reference internal" href="#r-3-4-rationale-template-parameters" id="id72">R.3.4 Rationale: Template Parameters</a></p></li>
 <li><p><a class="reference internal" href="#r-4-4-rationale-using-includes-rather-than-forward-declarations" id="id73">R.4.4 Rationale: Using Includes Rather Than Forward Declarations</a></p></li>
 <li><p><a class="reference internal" href="#r-6-10-rationale-hidden-friends" id="id74">R.6.10 Rationale: Hidden Friends</a></p></li>
-<li><p><a class="reference internal" href="#r-7-3-rationale-function-signatures" id="id75">R.7.3 Rationale: Function Signatures</a></p></li>
+<li><p><a class="reference internal" href="#r-7-2-interface-conventions" id="id75">R.7.2 Interface Conventions</a></p></li>
+<li><p><a class="reference internal" href="#r-7-3-rationale-function-signatures" id="id76">R.7.3 Rationale: Function Signatures</a></p></li>
 </ul>
 </li>
 </ul>
@@ -2519,18 +2521,50 @@ usage.</p>
 </div></blockquote>
 </dd>
 </dl>
-<dl class="simple" id="rule-7-2-3">
-<dt><em>7.2.3</em></dt><dd><p>Inputs and parameters should be passed by value for fundamental, enumerated,
-and pointer types, and by non-modifiable reference otherwise. An argument
-must be passed by pointer if its address is retained beyond the end of the
-function call.</p>
+<dl id="rule-7-2-3">
+<dt><em>7.2.3</em></dt><dd><p>Parameters are passed by value for fundamental, enumeration, and pointer
+types (see <a class="reference internal" href="#rule-7-2-4"><span class="std std-ref">Rule 7.2.4</span></a>) and by <code class="docutils literal notranslate"><span class="pre">const</span></code> reference in
+almost other situations except as described immediately below.</p>
+<p>Parameters are passed by non-<code class="docutils literal notranslate"><span class="pre">const</span></code> reference in interfaces that must be
+consistent with externally defined APIs (the C++ Standard) that do so.
+Consider the following examples:</p>
+<ul class="simple">
+<li><p>The parameters to <code class="docutils literal notranslate"><span class="pre">swap</span></code> (free and member functions)</p></li>
+<li><p>Input and output streams (e.g., <code class="docutils literal notranslate"><span class="pre">bsl::istream</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::ostream</span></code>)</p></li>
+<li><p>Free operators that modify its (first) operand such as postfix
+increment and decrement operators</p></li>
+</ul>
+<p>Of course the references in the above <em>must</em> be non-<code class="docutils literal notranslate"><span class="pre">const</span></code> since a
+<code class="docutils literal notranslate"><span class="pre">const</span></code> qualification would prevent their intended use.</p>
 </dd>
 </dl>
-<dl class="simple" id="rule-7-2-4">
-<dt><em>7.2.4</em></dt><dd><p>Outputs must be passed by pointer, never by modifiable reference (except
-where required for consistency with an externally-defined API).</p>
+<dl id="rule-7-2-4">
+<dt><em>7.2.4</em></dt><dd><p>Arguments must be pointer types in four contexts and only in those
+contexts.</p>
+<ol class="arabic">
+<li><p>The argument is used for output (i.e., a variable value outside the
+function is modified the function).</p></li>
+<li><p>The address of the object referenced by the argument is retained after
+the return of the function.</p></li>
+<li><p>The parameter supports a null state (i.e., no value) indicated by
+the null-pointer argument (e.g., <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> or <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p>
+<p><strong>Note:</strong> Acceptance of a null-pointer value must be documented in the
+function contract.</p>
+</li>
+<li><p>The argument references an immutable sequence of characters of
+unspecified length (e.g., <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>).</p></li>
+</ol>
 </dd>
 </dl>
+<table class="docutils align-right">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rule-7-2-use-pointer-parameter"><span class="std std-ref">[rationale]</span></a></p></td>
+</tr>
+</tbody>
+</table>
 <dl id="rule-7-2-5">
 <dt><em>7.2.5</em></dt><dd><p>Optional arguments follow required arguments in the same relative order.</p>
 <blockquote>
@@ -2539,13 +2573,22 @@ from <code class="docutils literal notranslate"><span class="pre">bcec::TimeQueu
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">popLE</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">TimeQueueItem</span><span class="o">&lt;</span><span class="n">TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w">          </span><span class="c1">// output</span>
 <span class="w">           </span><span class="k">const</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">TimeInterval</span><span class="o">&amp;</span><span class="w">          </span><span class="n">time</span><span class="p">,</span><span class="w">            </span><span class="c1">// param</span>
 <span class="w">           </span><span class="kt">int</span><span class="w">                                </span><span class="n">maxTimers</span><span class="p">,</span><span class="w">       </span><span class="c1">// param</span>
-<span class="w">           </span><span class="kt">int</span><span class="w">                               </span><span class="o">*</span><span class="n">newLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">   </span><span class="c1">// opt.out</span>
+<span class="w">           </span><span class="kt">int</span><span class="w">                               </span><span class="o">*</span><span class="n">newLength</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">  </span><span class="c1">// opt.out</span>
 <span class="w">           </span><span class="n">bdlt</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w">                </span><span class="o">*</span><span class="n">newMinTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// opt.out</span>
 </pre></div>
 </div>
 </div></blockquote>
 </dd>
 </dl>
+<table class="docutils align-right">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rule-7-2-use-pointer-parameter"><span class="std std-ref">[rationale]</span></a></p></td>
+</tr>
+</tbody>
+</table>
 <dl id="rule-7-2-6">
 <dt><em>7.2.6</em></dt><dd><p>Arguments that are tightly bound to the output may be treated as output
 arguments, rather than parameters, even though they are not modified.</p>
@@ -3912,7 +3955,7 @@ statement.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ...</span>
 
 <span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">version</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">bslx</span><span class="o">::</span><span class="n">InStreamFunctions</span><span class="o">::</span><span class="n">bdexStreamIn</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">d_timeZoneId</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">bslx</span><span class="o">::</span><span class="n">InStreamFunctions</span><span class="o">::</span><span class="n">bdexStreamIn</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">d_datetimeTz</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
@@ -4673,8 +4716,51 @@ similar fashion.</p></li>
 </dd>
 </dl>
 </div>
+<div class="section" id="r-7-2-interface-conventions">
+<span id="section-7-2-rationale"></span><h3><a class="toc-backref" href="#id75">R.7.2 Interface Conventions</a><a class="headerlink" href="#r-7-2-interface-conventions" title="Permalink to this headline">¶</a></h3>
+<dl id="rule-7-2-use-pointer-parameter">
+<dt><em>R.7.2.4 Rationale:</em> <a class="reference internal" href="#rule-7-2-4"><span class="std std-ref">Rule 7.2.4</span></a></dt><dd><blockquote>
+<div><p>Since <a class="reference internal" href="#rule-7-2-4"><span class="std std-ref">Rule 7.2.4</span></a> limits the use of pointers to only four
+contexts, the appearance of an address as a function argument is noteworthy
+and serves to remind the reader of related programming concerns.  Even more
+importantly, when an argument is <em>not</em> an address, the reader may assume —
+from the point of call — that the argument is not modified, retained, or
+be a null pointer.</p>
+<p><strong>Note:</strong> Pointer arguments are especially conspicuous when the <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>
+is used in a function call to obtain an address.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>A non-<code class="docutils literal notranslate"><span class="pre">const</span></code> pointer early in a function’s argument list (see
+<a class="reference internal" href="#rule-7-2-2"><span class="std std-ref">Rule 7.2.2</span></a>) alerts the reader that the referenced
+object may be used for output.  More generally, any non-<code class="docutils literal notranslate"><span class="pre">const</span></code>
+pointer argument informs the reader that the function is non-pure
+(i.e., has side effects).</p></li>
+<li><p>Use of an address argument alerts the reader that the address may be
+held after the function’s return and reminds the reader of potential
+lifetime issues for the referenced object.</p></li>
+<li><p>The appearance of an address argument defaulted to a null-pointer value
+indicates that the parameter accepts a null value.</p>
+<p><strong>Note:</strong> The language disallows null references.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code> (and related variants) is a standard C/C++ idiom for
+passing string literals.</p></li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+<table class="docutils align-right">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rule-7-2-4"><span class="std std-ref">[Back to Rule 7.2.4]</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
 <div class="section" id="r-7-3-rationale-function-signatures">
-<span id="section-7-3-rationale"></span><h3><a class="toc-backref" href="#id75">R.7.3 Rationale: Function Signatures</a><a class="headerlink" href="#r-7-3-rationale-function-signatures" title="Permalink to this headline">¶</a></h3>
+<span id="section-7-3-rationale"></span><h3><a class="toc-backref" href="#id76">R.7.3 Rationale: Function Signatures</a><a class="headerlink" href="#r-7-3-rationale-function-signatures" title="Permalink to this headline">¶</a></h3>
 <dl id="rule-7-3-6-rationale">
 <dt><em>R.7.3.6 Rationale:</em> <a class="reference internal" href="#rule-7-3-6"><span class="std std-ref">Rule 7.3.6</span></a></dt><dd><p>C++11 introduced the <code class="code docutils literal notranslate"><span class="pre">override</span></code> keyword to catch developer mistakes
 when overloading virtual functions.  This section explains the purpose and

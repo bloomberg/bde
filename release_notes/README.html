@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Updating Release Notes &mdash; BDE Documentation  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/README.html" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BDE Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Updating Release Notes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="updating-release-notes">
+<h1>Updating Release Notes<a class="headerlink" href="#updating-release-notes" title="Permalink to this headline">¶</a></h1>
+<p>These instructions assume you’re writing release notes for BDE 3.115.0.</p>
+<p>When adding a new release notes page:</p>
+<ul class="simple">
+<li><p>Begin this process on an nfs-mounted machine, because you are eventually going to want to run ‘source /bb/bde/documentation/sphinx_env/bin/activate’ which will not be available on a laptop</p></li>
+<li><p>Checkout <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde-docs/">this repository</a></p></li>
+<li><p>create a BDE-3.115.0-release-notes branch off of main</p></li>
+<li><p>add the new release to the top of the list in docs/releases_notes/release_notes.rst</p></li>
+<li><p>add in a blurb to the top of docs/index.rst (by copy/pasting the previous top release note and updating the version #’s and the date - note that the version number is in the blurb title AND in the link)</p></li>
+<li><p>add a new docs/release_notes/bde_3.115.0.rst file, by copying bde_3.114.0.rst and fixing the version numbers, dates, highlights, and drqs list. Consult the parent DRQS for the list of the repos that went into the release and adjust this list in the release notes. <strong>Do not forget to add the new file to your git commit.</strong></p></li>
+<li><p>note that the list of repos in the release can usually be found in the main release DRQS.  Remember that bde becomes bsl-internal, and bde-classic becomes bde-core when we want
+DPKG names rather than bbgithub repo names.</p></li>
+</ul>
+<p>The way to generate the DRQS list is to run either <code class="docutils literal notranslate"><span class="pre">{WSCH</span> <span class="pre">/gr</span> <span class="pre">101,2217</span> <span class="pre">/qu</span>&#160; <span class="pre">NEXT&lt;GO&gt;}</span></code> (if the ticket list isn’t finalized yet) or <code class="docutils literal notranslate"><span class="pre">{WSCH</span> <span class="pre">/gr</span> <span class="pre">101,2217</span> <span class="pre">/qu</span>&#160; <span class="pre">3.115.0&lt;GO&gt;}</span></code>, (note that the separator between 101 and 2217 is a comma, not a
+period), copy and format the results from the terminal screen as described
+below, and then paste them into this command, not forgetting the version
+argument:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">bde-docs/bin/generateDrqsList.sh</span> <span class="pre">3.115.0</span>&#160; <span class="pre">#</span> <span class="pre">&lt;enter&gt;,</span> <span class="pre">paste,</span> <span class="pre">then</span> <span class="pre">hit</span> <span class="pre">^D</span></code></p>
+<p>Remember to press <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code> before pasting the copy of the search, as it is
+streaming an input file, not a set of command line arguments.</p>
+<p>To copy the search results, drag a mouse cursor to box the results from the top
+left of the first DRQS number, down to the bottom of the list so that it covers
+all of the text for each line.  Then paste the results into a text file editor
+for formatting.  If there are multiple pages of results, repeat for each page,
+adding to the text in the editor.</p>
+<p>When complete, you will have text with excessive information, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">171873355</span>	<span class="mi">101</span>	<span class="mf">3.115.0</span>	<span class="o">*</span><span class="n">F</span><span class="o">*</span> <span class="n">Please</span> <span class="n">address</span> <span class="n">bdlf_noop</span> <span class="n">nightly</span> <span class="n">build</span> <span class="n">failure</span>
+<span class="mi">171801614</span>	<span class="mi">101</span>	<span class="mf">3.115.0</span>	<span class="o">*</span><span class="n">F</span><span class="o">*</span> <span class="n">Fix</span> <span class="n">thread</span><span class="o">-</span><span class="n">naming</span> <span class="n">related</span> <span class="n">Windows</span> <span class="n">test</span> <span class="n">failure</span> <span class="ow">in</span> <span class="n">bdlmt_eventscheduler</span>
+<span class="mi">171797058</span>	<span class="mi">101</span>	<span class="mf">3.115.0</span>	<span class="o">*</span><span class="n">F</span><span class="o">*</span> <span class="n">bsls</span> <span class="n">cleanup</span><span class="p">:</span> <span class="n">consistency</span><span class="p">,</span> <span class="n">typos</span> <span class="n">etc</span>
+</pre></div>
+</div>
+<p>Use the column-editing feature of the editor to remove <code class="docutils literal notranslate"><span class="pre">101</span> <span class="pre">3.115.0</span> <span class="pre">*F*</span></code>
+from all rows, producing output formatted like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">171873355</span>	<span class="n">Please</span> <span class="n">address</span> <span class="n">bdlf_noop</span> <span class="n">nightly</span> <span class="n">build</span> <span class="n">failure</span>
+<span class="mi">171801614</span>	<span class="n">Fix</span> <span class="n">thread</span><span class="o">-</span><span class="n">naming</span> <span class="n">related</span> <span class="n">Windows</span> <span class="n">test</span> <span class="n">failure</span> <span class="ow">in</span> <span class="n">bdlmt_eventscheduler</span>
+<span class="mi">171797058</span>	<span class="n">bsls</span> <span class="n">cleanup</span><span class="p">:</span> <span class="n">consistency</span><span class="p">,</span> <span class="n">typos</span> <span class="n">etc</span>
+</pre></div>
+</div>
+<p>Now select-all, and paste the file contents into the shell window.  Finally,
+hit ^D to close the input buffer.</p>
+<p>This generates everything you need to paste into the bottom of the file,
+replacing the old “{{{ internal” and “{{{ oss” blocks of tickets from the
+previous release.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">oss</span></code> DRQS list should be edited to remove any references to
+repos other than <code class="docutils literal notranslate"><span class="pre">bde-tools</span></code> or <code class="docutils literal notranslate"><span class="pre">bde</span></code> - none of the changes in other repos are
+visible outside of Bloomberg.</p>
+<p>To check the rendering of your changes, follow the instructions at https://bde.bloomberg.com/bde/misc/docs-howto.html.</p>
+</div>
+<div class="section" id="writing-the-blst-draft">
+<h1>Writing the BLST draft<a class="headerlink" href="#writing-the-blst-draft" title="Permalink to this headline">¶</a></h1>
+<p>Run <code class="docutils literal notranslate"><span class="pre">{BLST</span> <span class="pre">/NAME</span> <span class="pre">BDE</span> <span class="pre">&lt;GO&gt;}</span></code> command in the terminal and use a previous BSLT entry as a template.
+Fill out the template with the information relevant to the current release ( collect short descriptions from the team members if necessary ) and send the draft for review
+to MikeV (Slava, Nathan, Joshua (?)), MikeG, OlegS.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BLST</span></code> format is WYSIWYG: no backticks needed, please linkify class and component names.  Some recent examples (4.15.0) have linkified the non-class-name portion of the sentance, please do not follow this example.  You can link directly to class methods, as well, such as https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/structbdlb_1_1NumericParseUtil.html#a788feadd80c9c29523232d1b7467e151.  The hex identifier after the <code class="docutils literal notranslate"><span class="pre">#</span></code> in the URL is stable.</p>
+<p>Once the draft is accepted, you can publish the entry:</p>
+<ul class="simple">
+<li><p>Login into terminal with BDE user: <code class="docutils literal notranslate"><span class="pre">{LOGA}</span></code> as <code class="docutils literal notranslate"><span class="pre">BDETEAM</span></code> user</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">{BLST</span> <span class="pre">/NAME</span> <span class="pre">BDE</span> <span class="pre">&lt;GO&gt;}</span> <span class="pre">-&gt;</span> <span class="pre">New</span> <span class="pre">Message</span></code></p></li>
+</ul>
+<p><strong>Note: if you skip the LOGA step, you will publish the BLST under your name.</strong></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2024, Bloomberg LP.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
