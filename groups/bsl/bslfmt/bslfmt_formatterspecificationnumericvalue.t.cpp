@@ -291,10 +291,6 @@ struct MockArgsContext;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace std {
-#else
-namespace BloombergLP {
-namespace bslfmt {
-#endif
 /// This specialization of `basic_arg_format` for `MockArgsContext` is used
 /// when the standard library supports a sufficiently functional format library
 /// so that we do not use our own, but rather extend the existing one.  This
@@ -357,9 +353,121 @@ class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
         return fas.get(0);
     }
 };
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 }  // close namespace std
 #else
+namespace BloombergLP {
+namespace bslfmt {
+/// This specialization of `basic_arg_format` for a `char`-based
+/// `MockArgsContext` is used when the standard library does not provide a
+/// sufficiently functional format library so that we have to implement our
+/// own.  This specialization has to inherit from `basic_format_arg` of
+/// `format_context` or `wformat_context` because `visit_format_arg` only
+/// exists for those.  The conversion constructor from the base class exists so
+/// that we can use (the only way of creating format-arguments the)
+/// `make_format_args` function that does not have a specialization for our
+/// context type, only for `format_context` and `wformat_context`.  See
+/// `MockArgsContext`.
+template <class t_VALUE_TYPE, class t_BAD_TYPE>
+class basic_format_arg<MockArgsContext<char, t_VALUE_TYPE, t_BAD_TYPE> >
+: public basic_format_arg<format_context>
+{
+  public:
+
+    // CREATORS
+
+    /// Create an empty argument that visits as `std::monostate`.
+    basic_format_arg() {}
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
+    /// object of its base class.  This constructor is necessary to make the
+    /// conversion in the return statement of `createIntegralValue` and
+    /// `createBadValue` work.
+    basic_format_arg(const basic_format_arg<format_context>& other)
+    : basic_format_arg<format_context>(other)
+    {
+    }
+
+    // CLASS METHODS
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
+    /// specified `value` and having `t_VALUE_TYPE` as its type.
+    static basic_format_arg createIntegralValue(long long value)
+    {
+        using namespace bslfmt;
+
+        static t_VALUE_TYPE typedValue;
+        typedValue = static_cast<t_VALUE_TYPE>(value);
+        return format_args(make_format_args(typedValue)).get(0);
+    }
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
+    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
+    /// used to create type that cannot be used as numeric values (width or
+    /// precision).
+    static basic_format_arg createBadValue()
+    {
+        using namespace bslfmt;
+
+        static t_BAD_TYPE x;
+        return format_args(make_format_args(x)).get(0);
+    }
+};
+
+/// This specialization of `basic_arg_format` for a `wchar_t`-based
+/// `MockArgaContext` is used when the standard library does not provide a
+/// sufficiently functional format library so that we have to implement our
+/// own.  This specialization has to inherit from `basic_format_arg` of
+/// `format_context` or `wformat_context` because `visit_format_arg` only
+/// exists for those.  The conversion constructor from the base class exists so
+/// that we can use (the only way of creating format-arguments the)
+/// `make_format_args` function that does not have a specialization for our
+/// context type, only for `format_context` and `wformat_context`.
+template <class t_VALUE_TYPE, class t_BAD_TYPE>
+class basic_format_arg<MockArgsContext<wchar_t, t_VALUE_TYPE, t_BAD_TYPE> >
+: public basic_format_arg<wformat_context>
+{
+  public:
+
+    // CREATORS
+
+    /// Create an empty argument that visits as `std::monostate`.
+    basic_format_arg() {}
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
+    /// object of its base class.  This constructor is necessary to make the
+    /// conversion in the return statement of `createIntegralValue` and
+    /// `createBadValue` work.
+    basic_format_arg(const basic_format_arg<wformat_context>& other)
+    : basic_format_arg<wformat_context>(other)
+    {
+    }
+
+    // CLASS METHODS
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
+    /// specified `value` and having `t_VALUE_TYPE` as its type.
+    static basic_format_arg createIntegralValue(long long value)
+    {
+        using namespace bslfmt;
+
+        static t_VALUE_TYPE typedValue;
+        typedValue = static_cast<t_VALUE_TYPE>(value);
+        return wformat_args(make_wformat_args(typedValue)).get(0);
+    }
+
+    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
+    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
+    /// used to create type that cannot be used as numeric values (width or
+    /// precision).
+    static basic_format_arg createBadValue()
+    {
+        using namespace bslfmt;
+
+        static t_BAD_TYPE x;
+        return wformat_args(make_wformat_args(x)).get(0);
+    }
+};
+
 }  // close package namespace
 }  // close enterprise namespace
 #endif
