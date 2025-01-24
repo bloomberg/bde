@@ -182,7 +182,8 @@ struct TypeToEnum<t_CHAR, const void*> {
     static const ArgType::Enum value = ArgType::e_VOID_PTR;
 };
 
-// Unfortunately I have no idea how to create a `handle`, so we skip it
+// We cannot create an `std::handle` because it is an unspecified type, so
+// for now we do not test `handle` (even though we could for `bslfmt`).
 
                     // =======================
                     // struct ArgTypingVisitor
@@ -414,7 +415,7 @@ class basic_format_arg<MockArgsContext<char, t_VALUE_TYPE, t_BAD_TYPE> >
 };
 
 /// This specialization of `basic_arg_format` for a `wchar_t`-based
-/// `MockArgaContext` is used when the standard library does not provide a
+/// `MockArgsContext` is used when the standard library does not provide a
 /// sufficiently functional format library so that we have to implement our
 /// own.  This specialization has to inherit from `basic_format_arg` of
 /// `format_context` or `wformat_context` because `visit_format_arg` only
