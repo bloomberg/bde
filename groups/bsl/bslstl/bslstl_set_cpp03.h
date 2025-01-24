@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 11 07:29:25 2024
+// Generated on Fri Jan 24 11:39:46 2025
 // Command line: sim_cpp11_features.pl bslstl_set.h
 
 #ifdef COMPILING_BSLSTL_SET_H
@@ -419,39 +419,6 @@ class set {
     pair<iterator, bool> insert(
                              BloombergLP::bslmf::MovableRef<value_type> value);
 
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value
-        , pair<iterator, bool> >::type
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) value)
-    {
-        typedef pair<iterator, bool> Result;
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                                            &comparisonResult,
-                                                            &d_tree,
-                                                            this->comparator(),
-                                                            value);
-        if (!comparisonResult) {
-            return Result(iterator(insertLocation), false);
-        }
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-        return Result(iterator(node), true);
-    }
-// }}} END GENERATED CODE
-
     /// Insert the specified `value` into this set (in amortized constant
     /// time if the specified `hint` is a valid immediate successor to
     /// `value`), if a key equivalent to `value` does not already exist in
@@ -481,48 +448,6 @@ class set {
     /// the range `[begin() .. end()]` (both endpoints included).
     iterator insert(const_iterator                             hint,
                     BloombergLP::bslmf::MovableRef<value_type> value);
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value
-        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
-                                iterator>::value
-        && !bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
-                                const_iterator>::value
-         , iterator>::type
-    insert(const_iterator hint,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) value)
-    {
-        BloombergLP::bslalg::RbTreeNode *hintNode =
-                    const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
-
-        int comparisonResult;
-        BloombergLP::bslalg::RbTreeNode *insertLocation =
-            BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
-                                                            &comparisonResult,
-                                                            &d_tree,
-                                                            this->comparator(),
-                                                            value,
-                                                            hintNode);
-        if (!comparisonResult) {
-            return iterator(insertLocation);
-        }
-
-        BloombergLP::bslalg::RbTreeNode *node =
-            nodeFactory().emplaceIntoNewNode(
-                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
-
-        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                  insertLocation,
-                                                  comparisonResult < 0,
-                                                  node);
-        return iterator(node);
-    }
-// }}} END GENERATED CODE
 
     /// Insert into this set the value of each `value_type` object in the
     /// range starting at the specified `first` iterator and ending
@@ -554,30 +479,30 @@ class set {
 #ifndef BSLSTL_SET_VARIADIC_LIMIT
 #define BSLSTL_SET_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_SET_VARIADIC_LIMIT_C
-#define BSLSTL_SET_VARIADIC_LIMIT_C BSLSTL_SET_VARIADIC_LIMIT
+#ifndef BSLSTL_SET_VARIADIC_LIMIT_A
+#define BSLSTL_SET_VARIADIC_LIMIT_A BSLSTL_SET_VARIADIC_LIMIT
 #endif
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 0
     pair<iterator, bool> emplace(
                          );
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 0
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
     pair<iterator, bool> emplace(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 1
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> emplace(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 2
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -585,9 +510,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 3
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -597,9 +522,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 4
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -611,9 +536,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 5
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -627,9 +552,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 6
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -645,9 +570,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 7
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -665,9 +590,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 8
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -687,9 +612,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 9
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -711,28 +636,28 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 10
 
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 0
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 0
     iterator emplace_hint(const_iterator hint);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 0
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 0
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 1
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
     iterator emplace_hint(const_iterator hint,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 1
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 1
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 2
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace_hint(const_iterator hint,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 2
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 2
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 3
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -740,9 +665,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 3
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 3
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 4
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -752,9 +677,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 4
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 4
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 5
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -766,9 +691,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 5
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 5
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 6
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -782,9 +707,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 6
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 6
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 7
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -800,9 +725,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 7
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 7
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 8
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -820,9 +745,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 8
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 8
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 9
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -842,9 +767,9 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 9
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 9
 
-#if BSLSTL_SET_VARIADIC_LIMIT_C >= 10
+#if BSLSTL_SET_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -866,7 +791,7 @@ class set {
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_C >= 10
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2242,10 +2167,10 @@ void set<KEY, COMPARATOR, ALLOCATOR>::insert(std::initializer_list<KEY> values)
 #ifndef BSLSTL_SET_VARIADIC_LIMIT
 #define BSLSTL_SET_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_SET_VARIADIC_LIMIT_D
-#define BSLSTL_SET_VARIADIC_LIMIT_D BSLSTL_SET_VARIADIC_LIMIT
+#ifndef BSLSTL_SET_VARIADIC_LIMIT_B
+#define BSLSTL_SET_VARIADIC_LIMIT_B BSLSTL_SET_VARIADIC_LIMIT
 #endif
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 0
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 pair<typename set<KEY, COMPARATOR, ALLOCATOR>::iterator, bool>
@@ -2271,9 +2196,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 1
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -2300,9 +2225,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 2
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2332,9 +2257,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 3
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2367,9 +2292,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 4
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2405,9 +2330,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 5
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2446,9 +2371,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 6
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2490,9 +2415,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 7
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2537,9 +2462,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 8
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2587,9 +2512,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 9
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2640,9 +2565,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 10
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2696,10 +2621,10 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace(
                                               node);
     return pair<iterator, bool>(iterator(node), true);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 10
 
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 0
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename set<KEY, COMPARATOR, ALLOCATOR>::iterator
@@ -2728,9 +2653,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint)
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 0
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 1
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -2761,9 +2686,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 1
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 2
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -2797,9 +2722,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 2
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 3
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2836,9 +2761,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 3
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 4
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2878,9 +2803,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 4
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 5
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2923,9 +2848,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 5
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 6
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -2971,9 +2896,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 6
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 7
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3022,9 +2947,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 7
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 8
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3076,9 +3001,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 8
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 9
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3133,9 +3058,9 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 9
 
-#if BSLSTL_SET_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_SET_VARIADIC_LIMIT_B >= 10
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3193,7 +3118,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
                                               node);
     return iterator(node);
 }
-#endif  // BSLSTL_SET_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_SET_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect

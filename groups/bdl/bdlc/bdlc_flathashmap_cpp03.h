@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 17 08:14:39 2024
+// Generated on Fri Jan 24 11:40:26 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashmap.h
 
 #ifdef COMPILING_BDLC_FLATHASHMAP_H
@@ -500,59 +500,14 @@ class FlatHashMap {
     /// the `key` and a default-constructed `VALUE`, and return a reference
     /// to the newly mapped value.  If `key` is movable, `key` is left in a
     /// (valid) unspecified state.
-    VALUE& operator[](const KEY& key);
-
-    /// Return a reference providing modifiable access to the mapped value
-    /// associated with the specified `key` in this map.  If this map does
-    /// not already contain an element having `key`, insert an element with
-    /// the `key` and a default-constructed `VALUE`, and return a reference
-    /// to the newly mapped value.  If `key` is movable, `key` is left in a
-    /// (valid) unspecified state.
-    VALUE& operator[](bslmf::MovableRef<KEY> key);
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , VALUE&>::type
-    operator[](BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return try_emplace(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
-    }
-#endif
-// }}} END GENERATED CODE
+    template <class KEY_TYPE>
+    VALUE& operator[](BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key);
 
     /// Return a reference providing modifiable access to the mapped value
     /// associated with the specified `key` in this map, if such an entry
     /// exists; otherwise throw a `std::out_of_range` exception.  Note that
     /// this method is not exception-neutral.
     VALUE& at(const KEY& key);
-
-    /// Return a reference providing modifiable access to the mapped value
-    /// associated with a key that is equivalent to the specified `key` in this
-    /// map, if such an entry exists; otherwise throw a `std::out_of_range`
-    /// exception.  Note that this method is not exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , VALUE&>::type
-    at(const LOOKUP_KEY& key)
-    {
-        iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                             "FlatHashMap::at(LOOKUP_KEY): invalid key_value");
-        }
-        return iter->second;
-    }
 
     /// Remove all elements from this map.  Note that this map will be empty
     /// after calling this method, but allocated memory may be retained for
@@ -569,55 +524,35 @@ class FlatHashMap {
     /// element.
     bsl::pair<iterator, iterator> equal_range(const KEY& key);
 
-    /// Return a pair of iterators defining the sequence of modifiable
-    /// elements in this map having a key equivalent to the specified `key`,
-    /// where the first iterator is positioned at the start of the sequence and
-    /// the second iterator is positioned one past the end of the sequence.  If
-    /// this map contains no elements having a key equivalent to `key`, then
-    /// the two returned iterators will have the same value.  Note that since a
-    /// map maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, iterator> >::type
-    equal_range(const LOOKUP_KEY& key)
-    {
-        return d_impl.equal_range(key);
-    }
-
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlc_flathashmap.h
 #ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #define BDLC_FLATHASHMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_C
-#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_C BDLC_FLATHASHMAP_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_B
+#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_B BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 0
     bsl::pair<iterator, bool> emplace(
                               );
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 1
     template <class ARGS_01>
     bsl::pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 2
     template <class ARGS_01,
               class ARGS_02>
     bsl::pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -625,9 +560,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -637,9 +572,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -651,9 +586,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -667,9 +602,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -685,9 +620,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -705,9 +640,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -727,9 +662,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -751,28 +686,28 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 0
     iterator emplace_hint(const_iterator hint);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 1
     template <class ARGS_01>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 2
     template <class ARGS_01,
               class ARGS_02>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -780,9 +715,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -792,9 +727,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -806,9 +741,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -822,9 +757,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -840,9 +775,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -860,9 +795,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -882,9 +817,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -906,7 +841,7 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -927,20 +862,6 @@ class FlatHashMap {
     /// method invalidates all iterators and references to the removed
     /// element.
     bsl::size_t erase(const KEY& key);
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t>::type
-    erase(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return d_impl.erase(key);
-    }
-// }}} END GENERATED CODE
 
     /// Remove from this map the element at the specified `position`, and
     /// return an iterator referring to the modifiable element immediately
@@ -966,21 +887,6 @@ class FlatHashMap {
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
     iterator find(const KEY& key);
-
-    /// Return an `iterator` referring to the modifiable element in this map
-    /// having the key equivalent to the specified `key`, or `end()` if no such
-    /// entry exists in this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    find(const LOOKUP_KEY& key)
-    {
-        return iterator(d_impl.find(key));
-    }
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     template <class VALUE_TYPE>
@@ -1059,61 +965,6 @@ class FlatHashMap {
     void insert(bsl::initializer_list<value_type> values);
 #endif
 
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-
-    template<class M>
-    bsl::pair<iterator, bool> insert_or_assign(const KEY& key,
-                                     BSLS_COMPILERFEATURES_FORWARD_REF(M) obj);
-
-    template<class M>
-    bsl::pair<iterator, bool> insert_or_assign(
-                             BloombergLP::bslmf::MovableRef<KEY> key,
-                                     BSLS_COMPILERFEATURES_FORWARD_REF(M) obj);
-
-    template <class LOOKUP_KEY, class M>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    insert_or_assign(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(M) obj)
-    {
-        iterator iter = find(key);
-        if (iter != end()) {
-            iter->second = BSLS_COMPILERFEATURES_FORWARD(M, obj);
-            return make_pair(iter, false);
-        }
-        return emplace(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                       BSLS_COMPILERFEATURES_FORWARD(M, obj));
-    }
-
-    template <class MAPPED>
-    iterator insert_or_assign(const_iterator, const KEY& key,
-                                BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj);
-
-    template <class MAPPED>
-    iterator insert_or_assign(const_iterator, 
-                              BloombergLP::bslmf::MovableRef<KEY> key, 
-                              BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj);
-
-    template <class LOOKUP_KEY, class MAPPED>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    insert_or_assign(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
-    {
-        return insert_or_assign(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                 BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-    }
-// }}} END GENERATED CODE
-
-
     /// Change the capacity of this map to at least the specified
     /// `minimumCapacity`, and redistribute all the contained elements into
     /// a new sequence of entries according to their hash values.  If
@@ -1147,29 +998,29 @@ class FlatHashMap {
 #ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #define BDLC_FLATHASHMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_F
-#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_F BDLC_FLATHASHMAP_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_C
+#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_C BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
     bsl::pair<iterator, bool> try_emplace(const KEY& key);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
     template< class ARGS_01>
     bsl::pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
     template< class ARGS_01,
               class ARGS_02>
     bsl::pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -1177,9 +1028,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1189,9 +1040,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1203,9 +1054,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1219,9 +1070,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1237,9 +1088,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1257,9 +1108,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1279,9 +1130,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
     template< class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1303,31 +1154,31 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
     template <class ARGS_01>
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
     template <class ARGS_01,
               class ARGS_02>
     bsl::pair<iterator, bool> try_emplace(
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -1336,9 +1187,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1349,9 +1200,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1364,9 +1215,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1381,9 +1232,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1400,9 +1251,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1421,9 +1272,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1444,9 +1295,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1469,363 +1320,31 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple());
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
-    template <class LOOKUP_KEY, class ARGS_01>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08,
-                                class ARGS_09>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08,
-                                class ARGS_09,
-                                class ARGS_10>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
-                             BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)));
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
-
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
     iterator
     try_emplace(const_iterator, const KEY& key);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
     template<class ARGS_01>
     iterator
     try_emplace(const_iterator, const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
     template<class ARGS_01,
              class ARGS_02>
     iterator
     try_emplace(const_iterator, const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03>
@@ -1834,9 +1353,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1847,9 +1366,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1862,9 +1381,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1879,9 +1398,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1898,9 +1417,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1919,9 +1438,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1942,9 +1461,9 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
     template<class ARGS_01,
              class ARGS_02,
              class ARGS_03,
@@ -1967,31 +1486,31 @@ class FlatHashMap {
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
     iterator try_emplace(const_iterator,
                          BloombergLP::bslmf::MovableRef<KEY> key);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
     template <class ARGS_01>
     iterator try_emplace(const_iterator,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
     template <class ARGS_01,
               class ARGS_02>
     iterator try_emplace(const_iterator,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
@@ -2000,9 +1519,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2013,9 +1532,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2028,9 +1547,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2045,9 +1564,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2064,9 +1583,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2085,9 +1604,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2108,9 +1627,9 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -2133,374 +1652,7 @@ class FlatHashMap {
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
-
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               )
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
-    template <class LOOKUP_KEY, class ARGS_01>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08,
-                                class ARGS_09>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
-
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
-    template <class LOOKUP_KEY, class ARGS_01,
-                                class ARGS_02,
-                                class ARGS_03,
-                                class ARGS_04,
-                                class ARGS_05,
-                                class ARGS_06,
-                                class ARGS_07,
-                                class ARGS_08,
-                                class ARGS_09,
-                                class ARGS_10>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10))
-                  ).first;
-    }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
-
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_C >= 10
 
 #endif
 #else
@@ -2516,21 +1668,6 @@ class FlatHashMap {
                                      BloombergLP::bslmf::MovableRef<KEY> key,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 
-    template <class LOOKUP_KEY, class... ARGS>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<iterator, bool> >::type
-    try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
-    }
-
     template<class... ARGS>
     iterator
     try_emplace(const_iterator, const KEY& key,
@@ -2540,26 +1677,6 @@ class FlatHashMap {
     iterator try_emplace(const_iterator,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
-
-    template <class LOOKUP_KEY, class... ARGS>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , iterator>::type
-    try_emplace(const_iterator,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
-    {
-        return d_impl.try_emplace(
-              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-              std::piecewise_construct,
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-              std::forward_as_tuple(
-                               BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...)
-                  ).first;
-    }
-
 #endif
 // }}} END GENERATED CODE
 #endif
@@ -2591,28 +1708,6 @@ class FlatHashMap {
     /// that this method is not exception-neutral.
     const VALUE& at(const KEY& key) const;
 
-    /// Return a reference providing non-modifiable access to the mapped
-    /// value associated with a key that is equivalent to the specified `key`
-    /// in this map, if such an entry exists; otherwise throw a
-    /// `std::out_of_range` exception.  Note that this method is not
-    /// exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , const VALUE&>::type
-    at(const LOOKUP_KEY& key) const
-    {
-        const_iterator iter = find(key);
-        if (iter == end()) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                       "FlatHashMap::at(LOOKUP_KEY) const: invalid key_value");
-        }
-        return iter->second;
-    }
-
     /// Return the number of elements this map could hold if the load factor
     /// were 1.
     bsl::size_t capacity() const;
@@ -2621,39 +1716,10 @@ class FlatHashMap {
     /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
 
-    /// Return `true` if this map contains an element whose key is equivalent
-    /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        &&  BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-        , bool>::type
-    contains(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end();
-    }
-
     /// Return the number of elements in this map having the specified
     /// `key`.  Note that since a flat hash map maintains unique keys, the
     /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-
-    /// Return the number of elements in this map having a key equivalent to
-    /// the specified `key`.  Note that since a flat hash map maintains unique
-    /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t >::type
-    count(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end() ? 1 : 0;
-    }
 
     /// Return `true` if this map contains no elements, and `false`
     /// otherwise.
@@ -2669,47 +1735,10 @@ class FlatHashMap {
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
-    /// Return a pair of iterators providing non-modifiable access to the
-    /// sequence of `value_type` objects in this unordered map that are
-    /// equivalent to the specified `key`, where the first iterator is
-    /// positioned at the start of the sequence and the second iterator is
-    /// positioned one past the end of the sequence.  If this unordered map
-    /// contains no `value_type` objects equivalent to `key`, then the two
-    /// returned iterators will have the same value.  Note that since an
-    /// unordered map maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const
-    {
-        return d_impl.equal_range(key);
-    }
-
     /// Return a `const_iterator` referring to the element in this map
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
     const_iterator find(const KEY& key) const;
-
-    /// Return a `const_iterator` referring to the element in this map
-    /// having the specified `key`, or `end()` if no such entry exists in
-    /// this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , const_iterator>::type
-    find(const LOOKUP_KEY& key) const
-    {
-        return const_iterator(d_impl.find(key));
-    }
-
 
     /// Return (a copy of) the unary hash functor used by this map to
     /// generate a hash value (of type `bsl::size_t`) for a `KEY` object.
@@ -2830,10 +1859,10 @@ void swap(FlatHashMap<KEY, VALUE, HASH, EQUAL>& a,
 #ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #define BDLC_FLATHASHMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_G
-#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_G BDLC_FLATHASHMAP_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_D
+#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_D BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 0
 template <class KEY, class VALUE, class ENTRY>
 inline
 void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
@@ -2845,9 +1874,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                                  entry,
                                  allocator);
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 1
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01>
 inline
@@ -2862,9 +1891,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                                  allocator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 2
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02>
@@ -2882,9 +1911,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 3
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -2905,9 +1934,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 4
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -2931,9 +1960,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 5
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -2960,9 +1989,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 6
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -2992,9 +2021,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 7
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -3027,9 +2056,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 8
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -3065,9 +2094,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 9
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -3106,9 +2135,9 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 10
 template <class KEY, class VALUE, class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -3150,7 +2179,7 @@ void FlatHashMap_EntryUtil<KEY, VALUE, ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_G >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3456,17 +2485,12 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator=(
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class KEY_TYPE>
 inline
-VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](const KEY& key)
+VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](
+                               BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) key)
 {
-    return d_impl[key].second;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-inline
-VALUE& FlatHashMap<KEY, VALUE, HASH, EQUAL>::operator[](bslmf::MovableRef<KEY> key)
-{
-    return d_impl[BSLS_COMPILERFEATURES_FORWARD(KEY, key)].second;
+    return d_impl[BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, key)].second;
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -3505,10 +2529,10 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::equal_range(const KEY& key)
 #ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #define BDLC_FLATHASHMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_H
-#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_H BDLC_FLATHASHMAP_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_E
+#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_E BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
@@ -3517,9 +2541,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
 {
     return d_impl.emplace();
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01>
 inline
@@ -3529,9 +2553,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
 {
     return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -3544,9 +2568,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
     return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3562,9 +2586,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3583,9 +2607,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3607,9 +2631,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3634,9 +2658,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3664,9 +2688,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3697,9 +2721,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3733,9 +2757,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3772,10 +2796,10 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
@@ -3783,9 +2807,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator)
 {
     return emplace().first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01>
 inline
@@ -3795,9 +2819,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
 {
     return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -3810,9 +2834,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
     return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3828,9 +2852,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3849,9 +2873,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3873,9 +2897,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3900,9 +2924,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3930,9 +2954,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3963,9 +2987,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -3999,9 +3023,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4038,7 +3062,7 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::emplace_hint(const_iterator,
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                    BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)).first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_H >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -4119,69 +3143,6 @@ void FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert(INPUT_ITERATOR first,
     d_impl.insert(first, last);
 }
 
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const KEY& key,
-                                 BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
-{
-    iterator iter = find(key);
-    if (iter != end()) {
-        iter->second = BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj);
-        return make_pair(iter, false);
-    }
-    return emplace(key, BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(
-                                       BloombergLP::bslmf::MovableRef<KEY> key,
-                                 BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
-{
-    const KEY& lvalue = key;
-    iterator iter = find(lvalue);
-    if (iter != end()) {
-        iter->second = BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj);
-        return make_pair(iter, false);
-    }
-    return emplace(bslmf::MovableRefUtil::move(lvalue),
-                   BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator, 
-                                                       const KEY&      key,
-                                 BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
-{
-    return insert_or_assign(key, 
-                             BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL>
-template <class MAPPED>
-inline
-typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(
-                                       const_iterator,
-                                       BloombergLP::bslmf::MovableRef<KEY> key,
-                                 BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
-{
-    const KEY& lvalue = key;
-    return insert_or_assign(bslmf::MovableRefUtil::move(lvalue),
-                            BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
-}
-// }}} END GENERATED CODE
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class KEY, class VALUE, class HASH, class EQUAL>
 void FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert(
@@ -4218,11 +3179,11 @@ void FlatHashMap<KEY, VALUE, HASH, EQUAL>::reset()
 #ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #define BDLC_FLATHASHMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_J
-#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_J BDLC_FLATHASHMAP_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHMAP_VARIADIC_LIMIT_F
+#define BDLC_FLATHASHMAP_VARIADIC_LIMIT_F BDLC_FLATHASHMAP_VARIADIC_LIMIT
 #endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
@@ -4234,9 +3195,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key)
           std::forward_as_tuple(key),
           std::forward_as_tuple());
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01>
 inline
@@ -4251,9 +3212,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
           std::forward_as_tuple(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02>
@@ -4271,9 +3232,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4294,9 +3255,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4320,9 +3281,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4349,9 +3310,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4381,9 +3342,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4416,9 +3377,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4454,9 +3415,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4495,9 +3456,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template< class ARGS_01,
           class ARGS_02,
@@ -4539,10 +3500,10 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const KEY& key,
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
 FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
@@ -4554,9 +3515,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
           std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY, key)),
           std::forward_as_tuple());
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01>
 bsl::pair<typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator, bool>
@@ -4571,9 +3532,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
           std::forward_as_tuple(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -4591,9 +3552,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4614,9 +3575,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4640,9 +3601,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4669,9 +3630,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4701,9 +3662,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4736,9 +3697,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4774,9 +3735,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4815,9 +3776,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -4859,10 +3820,10 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)));
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
 FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
@@ -4875,9 +3836,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
           std::forward_as_tuple())
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01>
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
@@ -4893,9 +3854,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02>
@@ -4914,9 +3875,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -4938,9 +3899,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -4965,9 +3926,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -4995,9 +3956,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -5028,9 +3989,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -5064,9 +4025,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -5103,9 +4064,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -5145,9 +4106,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template<class ARGS_01,
          class ARGS_02,
@@ -5190,10 +4151,10 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL>
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
 FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
@@ -5206,9 +4167,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
           std::forward_as_tuple())
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 0
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 0
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01>
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
@@ -5224,9 +4185,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 1
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 1
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -5245,9 +4206,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 2
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 2
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5269,9 +4230,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 3
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 3
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5296,9 +4257,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 4
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 4
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5326,9 +4287,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 5
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 5
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5359,9 +4320,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 6
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 6
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5395,9 +4356,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 7
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 7
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5434,9 +4395,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 8
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 8
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5476,9 +4437,9 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 9
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 9
 
-#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#if BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -5521,7 +4482,7 @@ FlatHashMap<KEY, VALUE, HASH, EQUAL>::try_emplace(const_iterator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)))
           .first;
 }
-#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_J >= 10
+#endif  // BDLC_FLATHASHMAP_VARIADIC_LIMIT_F >= 10
 
 #endif
 #else

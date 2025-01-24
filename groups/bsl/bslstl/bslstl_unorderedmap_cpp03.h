@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 11 07:38:13 2024
+// Generated on Fri Jan 24 11:39:46 2025
 // Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
@@ -399,49 +399,11 @@ class unordered_map {
     typename add_lvalue_reference<VALUE>::type operator[](
                                  BloombergLP::bslmf::MovableRef<key_type> key);
 
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    operator [](BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return try_emplace(
-                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
-    }
-// }}} END GENERATED CODE
-
     /// Return a reference providing modifiable access to the mapped-value
     /// associated with the specified `key`, if such an entry exists;
     /// otherwise throw `std::out_of_range` exception.  Note that this
     /// method is not exception-neutral.
     typename add_lvalue_reference<VALUE>::type at(const key_type& key);
-
-    /// Return a reference providing modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<VALUE>::type>::type
-    at(const LOOKUP_KEY& key) {
-        HashTableLink *node = d_impl.find(key);
-
-        if (!node) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                      "unordered_map<...>::at(LOOKUP_KEY): invalid key value");
-        }
-        return static_cast<HashTableNode *>(node)->value().second;
-    }
 
     /// Return an iterator providing modifiable access to the first
     /// `value_type` object in the sequence of `value_type` objects
@@ -480,29 +442,29 @@ class unordered_map {
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 0
     pair<iterator, bool> emplace(
                               );
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
     pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> emplace(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -510,9 +472,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -522,9 +484,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -536,9 +498,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -552,9 +514,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -570,9 +532,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -590,9 +552,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -612,9 +574,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -636,28 +598,28 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 0
     iterator emplace_hint(const_iterator hint);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace_hint(const_iterator hint,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -665,9 +627,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -677,9 +639,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -691,9 +653,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -707,9 +669,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -725,9 +687,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -745,9 +707,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -767,9 +729,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -791,7 +753,7 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1017,7 +979,34 @@ class unordered_map {
     void insert(std::initializer_list<value_type> values);
 #endif
 
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_B BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#endif
+    template <class BDE_OTHER_TYPE>
+    pair<iterator, bool> insert_or_assign(const KEY&       key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+
+    template <class BDE_OTHER_TYPE>
+    pair<iterator, bool> insert_or_assign(
+                                      BloombergLP::bslmf::MovableRef<KEY> key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+
+    template <class BDE_OTHER_TYPE>
+    iterator insert_or_assign(const_iterator   hint,
+                              const KEY&       key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+
+    template <class BDE_OTHER_TYPE>
+    iterator insert_or_assign(const_iterator                      hint,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
+#else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class BDE_OTHER_TYPE>
@@ -1029,24 +1018,6 @@ class unordered_map {
                                       BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , pair<iterator, bool> >::type
-    insert_or_assign(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
-    {
-        typedef bsl::pair<iterator, bool> ResultType;
-        bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
-                           &isInsertedFlag,
-                           NULL,
-                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-        return ResultType(iterator(result), isInsertedFlag);
-    }
-
     template <class BDE_OTHER_TYPE>
     iterator insert_or_assign(const_iterator   hint,
                               const KEY&       key,
@@ -1057,24 +1028,8 @@ class unordered_map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj);
 
-    template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , iterator>::type
-    insert_or_assign(const_iterator hint,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
-                         BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
-    {
-        bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
-                           &isInsertedFlag,
-                           hint.node(),
-                           BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-        return iterator(result);
-    }
 // }}} END GENERATED CODE
+#endif
 
     /// Return a pair of iterators providing modifiable access to the
     /// sequence of `value_type` objects in this unordered map having the
@@ -1163,28 +1118,28 @@ class unordered_map {
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     pair<iterator, bool> try_emplace(const KEY& key);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> try_emplace(const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -1192,9 +1147,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1204,9 +1159,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1218,9 +1173,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1234,9 +1189,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1252,9 +1207,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1272,9 +1227,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1294,9 +1249,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1318,31 +1273,31 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     pair<iterator, bool> try_emplace(
                               BloombergLP::bslmf::MovableRef<KEY> key);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     pair<iterator, bool> try_emplace(
                               BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     pair<iterator, bool> try_emplace(
                               BloombergLP::bslmf::MovableRef<KEY> key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -1351,9 +1306,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1364,9 +1319,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1379,9 +1334,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1396,9 +1351,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1415,9 +1370,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1436,9 +1391,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1459,9 +1414,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1484,10 +1439,10 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     template<class LOOKUP_KEY>
     typename bsl::enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1508,9 +1463,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template<class LOOKUP_KEY, class Args_01>
     typename bsl::enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1533,9 +1488,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02>
     typename bsl::enable_if<
@@ -1561,9 +1516,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03>
@@ -1592,9 +1547,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1626,9 +1581,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1663,9 +1618,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1703,9 +1658,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1746,9 +1701,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1792,9 +1747,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1841,9 +1796,9 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -1893,31 +1848,31 @@ class unordered_map {
 
         return ResultType(iterator(result), isInsertedFlag);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     iterator
     try_emplace(const_iterator hint, const KEY& key);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template<class Args_01>
     iterator
     try_emplace(const_iterator hint, const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template<class Args_01,
              class Args_02>
     iterator
     try_emplace(const_iterator hint, const KEY& key,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template<class Args_01,
              class Args_02,
              class Args_03>
@@ -1926,9 +1881,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -1939,9 +1894,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -1954,9 +1909,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -1971,9 +1926,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -1990,9 +1945,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -2011,9 +1966,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -2034,9 +1989,9 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template<class Args_01,
              class Args_02,
              class Args_03,
@@ -2059,31 +2014,31 @@ class unordered_map {
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template <class Args_01>
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template <class Args_01,
               class Args_02>
     iterator try_emplace(const_iterator                      hint,
                          BloombergLP::bslmf::MovableRef<KEY> key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -2092,9 +2047,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2105,9 +2060,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2120,9 +2075,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2137,9 +2092,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2156,9 +2111,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2177,9 +2132,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2200,9 +2155,9 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -2225,10 +2180,10 @@ class unordered_map {
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
                          BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
     template<class LOOKUP_KEY>
     typename bsl::enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2245,9 +2200,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
     template<class LOOKUP_KEY, class Args_01>
     typename bsl::enable_if<
            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2266,9 +2221,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02>
     typename bsl::enable_if<
@@ -2290,9 +2245,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03>
@@ -2317,9 +2272,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2347,9 +2302,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2380,9 +2335,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2416,9 +2371,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2455,9 +2410,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2497,9 +2452,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2542,9 +2497,9 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
     template<class LOOKUP_KEY, class Args_01,
                                class Args_02,
                                class Args_03,
@@ -2590,7 +2545,7 @@ class unordered_map {
 
         return iterator(result);
     }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -2667,29 +2622,6 @@ class unordered_map {
     typename add_lvalue_reference<const VALUE>::type at(const key_type& key)
                                                                          const;
 
-    /// Return a reference providing non-modifiable access to the
-    /// mapped-value associated with a key that is equivalent to the
-    /// specified `key`, if such an entry exists; otherwise, throw a
-    /// `std::out_of_range` exception.  Note that this method may also throw
-    /// a different kind of exception if the (user-supplied) comparator
-    /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-        typename add_lvalue_reference<const VALUE>::type>::type
-    at(const LOOKUP_KEY& key) const {
-        HashTableLink *node = d_impl.find(key);
-
-        if (!node) {
-            BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                "unordered_map<...>::at(LOOKUP_KEY) const: invalid key value");
-        }
-        return static_cast<HashTableNode *>(node)->value().second;
-    }
-
     const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
 
     /// Return an iterator providing non-modifiable access to the first
@@ -2728,21 +2660,6 @@ class unordered_map {
     /// by this unordered map, where values having a key equivalent to the
     /// specified `key` would be inserted.
     size_type bucket(const key_type& key) const;
-
-    /// Return the index of the bucket, in the array of buckets maintained
-    /// by this unordered map, where values having a key equivalent to the
-    /// specified `key` would be inserted.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename enable_if<
-           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
-                      size_type>::type
-    bucket(const LOOKUP_KEY& key) const
-    {
-        return d_impl.bucketIndexForKey(key);
-    }
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered map.
@@ -3648,10 +3565,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<
          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
@@ -3668,9 +3585,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 bsl::pair<
@@ -3689,9 +3606,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -3713,9 +3630,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3740,9 +3657,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3770,9 +3687,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3803,9 +3720,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3839,9 +3756,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3878,9 +3795,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3920,9 +3837,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3965,9 +3882,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4013,10 +3930,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
@@ -4030,9 +3947,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
@@ -4049,9 +3966,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -4071,9 +3988,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4096,9 +4013,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4124,9 +4041,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4155,9 +4072,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4189,9 +4106,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4226,9 +4143,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4266,9 +4183,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4309,9 +4226,9 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4355,7 +4272,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_E >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -4668,10 +4585,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G
-#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
+#ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F
+#define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #endif
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bsl::pair<
@@ -4689,9 +4606,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -4712,9 +4629,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -4738,9 +4655,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4767,9 +4684,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4799,9 +4716,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4834,9 +4751,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4872,9 +4789,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4913,9 +4830,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4957,9 +4874,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5004,9 +4921,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5054,10 +4971,10 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bsl::pair<
@@ -5075,9 +4992,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -5098,9 +5015,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -5124,9 +5041,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5153,9 +5070,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5185,9 +5102,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5220,9 +5137,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5258,9 +5175,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5299,9 +5216,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5343,9 +5260,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5390,9 +5307,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5440,10 +5357,10 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return ResultType(iterator(result), isInsertedFlag);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
@@ -5459,9 +5376,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -5480,9 +5397,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -5504,9 +5421,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5531,9 +5448,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5561,9 +5478,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5594,9 +5511,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5630,9 +5547,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5669,9 +5586,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5711,9 +5628,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5756,9 +5673,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5804,10 +5721,10 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
@@ -5823,9 +5740,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 0
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 0
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01>
 inline
@@ -5844,9 +5761,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 1
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 1
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -5868,9 +5785,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 2
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 2
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5895,9 +5812,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 3
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 3
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5925,9 +5842,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 4
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 4
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5958,9 +5875,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 5
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 5
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5994,9 +5911,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 6
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 6
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -6033,9 +5950,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 7
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 7
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -6075,9 +5992,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 8
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 8
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -6120,9 +6037,9 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 9
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 9
 
-#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#if BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -6168,7 +6085,7 @@ bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::try_emplace(
 
     return iterator(result);
 }
-#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_G >= 10
+#endif  // BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT_F >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect

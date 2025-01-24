@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 17 07:31:37 2024
+// Generated on Fri Jan 24 11:40:26 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashset.h
 
 #ifdef COMPILING_BDLC_FLATHASHSET_H
@@ -811,6 +811,7 @@ class FlatHashSet {
     template <class... ARGS>
     iterator emplace_hint(const_iterator hint,
                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+
 // }}} END GENERATED CODE
 #endif
 
@@ -820,20 +821,6 @@ class FlatHashSet {
     /// method invalidates all iterators and references to the removed
     /// element.
     bsl::size_t erase(const KEY& key);
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t>::type
-    erase(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return d_impl.erase(key);
-    }
-// }}} END GENERATED CODE
 
     /// Remove from this set the element at the specified `position`, and
     /// return a `const_iterator` referring to the element immediately
@@ -853,6 +840,11 @@ class FlatHashSet {
     /// iteration sequence provided by this container.
     const_iterator erase(const_iterator first, const_iterator last);
 
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class KEY_TYPE>
+    bsl::pair<const_iterator, bool> insert(
+                             BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#else
     /// Insert the specified `value` into this set if the `value` does not
     /// already exist in this set; otherwise, this method has no effect.
     /// Return a `pair` whose `first` member is a `const_iterator` referring
@@ -860,89 +852,41 @@ class FlatHashSet {
     /// equivalent to that of the element to be inserted, and whose `second`
     /// member is `true` if a new element was inserted, and `false` if an
     /// equivalent value was already present.
-    bsl::pair<const_iterator, bool> insert(const KEY& value)
+    template <class KEY_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
+                            bsl::pair<const_iterator, bool> >::type
+                      insert(BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#endif
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
 
-        return d_impl.insert(value);
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE, value));
     }
 
-    /// Insert the specified `value` into this set if the `value` does not
-    /// already exist in this set; otherwise, this method has no effect.
-    /// Return a `pair` whose `first` member is a `const_iterator` referring
-    /// to the (possibly newly inserted) element in this set whose value is
-    /// equivalent to that of the element to be inserted, and whose `second`
-    /// member is `true` if a new element was inserted, and `false` if an
-    /// equivalent value was already present.
-    bsl::pair<const_iterator, bool> insert(bslmf::MovableRef<KEY> value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY, value));
-    }
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , typename bsl::pair<iterator, bool> >::type
-    insert(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return d_impl.insertTransparent(
-                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
-    }
-// }}} END GENERATED CODE
-
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+    template <class KEY_TYPE>
+    const_iterator insert(const_iterator                              ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#else
     /// Insert the specified `value` into this set if the `value` does not
     /// already exist in this set; otherwise, this method has no effect.
     /// Return a `const_iterator` referring to the (possibly newly inserted)
     /// element in this set whose value is equivalent to that of the
     /// element to be inserted.  The supplied `const_iterator` is ignored.
-    const_iterator insert(const_iterator, const KEY& value)
+    template <class KEY_TYPE>
+    typename bsl::enable_if<bsl::is_convertible<KEY_TYPE, KEY>::value,
+                            const_iterator>::type
+                      insert(const_iterator                              ,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE) value)
+#endif
     {
         // Note that some compilers require functions declared with 'enable_if'
         // to be defined inline.
 
-        return d_impl.insert(value).first;
+        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY_TYPE,
+                                                           value)).first;
     }
-
-
-    /// Insert the specified `value` into this set if the `value` does not
-    /// already exist in this set; otherwise, this method has no effect.
-    /// Return a `const_iterator` referring to the (possibly newly inserted)
-    /// element in this set whose value is equivalent to that of the
-    /// element to be inserted.  The supplied `const_iterator` is ignored.
-    const_iterator insert(const_iterator, bslmf::MovableRef<KEY> value)
-    {
-        // Note that some compilers require functions declared with 'enable_if'
-        // to be defined inline.
-
-        return d_impl.insert(BSLS_COMPILERFEATURES_FORWARD(KEY,value)).first;
-    }
-
-// {{{ BEGIN GENERATED CODE
-// The generated code below is a workaround for the absence of perfect
-// forwarding in some compilers.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         && bsl::is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY),
-                                const_iterator>::value == false
-         && bsl::is_convertible<const_iterator,
-                                  BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)
-                                  >::value == false
-          , iterator>::type
-    insert(const_iterator, BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
-    {
-        return insert(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first;
-    }
-// }}} END GENERATED CODE
 
     /// Insert into this set the value of each element in the input iterator
     /// range specified by `first` through `last` (including `first`,
@@ -1008,41 +952,10 @@ class FlatHashSet {
     /// `key`, and `false` otherwise.
     bool contains(const KEY& key) const;
 
-    /// Return `true` if this set contains an element whose key is equivalent
-    /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-        &&  BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-        , bool>::type
-    contains(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end();
-    }
-
     /// Return the number of elements in this set having the specified
     /// `key`.  Note that since a flat hash set maintains unique keys, the
     /// returned value will be either 0 or 1.
     bsl::size_t count(const KEY& key) const;
-
-    /// Return the number of `value_type` objects within this unordered set
-    /// that are equivalent to the specified `key`.  The behavior is
-    /// undefined unless `key` is equivalent to at most one element in this
-    /// unordered set.  Note that since an unordered set maintains unique
-    /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::size_t >::type
-    count(const LOOKUP_KEY& key) const
-    {
-        return find(key) != end() ? 1 : 0;
-    }
 
     /// Return `true` if this set contains no elements, and `false`
     /// otherwise.
@@ -1058,47 +971,10 @@ class FlatHashSet {
     bsl::pair<const_iterator, const_iterator> equal_range(
                                                          const KEY& key) const;
 
-    /// Return a pair of `const_iterator` providing non-modifiable access to
-    /// the sequence of `value_type` objects in this unordered set that are
-    /// equivalent to the specified `key`, where the first iterator is
-    /// positioned at the start of the sequence and the second iterator is
-    /// positioned one past the end of the sequence.  If this unordered set
-    /// contains no `value_type` objects equivalent to `key`, then the two
-    /// returned iterators will have the same value.  Note that since an
-    /// unordered set maintains unique keys, the range will contain at most one
-    /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-          , bsl::pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const
-    {
-        return d_impl.equal_range(key);
-    }
-
     /// Return a `const_iterator` referring to the element in this set
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this set.
     const_iterator find(const KEY& key) const;
-
-    /// Return a `const_iterator` referring to the element in this set
-    /// having the specified `key`, or `end()` if no such entry exists in
-    /// this set.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-            BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
-         && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value
-         , const_iterator>::type
-    find(const LOOKUP_KEY& key) const
-    {
-        return iterator(d_impl.find(key));
-    }
-
 
     /// Return (a copy of) the unary hash functor used by this set to
     /// generate a hash value (of type `bsl::size_t`) for a `KEY` object.
@@ -1218,10 +1094,10 @@ void swap(FlatHashSet<KEY, HASH, EQUAL>& a, FlatHashSet<KEY, HASH, EQUAL>& b);
 #ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT
 #define BDLC_FLATHASHSET_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT_F
-#define BDLC_FLATHASHSET_VARIADIC_LIMIT_F BDLC_FLATHASHSET_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT_C
+#define BDLC_FLATHASHSET_VARIADIC_LIMIT_C BDLC_FLATHASHSET_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 0
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 0
 template <class ENTRY>
 inline
 void FlatHashSet_EntryUtil<ENTRY>::construct(
@@ -1233,9 +1109,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                                  entry,
                                  allocator);
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 0
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 0
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 1
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 1
 template <class ENTRY>
 template <class ARGS_01>
 inline
@@ -1250,9 +1126,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                                  allocator,
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 1
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 1
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 2
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 2
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02>
@@ -1270,9 +1146,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 2
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 2
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 3
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 3
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1293,9 +1169,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 3
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 3
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 4
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 4
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1319,9 +1195,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 4
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 4
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 5
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 5
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1348,9 +1224,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 5
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 5
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 6
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 6
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1380,9 +1256,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 6
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 6
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 7
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 7
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1415,9 +1291,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 7
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 7
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 8
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 8
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1453,9 +1329,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 8
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 8
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 9
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 9
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1494,9 +1370,9 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 9
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 9
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 10
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 10
 template <class ENTRY>
 template <class ARGS_01,
           class ARGS_02,
@@ -1538,7 +1414,7 @@ void FlatHashSet_EntryUtil<ENTRY>::construct(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_F >= 10
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1839,10 +1715,10 @@ void FlatHashSet<KEY, HASH, EQUAL>::clear()
 #ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT
 #define BDLC_FLATHASHSET_VARIADIC_LIMIT 10
 #endif
-#ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT_G
-#define BDLC_FLATHASHSET_VARIADIC_LIMIT_G BDLC_FLATHASHSET_VARIADIC_LIMIT
+#ifndef BDLC_FLATHASHSET_VARIADIC_LIMIT_D
+#define BDLC_FLATHASHSET_VARIADIC_LIMIT_D BDLC_FLATHASHSET_VARIADIC_LIMIT
 #endif
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 0
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 0
 template <class KEY, class HASH, class EQUAL>
 inline bsl::pair<typename FlatHashSet<KEY, HASH, EQUAL>::iterator, bool>
 FlatHashSet<KEY, HASH, EQUAL>::emplace(
@@ -1850,9 +1726,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
 {
     return d_impl.emplace();
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 0
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 0
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 1
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 1
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01>
 inline bsl::pair<typename FlatHashSet<KEY, HASH, EQUAL>::iterator, bool>
@@ -1861,9 +1737,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
 {
     return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 1
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 1
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 2
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 2
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -1875,9 +1751,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
     return d_impl.emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 2
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 2
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 3
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 3
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -1892,9 +1768,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 3
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 3
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 4
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 4
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -1912,9 +1788,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 4
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 4
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 5
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 5
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -1935,9 +1811,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 5
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 5
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 6
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 6
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -1961,9 +1837,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 6
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 6
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 7
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 7
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -1990,9 +1866,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 7
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 7
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 8
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 8
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2022,9 +1898,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 8
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 8
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 9
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 9
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2057,9 +1933,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 9
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 9
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 10
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 10
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2095,10 +1971,10 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace(
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
                           BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 10
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 10
 
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 0
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 0
 template <class KEY, class HASH, class EQUAL>
 inline typename FlatHashSet<KEY, HASH, EQUAL>::iterator
 FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
@@ -2106,9 +1982,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
 {
     return this->emplace().first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 0
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 0
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 1
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 1
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01>
 inline typename FlatHashSet<KEY, HASH, EQUAL>::iterator
@@ -2119,9 +1995,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
     return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 1
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 1
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 2
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 2
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02>
@@ -2135,9 +2011,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 2
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 2
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 3
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 3
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2154,9 +2030,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 3
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 3
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 4
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 4
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2176,9 +2052,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 4
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 4
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 5
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 5
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2201,9 +2077,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 5
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 5
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 6
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 6
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2229,9 +2105,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 6
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 6
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 7
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 7
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2260,9 +2136,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 7
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 7
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 8
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 8
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2294,9 +2170,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 8
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 8
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 9
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 9
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2331,9 +2207,9 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 9
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 9
 
-#if BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 10
+#if BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 10
 template <class KEY, class HASH, class EQUAL>
 template <class ARGS_01,
           class ARGS_02,
@@ -2371,7 +2247,7 @@ FlatHashSet<KEY, HASH, EQUAL>::emplace_hint(
                          BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10)
                          ).first;
 }
-#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_G >= 10
+#endif  // BDLC_FLATHASHSET_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
