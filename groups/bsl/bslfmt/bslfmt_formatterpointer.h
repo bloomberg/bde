@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
-#include <bslfmt_formatterintegral.h>
-#include <bslfmt_formatterspecificationstandard.h>
+#include <bslfmt_formatterintegralbase.h>
+#include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
 
@@ -163,10 +163,10 @@ FormatterPointer_Imp<t_VALUE, t_CHAR>::format(
                                          t_FORMAT_CONTEXT& formatContext) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
-    typedef FormatterSpecificationStandard<t_CHAR>    FSS;
+    typedef StandardFormatSpecification<t_CHAR>       Specification;
     typedef bsls::Types::UintPtr                      UintPtr;
 
-    const FSS& parsedSpec = this->specification();
+    const Specification& parsedSpec = this->specification();
 
     // prefix
 
@@ -178,10 +178,10 @@ FormatterPointer_Imp<t_VALUE, t_CHAR>::format(
     prefixBuf[0] = '0';
 
     switch (parsedSpec.formatType()) {
-      case FSS::e_INTEGRAL_HEX: {
+      case Specification::e_INTEGRAL_HEX: {
         prefixBuf[1] = 'x';
       } break;
-      case FSS::e_INTEGRAL_HEX_UC: {
+      case Specification::e_INTEGRAL_HEX_UC: {
         prefixBuf[1] = 'X';
       } break;
       default: {
@@ -225,9 +225,9 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer_Nullptr<t_CHAR>::format(
                                          bsl::nullptr_t,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
-    typedef FormatterSpecificationStandard<t_CHAR> FSS;
+    typedef StandardFormatSpecification<t_CHAR> Specification;
 
-    const FSS& parsedSpec = this->specification();
+    const Specification& parsedSpec = this->specification();
 
     // prefix
 
@@ -239,10 +239,10 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer_Nullptr<t_CHAR>::format(
     prefixBuf[0] = '0';
 
     switch (parsedSpec.formatType()) {
-      case FSS::e_INTEGRAL_HEX: {
+      case Specification::e_INTEGRAL_HEX: {
         prefixBuf[1] = 'x';
       } break;
-      case FSS::e_INTEGRAL_HEX_UC: {
+      case Specification::e_INTEGRAL_HEX_UC: {
         prefixBuf[1] = 'X';
       } break;
       default: {

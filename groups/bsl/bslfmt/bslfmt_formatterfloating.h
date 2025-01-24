@@ -65,35 +65,18 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_formattercharutil.h>
+#include <bslfmt_standardformatspecification.h>
+
 #include <bsla_annotations.h>
 
 #include <bslalg_numericformatterutil.h>
 
-#include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
-#include <bslfmt_formattercharutil.h>
-#include <bslfmt_formatterspecificationstandard.h>
-
 #include <bslma_deallocatebytesproctor.h>
-#include <bslma_default.h>
-#include <bslma_polymorphicallocator.h>
 
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
-#include <bslmf_issame.h>
-
-#include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
-
-#include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
-
-#include <stdio.h>    // for 'snprintf'
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -112,11 +95,11 @@ struct FormatterFloating_Base {
   private:
     // PRIVATE TYPES
 
-    /// A type alias for the `FormatterSpecificationStandard<t_CHAR>`.
-    typedef FormatterSpecificationStandard<t_CHAR> FSS;
+    /// A type alias for the `StandardFormatSpecification<t_CHAR>`.
+    typedef StandardFormatSpecification<t_CHAR> Specification;
 
     // DATA
-    FSS d_spec;  /// Parsed specification.
+    Specification d_spec;  /// Parsed specification.
 
     /// A constant representing the case when a position is not found in a
     /// string-search.
@@ -176,10 +159,10 @@ struct FormatterFloating_Base {
     /// the `formatContext` and return an iterator one-past the last written.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator alignAndCopy(
-                                           const char        *numberBuffer,
-                                           size_t             numberLength,
-                                           t_FORMAT_CONTEXT&  formatContext,
-                                           const FSS&         finalSpec) const;
+                                        const char           *numberBuffer,
+                                        size_t                numberLength,
+                                        t_FORMAT_CONTEXT&     formatContext,
+                                        const Specification&  finalSpec) const;
 
     /// Create the fixed string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
@@ -188,9 +171,9 @@ struct FormatterFloating_Base {
     /// requested format is fixed or uppercase fixed.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatFixedImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
 
     /// Create the minimal-round-tripping string representation of the
     /// specified `value`, customized in accordance with the requested format
@@ -201,9 +184,9 @@ struct FormatterFloating_Base {
     /// changes to generic format (not "default").
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatDefaultImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
 
     /// Create the general string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
@@ -212,9 +195,9 @@ struct FormatterFloating_Base {
     /// requested format is general or uppercase general.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatGeneralImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
 
     /// Create the minimal-round-tripping hexfloat string representation of the
     /// specified `value`, customized in accordance with the requested format
@@ -225,9 +208,9 @@ struct FormatterFloating_Base {
     /// for hexfloats with a specified precision.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatHexImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
 
     /// Create the hexfloat string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
@@ -238,9 +221,9 @@ struct FormatterFloating_Base {
     /// implementation for hexfloats without a specified precision.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatHexPrecImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
 
     /// Create the scientific string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
@@ -249,9 +232,9 @@ struct FormatterFloating_Base {
     /// requested format is scientific or uppercase scientific.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatScientificImpl(
-                                            t_VALUE           value,
-                                            t_FORMAT_CONTEXT& formatContext,
-                                            const FSS&        finalSpec) const;
+                                         t_VALUE              value,
+                                         t_FORMAT_CONTEXT&    formatContext,
+                                         const Specification& finalSpec) const;
   public:
     // TRAITS
     BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
@@ -484,14 +467,14 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
-                                            const char        *numberBuffer,
-                                            size_t             numberLength,
-                                            t_FORMAT_CONTEXT&  formatContext,
-                                            const FSS&         finalSpec) const
+                                         const char           *numberBuffer,
+                                         size_t                numberLength,
+                                         t_FORMAT_CONTEXT&     formatContext,
+                                         const Specification&  finalSpec) const
 {
-    typedef FormatterSpecificationNumericValue FSNValue;
+    typedef FormatterSpecificationNumericValue NumericValue;
 
-    FSNValue finalWidth(finalSpec.postprocessedWidth());
+    NumericValue finalWidth(finalSpec.postprocessedWidth());
 
     ptrdiff_t leftPadFillerCopiesNum  = 0;
     ptrdiff_t rightPadFillerCopiesNum = 0;
@@ -499,9 +482,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
 
     const char addSignChar = *numberBuffer == '-'
                            ? '-'
-                           : FSS::e_SIGN_POSITIVE == finalSpec.sign()
+                           : Specification::e_SIGN_POSITIVE == finalSpec.sign()
                            ? '+'
-                           : FSS::e_SIGN_SPACE == finalSpec.sign()
+                           : Specification::e_SIGN_SPACE == finalSpec.sign()
                            ? ' '
                            : '\0';
     const bool hasSignChar = (addSignChar != 0);
@@ -517,14 +500,15 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
     const char lastChar = numberBuffer[numberLength - 1];
     const bool specialValue = 'f' == lastChar || 'n' == lastChar;
 
-    if (finalWidth.category() != FSNValue::e_DEFAULT &&
+    if (finalWidth.category() != NumericValue::e_DEFAULT &&
         numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
         // We need to fill the remaining space.
 
         const ptrdiff_t totalPadDisplayWidth =
                              finalWidth.value() - (numberLength + hasSignChar);
 
-        if (!specialValue && FSS::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+        if (!specialValue &&
+            Specification::e_ALIGN_DEFAULT == finalSpec.alignment() &&
             finalSpec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
@@ -534,16 +518,16 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
             // Alignment with appropriate symbol is required.
 
             switch (d_spec.alignment()) {
-              case FSS::e_ALIGN_LEFT: {
+              case Specification::e_ALIGN_LEFT: {
                 leftPadFillerCopiesNum  = 0;
                 rightPadFillerCopiesNum = totalPadDisplayWidth;
               } break;
-              case FSS::e_ALIGN_MIDDLE: {
+              case Specification::e_ALIGN_MIDDLE: {
                 leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
                 rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
               } break;
-              case FSS::e_ALIGN_DEFAULT:
-              case FSS::e_ALIGN_RIGHT: {
+              case Specification::e_ALIGN_DEFAULT:
+              case Specification::e_ALIGN_RIGHT: {
                 leftPadFillerCopiesNum  = totalPadDisplayWidth;
                 rightPadFillerCopiesNum = 0;
               } break;
@@ -599,20 +583,20 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatFixedImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be decimal format
-    BSLS_ASSERT(FSS::e_FLOATING_FIXED    == finalSpec.formatType() ||
-                FSS::e_FLOATING_FIXED_UC == finalSpec.formatType());
+    BSLS_ASSERT(Specification::e_FLOATING_FIXED == finalSpec.formatType() ||
+                Specification::e_FLOATING_FIXED_UC == finalSpec.formatType());
 
     // Determine the precision
-    typedef FormatterSpecificationNumericValue FSNValue;
-    const FSNValue& specPrec = finalSpec.postprocessedPrecision();
-    const int precision = (FSNValue::e_DEFAULT == specPrec.category())
+    typedef FormatterSpecificationNumericValue NumericValue;
+    const NumericValue& specPrec = finalSpec.postprocessedPrecision();
+    const int precision = (NumericValue::e_DEFAULT == specPrec.category())
                         ? 6
                         : specPrec.value();
 
@@ -657,14 +641,14 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatDefaultImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be default format
-    BSLS_ASSERT(FSS::e_FLOATING_DEFAULT == finalSpec.formatType());
+    BSLS_ASSERT(Specification::e_FLOATING_DEFAULT == finalSpec.formatType());
 
     /// Must not have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().category() ==
@@ -689,15 +673,16 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be general format
-    BSLS_ASSERT(FSS::e_FLOATING_GENERAL    == finalSpec.formatType() ||
-                FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType());
+    BSLS_ASSERT(
+               Specification::e_FLOATING_GENERAL == finalSpec.formatType() ||
+               Specification::e_FLOATING_GENERAL_UC == finalSpec.formatType());
 
     // Determine the precision
     typedef FormatterSpecificationNumericValue FSNVAlue;
@@ -740,7 +725,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
         numberLength = applyGeneralAlternate(buf, numberLength, precision);
     }
 
-    if (FSS::e_FLOATING_GENERAL_UC == finalSpec.formatType()) {
+    if (Specification::e_FLOATING_GENERAL_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::FormatterCharUtil<char>::toUpper(buf, end);
     }
 
@@ -751,15 +736,15 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be hexfloat format
-    BSLS_ASSERT(FSS::e_FLOATING_HEX    == finalSpec.formatType() ||
-                FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
+    BSLS_ASSERT(Specification::e_FLOATING_HEX == finalSpec.formatType() ||
+                Specification::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must not have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().category() ==
@@ -778,7 +763,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexImpl(
         numberLength = applyScientificAlternate('p', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
+    if (Specification::e_FLOATING_HEX_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::FormatterCharUtil<char>::toUpper(buf, end);
     }
 
@@ -789,15 +774,15 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be hexfloat format
-    BSLS_ASSERT(FSS::e_FLOATING_HEX    == finalSpec.formatType() ||
-                FSS::e_FLOATING_HEX_UC == finalSpec.formatType());
+    BSLS_ASSERT(Specification::e_FLOATING_HEX == finalSpec.formatType() ||
+                Specification::e_FLOATING_HEX_UC == finalSpec.formatType());
 
     /// Must have precision
     BSLS_ASSERT(finalSpec.postprocessedPrecision().category() !=
@@ -838,7 +823,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatHexPrecImpl(
         numberLength = applyScientificAlternate('p', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_HEX_UC == finalSpec.formatType()) {
+    if (Specification::e_FLOATING_HEX_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::FormatterCharUtil<char>::toUpper(buf, end);
     }
 
@@ -849,15 +834,16 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
-                                             t_VALUE           value,
-                                             t_FORMAT_CONTEXT& formatContext,
-                                             const FSS&        finalSpec) const
+                                          t_VALUE              value,
+                                          t_FORMAT_CONTEXT&    formatContext,
+                                          const Specification& finalSpec) const
 {
     typedef BloombergLP::bslalg::NumericFormatterUtil NFUtil;
 
     /// Must be scientific format
-    BSLS_ASSERT(FSS::e_FLOATING_SCIENTIFIC    == finalSpec.formatType() ||
-                FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType());
+    BSLS_ASSERT(
+            Specification::e_FLOATING_SCIENTIFIC == finalSpec.formatType() ||
+            Specification::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType());
 
     // Determine the precision
     typedef FormatterSpecificationNumericValue FSNVAlue;
@@ -900,7 +886,7 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatScientificImpl(
         numberLength = applyScientificAlternate('e', buf, numberLength);
     }
 
-    if (FSS::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType()) {
+    if (Specification::e_FLOATING_SCIENTIFIC_UC == finalSpec.formatType()) {
         BloombergLP::bslfmt::FormatterCharUtil<char>::toUpper(buf, end);
     }
 
@@ -917,14 +903,14 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::format(
 {
     typedef FormatterSpecificationNumericValue FSNVAlue;
 
-    FSS finalSpec(d_spec);
-    FSS::postprocess(&finalSpec, formatContext);
+    Specification finalSpec(d_spec);
+    finalSpec.postprocess(formatContext);
 
     const bool isDefaultPrecision =
          FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().category();
 
     switch (finalSpec.formatType()) {
-      case FSS::e_FLOATING_DEFAULT: {
+      case Specification::e_FLOATING_DEFAULT: {
         if (isDefaultPrecision) {
             return formatDefaultImpl(value, formatContext, finalSpec);
         }
@@ -933,8 +919,8 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::format(
         }
       } break;
 
-      case FSS::e_FLOATING_HEX: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_HEX_UC: {
+      case Specification::e_FLOATING_HEX: BSLA_FALLTHROUGH;
+      case Specification::e_FLOATING_HEX_UC: {
         if (isDefaultPrecision) {
             return formatHexImpl(value, formatContext, finalSpec);
         }
@@ -943,18 +929,18 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::format(
         }
       } break;
 
-      case FSS::e_FLOATING_SCIENTIFIC: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_SCIENTIFIC_UC: {
+      case Specification::e_FLOATING_SCIENTIFIC: BSLA_FALLTHROUGH;
+      case Specification::e_FLOATING_SCIENTIFIC_UC: {
         return formatScientificImpl(value, formatContext, finalSpec);
       } break;
 
-      case FSS::e_FLOATING_FIXED: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_FIXED_UC: {
+      case Specification::e_FLOATING_FIXED: BSLA_FALLTHROUGH;
+      case Specification::e_FLOATING_FIXED_UC: {
         return formatFixedImpl(value, formatContext, finalSpec);
       } break;
 
-      case FSS::e_FLOATING_GENERAL: BSLA_FALLTHROUGH;
-      case FSS::e_FLOATING_GENERAL_UC: {
+      case Specification::e_FLOATING_GENERAL: BSLA_FALLTHROUGH;
+      case Specification::e_FLOATING_GENERAL_UC: {
         return formatGeneralImpl(value, formatContext, finalSpec);
       } break;
 
@@ -969,7 +955,7 @@ template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
 FormatterFloating_Base<t_VALUE, t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
 {
-    FSS::parse(&d_spec, &parseContext, FSS::e_CATEGORY_FLOATING);
+    d_spec.parse(&parseContext, Specification::e_CATEGORY_FLOATING);
 
     if (d_spec.localeSpecificFlag()) {
         BSLS_THROW(bsl::format_error(

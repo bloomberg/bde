@@ -106,7 +106,7 @@ struct FormatterWithMacroTrait {
 /// to the `std` namespace.
 struct FormatterWithExplicitTrait {
     // TYPES
-    typedef void Formatter_PreventStdPromotion;
+    typedef void FormatterBase_PreventStdPromotion;
     typedef void ExistenceMarker;
 };
 

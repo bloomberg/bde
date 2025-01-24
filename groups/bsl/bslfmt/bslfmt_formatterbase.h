@@ -126,12 +126,12 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void Formatter_PreventStdPromotion
+    typedef void FormatterBase_PreventStdPromotion
 #else
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void Formatter_DoNotPreventStdPromotion_DummyTypedef
+    typedef void FormatterBase_DoNotPreventStdPromotion
 #endif
 
 namespace bsl {
@@ -172,7 +172,8 @@ struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
 template <class t_FORMATTER>
 struct FormatterBase_IsStdAliasingEnabled<
     t_FORMATTER,
-    typename t_FORMATTER::Formatter_PreventStdPromotion> : bsl::false_type {
+    typename t_FORMATTER::FormatterBase_PreventStdPromotion>
+: bsl::false_type {
 };
 
 }  // close package namespace

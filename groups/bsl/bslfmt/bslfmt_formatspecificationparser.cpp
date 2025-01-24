@@ -1,9 +1,9 @@
-// bslfmt_formatspecificationstandard.cpp                             -*-C++-*-
+// bslfmt_formatspecificationparser.cpp                               -*-C++-*-
 
-#include <bslfmt_formatterspecificationstandard.h>
+#include <bslfmt_formatspecificationparser.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslfmt_formatterspecificationstandard_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatspecificationparser_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.

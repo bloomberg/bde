@@ -1,4 +1,4 @@
-// bslfmt_formatterbase.h                                             -*-C++-*-
+// bslfmt_formatterbool.h                                             -*-C++-*-
 
 #ifndef INCLUDED_BSLFMT_FORMATTERBOOL
 #define INCLUDED_BSLFMT_FORMATTERBOOL
@@ -45,33 +45,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formattercharutil.h>
-#include <bslfmt_formatterintegral.h>
-#include <bslfmt_formatterspecificationstandard.h>
+#include <bslfmt_formatterintegralbase.h>
+#include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
-
-#include <bslmf_assert.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
-#include <bslmf_issame.h>
-
-#include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
-#include <bsls_keyword.h>
-
-#include <bslstl_algorithm.h>
-#include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
-
-#include <stdio.h>    // for 'snprintf'
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -136,11 +115,11 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
                                          bool              value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
-    typedef FormatterSpecificationStandard<t_CHAR>  FSS;
-    typedef bslalg::NumericFormatterUtil            NFUtil;
-    typedef FormatterCharUtil<t_CHAR>               CharUtil;
+    typedef StandardFormatSpecification<t_CHAR> Specification;
+    typedef bslalg::NumericFormatterUtil        NFUtil;
+    typedef FormatterCharUtil<t_CHAR>           CharUtil;
 
-    const FSS& parsedSpec = this->specification();
+    const Specification& parsedSpec = this->specification();
 
     const int  maxPrefixSize = 4;
     char       prefixBuf[maxPrefixSize];
@@ -160,7 +139,7 @@ typename t_FORMAT_CONTEXT::iterator FormatterBool_Imp<t_CHAR>::format(
     t_CHAR    *valueBegin = valueBuf;
     t_CHAR    *valueEnd = valueBuf;
 
-    if (FSS::e_BOOLEAN_STRING == parsedSpec.formatType()) {
+    if (Specification::e_BOOLEAN_STRING == parsedSpec.formatType()) {
         // String representation.
 
         const char *stringRepresentation       = value ? "true" : "false";

@@ -5,7 +5,7 @@
 
 #include <bslstl_string.h>
 
-#include <bslfmt_formatterspecificationstandard.h> // Testing only
+#include <bslfmt_standardformatspecification.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>
@@ -142,42 +142,37 @@ struct formatter<FormattableType, t_CHAR> {
 
   private:
     // PRIVATE CLASS TYPES
-    typedef bslfmt::FormatterSpecificationStandard<t_CHAR> FSS;
+    typedef bslfmt::StandardFormatSpecification<t_CHAR> Specification;
 
     // DATA
-    FSS d_spec;
+    Specification d_spec;
 
   public:
     template <class t_PARSE_CONTEXT>
     typename t_PARSE_CONTEXT::iterator BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
-                                                           t_PARSE_CONTEXT& pc)
+                                                 t_PARSE_CONTEXT& parseContext)
     {
-        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
+        d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
 
-        return d_formatter_bsl.parse(pc);
+        return d_formatter_bsl.parse(parseContext);
     }
 
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(const FormattableType& value,
-                                               t_FORMAT_CONTEXT&      fc) const
+    typename t_FORMAT_CONTEXT::iterator format(
+                                    const FormattableType& value,
+                                    t_FORMAT_CONTEXT&      formatContext) const
     {
-        FSS final_spec(d_spec);
+        Specification finalSpec(d_spec);
 
-        FSS::postprocess(&final_spec, fc);
-
-        typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
-
-        FSNVAlue finalWidth(final_spec.postprocessedWidth());
-
-        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
+        finalSpec.postprocess(formatContext);
 
         static const char                   name[] = "FormattableType";
-        typename t_FORMAT_CONTEXT::iterator out    = fc.out();
+        typename t_FORMAT_CONTEXT::iterator out    = formatContext.out();
 
         out  = std::copy(name, name + strlen(name), out);
         *out++ = '{';
-        fc.advance_to(out);
-        out  = d_formatter_bsl.format(value.x, fc);
+        formatContext.advance_to(out);
+        out  = d_formatter_bsl.format(value.x, formatContext);
         *out++ = '}';
         return out;
     }
@@ -581,9 +576,9 @@ int main(int argc, char **argv)
              std::string rv1 = std::vformat((const char *)fmt,
                                              std::make_format_args(intValue));
 
-             // We cannot do this test yet without integer formattters.
+             // We cannot do this test yet without integer formatters.
              //bsl::string rv2 = bslfmt::vformat((const char *)fmt,
-             //                               bslfmt::make_format_args(intValue));
+             //                            bslfmt::make_format_args(intValue));
 
              //ASSERT(rv1 == rv2);
              ASSERT(rv1 == (const char *)u8"42\U0001F600\U0001F600");

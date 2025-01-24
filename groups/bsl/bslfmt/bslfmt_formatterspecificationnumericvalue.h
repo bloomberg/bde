@@ -135,9 +135,9 @@ struct FormatterSpecificationNumericValue {
 
 /// Component-private type to enable extraction of values held by format
 /// contexts during the postprocessing stage of determining the format
-/// specification (typically performed by the FormatSpecificationSplitter).
-/// This type exists so that `FormatterSpecificationSplitter` can update
-/// `FormatterSpecificationNumericValue` to the value contained by a Standard
+/// specification (typically performed by the `FormatSpecificationParser`).
+/// This type exists so that `FormatSpecificationParser` can update
+/// FormatterSpecificationNumericValue to the value contained by a Standard
 /// `basic_format_arg` using the Standard `visit_format_arg` function.
 class FormatterSpecificationNumericValue_ArgVisitor {
   private:
@@ -319,7 +319,7 @@ void FormatterSpecificationNumericValue::postprocess(
         return;                                                       // RETURN
     }
 
-    // Splitter parsing converts dynamic nested widths and precisions
+    // Parser parsing converts dynamic nested widths and precisions
     // (`e_NEXT_ARG`) into non-dynamic ones (`e_ARG_ID`).  As a result, if we
     // encounter a dynamic nested width at this stage it indicates a logic
     // error.

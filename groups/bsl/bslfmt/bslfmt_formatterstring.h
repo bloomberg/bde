@@ -55,30 +55,19 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+#include <bslfmt_standardformatspecification.h>
+
 #include <bslalg_numericformatterutil.h>
 
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
-#include <bslmf_issame.h>
-
-#include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 
-#include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
-#include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
-#include <bslfmt_formatterspecificationstandard.h>
-
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
 #include <limits>     // for 'std::numeric_limits'
-
-#include <stdio.h>    // for 'snprintf'
-
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -175,10 +164,10 @@ template <class t_CHAR>
 struct FormatterString_Imp {
   private:
     // PRIVATE TYPES
-    typedef FormatterSpecificationStandard<t_CHAR> FSS;
+    typedef StandardFormatSpecification<t_CHAR> Specification;
 
     // DATA
-    FSS d_spec;  // parsed specification.
+    Specification d_spec;  // parsed specification.
 
     // PRIVATE CLASS METHODS
 
@@ -191,37 +180,36 @@ struct FormatterString_Imp {
     /// maximal substring.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     static void findPrecisionLimitedString(
-                         size_t                         *charactersUsed,
-                         int                            *widthUsed,
-                         bsl::basic_string_view<t_CHAR>  inputString,
-                         int                             maxTotalDisplayWidth);
+                   size_t                               *charactersUsed,
+                   int                                  *widthUsed,
+                   const bsl::basic_string_view<t_CHAR>  inputString,
+                   int                                   maxTotalDisplayWidth);
   protected:
     // PROTECTED ACCESSORS
 
-    /// Format the value in the specified `value` parameter according to the
-    /// specification stored as a result of a previous call to the `parse`
-    /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `fc` parameter.  Return an end iterator
-    /// of the output range.  Throw an exception of type `bsl::format_error` in
-    /// the event of failure.
+    /// Format the specified `value` according to the specification stored as a
+    /// result of a previous call to the `parse` method, and write the result
+    /// to the iterator accessed by calling the `out()` method on the specified
+    /// `formatContext` parameter.  Return an end iterator of the output range.
+    /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatImpl(
-                                      bsl::basic_string_view<t_CHAR> value,
-                                      t_FORMAT_CONTEXT&              fc) const;
+                     const bsl::basic_string_view<t_CHAR> value,
+                     t_FORMAT_CONTEXT&                    formatContext) const;
 
   public:
     // MANIPULATORS
 
     /// Parse and validate the specification string stored in the iterator
-    /// accessed via the `begin()` method of the context passed via the
-    /// specified `pc` parameter.  Where nested parameters are encountered in
-    /// the specification string then the `next_arg_id` and `check_arg_id` are
-    /// called on `fc` as specified in the C++ Standard.  Return an end
-    /// iterator of the parsed range.  Throw an exception of type
+    /// accessed via the `begin()` method of the parseContext passed via the
+    /// specified `parseContext` parameter.  Where nested parameters are
+    /// encountered in the specification string then the `next_arg_id` and
+    /// `check_arg_id` are called on `fc` as specified in the C++ Standard.
+    /// Return an end iterator of the parsed range.  Throw an exception of type
     /// `bsl::format_error` in the event of failure.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                          t_PARSE_CONTEXT& pc);
+                                                t_PARSE_CONTEXT& parseContext);
 };
 
 }  // close package namespace
@@ -518,10 +506,10 @@ int FormatterString_GraphemeCluster::firstCodePointWidth() const
 
 template <class t_CHAR>
 void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
-                          size_t                         *charactersUsed,
-                          int                            *widthUsed,
-                          bsl::basic_string_view<t_CHAR>  inputString,
-                          int                             maxTotalDisplayWidth)
+                    size_t                               *charactersUsed,
+                    int                                  *widthUsed,
+                    const bsl::basic_string_view<t_CHAR>  inputString,
+                    int                                   maxTotalDisplayWidth)
 {
     *widthUsed      = 0;
     *charactersUsed = 0;
@@ -566,78 +554,78 @@ void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
 template <class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
-                                       bsl::basic_string_view<t_CHAR> value,
-                                       t_FORMAT_CONTEXT&              fc) const
+                      const bsl::basic_string_view<t_CHAR> value,
+                      t_FORMAT_CONTEXT&                    formatContext) const
 {
-    FSS final_spec(d_spec);
+    Specification finalSpec(d_spec);
 
-    FSS::postprocess(&final_spec, fc);
+    finalSpec.postprocess(formatContext);
 
-    typedef FormatterSpecificationNumericValue FSNVAlue;
-    bsl::basic_string_view<t_CHAR>              sv(value);
+    typedef FormatterSpecificationNumericValue NumericValue;
 
-    FSNVAlue finalWidth(final_spec.postprocessedWidth());
+    NumericValue finalWidth(finalSpec.postprocessedWidth());
 
-    FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
+    NumericValue finalPrecision(finalSpec.postprocessedPrecision());
 
     int maxDisplayWidth = 0;
     switch (finalPrecision.category()) {
-      case FSNVAlue::e_DEFAULT: {
+      case NumericValue::e_DEFAULT: {
         maxDisplayWidth = std::numeric_limits<int>::max();
       } break;
-      case FSNVAlue::e_VALUE: {
+      case NumericValue::e_VALUE: {
         maxDisplayWidth = finalPrecision.value();
       } break;
       default: {
-        BSLS_THROW(bsl::format_error("Invalid precision specifier"));
-      } break;
+        BSLS_THROW(bsl::format_error("Invalid precision specifier"));  // THROW
+      }
     }
 
     int    displayWidthUsedByInputString = std::numeric_limits<int>::min();
-    size_t charactersOfInputUsed         = sv.size();
+    size_t charactersOfInputUsed         = value.size();
 
     // Only do an analysis of the string if there is a possibility of
     // truncation or padding.
-    if ((maxDisplayWidth < static_cast<int>(sv.size()) * 2) ||
-        (finalWidth.category() != FSNVAlue::e_DEFAULT)) {
+    if ((maxDisplayWidth < static_cast<int>(value.size()) * 2) ||
+        (finalWidth.category() != NumericValue::e_DEFAULT)) {
         findPrecisionLimitedString(&charactersOfInputUsed,
                                    &displayWidthUsedByInputString,
-                                   sv,
+                                   value,
                                    maxDisplayWidth);
     }
 
     int totalPadDisplayWidth = 0;
 
     switch (finalWidth.category()) {
-      case FSNVAlue::e_DEFAULT: {
+      case NumericValue::e_DEFAULT: {
         totalPadDisplayWidth = 0;
       } break;
-      case FSNVAlue::e_VALUE: {
+      case NumericValue::e_VALUE: {
         totalPadDisplayWidth =
                bsl::max(0, finalWidth.value() - displayWidthUsedByInputString);
       } break;
       default: {
         BSLS_THROW(bsl::format_error("Invalid precision specifier"));
-      } break;
+      }
     }
 
     BSLS_ASSERT(totalPadDisplayWidth >= 0);
 
-    int leftPadFillerCopies = 0, rightPadFillerCopies = 0;
+    int leftPadFillerCopies  = 0;
+    int rightPadFillerCopies = 0;
 
     // Note that, per the C++ spec, the fill character is always assumed to
     // have a field width of one, regardless of its actual field width.
     switch (d_spec.alignment()) {
-      case FSS::e_ALIGN_DEFAULT:
-      case FSS::e_ALIGN_LEFT: {
+      case Specification::e_ALIGN_DEFAULT:
+      case Specification::e_ALIGN_LEFT: {
         leftPadFillerCopies  = 0;
         rightPadFillerCopies = totalPadDisplayWidth;
       } break;
-      case FSS::e_ALIGN_MIDDLE: {
+      case Specification::e_ALIGN_MIDDLE: {
         leftPadFillerCopies  = (totalPadDisplayWidth / 2);
         rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2);
       } break;
-      case FSS::e_ALIGN_RIGHT: {
+      case Specification::e_ALIGN_RIGHT: {
         leftPadFillerCopies  = totalPadDisplayWidth;
         rightPadFillerCopies = 0;
       } break;
@@ -646,24 +634,24 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
       } break;
     }
 
-    typename t_FORMAT_CONTEXT::iterator outIterator = fc.out();
+    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
     for (int i = 0; i < leftPadFillerCopies; ++i) {
         outIterator = bsl::copy(
-                           final_spec.filler(),
-                           final_spec.filler() + final_spec.fillerCharacters(),
-                           outIterator);
+                             finalSpec.filler(),
+                             finalSpec.filler() + finalSpec.fillerCharacters(),
+                             outIterator);
     }
 
-    outIterator = bsl::copy(sv.begin(),
-                            sv.begin() + charactersOfInputUsed,
+    outIterator = bsl::copy(value.begin(),
+                            value.begin() + charactersOfInputUsed,
                             outIterator);
 
     for (int i = 0; i < rightPadFillerCopies; ++i) {
         outIterator = bsl::copy(
-                           final_spec.filler(),
-                           final_spec.filler() + final_spec.fillerCharacters(),
-                           outIterator);
+                             finalSpec.filler(),
+                             finalSpec.filler() + finalSpec.fillerCharacters(),
+                             outIterator);
     }
 
     return outIterator;
@@ -673,11 +661,11 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& pc)
+FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
 {
-    FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
+    d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
 
-    if (d_spec.sign() != FSS::e_SIGN_DEFAULT)
+    if (d_spec.sign() != Specification::e_SIGN_DEFAULT)
         BSLS_THROW(bsl::format_error(
                       "Formatting sign specifier not valid for string types"));
 
@@ -692,10 +680,10 @@ FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& pc)
     if (d_spec.localeSpecificFlag())
         BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
 
-    if (d_spec.formatType() == FSS::e_STRING_ESCAPED)
+    if (d_spec.formatType() == Specification::e_STRING_ESCAPED)
         BSLS_THROW(bsl::format_error("String escaping not supported"));
 
-    return pc.begin();
+    return parseContext.begin();
 }
 
 }  // close package namespace
@@ -781,8 +769,7 @@ formatter<bsl::basic_string<t_CHAR>, t_CHAR>::format(
                                      const bsl::basic_string<t_CHAR>& value,
                                      t_FORMAT_CONTEXT&                fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(value);
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(value,
                                                                         fc);
 }
 
@@ -823,8 +810,7 @@ formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
                                        bsl::basic_string_view<t_CHAR> value,
                                        t_FORMAT_CONTEXT&              fc) const
 {
-    bsl::basic_string_view<t_CHAR> sv(value);
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(value,
                                                                         fc);
 }
 

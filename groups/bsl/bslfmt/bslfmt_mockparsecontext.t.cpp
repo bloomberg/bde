@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // `MockParseContext` is designed to imitate the behavior of the
 // `basic_format_parse_context`. Therefore, let's look at the examples of
-// real-life context usage (`FormatterSpecificationSplitter::parse()`), repeat
+// real-life context usage (`FormatSpecificationParser::parse()`), repeat
 // these steps and see the results.
 //
 // First, create a `MockParseContext` based on the defined specification:

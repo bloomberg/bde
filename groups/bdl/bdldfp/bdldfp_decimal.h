@@ -611,9 +611,9 @@ BSLS_IDENT("$Id$")
 #include <bslh_hash.h>
 
 #include <bslfmt_formaterror.h>
+#include <bslfmt_formatspecificationparser.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formattercharutil.h>
-#include <bslfmt_formatterspecificationsplitter.h>
 
 #include <bslma_deallocatebytesproctor.h>
 #include <bslma_default.h>
@@ -4331,24 +4331,24 @@ struct Decimal_FormatterSpecification {
     // PRIVATE TYPES
 
     ///  Just an abbreviation for shorter lines.
-    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
+    typedef bslfmt::FormatSpecificationParser<t_CHAR> Parser;
 
     // DATA
-    typename FSS::ParsingStatus d_parsingStatus;   /// The state of parsing
-    FSS                         d_basicSplitter;   /// Helper in parsing
-    FormatType                  d_formatType;      /// What type was requested
-    int                         d_widthArgId;      /// Width argument number
-    int                         d_precisionArgId;  /// Precision arg. number
+    typename Parser::ParsingStatus d_parsingStatus;   // the state of parsing
 
-    // PRIVATE CLASS METHODS
+    Parser                         d_parser;          // specification parser
+
+    FormatType                     d_formatType;      // what type was
+                                                      // requested
+
+    // PRIVATE MANIPULATORS
 
     /// Parse, from the specified `typeString`, the requested format-type and
-    /// load it into the `d_formatTpe` of the specified `outSpec`.  This method
-    /// will throw a `bsl::format_error` exception in case the `typeString` is
-    /// not empty or a valid, single format character.
-    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
-                             Decimal_FormatterSpecification        *outSpec,
-                             const bsl::basic_string_view<t_CHAR>&  typeString);
+    /// load it into the `d_formatType`.  This method will throw a
+    /// `bsl::format_error` exception in case the `typeString` is not empty or
+    /// a valid, single format character.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void parseType(
+                             const bsl::basic_string_view<t_CHAR>& typeString);
 
     // PRIVATE ACCESSORS
 
@@ -4368,29 +4368,26 @@ struct Decimal_FormatterSpecification {
     /// Create an uninitialized `Decimal_FormatterSpecification` object.
     BSLS_KEYWORD_CONSTEXPR_CPP20 Decimal_FormatterSpecification();
 
-    // CLASS METHODS
+    // MANIPULATORS
 
     /// Parse a decimal floating point format string using the iterator-range
     /// from the specified `context` and if successful load the results into
-    /// the specified `outSpec` as well as set the status to `e_PARSED`;
-    /// otherwise, if the format specification denoted by the `context`
-    /// iterator-range is not a valid decimal floating point format
-    /// specification thow a `bsl::format_error` exception.
+    /// this object as well as set its status to `e_PARSED`; otherwise, if the
+    /// format specification denoted by the `context` iterator-range is not a
+    /// valid decimal floating point format specification throw a
+    /// `bsl::format_error` exception.
     template <class t_PARSE_CONTEXT>
-    static BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(
-                                      Decimal_FormatterSpecification *outSpec,
-                                      t_PARSE_CONTEXT                *context);
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(t_PARSE_CONTEXT *context);
 
-    /// Postprocess the specified `outSpec` by using the argument values
-    /// provided by the specified `context` to fill in the values of nested
-    /// width or precision parameters if such deferred parameters exist and set
-    /// the status of `outSpec` to `e_PARSING_POSTPROCESSED`.  By nested format
-    /// parameters we mean parameters whose value comes from an argument to the
-    /// formatter function, and not an literal integer value within the format
-    /// string.  In case of an error throw a `bsl::format_error` exception.
+    /// Postprocess this object using the argument values provided by the
+    /// specified `context` to fill in the values of nested width or precision
+    /// parameters if such deferred parameters exist and set the status to
+    /// `e_PARSING_POSTPROCESSED`.  By nested format parameters we mean
+    /// parameters whose value comes from an argument to the formatter
+    /// function, and not an literal integer value within the format string.
+    /// In case of an error throw a `bsl::format_error` exception.
     template <typename t_FORMAT_CONTEXT>
-    static void postprocess(Decimal_FormatterSpecification *outSpec,
-                            const t_FORMAT_CONTEXT&         context);
+    void postprocess(const t_FORMAT_CONTEXT& context);
 
     // ACCESSORS
 
@@ -4414,12 +4411,12 @@ struct Decimal_FormatterSpecification {
     /// Return the enumerator representing the requested alignment unless the
     /// status is not at least `e_PARSING_PARSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Alignment alignment() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename Parser::Alignment alignment() const;
 
     /// Return the enumerator representing the requested sign-treatment option
     /// unless the status is not at least `e_PARSING_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename FSS::Sign sign() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename Parser::Sign sign() const;
 
     /// Return a boolean indicating if alternative formatting was requested
     /// unless the status is not at least `e_PARSING_PARSED` in which case
@@ -4481,10 +4478,10 @@ struct Decimal_BslFmtFormatterImpl {
     // PRIVATE CLASS TYPES
 
     /// A type alias for the `FormatterSpecificationDecimal<t_CHAR>`.
-    typedef Decimal_FormatterSpecification<t_CHAR> FSD;
+    typedef Decimal_FormatterSpecification<t_CHAR> Specification;
 
     // DATA
-    FSD d_spec;  /// Parsed specification.
+    Specification d_spec;  /// Parsed specification.
 
     // PRIVATE CONSTANTS
 
@@ -4500,10 +4497,10 @@ struct Decimal_BslFmtFormatterImpl {
     /// the `formatContext` and return an iterator one-past the last written.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator alignAndCopy(
-                                           const char        *numberBuffer,
-                                           size_t             numberLength,
-                                           t_FORMAT_CONTEXT&  formatContext,
-                                           const FSD&         finalSpec) const;
+                                        const char           *numberBuffer,
+                                        size_t                numberLength,
+                                        t_FORMAT_CONTEXT&     formatContext,
+                                        const Specification&  finalSpec) const;
   public:
     // MANIPULATORS
 
@@ -6669,26 +6666,25 @@ STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-             // --------------------------------------------
-             // template class FormatterSpecificationDecimal
-             // --------------------------------------------
+                  // ------------------------------------
+                  // class Decimal_FormatterSpecification
+                  // ------------------------------------
 
-// PRIVATE CLASS METHODS
+// PRIVATE MANIPULATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void Decimal_FormatterSpecification<t_CHAR>::parseType(
-                             Decimal_FormatterSpecification        *outSpec,
                              const bsl::basic_string_view<t_CHAR>&  typeString)
 {
     // Handle empty string or empty specification.
     if (typeString.empty()) {
-        outSpec->d_formatType = e_FORMAT_DEFAULT;
+        d_formatType = e_FORMAT_DEFAULT;
         return;                                                       // RETURN
     }
 
     // Standard format strings only allow a single type character.
     if (typeString.size() > 1) {
-        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        d_formatType = e_TYPE_UNASSIGNED;
         BSLS_THROW(bsl::format_error(                                  // THROW
                   "Decimal floating point format types are single-character"));
     }
@@ -6702,31 +6698,31 @@ void Decimal_FormatterSpecification<t_CHAR>::parseType(
 
     switch (typeChar) {
       case 'e': {
-        outSpec->d_formatType = e_FORMAT_SCIENTIFIC;
+        d_formatType = e_FORMAT_SCIENTIFIC;
       } break;
       case 'E': {
-        outSpec->d_formatType = e_FORMAT_SCIENTIFIC_UC;
+        d_formatType = e_FORMAT_SCIENTIFIC_UC;
       } break;
       case 'f': {
-        outSpec->d_formatType = e_FORMAT_FIXED;
+        d_formatType = e_FORMAT_FIXED;
       } break;
       case 'F': {
-        outSpec->d_formatType = e_FORMAT_FIXED_UC;
+        d_formatType = e_FORMAT_FIXED_UC;
       } break;
       case 'g': {
-        outSpec->d_formatType = e_FORMAT_GENERAL;
+        d_formatType = e_FORMAT_GENERAL;
       } break;
       case 'G': {
-        outSpec->d_formatType = e_FORMAT_GENERAL_UC;
+        d_formatType = e_FORMAT_GENERAL_UC;
       } break;
       default: {
-        outSpec->d_formatType = e_TYPE_UNASSIGNED;
+        d_formatType = e_TYPE_UNASSIGNED;
         BSLS_THROW(bsl::format_error(
                   "Invalid format type for decimal floating points")); // THROW
       }
     }
 
-    if (e_TYPE_UNASSIGNED == outSpec->d_formatType)
+    if (e_TYPE_UNASSIGNED == d_formatType)
         BSLS_THROW(bsl::format_error(                                  // THROW
                           "Failed to parse decimal floating point format type "
                                                           "(reason unknown)"));
@@ -6739,17 +6735,17 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void Decimal_FormatterSpecification<t_CHAR>::ensureParsingComplete() const
 {
-    if (d_parsingStatus == FSS::e_PARSING_UNINITIALIZED) {
+    if (d_parsingStatus == Parser::e_PARSING_UNINITIALIZED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
                     "Decimal format specification '.parse()' was not called"));
     }
 }
 
 template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20
-void Decimal_FormatterSpecification<t_CHAR>::ensurePostprocessingComplete() const
+BSLS_KEYWORD_CONSTEXPR_CPP20 void
+Decimal_FormatterSpecification<t_CHAR>::ensurePostprocessingComplete() const
 {
-    if (d_parsingStatus != FSS::e_PARSING_POSTPROCESSED) {
+    if (d_parsingStatus != Parser::e_PARSING_POSTPROCESSED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
               "Decimal format specification '.postprocess()' was not called"));
     }
@@ -6759,11 +6755,9 @@ void Decimal_FormatterSpecification<t_CHAR>::ensurePostprocessingComplete() cons
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 Decimal_FormatterSpecification<t_CHAR>::Decimal_FormatterSpecification()
-: d_parsingStatus(FSS::e_PARSING_UNINITIALIZED)
-, d_basicSplitter()
+: d_parsingStatus(Parser::e_PARSING_UNINITIALIZED)
+, d_parser()
 , d_formatType(e_TYPE_UNASSIGNED)
-, d_widthArgId(-1)
-, d_precisionArgId(-1)
 {
 }
 
@@ -6773,7 +6767,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR * Decimal_FormatterSpecification<t_CHAR>::filler() const
 {
     ensurePostprocessingComplete();
-    return d_basicSplitter.filler();
+    return d_parser.filler();
 }
 
 template <class t_CHAR>
@@ -6781,7 +6775,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 int Decimal_FormatterSpecification<t_CHAR>::fillerCharacters() const
 {
     ensurePostprocessingComplete();
-    return d_basicSplitter.fillerCharacters();
+    return d_parser.fillerCharacters();
 }
 
 template <class t_CHAR>
@@ -6789,25 +6783,25 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 int Decimal_FormatterSpecification<t_CHAR>::fillerCodePointDisplayWidth() const
 {
     ensurePostprocessingComplete();
-    return d_basicSplitter.fillerCodePointDisplayWidth();
+    return d_parser.fillerCodePointDisplayWidth();
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename Decimal_FormatterSpecification<t_CHAR>::FSS::Alignment
+typename Decimal_FormatterSpecification<t_CHAR>::Parser::Alignment
 Decimal_FormatterSpecification<t_CHAR>::alignment() const
 {
     ensureParsingComplete();
-    return d_basicSplitter.alignment();
+    return d_parser.alignment();
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-typename Decimal_FormatterSpecification<t_CHAR>::FSS::Sign
+typename Decimal_FormatterSpecification<t_CHAR>::Parser::Sign
 Decimal_FormatterSpecification<t_CHAR>::sign() const
 {
     ensureParsingComplete();
-    return d_basicSplitter.sign();
+    return d_parser.sign();
 }
 
 template <class t_CHAR>
@@ -6815,7 +6809,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::alternativeFlag() const
 {
     ensureParsingComplete();
-    return d_basicSplitter.alternativeFlag();
+    return d_parser.alternativeFlag();
 }
 
 template <class t_CHAR>
@@ -6823,7 +6817,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::zeroPaddingFlag() const
 {
     ensureParsingComplete();
-    return d_basicSplitter.zeroPaddingFlag();
+    return d_parser.zeroPaddingFlag();
 }
 
 template <class t_CHAR>
@@ -6832,7 +6826,7 @@ const bslfmt::FormatterSpecificationNumericValue
 Decimal_FormatterSpecification<t_CHAR>::postprocessedWidth() const
 {
     ensurePostprocessingComplete();
-    return d_basicSplitter.postprocessedWidth();
+    return d_parser.postprocessedWidth();
 }
 
 template <class t_CHAR>
@@ -6841,7 +6835,7 @@ const bslfmt::FormatterSpecificationNumericValue
 Decimal_FormatterSpecification<t_CHAR>::postprocessedPrecision() const
 {
     ensurePostprocessingComplete();
-    return d_basicSplitter.postprocessedPrecision();
+    return d_parser.postprocessedPrecision();
 }
 
 template <class t_CHAR>
@@ -6849,7 +6843,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 bool Decimal_FormatterSpecification<t_CHAR>::localeSpecificFlag() const
 {
     ensureParsingComplete();
-    return d_basicSplitter.localeSpecificFlag();
+    return d_parser.localeSpecificFlag();
 }
 
 template <class t_CHAR>
@@ -6864,34 +6858,30 @@ Decimal_FormatterSpecification<t_CHAR>::formatType() const
 // CLASS METHODS
 template <class t_CHAR>
 template <class t_PARSE_CONTEXT>
-BSLS_KEYWORD_CONSTEXPR_CPP20
-void Decimal_FormatterSpecification<t_CHAR>::parse(
-                                       Decimal_FormatterSpecification *outSpec,
-                                       t_PARSE_CONTEXT                *context)
+BSLS_KEYWORD_CONSTEXPR_CPP20 void
+Decimal_FormatterSpecification<t_CHAR>::parse(t_PARSE_CONTEXT *context)
 {
     BSLMF_ASSERT((
         bsl::is_same<typename bsl::iterator_traits<
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    outSpec->d_parsingStatus = FSS::e_PARSING_PARSED;
+    d_parsingStatus = Parser::e_PARSING_PARSED;
 
-    const typename FSS::Sections sect = static_cast<typename FSS::Sections>(
-            FSS::e_SECTIONS_FILL_ALIGN     |
-            FSS::e_SECTIONS_SIGN_FLAG      |
-            FSS::e_SECTIONS_ALTERNATE_FLAG |
-            FSS::e_SECTIONS_ZERO_PAD_FLAG  |
-            FSS::e_SECTIONS_WIDTH          |
-            FSS::e_SECTIONS_PRECISION      |
-            FSS::e_SECTIONS_LOCALE_FLAG    |
-            FSS::e_SECTIONS_FINAL_SPECIFICATION);
+    const typename Parser::Sections sect =
+            static_cast<typename Parser::Sections>(
+                Parser::e_SECTIONS_FILL_ALIGN |
+                Parser::e_SECTIONS_SIGN_FLAG |
+                Parser::e_SECTIONS_ALTERNATE_FLAG |
+                Parser::e_SECTIONS_ZERO_PAD_FLAG |
+                Parser::e_SECTIONS_WIDTH |
+                Parser::e_SECTIONS_PRECISION |
+                Parser::e_SECTIONS_LOCALE_FLAG |
+                Parser::e_SECTIONS_FINAL_SPECIFICATION);
 
-    bslfmt::FormatterSpecificationSplitter<t_CHAR>::parse(
-                                                      &outSpec->d_basicSplitter,
-                                                      context,
-                                                      sect);
+    d_parser.parse(context, sect);
 
-    parseType(outSpec, outSpec->d_basicSplitter.finalSpec());
+    parseType(d_parser.finalSpec());
 
     if (context->begin() == context->end() || *context->begin() == '}') {
         return;                                                       // RETURN
@@ -6905,18 +6895,17 @@ void Decimal_FormatterSpecification<t_CHAR>::parse(
 template <class t_CHAR>
 template <typename t_FORMAT_CONTEXT>
 void Decimal_FormatterSpecification<t_CHAR>::postprocess(
-                                       Decimal_FormatterSpecification *outSpec,
-                                       const t_FORMAT_CONTEXT&        context)
+                                               const t_FORMAT_CONTEXT& context)
 {
-    outSpec->ensureParsingComplete();
+    ensureParsingComplete();
 
-    FSS::postprocess(&outSpec->d_basicSplitter, context);
+    d_parser.postprocess(context);
 
-    switch (outSpec->d_basicSplitter.postprocessedWidth().category()) {
+    switch (d_parser.postprocessedWidth().category()) {
       case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
       case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
-        if (outSpec->d_basicSplitter.postprocessedWidth().value() <= 0)
+        if (d_parser.postprocessedWidth().value() <= 0)
             BSLS_THROW(bsl::format_error("Zero or negative width value"));
                                                                        // THROW
       } break;
@@ -6926,11 +6915,11 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
       }
     }
 
-    switch (outSpec->d_basicSplitter.postprocessedPrecision().category()) {
+    switch (d_parser.postprocessedPrecision().category()) {
       case bslfmt::FormatterSpecificationNumericValue::e_DEFAULT: break;
 
       case bslfmt::FormatterSpecificationNumericValue::e_VALUE: {
-        if (outSpec->d_basicSplitter.postprocessedPrecision().value() < 0)
+        if (d_parser.postprocessedPrecision().value() < 0)
             BSLS_THROW(bsl::format_error("Negative precision value")); // THROW
       } break;
       default: {
@@ -6939,7 +6928,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
       }
     }
 
-    outSpec->d_parsingStatus = FSS::e_PARSING_POSTPROCESSED;
+    d_parsingStatus = Parser::e_PARSING_POSTPROCESSED;
 }
 
               // -------------------------------------------
@@ -6951,15 +6940,15 @@ template <class t_VALUE, class t_CHAR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
 Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
-                                            const char        *numberBuffer,
-                                            size_t             numberLength,
-                                            t_FORMAT_CONTEXT&  formatContext,
-                                            const FSD&         finalSpec) const
+                                         const char           *numberBuffer,
+                                         size_t                numberLength,
+                                         t_FORMAT_CONTEXT&     formatContext,
+                                         const Specification&  finalSpec) const
 {
-    typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
-    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
+    typedef bslfmt::FormatterSpecificationNumericValue NumericValue;
+    typedef bslfmt::FormatSpecificationParser<t_CHAR>  Parser;
 
-    FSNVAlue finalWidth(finalSpec.postprocessedWidth());
+    NumericValue finalWidth(finalSpec.postprocessedWidth());
 
     ptrdiff_t leftPadFillerCopiesNum  = 0;
     ptrdiff_t rightPadFillerCopiesNum = 0;
@@ -6986,7 +6975,7 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
     const bool specialValue = 'f' == lastChar || 'n' == lastChar
                            || 'F' == lastChar || 'N' == lastChar;
 
-    if ((FSNVAlue::e_DEFAULT != finalWidth.category()) &&
+    if ((NumericValue::e_DEFAULT != finalWidth.category()) &&
         (numberLength + hasSignChar <
          static_cast<size_t>(finalWidth.value()))) {
         // We need to fill the remaining space.
@@ -6994,7 +6983,8 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
         const ptrdiff_t totalPadDisplayWidth =
                              finalWidth.value() - (numberLength + hasSignChar);
 
-        if (!specialValue && FSS::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+        if (!specialValue &&
+            Parser::e_ALIGN_DEFAULT == finalSpec.alignment() &&
             finalSpec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
@@ -7004,16 +6994,16 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
             // Alignment with appropriate symbol is required.
 
             switch (d_spec.alignment()) {
-              case FSS::e_ALIGN_LEFT: {
+              case Parser::e_ALIGN_LEFT: {
                 leftPadFillerCopiesNum  = 0;
                 rightPadFillerCopiesNum = totalPadDisplayWidth;
               } break;
-              case FSS::e_ALIGN_MIDDLE: {
+              case Parser::e_ALIGN_MIDDLE: {
                 leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
                 rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
               } break;
-              case FSS::e_ALIGN_DEFAULT:
-              case FSS::e_ALIGN_RIGHT: {
+              case Parser::e_ALIGN_DEFAULT:
+              case Parser::e_ALIGN_RIGHT: {
                 leftPadFillerCopiesNum  = totalPadDisplayWidth;
                 rightPadFillerCopiesNum = 0;
               } break;
@@ -7067,7 +7057,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
 Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
-    FSD::parse(&d_spec, &parseContext);
+    d_spec.parse(&parseContext);
 
     if (d_spec.localeSpecificFlag()) {
         BSLS_THROW(bsl::format_error(                                  // THROW
@@ -7085,13 +7075,15 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
                                          t_FORMAT_CONTEXT& formatContext) const
 {
 
-    typedef bslfmt::FormatterSpecificationNumericValue     FSNVAlue;
-    typedef bslfmt::FormatterSpecificationSplitter<t_CHAR> FSS;
-    FSD finalSpec(d_spec);
-    FSD::postprocess(&finalSpec, formatContext);
+    typedef bslfmt::FormatterSpecificationNumericValue NumericValue;
+    typedef bslfmt::FormatSpecificationParser<t_CHAR>  Parser;
+
+    Specification finalSpec(d_spec);
+    finalSpec.postprocess(formatContext);
 
     const bool isDefaultPrecision =
-          FSNVAlue::e_DEFAULT == finalSpec.postprocessedPrecision().category();
+                                 NumericValue::e_DEFAULT ==
+                                 finalSpec.postprocessedPrecision().category();
     const int precision = isDefaultPrecision
                         ? -1
                         : finalSpec.postprocessedPrecision().value();
@@ -7101,26 +7093,26 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
     bool upperCase = false;
 
     switch (finalSpec.formatType()) {
-      case FSD::e_FORMAT_SCIENTIFIC_UC:
+      case Specification::e_FORMAT_SCIENTIFIC_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_FORMAT_SCIENTIFIC: {
+      case Specification::e_FORMAT_SCIENTIFIC: {
         cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
       } break;
 
-      case FSD::e_FORMAT_FIXED_UC:
+      case Specification::e_FORMAT_FIXED_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_FORMAT_FIXED: {
+      case Specification::e_FORMAT_FIXED: {
           cfg.setStyle(DecimalFormatConfig::e_FIXED);
       } break;
 
       // These are all the default "natural" format
-      case FSD::e_FORMAT_GENERAL_UC:
+      case Specification::e_FORMAT_GENERAL_UC:
         upperCase = true;
         BSLA_FALLTHROUGH;
-      case FSD::e_FORMAT_DEFAULT: BSLA_FALLTHROUGH;
-      case FSD::e_FORMAT_GENERAL: break;
+      case Specification::e_FORMAT_DEFAULT: BSLA_FALLTHROUGH;
+      case Specification::e_FORMAT_GENERAL: break;
 
       default: {
         BSLS_THROW(bsl::format_error("Unknown decimal floating point format"));
@@ -7128,14 +7120,14 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
     }
 
     switch (finalSpec.sign()) {
-      case FSS::e_SIGN_DEFAULT:  BSLA_FALLTHROUGH;
-      case FSS::e_SIGN_NEGATIVE: {
+      case Parser::e_SIGN_DEFAULT:  BSLA_FALLTHROUGH;
+      case Parser::e_SIGN_NEGATIVE: {
         cfg.setSign(DecimalFormatConfig::e_NEGATIVE_ONLY);
       } break;
-      case FSS::e_SIGN_POSITIVE: {
+      case Parser::e_SIGN_POSITIVE: {
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
       } break;
-      case FSS::e_SIGN_SPACE: {
+      case Parser::e_SIGN_SPACE: {
         cfg.setSign(DecimalFormatConfig::e_POSITIVE_AS_SPACE);
       } break;
     }

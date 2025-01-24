@@ -9,7 +9,7 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 26 components having 10 levels of physical
+ The 'bslfmt' package currently has 28 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -20,18 +20,19 @@ bslfmt.txt
 
   8. bslfmt_formatterbool
      bslfmt_formattercharacter
+     bslfmt_formatterintegral
      bslfmt_formatterpointer
 
   7. bslfmt_formatterfloating
-     bslfmt_formatterintegral
+     bslfmt_formatterintegralbase
      bslfmt_formatterstring
 
-  6. bslfmt_formatterspecificationstandard
-     bslfmt_formattertestutil
+  6. bslfmt_formattertestutil
+     bslfmt_standardformatspecification
 
   5. bslfmt_formatargs
+     bslfmt_formatspecificationparser
      bslfmt_formatterspecificationnumericvalue
-     bslfmt_formatterspecificationsplitter
      bslfmt_mockformatcontext
      bslfmt_mockparsecontext
 
@@ -84,6 +85,9 @@ bslfmt.txt
 : 'bslfmt_formatparsecontext':
 :      Provides access to formatting parsing string and parsing state.
 :
+: 'bslfmt_formatspecificationparser':
+:      Private utility for use within BSL `format` spec parsers
+:
 : 'bslfmt_formatstring':
 :      Provide a string_view wrapper for formatting library usage
 :
@@ -105,14 +109,11 @@ bslfmt.txt
 : 'bslfmt_formatterintegral':
 :      Provide a formatter customization for integer types
 :
+: 'bslfmt_formatterintegralbase':
+:      Provide a base class for integral formatter specializations
+:
 : 'bslfmt_formatterpointer':
 :      Provide a formatter customization for pointer types
-:
-: 'bslfmt_formatterspecificationsplitter':
-:      Private utility for use within BSL `format` spec parsers
-:
-: 'bslfmt_formatterspecificationstandard':
-:      Private utility for use within BSL `format` standard spec parsers
 :
 : 'bslfmt_formatterstring':
 :      Provide a formatter customization for string types
@@ -128,6 +129,9 @@ bslfmt.txt
 :
 : 'bslfmt_mockparsecontext':
 :      Provide mock parse context for use in formatter tests
+:
+: 'bslfmt_standardformatspecification':
+:      Private utility for use within BSL `format` standard spec parsers
 :
 : 'bslfmt_unicodecodepoint':
 :      Private unicode code point object for use by `bsl::format`

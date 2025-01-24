@@ -45,29 +45,16 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
-#include <bslfmt_formatterintegral.h>
+#include <bslfmt_formatterintegralbase.h>
+#include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_assert.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
 #include <bslmf_issame.h>
 
-#include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
-#include <bsls_keyword.h>
-
 #include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-#include <locale>     // for `std::ctype`, `locale`
-#include <string>     // for `std::char_traits`
-
-#include <stdio.h>    // for `snprintf`
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -260,12 +247,12 @@ FormatterCharacter_Imp<t_VALUE, t_CHAR>::format(
                                          t_VALUE           value,
                                          t_FORMAT_CONTEXT& formatContext) const
 {
-    typedef FormatterSpecificationStandard<t_CHAR> FSS;
-    typedef bslalg::NumericFormatterUtil           NFUtil;
+    typedef StandardFormatSpecification<t_CHAR> Specification;
+    typedef bslalg::NumericFormatterUtil        NFUtil;
 
-    const FSS& parsedSpec = this->specification();
+    const Specification& parsedSpec = this->specification();
 
-    if (FSS::e_CHARACTER_CHARACTER == parsedSpec.formatType()) {
+    if (Specification::e_CHARACTER_CHARACTER == parsedSpec.formatType()) {
         char    dummyPrefix = 0;
         t_CHAR  valueBuf;
         t_CHAR *valueBegin = &valueBuf;

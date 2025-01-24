@@ -1,12 +1,12 @@
-// bslfmt_formatspecificationsplitter.cpp                             -*-C++-*-
+// bslfmt_formatterintegralbase.cpp                                   -*-C++-*-
 
-#include <bslfmt_formatterspecificationsplitter.h>
+#include <bslfmt_formatterintegralbase.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslfmt_formatterspecificationsplitter_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslfmt_formatterintegralbase_cpp, "$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

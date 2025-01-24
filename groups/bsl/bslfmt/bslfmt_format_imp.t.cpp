@@ -167,34 +167,35 @@ struct formatter<FormattableType, t_CHAR> {
 
   private:
     // PRIVATE CLASS TYPES
-    typedef bslfmt::FormatterSpecificationStandard<t_CHAR> FSS;
+    typedef bslfmt::StandardFormatSpecification<t_CHAR> Specification;
 
     // DATA
-    FSS d_spec;
+    Specification d_spec;
 
   public:
     template <class t_PARSE_CONTEXT>
     typename t_PARSE_CONTEXT::iterator BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
-                                                           t_PARSE_CONTEXT& pc)
+                                                 t_PARSE_CONTEXT& parseContext)
     {
-        FSS::parse(&d_spec, &pc, FSS::e_CATEGORY_STRING);
+        d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
 
-        return d_formatter_bsl.parse(pc);
+        return d_formatter_bsl.parse(parseContext);
     }
 
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(const FormattableType& value,
-                                               t_FORMAT_CONTEXT&      fc) const
+    typename t_FORMAT_CONTEXT::iterator format(
+                                    const FormattableType& value,
+                                    t_FORMAT_CONTEXT&      formatContext) const
     {
-        FSS final_spec(d_spec);
+        Specification finalSpec(d_spec);
 
-        FSS::postprocess(&final_spec, fc);
+        finalSpec.postprocess(formatContext);
 
-        typedef bslfmt::FormatterSpecificationNumericValue FSNVAlue;
+        typedef bslfmt::FormatterSpecificationNumericValue NumericValue;
 
-        FSNVAlue finalWidth(final_spec.postprocessedWidth());
+        NumericValue finalWidth(finalSpec.postprocessedWidth());
 
-        FSNVAlue finalPrecision(final_spec.postprocessedPrecision());
+        NumericValue finalPrecision(finalSpec.postprocessedPrecision());
 
         bsl::basic_stringstream<t_CHAR> converter;
 
@@ -209,20 +210,20 @@ struct formatter<FormattableType, t_CHAR> {
 
         // We know `output.size()` is less than INT_MAX
         int width = static_cast<int>(output.size());
-        if (finalWidth.category() != FSNVAlue::e_DEFAULT) {
+        if (finalWidth.category() != NumericValue::e_DEFAULT) {
             width = finalWidth.value();
         }
 
         // We know `output.size()` is less than INT_MAX
         int precision = static_cast<int>(output.size());
-        if (finalPrecision.category() != FSNVAlue::e_DEFAULT) {
+        if (finalPrecision.category() != NumericValue::e_DEFAULT) {
             precision = finalPrecision.value();
         }
 
-        typename t_FORMAT_CONTEXT::iterator oit    = fc.out();
+        typename t_FORMAT_CONTEXT::iterator oit    = formatContext.out();
 
         oit = std::copy(output.begin(), output.begin() + precision, oit);
-        fc.advance_to(oit);
+        formatContext.advance_to(oit);
 
         if (width > precision) {
             for (int i = 0; i < width - precision; i++) {
@@ -230,7 +231,7 @@ struct formatter<FormattableType, t_CHAR> {
             }
         }
 
-        fc.advance_to(oit);
+        formatContext.advance_to(oit);
 
         return oit;
     }
