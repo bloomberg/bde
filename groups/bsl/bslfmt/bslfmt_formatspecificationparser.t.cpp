@@ -1,12 +1,10 @@
 // bslfmt_formatspecificationparser.t.cpp                             -*-C++-*-
 #include <bslfmt_formatspecificationparser.h>
 
-#include <bslfmt_format_arg.h>          // Testing only
-#include <bslfmt_format_args.h>         // Testing only
-#include <bslfmt_format_string.h>       // Testing only
-#include <bslfmt_formatparsecontext.h>  // Testing only
+#include <bslfmt_format_string.h>
 #include <bslfmt_formatterspecificationnumericvalue.h>
-#include <bslfmt_formattertestutil.h>   // Testing only
+#include <bslfmt_mockformatcontext.h>
+#include <bslfmt_mockparsecontext.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -17,7 +15,6 @@
 
 using namespace BloombergLP;
 using namespace bslfmt;
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -232,9 +229,25 @@ int main(int argc, char **argv)
 
     switch (test) {  case 0:
       case 1: {
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
         checkStandard(parseStandard(""),
                       " ",
                       CharParser::e_ALIGN_DEFAULT,
@@ -353,7 +366,7 @@ int main(int argc, char **argv)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

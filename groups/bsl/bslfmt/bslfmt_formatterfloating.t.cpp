@@ -1013,10 +1013,10 @@ int main(int argc, char **argv)
         typedef std::numeric_limits<float> FltLim;
 
         const float k_FLT_INF     = FltLim::infinity();
-        const float k_FLT_NEG_INF = -k_DBL_INF;
+        const float k_FLT_NEG_INF = -k_FLT_INF;
 
         const float k_FLT_NAN     = FltLim::quiet_NaN();
-        const float k_FLT_NEG_NAN = -k_DBL_NAN;
+        const float k_FLT_NEG_NAN = -k_FLT_NAN;
 
         const float k_FLT_SNAN     = FltLim::signaling_NaN();
 

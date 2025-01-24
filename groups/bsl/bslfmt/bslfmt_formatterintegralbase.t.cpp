@@ -86,16 +86,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
-// ============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-
-
-// ============================================================================
-//                       HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
-
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

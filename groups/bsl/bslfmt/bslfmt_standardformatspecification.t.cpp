@@ -15,7 +15,6 @@
 using namespace BloombergLP;
 using namespace bslfmt;
 
-
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -79,7 +78,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                  ASSISTANCE TYPES AND FUNCTIONS
+//                  ADDITIONAL MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
 // Due to a member initialization bug for types returned from consteval
@@ -88,30 +87,36 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20) &&                 \
     (!defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION >=        \
                                               (16 * 10000))
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
-
+    #define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
 #else
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+    #define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string<>
-#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<>
+    #define BSLFMT_FORMAT_STRING_PARAMETER  bslfmt::format_string<>
+    #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string<>
 #else
-// We cannot define format_string<t_ARGS...> in a C++03 compliant manner, so
-// have to use non-template versions instead.
-#define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
-#define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // We cannot define format_string<t_ARGS...> in a C++03 compliant manner,
+    // so have to use non-template versions instead.
+    #define BSLFMT_FORMAT_STRING_PARAMETER  bslfmt::format_string
+    #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
+#endif
 
+// ============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef StandardFormatSpecification<char>    CharSpec;
 typedef StandardFormatSpecification<wchar_t> WcharSpec;
 
+// ============================================================================
+//                       HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
 BSLFMT_FORMATTER_TEST_CONSTEVAL CharSpec parseStandard(
-        BSLFMT_FORMAT_STRING_PARAMETER inputSpecification,
-        CharSpec::Category                 category)
+                             BSLFMT_FORMAT_STRING_PARAMETER inputSpecification,
+                             CharSpec::Category             category)
 {
     CharSpec                       spec;
     bsl::string_view               input(inputSpecification.get());
@@ -123,8 +128,8 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL CharSpec parseStandard(
 }
 
 BSLFMT_FORMATTER_TEST_CONSTEVAL WcharSpec parseStandard(
-        BSLFMT_FORMAT_WSTRING_PARAMETER inputSpecification,
-        WcharSpec::Category                  category)
+                            BSLFMT_FORMAT_WSTRING_PARAMETER inputSpecification,
+                            WcharSpec::Category             category)
 {
     WcharSpec                         spec;
     bsl::wstring_view                 input(inputSpecification.get());
@@ -205,9 +210,25 @@ int main(int argc, char **argv)
 
     switch (test) {  case 0:
       case 1: {
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
         typedef StandardFormatSpecification<char>    CharSpec;
         typedef StandardFormatSpecification<wchar_t> WcharSpec;
         typedef FormatterSpecificationNumericValue   NumericValue;
@@ -324,7 +345,7 @@ int main(int argc, char **argv)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

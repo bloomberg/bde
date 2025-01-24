@@ -44,26 +44,13 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterspecificationnumericvalue.h>
 #include <bslfmt_unicodecodepoint.h>
 
-#include <bslalg_numericformatterutil.h>
-
 #include <bslmf_assert.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_isarithmetic.h>
 #include <bslmf_issame.h>
 
-#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
 
 #include <bslstl_iterator.h>
-#include <bslstl_monostate.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
-
-#include <stdio.h>    // for 'snprintf'
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <format>     // for 'std::visit_format_arg'
@@ -1142,7 +1129,7 @@ FormatSpecificationParser<t_CHAR>::finalSpec() const
 #endif  // INCLUDED_BSLFMT_FORMATSPECIFICATIONPARSER
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

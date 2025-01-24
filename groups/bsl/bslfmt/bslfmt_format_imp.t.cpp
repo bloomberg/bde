@@ -1,4 +1,4 @@
-// bslstl_format_imp.t.cpp                                            -*-C++-*-
+// bslfmt_format_imp.t.cpp                                            -*-C++-*-
 #include <bslfmt_format_imp.h>
 
 #include <bsls_bsltestutil.h>
@@ -220,7 +220,7 @@ struct formatter<FormattableType, t_CHAR> {
             precision = finalPrecision.value();
         }
 
-        typename t_FORMAT_CONTEXT::iterator oit    = formatContext.out();
+        typename t_FORMAT_CONTEXT::iterator oit = formatContext.out();
 
         oit = std::copy(output.begin(), output.begin() + precision, oit);
         formatContext.advance_to(oit);

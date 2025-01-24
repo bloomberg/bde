@@ -1,18 +1,17 @@
 // bslfmt_format.t.cpp                                                -*-C++-*-
 #include <bslfmt_format.h>
 
+#include <bslfmt_standardformatspecification.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
-
-#include <bslfmt_standardformatspecification.h> // Testing only
 
 #include <stdio.h>
 #include <string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
