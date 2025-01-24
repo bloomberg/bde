@@ -1203,8 +1203,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nCONCERN: 1:1 Correspondence w/ Upstream Allocator"
-                   "\n=================================================\n");
+            printf("\nCONCERN: 1:1 Correspondence w/ Upstream Allococator"
+                   "\n===================================================\n");
 
         const char ops1[] = "AADADAAAADDDDAADDADDADAADDADADADADAADDAD";
         const char ops2[] = "AAAAADDDADADADAAADDADDDAAADADADDAADADDDD";

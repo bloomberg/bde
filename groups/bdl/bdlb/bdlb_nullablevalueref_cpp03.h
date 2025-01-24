@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jan 24 11:40:18 2025
+// Generated on Wed Nov  6 15:09:19 2024
 // Command line: sim_cpp11_features.pl bdlb_nullablevalueref.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUEREF_H
@@ -368,19 +368,19 @@ class NullableValueRef {
 // }}} END GENERATED CODE
 #endif
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOr",
-                                                      "Use 'value_or' instead")
     /// Return the value of the underlying object of a (template parameter)
     /// `TYPE` if this object is non-null, and the specified `otherValue`
     /// otherwise.  Note that this method returns *by* *value*, so may be
     /// inefficient in some contexts.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOr",
+                                                      "Use 'value_or' instead")
     TYPE valueOr(const TYPE& otherValue) const;
 
-    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOrNull",
-                                 "Use 'has_value() ? &value() : NULL' instead")
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and 0 otherwise.
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableValueRef::valueOrNull",
+                                 "Use 'has_value() ? &value() : NULL' instead")
     const TYPE *valueOrNull() const;
 };
 

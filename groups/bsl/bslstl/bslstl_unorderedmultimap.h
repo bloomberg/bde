@@ -622,7 +622,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Tue Jan 14 14:15:23 2025
+// Generated on Mon Jan 13 08:31:39 2025
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultimap.h
 
 # define COMPILING_BSLSTL_UNORDEREDMULTIMAP_H
@@ -1478,6 +1478,21 @@ class unordered_multimap {
     /// container, where a value with a key equivalent to the specified
     /// `key` would be inserted.
     size_type bucket(const key_type& key) const;
+
+    /// Return the index of the bucket, in the array of buckets maintained
+    /// by this unordered map, where values having a key equivalent to the
+    /// specified `key` would be inserted.
+    ///
+    /// Note: implemented inline due to Sun CC compilation error.
+    template <class LOOKUP_KEY>
+    typename enable_if<
+           BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
+        && BloombergLP::bslmf::IsTransparentPredicate<EQUAL,LOOKUP_KEY>::value,
+                      size_type>::type
+    bucket(const LOOKUP_KEY& key) const
+    {
+        return d_impl.bucketIndexForKey(key);
+    }
 
     /// Return the number of buckets in the array of buckets maintained by
     /// this unordered multimap.

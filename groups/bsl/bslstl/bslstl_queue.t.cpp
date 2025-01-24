@@ -44,7 +44,7 @@
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Fri Jan 17 12:56:13 2025
+// Generated on Wed Jan 15 11:40:33 2025
 // Command line: sim_cpp11_features.pl bslstl_queue.t.cpp
 
 # define COMPILING_BSLSTL_QUEUE_T_CPP

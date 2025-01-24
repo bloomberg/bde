@@ -643,7 +643,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Tue Jan 14 14:15:23 2025
+// Generated on Mon Jan 13 08:31:39 2025
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 # define COMPILING_BSLSTL_FUNCTION_H
@@ -716,11 +716,12 @@ template <class RET, class ARG>
 struct Function_ArgTypes<RET(ARG)> {
 
     // PUBLIC TYPES
+
+    /// @DEPRECATED: This typedef is deprecated in C++17, for details see
+    /// https://isocpp.org/files/papers/p0005r4.html.
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
-    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
-    /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG argument_type;
 };
 
@@ -731,17 +732,18 @@ template <class RET, class ARG1, class ARG2>
 struct Function_ArgTypes<RET(ARG1, ARG2)> {
 
     // PUBLIC TYPES
+
+    /// @DEPRECATED: This typedef is deprecated in C++17, for details see
+    /// https://isocpp.org/files/papers/p0005r4.html.
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
-    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
-    /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG1 first_argument_type;
 
     BSLS_DEPRECATE_FEATURE("bsl",
                            "deprecated_cpp17_standard_library_features",
                            "do not use")
-    /// **DEPRECATED**: This typedef is deprecated in C++17, for details see
+    /// @DEPRECATED: This typedef is deprecated in C++17, for details see
     /// https://isocpp.org/files/papers/p0005r4.html.
     typedef ARG2 second_argument_type;
 };
@@ -1364,35 +1366,34 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // LEGACY METHODS
 
-    /// **DEPRECATED**: Use `bsl::function` instead of `bdef_Function`.
-    ///
     /// Return `*this`, converted to a mutable `bdef_Function` reference by
     /// downcasting.  The behavior is undefined unless `bdef_Function<F*>`
     /// is derived from `bsl::function<F>` and adds no new data members.
+    ///
+    /// @DEPRECATED: Use `bsl::function` instead of `bdef_Function`.
     operator BloombergLP::bdef_Function<PROTOTYPE *>&() BSLS_KEYWORD_NOEXCEPT;
 
-    /// **DEPRECATED**: Use `bsl::function` instead of `bdef_Function`.
-    ///
     /// Return `*this` converted to a const `bdef_Function` reference by
     /// downcasting.  The behavior is undefined unless `bdef_Function<F*>`
     /// is derived from `bsl::function<F>` and adds no new data members.
+    ///
+    /// @DEPRECATED: Use `bsl::function` instead of `bdef_Function`.
     operator const BloombergLP::bdef_Function<PROTOTYPE *>&() const
                                                          BSLS_KEYWORD_NOEXCEPT;
 
     // LEGACY ACCESSORS
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
+    /// Return `get_allocator().mechanism()`.  Note that this function exists
+    /// for BDE compatibility and is not part of the C++ Standard Library.
     ///
-    /// Return `get_allocator().mechanism()`.  Note that this function
-    /// exists for BDE compatibility and is not part of the C++ Standard
-    /// Library.
+    /// @DEPRECATED: Use `get_allocator()` instead.
     BloombergLP::bslma::Allocator *allocator() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// **DEPRECATED**: Runtime checking of this optimization is discouraged.
-    ///
     /// Return `true` if this `function` is empty or if it is non-empty and
     /// its target qualifies for the small-object optimization (and is thus
     /// allocated within this object's footprint); otherwise, return false.
+    ///
+    /// @DEPRECATED: Runtime checking of this optimization is discouraged.
     bool isInplace() const BSLS_KEYWORD_NOEXCEPT;
 #endif
 };

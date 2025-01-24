@@ -180,7 +180,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Tue Jan 14 14:16:01 2025
+// Generated on Mon Jan 13 08:32:13 2025
 // Command line: sim_cpp11_features.pl bdlma_localbufferedobject.h
 
 # define COMPILING_BDLMA_LOCALBUFFEREDOBJECT_H

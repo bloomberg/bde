@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Tue Jan 14 14:15:19 2025
+// Generated on Mon Jan 13 08:31:33 2025
 // Command line: sim_cpp11_features.pl bsltf_stdtestallocator.h
 
 # define COMPILING_BSLTF_STDTESTALLOCATOR_H

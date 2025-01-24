@@ -29,7 +29,6 @@ function(ryu_process_standalone_package retUOR listFile installOpts)
 
     set(sources
         ${rootDir}/blp_d2cpp.c
-        ${rootDir}/blp_d2fixed_cpp.c
         ${rootDir}/blp_f2cpp.c
         ${rootDir}/blp_d2fixed_cpp.c
         ${rootDir}/d2fixed.c
