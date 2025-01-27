@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 21 09:14:58 2025
+// Generated on Mon Jan 27 14:52:25 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -2010,364 +2010,8 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_01>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 3
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 4
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 5
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 6
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 7
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 8
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 9
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09,
-                      const t_ARGS_10& args_10);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 10
-
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
-template <class t_ARGS_01>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 3
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 4
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 5
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 6
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 7
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 8
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 9
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09,
-                      const t_ARGS_10& args_10);
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 10
-
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr);
@@ -2375,9 +2019,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2387,9 +2029,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2401,9 +2041,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2417,9 +2055,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2435,9 +2071,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2455,9 +2089,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2477,9 +2109,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2501,9 +2131,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2527,9 +2155,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2555,9 +2181,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -2576,9 +2200,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr);
@@ -2586,9 +2208,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2598,9 +2218,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2612,9 +2230,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2628,9 +2244,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2646,9 +2260,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2666,9 +2278,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2688,9 +2298,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2712,9 +2320,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2738,9 +2344,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2766,9 +2370,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -2839,31 +2441,15 @@ template <class... t_ARGS>
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS&...                args);
 
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                args);
-
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                 args);
-
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
             const t_ARGS&...                                      args);
 
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -5979,807 +5565,10 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
 
 
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
-template <class t_ARGS_01>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08,
-                                                   args_09);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09,
-                      const t_ARGS_10& args_10)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08,
-                                                   args_09,
-                                                   args_10);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
-
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
-template <class t_ARGS_01>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
-template <class t_ARGS_01,
-          class t_ARGS_02>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08,
-                                                   args_09);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
-
-#if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
-template <class t_ARGS_01,
-          class t_ARGS_02,
-          class t_ARGS_03,
-          class t_ARGS_04,
-          class t_ARGS_05,
-          class t_ARGS_06,
-          class t_ARGS_07,
-          class t_ARGS_08,
-          class t_ARGS_09,
-          class t_ARGS_10>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS_01& args_01,
-                      const t_ARGS_02& args_02,
-                      const t_ARGS_03& args_03,
-                      const t_ARGS_04& args_04,
-                      const t_ARGS_05& args_05,
-                      const t_ARGS_06& args_06,
-                      const t_ARGS_07& args_07,
-                      const t_ARGS_08& args_08,
-                      const t_ARGS_09& args_09,
-                      const t_ARGS_10& args_10)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args_01,
-                                                   args_02,
-                                                   args_03,
-                                                   args_04,
-                                                   args_05,
-                                                   args_06,
-                                                   args_07,
-                                                   args_08,
-                                                   args_09,
-                                                   args_10);
-    return end.count();
-}
-#endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
-
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
 template <class t_OUT>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr)
@@ -6806,9 +5595,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
 template <class t_OUT, class t_ARGS_01>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -6837,9 +5624,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -6871,9 +5656,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -6908,9 +5691,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -6948,9 +5729,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -6991,9 +5770,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7037,9 +5814,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7086,9 +5861,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7138,9 +5911,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7193,9 +5964,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7242,9 +6011,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
 template <class t_OUT>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr)
@@ -7271,9 +6038,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
 template <class t_OUT, class t_ARGS_01>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7302,9 +6067,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7336,9 +6099,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7373,9 +6134,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7413,9 +6172,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7456,9 +6213,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7502,9 +6257,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7551,9 +6304,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7603,9 +6354,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7658,9 +6407,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -7810,54 +6557,9 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
     return end.count();
 }
 
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                args)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args...);
-    return end.count();
-}
-
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                 args)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args...);
-    return end.count();
-}
 
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -7883,9 +6585,7 @@ format_to_n(t_OUT                                                 out,
 }
 
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
