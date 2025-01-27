@@ -535,32 +535,6 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 
 /// Format the specified `args` according to the specification given by the
 /// specified `fmtStr`, and write at most the specified `maxNumChars`
-/// characters of the result of this operation into the string addressed by the
-/// specified `out` parameter.  Return the number of characters that would have
-/// been written to `out` were such writing not truncated.  In the event of an
-/// error the exception `format_error` is thrown.  Behavior is undefined if
-/// `out` does not point to a valid `bsl::string` object.
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                args);
-
-/// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChars`
-/// characters of the result of this operation into the string addressed by the
-/// specified `out` parameter.  Return the number of characters that would have
-/// been written to `out` were such writing not truncated.  In the event of an
-/// error the exception `format_error` is thrown.  Behavior is undefined if
-/// `out` does not point to a valid `bsl::string` object.
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                 args);
-
-/// Format the specified `args` according to the specification given by the
-/// specified `fmtStr`, and write at most the specified `maxNumChars`
 /// characters of the result of this operation into the output iterator
 /// referenced by the specified `out` parameter.  Return a `format_to_n_result`
 /// object whose `size` member holds the number of characters that would have
@@ -569,9 +543,7 @@ ptrdiff_t format_to_n(bsl::wstring                    *out,
 /// event of an error the exception `format_error` is thrown.  Behavior is
 /// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -587,9 +559,7 @@ format_to_n(t_OUT                                                 out,
 /// event of an error the exception `format_error` is thrown.  Behavior is
 /// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,
@@ -1093,54 +1063,9 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
     return end.count();
 }
 
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::string                    *out,
-                      ptrdiff_t                       maxNumChars,
-                      BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                args)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::string> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator, char, ptrdiff_t>
-                                                   TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args...);
-    return end.count();
-}
-
-template <class... t_ARGS>
-ptrdiff_t format_to_n(bsl::wstring                    *out,
-                      ptrdiff_t                        maxNumChars,
-                      BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
-                      const t_ARGS&...                 args)
-{
-    if (maxNumChars < 0)
-        maxNumChars = 0;
-    out->clear();
-
-    typedef std::back_insert_iterator<bsl::wstring> UnderlyingIterator;
-    typedef Format_Imp_TruncatingIterator<UnderlyingIterator,
-                                          wchar_t,
-                                          ptrdiff_t>
-                                                    TruncatingIterator;
-
-    UnderlyingIterator bit = std::back_inserter(*out);
-    TruncatingIterator it(bit, maxNumChars);
-
-    TruncatingIterator end = format_to(it, fmtStr, args...);
-    return end.count();
-}
 
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_STRING_PARAMETER                        fmtStr,
@@ -1166,9 +1091,7 @@ format_to_n(t_OUT                                                 out,
 }
 
 template <class t_OUT, class... t_ARGS>
-typename bsl::enable_if<
-    !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
-    format_to_n_result<t_OUT> >::type
+format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
             BSLFMT_FORMAT_WSTRING_PARAMETER                       fmtStr,

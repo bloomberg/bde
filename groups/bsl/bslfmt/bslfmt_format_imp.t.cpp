@@ -416,22 +416,6 @@ int main(int argc, char **argv)
         { // Test format of char with wchar_t output
             check(bslfmt::format(L"{}", (char)'x'), L"x");
         }
-        { // Simple test of format_to with char string
-            bsl::string temp;
-            bslfmt::format_to(&temp, "{}", "Hello World");
-            check(temp, "Hello World");
-            ptrdiff_t count = bslfmt::format_to_n(&temp, 5, "{}", "Hello World");
-            ASSERT(11 == count);
-            check(temp, "Hello");
-        }
-        { // Simple test of format_to with wchar_t string
-            bsl::wstring temp;
-            bslfmt::format_to(&temp, L"{}", L"Hello World");
-            check(temp, L"Hello World");
-            ptrdiff_t count = bslfmt::format_to_n(&temp, 5, L"{}", L"Hello World");
-            ASSERT(11 == count);
-            check(temp, L"Hello");
-        }
         { // Simple test of formatted_size with char
             ptrdiff_t count = bslfmt::formatted_size("{}", "Hello World");
             ASSERT(11 == count);
