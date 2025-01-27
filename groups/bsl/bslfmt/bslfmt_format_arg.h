@@ -16,19 +16,20 @@ BSLS_IDENT("$Id: $")
 // value is stored as if using a variant of the following types (as specified
 // by the Standard):
 //
-// - std::monostate (only if the object was default-constructed)
-// - bool    Context::char_type
-// - int
-// - unsigned int
-// - long long int
-// - unsigned long long int
-// - float
-// - double
-// - long double
-// - const Context::char_type *
-// - std::basic_string_view<Context::char_type>
-// - const void *
-// - basic_format_arg::handle
+// - `bsl::monostate` (only if the object was default-constructed)
+// - `bool`
+// - `Context::char_type`
+// - `int`
+// - `unsigned int`
+// - `long long int`
+// - `unsigned long long int`
+// - `float`
+// - `double`
+// - `long double`
+// - `const Context::char_type *`
+// - `bsl::basic_string_view<Context::char_type>`
+// - `const void *`
+// - `basic_format_arg::handle`
 //
 // Where `basic_format_arg::handle` is a type-erased wrapper holding a
 // reference to a user-defined type.
@@ -352,18 +353,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// `static_cast<const void *>(nullptr)`.
     explicit basic_format_arg(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT;
 
-    // HIDDEN FRIENDS
-
-    /// Exchange the values of the specified `lhs` and `rhs`.
-    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
-    {
-        lhs.d_value.swap(rhs.d_value);
-    }
-
   public:
     // CREATORS
 
-    /// Create a `basic_format_arg` which holds no value.
+    /// Create a `basic_format_arg` which holds a `bsl::monostate`.
     basic_format_arg() BSLS_KEYWORD_NOEXCEPT;
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -443,6 +436,14 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type visit(
                                                            t_VISITOR& visitor);
 #endif
+
+    // HIDDEN FRIENDS
+
+    /// Exchange the values of the specified `lhs` and `rhs`.
+    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
+    {
+        lhs.d_value.swap(rhs.d_value);
+    }
 };
 
                             // ====================

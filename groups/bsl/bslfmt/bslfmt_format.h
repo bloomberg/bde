@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // - Use template arguments for the format context and parse context
 //   parameters. This is essential as the parameter type passed in will
 //   depend upon underlying implementation.
-// - The `parse` function should be constexpr in C++20, but this is not
+// - The `parse` function must be `constexpr` in C++20, but this is not
 //   required (and may not be possible) for earlier C++ standards.
 //
 // An example of a user defined formatter is as follows:

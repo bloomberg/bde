@@ -518,7 +518,7 @@ BSLS_IDENT("$Id$")
 // Positive-as-space.
 //
 // The alternative format flag ('#') causes the decimal point to be always
-// written.
+// written (but does not remove trailing zeros).
 //
 // Alignment, fill, and leading zeros are supported as usual.
 //
