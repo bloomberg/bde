@@ -144,7 +144,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20))
 #include <span>
 namespace bsl {
     using std::dynamic_extent;
@@ -152,8 +154,10 @@ namespace bsl {
     using std::as_bytes;
     using std::as_writable_bytes;
 }
-#else
+#define BSLSTL_SPAN_IS_ALIASED
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY & not disabled
 
+#ifndef BSLSTL_SPAN_IS_ALIASED
 #include <bslmf_assert.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
@@ -284,7 +288,7 @@ struct Span_Utility
                 bsl::nullptr_t>::type
             > >
         : public bsl::true_type {};
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 };
 
@@ -361,7 +365,7 @@ class span {
          Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
-#endif
+#endif  // BSLSTL_ARRAY_IS_ALIASED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     /// Construct a span from the specified std::array `arr`.  This
@@ -385,7 +389,7 @@ class span {
          Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
-#endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     /// Construct a span from the specified span `other`.  This constructor
     /// participates in overload resolution only if `t_OTHER_TYPE(*)[]` is
@@ -636,7 +640,7 @@ class span<TYPE, dynamic_extent> {
            Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
            void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
-#endif
+#endif  // BSLSTL_ARRAY_IS_ALIASED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     /// Construct a span from the specified std::array `arr`.  This
@@ -659,7 +663,7 @@ class span<TYPE, dynamic_extent> {
          Span_Utility::IsArrayConvertible<
                                       const t_OTHER_TYPE, element_type>::value,
          void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     /// Construct a span from the specified bsl::vector `v`.  This
@@ -711,7 +715,7 @@ class span<TYPE, dynamic_extent> {
              Span_Utility::IsArrayConvertible<
                                       const CHAR_TYPE, element_type>::value,
                void *>::type = NULL) BSLS_KEYWORD_NOEXCEPT;
-#endif
+#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     template <class CONTAINER>
@@ -735,7 +739,7 @@ class span<TYPE, dynamic_extent> {
     , d_size(bsl::size(c))
     {
     }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     /// Construct a span from the specified span `other`.  This constructor
     /// participates in overload resolution only if `t_OTHER_TYPE(*)[]` is
@@ -889,7 +893,7 @@ span(bsl::array<TYPE, SIZE> &) -> span<TYPE, SIZE>;
 /// `span`.
 template <class TYPE, size_t SIZE>
 span(const bsl::array<TYPE, SIZE> &) -> span<const TYPE, SIZE>;
-#endif
+#endif  // not BSLSTL_ARRAY_IS_ALIASED
 
 /// Deduce the template parameters `TYPE` and `SIZE` from the corresponding
 /// template parameters of the `std::array` supplied to the constructor of
@@ -912,7 +916,7 @@ span(bsl::vector<TYPE, ALLOCATOR> &) -> span<TYPE>;
 /// parameter of the `bsl::vector` supplied to the constructor of `span`.
 template <class TYPE, class ALLOCATOR>
 span(const bsl::vector<TYPE, ALLOCATOR> &) -> span<const TYPE>;
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
 // FREE FUNCTIONS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -941,7 +945,7 @@ template <class TYPE>
 BSLS_KEYWORD_CONSTEXPR_CPP14 span<std::byte, dynamic_extent>
 as_writable_bytes(span<TYPE, dynamic_extent> s) BSLS_KEYWORD_NOEXCEPT;
 
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 /// Exchange the value of the specified `a` object with the value of the
 /// specified `b` object.
@@ -1022,7 +1026,7 @@ bsl::span<TYPE, EXTENT>::span(const bsl::array<t_OTHER_TYPE, EXTENT>& arr,
 : d_data_p(arr.data())
 {
 }
-#endif
+#endif  // not BSLSTL_ARRAY_IS_ALIASED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class TYPE, size_t EXTENT>
@@ -1046,7 +1050,7 @@ bsl::span<TYPE, EXTENT>::span(const std::array<t_OTHER_TYPE, EXTENT>& arr,
 : d_data_p(arr.data())
 {
 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class TYPE, size_t EXTENT>
 template <class t_OTHER_TYPE>
@@ -1277,7 +1281,7 @@ bsl::span<TYPE, bsl::dynamic_extent>::span(
 , d_size(SIZE)
 {
 }
-#endif
+#endif  // not BSLSTL_ARRAY_IS_ALIASED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class TYPE>
@@ -1306,7 +1310,7 @@ bsl::span<TYPE, bsl::dynamic_extent>::span(
 , d_size(SIZE)
 {
 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 template <class TYPE>
@@ -1368,7 +1372,7 @@ inline bsl::span<TYPE, bsl::dynamic_extent>::span(
 , d_size(sv.size())
 {
 }
-#endif
+#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class TYPE>
 template <class t_OTHER_TYPE, size_t OTHER_EXTENT>
@@ -1623,7 +1627,7 @@ bsl::as_writable_bytes(bsl::span<TYPE, bsl::dynamic_extent> s)
 }
 
 // BDE_VERIFY pragma: pop
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 template <class TYPE, size_t EXTENT>
 BSLS_KEYWORD_CONSTEXPR_CPP14 inline
@@ -1634,8 +1638,9 @@ bsl::swap(bsl::span<TYPE, EXTENT>& a, bsl::span<TYPE, EXTENT>& b)
     a.swap(b);
 }
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#endif  // INCLUDED_BSLSTL_SPAN
+#endif  // BSLSTL_SPAN_IS_ALIASED
+
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2022 Bloomberg Finance L.P.

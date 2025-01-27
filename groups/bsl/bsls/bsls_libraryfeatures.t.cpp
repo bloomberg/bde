@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
             const bool result_v = std::is_pointer_interconvertible_base_of_v<
                                                               Bar, Baz>;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1937
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1942
             // Known Windows bug.  Hopefully fixed in future release.
 
             const bool expected = false;

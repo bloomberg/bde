@@ -200,8 +200,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef BDE_DISABLE_CPP17_ABI
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 17))
 
 #include <array>  // 'std::array'
 #include <tuple>  // 'std::get'
@@ -212,9 +213,7 @@ using std::get;
 }  // close namespace bsl
 
 #define BSLSTL_ARRAY_IS_ALIASED
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-#endif  // BDE_DISABLE_CPP17_ABI
-
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY && not disabled
 
 #ifndef BSLSTL_ARRAY_IS_ALIASED
 

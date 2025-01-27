@@ -675,7 +675,7 @@ bool operator==(const bsl::optional<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const NullableValue<LHS_TYPE>& lhs,
                 const std::optional<RHS_TYPE>& rhs)
@@ -694,7 +694,7 @@ bool operator==(const std::optional<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` and `rhs` nullable objects do not
 /// have the same value, and `false` otherwise.  Two nullable objects do not
@@ -729,7 +729,7 @@ bool operator!=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const std::optional<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs)
@@ -748,7 +748,7 @@ bool operator!=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` and `rhs` objects do not have the
 /// same value, and `false` otherwise.  A nullable object and a value of
@@ -830,7 +830,7 @@ bool operator<(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const std::optional<LHS_TYPE>& lhs,
                const NullableValue<RHS_TYPE>& rhs)
@@ -849,7 +849,7 @@ bool operator<(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` nullable object is ordered before
 /// the specified `rhs`, and `false` otherwise.  `lhs` is ordered before
@@ -909,7 +909,7 @@ bool operator>(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>(const std::optional<LHS_TYPE>& lhs,
                const NullableValue<RHS_TYPE>& rhs)
@@ -928,7 +928,7 @@ bool operator>(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` nullable object is ordered after
 /// the specified `rhs`, and `false` otherwise.  `lhs` is ordered after
@@ -987,7 +987,7 @@ bool operator<=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const std::optional<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs)
@@ -1006,7 +1006,7 @@ bool operator<=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` nullable object is ordered before
 /// the specified `rhs` or `lhs` and `rhs` have the same value, and `false`
@@ -1065,7 +1065,7 @@ bool operator>=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const std::optional<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs)
@@ -1084,7 +1084,7 @@ bool operator>=(const NullableValue<LHS_TYPE>& lhs,
     }
 #endif
 ;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return `true` if the specified `lhs` nullable object is ordered after
 /// the specified `rhs` or `lhs` and `rhs` have the same value, and `false`
@@ -1864,7 +1864,7 @@ bool bdlb::operator==(const bsl::optional<LHS_TYPE>& lhs,
     return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator==(const NullableValue<LHS_TYPE>& lhs,
@@ -1890,7 +1890,7 @@ bool bdlb::operator==(const std::optional<LHS_TYPE>& lhs,
 {
     return lhs == static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -1932,7 +1932,7 @@ bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator!=(const std::optional<LHS_TYPE>& lhs,
@@ -1958,7 +1958,7 @@ bool bdlb::operator!=(const NullableValue<LHS_TYPE>& lhs,
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) != rhs;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -2044,7 +2044,7 @@ bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<(const std::optional<LHS_TYPE>& lhs,
@@ -2070,7 +2070,7 @@ bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) < rhs;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -2134,7 +2134,7 @@ bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>(const std::optional<LHS_TYPE>& lhs,
@@ -2160,7 +2160,7 @@ bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) > rhs;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -2226,7 +2226,7 @@ bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator<=(const std::optional<LHS_TYPE>& lhs,
@@ -2252,7 +2252,7 @@ bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <= rhs;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline
@@ -2319,7 +2319,7 @@ bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bdlb::operator>=(const std::optional<LHS_TYPE>& lhs,
@@ -2345,7 +2345,7 @@ bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
 {
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) >= rhs;
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class LHS_TYPE, class RHS_TYPE>
 inline

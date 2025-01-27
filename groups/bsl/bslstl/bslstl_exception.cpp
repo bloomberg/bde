@@ -7,7 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifndef BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
 
 // Clang, libstdc++, and MSVC have the implementation of 'uncaught_exceptions'
 // in their dylib.  We can just call it.  Otherwise, we simulate it from the
@@ -42,7 +42,7 @@ int uncaught_exceptions() throw()
 }
 
 } // close namespace bsl
-#endif  // UNCAUGHT_EXCEPTIONS_EMULATED
+#endif  // BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
 
 #endif
 
