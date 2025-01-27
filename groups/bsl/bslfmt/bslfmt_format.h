@@ -30,12 +30,11 @@ BSLS_IDENT("$Id: $")
 // around the functions and types exposed by the standard <format> header where
 // such is available, otherwise aliases to the `bslfmt` implementation.
 //
-// This will provide, where such are available, an allocator-aware wrapper
-// around the `std::format`, `std::format_to`, `std::format_to_n`,
-// `std::vformat`, and `std::vformat_to` functions as well as required helper
-// functions and types. Where they are not available such as on older
-// compilers, or when compiling C++17 and earlier, BSL implementation is
-// provided.
+// This will provide, where such are available, wrappers around the
+// `std::format`, `std::format_to`, `std::format_to_n`, `std::vformat`, and
+// `std::vformat_to` functions of which the `format` and `vformat` wrappers are
+// allocator-aware.  Where they are not available such as on older compilers,
+// or when compiling C++17 and earlier, BSL implementation is provided.
 //
 // Where a BSL implementation is provided, functionality is limited to that
 // provided by C++20 and excludes the following features:
