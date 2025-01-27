@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 21 13:57:05 2025
+// Generated on Mon Jan 27 14:52:25 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -283,18 +283,10 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     /// `static_cast<const void *>(nullptr)`.
     explicit basic_format_arg(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT;
 
-    // HIDDEN FRIENDS
-
-    /// Exchange the values of the specified `lhs` and `rhs`.
-    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
-    {
-        lhs.d_value.swap(rhs.d_value);
-    }
-
   public:
     // CREATORS
 
-    /// Create a `basic_format_arg` which holds no value.
+    /// Create a `basic_format_arg` which holds a `bsl::monostate`.
     basic_format_arg() BSLS_KEYWORD_NOEXCEPT;
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -374,6 +366,14 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
     typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type visit(
                                                            t_VISITOR& visitor);
 #endif
+
+    // HIDDEN FRIENDS
+
+    /// Exchange the values of the specified `lhs` and `rhs`.
+    friend void swap(basic_format_arg& lhs, basic_format_arg& rhs)
+    {
+        lhs.d_value.swap(rhs.d_value);
+    }
 };
 
                             // ====================
