@@ -39,6 +39,10 @@ BSLS_IDENT("$Id: $")
 // This header is not intended to be included directly.  Please include
 // `<bsl_format.h>` to be able to use `bsl::basic_format_arg`.
 //
+// `bsl::basic_format_arg` differs from the C++20 standard as follows: we
+// provide the C++23 member `visit`, but we do not provide the overload of
+// `visit` that accepts an explicitly specified return type.
+//
 ///Usage
 ///-----
 // In this section we show the intended use of this component.
