@@ -126,7 +126,7 @@ class basic_format_string {
     /// compile-time constant.
     template <class t_STR,
               class = typename bsl::enable_if<bsl::is_convertible<
-                  t_STR,
+                  const t_STR&,
                   bsl::basic_string_view<t_CHAR> >::value>::type>
     consteval basic_format_string(const t_STR& str);
 
