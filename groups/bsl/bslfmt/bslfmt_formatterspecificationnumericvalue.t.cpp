@@ -340,7 +340,7 @@ class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
         static t_VALUE_TYPE typedValue;
         typedValue = static_cast<t_VALUE_TYPE>(value);
         return basic_format_args(
-            make_format_args<BaseContext, t_VALUE_TYPE>(typedValue)).get(0);
+               make_format_args<BaseContext, t_VALUE_TYPE>(typedValue)).get(0);
     }
 
     /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
@@ -350,8 +350,8 @@ class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
     static basic_format_arg createBadValue()
     {
         static t_BAD_TYPE x;
-        basic_format_args fas = make_format_args<BaseContext, t_BAD_TYPE>(x);
-        return fas.get(0);
+        return basic_format_args(
+                          make_format_args<BaseContext, t_BAD_TYPE>(x)).get(0);
     }
 };
 }  // close namespace std
