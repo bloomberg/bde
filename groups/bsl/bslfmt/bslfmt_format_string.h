@@ -128,7 +128,7 @@ class basic_format_string {
               class = typename bsl::enable_if<bsl::is_convertible<
                   t_STR,
                   bsl::basic_string_view<t_CHAR> >::value>::type>
-    consteval basic_format_string(t_STR&& str);
+    consteval basic_format_string(const t_STR& str);
 
     // ACCESSORS
 
@@ -243,9 +243,9 @@ struct Format_String_TestUpdater
 template <class t_CHAR, class... t_ARGS>
 template <class t_STR, class>
 consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
-                                                                   t_STR&& str)
+                                                              const t_STR& str)
 {
-    d_formatString = std::forward<t_STR>(str);
+    d_formatString = str;
 }
 
 // ACCESSORS
