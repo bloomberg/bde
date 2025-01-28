@@ -396,47 +396,15 @@ class basic_format_arg<basic_format_context<t_OUT, t_CHAR> > {
 
     /// Invoke the specified `visitor` functor on the value contained by this
     /// object, providing that functor non-modifiable access to that value.
-    /// `visitor` must be a functor that can be called as if it had the
-    /// following signature:
-    /// ```
-    ///     void operator()(bsl::monostate) const;
-    ///     void operator()(bool x) const;
-    ///     void operator()(t_CHAR x) const;
-    ///     void operator()(unsigned x) const;
-    ///     void operator()(long long x) const;
-    ///     void operator()(unsigned long long x) const;
-    ///     void operator()(float x) const;
-    ///     void operator()(double x) const;
-    ///     void operator()(long double x) const;
-    ///     void operator()(const t_CHAR *x) const;
-    ///     void operator()(const void *x) const;
-    ///     void operator()(int x) const;
-    ///     void operator()(bsl::basic_string_view<t_CHAR> sv) const;
-    ///     void operator()(const handle& h) const;
-    /// ```
+    /// `visitor` must be a `variant`-style functor that is able to visit all
+    /// supported types listed in the {DESCRIPTION}.
     template <class t_VISITOR>
     decltype(auto) visit(t_VISITOR&& visitor);
 #else
     /// Invoke the specified `visitor` functor on the value contained by this
     /// object, providing that functor non-modifiable access to that value.
-    /// `visitor` must be a functor that can be called as if it had the
-    /// following signature:
-    /// ```
-    ///     void operator()(bsl::monostate) const;
-    ///     void operator()(bool x) const;
-    ///     void operator()(t_CHAR x) const;
-    ///     void operator()(unsigned x) const;
-    ///     void operator()(long long x) const;
-    ///     void operator()(unsigned long long x) const;
-    ///     void operator()(float x) const;
-    ///     void operator()(double x) const;
-    ///     void operator()(long double x) const;
-    ///     void operator()(const t_CHAR *x) const;
-    ///     void operator()(const void *x) const;
-    ///     void operator()(int x) const;
-    ///     void operator()(bsl::basic_string_view<t_CHAR> sv) const;
-    ///     void operator()(const handle& h) const;
-    /// ```
+    /// `visitor` must be a `variant`-style functor that is able to visit all
+    /// supported types listed in the {DESCRIPTION}.
     template <class t_VISITOR>
     typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type visit(
                                                            t_VISITOR& visitor);
@@ -483,24 +451,8 @@ class Format_ArgUtil {
 
 /// Invoke the specified `visitor` functor on the value contained by the
 /// specified `arg`, providing that functor non-modifiable access to that
-/// value. `visitor` must be a functor that can be called as if it had the
-/// following signature:
-/// ```
-///     void operator()(bsl::monostate) const;
-///     void operator()(bool x) const;
-///     void operator()(t_CHAR x) const;
-///     void operator()(unsigned x) const;
-///     void operator()(long long x) const;
-///     void operator()(unsigned long long x) const;
-///     void operator()(float x) const;
-///     void operator()(double x) const;
-///     void operator()(long double x) const;
-///     void operator()(const t_CHAR *x) const;
-///     void operator()(const void *x) const;
-///     void operator()(int x) const;
-///     void operator()(bsl::basic_string_view<t_CHAR> sv) const;
-///     void operator()(const handle& h) const;
-/// ```
+/// value.  `visitor` must be a `variant`-style functor that is able to visit
+/// all supported types listed in the {DESCRIPTION}.
 template <class t_VISITOR, class t_CONTEXT>
 decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
                                 basic_format_arg<t_CONTEXT> arg);
@@ -508,24 +460,8 @@ decltype(auto) visit_format_arg(t_VISITOR&&                 visitor,
 
 /// Invoke the specified `visitor` functor on the value contained by the
 /// specified `arg`, providing that functor non-modifiable access to that
-/// value.  `visitor` must be a functor that can be called as if it had the
-/// following signature:
-/// ```
-///     void operator()(bsl::monostate) const;
-///     void operator()(bool x) const;
-///     void operator()(t_CHAR x) const;
-///     void operator()(unsigned x) const;
-///     void operator()(long long x) const;
-///     void operator()(unsigned long long x) const;
-///     void operator()(float x) const;
-///     void operator()(double x) const;
-///     void operator()(long double x) const;
-///     void operator()(const t_CHAR *x) const;
-///     void operator()(const void *x) const;
-///     void operator()(int x) const;
-///     void operator()(bsl::basic_string_view<t_CHAR> sv) const;
-///     void operator()(const handle& h) const;
-/// ```
+/// value.  `visitor` must be a `variant`-style functor that is able to visit
+/// all supported types listed in the {DESCRIPTION}.
 template <class t_VISITOR, class t_CONTEXT>
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 visit_format_arg(t_VISITOR& visitor, basic_format_arg<t_CONTEXT> arg);
@@ -640,7 +576,8 @@ decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
     BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
     BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
 
-    return bsl::visit(std::forward<t_VISITOR>(v), d_value);
+    auto thisCopy(*this);
+    return bsl::visit(std::forward<t_VISITOR>(v), thisCopy.d_value);
 }
 #else
 template <class t_OUT, class t_CHAR>
@@ -684,7 +621,8 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(t_VISITOR& v)
     BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
     BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
 
-    return bsl::visit(v, d_value);
+    basic_format_arg thisCopy(*this);
+    return bsl::visit(v, thisCopy.d_value);
 }
 #endif
 
