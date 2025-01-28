@@ -16,7 +16,7 @@ bsls_atomicoperations
 bsls_atomicoperations_all_all_clangintrinsics
 bsls_atomicoperations_all_all_gccintrinsics
 bsls_atomicoperations_arm_all_gcc
-bsls_atomicoperations_arm32_win_msvc   
+bsls_atomicoperations_arm32_win_msvc
 bsls_atomicoperations_arm64_win_msvc
 bsls_atomicoperations_default
 bsls_atomicoperations_powerpc_aix_xlc_default
@@ -29,7 +29,7 @@ bsls_atomicoperations_sparc64_sun_cc
 bsls_atomicoperations_x64_all_gcc
 bsls_atomicoperations_x64_win_msvc
 bsls_atomicoperations_x86_all_gcc
-bsls_atomicoperations_x86_win_msvc   
+bsls_atomicoperations_x86_win_msvc
 bsls_blockgrowth
 bsls_bsldeprecationinformation
 bsls_bslexceptionutil
@@ -51,6 +51,7 @@ bsls_deprecatefeature
 bsls_exceptionutil
 bsls_fuzztest
 bsls_fuzztestpreconditionexception
+bsls_fuzztest_testutil
 bsls_ident
 bsls_int64
 bsls_keyword

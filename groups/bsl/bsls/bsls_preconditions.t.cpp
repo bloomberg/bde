@@ -23,9 +23,9 @@ using namespace std;
 // these macros before and after the preconditions of a function.
 //
 // ----------------------------------------------------------------------------
-// [ 2] static void installHandlers(beginHandler, endHandler);
 // [ 2] static PreconditionHandlerType getBeginHandler();
 // [ 2] static PreconditionHandlerType getEndHandler();
+// [ 2] static void installHandlers(beginHandler, endHandler);
 // [ 2] static void invokeBeginHandler();
 // [ 2] static void invokeEndHandler();
 // ----------------------------------------------------------------------------
@@ -220,8 +220,8 @@ namespace usage_example {
 // immediately before and after.
 // ```
 
-    /// Return the square root of the specified `x`.  The behavior is
-    /// undefined unless `x >= 0`.
+    /// Return the square root of the specified `x`.  The behavior is undefined
+    /// unless `x >= 0`.
     double mySqrt(double x)
     {
         BSLS_PRECONDITIONS_BEGIN();
@@ -256,12 +256,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        // 1. The usage example provided in the component header file must
-        //    compile, link, and run on all platforms as shown.
+        //  1. The usage example provided in the component header file must
+        //     compile, link, and run on all platforms as shown.
         //
         // Plan:
-        // 1. Incorporate usage example from header into driver, removing
-        //    leading comment characters.
+        //  1. Incorporate usage example from header into driver, removing
+        //     leading comment characters.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -275,26 +275,26 @@ int main(int argc, char *argv[])
         // TESTING MACROS AND PRECONDITIONSHANDLER
         //
         // Concerns:
-        // 1. That the handlers are installed via `installHandlers` and invoked
-        //    correctly by `BSLS_PRECONDITIONS_BEGIN` and
-        //    `BSLS_PRECONDITIONS_END` macros.
+        //  1. That the handlers are installed via `installHandlers` and
+        //     invoked correctly by `BSLS_PRECONDITIONS_BEGIN` and
+        //     `BSLS_PRECONDITIONS_END` macros.
         //
-        // 2. That `getBeginHandler` and `getEndHandler` return the previously
-        //    installed handlers.
+        //  2. That `getBeginHandler` and `getEndHandler` return the previously
+        //     installed handlers.
         //
         // Plan:
-        // 1. Install custom `BEGIN/END` handler functions using
-        //    `PreconditionsHandler::installHandlers`.  Then verify that the
-        //    handlers were invoked after calls to the macros.
+        //  1. Install custom `BEGIN/END` handler functions using
+        //     `PreconditionsHandler::installHandlers`.  Then verify that the
+        //     handlers were invoked after calls to the macros.
         //
-        // 2. Verify that the handlers were correctly installed.
+        //  2. Verify that the handlers were correctly installed.
         //
         // Testing:
-        //   static void installHandlers(beginHandler, endHandler);
         //   BSLS_PRECONDITIONS_BEGIN
         //   BSLS_PRECONDITIONS_END
         //   static PreconditionHandlerType getBeginHandler();
         //   static PreconditionHandlerType getEndHandler();
+        //   static void installHandlers(beginHandler, endHandler);
         //   static void invokeBeginHandler();
         //   static void invokeEndHandler();
         // --------------------------------------------------------------------
@@ -307,10 +307,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        // 1. This test driver builds on all platforms.
+        //  1. This test driver builds on all platforms.
         //
         // Plan:
-        // 1. Print out flags in verbose mode.
+        //  1. Print out flags in verbose mode.
         //
         // Testing:
         //   BREATHING TEST

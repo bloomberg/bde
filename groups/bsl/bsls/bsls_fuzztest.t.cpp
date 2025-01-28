@@ -4,8 +4,9 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_fuzztest_testutil.h>
 #include <bsls_preconditions.h>
-#include <bsls_timeinterval.h>  // to test `RAW` version of macro
+#include <bsls_review.h>
 
 #include <stdio.h>
 #include <stdlib.h>             // atoi(), rand()
@@ -30,12 +31,12 @@ using namespace std;
 // `out of contract`.  In this scenario, if the function under test has a
 // precondition failure, we verify that the test continues.  If, however, the
 // function invoked by the function under test has a precondition failure, we
-// verify that the test halts with an indication of where the assertion
+// verify that the test halts with an indication of where the assertion/review
 // occurred.
 //
 // Many of the test cases below are to verify intended behavior in the presence
 // of nested `BEGIN` invocations.  We also test the intended behavior for
-// assertions from other components.
+// assertions/reviews from other components.
 //
 // Note that there are `_IMP` versions of the macros that are intended to be
 // used when `BDE_ACTIVATE_FUZZ_TESTING` is not defined.  We use these `_IMP`
@@ -48,14 +49,17 @@ using namespace std;
 // bsls::FuzzTestHandlerGuard
 // [ 2] FuzzTestHandlerGuard();
 // [ 2] ~FuzzTestHandlerGuard();
-// [ 2] static ViolationHandler getOriginalAssertionHandler() const;
+// [ 2] static FuzzTestHandlerGuard *instance();
+// [ 2] Assert::ViolationHandler getOriginalAssertionHandler();
+// [ 2] Review::ViolationHandler getOriginalReviewHandler();
 // ----------------------------------------------------------------------------
 // bsls::FuzzTestPreconditionTracker
-// [ 3] static void handlePreconditionViolation(const AssertViolation &a);
-// [ 3] static void initStaticState(const char *fn, int ln);
+// [ 3] static void handleAssertViolation(const AssertViolation &a);
+// [ 3] static void handleException(const FuzzTestPreconditionException&);
 // [ 3] static void handlePreconditionsBegin();
 // [ 3] static void handlePreconditionsEnd();
-// [ 3] static void handleException(const FuzzTestPreconditionException&);
+// [ 3] static void handleReviewViolation(const ReviewViolation &a);
+// [ 3] static void initStaticState(const char *fn, int ln);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -154,43 +158,67 @@ static void printFlags()
 }
 
 namespace test_case_common {
-/// Invoke `ti.addInterval` with inputs that will cause it to fail.  The
-/// behavior is undefined unless `ti.addInterval` succeeds.  Note that since
-/// we are testing outside the fuzz harness (i.e., we are not in
+/// Invoke `FuzzTest_TestUtil::triggerAssert` that will cause it to fail. Note
+/// that since we are testing outside the fuzz harness (i.e., we are not in
 /// `LLVMFuzzerTestOneInput`), we cannot rely on other components employing
-/// `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e., client code will employ the
-/// non-`IMP` macros).  Also note that this function returns a `bool` so it
-/// can be invoked from `BSLS_ASSERT`, and the choice of `true` is
-/// arbitrary.
+/// `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e., client code will employ the non-`IMP`
+/// macros).  Also note that this function returns a `bool` so it can be
+/// invoked from `BSLS_ASSERT`, and the choice of `true` is arbitrary.
 bool assertInDifferentComponent()
 {
     BSLS_PRECONDITIONS_BEGIN_IMP();
-    bsls::TimeInterval ti(9e18);
-    BSLS_ASSERT(ti != ti.addInterval(9e18, 0));  // fails precondition
+    bsls::FuzzTest_TestUtil::triggerAssert();
     BSLS_PRECONDITIONS_END_IMP();
     return true;
 }
 
-/// Invoke `ti.addInterval` with inputs that will cause it to fail.  The
-/// behavior is undefined unless `ti.addInterval` succeeds.  Note that the
-/// invocation of `addInterval` is nested within a second level of
-/// `BEGIN/END` macros; and that since we are testing outside the fuzz
-/// harness (i.e., we are not in `LLVMFuzzerTestOneInput`), we cannot rely
-/// on other components employing `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e.,
-/// client code will employ the non-`IMP` macros).
+/// Invoke `FuzzTest_TestUtil::triggerAssert` that will cause it to fail. Note
+/// that the invocation of `triggerAssert` is nested within a second level of
+/// `BEGIN/END` macros; and that since we are testing outside the fuzz harness
+/// (i.e., we are not in `LLVMFuzzerTestOneInput`), we cannot rely on other
+/// components employing `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e., client code will
+/// employ the non-`IMP` macros).
 void assertInDifferentComponentInNestedBlock()
 {
     BSLS_PRECONDITIONS_BEGIN_IMP();
     BSLS_PRECONDITIONS_BEGIN_IMP();
-    bsls::TimeInterval ti(9e18);
-    BSLS_ASSERT(ti != ti.addInterval(9e18, 0));  // fails precondition
+    bsls::FuzzTest_TestUtil::triggerAssert();
+    BSLS_PRECONDITIONS_END_IMP();
+    BSLS_PRECONDITIONS_END_IMP();
+}
+
+/// Invoke `FuzzTest_TestUtil::triggerReview` that will cause it to fail. Note
+/// that since we are testing outside the fuzz harness (i.e., we are not in
+/// `LLVMFuzzerTestOneInput`), we cannot rely on other components employing
+/// `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e., client code will employ the non-`IMP`
+/// macros).  Also note that this function returns a `bool` so it can be
+/// invoked from `BSLS_REVIEW`, and the choice of `true` is arbitrary.
+bool reviewInDifferentComponent()
+{
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    bsls::FuzzTest_TestUtil::triggerReview();
+    BSLS_PRECONDITIONS_END_IMP();
+    return true;
+}
+
+/// Invoke `FuzzTest_TestUtil::triggerReview` that will cause it to fail. Note
+/// that the invocation of `triggerReview` is nested within a second level of
+/// `BEGIN/END` macros; and that since we are testing outside the fuzz harness
+/// (i.e., we are not in `LLVMFuzzerTestOneInput`), we cannot rely on other
+/// components employing `BSLS_PRECONDITIONS_BEGIN_IMP` (i.e., client code will
+/// employ the non-`IMP` macros).
+void reviewInDifferentComponentInNestedBlock()
+{
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    bsls::FuzzTest_TestUtil::triggerReview();
     BSLS_PRECONDITIONS_END_IMP();
     BSLS_PRECONDITIONS_END_IMP();
 }
 }  // close namespace test_case_common
 
 namespace test_case_4 {
-struct AssertLocation {
+struct FailureLocation {
     enum Enum {
         NONE,
         FIRST_BLOCK_TOP_LEVEL,
@@ -200,15 +228,15 @@ struct AssertLocation {
 };
 
 /// Invoke the assertion handler at the specified `location`.
-void triggerAssertion(AssertLocation::Enum location)
+void triggerAssertion(FailureLocation::Enum location)
 {
     BSLS_PRECONDITIONS_BEGIN_IMP();
-    if (AssertLocation::FIRST_BLOCK_TOP_LEVEL == location) {
+    if (FailureLocation::FIRST_BLOCK_TOP_LEVEL == location) {
         BSLS_ASSERT_INVOKE_NORETURN("FIRST_BLOCK_TOP_LEVEL");
     }
     {
         BSLS_PRECONDITIONS_BEGIN_IMP();
-        if (AssertLocation::FIRST_BLOCK_SECOND_LEVEL == location){
+        if (FailureLocation::FIRST_BLOCK_SECOND_LEVEL == location){
             BSLS_ASSERT_INVOKE_NORETURN("FIRST_BLOCK_SECOND_LEVEL");
         }
         BSLS_PRECONDITIONS_END_IMP();
@@ -216,7 +244,7 @@ void triggerAssertion(AssertLocation::Enum location)
     BSLS_PRECONDITIONS_END_IMP();
 
     BSLS_PRECONDITIONS_BEGIN_IMP();
-    if (AssertLocation::SECOND_BLOCK == location){
+    if (FailureLocation::SECOND_BLOCK == location){
         BSLS_ASSERT_INVOKE_NORETURN("SECOND_BLOCK");
     }
     BSLS_PRECONDITIONS_END_IMP();
@@ -228,6 +256,38 @@ void triggerAssertionInDifferentComponent()
 {
     BSLS_PRECONDITIONS_BEGIN_IMP();
     BSLS_ASSERT(test_case_common::assertInDifferentComponent());
+    BSLS_PRECONDITIONS_END_IMP();
+}
+
+/// Invoke the review handler at the specified `location`.
+void triggerReview(FailureLocation::Enum location)
+{
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    if (FailureLocation::FIRST_BLOCK_TOP_LEVEL == location) {
+        BSLS_REVIEW_INVOKE("FIRST_BLOCK_TOP_LEVEL");
+    }
+    {
+        BSLS_PRECONDITIONS_BEGIN_IMP();
+        if (FailureLocation::FIRST_BLOCK_SECOND_LEVEL == location){
+            BSLS_REVIEW_INVOKE("FIRST_BLOCK_SECOND_LEVEL");
+        }
+        BSLS_PRECONDITIONS_END_IMP();
+    }
+    BSLS_PRECONDITIONS_END_IMP();
+
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    if (FailureLocation::SECOND_BLOCK == location){
+        BSLS_REVIEW_INVOKE("SECOND_BLOCK");
+    }
+    BSLS_PRECONDITIONS_END_IMP();
+}
+
+/// Do nothing.  The behavior is undefined unless invocation to
+/// `test_case_common::reviewInDifferentComponent` returns `true`.
+void triggerReviewInDifferentComponent()
+{
+    BSLS_PRECONDITIONS_BEGIN_IMP();
+    BSLS_REVIEW(test_case_common::reviewInDifferentComponent());
     BSLS_PRECONDITIONS_END_IMP();
 }
 
@@ -271,8 +331,8 @@ void triggerAssertionInDifferentComponent()
         return guess;
     }
 
-    /// Return the square root of the specified `x`.  The behavior is
-    /// undefined unless `x >= 0`.
+    /// Return the square root of the specified `x`.  The behavior is undefined
+    /// unless `x >= 0`.
     double mySqrt(double x)
     {
         BSLS_PRECONDITIONS_BEGIN_IMP();                           // _IMP ADDED
@@ -282,47 +342,30 @@ void triggerAssertionInDifferentComponent()
     }
 // ```
 // Then, for the illustration of `BSLS_FUZZTEST_EVALUATE_RAW`, we define a
-// class, `Timer`, containing a `start` function that uses in its
-// implementation a narrow contract function, `setInterval`, from another
-// component, `bsls::TimeInterval`.  This function, `setInterval`, has
-// precondition checks that are surrounded by `BEGIN` and `END`.
+// narrow function that uses a narrow function, `triggerAssert`, from another
+// component, `bsls::FuzzTest_TestUtil`.  This function, `triggerAssert`,
+// always triggers an assertion failure.
 // ```
-
-    /// This class implements a simple interval timer.
-    class Timer
+    /// Invoke `triggerAssert` from `bsls::FuzzTest_TestUtil`.  The behavior is
+    /// undefined if `triggerAssert` fails.
+    void invokeTriggerAssert()
     {
-      private:
-        // DATA
-        bsls::TimeInterval d_timeout;  // timeout seconds and nanoseconds
-
-      public:
-        // MANIPULATORS
-
-        /// Start the countdown with a timer having the value given by the
-        /// sum of the specified integral number of `seconds` and
-        /// `nanoseconds`.  The behavior is undefined unless the total
-        /// number of seconds in the resulting time interval can be
-        /// represented with a 64-bit signed integer (see
-        /// `TimeInterval::isValid`).
-        void start(bsls::Types::Int64 seconds, int nanoseconds)
-        {
-            #ifndef BDE_ACTIVATE_FUZZ_TESTING                          // ADDED
-            BSLS_PRECONDITIONS_BEGIN_IMP();                            // ADDED
-            #endif                                                     // ADDED
-            d_timeout.setInterval(seconds, nanoseconds);
-            #ifndef BDE_ACTIVATE_FUZZ_TESTING                          // ADDED
-            BSLS_PRECONDITIONS_END_IMP();                              // ADDED
-            #endif                                                     // ADDED
-            // ...
-        }
-    };
+        #ifndef BDE_ACTIVATE_FUZZ_TESTING                              // ADDED
+        BSLS_PRECONDITIONS_BEGIN_IMP();                                // ADDED
+        #endif                                                         // ADDED
+        bsls::FuzzTest_TestUtil::triggerAssert();
+        #ifndef BDE_ACTIVATE_FUZZ_TESTING                              // ADDED
+        BSLS_PRECONDITIONS_END_IMP();                                  // ADDED
+        #endif                                                         // ADDED
+        //...
+    }
 // ```
 // Next, implement `LLVMFuzzerTestOneInput`.  We first select the test case
 // number based on the supplied fuzz data.
 // ```
+    /// Use the specified `data` array of `size` bytes as input to methods of
+    /// this component and return zero.
     extern "C"
-    /// Use the specified `data` array of `size` bytes as input to methods
-    /// of this component and return zero.
     int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     {
         int         test;
@@ -380,23 +423,14 @@ void triggerAssertionInDifferentComponent()
 // ```
           case 1: {
             // ----------------------------------------------------------------
-            // `Timer::start`
+            // `invokeTriggerAssert`
             //
             // Concerns:
-            //  1. That `start`, when invoked with the `RAW` macro, does not
-            //     invoke the original assertion handler.
+            //  1. That `invokeTriggerAssert`, when invoked with the `RAW`
+            //     macro, does not invoke the original assertion handler.
             //
-            // Testing: void Timer::start(Int64 seconds, int nanoseconds);
+            // Testing: void invokeTriggerAssert();
             // ----------------------------------------------------------------
-            if (size < sizeof(bsls::Types::Int64) + sizeof(int)) {
-                return 0;                                             // RETURN
-            }
-            bsls::Types::Int64 seconds;
-            int                nanoseconds;
-            memcpy(&seconds, data, sizeof(bsls::Types::Int64));
-            memcpy(&nanoseconds,
-                   data + sizeof(bsls::Types::Int64),
-                   sizeof(int));
 // ```
 // Now, we set up the handler guard that installs the precondition handlers.
 // ```
@@ -405,15 +439,11 @@ void triggerAssertionInDifferentComponent()
 // Finally, we invoke the function under test with the
 // `BSLS_FUZZTEST_EVALUATE_RAW` macro.
 // ```
-            Timer t;
-            BSLS_FUZZTEST_EVALUATE_RAW_IMP(
-                                 t.start(seconds, nanoseconds));  // _IMP ADDED
+            BSLS_FUZZTEST_EVALUATE_RAW_IMP(invokeTriggerAssert()); //_IMP ADDED
 // ```
-// If the total number of seconds resulting from the sum of `seconds` and
-// `nanoseconds` cannot be represented with a 64-bit signed integer, a
-// top-level assertion failure from a different component will occur.  Because
-// we have invoked `start` with the `RAW` macro, a component name check will
-// not be performed, and execution will continue.
+// Here a top-level assertion failure from a different component will occur.
+// Because we have invoked `invokeTriggerAssert` with the `RAW` macro, a
+// component name check will not be performed, and execution will continue.
 // ```
           } break;
           default: {
@@ -421,7 +451,7 @@ void triggerAssertionInDifferentComponent()
         }
 
         if (testStatus > 0) {
-            BSLS_ASSERT_INVOKE("FUZZ TEST FAILURES");
+            BSLS_REVIEW_INVOKE("FUZZ TEST FAILURES");
         }
 
         return 0;
@@ -461,12 +491,12 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        // 1. The usage example provided in the component header file compiles,
-        //    links, and runs as shown.
+        //  1. The usage example provided in the component header file
+        //     compiles, links, and runs as shown.
         //
         // Plan:
-        // 1. Incorporate usage example from header into test driver, remove
-        //    leading comment characters.  (C-1)
+        //  1. Incorporate usage example from header into test driver, remove
+        //     leading comment characters.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -475,8 +505,15 @@ int main(int argc, char *argv[])
                             "=============\n");
 #if defined(BDE_BUILD_TARGET_EXC)
         {
-            // First, we invoke `LLVMFuzzerTestOneInput` with input that does
-            // not violate any preconditions.
+            // First, we invoke `mySqrt` via `LLVMFuzzerTestOneInput` with
+            // input that does not violate any preconditions.  Note that both
+            // `mySqrt` and `newtonsSqrt` have `BSLS_PRECONDITIONS_BEGIN_IMP`
+            // and `END_IMP` macros instead of the regular preconditions macros
+            // used in the usage example in the component header file.  We do
+            // this to achieve the desired behavior: that a *second-level*
+            // precondition violation occurs, regardless of the ufid (i.e.,
+            // regardless of whether the ufid contains `fuzz`) if and only if
+            // `mySqrt` is invoked with 0.
             uint8_t myFuzzData[32];
             myFuzzData[0] = 2;  // invoke case 2 of `LLVMFuzzerTestOneInput`
             double val    = 4.0;
@@ -484,8 +521,8 @@ int main(int argc, char *argv[])
             LLVMFuzzerTestOneInput(myFuzzData, 1 + sizeof(double));
         }
         {
-            // Then, we invoke `LLVMFuzzerTestOneInput` with input that
-            // violates a top-level precondition, which is handled by the
+            // Then, we invoke `mySqrt` via `LLVMFuzzerTestOneInput` with input
+            // that violates a top-level precondition, which is handled by the
             // macro.
             uint8_t myFuzzData[32];
             myFuzzData[0] = 2;  // invoke case 2 of `LLVMFuzzerTestOneInput`
@@ -494,26 +531,25 @@ int main(int argc, char *argv[])
             LLVMFuzzerTestOneInput(myFuzzData, 1 + sizeof(double));
         }
         {
+            // Note that we do not invoke `mySqrt` via `LLVMFuzzerTestOneInput`
+            // with 0, as it will crash the test driver due to the second-level
+            // precondition violation.
+        }
+        {
             // Finally, we invoke a function that fails a precondition in a
-            // different component.  Note that here we invoke `addSeconds`,
-            // which has conditional inclusion of `BSLS_PRECONDITIONS_BEGIN`
-            // and `END`.  We do this to achieve the desired behavior: that a
-            // *top-level* precondition violation occurs in a different
-            // component, regardless of the ufid (i.e., regardless of whether
-            // the ufid contains `fuzz`).  Without the conditional, in a
-            // fuzzing build, the violation in the other component would occur
-            // in the second level.
-            uint8_t myFuzzData[32];
+            // different component.  Note that here we invoke `triggerAssert`
+            // from `bsls::FuzzTest_TestUtil` via `invokeTriggerAssert` which
+            // has conditional inclusion of `BSLS_PRECONDITIONS_BEGIN` and
+            // `END` added to the usage example in the component header file.
+            // We do this to achieve the desired behavior: that a *top-level*
+            // precondition violation occurs in a different component,
+            // regardless of the ufid (i.e., regardless of whether the ufid
+            // contains `fuzz`).  Without the conditional, in a fuzzing build,
+            // the violation in the other component would occur in the second
+            // level.
+            uint8_t myFuzzData[1];
             myFuzzData[0] = 1;  // invoke case 1 of `LLVMFuzzerTestOneInput`
-            bsls::Types::Int64 seconds     = 0x7FFFFFFFFFFFFFFFLL;
-            int                nanoseconds = 2e9;
-            memcpy(myFuzzData + 1, &seconds, sizeof(bsls::Types::Int64));
-            memcpy(myFuzzData + 1 + sizeof(bsls::Types::Int64),
-                   &nanoseconds,
-                   sizeof(int));
-            LLVMFuzzerTestOneInput(
-                                 myFuzzData,
-                                 1 + sizeof(bsls::Types::Int64) + sizeof(int));
+            LLVMFuzzerTestOneInput(myFuzzData, 1);
         }
 #endif  // defined(BDE_BUILD_TARGET_EXC)
       } break;
@@ -522,19 +558,20 @@ int main(int argc, char *argv[])
         // BSLS_FUZZTEST_EVALUATE_RAW
         //
         // Concerns:
-        // 1. A top-level assertion failure in another component does not
-        //    invoke the original assertion handler.
+        //  1. A top-level assertion/review failure in another component does
+        //     not invoke the original assertion/review handler.
         //
-        // 2. A second level assertion failure in another component does invoke
-        //    the original assertion handler.
+        //  2. A second level assertion/review failure in another component
+        //     does invoke the original assertion/review handler.
         //
         // Plan:
-        // 1. Invoke a function that asserts in a different component inside
-        //    a top-level `BEGIN/END` block.  Verify that no assert violation
-        //    occurs.
+        //  1. Invoke a function that asserts/reviews in a different component
+        //     inside a top-level `BEGIN/END` block.  Verify that no
+        //     assert/review violation occurs.
         //
-        // 2. Invoke a function that asserts in a different component inside
-        //    a nested `BEGIN/END` block.  Verify that a violation occurs.
+        //  2. Invoke a function that asserts/reviews in a different component
+        //     inside a nested `BEGIN/END` block.  Verify that a violation
+        //     occurs.
         //
         // Testing:
         //   BSLS_FUZZTEST_EVALUATE_RAW
@@ -546,13 +583,17 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard g;
             bsls::FuzzTestHandlerGuard   hG;
             ASSERT_PASS(BSLS_FUZZTEST_EVALUATE_RAW_IMP(
-                            test_case_common::assertInDifferentComponent()));
+                              test_case_common::assertInDifferentComponent()));
+            ASSERT_PASS(BSLS_FUZZTEST_EVALUATE_RAW_IMP(
+                              test_case_common::reviewInDifferentComponent()));
         }
         {
             bsls::AssertTestHandlerGuard g;
             bsls::FuzzTestHandlerGuard   hG;
             ASSERT_FAIL_RAW(BSLS_FUZZTEST_EVALUATE_RAW_IMP(
-                test_case_common::assertInDifferentComponentInNestedBlock()));
+                 test_case_common::assertInDifferentComponentInNestedBlock()));
+            ASSERT_FAIL_RAW(BSLS_FUZZTEST_EVALUATE_RAW_IMP(
+                 test_case_common::reviewInDifferentComponentInNestedBlock()));
         }
 #endif  // defined(BDE_BUILD_TARGET_EXC)
       } break;
@@ -561,47 +602,50 @@ int main(int argc, char *argv[])
         // BSLS_FUZZTEST_EVALUATE
         //
         // Concerns:
-        // 1. Invoking a narrow contract function with inputs that violate the
-        //    top-level preconditions does not invoke the original assertion
-        //    handler.
+        //  1. Invoking a narrow contract function with inputs that violate the
+        //     top-level preconditions does not invoke the original
+        //     assertion/review handler.
         //
-        // 2. Invoking a narrow contract function with inputs that satisfy the
-        //    top-level preconditions but violate nested preconditions does
-        //    invoke the original assertion handler.  The location of the
-        //    subsequent precondition checks does not matter -- whether the
-        //    checks are within the top-level `BSLS_PRECONDITIONS_BEGIN/END`
-        //    block or after.
+        //  2. Invoking a narrow contract function with inputs that satisfy the
+        //     top-level preconditions but violate nested preconditions does
+        //     invoke the original assertion/review handler.  The location of
+        //     the subsequent precondition checks does not matter -- whether
+        //     the checks are within the top-level
+        //     `BSLS_PRECONDITIONS_BEGIN/END` block or after.
         //
-        // 3. Invoking a narrow contract function in contract does not invoke
-        //    the original assertion handler.
+        //  3. Invoking a narrow contract function in contract does not invoke
+        //     the original assertion/review handler.
         //
-        // 4. Invoking a narrow contract function with input that satisfies the
-        //    top-level preconditions but -- within the top-level
-        //    `BSLS_PRECONDITIONS_BEGIN/END` block -- violates the
-        //    preconditions of a function from a different component, does
-        //    invoke the original assertion handler.
+        //  4. Invoking a narrow contract function with input that satisfies
+        //     the top-level preconditions but -- within the top-level
+        //     `BSLS_PRECONDITIONS_BEGIN/END` block -- violates the
+        //     preconditions of a function from a different component, does
+        //     invoke the original assertion/review handler.
         //
         // Plan:
-        // 1. Invoke a function that contains three different `BEGIN/END`
-        //    blocks with different input arguments:
+        //  1. Invoke a function that contains three different `BEGIN/END`
+        //     blocks with different input arguments:
         //
-        //    a. with an input that does not trigger any assertions inside a
-        //       `BEGIN/END` block.  Verify that no assert violation occurs.
+        //    a. with an input that does not trigger any assertions/review
+        //       inside a `BEGIN/END` block.  Verify that no assert/review
+        //       violation occurs.
         //
-        //    b. with an input that triggers an assertion inside a top-level
-        //       `BEGIN/END` block.  Verify that no assert violation occurs.
+        //    b. with an input that triggers an assertion/review inside a
+        //       top-level `BEGIN/END` block.  Verify that no assert/review
+        //       violation occurs.
         //
-        //    c. with an input that triggers an assertion inside a second-level
-        //       `BEGIN/END` block.  Verify that a violation occurs.
+        //    c. with an input that triggers an assertion/review inside a
+        //       second-level `BEGIN/END` block.  Verify that a violation
+        //       occurs.
         //
-        //    d. with an input that triggers an assertion inside a second
-        //       top-level `BEGIN/END` block.  Verify that a violation occurs.
+        //    d. with an input that triggers an assertion/review inside a
+        //       second top-level `BEGIN/END` block.  Verify that a violation
+        //       occurs.
         //
-        // 2. Invoke a function with an input that satisfies
-        //    its preconditions and then -- within the initial `BEGIN/END`
-        //    block -- invoke a narrow contract function from another component
-        //    out of contract.  Verify that a violation occurs.
-        //
+        //  2. Invoke a function with an input that satisfies its preconditions
+        //     and then -- within the initial `BEGIN/END` block -- invoke a
+        //     narrow contract function from another component out of contract.
+        //     Verify that a violation occurs.
         //
         // Testing:
         //   BSLS_FUZZTEST_EVALUATE
@@ -612,24 +656,42 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard g;
             bsls::FuzzTestHandlerGuard   hG;
+
             ASSERT_PASS(
-                      BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
-                      test_case_4::AssertLocation::NONE)));
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
+                     test_case_4::FailureLocation::NONE)));
             ASSERT_PASS(
-                      BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
-                      test_case_4::AssertLocation::FIRST_BLOCK_TOP_LEVEL)));
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerReview(
+                     test_case_4::FailureLocation::NONE)));
+
+            ASSERT_PASS(
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
+                     test_case_4::FailureLocation::FIRST_BLOCK_TOP_LEVEL)));
+            ASSERT_PASS(
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerReview(
+                     test_case_4::FailureLocation::FIRST_BLOCK_TOP_LEVEL)));
+
             ASSERT_FAIL(
-                      BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
-                      test_case_4::AssertLocation::FIRST_BLOCK_SECOND_LEVEL)));
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
+                     test_case_4::FailureLocation::FIRST_BLOCK_SECOND_LEVEL)));
             ASSERT_FAIL(
-                      BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
-                      test_case_4::AssertLocation::SECOND_BLOCK)));
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerReview(
+                     test_case_4::FailureLocation::FIRST_BLOCK_SECOND_LEVEL)));
+
+            ASSERT_FAIL(
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerAssertion(
+                     test_case_4::FailureLocation::SECOND_BLOCK)));
+            ASSERT_FAIL(
+                     BSLS_FUZZTEST_EVALUATE_IMP(test_case_4::triggerReview(
+                     test_case_4::FailureLocation::SECOND_BLOCK)));
         }
         {
             bsls::AssertTestHandlerGuard g;
             bsls::FuzzTestHandlerGuard   hG;
             BSLS_ASSERTTEST_ASSERT_FAIL_RAW(BSLS_FUZZTEST_EVALUATE_IMP(
                 test_case_4::triggerAssertionInDifferentComponent()));
+            BSLS_ASSERTTEST_ASSERT_FAIL_RAW(BSLS_FUZZTEST_EVALUATE_IMP(
+                test_case_4::triggerReviewInDifferentComponent()));
         }
 #endif  // defined(BDE_BUILD_TARGET_EXC)
       } break;
@@ -638,102 +700,105 @@ int main(int argc, char *argv[])
         // TESTING FUZZTEST PRECONDITION TRACKER
         //
         // Concerns:
-        // 1. That directly invoking the methods of
-        //    `FuzzTestPreconditionTracker` behaves as expected.
+        //  1. That directly invoking the methods of
+        //     `FuzzTestPreconditionTracker` behaves as expected.
         //
-        //   1. The filename that caused the precondition violation is the same
-        //      as the one reported by the assertion handler.
+        //    a. The filename that caused the precondition violation is the
+        //       same as the one reported by the assertion/review handler.
         //
-        //   2. The expression that caused the assertion is the same as the one
-        //      returned by the assertion handler.
+        //    b. The expression that caused the assertion/review is the same as
+        //       the one returned by the assertion/review handler.
         //
-        //   3. If the precondition is violated, either a
-        //      `FuzzTestPreconditionException` is thrown or the original
-        //      assertion handler is invoked, as expected.
+        //    c. If the precondition is violated, either a
+        //       `FuzzTestPreconditionException` is thrown or the original
+        //       assertion/review handler is invoked, as expected.
         //
-        //   4. Directly invoking `handlePreconditionViolation` results in the
-        //      same behavior as triggering an assertion with `BSLS_ASSERT`.
+        //    d. Directly invoking `handleAssertViolation` or
+        //       `handleReviewViolation` results in the same behavior as
+        //       triggering an assertion/review with `BSLS_ASSERT` or
+        //       `BSLS_REVIEW`.
         //
         // Plan:
-        // 1. Trigger a top-level precondition violation and verify that the
-        //    methods behave as expected.
+        //  1. Trigger a top-level precondition violation and verify that the
+        //     methods behave as expected.
         //
-        //   1. Directly invoke `initStaticState` with the current filename.
+        //    a. Directly invoke `initStaticState` with the current filename.
         //
-        //   2. Trigger a top-level precondition violation.
+        //    b. Trigger a top-level precondition violation.
         //
-        //   3. Verify that a `FuzzTestPreconditionException` is thrown.
+        //    c. Verify that a `FuzzTestPreconditionException` is thrown.
         //
-        //   4. Verify that the filename and triggering expression match the
-        //      expected values.
+        //    d. Verify that the filename and triggering expression match the
+        //       expected values.
         //
-        // 2. Trigger a second-level precondition violation and verify that the
-        //    methods behave as expected.
+        //  2. Trigger a second-level precondition violation and verify that
+        //     the methods behave as expected.
         //
-        //   1. Directly invoke `initStaticState` with the current filename.
+        //    a. Directly invoke `initStaticState` with the current filename.
         //
-        //   2. Trigger a second-level precondition violation.
+        //    b. Trigger a second-level precondition violation.
         //
-        //   3. Verify that the original assertion handler is invoked, which
-        //      throws an `AssertTestException`.
+        //    c. Verify that the original assertion/review handler is invoked,
+        //       which throws an `AssertTestException`.
         //
-        //   4. Verify that the filename and triggering expression match the
-        //      expected values.
+        //    d. Verify that the filename and triggering expression match the
+        //       expected values.
         //
-        // 3. Trigger a top-level precondition violation from another component
-        //    and verify that the methods behave as expected.
+        //  3. Trigger a top-level precondition violation from another
+        //     component and verify that the methods behave as expected.
         //
-        //   1. Directly invoke `initStaticState` with a different component
-        //      name passed.
+        //    a. Directly invoke `initStaticState` with a different component
+        //       name passed.
         //
-        //   2. Trigger a top-level precondition violation.
+        //    b. Trigger a top-level precondition violation.
         //
-        //   3. Verify that a `FuzzTestPreconditionException` is thrown.
+        //    c. Verify that a `FuzzTestPreconditionException` is thrown.
         //
-        //   4. Verify that the filename and triggering expression match the
-        //      expected values.
+        //    d. Verify that the filename and triggering expression match the
+        //       expected values.
         //
-        //   5. Directly invoke `handleException` and thereby verify that the
-        //      original assertion handler is invoked.
+        //    e. Directly invoke `handleException` and thereby verify that the
+        //       original assertion/review handler is invoked.
         //
-        // 4. Manually invoke `handlePreconditionViolation` and verify that the
-        //    methods behave as expected.
+        //  4. Manually invoke `handleAssertViolation`/`handleReviewViolation`
+        //     and verify that the methods behave as expected.
         //
-        //   1. Create a dummy `AssertViolation`.
+        //    a. Create a dummy `AssertViolation`/`ReviewViolation`.
         //
-        //   2. Directly invoke `initStaticState` with the current filename.
+        //    b. Directly invoke `initStaticState` with the current filename.
         //
-        //   3. Manually invoke `handlePreconditionViolation` with the created
-        //      `AssertViolation`.
+        //    c. Manually invoke
+        //       `handleAssertViolation`/`handleReviewViolation` with the
+        //       created `AssertViolation`/`ReviewViolation`.
         //
-        //   4. Verify that an `FuzzTestPreconditionException` is thrown.
+        //    d. Verify that an `FuzzTestPreconditionException` is thrown.
         //
-        //   5. Verify that the filename and triggering expression match the
-        //      expected values.
+        //    e. Verify that the filename and triggering expression match the
+        //       expected values.
         //
-        // 5. Trigger a top-level precondition violation and verify that the
-        //    methods behave as expected.
+        //  5. Trigger a top-level precondition violation and verify that the
+        //     methods behave as expected.
         //
-        //   1. Directly invoke `initStaticState` with the current filename.
+        //    a. Directly invoke `initStaticState` with the current filename.
         //
-        //   2. Trigger a top-level precondition violation by ending the
-        //      second-level precondition check with `handlePreconditionsEnd`.
+        //    b. Trigger a top-level precondition violation by ending the
+        //       second-level precondition check with `handlePreconditionsEnd`.
         //
-        //   3. Verify that a `FuzzTestPreconditionException` is thrown.
+        //    c. Verify that a `FuzzTestPreconditionException` is thrown.
         //
-        //   4. Verify that the filename and triggering expression match the
-        //      expected values.
+        //    d. Verify that the filename and triggering expression match the
+        //       expected values.
         //
-        //   5. Directly invoke `handleException` and thereby verify that the
-        //      original assertion handler is invoked.
-        //
+        //    e. Directly invoke `handleException` and thereby verify that the
+        //       original assertion/review handler is invoked.
         //
         // Testing:
-        //   static void initStaticState(const char *fn, int ln);
+        //   static void handleAssertViolation(const AssertViolation &a);
+        //   static void handleException(const FuzzTestPreconditionException&);
         //   static void handlePreconditionsBegin();
         //   static void handlePreconditionsEnd();
-        //   static void handleException(const FuzzTestPreconditionException&);
-        //   static void handlePreconditionViolation(const AssertViolation &a);
+        //   static void handleReviewViolation(const ReviewViolation &a);
+        //   static void initStaticState(const char *fn, int ln);
         // --------------------------------------------------------------------
         if (verbose) printf("TESTING FUZZTEST PRECONDITION TRACKER\n"
                             "=====================================\n");
@@ -752,10 +817,8 @@ int main(int argc, char *argv[])
                     BSLS_ASSERT(1 == 2);
                     BSLS_ASSERT_INVOKE_NORETURN("unreachable");
                 } catch (bsls::FuzzTestPreconditionException& ftpe) {
-                    ASSERT(0 == strcmp(ftpe.assertViolation().fileName(),
-                                       __FILE__));
-                    ASSERT(0 ==
-                           strcmp(ftpe.assertViolation().comment(), "1 == 2"));
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
                     bsls::FuzzTestPreconditionTracker::handleException(ftpe);
                 });
         }
@@ -794,17 +857,15 @@ int main(int argc, char *argv[])
                     BSLS_ASSERT(1 == 2);
                     BSLS_ASSERT_INVOKE_NORETURN("unreachable");
                 } catch (bsls::FuzzTestPreconditionException& ftpe) {
-                    ASSERT(0 == strcmp(ftpe.assertViolation().fileName(),
-                                       __FILE__));
-                    ASSERT(0 ==
-                           strcmp(ftpe.assertViolation().comment(), "1 == 2"));
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
                     bsls::FuzzTestPreconditionTracker::handleException(ftpe);
                 });
         }
         {
             if (veryVerbose)
                 printf("TOP-LEVEL PRECONDITION VIOLATION DIRECTLY INVOKING "
-                       "`handlePreconditionViolation`\n");
+                       "`handleAssertViolation`\n");
             bsls::AssertViolation av("Expression that fails",
                                         __FILE__,
                                         __LINE__,
@@ -818,12 +879,11 @@ int main(int argc, char *argv[])
                     bsls::FuzzTestPreconditionTracker::
                         handlePreconditionsBegin();
                     bsls::FuzzTestPreconditionTracker::
-                        handlePreconditionViolation(av);
+                        handleAssertViolation(av);
                     BSLS_ASSERT_INVOKE_NORETURN("unreachable");
                 } catch (bsls::FuzzTestPreconditionException& ftpe) {
-                    ASSERT(0 == strcmp(ftpe.assertViolation().fileName(),
-                                       __FILE__));
-                    ASSERT(0 == strcmp(ftpe.assertViolation().comment(),
+                    ASSERT(0 == strcmp(ftpe.filename(),  __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(),
                                        "Expression that fails"));
                     bsls::FuzzTestPreconditionTracker::handleException(ftpe);
                 });
@@ -848,14 +908,125 @@ int main(int argc, char *argv[])
                     BSLS_ASSERT(1 == 2);
                     BSLS_ASSERT_INVOKE_NORETURN("unreachable");
                 } catch (bsls::FuzzTestPreconditionException& ftpe) {
-                    ASSERT(0 == strcmp(ftpe.assertViolation().fileName(),
-                                       __FILE__));
-                    ASSERT(0 ==
-                           strcmp(ftpe.assertViolation().comment(), "1 == 2"));
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
                     bsls::FuzzTestPreconditionTracker::handleException(ftpe);
                 });
         }
 #endif  // defined(BSLS_ASSERT_IS_ACTIVE)
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+        {
+            if (veryVerbose)
+                printf("TOP-LEVEL PRECONDITION VIOLATION (SAME ORIGIN)\n");
+            bsls::AssertTestHandlerGuard g;
+            bsls::FuzzTestHandlerGuard   hg;
+            ASSERT_PASS(
+                bsls::FuzzTestPreconditionTracker::initStaticState(__FILE__);
+                try {
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsBegin();
+                    BSLS_REVIEW(1 == 2);
+                    BSLS_REVIEW_INVOKE("unreachable");
+                } catch (bsls::FuzzTestPreconditionException& ftpe) {
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
+                    bsls::FuzzTestPreconditionTracker::handleException(ftpe);
+                });
+        }
+        {
+            if (veryVerbose)
+                printf("SECOND-LEVEL PRECONDITION VIOLATION (SAME ORIGIN)\n");
+            bsls::AssertTestHandlerGuard g;
+            bsls::FuzzTestHandlerGuard   hg;
+            // Note that `ASSERT_FAIL` is not used in this case because we want
+            // to explicitly catch the `AssertTestException`.
+            bsls::FuzzTestPreconditionTracker::initStaticState(__FILE__);
+            try {
+                bsls::FuzzTestPreconditionTracker::handlePreconditionsBegin();
+                BSLS_REVIEW(true);
+                bsls::FuzzTestPreconditionTracker::handlePreconditionsBegin();
+                BSLS_REVIEW(1 == 2);
+                BSLS_REVIEW_INVOKE("unreachable");
+            }
+            catch (bsls::AssertTestException& ex) {
+                ASSERT(0 == strcmp(ex.filename(), __FILE__));
+                ASSERT(0 == strcmp(ex.expression(), "1 == 2"));
+            }
+        }
+        {
+            if (veryVerbose)
+                printf(
+                    "TOP-LEVEL PRECONDITION VIOLATION (DIFFERENT ORIGIN)\n");
+            bsls::AssertTestHandlerGuard g;
+            bsls::FuzzTestHandlerGuard   hg;
+            ASSERT_FAIL(
+                bsls::FuzzTestPreconditionTracker::initStaticState(
+                    "differentComponent.cpp");
+                try {
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsBegin();
+                    BSLS_REVIEW(1 == 2);
+                    BSLS_REVIEW_INVOKE("unreachable");
+                } catch (bsls::FuzzTestPreconditionException& ftpe) {
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
+                    bsls::FuzzTestPreconditionTracker::handleException(ftpe);
+                });
+        }
+        {
+            if (veryVerbose)
+                printf("TOP-LEVEL PRECONDITION VIOLATION DIRECTLY INVOKING "
+                       "`handleReviewViolation`\n");
+            bsls::ReviewViolation rv("Expression that fails",
+                                        __FILE__,
+                                        __LINE__,
+                                        bsls::Review::k_LEVEL_REVIEW,
+                                        0);
+
+            bsls::AssertTestHandlerGuard g;
+            bsls::FuzzTestHandlerGuard   hg;
+            ASSERT_PASS(
+                bsls::FuzzTestPreconditionTracker::initStaticState(__FILE__);
+                try {
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsBegin();
+                    bsls::FuzzTestPreconditionTracker::
+                        handleReviewViolation(rv);
+                    BSLS_REVIEW_INVOKE("unreachable");
+                } catch (bsls::FuzzTestPreconditionException& ftpe) {
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(),
+                                       "Expression that fails"));
+                    bsls::FuzzTestPreconditionTracker::handleException(ftpe);
+                });
+        }
+        {
+            if (veryVerbose)
+                printf("TOP-LEVEL PRECONDITION VIOLATION AFTER NESTED "
+                       "BEGIN/END BLOCK\n");
+            bsls::AssertTestHandlerGuard g;
+            bsls::FuzzTestHandlerGuard   hg;
+            ASSERT_PASS(
+                bsls::FuzzTestPreconditionTracker::initStaticState(__FILE__);
+                try {
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsBegin();
+                    BSLS_REVIEW(true);
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsBegin();
+                    BSLS_REVIEW(true);
+                    bsls::FuzzTestPreconditionTracker::
+                        handlePreconditionsEnd();
+                    BSLS_REVIEW(1 == 2);
+                    BSLS_REVIEW_INVOKE("unreachable");
+                } catch (bsls::FuzzTestPreconditionException& ftpe) {
+                    ASSERT(0 == strcmp(ftpe.filename(), __FILE__));
+                    ASSERT(0 == strcmp(ftpe.expression(), "1 == 2"));
+                    bsls::FuzzTestPreconditionTracker::handleException(ftpe);
+                });
+        }
+#endif  // defined(BSLS_REVIEW_IS_ACTIVE)
 #endif  // defined(BDE_BUILD_TARGET_EXC)
       } break;
       case 2: {
@@ -863,66 +1034,74 @@ int main(int argc, char *argv[])
         // FUZZTEST HANDLER GUARD
         //
         // Concerns:
-        // 1. That the guard installs handlers at construction.
+        //  1. That the guard installs handlers at construction.
         //
-        // 2. Restores the original handlers at destruction.
+        //  2. Restores the original handlers at destruction.
         //
         // Plan:
-        // 1. Verify that the original assertion handler is the expected one
-        //    (i.e., `failByAbort`).
+        //  1. Verify that the original assertion handler is the expected one
+        //     (i.e., `failByAbort`).
         //
-        // 2. Create a guard inside a block, and verify, using
-        //    `PreconditionsHandler` and `FuzzTestPreconditionTracker`, that
-        //    the handlers were installed.
+        //  2. Verify that the original review handler is the expected one
+        //     (i.e., `failByLog`).
         //
-        // 3. After the guard goes out of scope, verify that the original
-        //    handlers have been restored.
+        //  3. Create a guard inside a block, and verify, using
+        //     `PreconditionsHandler` and `FuzzTestPreconditionTracker`, that
+        //     the handlers were installed.
+        //
+        //  4. After the guard goes out of scope, verify that the original
+        //     handlers have been restored.
         //
         // Testing:
         //   FuzzTestHandlerGuard();
         //   ~FuzzTestHandlerGuard();
-        //   static ViolationHandler getOriginalAssertionHandler() const;
+        //   static FuzzTestHandlerGuard *instance();
+        //   Assert::ViolationHandler getOriginalAssertionHandler();
+        //   Review::ViolationHandler getOriginalReviewHandler();
         // --------------------------------------------------------------------
         if (verbose)
             printf("FUZZTEST HANDLER GUARD\n"
                    "======================\n");
 
         ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
-        ASSERT(
-            bsls::PreconditionsHandler::getBeginHandler() ==
+        ASSERT(&bsls::Review::failByLog   == bsls::Review::violationHandler());
+        ASSERT(bsls::PreconditionsHandler::getBeginHandler() ==
             &bsls::PreconditionsHandler::noOpHandler);
-        ASSERT(bsls::PreconditionsHandler::getEndHandler() ==
-                &bsls::PreconditionsHandler::noOpHandler);
+        ASSERT(bsls::PreconditionsHandler::getEndHandler()   ==
+            &bsls::PreconditionsHandler::noOpHandler);
         {
             bsls::FuzzTestHandlerGuard hg;
+            ASSERT(bsls::FuzzTestHandlerGuard::instance() == &hg);
             ASSERT(&bsls::Assert::failByAbort ==
-                   hg.getOriginalAssertionHandler());
-            ASSERT(&bsls::FuzzTestPreconditionTracker::
-                       handlePreconditionViolation ==
-                   bsls::Assert::violationHandler());
-            ASSERT(
-                bsls::PreconditionsHandler::getBeginHandler() ==
+                hg.getOriginalAssertionHandler());
+            ASSERT(&bsls::Review::failByLog   ==
+                hg.getOriginalReviewHandler());
+            ASSERT(&bsls::FuzzTestPreconditionTracker::handleAssertViolation ==
+                bsls::Assert::violationHandler());
+            ASSERT(&bsls::FuzzTestPreconditionTracker::handleReviewViolation ==
+                bsls::Review::violationHandler());
+            ASSERT(bsls::PreconditionsHandler::getBeginHandler() ==
                 &bsls::FuzzTestPreconditionTracker::handlePreconditionsBegin);
 
             ASSERT(bsls::PreconditionsHandler::getEndHandler() ==
-                   &bsls::FuzzTestPreconditionTracker::handlePreconditionsEnd);
+                &bsls::FuzzTestPreconditionTracker::handlePreconditionsEnd);
         }
         ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
-        ASSERT(
-            bsls::PreconditionsHandler::getBeginHandler() ==
+        ASSERT(&bsls::Review::failByLog   == bsls::Review::violationHandler());
+        ASSERT(bsls::PreconditionsHandler::getBeginHandler() ==
             &bsls::PreconditionsHandler::noOpHandler);
         ASSERT(bsls::PreconditionsHandler::getEndHandler() ==
-                &bsls::PreconditionsHandler::noOpHandler);
+            &bsls::PreconditionsHandler::noOpHandler);
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        // 1. This test driver builds on all platforms.
+        //  1. This test driver builds on all platforms.
         //
         // Plan:
-        // 1. Print out flags in verbose mode.
+        //  1. Print out flags in verbose mode.
         //
         // Testing:
         //   BREATHING TEST

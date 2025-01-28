@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 // `bsls::FuzzTestPreconditionException`, that provides a mechanism to convey
 // context information from a failing precondition to a test handler.  The
 // context that is captured consists of the program source of the failing
-// expression, the name of the file containing the assertion, the line number
-// within that file where the asserted expression may be found, and the level
-// of the assertion that has failed.
+// expression, the name of the file containing the assertion/review, the line
+// number within that file where the asserted/reviewed expression may be found,
+// and the level of the assertion/review that has failed.
 //
 ///Usage
 ///-----
@@ -30,11 +30,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // #define TEST_PRECONDITION(EXPRESSION)                                    \$
 //     if (!(EXPRESSION)) {                                                 \$
-//         bsls::AssertViolation violation(#EXPRESSION,                     \$
-//                                         __FILE__,                        \$
-//                                         __LINE__,                        \$
-//                                         "LEVEL");                        \$
-//         throw bsls::FuzzTestPreconditionException(violation);            \$
+//         throw bsls::FuzzTestPreconditionException(#EXPRESSION, __FILE__, \$
+//                                                   __LINE__, "LEVEL",     \$
+//                                                   false);                \$
 //     }
 // ```
 // Next we use the macro inside a try-block, so that we can catch the exception
@@ -49,19 +47,18 @@ BSLS_IDENT("$Id: $")
 // recorded the context of where the assertion failed.
 // ```
 //     catch (const bsls::FuzzTestPreconditionException& exception) {
-//         assert(0  == strcmp("0 != p",
-//                             exception.assertViolation().comment()));
-//         assert(0  == strcmp(__FILE__,
-//                             exception.assertViolation().fileName()));
-//         assert(11 == __LINE__ - exception.assertViolation().lineNumber());
-//         assert(0  == strcmp("LEVEL",
-//                             exception.assertViolation().assertLevel()));
+//         assert(0     == strcmp("0 != p", exception.expression()));
+//         assert(0     == strcmp(__FILE__, exception.filename()));
+//         assert(9     == __LINE__ - exception.lineNumber());
+//         assert(0     == strcmp("LEVEL",  exception.level()));
+//         assert(false == exception.isReview());
 //     }
 // ```
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 
@@ -79,8 +76,11 @@ class FuzzTestPreconditionException {
 
   private:
     // DATA
-    const AssertViolation d_assertViolation;  // from a failed precondition
-                                              // check
+    const char *d_expression;  // expression that failed to assert as `true`
+    const char *d_filename;    // name of file where the assert failed
+    const bool  d_isReview;    // flag indicating if the failure is a review
+    const char *d_level;       // level of failed assertion or review
+    const int   d_lineNumber;  // line number in file where the assert failed
 
   private:
     // NOT IMPLEMENTED
@@ -91,9 +91,17 @@ class FuzzTestPreconditionException {
     // CREATORS
 
     /// Create a `FuzzTestPreconditionException` object with the specified
-    /// `assertViolation`.
+    /// `expression`, `filename`, `lineNumber`, `level`, and `isReview`. The
+    /// behavior is undefined unless `0 < line` and all of `expression`,
+    /// `filename`, and `level` point to valid null-terminated character
+    /// strings that will remain unmodified for the lifetime of this object
+    /// (e.g., string literals).
     explicit BSLS_KEYWORD_CONSTEXPR
-    FuzzTestPreconditionException(const AssertViolation& assertViolation);
+    FuzzTestPreconditionException(const char *expression,
+                                  const char *filename,
+                                  int         lineNumber,
+                                  const char *level = "UNKNOWN",
+                                  const bool  isReview = false);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // To avoid warnings about future incompatibility due to the deleted copy
@@ -102,9 +110,10 @@ class FuzzTestPreconditionException {
     // declared to be explicitly generated.
 
     /// Create a `FuzzTestPreconditionException` object that is a copy of
-    /// the specified `original`, having the same value for the
-    /// `assertViolation` attribute.  Note that this trivial constructor's
-    /// definition is compiler generated.
+    /// the specified `original`, having the same values for the
+    /// `expression`, `filename`, `lineNumber`, `level`, and `isReview`
+    /// attributes.  Note that this trivial constructor's definition is
+    /// compiler generated.
     FuzzTestPreconditionException(
                       const FuzzTestPreconditionException& original) = default;
 
@@ -115,9 +124,24 @@ class FuzzTestPreconditionException {
 
     // ACCESSORS
 
-    /// Return an `AssertViolation` containing the details of the
-    /// precondition that has failed.
-    const AssertViolation& assertViolation() const;
+    /// Return a string containing the program source of the assertion that has
+    /// failed.
+    const char *expression() const;
+
+    /// Return a string containing the filename of the source file containing
+    /// the assertion that has failed.
+    const char *filename() const;
+
+    /// Return a string containing a representation of the level of assertion
+    /// or review macro that failed.
+    const char *level() const;
+
+    /// Return a flag indicating if the failure is a review.
+    bool isReview() const;
+
+    /// Return the number of the line within the file `filename` containing the
+    /// assertion that failed.
+    int lineNumber() const;
 };
 
 // ============================================================================
@@ -132,16 +156,48 @@ class FuzzTestPreconditionException {
 BSLS_KEYWORD_CONSTEXPR
 inline
 FuzzTestPreconditionException::FuzzTestPreconditionException(
-                                        const AssertViolation& assertViolation)
-: d_assertViolation(assertViolation)
+                                        const char *expression,
+                                        const char *filename,
+                                        const int   lineNumber,
+                                        const char *level,
+                                        const bool  isReview)
+: d_expression(expression)
+, d_filename(filename)
+, d_isReview(isReview)
+, d_level(level)
+, d_lineNumber(lineNumber)
 {
 }
 
 // ACCESSORS
 inline
-const AssertViolation& FuzzTestPreconditionException::assertViolation() const
+const char *FuzzTestPreconditionException::expression() const
 {
-    return d_assertViolation;
+    return d_expression;
+}
+
+inline
+const char *FuzzTestPreconditionException::filename() const
+{
+    return d_filename;
+}
+
+inline
+const char *FuzzTestPreconditionException::level() const
+{
+    return d_level;
+}
+
+inline
+bool  FuzzTestPreconditionException::isReview() const
+{
+    return d_isReview;
+}
+
+inline
+int FuzzTestPreconditionException::lineNumber() const
+{
+    return d_lineNumber;
 }
 
 }  // close package namespace

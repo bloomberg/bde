@@ -18,29 +18,50 @@ const char *FuzzTestPreconditionTracker::s_file_p                     = "";
 bool        FuzzTestPreconditionTracker::s_isInFirstPreconditionBlock = false;
 int         FuzzTestPreconditionTracker::s_level                      = 0;
 
-Assert::ViolationHandler
-FuzzTestHandlerGuard::s_originalAssertionHandler = &Assert::failByAbort;
-
+FuzzTestHandlerGuard
+*FuzzTestHandlerGuard::s_currentFuzzTestHandlerGuard_p = NULL;
 
                      // ---------------------------------
                      // class FuzzTestPreconditionTracker
                      // ---------------------------------
 
 // CLASS METHODS
+void FuzzTestPreconditionTracker::handleAssertViolation(
+                                              const AssertViolation& violation)
+{
+    if (s_isInFirstPreconditionBlock && (1 == s_level)) {
+        // Prior to `END`, an assertion was triggered.  We still must verify
+        // that this assertion did not come from a different component.  That
+        // check is done in `handleException`.
+        FuzzTestPreconditionException exception(violation.comment(),
+                                                violation.fileName(),
+                                                violation.lineNumber(),
+                                                violation.assertLevel(),
+                                                false);
+        BSLS_THROW(exception);
+    }
+    else {
+        Assert::ViolationHandler vh =
+               FuzzTestHandlerGuard::instance()->getOriginalAssertionHandler();
+        vh(violation);
+    }
+}
+
 void FuzzTestPreconditionTracker::handleException(
                                 const FuzzTestPreconditionException& exception)
 {
     const char *exceptionComponent  = NULL;
-    size_t      exceptionNameLength = 0;
+    std::size_t exceptionNameLength = 0;
+    const char *fileName            = exception.filename();
 
-    // Check that the assertion comes from a component with a valid BDE-style
-    // name.
+    // Check that the assertion/review failure comes from a component with a
+    // valid BDE-style name.
     if (0 == bsls::BslSourceNameParserUtil::getComponentName(
                  &exceptionComponent,
                  &exceptionNameLength,
-                 exception.assertViolation().fileName())) {
+                 fileName)) {
         const char *currentComponent  = NULL;
-        size_t      currentNameLength = 0;
+        std::size_t currentNameLength = 0;
         // Check that the current component has a valid BDE-style name.
         if (0 == bsls::BslSourceNameParserUtil::getComponentName(
                      &currentComponent, &currentNameLength, s_file_p)) {
@@ -54,25 +75,22 @@ void FuzzTestPreconditionTracker::handleException(
         }
     }
     // If we reach here, the component names are different or not BDE-style.
-    Assert::ViolationHandler vh =
-                           FuzzTestHandlerGuard::getOriginalAssertionHandler();
-    vh(exception.assertViolation());
-}
-
-void FuzzTestPreconditionTracker::handlePreconditionViolation(
-                                              const AssertViolation& violation)
-{
-    if (s_isInFirstPreconditionBlock && (1 == s_level)) {
-        // Prior to 'END', an assertion was triggered.  We still must verify
-        // that this assertion did not come from a different component.  That
-        // check is done in 'handleException'.
-        FuzzTestPreconditionException exception(violation);
-        BSLS_THROW(exception);
+    if (exception.isReview()) {
+        Review::ViolationHandler vh =
+                  FuzzTestHandlerGuard::instance()->getOriginalReviewHandler();
+        vh(ReviewViolation(exception.expression(),
+                           exception.filename(),
+                           exception.lineNumber(),
+                           exception.level(),
+                           0));
     }
     else {
         Assert::ViolationHandler vh =
-            FuzzTestHandlerGuard::getOriginalAssertionHandler();
-        vh(violation);
+               FuzzTestHandlerGuard::instance()->getOriginalAssertionHandler();
+        vh(AssertViolation(exception.expression(),
+                           exception.filename(),
+                           exception.lineNumber(),
+                           exception.level()));
     }
 }
 
@@ -86,6 +104,35 @@ void FuzzTestPreconditionTracker::handlePreconditionsEnd()
     BSLS_ASSERT(0 < s_level);
     if (0 == --s_level) {
         s_isInFirstPreconditionBlock = false;
+    }
+}
+
+void FuzzTestPreconditionTracker::handleReviewViolation(
+                                              const ReviewViolation& violation)
+{
+    if (s_isInFirstPreconditionBlock && (1 == s_level)) {
+        // Prior to `END`, a review was triggered.  We still must verify that
+        // this review did not come from a different component.  That check is
+        // done in `handleException`.
+        FuzzTestPreconditionException exception(violation.comment(),
+                                                violation.fileName(),
+                                                violation.lineNumber(),
+                                                violation.reviewLevel(),
+                                                true);
+        BSLS_THROW(exception);
+    }
+    else {
+        // We want the execution to end here, so we call the original handler
+        // for assertion violations (not review violations).  This is because
+        // the default review violation handler logs the violation and
+        // continues.  Note that this is acceptable because this function is
+        // intended to be invoked in test drivers only.
+        Assert::ViolationHandler vh =
+               FuzzTestHandlerGuard::instance()->getOriginalAssertionHandler();
+        vh(AssertViolation(violation.comment(),
+                           violation.fileName(),
+                           violation.lineNumber(),
+                           violation.reviewLevel()));
     }
 }
 

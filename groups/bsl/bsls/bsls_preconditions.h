@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide macros for use in fuzz testing narrow contract functions.
 //
 //@CLASSES:
-// bsls::PreconditionsHandler: for begin/end callback management functions
+//  bsls::PreconditionsHandler: for begin/end callback management functions
 //
 //@MACROS:
 //  BSLS_PRECONDITIONS_BEGIN: mark the start of function preconditions
@@ -41,9 +41,9 @@ BSLS_IDENT("$Id: $")
 // These macros are to be placed around the function precondition checks,
 // immediately before and after.
 // ```
+// /// Return the square root of the specified `x`.  The behavior is undefined
+// /// unless `x >= 0`.
 // double mySqrt(double x)
-//     // Return the square root of the specified 'x'.  The behavior is
-//     // undefined unless 'x >= 0'.
 // {
 //     BSLS_PRECONDITIONS_BEGIN();
 //     BSLS_ASSERT(0 <= x);
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // with `BSLS_FUZZTEST_EVALUATE`.
 
 #include <bsls_assert.h>
-#include <bsls_atomicoperations.h> // 'AtomicTypes'
+#include <bsls_atomicoperations.h> // `AtomicTypes`
 #include <bsls_consteval.h>
 #include <bsls_pointercastutil.h>
 
@@ -85,7 +85,7 @@ BSLS_IDENT("$Id: $")
         }                                                                     \
     } while (false)
 
-#else  // fuzzing not enabled or 'consteval' not active
+#else  // fuzzing not enabled or `consteval` not active
 
 #define BSLS_PRECONDITIONS_BEGIN() do {} while(false)
 #define BSLS_PRECONDITIONS_END() do {} while(false)
@@ -99,10 +99,9 @@ namespace bsls {
                          // class PreconditionsHandler
                          // ===========================
 
-/// This utility class maintains pointers containing the addresses of
-/// functions invoked by the `BSLS_PRECONDITIONS_BEGIN` and
-/// `BSLS_PRECONDITIONS_END` macros, and provides methods to
-///  manipulate and utilize those functions.
+/// This utility class maintains pointers containing the addresses of functions
+/// invoked by the `BSLS_PRECONDITIONS_BEGIN` and `BSLS_PRECONDITIONS_END`
+/// macros, and provides methods to manipulate and utilize those functions.
 class PreconditionsHandler {
 
   private:
