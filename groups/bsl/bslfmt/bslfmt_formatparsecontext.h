@@ -11,13 +11,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::basic_format_parse_context: compliant format spec parse context
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `std::basic_format_parse_context`, which provides access to
 // formatting specification string, the parsing state, and the auto-indexing
 // argument counter (where applicable).
 //
-// This type is designed to be constructed from within `bslfmt::format` and
-// **MUST NOT** be used directly from user code.
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::basic_format_parse_context`.
 //
 
 #include <bslscm_version.h>

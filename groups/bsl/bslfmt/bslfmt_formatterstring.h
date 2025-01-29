@@ -16,6 +16,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter<bsl::basic_string, t_CHAR>: for `bsl::basic_string`
 //  bsl::formatter<bsl::basic_string_view, t_CHAR>: `bsl::basic_string_view`
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides a partial specialization for the
 // `bsl::formatter` type covering the case for string formatting.  This type
 // meets the requirements as specified in [formatter.requirements] and supports
@@ -23,6 +25,10 @@ BSLS_IDENT("$Id: $")
 // specializations with the following exceptions:
 // * No support for escaped strings.
 // * No support for non-`C` locales.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
+// for strings.
 //
 ///Usage
 ///-----

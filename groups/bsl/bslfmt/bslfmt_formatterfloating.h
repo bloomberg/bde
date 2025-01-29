@@ -13,6 +13,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter<double, t_CHAR>:      formatter template for `double`
 //  bsl::formatter<long double, t_CHAR>: disabled formatter template
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for floating point types.  The component defines a
 // component-private `bslfmt::FormatterFloating_Base` class that implements the
@@ -20,7 +22,11 @@ BSLS_IDENT("$Id: $")
 // character types (`char` and `wchar_t`).  Partial specializations are then
 // defined that use `bslfmt::FormatterFloating_Base` to specify the actual
 // formatters in the `bsl` namespace.  Notice that `long double` is not one of
-// the supported types.  See below why.
+// the supported types (see [](#`long double`)).
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
+// for floating point types.
 //
 ///`long double`
 ///-------------

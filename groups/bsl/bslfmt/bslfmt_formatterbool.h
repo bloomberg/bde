@@ -11,8 +11,13 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::formatter<bool, t_CHAR>: formatter specialization for `bool`
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for bool type.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use the `bsl::formatter` for `bool` type.
 //
 ///Usage
 ///-----

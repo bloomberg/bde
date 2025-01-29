@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // meaning of the integer value (direct value or argument ID), or represents a
 // category without an integer value (default value or next argument).
 //
-// This component is for use by formatters in BDE only (primarily in `bslfmt`).
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 

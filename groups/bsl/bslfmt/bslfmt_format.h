@@ -9,18 +9,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a standard compliant `format` implementation
 //
 //@CLASSES:
-//  bsl::basic_format_args:          access to formatting arguments.
-//  bsl::basic_format_context:       access to formatting state.
-//  bsl::basic_format_parse_context: access to format string parsing state.
-//  bsl::basic_format_string:        checked format string.
-//  bsl::formatter:                  formatting rules by type.
-//  bsl::format_args:                basic_format_args for char.
-//  bsl::format_parse_context:       basic_format_parse_context for char.
-//  bsl::format_string:              format_string for char.
-//  bsl::format_to_n_result:         result type for format_to_n.
-//  bsl::wformat_args:               basic_format_args for wchar_t.
-//  bsl::wformat_parse_context:      basic_format_parse_context for wchar_t.
-//  bsl::wformat_string:             format_string for wchar_t.
+//  bsl::basic_format_arg:           access to standard-compliant argument
+//  bsl::basic_format_args:          access to formatting arguments
+//  bsl::basic_format_context:       access to formatting state
+//  bsl::basic_format_parse_context: access to format string parsing state
+//  bsl::basic_format_string:        checked format string
+//  bsl::formatter:                  template type for BDE formatters
+//  bsl::format_args:                `basic_format_args` for `char`
+//  bsl::format_error:               standard-compliant exception type
+//  bsl::format_parse_context:       `basic_format_parse_context` for `char`
+//  bsl::format_string:              `basic_format_string` for `char`
+//  bsl::format_to_n_result:         result type for `format_to_n`
+//  bsl::wformat_args:               `basic_format_args` for `wchar_t`
+//  bsl::wformat_parse_context:      `basic_format_parse_context` for `wchar_t`
+//  bsl::wformat_string:             format_string for `wchar_t`
 //
 //@CANONICAL_HEADER: bsl_format.h
 //
@@ -42,9 +44,12 @@ BSLS_IDENT("$Id: $")
 // - Support for locales other than the default ("C") locale.
 // - Support for wide strings
 // - Alternative date/time representations
-// - Date/time directives not supported by the standard strftime function
+// - Date/time directives not supported by the standard `strftime` function
 // - Character escaping
 // - Compile-time format string checking
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use BDE formatting functionality.
 //
 ///User-provided formatters
 ///------------------------
@@ -417,24 +422,21 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
-#include <bsls_exceptionutil.h>
-#include <bsls_libraryfeatures.h>
-
-#include <bslfmt_formaterror.h>
-
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslfmt_format_arg.h>
 #include <bslfmt_format_args.h>
 #include <bslfmt_format_context.h>
 #include <bslfmt_format_imp.h>
 #include <bslfmt_format_string.h>
-#include <bslfmt_formatparsecontext.h>
+#endif
 
+#include <bslfmt_formaterror.h>
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#include <bslfmt_formatparsecontext.h>
 #endif
 
 #include <bslfmt_formatterbase.h>
-
 #include <bslfmt_formatterbool.h>
 #include <bslfmt_formattercharacter.h>
 #include <bslfmt_formatterintegral.h>
@@ -442,24 +444,17 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterpointer.h>
 #include <bslfmt_formatterstring.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <bsls_util.h>
-#endif
-
-#include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslstl_utility.h>
 #endif
 
-#include <iterator>
-#include <string>
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <format>
 #include <locale>
+#include <string_view>
 #endif
 
 #include <stdexcept>

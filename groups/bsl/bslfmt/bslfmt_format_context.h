@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::basic_format_context: standard-compliant output context
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `std::basic_format_context`, which provides access to formatting
 // state consisting of the formatting arguments and the output iterator.
@@ -21,6 +23,9 @@ BSLS_IDENT("$Id: $")
 // As this type contains a `basic_format_args` type therefore all of the
 // warnings around lifetime documented in `bslfmt_formatargs.h` also apply
 // here.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::basic_format_context`.
 //
 ///Usage
 ///-----

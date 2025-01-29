@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // * postprocessedPrecision: e_DEFAULT
 // * localeSpecificFlag:     false
 //
-// This component is for use by formatters in BDE only (primarily in `bslfmt`)
+// This component is for use within `bslfmt` only.
 
 #include <bslscm_version.h>
 

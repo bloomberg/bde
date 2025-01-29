@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::basic_format_args: standard-compliant argument store
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `std::basic_format_args`, providing access to an array of
 // `basic_format_arg` types.  It also provides implementations of the standard
@@ -30,6 +32,9 @@ BSLS_IDENT("$Id: $")
 //     // args now holds a reference to a temporary whose lifetime has ended.
 //     do_something_with(args);
 // ```
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::basic_format_args`.
 //
 ///Usage
 ///-----

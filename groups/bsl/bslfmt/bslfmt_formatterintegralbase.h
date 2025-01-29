@@ -11,8 +11,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslfmt::FormatterIntegralBase: base for integral formatter specializations
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for integer types.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
+// for integral types.
 //
 
 #include <bslscm_version.h>

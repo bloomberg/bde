@@ -13,8 +13,14 @@ BSLS_IDENT("$Id: $")
 //  formatter<char, char>       : specialization for `char`s
 //  formatter<wchar_t, wchar_t> : specialization for `wchar_t`s
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for character types.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
+// for character types.
 //
 ///Usage
 ///-----

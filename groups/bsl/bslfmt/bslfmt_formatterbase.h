@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::formatter: standard-compliant formatter base template
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an base template of the C++20 Standard
 // Library's `formatter`, which provides a customization point for use defined
 // types seeking to use the formatting library.
@@ -20,8 +22,10 @@ BSLS_IDENT("$Id: $")
 // `std` namespace to enable use of `std::format` as well as `bsl::format`
 //
 // Trait macros are provided to enable the prevention of that promotion where
-// formatters already exist in the `std` namespace. These traits will not
-// typically be used outside the `bslfmt` package.
+// formatters already exist in the `std` namespace.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`.
 //
 ///User-provided formatters
 ///------------------------

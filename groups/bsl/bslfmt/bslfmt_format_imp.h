@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::format_to_n_result: result type for format_to_n.
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@SEE_ALSO: ISO C++ Standard, <format>
 //
 //@DESCRIPTION: This component will provide, in the `bslfmt` namespace,
@@ -26,6 +28,9 @@ BSLS_IDENT("$Id: $")
 //
 // Note 1: The overloads taking a `locale` parameter are *not* provided.
 // Note 2: Compile-time format string checking is *not* performed.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::format_to_n_result`.
 //
 ///User-provided formatters
 ///------------------------

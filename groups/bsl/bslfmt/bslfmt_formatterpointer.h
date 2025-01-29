@@ -13,8 +13,14 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter<const void *, t_CHAR>: specialization for `const void *`
 //  bsl::formatter<bsl::nullptr_t, t_CHAR>: specialization for `bsl::nullptr_t`
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides partial specializations of
 // `bsl::formatter` catering for pointer types.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`
+// for pointer types.
 //
 ///Usage
 ///-----

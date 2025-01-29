@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::basic_format_arg: standard-compliant argument
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `basic_format_arg`, providing access via a "visitor pattern".  The
 // value is stored as if using a variant of the following types (as specified
@@ -33,6 +35,9 @@ BSLS_IDENT("$Id: $")
 //
 // Where `basic_format_arg::handle` is a type-erased wrapper holding a
 // reference to a user-defined type.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::basic_format_arg`.
 //
 ///Usage
 ///-----

@@ -11,6 +11,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::basic_format_string: formatting library string_view wrapper
 //
+//@CANONICAL_HEADER: bsl_format.h
+//
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `basic_format_string`, providing wrapper around string_view for
 // format specification strings.
@@ -35,6 +37,9 @@ BSLS_IDENT("$Id: $")
 // usage of this type necessarily differs under C++03.  This is acceptable as
 // this type is typically only used internally within the `bslfmt::format`
 // family of functions.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::basic_format_string`.
 //
 ///Usage
 ///-----

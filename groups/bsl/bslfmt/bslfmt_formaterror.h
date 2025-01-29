@@ -9,7 +9,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception type for format library errors
 //
 //@CLASSES:
-//  bslfmt::format_error: standard-compliant format library exception type
+//  bsl::format_error: standard-compliant format library exception type
+//
+//@CANONICAL_HEADER: bsl_format.h
 //
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
 // Library's `format_error`, providing an excption type thrown in the event of
@@ -17,6 +19,9 @@ BSLS_IDENT("$Id: $")
 //
 // Where the standard library `<format>` header is available, this is an alias
 // to the `std::format_error` type.
+//
+// This header is not intended to be included directly.  Please include
+// `<bsl_format.h>` to be able to use `bsl::format_error`.
 //
 ///Usage
 ///-----
