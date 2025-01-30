@@ -13,6 +13,15 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::EventSchedulerRecurringEventHandle: handle to a recurring event
 //  bdlmt::EventSchedulerTestTimeSource: class for testing time changes
 //
+//@METRICS:
+//
+// * `bde.startlag`
+//   > seconds of delay in starting the next event (may be 0.0)
+//
+// Associated Metric Attributes:
+//  * object type name: "bdlmt.eventscheduler"
+//  * object type abbreviation: "es"
+//
 //@SEE_ALSO: bdlmt_timereventscheduler
 //
 //@DESCRIPTION: This component provides a thread-safe event scheduler.

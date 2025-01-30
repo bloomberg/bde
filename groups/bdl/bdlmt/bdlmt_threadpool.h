@@ -10,6 +10,16 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlmt::ThreadPool: portable dynamic thread pool
 //
+//@METRICS:
+//
+// * `bde.backlog`
+//   > number of pending jobs minus number of "idle" threads in the thread pool
+//   > (may be negative)
+//
+// Associated Metric Attributes:
+//  * object type name: "bdlmt.threadpool"
+//  * object type abbreviation: "tp"
+//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a portable and efficient implementation
