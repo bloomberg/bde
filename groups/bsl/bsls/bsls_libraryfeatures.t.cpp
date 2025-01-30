@@ -97,6 +97,11 @@
 // Verify assumption that the BASELINE C++20 library includes all of the new
 // library headers not covered by a more specific macro.
 
+// Verify assumption that <format> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+#include <format>
+#endif
+
 // Verify assumption that <concepts> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
     #include <concepts>
@@ -514,6 +519,13 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined =
                                                                          false;
 #endif
 
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+                                                                          true;
+#else
+                                                                         false;
+#endif
                         // case 19
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -1481,6 +1493,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT: ");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    printf("%s\n", STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT));
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP: ");
 #ifdef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
     printf("%s\n",
@@ -2035,6 +2054,9 @@ int main(int argc, char *argv[])
         // 10. `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` is defined only
         //    when the native standard library provides it.
         //
+        // 11 `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined only
+        //    when the native standard library provides it.
+        //
         // Plan:
         // 1. When these macros are defined include the appropriate headers and
         //    use the expected names.
@@ -2051,6 +2073,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP20_*' MISCELLANY"
@@ -2071,6 +2094,7 @@ int main(int argc, char *argv[])
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV);
+            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT);
 #undef PMD
         }
 
@@ -2154,6 +2178,12 @@ int main(int argc, char *argv[])
         (void)[](char *out, std::mbstate_t *st) {
             (void)std::c8rtomb(out, {}, st);
         };
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        {
+            (void) std::format("{}", 42);
+        }
 #endif
       } break;
       case 18: {

@@ -394,7 +394,7 @@ int formatNatural(char                      *buffer,
     return  formatScientific(buffer, length, value, config);
 }
 
-/// Convert the specified decimal `value` to character string using
+/// Convert the specified decimal `value` to a character string using
 /// `e_SCIENTIFIC` style and the specified `cfg` formatting options but
 /// using the natural precision of `value`.  Load the result into the
 /// specified `buffer`.  If the length of resultant string exceeds the
@@ -420,12 +420,12 @@ int formatScientificWithNaturalPrecision(char                      *buffer,
     (void)cls;
     BSLS_ASSERT(cls == FP_ZERO || cls == FP_NORMAL || cls == FP_SUBNORMAL);
 
-    int maxDigit         = getMostSignificandPlace(s);
+    int maxDigit = getMostSignificandPlace(s);
 
     DecimalFormatConfig config(cfg);
 
     config.setPrecision(maxDigit - 1);
-    return  formatScientific(buffer, length, value, config);
+    return formatScientific(buffer, length, value, config);
 }
 
 /// Convert the specified decimal `value` to character string using
@@ -455,7 +455,8 @@ int formatFixedWithNaturalPrecision(char                      *buffer,
     BSLS_ASSERT(cls == FP_ZERO || cls == FP_NORMAL || cls == FP_SUBNORMAL);
 
     DecimalFormatConfig config(cfg);
-    config.setPrecision(-e);
+    // if the exponent is larger than 0 there are no decimal digits
+    config.setPrecision(e < 0 ? -e : 0);
     return formatFixed(buffer, length, value, config);                // RETURN
 }
 

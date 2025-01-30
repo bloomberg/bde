@@ -69,6 +69,7 @@
      bsl_excecution.h
      bsl_exception.h
      bsl_filesystem.h
+     bsl_format.h
      bsl_functional.h
      bsl_hash_map.h
      bsl_hash_set.h

@@ -1135,12 +1135,22 @@ BSLS_IDENT("$Id: $")
   // We test against 201907L instead of the published 202002L.
   #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
     #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
+                                        __cpp_constexpr_dynamic_alloc >= 201907L
+      #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
+  #endif
+#endif
+
+#if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
+  // We test against 201907L instead of the published 202002L.
+  #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
+    #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
                                        __cpp_constexpr_dynamic_alloc >= 201907L
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
     #endif
   #endif
   #if defined(__cpp_consteval) && __cpp_consteval >= 201811L
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20                   1
+    #endif
   #endif
 #endif
 

@@ -1,0 +1,137 @@
+bslfmt.txt
+
+@PURPOSE: Provide implementation mechanisms for bsl::format.
+
+@MNEMONIC: Basic Standard Library Format Implementation (bslfmt)
+
+@DESCRIPTION: The 'bslfmt' package provides implementation mechanisms for
+              bsl::format and associated types.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslfmt' package currently has 28 components having 10 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+ 10. bslfmt_format
+
+  9. bslfmt_formatimp
+
+  8. bslfmt_formatterbool
+     bslfmt_formattercharacter
+     bslfmt_formatterintegral
+     bslfmt_formatterpointer
+
+  7. bslfmt_formatterfloating
+     bslfmt_formatterintegralbase
+     bslfmt_formatterstring
+
+  6. bslfmt_formattertestutil
+     bslfmt_standardformatspecification
+
+  5. bslfmt_formatargs
+     bslfmt_formatspecificationparser
+     bslfmt_formatterspecificationnumericvalue
+     bslfmt_mockformatcontext
+     bslfmt_mockparsecontext
+
+  4. bslfmt_formatarg
+     bslfmt_formatcontext
+     bslfmt_formattercharutil
+     bslfmt_unicodecodepoint
+
+  3. bslfmt_formatparsecontext
+     bslfmt_formatterbase
+     bslfmt_formatterunicodedata
+
+  2. bslfmt_formaterror
+     bslfmt_formatstring
+
+  1. bslfmt_formatarg_cpp03                                           !PRIVATE!
+     bslfmt_formatargs_cpp03                                          !PRIVATE!
+     bslfmt_formatimp_cpp03                                           !PRIVATE!
+..
+
+/Component Synopsis
+/------------------
+: 'bslfmt_format':
+:      Provide a standard compliant `format` implementation
+:
+: 'bslfmt_formatarg':
+:      Provide a proxy for an argument for use by bsl::format
+:
+: 'bslfmt_formatarg_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatarg.h
+:
+: 'bslfmt_formatargs':
+:      Provide a container of arguments for use by bsl::format
+:
+: 'bslfmt_formatargs_cpp03':                                          !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatargs.h
+:
+: 'bslfmt_formatcontext':
+:      Provides access to formatting state.
+:
+: 'bslfmt_formaterror':
+:      Provide an exception type for format library errors
+:
+: 'bslfmt_formatimp':
+:      Provide a standard compliant `format` implementation
+:
+: 'bslfmt_formatimp_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslfmt_formatimp.h
+:
+: 'bslfmt_formatparsecontext':
+:      Provides access to formatting parsing string and parsing state.
+:
+: 'bslfmt_formatspecificationparser':
+:      Private utility for use within BSL `format` spec parsers
+:
+: 'bslfmt_formatstring':
+:      Provide a string_view wrapper for formatting library usage
+:
+: 'bslfmt_formatterbase':
+:      Provide a base template for formatter specializations
+:
+: 'bslfmt_formatterbool':
+:      Provide a formatter customization for boolean types
+:
+: 'bslfmt_formattercharacter':
+:      Provide a formatter customization for character types
+:
+: 'bslfmt_formattercharutil':
+:      Private character utilities for use by `bsl::format`
+:
+: 'bslfmt_formatterfloating':
+:      Provide a formatter customization for floating point types
+:
+: 'bslfmt_formatterintegral':
+:      Provide a formatter customization for integer types
+:
+: 'bslfmt_formatterintegralbase':
+:      Provide a base class for integral formatter specializations
+:
+: 'bslfmt_formatterpointer':
+:      Provide a formatter customization for pointer types
+:
+: 'bslfmt_formatterstring':
+:      Provide a formatter customization for string types
+:
+: 'bslfmt_formattertestutil':
+:      Provide utilities for testing custom formatters
+:
+: 'bslfmt_formatterunicodedata':
+:      Private unicode data tables for use by `bsl::format`
+:
+: 'bslfmt_mockformatcontext':
+:      Provide mock format context for use in formatter tests
+:
+: 'bslfmt_mockparsecontext':
+:      Provide mock parse context for use in formatter tests
+:
+: 'bslfmt_standardformatspecification':
+:      Private utility for use within BSL `format` standard spec parsers
+:
+: 'bslfmt_unicodecodepoint':
+:      Private unicode code point object for use by `bsl::format`
