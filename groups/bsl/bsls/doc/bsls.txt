@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 86 components having 16 levels of physical
+ The 'bsls' package currently has 87 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -34,6 +34,7 @@
   14. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_fuzztest
+      bsls_fuzztest_testutil
       bsls_stopwatch
       bsls_timeinterval
 
@@ -286,6 +287,9 @@
 :
 : 'bsls_fuzztestpreconditionexception':
 :      Provide an exception type for handling failed preconditions.
+:
+: 'bsls_fuzztest_testutil':
+:      Provide utilities to facilitate testing the 'bsls_fuzztest' component.
 :
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
@@ -672,16 +676,16 @@
 ..
   #include <bslmf_movableref.h>
   #include <bslmf_util.h>
-  
+
   #include <bsls_compilerfeatures.h>
-  
+
   #include <bsl_iostream.h>
   #include <bsl_utility.h>
-  
+
   using namespace BloombergLP;
-  
+
   struct Forwarded;
-  
+
   // =====================================================================
   // Parameter 't' of function 'deduce' is a forwarding reference that is
   // forwarded to the constructor of local 'tt' to demonstrate being moved
@@ -692,7 +696,7 @@
   {
       Forwarded tt(BSLS_COMPILERFEATURES_FORWARD(T, t));  // Perfect forwarding
   }
-  
+
   struct Forwarded
   {
       // A class to demonstrate whether moving or copying is taking place
@@ -700,7 +704,7 @@
       Forwarded(const Forwarded&){bsl::cout << "Copy\n";}
       Forwarded(bslmf::MovableRef<Forwarded>){bsl::cout << "Move\n";}
   };
-  
+
   int main()
   {
       Forwarded f;

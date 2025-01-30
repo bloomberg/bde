@@ -10,6 +10,19 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlmt::FixedThreadPool: portable fixed-size thread pool
 //
+//@METRICS:
+//
+// * `bde.backlog`
+//   > number of pending jobs minus number of "idle" threads in the thread pool
+//   > (may be negative)
+//
+// * `bde.usedcapacity`
+//   > number of pending jobs divided by queue capacity
+//
+// Associated Metric Attributes:
+//  * object type name: "bdlmt.fixedthreadpool"
+//  * object type abbreviation: "ftp"
+//
 //@SEE_ALSO: bdlmt_threadpool
 //
 //@DESCRIPTION: This component defines a portable and efficient implementation

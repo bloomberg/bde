@@ -96,14 +96,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                         GLOBAL FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -111,9 +103,6 @@ int main(int argc, char *argv[])
 {
     int  test    = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose = argc > 2;
-    //  bool veryVerbose         = argc > 3;
-    //  bool veryVeryVerbose     = argc > 4;
-    //  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -141,11 +130,11 @@ int main(int argc, char *argv[])
             printf("\n'bsl::bad_variant_access' TYPEDEF"
                    "\n=================================\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
         BSLMF_ASSERT((bsl::is_same<bsl::bad_variant_access,
                                    std::bad_variant_access>::value));
 
-#endif  //BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -170,12 +159,13 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nDEFAULT CONSTRUCTION AND `what` METHOD"
                    "\n======================================\n");
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
+#ifndef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
         // string returned by `what()` method is implementation specific so we
         // can only check our own implementation
         const bsl::bad_variant_access b;
         ASSERT(0 == strcmp("bad_variant_access", b.what()));
-#endif  // #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // #ifndef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
 
       } break;
       case 2: {
@@ -213,7 +203,7 @@ int main(int argc, char *argv[])
             //       };
             //     } // namespace std
             // ```
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifndef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
         // While noexcept specification is a standard requirement, at least one
         // library implementation does not apply the noexcept specification
         // correctly.
@@ -223,7 +213,7 @@ int main(int argc, char *argv[])
         bsl::bad_variant_access b;
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE ==
                BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.what()));
-#endif
+#endif  // #ifndef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -250,7 +240,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != b.what());
         ASSERT(0 != ptr->what());
       } break;
-#endif  //BDE_BUILD_TARGET_EXC
+#endif  // BDE_BUILD_TARGET_EXC
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

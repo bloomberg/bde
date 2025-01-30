@@ -16,22 +16,25 @@ using namespace std;
 //                              Overview
 //                              --------
 // `bsls::FuzzTestPreconditionException` is a simple mechanism that
-// communicates a `bsls::AssertViolation` from the point where it is created to
-// the place where it is consumed.  The intended use-case is for this
-// CopyConstructible mechanism to be thrown as an exception, so that the
-// attributes of `AssertViolation` can be queried in an exception handler.  We
-// must validate that such an exception object can be created with the desired
-// `AssertViolation`; that the `AssertViolation` can be queried and have the
-// correct values; that the object can be copied, such as by a `throw`
-// expression, and that such a copy will have an `AssertViolation` having the
-// same values as the original; that the objects can safely be destroyed
-// without any other effect on the system.
+// communicates a set of values from the point where is created to the place
+// where it is consumed. The intended use-case is for this CopyConstructible
+// mechanism to be thrown as an exception, so that the attributes can be
+// queried in an exception- handler.  We must validate that such an exception
+// object can be created with the desired set of attributes; that the
+// attributes can be queried and have the correct values; that the object can
+// be copied, such as by a `throw` expression, and that such a copy will have
+// attributes having the same values as the original; that the objects can
+// safely be destroyed without any other effect on the system.
 //
 //-----------------------------------------------------------------------------
-// [2] bsls::FuzzTestPreconditionException(const AssertViolation& av);
+// [2] bsls::FuzzTestPreconditionException(const char*, ... ,const bool);
 // [3] bsls::FuzzTestPreconditionException(const bsls::FTPE& other);
 // [2] ~bsls::FuzzTestPreconditionException();
-// [2] const AssertViolation& assertViolation() const;
+// [2] const char *expression() const;
+// [2] const char *filename() const;
+// [2] const char *level() const;
+// [2] bool isReview() const;
+// [2] int lineNumber() const;
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [4] USAGE EXAMPLE
@@ -103,12 +106,12 @@ int main(int argc, char *argv[])
         // TEST USAGE EXAMPLE
         //
         // Concerns:
-        // 1. The usage example provided in the component header file must
-        //    compile, link, and run on all platforms as shown.
+        //  1. The usage example provided in the component header file must
+        //     compile, link, and run on all platforms as shown.
         //
         // Plan:
-        // 1. Incorporate usage example from header into driver, remove leading
-        //    comment characters, and replace `assert` with `ASSERT`.
+        //  1. Incorporate usage example from header into driver, remove
+        //     leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -125,11 +128,9 @@ int main(int argc, char *argv[])
 // ```
     #define TEST_PRECONDITION(EXPRESSION)                                     \
         if (!(EXPRESSION)) {                                                  \
-            bsls::AssertViolation violation(#EXPRESSION,                      \
-                                            __FILE__,                         \
-                                            __LINE__,                         \
-                                            "LEVEL");                         \
-            throw bsls::FuzzTestPreconditionException(violation);             \
+            throw bsls::FuzzTestPreconditionException(#EXPRESSION, __FILE__,  \
+                                                      __LINE__, "LEVEL",      \
+                                                      false);                 \
         }
 // ```
 // Next we use the macro inside a try-block, so that we can catch the exception
@@ -144,13 +145,11 @@ int main(int argc, char *argv[])
 // recorded the context of where the assertion failed.
 // ```
         catch (const bsls::FuzzTestPreconditionException& exception) {
-            ASSERT(0  == strcmp("0 != p",
-                                exception.assertViolation().comment()));
-            ASSERT(0  == strcmp(__FILE__,
-                                exception.assertViolation().fileName()));
-            ASSERT(11 == __LINE__ - exception.assertViolation().lineNumber());
-            ASSERT(0  == strcmp("LEVEL",
-                                exception.assertViolation().assertLevel()));
+            ASSERT(0     == strcmp("0 != p", exception.expression()));
+            ASSERT(0     == strcmp(__FILE__, exception.filename()));
+            ASSERT(9     == __LINE__ - exception.lineNumber());
+            ASSERT(0     == strcmp("LEVEL", exception.level()));
+            ASSERT(false == exception.isReview());
         }
 // ```
 #else
@@ -163,16 +162,16 @@ int main(int argc, char *argv[])
         // TEST COPY CONSTRUCTOR
         //
         // Concerns:
-        // 1. That a copy of a `bsls::FuzzTestPreconditionException` object
-        //    might not have the same value as the original object.  That the
-        //    source object might be altered by the act of making a copy.
+        //  1. That a copy of a `bsls::FuzzTestPreconditionException` object
+        //     might not have the same value as the original object.  That the
+        //     source object might be altered by the act of making a copy.
         //
         // Plan:
-        // 1. Create a test object `x` with known attribute values.  Then
-        //    create `y`, a copy of `x`, and verify that each corresponding
-        //    attribute of `x` and `y` have the same value.  Finally, confirm
-        //    that the attributes of `x` still have the initially supplied
-        //    values.
+        //  1. Create a test object `x` with known attribute values.  Then
+        //     create `y`, a copy of `x`, and verify that each corresponding
+        //     attribute of `x` and `y` have the same value.  Finally, confirm
+        //     that the attributes of `x` still have the initially supplied
+        //     values.
         //
         // Testing:
         //  bsls::FuzzTestPreconditionException(const bsls::FTPE& other);
@@ -185,52 +184,39 @@ int main(int argc, char *argv[])
             printf("\nCreate test strings for constructing x.\n");
 
         const char *expression = "expression string";
-        const char *filename = "filename string";
-        const char *level = "level string";
+        const char *filename   = "filename string";
+        const char *level      = "level string";
         const int   lineNumber = 42;
+        const bool  isReview   = false;
 
         if (verbose) printf("\nCreate test object `x`.\n");
-        const bsls::AssertViolation               av(expression,
-                                                     filename,
-                                                     lineNumber,
-                                                     level);
-        const bsls::FuzzTestPreconditionException x(av);
+        const bsls::FuzzTestPreconditionException x(expression,
+                                                    filename,
+                                                    lineNumber,
+                                                    level,
+                                                    isReview);
 
-        if (verbose) printf("\nCreate test object `y`, a copy of `x`.\n");
+        if (verbose)
+            printf("\nCreate test object `y`, a copy of `x`.\n");
         const bsls::FuzzTestPreconditionException y = x;
 
         if (veryVerbose)
             printf("\nConfirm `y` has the same attribute values as `x`.\n");
 
-        ASSERTV(x.assertViolation().comment(),
-                y.assertViolation().comment(),
-                x.assertViolation().comment() ==
-                    y.assertViolation().comment());
-        ASSERTV(x.assertViolation().fileName(),
-                y.assertViolation().fileName(),
-                x.assertViolation().fileName() ==
-                    y.assertViolation().fileName());
-        ASSERTV(x.assertViolation().lineNumber(),
-                y.assertViolation().lineNumber(),
-                x.assertViolation().lineNumber() ==
-                    y.assertViolation().lineNumber());
-        ASSERTV(x.assertViolation().assertLevel(),
-                y.assertViolation().assertLevel(),
-                x.assertViolation().assertLevel() ==
-                    y.assertViolation().assertLevel());
+        ASSERTV(x.expression(), y.expression(),
+                x.expression() == y.expression());
+        ASSERTV(x.filename(), y.filename(), x.filename() == y.filename());
+        ASSERTV(x.lineNumber(), y.lineNumber(),
+                x.lineNumber() == y.lineNumber());
+        ASSERTV(x.level(), y.level(), x.level() == y.level());
+        ASSERT(x.isReview() == y.isReview());
 
         if (verbose) printf("\nConfirm that `x` has not changed.\n");
-        ASSERTV(expression,
-                x.assertViolation().comment(),
-                expression == x.assertViolation().comment());
-        ASSERTV(filename,
-                x.assertViolation().fileName(),
-                filename == x.assertViolation().fileName());
-        ASSERTV(x.assertViolation().lineNumber(),
-                lineNumber == x.assertViolation().lineNumber());
-        ASSERTV(level,
-                x.assertViolation().assertLevel(),
-                level == x.assertViolation().assertLevel());
+        ASSERTV(expression, x.expression(), expression == x.expression());
+        ASSERTV(filename, x.filename(), filename == x.filename());
+        ASSERTV(x.lineNumber(), 42 == x.lineNumber());
+        ASSERTV(level, x.level(), level == x.level());
+        ASSERT(isReview == x.isReview());
 
       } break;
       case 2: {
@@ -238,64 +224,59 @@ int main(int argc, char *argv[])
         // TEST VALUE CONSTRUCTOR AND PRIMARY INSPECTOR
         //
         // Concerns:
-        // 1. That a `bsls::FuzzTestPreconditionException` object can be
-        //    created with a data member of type `bsls::AssertViolation` with
-        //    attributes having the same values contained in the object of type
-        //    `bsls::AssertViolation` passed to the constructor.  That the
-        //    object's data member can be queried, regardless of whether the
-        //    object is `const` or not.  That the queried data member has the
-        //    same values as those contained in the object supplied to the
-        //    constructor.  That the object can be cleanly destroyed without
-        //    affecting the strings referenced by pointer.
+        //  1. That a `bsls::FuzzTestPreconditionException` object can be
+        //     created with attributes having the same values passed to the
+        //     constructor.  That the object's data member can be queried,
+        //     regardless of whether the object is `const` or not.  That the
+        //     queried data member has the same values as those supplied to the
+        //     constructor.  That the object can be cleanly destroyed without
+        //     affecting the strings referenced by pointer.
         //
         // Plan:
-        // 1. Construct an object `x` of type
-        //    `bsls::FuzzTestPreconditionException` from a
-        //    `bsls::AssertViolation`, and confirm each attribute of the member
-        //    `AssertViolation` has the respective value passed to the
-        //    constructor.  Allow `x` to be destroyed, and confirm the strings
-        //    passed to the constructor can still be reached and have the same
-        //    value.  Then construct a second object `y` with different values
-        //    for each attribute than were used constructing `x`.  Confirm that
-        //    the attributes for `y` have the respective values passed to the
-        //    constructor, and so distinctly different values than when
-        //    constructing `x`.
+        //  1. Construct an object `x` of type
+        //     `bsls::FuzzTestPreconditionException`, and confirm each
+        //     attribute has the respective value passed to the constructor.
+        //     Allow `x` to be destroyed, and confirm the strings passed to the
+        //     constructor can still be reached and have the same value.  Then
+        //     construct a second object `y` with different values for each
+        //     attribute than were used constructing `x`.  Confirm that the
+        //     attributes for `y` have the respective values passed to the
+        //     constructor, and so distinctly different values than when
+        //     constructing `x`.
         //
         // Testing:
-        //   bsls::FuzzTestPreconditionException(const AssertViolation& av);
+        //   bsls::FuzzTestPreconditionException(const char*, ... ,const bool);
         //   ~bsls::FuzzTestPreconditionException();
-        //   const AssertViolation& assertViolation() const;
+        //   const char *expression() const;
+        //   const char *filename() const;
+        //   const char *level() const;
+        //   bool  isReview() const;
+        //   int lineNumber() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "\nTEST VALUE CONSTRUCTOR AND PRIMARY INSPECTORS"
-                         "\n=============================================\n" );
+                        "\nTEST VALUE CONSTRUCTOR AND PRIMARY INSPECTORS"
+                        "\n=============================================\n" );
 
         const char *exprX       = "first expression";
         const char *fileX       = "first file";
         const char *levelX      = "LEVEL";
         const int   lineNumberX = 13;
+        const bool  isReviewX   = false;
 
         {
             if (verbose)
                 printf("\nCreate test object `x`.\n");
-            bsls::AssertViolation av(exprX, fileX, lineNumberX, levelX);
-
-            bsls::FuzzTestPreconditionException x(av);
+            bsls::FuzzTestPreconditionException x(exprX, fileX, lineNumberX,
+                                                  levelX, isReviewX);
 
             if (verbose)
                 printf("\nVerify attributes of `x`.\n");
-            ASSERTV(exprX,
-                    x.assertViolation().comment(),
-                    exprX == x.assertViolation().comment());
-            ASSERTV(fileX,
-                    x.assertViolation().fileName(),
-                    fileX == x.assertViolation().fileName());
-            ASSERTV(x.assertViolation().lineNumber(),
-                    lineNumberX == x.assertViolation().lineNumber());
-            ASSERTV(levelX,
-                    x.assertViolation().assertLevel(),
-                    levelX == x.assertViolation().assertLevel());
+            ASSERTV(exprX, x.expression(), exprX == x.expression());
+            ASSERTV(fileX, x.filename(), fileX == x.filename());
+            ASSERTV(x.lineNumber(), 13 == x.lineNumber());
+            ASSERTV(levelX, x.level(), levelX == x.level());
+            ASSERTV(isReviewX == x.isReview());
         }
 
         if (verbose)
@@ -307,40 +288,27 @@ int main(int argc, char *argv[])
         const char *fileY       = "second file";
         const char *levelY      = "second level";
         const int   lineNumberY = 8;
+        const bool  isReviewY   = true;
 
         {
             if (verbose)
                 printf("\nCreate second test object `y`.\n");
-            bsls::AssertViolation av(exprY, fileY, lineNumberY, levelY);
 
-            bsls::FuzzTestPreconditionException y(av);
+            bsls::FuzzTestPreconditionException y(exprY, fileY, lineNumberY,
+                                                  levelY, isReviewY);
 
             if (verbose)
                 printf("\nVerify attributes of `y`.\n");
-            ASSERTV(exprY,
-                    y.assertViolation().comment(),
-                    exprY == y.assertViolation().comment());
-            ASSERTV(fileY,
-                    y.assertViolation().fileName(),
-                    fileY == y.assertViolation().fileName());
-            ASSERTV(y.assertViolation().lineNumber(),
-                    lineNumberY == y.assertViolation().lineNumber());
-            ASSERTV(levelY,
-                    y.assertViolation().assertLevel(),
-                    levelY == y.assertViolation().assertLevel());
+            ASSERTV(exprY, y.expression(), exprY == y.expression());
+            ASSERTV(fileY, y.filename(), fileY == y.filename());
+            ASSERTV(y.lineNumber(), 8 == y.lineNumber());
+            ASSERTV(levelY, y.level(), levelY == y.level());
+            ASSERT(isReviewY == y.isReview());
 
-            ASSERTV(exprX,
-                    y.assertViolation().comment(),
-                    exprX != y.assertViolation().comment());
-            ASSERTV(fileX,
-                    y.assertViolation().fileName(),
-                    fileX != y.assertViolation().fileName());
-            ASSERTV(lineNumberX,
-                    y.assertViolation().lineNumber(),
-                    lineNumberX != y.assertViolation().lineNumber());
-            ASSERTV(levelX,
-                    y.assertViolation().assertLevel(),
-                    levelX != y.assertViolation().assertLevel());
+            ASSERTV(exprX, y.expression(), exprX != y.expression());
+            ASSERTV(fileX, y.filename(), fileX != y.filename());
+            ASSERTV(levelX, y.level(), levelX != y.level());
+            ASSERT(isReviewX != y.isReview());
         }
 
         if (verbose)
@@ -354,16 +322,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        // 1. That basic functionality appears to work as advertised before
-        //    beginning testing in earnest.  That an object of this type can be
-        //    thrown as an exception and pass along the information from
-        //    construction to the object caught in an exception-handler.
+        //  1. That basic functionality appears to work as advertised before
+        //     beginning testing in earnest.  That an object of this type can
+        //     be thrown as an exception and pass along the information from
+        //     construction to the object caught in an exception-handler.
         //
         // Plan:
-        // 2. Create a test objects `x` and throw a copy of this as an
-        //    exception.  Catch a copy of the exception as `y` in the
-        //    exception-handler, and compare each attribute with the original
-        //    `x`.
+        //  1. Create a test objects `x` and throw a copy of this as an
+        //     exception.  Catch a copy of the exception as `y` in the
+        //     exception-handler, and compare each attribute with the original
+        //     `x`.
         //
         // Testing:
         //   BREATHING TEST
@@ -373,79 +341,55 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         if (verbose)
-            printf("\nCreate test strings for constructing x.\n");
+            printf("\nCreate test strings for constructing `x`.\n");
         const char *expression = "expression string";
         const char *filename   = "filename string";
         const char *level      = "level string";
-        const int   lineNumber  = 42;
+        const int   lineNumber = 42;
+        const bool  isReview   = false;
 
-        if (verbose) printf("\nCreate test object x.\n");
+        if (verbose) printf("\nCreate test object `x`.\n");
 
-        const bsls::AssertViolation         av(expression,
-                                               filename,
-                                               lineNumber,
-                                               level);
-        bsls::FuzzTestPreconditionException x(av);
-
-        ASSERTV(expression,
-                x.assertViolation().comment(),
-                expression == x.assertViolation().comment());
-        ASSERTV(filename,
-                x.assertViolation().fileName(),
-                filename == x.assertViolation().fileName());
-        ASSERTV(x.assertViolation().lineNumber(),
-                lineNumber == x.assertViolation().lineNumber());
-        ASSERTV(level,
-                x.assertViolation().assertLevel(),
-                level == x.assertViolation().assertLevel());
+        bsls::FuzzTestPreconditionException x(expression, filename, lineNumber,
+                                              level, isReview);
+        // Note that the first two tests are intentionally pointer-value
+        // comparisons and not string comparisons.
+        ASSERTV(expression, x.expression(), expression == x.expression());
+        ASSERTV(filename, x.filename(), filename == x.filename());
+        ASSERTV(lineNumber, x.lineNumber(), lineNumber == x.lineNumber());
+        ASSERTV(level, x.level(), level == x.level());
+        ASSERT(isReview == x.isReview());
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // This class is created for the express purpose of throwing as an
         // exception, but this cannot be tested unless exceptions are enabled.
         if (verbose)
-            printf("\nThrow and catch a copy of x.\n");
+            printf("\nThrow and catch a copy of `x`.\n");
         try {
             throw x;
         }
-        catch (bsls::FuzzTestPreconditionException y) {  // catch by value, use
-                                                         // copy constructor
-            if (veryVerbose)
-                printf("\n\tCaught y, a copy of x.\n");
-            ASSERTV(x.assertViolation().comment(),
-                    y.assertViolation().comment(),
-                    x.assertViolation().comment() ==
-                        y.assertViolation().comment());
-            ASSERTV(x.assertViolation().fileName(),
-                    y.assertViolation().fileName(),
-                    x.assertViolation().fileName() ==
-                        y.assertViolation().fileName());
-            ASSERTV(x.assertViolation().lineNumber(),
-                    y.assertViolation().lineNumber(),
-                    x.assertViolation().lineNumber() ==
-                        y.assertViolation().lineNumber());
-            ASSERTV(x.assertViolation().assertLevel(),
-                    y.assertViolation().assertLevel(),
-                    x.assertViolation().assertLevel() ==
-                        y.assertViolation().assertLevel());
+        catch (bsls::FuzzTestPreconditionException y) { // catch by value, use
+                                                        // copy constructor
+            if (veryVerbose) printf("\n\tCaught `y`, a copy of `x`.\n");
+            ASSERTV(x.expression(), y.expression(),
+                    x.expression() == y.expression());
+            ASSERTV(x.filename(), y.filename(), x.filename() == y.filename());
+            ASSERTV(x.lineNumber(), y.lineNumber(),
+                    x.lineNumber() == y.lineNumber());
+            ASSERTV(x.level(), y.level(), x.level() == y.level());
+            ASSERT(x.isReview() == y.isReview());
         }
 #endif
 
-        if (verbose)
-            printf("\nConfirm that x has not changed.\n");
-        ASSERTV(expression,
-                x.assertViolation().comment(),
-                expression == x.assertViolation().comment());
-        ASSERTV(filename,
-                x.assertViolation().fileName(),
-                filename == x.assertViolation().fileName());
-        ASSERTV(x.assertViolation().lineNumber(),
-                lineNumber == x.assertViolation().lineNumber());
-        ASSERTV(level,
-                x.assertViolation().assertLevel(),
-                level == x.assertViolation().assertLevel());
+        if (verbose) printf("\nConfirm that `x` has not changed.\n");
+        ASSERTV(expression, x.expression(), expression == x.expression());
+        ASSERTV(filename, x.filename(), filename == x.filename());
+        ASSERTV(x.lineNumber(), 42 == x.lineNumber());
+        ASSERTV(level, x.level(), level == x.level());
+        ASSERT(isReview == x.isReview());
       } break;
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        fprintf(stderr, "WARNING: CASE `%d` NOT FOUND.\n", test);
         testStatus = -1;
       }
     }

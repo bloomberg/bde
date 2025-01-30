@@ -111,6 +111,83 @@ BSLS_IDENT("$Id: $")
 // users a single, easy-to-comprehend link-time error, rather than having bugs
 // potentially manifest at runtime in ways that are difficult to diagnose.
 //
+///Forcing Language ABI Compatibility
+///----------------------------------
+// For open-source users, configuration macros are provided to enable ABI
+// compatibility when compiling BDE between different language standards.
+//
+// !WARNING! These configuration macros should **NOT** be used outside of
+// recipes for open-source package managers like VCPKG.  Code compiled with
+// these macros will **NOT** be linkable against code compiled without them
+//
+// BDE has it's own implementations for a number of types, like
+// `bsl::string_view`,  that when building with a newer language standard
+// (e.g., C++20) will be an alias to the platform standard library (these are
+// sometimes referred to as "polyfill" types).  By default, BDE will make a
+// selection between the platform implementation and the BDE implementation
+// based on the language standard being used.  However, that means that
+// translation units (using BDE) that are compiled with different language
+// standards are binary incompatible.
+//
+// BDE provides the following macros for forcing ABI compatibility, to allow
+// translation units compiled with different language standards to be linked
+// together.  These macros follow a pattern
+// `BSLS_LIBRARYFEATURES_FORCE_ABI_CPP##`, where `CPP##` is a language standard
+// (e.g., `CPP11`).  Using `*_ABI_CPP11`, for example, forces ABI compatibility
+// where the minimum supported compiler is C++11, so BDE implementations will
+// be used for any standard library features that were introduced after C++11.
+//
+//  - `BSLS_LIBRARYFEATURES_FORCE_ABI_CPP11` -
+//     Build the BDE libraries so that they are ABI compatible with a maximum
+//     language standard of C++11.
+//
+//  - `BSLS_LIBRARYFEATURES_FORCE_ABI_CPP17` -
+//     Build the BDE libraries so that they are ABI compatible with a maximum
+//     language standard of C++17.
+//
+//  - `BSLS_LIBRARYFEATURES_FORCE_ABI_CPP20` -
+//     Build the BDE libraries so that they are ABI compatible with a maximum
+//     language standard of C++20.
+//
+// Attempts to combine these macros, or force ABI compatibility with a language
+// standard newer than the current compiler will fail.  Attempts to link
+// translation units built with different force-ABI macros defined should fail
+// (on platforms where `bsls_linkcoercion` is supported).
+//
+// Also note that builds with C++03 are always binary incompatible with builds
+// with other language standards because of the treatment of rvalue-references,
+// and variadic functions, and variadic templates.
+//
+// Finally, note that the current list of "polyfill" types BDE provides are:
+//
+//  +--------------------+------------------------------------+
+//  | Feature            | Minimum Language Version For Alias |
+//  +====================+====================================+
+//  | span               | C++20                              |
+//  +--------------------+------------------------------------+
+//  | string_view        | C++20 [1]                          |
+//  +--------------------+------------------------------------+
+//  | array              | C++17 [1]                          |
+//  +--------------------+------------------------------------+
+//  | optional           | C++17                              |
+//  +--------------------+------------------------------------+
+//  | uncaught_exception | C++17                              |
+//  +--------------------+------------------------------------+
+//  | reference_wrapper  | C++11 [2]                          |
+//  +--------------------+------------------------------------+
+//  | system_error       | C++11 [2]                          |
+//  +--------------------+------------------------------------+
+//
+//  1. BDE uses its own implementations for some of the standard library
+//     features even when a (possibly incomplete) platform implementation is
+//     available to ensure that features are available when building with older
+//     language standards and/or compilers.  E.g., we use the BDE
+//     implementation of `string_view` in C++17 to allow C++17 users to use the
+//     new methods introduced in C++20.
+//
+//  2. These types are aliases to the matching platform standard library types,
+//     on all platforms where the forced-ABI compatibility macros are relevant.
+//
 ///Converse Logic Is Not Symmetric
 ///-------------------------------
 // The macros defined by this component describe features empirically observed
@@ -2254,8 +2331,46 @@ BSLS_IDENT("$Id: $")
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
 
 // ============================================================================
+//                  DEFINE ABI COMPATIBILITY AND LINK-SYMBOL
+// ----------------------------------------------------------------------------
+
+// Here determine whether the ABI compatibility is the default for the current
+// compiler, or a forced ABI compatibility configuration flag has been
+// supplied.  We create a coecion symbol to prevent linking against a binary
+// incompatible translation unit.
+
+#undef BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED
+#if defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP11)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#error Cannot force ABI compatibility with C++11 without at least C++11 support
+#endif
+#define BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED 11
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME   \
+        bsls_libraryfeatures_forced_CPP11_ABI
+#endif
+#if defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP17)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#error Cannot force ABI compatibility with C++17 without at least C++17 support
+#endif
+
+#define BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED 17
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME   \
+        bsls_libraryfeatures_forced_CPP17_ABI
+#endif
+#if defined(BSLS_LIBRARYFEATURES_FORCE_ABI_CPP20)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#error Cannot force ABI compatibility with C++20 without at least C++20 support
+#endif
+#define BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED 20
+#define BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME   \
+        bsls_libraryfeatures_forced_CPP20_ABI
+#endif
+
+// ============================================================================
 //                       DEFINE LINK-COERCION SYMBOL
 // ----------------------------------------------------------------------------
+
+#ifndef BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED
 
 // Catch attempts to link C++14 objects with C++17 objects (for example).
 
@@ -2282,6 +2397,7 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                            BloombergLP::BSLS_LIBRARYFEATURES_LINKER_CHECK_NAME)
 
 }  // close enterprise namespace
+#endif // BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED
 
 #endif // INCLUDED_BSLS_LIBRARYFEATURES
 

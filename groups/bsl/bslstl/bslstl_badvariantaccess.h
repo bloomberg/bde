@@ -28,12 +28,19 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-#include <variant>  // for 'std::bad_variant_access'
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&         \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 17))
+  #define BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED                                1
+#endif // Has C++17 and not disabled
+
+
+#ifdef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
+  #include <variant>  // for 'std::bad_variant_access'
+#endif  // BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
 
 namespace bsl {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
 using std::bad_variant_access;
 #else
                           // ========================
@@ -81,7 +88,7 @@ const char *bad_variant_access::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 {
     return "bad_variant_access";
 }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif  // BSLSTL_BAD_VARIANT_ACCESS_IS_ALIASED
 
 }  // close namespace bsl
 

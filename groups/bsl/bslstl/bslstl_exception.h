@@ -54,16 +54,22 @@ BSLS_IDENT("$Id: $")
 #include <exception>
 
 namespace bsl {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 17))
+
+    #define BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
     using std::uncaught_exceptions;
-#else
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY && not disabled
+
+#ifndef BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
     /// Return the number of exceptions that have been thrown or rethrown in
     /// the current thread that have not been caught.  If the C++17 baseline
     /// library is not available, this function may return 1 even if more
     /// than 1 uncaught exception exists, but if guaranteed to return 0 if
     /// there are no uncaught exceptions.
     int uncaught_exceptions() throw();
-#endif
+#endif  // ndef BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
 }  // close namespace bsl
 
 #endif

@@ -163,6 +163,25 @@ BSLS_IDENT("$Id: $")
 //                      Section: BSLSTL_OPTIONAL_* Macros
 // ============================================================================
 
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) && \
+   !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 17))
+
+/// The following macro `BSLSTL_OPTIONAL_USES_STD_ALIASES` controls whether
+/// platform standard library is used as a basis for `bsl` types in the
+/// following ways:
+///  - `bsl::nullopt` is an alias to `std::nullopt`
+///
+///  - `bsl::optional<T, false>` inherits from `std::optional<T>`, i.e.,
+///    `std::optional` is used for types that are *not* allocator-aware.
+///
+/// This macro does *not* control whether there are conversions and comparisons
+/// between `std::optional` and `bsl::optional`, that is conditioned only on
+/// whether `std::optional` is available (i.e.,
+/// `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` is defined).
+    #define BSLSTL_OPTIONAL_USES_STD_ALIASES
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY & not disabled
+
 # ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 // This macro is defined as 'std::is_constructible<U, V>::value' in C++11 and
@@ -226,7 +245,7 @@ BSLS_IDENT("$Id: $")
         TYPE,                                                                 \
         bsl::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 #define BSLSTL_OPTIONAL_CONVERTS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE)            \
     BSLSTL_OPTIONAL_CONVERTS_FROM(                                            \
         TYPE,                                                                 \
@@ -236,13 +255,13 @@ BSLS_IDENT("$Id: $")
     BSLSTL_OPTIONAL_ASSIGNS_FROM(                                             \
         TYPE,                                                                 \
         std::optional<typename bsl::remove_cvref<ANY_TYPE>::type>)
-# else  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# else  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 // The value of these macros is chosen to not affect the constraints these
 // macros appears in.
 #define BSLSTL_OPTIONAL_CONVERTS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE) false
 #define BSLSTL_OPTIONAL_ASSIGNS_FROM_STD_OPTIONAL(TYPE, ANY_TYPE) false
 
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY else
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES else
 
 // Macros to define common constraints that enable a constructor or assignment
 // operator.
@@ -415,12 +434,12 @@ struct Optional_NulloptConstructToken {
 
 namespace bsl {
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 using nullopt_t = std::nullopt_t;
 using std::nullopt;
 
-# else  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# else  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
                               // ================
                               // struct nullopt_t
@@ -454,7 +473,7 @@ nullopt_t nullopt(BloombergLP::bslstl::Optional_NulloptConstructToken{});
 extern const nullopt_t nullopt;
 #  endif
 
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class t_TYPE>
 class optional;
@@ -867,7 +886,7 @@ class Optional_Base {
         BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCT_PROPAGATES_ALLOCATOR(t_TYPE,
                                                                   t_ANY_TYPE));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     /// Create a disengaged `Optional_Base` object if the specified
     /// `original` object is disengaged, and an `Optional_Base` object with
     /// the value of `original.value()` converted to `t_TYPE` otherwise.
@@ -883,7 +902,7 @@ class Optional_Base {
     template <class t_ANY_TYPE>
     Optional_Base(BloombergLP::bslstl::Optional_MoveConstructFromStdOptional,
                   std::optional<t_ANY_TYPE>&& original);
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Create an `Optional_Base` object having the value of the (template
@@ -964,7 +983,7 @@ class Optional_Base {
                   BloombergLP::bslstl::Optional_MoveConstructFromOtherOptional,
                   BSLMF_MOVABLEREF_DEDUCE(Optional_Base<t_ANY_TYPE>) original);
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     /// If the specified `original` contains a value, create an
     /// `Optional_Base` object whose contained value is initialized from
     /// `*original`, converted to `t_TYPE`.  Otherwise, create a disengaged
@@ -987,7 +1006,7 @@ class Optional_Base {
                   allocator_type              allocator,
                   BloombergLP::bslstl::Optional_MoveConstructFromStdOptional,
                   std::optional<t_ANY_TYPE>&& original);
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Create an `Optional_Base` object whose contained value is
@@ -1271,7 +1290,7 @@ class Optional_Base {
                      // class Optional_Base<t_TYPE, false>
                      // ==================================
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 /// Specialization of `Optional_Base` for `value_type` that is not
 /// allocator-aware when `std::optional` is available.
 template <class t_TYPE>
@@ -1431,7 +1450,7 @@ class Optional_Base<t_TYPE, false> : public std::optional<t_TYPE> {
                          BloombergLP::bslmf::IsBitwiseCopyable,
                          BloombergLP::bslmf::IsBitwiseCopyable<t_TYPE>::value);
 };
-# else  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# else  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 // ============================================================================
 //     Section: Definition of Pre-C++17 Allocator-Unaware 'Optional_Base'
@@ -1790,7 +1809,7 @@ class Optional_Base<t_TYPE, false> {
     }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT else
 };
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY else
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES else
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -1934,7 +1953,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
                                                                 t_ANY_TYPE),
         BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(t_TYPE, t_ANY_TYPE));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     template <class t_ANY_TYPE>
     optional(
             const std::optional<t_ANY_TYPE>& original,
@@ -1983,7 +2002,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
         BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_STD_OPTIONAL(t_TYPE,
                                                                 t_ANY_TYPE),
         BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(t_TYPE, t_ANY_TYPE));
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Create an `optional` object having the value of the (template
@@ -2116,7 +2135,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
                                                                 t_ANY_TYPE),
         BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(t_TYPE, t_ANY_TYPE));
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     /// Create a disengaged `optional` object if the specified `original`
     /// object is disengaged, and an `optional` object with the value of
     /// `original.value()` converted to `t_TYPE` otherwise.  Use the
@@ -2171,7 +2190,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
         BSLSTL_OPTIONAL_DECLARE_IF_CONSTRUCTS_FROM_STD_OPTIONAL(t_TYPE,
                                                                 t_ANY_TYPE),
         BSLSTL_OPTIONAL_DECLARE_IF_EXPLICIT_CONSTRUCT(t_TYPE, t_ANY_TYPE));
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Create an `optional` object having the value of the (template
@@ -2284,7 +2303,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
     operator=(BloombergLP::bslmf::MovableRef<t_ANY_TYPE> rhs);
 #endif  // RVALUES else
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
     /// Disengage this object if the specified `rhs` object is disengaged,
     /// and assign to this object the value of `rhs.value()` (of
     /// `t_ANY_TYPE`) converted to `t_TYPE` otherwise.  Return a reference
@@ -2304,7 +2323,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
     template <class t_ANY_TYPE = t_TYPE>
     BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_STD_OPTIONAL(t_TYPE, t_ANY_TYPE)&
     operator=(std::optional<t_ANY_TYPE>&& rhs);
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 };
 
 }  // close namespace bsl
@@ -2726,7 +2745,7 @@ constexpr compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
                                               const std::optional<t_RHS>& rhs);
 #endif
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 /// Efficiently exchange the values of the specified `lhs` and `rhs`
 /// objects.  This method provides the no-throw exception-safety guarantee
 /// if the template parameter `t_TYPE` provides that guarantee and the
@@ -2816,7 +2835,7 @@ bool operator>=(const bsl::optional<t_LHS_TYPE>& lhs,
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 bool operator>=(const std::optional<t_LHS_TYPE>& lhs,
                 const bsl::optional<t_RHS_TYPE>& rhs);
-#endif
+#endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return an `optional` object containing a `t_TYPE` object created by
 /// invoking a `bsl::optional` allocator-extended `in_place_t` constructor
@@ -3157,7 +3176,7 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
     }
 }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
 template <class t_ANY_TYPE>
 inline
@@ -3181,7 +3200,7 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
         emplace(std::move(original.value()));
     }
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
@@ -3299,7 +3318,7 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
     }
 }
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
 template <class t_ANY_TYPE>
 inline
@@ -3329,7 +3348,7 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
         emplace(std::move(original.value()));
     }
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
@@ -3789,7 +3808,7 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::operator bool() const
                      // class Optional_Base<t_TYPE, false>
                      // ==================================
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 // PROTECTED CREATORS
 template <class t_TYPE>
 inline
@@ -4006,7 +4025,7 @@ const t_TYPE& Optional_Base<t_TYPE, false>::dereferenceRaw() const
 
 }
 #  endif  // BDE_OMIT_INTERNAL_DEPRECATED
-# else  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# else  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 // ============================================================================
 //  Section: Pre-C++17 Allocator-Unaware 'Optional_Base' Method Definitions
@@ -4557,7 +4576,7 @@ Optional_Base<t_TYPE, false>::operator bool() const BSLS_KEYWORD_NOEXCEPT
     return has_value();
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // else BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -4671,7 +4690,7 @@ optional<t_TYPE>::optional(
 {
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE>
 template <class t_ANY_TYPE>
 optional<t_TYPE>::optional(
@@ -4717,7 +4736,7 @@ optional<t_TYPE>::optional(
            std::move(original))
 {
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_TYPE>
@@ -4874,7 +4893,7 @@ optional<t_TYPE>::optional(
 {
 }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE>
 template <class t_ANY_TYPE>
 optional<t_TYPE>::optional(
@@ -4937,7 +4956,7 @@ optional<t_TYPE>::optional(
            std::move(original))
 {
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class t_TYPE>
@@ -5064,7 +5083,7 @@ optional<t_TYPE>::operator=(BloombergLP::bslmf::MovableRef<t_ANY_TYPE> rhs)
 }
 #endif  // RVALUES else
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE>
 template <class t_ANY_TYPE>
 BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_STD_OPTIONAL(t_TYPE, const t_ANY_TYPE&)&
@@ -5090,7 +5109,7 @@ optional<t_TYPE>::operator=(std::optional<t_ANY_TYPE>&& rhs)
     }
     return *this;
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 // ============================================================================
 //                      Section: Free Function Definitions
@@ -5523,7 +5542,7 @@ constexpr compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&
         // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
-# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
 template <class t_TYPE>
 inline
 typename bsl::enable_if<!BloombergLP::bslma::UsesBslmaAllocator<t_TYPE>::value,
@@ -5683,7 +5702,7 @@ bool operator>=(const std::optional<t_LHS_TYPE>& lhs,
     }
     return lhs.has_value() && *lhs >= *rhs;
 }
-# endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+# endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 template <class t_TYPE>
 BSLS_KEYWORD_CONSTEXPR bsl::optional<typename bsl::decay<t_TYPE>::type>
