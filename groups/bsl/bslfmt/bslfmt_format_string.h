@@ -244,8 +244,8 @@ template <class t_CHAR, class... t_ARGS>
 template <class t_STR, class>
 consteval basic_format_string<t_CHAR, t_ARGS...>::basic_format_string(
                                                               const t_STR& str)
+: d_formatString(str)
 {
-    d_formatString = str;
 }
 
 // ACCESSORS
