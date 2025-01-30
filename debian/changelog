@@ -1,5 +1,41 @@
-bsl-internal (4.19.0.0) unstable; urgency=low
+bsl-internal (4.20.0.0) unstable; urgency=low
 
+  * beea0193d Bumped version to 4.20.0.0
+  * 9d58988a2 Fix numericformatterutil gcc-13 test errors. (#5186)
+  * 2bdc1a2ea Merge pull request #5181 from bde/integration/bsl-format
+  * 5be20af9b Add metric section in doc (#5187)
+  * 27870b123 Merge pull request #5184 from afeher/drqs-178069949-address-visit-review-comments
+  * 4b7cf296c Merge pull request #5185 from afeher/drqs-178071994-change-format_string_arg_to_const_ref
+  * 474bd8df0 [bsl::format] Update component descriptions to clarify which headers are internal DRQS 178067827 (#5183)
+  * b9647726c Support BSLS_REVIEW failures in fuzz tests DRQS 174557082 (#4785)
+  * 43976857a Merge pull request #5182 from afeher/drqs-178059258-remove-format_to_n-bsl-string-overloads
+  * 184e5ee32 Merge pull request #5089 from afeher/add-abi-compatibility-flags-drqs-172377144
+  * 4143f7216 revert previous fix and add a more focussed version
+  * 0b4d7e3a2 A stub has been added to the test for gcc 13.2 (#5119)
+  * 6e02407dc Bsl format internal type rename (#5114)
+  * df25db624 'FormatterTestUtil' have been brought to the 'beta' level. DRQS 177369239 (#5102)
+  * 0013a2550 [bsl::format] Formatter for character types has been added 2. DRQS 177144142 (#5088)
+  * e199f4014 Fix build failures after rebase and code reformat (#5082)
+  * ed7f5ec05 [bsl::format] Formatter for pointer types has been added. DRQS 176997223 (#5052)
+  * b72943cc7 Add bsl_format.h canonical header (#5066)
+  * e0de9b5d7 Use of 'precision' option has been disabled for some types (#5061)
+  * d8506e531 copyright notice correction (#5056)
+  * 1369f4b85 Fix for users of windows cmake (#5054)
+  * 8db018732 [bsl::format] Formatter for bool type has been added #2. DRQS 176848334 (#5028)
+  * 601357d69 loosen threshold (#5180)
+  * cded18735 add watchdog to case 7 (#5178)
+  * e39ba5013 bdls_tempdirectoryguard: null prefix was creating sibling, not child,… (#5152)
+  * 3ad422149 bdlde_utf8util: create function 'replaceErrors' (#5092)
+  * 48597fa0f remove ordered comparison of function pointers from bsl test drivers (#5170)
+  * ce02bbf84 Fix typo in docstring (#5175)
+  * d6c57ad59 use STARTPOOL where appropriate (#5174)
+  * 161f2e2aa improve bound for unnecessary check (#5173)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 30 Jan 2025 15:44:54 -0500
+
+bsl-internal (4.19.0.0) git; urgency=low
+
+  * dd32267b3 Changelog for version 4.19.0.0
   * 5243002f9 Bumped version to 4.19.0.0
   * 34450f5fa reduce warnings (#5171)
   * d53f30b9d Add 'BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE' (2) (#5167)
@@ -25,7 +61,7 @@ bsl-internal (4.19.0.0) unstable; urgency=low
   * 0a5da4911 Add real bdlat package documentation - part 2 (DRQS 149549180) (#5101)
   * 5a689877c Fix html rendering in docs (#5113)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jan 2025 10:09:52 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jan 2025 10:19:54 -0500
 
 bsl-internal (4.18.0.0) git; urgency=low
 
