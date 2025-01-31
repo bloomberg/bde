@@ -1,5 +1,13 @@
-bsl-internal (4.20.0.0) unstable; urgency=low
+bsl-internal (4.20.1.0) unstable; urgency=low
 
+  * 61f5f5e66 Bumped version to 4.20.1.0
+  * 54ec051e0 Add missing inline in bslfmt_format_imp (#5188)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 31 Jan 2025 10:30:42 -0500
+
+bsl-internal (4.20.0.0) git; urgency=low
+
+  * 78249b261 Changelog for version 4.20.0.0
   * beea0193d Bumped version to 4.20.0.0
   * 9d58988a2 Fix numericformatterutil gcc-13 test errors. (#5186)
   * 2bdc1a2ea Merge pull request #5181 from bde/integration/bsl-format
@@ -31,7 +39,7 @@ bsl-internal (4.20.0.0) unstable; urgency=low
   * d6c57ad59 use STARTPOOL where appropriate (#5174)
   * 161f2e2aa improve bound for unnecessary check (#5173)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 30 Jan 2025 15:44:54 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 30 Jan 2025 15:47:13 -0500
 
 bsl-internal (4.19.0.0) git; urgency=low
 
