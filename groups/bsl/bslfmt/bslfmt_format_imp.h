@@ -455,6 +455,7 @@ template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS&...               args);
@@ -468,6 +469,7 @@ template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS&...                args);
@@ -478,6 +480,7 @@ format_to(t_OUT                           out,
 /// exception `format_error` is thrown.  Behavior is undefined if `out` does
 /// not point to a valid `bsl::string` object.
 template <class... t_ARGS>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS&...                args);
@@ -488,6 +491,7 @@ void format_to(bsl::string                    *out,
 /// exception `format_error` is thrown.  Behavior is undefined if `out` does
 /// not point to a valid `bsl::string` object.
 template <class... t_ARGS>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS&...                 args);
@@ -496,6 +500,7 @@ void format_to(bsl::wstring                    *out,
 /// specified `fmtStr` and return the result as a `bsl::string`.  In the event
 /// of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS&...               args);
 
@@ -503,6 +508,7 @@ bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 /// specified `fmtStr` and return the result as a `bsl::string`.  In the event
 /// of an error the exception `format_error` is thrown.
 template <class... t_ARGS>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS&...                args);
 
@@ -511,6 +517,7 @@ bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 /// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 template <class... t_ARGS>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS&...               args);
@@ -520,6 +527,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 /// required), and return the result.  In the event of an error the exception
 /// `format_error` is thrown.
 template <class... t_ARGS>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS&...                args);
@@ -528,6 +536,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 /// to be formatted according to the specification given by the specified
 /// `fmtStr`, and return the result.
 template <class... t_ARGS>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS&...               args);
 
@@ -535,6 +544,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 /// to be formatted according to the specification given by the specified
 /// `fmtStr`, and return the result.
 template <class... t_ARGS>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS&...                args);
 
@@ -548,6 +558,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 /// event of an error the exception `format_error` is thrown.  Behavior is
 /// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -564,6 +575,7 @@ format_to_n(t_OUT                                                 out,
 /// event of an error the exception `format_error` is thrown.  Behavior is
 /// undefined if `out` does not point to a valid output iterator.
 template <class t_OUT, class... t_ARGS>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,

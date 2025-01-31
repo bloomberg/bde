@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jan 27 14:52:25 2025
+// Generated on Fri Jan 31 09:33:20 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -330,6 +330,7 @@ template <class t_OUT>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
@@ -339,6 +340,7 @@ template <class t_OUT, class t_ARGS_01>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01);
@@ -350,6 +352,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -363,6 +366,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -378,6 +382,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -395,6 +400,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -414,6 +420,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -435,6 +442,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -458,6 +466,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -483,6 +492,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -510,6 +520,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -530,6 +541,7 @@ template <class t_OUT>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
@@ -539,6 +551,7 @@ template <class t_OUT, class t_ARGS_01>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01);
@@ -550,6 +563,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -563,6 +577,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -578,6 +593,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -595,6 +611,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -614,6 +631,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -635,6 +653,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -658,6 +677,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -683,6 +703,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -710,6 +731,7 @@ template <class t_OUT, class t_ARGS_01,
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01,
@@ -726,12 +748,14 @@ format_to(t_OUT                           out,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01);
@@ -740,6 +764,7 @@ void format_to(bsl::string                    *out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -750,6 +775,7 @@ void format_to(bsl::string                    *out,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -762,6 +788,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -776,6 +803,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -792,6 +820,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -810,6 +839,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -830,6 +860,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -852,6 +883,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -876,6 +908,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -892,12 +925,14 @@ void format_to(bsl::string                    *out,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01);
@@ -906,6 +941,7 @@ void format_to(bsl::wstring                    *out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -916,6 +952,7 @@ void format_to(bsl::wstring                    *out,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -928,6 +965,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -942,6 +980,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -958,6 +997,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -976,6 +1016,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -996,6 +1037,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -1018,6 +1060,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -1042,6 +1085,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS_01& args_01,
@@ -1058,11 +1102,13 @@ void format_to(bsl::wstring                    *out,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
@@ -1070,6 +1116,7 @@ bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02);
@@ -1079,6 +1126,7 @@ bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1090,6 +1138,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1103,6 +1152,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1118,6 +1168,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1135,6 +1186,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1154,6 +1206,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1175,6 +1228,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1198,6 +1252,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
                    const t_ARGS_02& args_02,
@@ -1213,11 +1268,13 @@ bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
@@ -1225,6 +1282,7 @@ bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02);
@@ -1234,6 +1292,7 @@ bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1245,6 +1304,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1258,6 +1318,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1273,6 +1334,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1290,6 +1352,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1309,6 +1372,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1330,6 +1394,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1353,6 +1418,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
                     const t_ARGS_02& args_02,
@@ -1368,12 +1434,14 @@ bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01);
@@ -1382,6 +1450,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1392,6 +1461,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1404,6 +1474,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1418,6 +1489,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1434,6 +1506,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1452,6 +1525,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1472,6 +1546,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1494,6 +1569,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1518,6 +1594,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS_01& args_01,
@@ -1534,12 +1611,14 @@ bsl::string format(bsl::allocator<char>           alloc,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01);
@@ -1548,6 +1627,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1558,6 +1638,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1570,6 +1651,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1584,6 +1666,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1600,6 +1683,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1618,6 +1702,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1638,6 +1723,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1660,6 +1746,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1684,6 +1771,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS_01& args_01,
@@ -1700,11 +1788,13 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
@@ -1712,6 +1802,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02);
@@ -1721,6 +1812,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1732,6 +1824,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1745,6 +1838,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1760,6 +1854,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1777,6 +1872,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1796,6 +1892,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1817,6 +1914,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1840,6 +1938,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1855,11 +1954,13 @@ std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
 
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_ARGS_01>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01);
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
@@ -1867,6 +1968,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_ARGS_01,
           class t_ARGS_02>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02);
@@ -1876,6 +1978,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1887,6 +1990,7 @@ template <class t_ARGS_01,
           class t_ARGS_02,
           class t_ARGS_03,
           class t_ARGS_04>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1900,6 +2004,7 @@ template <class t_ARGS_01,
           class t_ARGS_03,
           class t_ARGS_04,
           class t_ARGS_05>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1915,6 +2020,7 @@ template <class t_ARGS_01,
           class t_ARGS_04,
           class t_ARGS_05,
           class t_ARGS_06>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1932,6 +2038,7 @@ template <class t_ARGS_01,
           class t_ARGS_05,
           class t_ARGS_06,
           class t_ARGS_07>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1951,6 +2058,7 @@ template <class t_ARGS_01,
           class t_ARGS_06,
           class t_ARGS_07,
           class t_ARGS_08>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1972,6 +2080,7 @@ template <class t_ARGS_01,
           class t_ARGS_07,
           class t_ARGS_08,
           class t_ARGS_09>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -1995,6 +2104,7 @@ template <class t_ARGS_01,
           class t_ARGS_08,
           class t_ARGS_09,
           class t_ARGS_10>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS_01& args_01,
                            const t_ARGS_02& args_02,
@@ -2011,6 +2121,7 @@ std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2019,6 +2130,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2029,6 +2141,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2041,6 +2154,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2055,6 +2169,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2071,6 +2186,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2089,6 +2205,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2109,6 +2226,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2131,6 +2249,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2155,6 +2274,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2181,6 +2301,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2200,6 +2321,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 0
 template <class t_OUT>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2208,6 +2330,7 @@ format_to_n(t_OUT                                                 out,
 
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 1
 template <class t_OUT, class t_ARGS_01>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2218,6 +2341,7 @@ format_to_n(t_OUT                                                 out,
 #if BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_A >= 2
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2230,6 +2354,7 @@ format_to_n(t_OUT                                                 out,
 template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2244,6 +2369,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_02,
                        class t_ARGS_03,
                        class t_ARGS_04>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2260,6 +2386,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_03,
                        class t_ARGS_04,
                        class t_ARGS_05>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2278,6 +2405,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_04,
                        class t_ARGS_05,
                        class t_ARGS_06>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2298,6 +2426,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_05,
                        class t_ARGS_06,
                        class t_ARGS_07>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2320,6 +2449,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_06,
                        class t_ARGS_07,
                        class t_ARGS_08>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2344,6 +2474,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_07,
                        class t_ARGS_08,
                        class t_ARGS_09>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2370,6 +2501,7 @@ template <class t_OUT, class t_ARGS_01,
                        class t_ARGS_08,
                        class t_ARGS_09,
                        class t_ARGS_10>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2393,6 +2525,7 @@ template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::string *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                          out,
           BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
           const t_ARGS&...               args);
@@ -2401,47 +2534,57 @@ template <class t_OUT, class... t_ARGS>
 typename bsl::enable_if<
     !bsl::is_same<typename bsl::decay<t_OUT>::type, bsl::wstring *>::value,
     t_OUT>::type
+inline
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS&...                args);
 
 template <class... t_ARGS>
+inline
 void format_to(bsl::string                    *out,
                BSLFMT_FORMAT_STRING_PARAMETER  fmtStr,
                const t_ARGS&...                args);
 
 template <class... t_ARGS>
+inline
 void format_to(bsl::wstring                    *out,
                BSLFMT_FORMAT_WSTRING_PARAMETER  fmtStr,
                const t_ARGS&...                 args);
 
 template <class... t_ARGS>
+inline
 bsl::string format(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS&...               args);
 
 template <class... t_ARGS>
+inline
 bsl::wstring format(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS&...                args);
 
 template <class... t_ARGS>
+inline
 bsl::string format(bsl::allocator<char>           alloc,
                    BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                    const t_ARGS&...               args);
 
 template <class... t_ARGS>
+inline
 bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                     BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                     const t_ARGS&...                args);
 
 template <class... t_ARGS>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_STRING_PARAMETER fmtStr,
                            const t_ARGS&...               args);
 
 template <class... t_ARGS>
+inline
 std::size_t formatted_size(BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
                            const t_ARGS&...                args);
 
 template <class t_OUT, class... t_ARGS>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
@@ -2449,6 +2592,7 @@ format_to_n(t_OUT                                                 out,
             const t_ARGS&...                                      args);
 
 template <class t_OUT, class... t_ARGS>
+inline
 format_to_n_result<t_OUT>
 format_to_n(t_OUT                                                 out,
             typename bsl::iterator_traits<t_OUT>::difference_type maxNumChars,
