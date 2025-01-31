@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 28 12:10:18 2025
+// Generated on Fri Jan 31 11:05:39 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -641,41 +641,6 @@ inline
 decltype(auto) basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(
                                                                  t_VISITOR&& v)
 {
-    // The possible return types need to all match exactly, on the basis that
-    // the standard library enforces, on penalty of program ill-formedness, so
-    // we should do the same.
-    typedef typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type t1;
-    typedef typename bsl::invoke_result<t_VISITOR&, bool&>::type           t2;
-    typedef typename bsl::invoke_result<t_VISITOR&, char_type&>::type      t3;
-    typedef typename bsl::invoke_result<t_VISITOR&, int&>::type            t4;
-    typedef typename bsl::invoke_result<t_VISITOR&, unsigned&>::type       t5;
-    typedef typename bsl::invoke_result<t_VISITOR&, long long&>::type      t6;
-    typedef
-        typename bsl::invoke_result<t_VISITOR&, unsigned long long&>::type t7;
-    typedef typename bsl::invoke_result<t_VISITOR&, float&>::type          t8;
-    typedef typename bsl::invoke_result<t_VISITOR&, double&>::type         t9;
-    typedef typename bsl::invoke_result<t_VISITOR&, long double&>::type    t10;
-    typedef
-        typename bsl::invoke_result<t_VISITOR&, const char_type *&>::type  t11;
-    typedef typename bsl::invoke_result<t_VISITOR&, const void *&>::type   t12;
-    typedef typename bsl::invoke_result<t_VISITOR&,
-                               bsl::basic_string_view<char_type>&>::type   t13;
-    typedef typename bsl::invoke_result<t_VISITOR&, handle&>::type         t14;
-
-    BSLMF_ASSERT((bsl::is_same<t1, t2 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t3 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t4 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t5 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t6 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t7 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t8 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t9 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t10>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t11>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t12>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
-
     auto thisCopy(*this);
     return bsl::visit(std::forward<t_VISITOR>(v), thisCopy.d_value);
 }
@@ -686,41 +651,6 @@ inline
 typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type
 basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::visit(t_VISITOR& v)
 {
-    // The possible return types need to all match exactly, on the basis that
-    // the standard library enforces, on penalty of program ill-formedness, so
-    // we should do the same.
-    typedef typename bsl::invoke_result<t_VISITOR&, bsl::monostate&>::type t1;
-    typedef typename bsl::invoke_result<t_VISITOR&, bool&>::type           t2;
-    typedef typename bsl::invoke_result<t_VISITOR&, char_type&>::type      t3;
-    typedef typename bsl::invoke_result<t_VISITOR&, int&>::type            t4;
-    typedef typename bsl::invoke_result<t_VISITOR&, unsigned&>::type       t5;
-    typedef typename bsl::invoke_result<t_VISITOR&, long long&>::type      t6;
-    typedef
-        typename bsl::invoke_result<t_VISITOR&, unsigned long long&>::type t7;
-    typedef typename bsl::invoke_result<t_VISITOR&, float&>::type          t8;
-    typedef typename bsl::invoke_result<t_VISITOR&, double&>::type         t9;
-    typedef typename bsl::invoke_result<t_VISITOR&, long double&>::type    t10;
-    typedef
-        typename bsl::invoke_result<t_VISITOR&, const char_type *&>::type  t11;
-    typedef typename bsl::invoke_result<t_VISITOR&, const void *&>::type   t12;
-    typedef typename bsl::invoke_result<t_VISITOR&,
-                               bsl::basic_string_view<char_type>&>::type   t13;
-    typedef typename bsl::invoke_result<t_VISITOR&, handle&>::type         t14;
-
-    BSLMF_ASSERT((bsl::is_same<t1, t2 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t3 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t4 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t5 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t6 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t7 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t8 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t9 >::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t10>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t11>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t12>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t13>::value));
-    BSLMF_ASSERT((bsl::is_same<t1, t14>::value));
-
     basic_format_arg thisCopy(*this);
     return bsl::visit(v, thisCopy.d_value);
 }
