@@ -1,9 +1,17 @@
-bsl-internal (4.20.1.0) unstable; urgency=low
+bsl-internal (4.20.2.0) unstable; urgency=low
 
+  * ed64c29fc Bumped version to 4.20.2.0
+  * a31dadc94 Revert "Bdljsn jsonnull constant drqs 175433360.1 (#4801) (#5163)" (#5177)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 31 Jan 2025 21:35:24 -0500
+
+bsl-internal (4.20.1.0) git; urgency=low
+
+  * b8d24ef87 Changelog for version 4.20.1.0
   * 61f5f5e66 Bumped version to 4.20.1.0
   * 54ec051e0 Add missing inline in bslfmt_format_imp (#5188)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 31 Jan 2025 10:30:42 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 31 Jan 2025 10:31:47 -0500
 
 bsl-internal (4.20.0.0) git; urgency=low
 
