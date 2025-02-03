@@ -1286,7 +1286,6 @@ BSLS_IDENT("$Id: $")
 //   - VS 16.11 / MSVC 19.29
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`
-//
 ///----------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is defined if the C++20
 // `bsl::jthread` class in the `<bsl_thread.h>` header available.

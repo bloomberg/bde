@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we have a custom type representing a date and we want to output it
 // to the stream in different formats depending on the circumstances using
 // `bsl::format` function.  The following example demonstrates how such custom
-//// formatter may be implemented.
+// formatter may be implemented.
 //
 // First, we define our `Date` class:
 // ```
