@@ -275,9 +275,9 @@ class BerDecoder {
     /// Return the address of the BER decoder options.
     const BerDecoderOptions *decoderOptions() const;
 
+    /// Return 'true' if the maximum depth level is exceeded and 'false'
+    /// otherwise.
     bool maxDepthExceeded() const;
-       // Return 'true' if the maximum depth level is exceeded and 'false'
-       // otherwise.
 
     /// Return the number of unknown elements that were skipped during the
     /// previous decoding operation.  Note that unknown elements are skipped
@@ -456,9 +456,8 @@ class BerDecoder_Node {
     /// Return field name for this node.
     const char *fieldName() const;
 
+    /// Return expected length of the body or -1 when the length is indefinite.
     int length() const;
-       // Return expected length of the body or -1 when the length is
-       // indefinite.
 
     /// Return the position of node tag from the beginning of input stream.
     int startPos() const;
@@ -618,12 +617,12 @@ inline
 int BerDecoder::decode(bsl::istream& stream, TYPE *variable)
 {
     if (!stream.good()) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (0 != this->decode(stream.rdbuf(), variable)) {
         stream.setstate(bsl::ios_base::failbit);
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -690,7 +689,8 @@ inline
 bslstl::StringRef BerDecoder::loggedMessages() const
 {
     if (d_logStream) {
-        return bslstl::StringRef(d_logStream->data(), d_logStream->length());
+        return bslstl::StringRef(d_logStream->data(),
+                                 d_logStream->length());              // RETURN
     }
 
     return bslstl::StringRef();
@@ -755,7 +755,7 @@ BerDecoder_Node::hasMore()
     BSLS_ASSERT(d_tagType == BerConstants::e_CONSTRUCTED);
 
     if (BerUtil::k_INDEFINITE_LENGTH == d_expectedLength) {
-        return 0 != d_decoder->d_streamBuf->sgetc();
+        return 0 != d_decoder->d_streamBuf->sgetc();                  // RETURN
     }
 
     return d_expectedLength > d_consumedBodyBytes;
@@ -852,7 +852,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
     // inner tag.  This behavior is kept for backward compatibility.
 
     if (d_tagType != BerConstants::e_CONSTRUCTED) {
-        return logError("Expected CONSTRUCTED tag type for choice");
+        return logError("Expected CONSTRUCTED tag type for choice");  // RETURN
     }
 
     bool isUntagged = d_formattingMode & bdlat_FormattingMode::e_UNTAGGED;
@@ -865,29 +865,29 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Choice)
         BerDecoder_Node innerNode(d_decoder);
         rc = innerNode.readTagHeader();
         if (rc != BerDecoder::e_BER_SUCCESS) {
-            return rc;  // error message is already logged
+            return rc;  // error message is already logged            // RETURN
         }
 
         if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
             return innerNode.logError(
-                               "Expected CONTEXT tag class for tagged choice");
+                    "Expected CONTEXT tag class for tagged choice");  // RETURN
         }
 
         if (innerNode.tagType() != BerConstants::e_CONSTRUCTED) {
             return innerNode.logError(
-                            "Expected CONSTRUCTED tag type for tagged choice");
+                 "Expected CONSTRUCTED tag type for tagged choice");  // RETURN
         }
 
         if (innerNode.tagNumber() != 0) {
             return innerNode.logError(
-                               "Expected 0 as a tag number for tagged choice");
+                    "Expected 0 as a tag number for tagged choice");  // RETURN
         }
 
         if (innerNode.hasMore()) {
             // if shouldContinue returns false, then there is no selection
             rc  = innerNode.decodeChoice(variable);
             if (rc != BerDecoder::e_BER_SUCCESS) {
-                return rc;  // error message is already logged
+                return rc;  // error message is already logged        // RETURN
             }
         }
 
@@ -912,7 +912,8 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
         // nillable is encoded in BER as a sequence with one optional element
 
         if (d_tagType != BerConstants::e_CONSTRUCTED) {
-            return logError("Expected CONSTRUCTED tag type for nullable");
+            return logError(
+                      "Expected CONSTRUCTED tag type for nullable");  // RETURN
         }
 
         if (hasMore()) {
@@ -921,17 +922,17 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
             BerDecoder_Node innerNode(d_decoder);
             rc = innerNode.readTagHeader();
             if (rc != BerDecoder::e_BER_SUCCESS) {
-                return rc;  // error message is already logged
+                return rc;  // error message is already logged        // RETURN
             }
 
             if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
-                return innerNode.logError(
-                              "Expected CONTEXT tag class for inner nillable");
+                return innerNode.logError("Expected CONTEXT tag class for "
+                                          "inner nillable");          // RETURN
             }
 
             if (innerNode.tagNumber() != 0) {
                 return innerNode.logError(
-                                "Expected 0 as tag number for inner nillable");
+                     "Expected 0 as tag number for inner nillable");  // RETURN
             }
 
             bdlat_NullableValueFunctions::makeValue(variable);
@@ -939,7 +940,7 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::NullableValue)
             rc = bdlat_NullableValueFunctions::manipulateValue(variable,
                                                                innerNode);
             if (rc != BerDecoder::e_BER_SUCCESS) {
-                return rc;  // error message is already logged
+                return rc;  // error message is already logged        // RETURN
             }
 
             rc = innerNode.readTagTrailer();
@@ -978,12 +979,13 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
     int rc = this->decode(&base, BaseTag());
 
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;  // error message is already logged
+        return rc;  // error message is already logged                // RETURN
     }
 
     if (bdlat_CustomizedTypeFunctions::convertFromBaseType(variable,
                                                            base) != 0) {
-        return logError("Error converting from base type for customized");
+        return logError(
+                  "Error converting from base type for customized");  // RETURN
     }
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -1001,11 +1003,11 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Enumeration)
     int rc    = this->decode(&value, bdlat_TypeCategory::Simple());
 
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;  // error message is already logged
+        return rc;  // error message is already logged                // RETURN
     }
 
     if (0 != bdlat::EnumUtil::fromIntOrFallbackIfEnabled(variable, value)) {
-        return logError("Error converting enumeration value");
+        return logError("Error converting enumeration value");        // RETURN
     }
 
     return BerDecoder::e_BER_SUCCESS;
@@ -1016,14 +1018,15 @@ inline
 int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Simple)
 {
     if (d_tagType != BerConstants::e_PRIMITIVE) {
-        return logError("Expected PRIMITIVE tag type for simple type");
+        return logError(
+                     "Expected PRIMITIVE tag type for simple type");  // RETURN
     }
 
     if (BerUtil::getValue(d_decoder->d_streamBuf,
                           variable,
                           d_expectedLength,
                           *d_decoder->d_options) != 0) {
-        return logError("Error reading value for simple type");
+        return logError("Error reading value for simple type");       // RETURN
     }
 
     d_consumedBodyBytes = d_expectedLength;
@@ -1036,7 +1039,8 @@ int
 BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
 {
     if (d_tagType != BerConstants::e_CONSTRUCTED) {
-        return logError("Expected CONSTRUCTED tag type for sequence");
+        return logError(
+                      "Expected CONSTRUCTED tag type for sequence");  // RETURN
     }
 
     while (this->hasMore()) {
@@ -1045,12 +1049,12 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
 
         int rc = innerNode.readTagHeader();
         if (rc != BerDecoder::e_BER_SUCCESS) {
-            return rc;  // error message is already logged
+            return rc;  // error message is already logged            // RETURN
         }
 
         if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
             return innerNode.logError(
-                                 "Expected CONTEXT tag class inside sequence");
+                      "Expected CONTEXT tag class inside sequence");  // RETURN
         }
 
         if (bdlat_SequenceFunctions::hasAttribute(*variable,
@@ -1070,12 +1074,12 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
         }
 
         if (rc != BerDecoder::e_BER_SUCCESS) {
-            return rc;  // error message is already logged
+            return rc;  // error message is already logged            // RETURN
         }
 
         rc = innerNode.readTagTrailer();
         if (rc != BerDecoder::e_BER_SUCCESS) {
-            return rc;  // error message is already logged
+            return rc;  // error message is already logged            // RETURN
         }
     }
 
@@ -1106,12 +1110,12 @@ int BerDecoder_Node::decodeChoice(TYPE *variable)
 
     int rc = innerNode.readTagHeader();
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;  // error message is already logged
+        return rc;  // error message is already logged                // RETURN
     }
 
     if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
         return innerNode.logError(
-                             "Expected CONTEXT tag class for internal choice");
+                        "Expected CONTEXT tag class for internal ");  // RETURN
     }
 
     if (bdlat_ChoiceFunctions::hasSelection(*variable,
@@ -1119,8 +1123,8 @@ int BerDecoder_Node::decodeChoice(TYPE *variable)
 
         if (0 != bdlat_ChoiceFunctions::makeSelection(variable,
                                                       innerNode.tagNumber())) {
-
-            return innerNode.logError("Unable to make choice selection");
+            return innerNode.logError(
+                                 "Unable to make choice selection");  // RETURN
         }
 
         BerDecoder_NodeVisitor visitor(&innerNode);
@@ -1134,7 +1138,7 @@ int BerDecoder_Node::decodeChoice(TYPE *variable)
     }
 
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;  // error message is already logged
+        return rc;  // error message is already logged                // RETURN
     }
 
     return innerNode.readTagTrailer();
@@ -1145,7 +1149,7 @@ int
 BerDecoder_Node::decodeArray(TYPE *variable)
 {
     if (d_tagType != BerConstants::e_CONSTRUCTED) {
-        return logError("Expected CONSTRUCTED tag class for array");
+        return logError("Expected CONSTRUCTED tag class for array");  // RETURN
     }
 
     const int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
@@ -1155,7 +1159,7 @@ BerDecoder_Node::decodeArray(TYPE *variable)
         int j = i + 1;
 
         if (j > maxSize) {
-            return logError("Array size exceeds the limit");
+            return logError("Array size exceeds the limit");          // RETURN
         }
 
         bdlat_ArrayFunctions::resize(variable, j);
@@ -1163,7 +1167,7 @@ BerDecoder_Node::decodeArray(TYPE *variable)
         BerDecoder_UniversalElementVisitor visitor(d_decoder);
         int rc = bdlat_ArrayFunctions::manipulateElement(variable, visitor, i);
         if (rc != BerDecoder::e_BER_SUCCESS) {
-            return logError("Error in decoding array element");
+            return logError("Error in decoding array element");       // RETURN
         }
         i = j;
     }
@@ -1218,23 +1222,23 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 
     int rc = d_node.readTagHeader();
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;  // error message is already logged
+        return rc;  // error message is already logged                // RETURN
     }
 
     if (d_node.tagClass() != BerConstants::e_UNIVERSAL) {
-        return d_node.logError("Expected UNIVERSAL tag class");
+        return d_node.logError("Expected UNIVERSAL tag class");       // RETURN
     }
 
     if (d_node.tagNumber() != static_cast<int>(expectedTagNumber)) {
         if (-1 == alternateTag || d_node.tagNumber() != alternateTag) {
-            return d_node.logError("Unexpected tag number");
+            return d_node.logError("Unexpected tag number");          // RETURN
         }
     }
 
     rc = d_node(variable);
 
     if (rc != BerDecoder::e_BER_SUCCESS) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     rc = d_node.readTagTrailer();

@@ -7,6 +7,7 @@
 #include <s_baltst_basicrecord.h>
 #include <s_baltst_bigrecord.h>
 #include <s_baltst_customizedstring.h>
+#include <s_baltst_depthtestmessageutil.h>
 #include <s_baltst_employee.h>
 #include <s_baltst_mychoice.h>
 #include <s_baltst_myenumeration.h>
@@ -23,6 +24,13 @@
 #include <s_baltst_request.h>
 #include <s_baltst_sqrt.h>
 #include <s_baltst_timingrequest.h>
+
+#include <balb_testmessages.h>          // for testing only
+
+#include <balxml_decoder.h>             // for testing only
+#include <balxml_decoderoptions.h>      // for testing only
+#include <balxml_minireader.h>          // for testing only
+#include <balxml_errorinfo.h>           // for testing only
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
@@ -106,7 +114,8 @@ namespace test = BloombergLP::s_baltst;
 // [22] DECODE DATE/TIME WITH LENGTH ANOMALIES
 // [23] FUZZ TEST BUG (DRQS 175594554)
 // [24] FUZZ TEST BUG (DRQS 175741365)
-// [25] USAGE EXAMPLE
+// [25] MAXDEPTH IS RESPECTED
+// [26] USAGE EXAMPLE
 //
 // [-1] PERFORMANCE TEST
 
@@ -2344,7 +2353,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2367,6 +2376,138 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of test.\n";
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // MAXDEPTH IS RESPECTED
+        //
+        // Concerns:
+        // 1. The `maxDepth` configuration option is repected.
+        //
+        // Plan:
+        // 1. Manually determine the `maxDepth` value required for various
+        //    messages in a table-driven technique.
+        //
+        // 2. Using those messages, ensure that decoding fails if the
+        //    `maxDepth` configuration option is too low, and succeeds when it
+        //    is correct.
+        //
+        // Testing:
+        //   `option.setMaxDepth()`
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+             << "\nMAXDEPTH IS RESPECTED"
+             << "\n====================="
+             << endl;
+
+        balxml::MiniReader     xml_reader;
+        balxml::ErrorInfo      e;
+
+        typedef s_baltst::DepthTestMessage DepthTestMessage;
+        typedef s_baltst::DepthTestMessageUtil DTMU;
+
+        for (int i = 0; i < DTMU::k_NUM_MESSAGES; ++i) {
+            balb::FeatureTestMessage object;
+
+            const DepthTestMessage& TEST_MESSAGE = DTMU::s_TEST_MESSAGES[i];
+
+            const char *XML   = TEST_MESSAGE.d_XML_text_p;
+            const int   LINE  = i;
+            const int   DEPTH = TEST_MESSAGE.d_depthBER;
+
+            bsl::istringstream ss(XML);
+            balxml::DecoderOptions xml_options;
+            xml_options.setSkipUnknownElements(true);
+            balxml::Decoder xml_decoder(&xml_options, &xml_reader, &e);
+
+            int rc = xml_decoder.decode(ss.rdbuf(), &object);
+            if (0 != rc) {
+                cout << "Failed to decode from initialization data (i="
+                     << i << ", LINE=" << LINE
+                     << "): " << xml_decoder.loggedMessages() << endl;
+            }
+            if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
+                object.selectionId()) {
+                cout
+                    << "Decoded unselected choice from initialization data"
+                    << " (LINE =" << LINE
+                    << "):" << endl;
+                rc = 9;
+            }
+
+            bsl::stringstream ber_stream;
+            balber::BerEncoder   encoder;
+
+            ASSERTV(LINE, encoder.loggedMessages(),
+                    0 == encoder.encode(ber_stream, object));
+            bsl::string ber_payload = ber_stream.str();
+
+            // Set depth too low, expect failure
+            {
+                int depth = DEPTH - 2;
+                ber_stream.str(ber_payload);
+                balber::BerDecoderOptions options;
+
+                options.setMaxDepth(depth);
+                options.setTraceLevel(1);
+
+                balber::BerDecoder decoder(&options);
+                balb::FeatureTestMessage ber_object;
+
+                int rc = decoder.decode(ber_stream.rdbuf(),
+                                        &ber_object);
+
+                if (0 == rc) {
+                    int delta = DEPTH - depth;
+
+                    cout << "Unexpected success for ";
+                    P_(LINE);
+                    P_(DEPTH);
+                    P_(depth);
+                    P(delta);
+
+                    if (verbose) {
+                        cout << "<<XML\n" << XML << ">>\n";
+                        cout << "<<BER\n"
+                             << decoder.loggedMessages() << ">>\n";
+                    }
+                }
+            }
+
+            // Set depth correctly, expect success
+            {
+                ber_stream.str(ber_payload);
+                balber::BerDecoderOptions options;
+
+                options.setMaxDepth(DEPTH);
+                options.setTraceLevel(1);
+
+                balber::BerDecoder decoder(&options);
+
+                balb::FeatureTestMessage ber_object;
+
+                int rc = decoder.decode(ber_stream.rdbuf(),
+                                        &ber_object);
+                if (0 != rc) {
+                    cout << "Unexpectedly failed to decode from"
+                         << " initialization data (i="
+                         << i << ", LINE=" << LINE
+                         << "): " << decoder.loggedMessages() << endl;
+                }
+                if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
+                    object.selectionId()) {
+                    cout
+                        << "Decoded unselected choice from initialization data"
+                        << " (LINE =" << LINE
+                        << "):" << endl;
+                    rc = 9;
+                }
+
+                ASSERTV(object, ber_object, object == ber_object);
+                ASSERTV(LINE, DEPTH, options.maxDepth(), rc, 0 == rc);
+            }
+        }
       } break;
       case 24: {
         // --------------------------------------------------------------------

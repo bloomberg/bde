@@ -23,7 +23,7 @@
     <xs:sequence>
       <xs:element name='MaxDepth' type='xs:int'
                   minOccurs='0' maxOccurs='1'
-                  default='32'
+                  default='512'
                   bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>maximum recursion depth</xs:documentation>

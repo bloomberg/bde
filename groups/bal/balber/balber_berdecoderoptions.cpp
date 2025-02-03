@@ -26,7 +26,7 @@ namespace BloombergLP {
 
 const char balber::BerDecoderOptions::CLASS_NAME[]                  =
                                                    "balber::BerDecoderOptions";
-const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             = 32;
+const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             = 512;
 const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
 const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           = 0;
 const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE = 1073741824;

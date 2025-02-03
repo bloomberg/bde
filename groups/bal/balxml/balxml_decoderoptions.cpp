@@ -31,7 +31,7 @@ namespace balxml {
 
 const char DecoderOptions::CLASS_NAME[] = "DecoderOptions";
 
-const int DecoderOptions::DEFAULT_INITIALIZER_MAX_DEPTH = 32;
+const int DecoderOptions::DEFAULT_INITIALIZER_MAX_DEPTH = 512;
 
 const int DecoderOptions::DEFAULT_INITIALIZER_FORMATTING_MODE = 0;
 

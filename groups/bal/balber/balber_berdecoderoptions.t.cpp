@@ -168,7 +168,7 @@ typedef balber::BerDecoderOptions Obj;
 //                 type='xs:int'
 //                 minOccurs='0'
 //                 maxOccurs='1'
-//                 default='32'
+//                 default='512'
 //                 bdem:allowsDirectManipulation='0'>
 //             </xs:element>
 //
@@ -219,7 +219,7 @@ typedef balber::BerDecoderOptions Obj;
 //                 type='xs:int'
 //                 minOccurs='0'
 //                 maxOccurs='1'
-//                 default='32'
+//                 default='512'
 //                 bdem:allowsDirectManipulation='0'>
 //             </xs:element>
 //
@@ -743,7 +743,7 @@ namespace test {
 
 const char BerDecoderOptionsV1::CLASS_NAME[] = "BerDecoderOptionsV1";
 
-const int BerDecoderOptionsV1::DEFAULT_INITIALIZER_MAX_DEPTH = 32;
+const int BerDecoderOptionsV1::DEFAULT_INITIALIZER_MAX_DEPTH = 512;
 
 const bool BerDecoderOptionsV1::DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS = true;
 
@@ -1042,7 +1042,7 @@ int main(int argc, char *argv[])
     // Attribute 1 Values: `maxDepth`
     // In Versions: 1, 2
 
-    static const T1 D1 = 32;  // default value
+    static const T1 D1 = 512;  // default value
     static const T1 A1 = 10;
 
     // Attribute 2 Values: `traceLevel`

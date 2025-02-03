@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Name                             Type  Default  Simple Constraints
 // ------------------               ----  -------  ------------------
-// maxDepth                         int   32       >= 0
+// maxDepth                         int   512      >= 0
 // skipUnknownElements              bool  true     none
 // validateInputIsUtf8              bool  false    none
 // allowConsecutiveSeparators       bool  true     none
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 // const bool SKIP_UNKNOWN_ELEMENTS = false;
 //
 // baljsn::DecoderOptions options;
-// assert(32   == options.maxDepth());
+// assert(512  == options.maxDepth());
 // assert(true == options.skipUnknownElements());
 // ```
 // Next, we populate that object to decode using a different `maxDepth` value

@@ -5596,12 +5596,24 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and, therefore,
             // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expResult1, PRETTY_RESULT_ABSENT_NULLS[i], "",
-                         PRETTY_XSI_ATTR, "");
-            bsl::sprintf(expResult2, PRETTY_RESULT_ABSENT_NULLS[i], "",
-                         "", "");
-            bsl::sprintf(expResult3, PRETTY_RESULT_ABSENT_NULLS[i], "",
-                         PRETTY_XSI_ATTR, "");
+            bsl::snprintf(expResult1,
+                          sizeof(expResult1),
+                          PRETTY_RESULT_ABSENT_NULLS[i],
+                          "",
+                          PRETTY_XSI_ATTR,
+                          "");
+            bsl::snprintf(expResult2,
+                          sizeof(expResult2),
+                          PRETTY_RESULT_ABSENT_NULLS[i],
+                          "",
+                          "",
+                          "");
+            bsl::snprintf(expResult3,
+                          sizeof(expResult3),
+                          PRETTY_RESULT_ABSENT_NULLS[i],
+                          "",
+                          PRETTY_XSI_ATTR,
+                          "");
 
             bsl::stringstream result1, result2, result3;
 
@@ -5633,12 +5645,24 @@ int main(int argc, char *argv[])
 
             // Format expected result with object namespace and, therefore,
             // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expResult1, PRETTY_RESULT[i],
-                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
-            bsl::sprintf(expResult2, PRETTY_RESULT_ABSENT_NULLS[i],
-                         PRETTY_NS_ATTR, "", "");
-            bsl::sprintf(expResult3, PRETTY_RESULT[i],
-                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+            bsl::snprintf(expResult1,
+                          sizeof(expResult1),
+                          PRETTY_RESULT[i],
+                          PRETTY_NS_ATTR,
+                          PRETTY_XSI_ATTR,
+                          NIL_ATTR);
+            bsl::snprintf(expResult2,
+                          sizeof(expResult2),
+                          PRETTY_RESULT_ABSENT_NULLS[i],
+                          PRETTY_NS_ATTR,
+                          "",
+                          "");
+            bsl::snprintf(expResult3,
+                          sizeof(expResult3),
+                          PRETTY_RESULT[i],
+                          PRETTY_NS_ATTR,
+                          PRETTY_XSI_ATTR,
+                          NIL_ATTR);
 
             result1.str("");
             result2.str("");
@@ -5727,12 +5751,24 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and, therefore,
             // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expResult1, COMPACT_RESULT_ABSENT_NULLS[i], "",
-                         COMPACT_XSI_ATTR, "");
-            bsl::sprintf(
-                expResult2, COMPACT_RESULT_ABSENT_NULLS[i], "", "", "");
-            bsl::sprintf(expResult3, COMPACT_RESULT_ABSENT_NULLS[i], "",
-                         COMPACT_XSI_ATTR, "");
+            bsl::snprintf(expResult1,
+                          sizeof(expResult1),
+                          COMPACT_RESULT_ABSENT_NULLS[i],
+                          "",
+                          COMPACT_XSI_ATTR,
+                          "");
+            bsl::snprintf(expResult2,
+                          sizeof(expResult2),
+                          COMPACT_RESULT_ABSENT_NULLS[i],
+                          "",
+                          "",
+                          "");
+            bsl::snprintf(expResult3,
+                          sizeof(expResult3),
+                          COMPACT_RESULT_ABSENT_NULLS[i],
+                          "",
+                          COMPACT_XSI_ATTR,
+                          "");
 
             result1.str("");
             result2.str("");
@@ -5766,12 +5802,24 @@ int main(int argc, char *argv[])
 
             // Format expected result with object namespace and, therefore,
             // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expResult1, COMPACT_RESULT[i],
-                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
-            bsl::sprintf(expResult2, COMPACT_RESULT_ABSENT_NULLS[i],
-                         COMPACT_NS_ATTR, "", "");
-            bsl::sprintf(expResult3, COMPACT_RESULT[i],
-                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+            bsl::snprintf(expResult1,
+                          sizeof(expResult1),
+                          COMPACT_RESULT[i],
+                          COMPACT_NS_ATTR,
+                          COMPACT_XSI_ATTR,
+                          NIL_ATTR);
+            bsl::snprintf(expResult2,
+                          sizeof(expResult2),
+                          COMPACT_RESULT_ABSENT_NULLS[i],
+                          COMPACT_NS_ATTR,
+                          "",
+                          "");
+            bsl::snprintf(expResult3,
+                          sizeof(expResult3),
+                          COMPACT_RESULT[i],
+                          COMPACT_NS_ATTR,
+                          COMPACT_XSI_ATTR,
+                          NIL_ATTR);
 
             result1.str("");
             result2.str("");
@@ -5968,8 +6016,12 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and, therefore,
             // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expectedResult, PRETTY_RESULT_ABSENT_NULLS[i], "",
-                         PRETTY_XSI_ATTR, "");
+            bsl::snprintf(expectedResult,
+                          sizeof(expectedResult),
+                          PRETTY_RESULT_ABSENT_NULLS[i],
+                          "",
+                          PRETTY_XSI_ATTR,
+                          "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -5989,8 +6041,12 @@ int main(int argc, char *argv[])
 
             // Format expected result with object namespace and, therefore,
             // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expectedResult, PRETTY_RESULT[i],
-                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+            bsl::snprintf(expectedResult,
+                          sizeof(expectedResult),
+                          PRETTY_RESULT[i],
+                          PRETTY_NS_ATTR,
+                          PRETTY_XSI_ATTR,
+                          NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -6065,8 +6121,12 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and, therefore,
             // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expectedResult, COMPACT_RESULT_ABSENT_NULLS[i], "",
-                         COMPACT_XSI_ATTR, "");
+            bsl::snprintf(expectedResult,
+                          sizeof(expectedResult),
+                          COMPACT_RESULT_ABSENT_NULLS[i],
+                          "",
+                          COMPACT_XSI_ATTR,
+                          "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -6085,8 +6145,12 @@ int main(int argc, char *argv[])
 
             // Format expected result with object namespace and, therefore,
             // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
-            bsl::sprintf(expectedResult, COMPACT_RESULT[i],
-                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+            bsl::snprintf(expectedResult,
+                          sizeof(expectedResult),
+                          COMPACT_RESULT[i],
+                          COMPACT_NS_ATTR,
+                          COMPACT_XSI_ATTR,
+                          NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 

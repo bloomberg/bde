@@ -389,7 +389,7 @@ void TestUtil::loadDecoderOptions(ComplexTypeElement *decoderOptions)
         maxDepth.type()                     = "xs:int";
         maxDepth.minOccurs()                = "0";
         maxDepth.maxOccurs()                = "1";
-        maxDepth.defaultValue()             = "32";
+        maxDepth.defaultValue()             = "512";
         maxDepth.allowsDirectManipulation() = "0";
         SchemaUtil::append(&sequence, maxDepth);
     }
@@ -538,7 +538,11 @@ int main(int argc, char *argv[])
         // Finally, assert that the content of `TEXT` is structural equal
         // (modulo annotations) to the content that we expect.
 
+        s_baltst::BasicSchemaUtil_ImplUtil::removeAnnotations(&configSchema);
+        s_baltst::BasicSchemaUtil_ImplUtil::removeAnnotations(&expectedSchema);
+
         typedef s_baltst::BasicSchemaUtil SchemaUtil;
+
         ASSERTV(configSchema, expectedSchema,
              SchemaUtil::areEqualUpToAnnotation(configSchema, expectedSchema));
         if (veryVerbose && !SchemaUtil::areEqualUpToAnnotation(

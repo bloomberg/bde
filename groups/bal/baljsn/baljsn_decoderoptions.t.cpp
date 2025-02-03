@@ -190,12 +190,12 @@ const DefaultDataRow DEFAULT_DATA[] =
     //LINE DEPTH    SKIP   UTF8   CONS   FORM   UNES
     //---- -------  ----   ----   ----   ----   ---- 
 
-    { L_,       32, true,  false, true,  true,  true  } // default first
+    { L_,      512, true,  false, true,  true,  true  } // default first
 
-,   { L_,       32, false, false, false, false, false } 
-,   { L_,       32, false, false, false, false, true  } 
-,   { L_,       32, false, false, false, true,  false } 
-,   { L_,       32, false, false, false, true,  true  } 
+,   { L_,      512, false, false, false, false, false } 
+,   { L_,      512, false, false, false, false, true  } 
+,   { L_,      512, false, false, false, true,  false } 
+,   { L_,      512, false, false, false, true,  true  } 
 
 ,   { L_,        1, false, false, true,  false, false } 
 ,   { L_,        1, false, false, true,  false, true  } 
@@ -212,10 +212,10 @@ const DefaultDataRow DEFAULT_DATA[] =
 ,   { L_,        0, false, true,  true,  true,  false } 
 ,   { L_,        0, false, true,  true,  true,  true  } 
 
-,   { L_,       32, true,  false, false, false, false } 
-,   { L_,       32, true,  false, false, false, true  } 
-,   { L_,       32, true,  false, false, true,  false } 
-,   { L_,       32, true,  false, false, true,  true  } 
+,   { L_,      512, true,  false, false, false, false } 
+,   { L_,      512, true,  false, false, false, true  } 
+,   { L_,      512, true,  false, false, true,  false } 
+,   { L_,      512, true,  false, false, true,  true  } 
 
 ,   { L_,        1, true,  false, true,  false, false } 
 ,   { L_,        1, true,  false, true,  false, true  } 
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
     const bool SKIP_UNKNOWN_ELEMENTS = false;
 
     baljsn::DecoderOptions options;
-    ASSERT(32   == options.maxDepth());
+    ASSERT(512   == options.maxDepth());
     ASSERT(true == options.skipUnknownElements());
 // ```
 // Next, we populate that object to decode using a different `maxDepth` value
@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
           // `D` values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int   D1   = 32;             // `maxDepth`
+        const int   D1   = 512;            // `maxDepth`
         const bool  D2   = true;           // `skipUnknownElements`
         const bool  D3   = false;          // `validateInputIsUtf8`
         const bool  D4   = true;           // `allowConsecutiveSeparators`
@@ -1425,7 +1425,7 @@ int main(int argc, char *argv[])
 
         // `D` values: These are the default-constructed values.
 
-        const int   D1   = 32;      // `maxDepth`
+        const int   D1   = 512;     // `maxDepth`
         const bool  D2   = true;    // `skipUnknownElements`
         const bool  D3   = false;   // `validateInputIsUtf8`
         const bool  D4   = true;    // `allowConsecutiveSeparators`
@@ -1706,7 +1706,7 @@ int main(int argc, char *argv[])
 
         // `D` values: These are the default-constructed values.
 
-        const int   D1   = 32;     // `maxDepth`
+        const int   D1   = 512;    // `maxDepth`
         const bool  D2   = true;   // `skipUnknownElements`
         const bool  D3   = false;  // `validateInputIsUtf8`
         const bool  D4   = true;   // `allowConsecutiveSeparators`
@@ -1775,8 +1775,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: `maxDepth`
 
-        const T1 D1 = 32;        // default value
-        const T1 A1 =  0;
+        const T1 D1 = 512;     // default value
+        const T1 A1 = 0;
 
         // Attribute 2 Values: `skipUnknownElements`
 
