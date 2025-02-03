@@ -34,7 +34,7 @@
   14. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_fuzztest
-      bsls_fuzztest_testutil
+      bsls_fuzztest_testutil                                          !PRIVATE!
       bsls_stopwatch
       bsls_timeinterval
 
@@ -285,11 +285,11 @@
 : 'bsls_fuzztest':
 :      Provide macros for use in fuzz testing narrow-contract functions.
 :
+: 'bsls_fuzztest_testutil':                                           !PRIVATE!
+:      Provide utilities for `bsls_fuzztest` component.
+:
 : 'bsls_fuzztestpreconditionexception':
 :      Provide an exception type for handling failed preconditions.
-:
-: 'bsls_fuzztest_testutil':
-:      Provide utilities to facilitate testing the 'bsls_fuzztest' component.
 :
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
