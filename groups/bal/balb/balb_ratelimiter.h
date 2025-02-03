@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Controlling Network Traffic Generation
-///-------------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to send data over a network interface with the load
 // spike limitations explained below:
 //

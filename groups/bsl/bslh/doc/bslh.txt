@@ -400,9 +400,9 @@
  hashing algorithm functor.  All of the hashing algorithm functors in 'bslh'
  have the function signature shown below:
 ..
+  /// Incorporates the specified `data` of `length` bytes into the internal
+  /// state of the hashing algorithm.
   void operator()(const char *data, size_t length);
-      // Incorporates the specified 'data' of 'length' bytes into the internal
-      // state of the hashing algorithm.
 ..
  As we can see, the hashing algorithm functor takes a pointer to the start of
  the data and a length in bytes.  To hash a C-String, we call the hashing
@@ -889,104 +889,104 @@
 /Component Overview
 /------------------
  This section provides a brief introduction to each of the components in the
- 'bslh' package.  Full details are available in the documentation of each
+ `bslh` package.  Full details are available in the documentation of each
  component.
 
-/'bslh_defaulthashalgorithm'
-/- - - - - - - - - - - - - -
- The 'bslh_defaulthashalgorithm' component provides an unspecified default
+/bslh_defaulthashalgorithm
+/- - - - - - - - - - - - -
+ The `bslh_defaulthashalgorithm` component provides an unspecified default
  hashing algorithm.  The supplied algorithm is suitable for general purpose use
  in a hash table.  The underlying algorithm is subject to change in future
  releases.
 
- This class satisfies the requirements for regular 'bslh' hashing algorithms,
- as defined in 'bslh_hash'.
+ This class satisfies the requirements for regular `bslh` hashing algorithms,
+ as defined in `bslh_hash`.
 
-/'bslh_defaultseededhashalgorithm'
-/- - - - - - - - - - - - - - - - -
- The 'bslh_defaultseededhashalgorithm' component provides an unspecified
+/bslh_defaultseededhashalgorithm
+/- - - - - - - - - - - - - - - -
+ The `bslh_defaultseededhashalgorithm` component provides an unspecified
  default seeded hashing algorithm.  The supplied algorithm is suitable for
  general purpose use in a hash table.  The underlying algorithm is subject to
  change in future releases.
 
- This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
- defined in 'bslh_seededhash'.
+ This class satisfies the requirements for seeded `bslh` hashing algorithms, as
+ defined in `bslh_seededhash`.
 
-/'bslh_hash'
-/- - - - - -
- The {'bslh_hash'} component provides a templated 'struct', 'bslh::Hash', which
+/bslh_hash
+/- - - - -
+ The `bslh_hash` component provides a templated `struct`, `bslh::Hash`, which
  provides hashing functionality.  This struct is a drop in replacement for
- 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts hashing algorithms from
- 'bslh' and 'hashAppend' free functions to match the interface of 'bsl::hash'.
- This component also contains 'hashAppend' definitions for fundamental types,
- which are required to make the hashing algorithms in 'bslh' work.
+ `bsl::hash`.  `bslh::Hash` is a wrapper that adapts hashing algorithms from
+ `bslh` and `hashAppend` free functions to match the interface of `bsl::hash`.
+ This component also contains `hashAppend` definitions for fundamental types,
+ which are required to make the hashing algorithms in `bslh` work.
 
-/'bslh_seededhash'
-/- - - - - - - - -
- The {'bslh_seededhash'} component provides a templated struct,
- 'bslh::SeededHash', which provides hashing functionality.  This 'struct' is a
- drop in replacement for 'bsl::hash'.  It is similar to 'bslh::Hash', however,
+/bslh_seededhash
+/- - - - - - - -
+ The `bslh_seededhash` component provides a templated struct,
+ `bslh::SeededHash`, which provides hashing functionality.  This `struct` is a
+ drop in replacement for `bsl::hash`.  It is similar to `bslh::Hash`, however,
  it is meant for hashes that require a seed.  It takes a seed generator and
- uses that to create seeds to give the hashing algorithm.  'bslh::SeededHash'
- is a wrapper which adapts hashing algorithms from 'bslh' to match the
- interface of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor
- that will hash any type that implements 'hashAppend' using the hashing
+ uses that to create seeds to give the hashing algorithm.  `bslh::SeededHash`
+ is a wrapper which adapts hashing algorithms from `bslh` to match the
+ interface of `bsl::hash`.  `bslh::SeededHash` is a universal hashing functor
+ that will hash any type that implements `hashAppend` using the hashing
  algorithm provided as a template parameter.
 
-/'bslh_seedgenerator'
-/ - - - - - - - - - -
- The {'bslh_seedgenerator'} component provides a class, 'bslh::SeedGenerator',
+/bslh_seedgenerator
+/ - - - - - - - - -
+ The `bslh_seedgenerator` component provides a class, `bslh::SeedGenerator`,
  which utilizes a user-supplied random number generator (RNG) to generate
  arbitrary length seeds.  The quality of the seeds will only be as good as the
  quality of the supplied RNG.  A cryptographically secure RNG must be supplied
- in order for 'SeedGenerator' to produce seeds suitable for a cryptographically
+ in order for `SeedGenerator` to produce seeds suitable for a cryptographically
  secure algorithm.
 
  This class satisfies the requirements for a seed generator, as defined in
- 'bslh_seededhash'.
+ `bslh_seededhash`.
 
-/'bslh_siphashalgorithm'
-/- - - - - - - - - - - -
- The 'bslh_siphashalgorithm' component provides an implementation of the
+/bslh_siphashalgorithm
+/- - - - - - - - - - -
+ The `bslh_siphashalgorithm` component provides an implementation of the
  SipHash algorithm.  SipHash is an algorithm designed for speed and security.
  A primary use case for this algorithm is to provide an extra line of defense
- in hash tables (such as the underlying implementation of 'unordered_map')
+ in hash tables (such as the underlying implementation of `unordered_map`)
  against malicious input that could cause Denial of Service (DoS) attacks.  It
  is based on one of the finalists for the SHA-3 cryptographic hash standard.
  Full details of the hash function can be found here:
- '{https://131002.net/siphash/siphash.pdf}'.  This particular implementation
- has been derived from 'siphash.h' in Howard Hinnant's work here:
- '{https://github.com/HowardHinnant/hash_append}' and as much of the original
+ https://131002.net/siphash/siphash.pdf.  This particular implementation
+ has been derived from `siphash.h` in Howard Hinnant's work here:
+ https://github.com/HowardHinnant/hash_append and as much of the original
  code as possible, including comment headers, has been preserved.
 
- This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
- defined in 'bslh_seededhash'.
+ This class satisfies the requirements for seeded `bslh` hashing algorithms, as
+ defined in `bslh_seededhash`.
 
-/'bslh_spookyhashalgorithm'
-/ - - - - - - - - - - - - -
- The 'bslh_spookyhashalgorithm' component provides an implementation of the
+/bslh_spookyhashalgorithm
+/ - - - - - - - - - - - -
+ The `bslh_spookyhashalgorithm` component provides an implementation of the
  SpookyHash algorithm by Bob Jenkins.  This algorithm is a general purpose
  algorithm that is known to quickly reach good avalanche performance and
  execute in time that is comparable to or faster than other industry standard
  algorithms such as CityHash.  It is a good default choice for hashing values
  in unordered associative containers.  For more information, see
- 'http://burtleburtle.net/bob/hash/spooky.html'.
+ http://burtleburtle.net/bob/hash/spooky.html.
 
- This class satisfies the requirements for regular 'bslh' hashing algorithms
- and seeded 'bslh' hashing algorithms, as defined in 'bslh_hash' and
- 'bslh_seededhash' respectively.
+ This class satisfies the requirements for regular `bslh` hashing algorithms
+ and seeded `bslh` hashing algorithms, as defined in `bslh_hash` and
+ `bslh_seededhash` respectively.
 
-/'bslh_spookyhashalgorithmimp'
-/- - - - - - - - - - - - - - -
- The 'bslh_spookyhashalgorithmimp' component provides BDE-style encapsulation
+/bslh_spookyhashalgorithmimp
+/- - - - - - - - - - - - - -
+ The `bslh_spookyhashalgorithmimp` component provides BDE-style encapsulation
  of Bob Jenkins canonical SpookyHash implementation.  SpookyHash provides a way
  to hash contiguous data all at once, or non-contiguous data in pieces.  More
- information is available at 'http://burtleburtle.net/bob/hash/spooky.html'.
+ information is available at http://burtleburtle.net/bob/hash/spooky.html.
 
-/'bslh_wyhashincrementalalgorithm'
-/- - - - - - - - - - - - - - - - -
- The 'WyHash' algorithm, 'wyhash_final_version_3' with the 'incremental'
+/bslh_wyhashincrementalalgorithm
+/- - - - - - - - - - - - - - - -
+ The `WyHash` algorithm, `wyhash_final_version_3` with the `incremental`
  property added, meaning that hashing a segment in a single pass will yield the
  same result as hashing it in contiguous pieces, but, unlike the original
- 'WyHash', this algorithm yields different results depending on the byte order
+ `WyHash`, this algorithm yields different results depending on the byte order
  of the host.

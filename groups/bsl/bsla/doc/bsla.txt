@@ -104,101 +104,101 @@
  This section provides a brief introduction to some of the components in the
  'bsla' package.  See the documentation in each component for full details.
 
-/'bsla_annotations'
-/ - - - - - - - - -
+/bsla_annotations
+/ - - - - - - - -
  This component exists to provide a single component whose header can be
  included to transitively include all of the annotation macros defined in the
  'bsla' package.  The macros that are transitively included by this component
  correspond to various compiler features, and can be used to annotate code for
  specific compile-time safety checks.
 
-/'bsla_deprecated'
-/ - - - - - - - -
+/bsla_deprecated
+/- - - - - - - -
  This component provides a preprocessor macro that hints to the compile that a
  function, variable, or type is deprecated.
 
-/'bsla_error'
-/ - - - - - -
+/bsla_error
+/ - - - - -
  This component provides a preprocessor macro that flags a function such that a
  compiler error will occur when the function is called.  On platforms where the
  appropriate attribute is not supported, the macro expands to nothing.
 
-/'bsla_fallthrough'
-/- - - - - - - - -
+/bsla_fallthrough
+/ - - - - - - - -
  This component provides a preprocessor macro that suppresses compiler warnings
  about flow of control fall-through from one 'case' or 'default' of a 'switch'
  statement to another.  On compilers where the appropriate attribute is not
  supported, the macro expands to nothing.
 
-/'bsla_format'
-/ - - - - - -
+/bsla_format
+/- - - - - -
  This component provides a preprocessor macro to indicate that an indexed
  argument of a function is a 'printf'-style format specification, and that the
  function will return a 'printf'-style format string with an equivalent
  specification.
 
-/'bsla_maybeunused'
-/- - - - - - - - -
+/bsla_maybeunused
+/ - - - - - - - -
  This component provides a preprocessor macro that will suppress "unused"
  warnings on a locally defined function, type, or variable that is not used.
 
-/'bsla_nodiscard'
-/- - - - - - - -
+/bsla_nodiscard
+/ - - - - - - -
  This component provides a preprocessor macro that annotates a function such
  that a compiler warning will be generated if the return value of the function
  is ignored.
 
-/'bsla_nonnullarg'
-/ - - - - - - - -
+/bsla_nonnullarg
+/- - - - - - - -
  This component provides preprocessor macros that define compiler-specific
  compile-time annotations.  These macros instruct the compiler to warn if null
  is passed to certain arguments to a function, or, on platforms where the
  feature is not supported, expand to nothing.
 
-/'bsla_noreturn'
-/ - - - - - - -
+/bsla_noreturn
+/- - - - - - -
  This component provides a preprocessor macro that annotates a function as
  never returning, resulting in a compiler warning if a path of control exists
  such that the function does return.
 
-/'bsla_nullterminated'
-/ - - - - - - - - - -
+/bsla_nullterminated
+/- - - - - - - - - -
  This component provides preprocessor macros to indicate that a variadic
  function's arguments are terminated by a 'NULL' value, or, in the case of
  'BSLA_NULLTERMINATEDAT', by a 'NULL' value at a certain index.  Note that the
  terminating 'NULL' must actually be 'NULL'; passing 0 in it's place will
  result in a warning.
 
-/'bsla_printf'
-/- - - - - - -
+/bsla_printf
+/- - - - - -
  This component provides a preprocessor macro that allows the designation of a
  given function argument as a 'printf'-style format string, and arguments
  starting at a certain index in the argument list to be formatted according to
  that string.
 
-/'bsla_scanf'
-/ - - - - - -
+/bsla_scanf
+/ - - - - -
  This component provides a preprocessor macro that indicates that one of the
  arguments to a function is a 'scanf'-style format string, and that the
  arguments starting at a certain index are to be checked for compatibility with
  that format string.
 
-/'bsla_unreachable'
-/- - - - - - - - -
+/bsla_unreachable
+/ - - - - - - - -
  This component provides a preprocessor macro that hints to the compile that a
  statement in the code is intended to be unreachable.
 
-/'bsla_unused'
-/ - - - - - -
+/bsla_unused
+/- - - - - -
  This component provides a preprocessor macro that will suppress "unused"
  warnings on a locally defined function, type, or variable that is not used.
 
-/'bsla_used'
-/ - - - - -
+/bsla_used
+/- - - - -
  This component provides a preprocessor macro that will guarantee the emission
  of a local function, type, or variable whether it is used or not.
 
-/'bsla_warning'
-/ - - - - - - -
+/bsla_warning
+/ - - - - - -
  This component provides a macro that indicates that a compiler warning should
  be emitted when a given function is called.

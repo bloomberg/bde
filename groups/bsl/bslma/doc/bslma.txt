@@ -276,14 +276,14 @@
  This section provides a brief introduction to some of the components of the
  'bslma' package.  See the documentation in each component for full details.
 
-/'bslma_allocator'
-/- - - - - - - - -
+/bslma_allocator
+/- - - - - - - -
  The {'bslma_allocator'} component defines a protocol (i.e., an abstract base
  class) requiring the following interface: 'allocate' for memory allocation,
  and 'deallocate', for allocation and deallocation of individual memory blocks.
 
-/'bslma_autodeallocator'
-/- - - - - - - - - - - -
+/bslma_autodeallocator
+/- - - - - - - - - - -
  The {'bslma_autodeallocator'} component provides a range proctor class to
  manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized
  'TYPE' supplied at construction.  If not explicitly released, the sequence of
@@ -293,8 +293,8 @@
  useful in guarding against memory leaks, e.g., when additional allocations may
  throw an exception.
 
-/'bslma_autodestructor'
-/ - - - - - - - - - - -
+/bslma_autodestructor
+/ - - - - - - - - - -
  The {'bslma_autodestructor'} component provides a range proctor class to
  manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized
  'TYPE' supplied at construction.  If not explicitly released, the sequence of
@@ -303,8 +303,8 @@
  mechanism is useful in guarding against memory leaks, e.g., when additional
  allocations may throw an exception.
 
-/'bslma_autorawdeleter'
-/ - - - - - - - - - - -
+/bslma_autorawdeleter
+/ - - - - - - - - - -
  The {'bslma_autorawdeleter'} component provides a range proctor class template
  to manage a sequence of (otherwise-unmanaged) objects of parameterized 'TYPE'
  supplied at construction.  If not explicitly released, the sequence of managed
@@ -315,8 +315,8 @@
  construction.  This proctor mechanism is useful in guarding against memory
  leaks, e.g., when additional allocations may throw an exception.
 
-/'bslma_deallocatorguard'
-/ - - - - - - - - - - - -
+/bslma_deallocatorguard
+/ - - - - - - - - - - -
  The {'bslma_deallocatorguard'} component provides a guard class template to
  *unconditionally* manage a block of (otherwise-unmanaged) memory.  The managed
  memory is deallocated automatically when the guard object goes out of scope
@@ -325,8 +325,8 @@
  that a dynamically allocated raw memory resource is safely deallocated in the
  presense of multiple return satements or exceptions.
 
-/'bslma_deallocatorproctor'
-/ - - - - - - - - - - - - -
+/bslma_deallocatorproctor
+/ - - - - - - - - - - - -
  The {'bslma_deallocatorproctor'} component provides a proctor class template
  to *conditionally* manage a block of (otherwise-unmanaged) memory.  If not
  explicitly released, the managed memory is deallocated automatically when the
@@ -335,8 +335,8 @@
  mechanism is useful in guarding against memory leaks, e.g., when additional
  allocations may throw an exception.
 
-/'bslma_default'
-/- - - - - - - -
+/bslma_default
+/- - - - - - -
  The {'bslma_default'} component provides a namespace for a set of utility
  functions that manage the addresses of two static (global) memory allocator
  instances: the *default* allocator and the *global* allocator.  The default
@@ -345,22 +345,22 @@
  objects.  Each of these allocators are of type derived from
  'bslma::Allocator'.
 
-/'bslma_defaultallocatorguard'
-/- - - - - - - - - - - - - - -
+/bslma_defaultallocatorguard
+/- - - - - - - - - - - - - -
  The {'bslma_defaultallocatorguard'} component provides a mechanism that serves
  as a "scoped guard" to enable the temporary replacement of the process-wide
  default allocator.  This functionality is intended for *testing* only, and in
  no event should this component be used except at the very beginning of 'main'.
 
-/'bslma_deleterhelper'
-/- - - - - - - - - - -
+/bslma_deleterhelper
+/- - - - - - - - - -
  The {'bslma_deleterhelper'} component provides non-primitive procedures used
  to delete objects of parameterized 'TYPE' by first calling the destructor of
  the object, and then freeing the memory footprint of the object using a
  parameterized 'ALLOCATOR' (allocator or pool) provided as a second argument.
 
-/'bslma_destructorguard'
-/- - - - - - - - - - - -
+/bslma_destructorguard
+/- - - - - - - - - - -
  The {'bslma_destructorguard'} component provides a guard class template to
  *unconditionally* manage an (otherwise-unmanaged) object of parameterized
  'TYPE' supplied at construction.  The managed object is destroyed
@@ -369,8 +369,8 @@
  dynamically allocated raw memory resource is safely deallocated in the
  presense of multiple return satements or exceptions.
 
-/'bslma_destructorproctor'
-/- - - - - - - - - - - - -
+/bslma_destructorproctor
+/- - - - - - - - - - - -
  The {'bslma_destructorproctor'} component provides a proctor class template to
  *conditionally* manage an (otherwise-unmanaged) object of parameterized 'TYPE'
  supplied at construction.  If not explicitly released, the managed object is
@@ -378,26 +378,26 @@
  the object's destructor.  This proctor mechanism is useful in guarding against
  memory leaks, e.g., when additional allocations may throw an exception.
 
-/'bslma_isstdallocator'
-/ - - - - - - - - - - -
+/bslma_isstdallocator
+/ - - - - - - - - - -
 The {'bslma_isstdallocator'} component provides a meta-function,
 'bsl::IsStdAllocator', that determines if a type meets the requirements for an
 allocator, as specified in [container.requirements.general].
 
-/'bslma_mallocfreeallocator'
-/- - - - - - - - - - - - - -
+/bslma_mallocfreeallocator
+/- - - - - - - - - - - - -
  The {'bslma_mallocfreeallocator'} component provides a wrapper around
  'std::malloc' and 'std::free' that adheres to the 'bslma::Allocator' protocol
  (i.e., provides 'allocate' and 'deallocate' functions).
 
-/'bslma_newdeleteallocator'
-/ - - - - - - - - - - - - -
+/bslma_newdeleteallocator
+/ - - - - - - - - - - - -
  The {'bslma_newdeleteallocator'} component provides a wrapper around
  'operator new' and 'operator delete' that adheres to the 'bslma::Allocator'
  protocol (i.e., provides an 'allocate' function and a 'deallocate' function).
 
-/'bslma_rawdeleterguard'
-/- - - - - - - - - - - -
+/bslma_rawdeleterguard
+/- - - - - - - - - - -
  The {'bslma_rawdeleterguard'} component provides a guard class template to
  *unconditionally* manage an (otherwise-unmanaged) object of parameterized
  'TYPE' supplied at construction.  The managed object is deleted automatically
@@ -408,8 +408,8 @@ allocator, as specified in [container.requirements.general].
  resource is safely deallocated in the presense of multiple return satements or
  exceptions.
 
-/'bslma_rawdeleterproctor'
-/- - - - - - - - - - - - -
+/bslma_rawdeleterproctor
+/- - - - - - - - - - - -
  The {'bslma_rawdeleterproctor'} component provides a proctor class template to
  conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'
  supplied at construction.  If not explicitly released, the managed object is
@@ -419,21 +419,21 @@ allocator, as specified in [container.requirements.general].
  construction.  This proctor mechanism is useful in guarding against memory
  leaks, e.g., when additional allocations may throw an exception.
 
-/'bslma_testallocator'
-/- - - - - - - - - - -
+/bslma_testallocator
+/- - - - - - - - - -
  The {'bslma_testallocator'} component provides an instrumented allocator that
  implements the 'bslma::Allocator' protocol and can be used to track various
  aspects of memory allocated from it.  This allocator memory allocator uses
  global functions 'std::malloc' and 'std::free' for allocations and
  deallocations.
 
-/'bslma_testallocatorexception'
-/ - - - - - - - - - - - - - - -
+/bslma_testallocatorexception
+/ - - - - - - - - - - - - - -
  The {'bslma_testallocatorexception'} component defines an exception object for
  use in testing exceptions during memory allocations.
 
-/'bslma_testallocatormonitor'
-/ - - - - - - - - - - - - - -
+/bslma_testallocatormonitor
+/ - - - - - - - - - - - - -
  The {'bslma_testallocatormonitor'} component provides a "monitor", a mechanism
  class, that allows concise tests of state change (or lack of change) in the
  test allocator provided at the monitor's construction.

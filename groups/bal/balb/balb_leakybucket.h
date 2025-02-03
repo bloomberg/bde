@@ -222,7 +222,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Controlling Network Traffic Generation
-///-------------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // In some systems, data is processed faster than they are consumed by I/O
 // interfaces.  This could lead to data loss due to the overflowing of the
 // buffers where data is queued before being processed.  In other systems,

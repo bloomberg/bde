@@ -416,8 +416,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::string result = bsl::format("{:v}", date);
 //  assert(bsl::string("23 October 1999") == result);
 //
-// result = bsl::format("{:N}", date);
-// assert(bsl::string("1999-10-23") == result);
+//  result = bsl::format("{:N}", date);
+//  assert(bsl::string("1999-10-23") == result);
 // ```
 
 #include <bslscm_version.h>

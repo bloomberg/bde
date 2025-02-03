@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of `bdlb::CaselessStringViewHash`:
+///Example 1: Basic Use of `bdlb::CaselessStringViewHash`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need an associative container to store, for any stock name, the
 // number of shares of that stock we own:

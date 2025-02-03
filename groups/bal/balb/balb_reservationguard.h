@@ -32,15 +32,15 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Guarding units reservation in operations with balb::LeakyBucket
-///--------------------------------------------------------------------------
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we are limiting the rate of network traffic generation using a
 // `balb::LeakyBucket` object.  We send data buffer over a network interface
 // using the `mySendData` function:
 // ```
+// /// Send a specified 'dataSize' amount of data over the network.  Return the
+// /// amount of data actually sent.  Throw an exception if a network failure
+// /// is detected.
 // bsls::Types::Uint64 mySendData(size_t dataSize);
-//     // Send a specified 'dataSize' amount of data over the network.  Return
-//     // the amount of data actually sent.  Throw an exception if a network
-//     // failure is detected.
 // ```
 // Notice that the `mySendData` function may throw an exception; therefore, we
 // should wait until `mySendData` returns before indicating the amount of data

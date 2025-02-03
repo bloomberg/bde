@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: 1 Create a `basic_format_args` object
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example: 1 Create a basic_format_args object
+/// - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
 // there are only a very limited number of public methods so this example is
