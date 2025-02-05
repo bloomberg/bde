@@ -175,10 +175,7 @@ void aSsErT(bool condition, const char *message, int line)
 // by the `std` trait.
 
 #if defined(BSLMF_ISNOTHROWMOVECONSTRUCTIBLE_USE_NATIVE_ORACLE)
-#if defined(BSLS_PLATFORM_CMP_GNU)                                            \
- && BSLS_PLATFORM_CMP_VERSION >= 110000                                       \
- && BSLS_PLATFORM_CMP_VERSION <  120000                                       \
- && BSLS_COMPILERFEATURES_CPLUSPLUS == 202002L                                \
+# if defined __cpp_aggregate_paren_init
 
 template <class TYPE>
 struct IS_SPECIAL_CASE {
@@ -200,11 +197,11 @@ struct IS_SPECIAL_CASE {
         ) };
 };
 
-#define ORACLE_VALUE(TYPE) (std::is_nothrow_move_constructible<TYPE>::value   \
-                            && !IS_SPECIAL_CASE<TYPE>::value)
-#else
-#define ORACLE_VALUE(TYPE) std::is_nothrow_move_constructible<TYPE>::value
-#endif
+#   define ORACLE_VALUE(TYPE) (std::is_nothrow_move_constructible<TYPE>::value   \
+                               && !IS_SPECIAL_CASE<TYPE>::value)
+# else
+#   define ORACLE_VALUE(TYPE)  std::is_nothrow_move_constructible<TYPE>::value
+# endif
 #else
     // Cannot use oracle if is not available.
 #endif
