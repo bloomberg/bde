@@ -133,10 +133,10 @@ BSLS_IDENT("$Id: $")
 //
 // // ...
 //
+// /// Return `true` if the specified initial `numElement` in the specified
+// /// `array1` and `array2` have the same values, and `false` otherwise.
 // static
 // bool areEqual(const short *array1, const short *array2, int numElement)
-//     // Return 'true' if the specified initial 'numElement' in the specified
-//     // 'array1' and 'array2' have the same values, and 'false' otherwise.
 // {
 //     for (int i = 0; i < numElement; ++i) {
 //         if (array1[i] != array2[i]) return false;
@@ -236,8 +236,7 @@ class TestAllocatorException : public std::bad_alloc {
     /// that indicates an allocation request size.
     explicit TestAllocatorException(size_type numBytes);
 
-    /// Destroy this object.  Note that this method's definition is compiler
-    /// generated.
+    /// Destroy this object.
     //! ~TestAllocatorException();
 
     // ACCESSORS
@@ -284,18 +283,7 @@ TestAllocatorException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 }
 
 }  // close package namespace
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-/// This alias is defined for backward compatibility.
-typedef bslma::TestAllocatorException bslma_TestAllocatorException;
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-
 }  // close enterprise namespace
-
 #endif
 
 // ----------------------------------------------------------------------------
