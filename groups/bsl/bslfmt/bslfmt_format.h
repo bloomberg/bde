@@ -761,7 +761,7 @@ auto make_format_args(t_ARGS&... args)
     static_assert(
                  (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
                  "long double not supported in bsl::format");
-    return std::make_format_args<t_CONTEXT, t_ARGS...>(args...);
+    return std::make_format_args<t_CONTEXT>(args...);
 }
 
 template <class... t_ARGS>
@@ -770,7 +770,7 @@ auto make_wformat_args(t_ARGS&... args)
     static_assert(
                  (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
                  "long double not supported in bsl::format");
-    return std::make_wformat_args<t_ARGS...>(args...);
+    return std::make_wformat_args(args...);
 }
 
 template <class... t_ARGS>
