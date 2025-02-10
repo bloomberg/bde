@@ -22,6 +22,9 @@ BSLS_IDENT("$Id: $")
 // This component encodes objects based on the X.690 BER specification.  It can
 // only be used with types supported by the `bdlat` framework.
 //
+// Note that encoding top-level `array` objects (a.k.a. `sequence-of` types, in
+// the X.680-X.693 specs) is not allowed.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
