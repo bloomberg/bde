@@ -49,9 +49,9 @@ BSLS_IDENT("$Id: $")
 // {`bdls_pipeutil`} for functions that can be invoked from C++ code to send
 // messages to a named pipe.
 //
-///Configuring the `balbl::PipeTaskManager`
-///----------------------------------------
-// A default constructed `balbl::PipeTaskManager` has no registered handlers.
+///Configuring the `balb::PipeTaskManager`
+///---------------------------------------
+// A default constructed `balb::PipeTaskManager` has no registered handlers.
 // Users can use the exposed `balb::ControlManager`, to register different
 // control message prefixes (typically "verbs") to dispatch received messages
 // to an appropriate functor.
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // Alternatively, one can construct a `balb::PipeTaskManager` using a
 // separately created and configured a `balb::ControlManager` object.  Doing so
 // allows that single `balb::ControlManager` to be shared among several
-// `balb::PipeTaskManagrer` objects, each listening on a different named pipe.
+// `balb::PipeTaskManager` objects, each listening on a different named pipe.
 //
 ///Thread Safety
 ///-------------
@@ -78,7 +78,8 @@ BSLS_IDENT("$Id: $")
 // directory of that named pipe depends on the platform and environment
 // variables.
 //
-// * On Windows, that directory is: "\\.\pipe\".
+// * On Windows, that directory is: ``\\.\pipe\``.
+//
 // * On Unix systems, that directory is determined by
 //   - the `SOCKDIR` environment variable, if set; otherwise,
 //   - the `TMPDIR` environment variable, if set; otherwise,
@@ -180,19 +181,19 @@ BSLS_IDENT("$Id: $")
 // processing the "GET" and "SET" subcommands.  The other defined messages have
 // minimal syntax so use of a delegation pattern is overkill in those cases.
 // ```
+// /// Print the current log level to the console.
 // void myLoggingManagerGet()
-//     // Print the current log level to the console.
 // {
 //     bsl::cout << "LOG LEVEL IS NOW"    << ": "
 //               << myLoggingManagerLevel << bsl::endl;
 // }
 //
+// /// Set the log level to the value obtained from the specified
+// /// `message` and print that value to the console.
 // void myLoggingManagerSet(bsl::istream& message)
-//     // Set the log level to the value obtained from the specified
-//     // 'message' and print that value to the console.
 // {
 //     int newLogLevel;
-//     message >> newLogLevel; // Cannot stream to an 'bsls::AtomicInt'.
+//     message >> newLogLevel; // Cannot stream to an `bsls::AtomicInt`.
 //
 //     myLoggingManagerLevel = newLogLevel;
 //
@@ -203,24 +204,24 @@ BSLS_IDENT("$Id: $")
 // Next, define handler functions for the "EXIT", "RESTART", and "LOG"
 // messages.
 // ```
+// /// Handle a "EXIT" message.
 // void onExit(const bsl::string_view& , bsl::istream& )
-//     // Handle a "EXIT" message.
 // {
 //     bsl::cout << "onExit" << bsl::endl;
 //     done = true;
 // }
 //
+// /// Handle a "RESTART" message.
 // void onRestart(const bsl::string_view& , bsl::istream& )
-//     // Handle a "RESTART" message.
 // {
 //     bsl::cout << "onRestart" << bsl::endl;
 //     progress = 0;
 // }
 //
+// /// Handle a "LOG" message supporting sub command "GET" and "SET".  If
+// /// the subcommand is "SET" the new log level is obtained from the
+// /// specified `message`.
 // void onLog(const bsl::string_view& , bsl::istream& message)
-//     // Handle a "LOG" message supporting sub command "GET" and "SET".  If
-//     // the subcommand is "SET" the new log level is obtained from the
-//     // specified 'message'.
 // {
 //     bsl::cout << "onLog" << bsl::endl;
 //
@@ -249,8 +250,8 @@ BSLS_IDENT("$Id: $")
 // Then, create a `balb::PipeTaskManger` object and register the above
 // functions as handlers:
 // ```
+// /// Run Application1 and return status.
 // int myApplication1()
-//     // Run Application1 and return status;
 // {
 //     balb::PipeTaskManager taskManager;
 //
@@ -336,9 +337,8 @@ BSLS_IDENT("$Id: $")
 // another process that has been passed the value of `pipeName`, control
 // messages can be sent to `myApplication1` above.
 // ```
+// /// Write control messages into the pipe named by the specified `pipeName`.
 // void mySender(const bsl::string& pipeName)
-//     // Write control messages into the pipe named by the specified
-//     // 'pipeName'.
 // {
 //     int rc;
 //     rc = bdls::PipeUtil::send(pipeName, "LoG GET\n");
