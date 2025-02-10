@@ -2265,6 +2265,85 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT(( bsl::copy_constructible<int>));
             BSLMF_ASSERT((!bsl::copy_constructible<C  >));
         }
+
+        {
+            struct C {};
+
+            BSLMF_ASSERT(( bsl::equality_comparable<int>));
+            BSLMF_ASSERT((!bsl::equality_comparable<C>));
+
+            BSLMF_ASSERT(( bsl::equality_comparable_with<int, short>));
+            BSLMF_ASSERT((!bsl::equality_comparable_with<int, C>));
+
+            BSLMF_ASSERT(( bsl::totally_ordered<int>));
+            BSLMF_ASSERT((!bsl::totally_ordered<C>));
+
+            BSLMF_ASSERT(( bsl::totally_ordered_with<int, short>));
+            BSLMF_ASSERT((!bsl::totally_ordered_with<int, C>));
+        }
+
+        {
+            struct C {
+                C(C&&) = delete;
+                C& operator=(C&&) = delete;
+            };
+            BSLMF_ASSERT(( bsl::movable<int>));
+            BSLMF_ASSERT((!bsl::movable<C>));
+        }
+
+        {
+            struct C {
+                C(const C&) = delete;
+                C& operator=(const C&) = delete;
+            };
+            BSLMF_ASSERT(( bsl::copyable<int>));
+            BSLMF_ASSERT((!bsl::copyable<C>));
+        }
+
+        {
+            struct C { C() = delete; };
+            BSLMF_ASSERT(( bsl::semiregular<int>));
+            BSLMF_ASSERT((!bsl::semiregular<C>));
+        }
+
+        {
+            struct C1 { bool operator==(const C1&) const = default; };
+            struct C2 {};
+            BSLMF_ASSERT(( bsl::regular<C1>));
+            BSLMF_ASSERT((!bsl::regular<C2>));
+        }
+
+        {
+            const auto func = [](int) {};
+
+            BSLMF_ASSERT(( bsl::invocable<decltype(func), int>));
+            BSLMF_ASSERT((!bsl::invocable<decltype(func)>));
+
+            BSLMF_ASSERT(( bsl::regular_invocable<decltype(func), int>));
+            BSLMF_ASSERT((!bsl::regular_invocable<decltype(func)>));
+        }
+
+        {
+            const auto pred = [](int) { return true; };
+            const auto func = [](int) {};
+
+            BSLMF_ASSERT(( bsl::predicate<decltype(pred), int>));
+            BSLMF_ASSERT((!bsl::predicate<decltype(func), int>));
+        }
+
+        {
+            struct C {};
+            const auto rel = [](int, int) { return true; };
+
+            BSLMF_ASSERT(( bsl::relation<decltype(rel), int, int>));
+            BSLMF_ASSERT((!bsl::relation<decltype(rel), int, C>));
+
+            BSLMF_ASSERT(( bsl::equivalence_relation<decltype(rel), int,int>));
+            BSLMF_ASSERT((!bsl::equivalence_relation<decltype(rel), int, C>));
+
+            BSLMF_ASSERT(( bsl::strict_weak_order<decltype(rel), int, int>));
+            BSLMF_ASSERT((!bsl::strict_weak_order<decltype(rel), int, C>));
+        }
 #else
         if (verbose) puts("SKIP: `<bsl_concepts.h>` is not supported.");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS

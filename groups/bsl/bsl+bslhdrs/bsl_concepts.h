@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
     // Import selected symbols into bsl namespace
 
+    // language-related concepts
     using std::same_as;
     using std::derived_from;
     using std::convertible_to;
@@ -43,6 +44,26 @@ namespace bsl {
     using std::default_initializable;
     using std::move_constructible;
     using std::copy_constructible;
+
+    // comparison concepts
+    using std::equality_comparable;
+    using std::equality_comparable_with;
+    using std::totally_ordered;
+    using std::totally_ordered_with;
+
+    // object concepts
+    using std::movable;
+    using std::copyable;
+    using std::semiregular;
+    using std::regular;
+
+    // callable concepts
+    using std::invocable;
+    using std::regular_invocable;
+    using std::predicate;
+    using std::relation;
+    using std::equivalence_relation;
+    using std::strict_weak_order;
 
 }  // close package namespace
 
