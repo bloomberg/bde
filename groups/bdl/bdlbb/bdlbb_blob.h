@@ -53,16 +53,11 @@ BSLS_IDENT("$Id: $")
 // This design is intended to allow very efficient re-assignment of buffers (or
 // part of buffers using shared pointer aliasing) between different blobs,
 // without copying of the underlying data, while promoting efficient allocation
-// of resources (via retaining capacity).  Thus, `bdlbb::Blob` is an
-// advantageous replacement for `bdlbb::PooledBufferChain` when manipulation of
-// the sequence, sharing of portions of the sequence, and lifetime management
-// of individual portions of the sequence, are desired.  Another added
-// flexibility of `bdlbb::Blob` is the possibility for buffers in the sequence
-// to have different sizes (as opposed to a uniform fixed size for
-// `bdlbb::PooledBufferChain`).  When choosing whether to use a `bdlbb::Blob`
-// vs. a `bdlbb::PooledBufferChain`, one must consider the added flexibility
-// versus the added cost of shared ownership for each individual buffer and
-// random access to the buffer.
+// of resources (via retaining capacity).  `bdlbb::Blob` is an advantageous
+// choice when manipulation of the sequence, sharing of portions of the
+// sequence, lifetime management of individual portions of the sequence, and
+// the possibility of buffers in the sequence to have different sizes, are
+// desired.
 //
 ///Thread Safety
 ///-------------
