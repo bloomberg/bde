@@ -1437,14 +1437,6 @@ class Json {
     /// installed default allocator is used to supply memory.
     Json(const Json_Initializer& init, bslma::Allocator *basicAllocator = 0);
                                                                     // IMPLICIT
-
-    /// Create a `Json` object having the same structure as the specified
-    /// `initializer` list.  Optionally specify the `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is not specified, the currently
-    /// installed default allocator is used to supply memory.
-    Json(std::initializer_list<Json_Initializer>  initializer,
-         bslma::Allocator                        *basicAllocator = 0);
-                                                                    // IMPLICIT
 #endif
 
     /// Create a `Json` object having the type `JsonNumber` and the the
@@ -3441,18 +3433,6 @@ Json::Json(const bsl::string_view& string, bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(string));
     d_value.createInPlace<bsl::string>(string);
-}
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// Construct from 'Json_Initializer' is in the 'cpp' file.
-
-inline
-Json::Json(std::initializer_list<Json_Initializer>  initializer,
-           bslma::Allocator                        *basicAllocator)
-: d_value(basicAllocator)
-{
-    makeArray(JsonArray(initializer, basicAllocator));
 }
 #endif
 

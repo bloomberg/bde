@@ -6783,42 +6783,6 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         {
-            Json j1 = {
-                "Hello, World!",
-                42,
-                JsonArray { "some", "elements", "in", "an", "array" },
-                JsonObject { {"key1", "value1"}, {"key2", 42 } }
-            };
-
-            ASSERT(j1.isArray());
-            const JsonArray &j1Arr = j1.theArray();
-
-            ASSERT(4 == j1Arr.size());
-            ASSERT(j1Arr[0].isString());
-            ASSERT(j1Arr[1].isNumber());
-            ASSERT(j1Arr[2].isArray());
-            ASSERT(j1Arr[3].isObject());
-            ASSERT(2 == j1Arr[3].theObject().size());
-
-            Json j2({
-                "Hello, World!",
-                42,
-                JsonArray { "some", "elements", "in", "an", "array" },
-                JsonObject { {"key1", "value1"}, {"key2", 42 } }
-            });
-
-            ASSERT(j2.isArray());
-            const JsonArray &j2Arr = j2.theArray();
-            ASSERT(4 == j2Arr.size());
-            ASSERT(j2Arr[0].isString());
-            ASSERT(j2Arr[1].isNumber());
-            ASSERT(j2Arr[2].isArray());
-            ASSERT(j2Arr[3].isObject());
-            ASSERT(2 == j2Arr[3].theObject().size());
-
-        }
-
-        {
             JsonObject jo ({{"play", "Waiting for Godot"},
                             {"chars", { "Didi", "Gogo", "Pozzo", "Lucky"}}});
 
@@ -6883,66 +6847,24 @@ int main(int argc, char *argv[])
 
             {
             Json j1 {2};
-            ASSERT(j1.isArray());
-            ASSERT(1 == j1.theArray().size());
-            ASSERT(j1.theArray()[0].isNumber());
-            ASSERT(2 == j1.theArray()[0]);
+            ASSERT(j1.isNumber());
+            ASSERT(2 == j1);
 
             Json j2 {true};
-            ASSERT(j2.isArray());
-            ASSERT(1 == j2.theArray().size());
-            ASSERT(j2.theArray()[0].isBoolean());
-            ASSERT(j2.theArray()[0].theBoolean());
+            ASSERT(j2.isBoolean());
+            ASSERT(j2.theBoolean());
 
             Json j3 {2.4};
-            ASSERT(j3.isArray());
-            ASSERT(1 == j3.theArray().size());
-            ASSERT(j3.theArray()[0].isNumber());
-            ASSERT(2.4 == j3.theArray()[0].asDouble());
+            ASSERT(j3.isNumber());
+            ASSERT(2.4 == j3.asDouble());
 
             Json j4 {"abc"};
-            ASSERT(j4.isArray());
-            ASSERT(1 == j4.theArray().size());
-            ASSERT(j4.theArray()[0].isString());
-            ASSERT("abc" == j4.theArray()[0].theString());
+            ASSERT(j4.isString());
+            ASSERT("abc" == j4.theString());
 
             Json j5 {"def"sv};
-            ASSERT(j5.isArray());
-            ASSERT(1 == j5.theArray().size());
-            ASSERT(j5.theArray()[0].isString());
-            ASSERT("def" == j5.theArray()[0].theString());
-
-            Json j6 {"abc", 1L, false};
-            ASSERT(j6.isArray());
-            ASSERT(3 == j6.theArray().size());
-            ASSERT(j6.theArray()[0].isString());
-            ASSERT(j6.theArray()[1].isNumber());
-            ASSERT(j6.theArray()[2].isBoolean());
-            ASSERT("abc" == j6.theArray()[0].theString());
-            ASSERT(1L ==    j6.theArray()[1]);
-            ASSERT(!        j6.theArray()[2].theBoolean());
-
-            Json j7 {"abc", {1UL}};
-            ASSERT(j7.isArray());
-            ASSERT(2 == j7.theArray().size());
-            ASSERT(j7.theArray()[0].isString());
-            ASSERT(j7.theArray()[1].isArray());
-            ASSERT("abc" == j7.theArray()[0].theString());
-            ASSERT(1UL   == j7.theArray()[1].theArray()[0]);
-
-            Json j8 {"abc", Json {1UL}};
-            ASSERT(j8.isArray());
-            ASSERT(2 == j8.theArray().size());
-            ASSERT(j8.theArray()[0].isString());
-            ASSERT(j8.theArray()[1].isArray());
-            ASSERT("abc" == j8.theArray()[0].theString());
-            ASSERT(1UL   == j8.theArray()[1].theArray()[0]);
-
-            Json j9 {s};
-            ASSERT(j9.isArray());
-            ASSERT(1 == j9.theArray().size());
-            ASSERT(j9.theArray()[0].isString());
-            ASSERT(s == j9.theArray()[0].theString());
+            ASSERT(j5.isString());
+            ASSERT("def" == j5.theString());
             }
 
             {
@@ -7054,18 +6976,6 @@ int main(int argc, char *argv[])
         //  Nathan says we don't need to support this case.
         //  Json j1   (2, 3.5, false, "ABC"sv);  // would use the sequence ctor
 
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j2   {2, 3.5, false, "ABC"sv};
-            ASSERT(j2.isArray());    ASSERT(4 == j2.theArray().size());
-
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j3 = {2, 3.5, false, "ABC"sv};
-            ASSERT(j3.isArray());    ASSERT(4 == j3.theArray().size());
-
-        //  Nathan says we don't need to support this case - but we do anyway.
-            Json j4  ({2, 3.5, false, "ABC"sv});
-            ASSERT(j4.isArray());    ASSERT(4 == j4.theArray().size());
-
             Json j5  (JsonArray{2, 3.5, false, "ABC"sv});
             ASSERT(j5.isArray());    ASSERT(4 == j5.theArray().size());
 
@@ -7087,10 +6997,7 @@ int main(int argc, char *argv[])
             JsonArray jArr;
 
             Json j1 (j0);  // this calls the copy ctor
-            Json j2 ({ {1L}, j0 });
-            Json j3 ({ {j0}, 2.3 });
-            Json j4 ({ {j0}, j0 });
-            Json j5 ({ {{j0}}, {j0}});
+
             Json j6 (ConvertibleTo<int>{});
             Json j7 (s);
             Json j8 (bsl::string("DEF"));      // uses Json(STRING_TYPE &&)
@@ -7104,10 +7011,7 @@ int main(int argc, char *argv[])
             JsonArray jArr;
 
             Json j1 {j0};  // this calls the copy ctor
-            Json j2 { Json {1L}, j0 };
-            Json j3 { Json {j0}, 2.3 };
-            Json j4 { Json {j0}, j0 };
-            Json j5 { JsonArray { Json {j0}}, Json {j0}};
+
             Json j6 {ConvertibleTo<int>{}};
             Json j7 {s};
             Json j8 {bsl::string("DEF")};      // uses Json(STRING_TYPE &&)
@@ -7115,16 +7019,15 @@ int main(int argc, char *argv[])
             Json jA {jArr};                    // uses Json(const JsonArray &)
             Json jB {JsonArray{}};             // uses Json(      JsonArray &&)
             Json jC {std::move(jArr)};         // uses Json(      JsonArray &&)
+
+            Json jD { JsonArray { Json {j0}, Json {j0} }};
             }
 
             {
             JsonArray jArr;
 
             Json j1 = j0;  // this calls the copy ctor
-            Json j2 = Json { Json {1L}, j0 };
-            Json j3 = Json { Json {j0}, 2.3 };
-            Json j4 = Json { Json {j0}, j0 };
-            Json j5 = Json { JsonArray { Json {j0}}, Json {j0}};
+
         //  Json j6 = ConvertibleTo<int>{};  // Two Conversions: int, then Json
         //  Json j7 = s;             // Two Conversions: string_view, then Json
             Json j8 = bsl::string("DEF");      // uses Json(STRING_TYPE &&)
