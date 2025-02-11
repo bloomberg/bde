@@ -296,20 +296,23 @@ BSLS_IDENT("$Id: $")
 // class CustomerProfileHash {
 //   public:
 //     // CREATORS
+//
+//
+//     /// Create a `CustomerProfileHash` object.
 //     //! CustomerProfileHash() = default;
-//         // Create a 'CustomerProfileHash' object.
 //
+//     /// Create a `CustomerProfileHash` object.  Note that as
+//     /// `CustomerProfileHash` is an empty (stateless) type, this
+//     /// operation has no observable effect.
 //     //! CustomerProfileHash(const CustomerProfileHash& original) = default;
-//         // Create a 'CustomerProfileHash' object.  Note that as
-//         // 'CustomerProfileHash' is an empty (stateless) type, this
-//         // operation has no observable effect.
 //
+//     /// Destroy this object.
 //     //! ~CustomerProfileHash() = default;
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return a hash value for the specified `x`.
 //     bsl::size_t operator()(const CustomerProfile& x) const;
-//         // Return a hash value for the specified 'x'.
 // };
 // ```
 // The hash function combines the several enumerated values from the class
@@ -327,23 +330,25 @@ BSLS_IDENT("$Id: $")
 // class CustomerProfileEqual {
 //   public:
 //     // CREATORS
-//     //! CustomerProfileEqual() = default;
-//         // Create a 'CustomerProfileEqual' object.
 //
+//     /// Create a `CustomerProfileEqual` object.
+//     //! CustomerProfileEqual() = default;
+//
+//     /// Create a `CustomerProfileEqual` object.  Note that as
+//     /// `CustomerProfileEqual` is an empty (stateless) type, this
+//     /// operation has no observable effect.
 //     //! CustomerProfileEqual(const CustomerProfileEqual& original)
 //     //!                                                          = default;
-//         // Create a 'CustomerProfileEqual' object.  Note that as
-//         // 'CustomerProfileEqual' is an empty (stateless) type, this
-//         // operation has no observable effect.
 //
+//     /// Destroy this object.
 //     //! ~CustomerProfileEqual() = default;
-//         // Destroy this object.
 //
 //     // ACCESSORS
+//
+//     /// Return `true` if the specified `lhs` has the same value as the
+//     /// specified `rhs`, and `false` otherwise.
 //     bool operator()(const CustomerProfile& lhs,
 //                     const CustomerProfile& rhs) const;
-//         // Return 'true' if the specified 'lhs' has the same value as the
-//         // specified 'rhs', and 'false' otherwise.
 // };
 //
 // // ACCESSORS

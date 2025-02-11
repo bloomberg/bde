@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 17 08:14:39 2024
+// Generated on Tue Feb 11 13:05:49 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashmap.h
 
 #ifdef COMPILING_BDLC_FLATHASHMAP_H
@@ -1094,8 +1094,8 @@ class FlatHashMap {
                                 BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj);
 
     template <class MAPPED>
-    iterator insert_or_assign(const_iterator, 
-                              BloombergLP::bslmf::MovableRef<KEY> key, 
+    iterator insert_or_assign(const_iterator,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
                               BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj);
 
     template <class LOOKUP_KEY, class MAPPED>
@@ -4159,11 +4159,11 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class MAPPED>
 inline
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator, 
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator,
                                                        const KEY&      key,
                                  BSLS_COMPILERFEATURES_FORWARD_REF(MAPPED) obj)
 {
-    return insert_or_assign(key, 
+    return insert_or_assign(key,
                              BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
 }
 

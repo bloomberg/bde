@@ -155,6 +155,7 @@ BSLS_IDENT("$Id: $")
 // 2. The sequences are compared using the `mismatch` algorithm: To get the
 //    begin and of the `expect` array `bdlb::ArrayUtil::begin` and
 //    `bdlb::ArrayUtil::end`, respectively, are used.
+//
 // ```
 // void getAndCheckData(bool verbose)
 // {

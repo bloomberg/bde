@@ -197,9 +197,9 @@ BSLS_IDENT("$Id: $")
 // entries, and determine the 10 most commonly used words in the given
 // documents:
 // ```
+// /// Assignable equivalent to 'WordTally::value_type'.  Note that
+// /// 'bsl::vector' requires assignable types.
 // typedef bsl::pair<bsl::string, int> WordTallyEntry;
-//     // Assignable equivalent to 'WordTally::value_type'.  Note that
-//     // 'bsl::vector' requires assignable types.
 //
 // struct WordTallyEntryCompare {
 //     static bool lessThan(const WordTallyEntry& a,
@@ -914,8 +914,8 @@ class FlatHashMap {
     /// inserted or updated entry.  `obj` is left in a (valid) unspecified
     /// state.
     template <class MAPPED>
-    iterator insert_or_assign(const_iterator, 
-                              BloombergLP::bslmf::MovableRef<KEY> key, 
+    iterator insert_or_assign(const_iterator,
+                              BloombergLP::bslmf::MovableRef<KEY> key,
                               MAPPED&& obj);
 
     /// If this map contains an entry with a key equivalent to the specified
@@ -1789,11 +1789,11 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class MAPPED>
 inline
 typename FlatHashMap<KEY, VALUE, HASH, EQUAL>::iterator
-FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator, 
+FlatHashMap<KEY, VALUE, HASH, EQUAL>::insert_or_assign(const_iterator,
                                                        const KEY&      key,
                                                        MAPPED&&        obj)
 {
-    return insert_or_assign(key, 
+    return insert_or_assign(key,
                              BSLS_COMPILERFEATURES_FORWARD(MAPPED, obj)).first;
 }
 

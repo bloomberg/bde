@@ -55,8 +55,9 @@ BSLS_IDENT("$Id: $")
 //                             // =======
 //                             // my_Date
 //                             // =======
+//
+// /// A (value-semantic) attribute class that provides a very simple date.
 // class my_Date {
-//     // A (value-semantic) attribute class that provides a very simple date.
 //     signed char d_day;    // the day
 //     signed char d_month;  // the month
 //     int         d_year;   // the year
@@ -66,16 +67,17 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `my_Date` object having the optionally specified `day`,
+//     /// `month`, and `year`.  Each, if unspecified, will default to 1.
 //     explicit my_Date(int         year  = 1,
 //                      signed char month = 1,
 //                      signed char day   = 1);
-//         // Create a 'my_Date' object having the optionally specified 'day',
-//         // 'month', and 'year'.  Each, if unspecified, will default to 1.
 // };
 //
+// /// Return `true` if the specified `lhs` represents an earlier date than
+// /// the specified `rhs` object, and `false` otherwise.
 // bool operator<(const my_Date& lhs, const my_Date& rhs);
-//     // Return 'true' if the specified 'lhs' represents an earlier date than
-//     // the specified 'rhs' object, and 'false' otherwise.
 //
 //                         // -------
 //                         // my_Date
@@ -353,11 +355,10 @@ struct PackedIntArrayImp_Unsigned {
                           // =======================
 
 /// This space-efficient value-semantic array class represents a sequence of
-/// `STORAGE::EightByteStorageType` elements;
-/// `STORAGE::EightByteStorageType` must be convertible to either a signed
-/// or unsigned 64-bit integer using `static_cast`.  The interface provides
-/// functionality similar to a `vector<int>` however references to
-/// individual elements are not provided.
+/// `STORAGE::EightByteStorageType` elements; `STORAGE::EightByteStorageType`
+/// must be convertible to either a signed or unsigned 64-bit integer using
+/// `static_cast`.  The interface provides functionality similar to a
+/// `vector<int>` however references to individual elements are not provided.
 template <class STORAGE>
 class PackedIntArrayImp {
 
@@ -687,9 +688,8 @@ class PackedIntArrayImp {
                         // struct PackedIntArrayImpType
                         // ============================
 
-/// This meta-function selects
-/// `PackedIntArrayImp<PackedIntArrayImp_Unsigned>` if `TYPE` should be
-/// stored as an unsigned integer, and
+/// This meta-function selects `PackedIntArrayImp<PackedIntArrayImp_Unsigned>`
+/// if `TYPE` should be stored as an unsigned integer, and
 /// `PackedIntArrayImp<PackedIntArrayImp_Signed>` otherwise.
 template <class TYPE>
 struct PackedIntArrayImpType {

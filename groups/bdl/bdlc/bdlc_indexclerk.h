@@ -68,13 +68,13 @@ BSLS_IDENT("$Id: $")
 // security values from a security array/clerk pair, you might write the
 // following two functions:
 // ```
+// /// Add a copy of the specified `newSecurity` to the specified
+// /// `securityArray` at the index dispensed by the specified
+// /// `securityClerk`.  Also update the `securityClerk`, and return the id
+// /// (in `securityArray`) for the newly added security.
 // int addSecurity(bsl::vector<Security> *securityArray,
 //                 bdlc::IndexClerk      *securityClerk,
 //                 const Security&        newSecurity)
-//     // Add a copy of the specified 'newSecurity' to the specified
-//     // 'securityArray' at the index dispensed by the specified
-//     // 'securityClerk'.  Also update the 'securityClerk', and return the id
-//     // (in 'securityArray') for the newly added security.
 // {
 //     BSLS_ASSERT(securityArray);
 //     BSLS_ASSERT(securityClerk);
@@ -91,14 +91,14 @@ BSLS_IDENT("$Id: $")
 //     return id;
 // }
 //
+// /// Remove the security object identified by the specified `securityId`
+// /// from the specified `securityArray`, and update the specified
+// /// `securityClerk` (making `securityId` available for reuse).  The
+// /// behavior is undefined unless `securityId` refers to an active
+// /// security in `securityArray` dispensed by `securityClerk`.
 // void removeSecurity(bsl::vector<Security> *securityArray,
 //                     bdlc::IndexClerk      *securityClerk,
 //                     int                    securityId)
-//     // Remove the security object identified by the specified 'securityId'
-//     // from the specified 'securityArray', and update the specified
-//     // 'securityClerk' (making 'securityId' available for reuse).  The
-//     // behavior is undefined unless 'securityId' refers to an active
-//     // security in 'securityArray' dispensed by 'securityClerk'.
 // {
 //     BSLS_ASSERT(securityArray);
 //     BSLS_ASSERT(securityClerk);
@@ -391,21 +391,21 @@ class IndexClerk {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` index clerks have the
-/// same value, and `false` otherwise.  Two `IndexClerk` objects have the
-/// same value if they have the same `nextNewIndex()` and would always
-/// generate the same sequence of integer indices.
+/// Return `true` if the specified `lhs` and `rhs` index clerks have the same
+/// value, and `false` otherwise.  Two `IndexClerk` objects have the same value
+/// if they have the same `nextNewIndex()` and would always generate the same
+/// sequence of integer indices.
 bool operator==(const IndexClerk& lhs, const IndexClerk& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` index clerks do not have
-/// the same value, and `false` otherwise.  Two `IndexClerk` objects do not
-/// have the same value if they do not have the same `nextNewIndex()`, or
-/// might generate different sequences of integer indices.
+/// Return `true` if the specified `lhs` and `rhs` index clerks do not have the
+/// same value, and `false` otherwise.  Two `IndexClerk` objects do not have
+/// the same value if they do not have the same `nextNewIndex()`, or might
+/// generate different sequences of integer indices.
 bool operator!=(const IndexClerk& lhs, const IndexClerk& rhs);
 
-/// Write the specified `rhs` index clerk to the specified output `stream`
-/// in some single-line (human-readable) format, and return a reference to
-/// the modifiable `stream`.
+/// Write the specified `rhs` index clerk to the specified output `stream` in
+/// some single-line (human-readable) format, and return a reference to the
+/// modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const IndexClerk& rhs);
 
 // ============================================================================

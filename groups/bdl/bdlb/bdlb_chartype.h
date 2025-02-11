@@ -293,9 +293,9 @@ BSLS_IDENT("$Id: $")
 // The first character is required and must be in category `ALUND`.  All
 // subsequent characters are optional and must be in category `IDENT`:
 // ```
+// /// Return `true` if the specified `token` conforms to the requirements
+// /// of a C-style identifier, and `false` otherwise.
 // bool isIdentifier(const char *token)
-//     // Return 'true' if the specified 'token' conforms to the requirements
-//     // of a C-style identifier, and 'false' otherwise.
 // {
 //     assert(token);
 //
@@ -319,8 +319,8 @@ BSLS_IDENT("$Id: $")
 // BDE_VERIFY pragma: -FABC01
 
 namespace BloombergLP {
-
 namespace bdlb {
+
 /// This `struct` provides a namespace for a suite of pure procedures
 /// operating on the fundamental type `char`.
 struct CharType {

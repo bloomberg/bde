@@ -131,14 +131,14 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the interface of `NullableVector`:
 // ```
+// /// This class implements a sequential container of elements of the
+// /// template parameter `TYPE`.
 // template <class TYPE>
 // class NullableVector {
-//     // This class implements a sequential container of elements of the
-//     // template parameter 'TYPE'.
 //
 //     // DATA
 //     bsl::vector<TYPE>  d_values;       // data elements
-//     bdlc::BitArray     d_nullFlags;    // 'true' indicates i'th element is
+//     bdlc::BitArray     d_nullFlags;    // `true` indicates i'th element is
 //                                        // null
 //
 //   private:
@@ -153,13 +153,14 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Construct a vector having the specified `initialLength` null
+//     /// elements.  Optionally specify a `basicAllocator` used to supply
+//     /// memory.  If `basicAllocator` is 0, the currently supplied
+//     /// default allocator is used.
 //     explicit
 //     NullableVector(bsl::size_t       initialLength,
 //                    bslma::Allocator *basicAllocator = 0);
-//         // Construct a vector having the specified 'initialLength' null
-//         // elements.  Optionally specify a 'basicAllocator' used to supply
-//         // memory.  If 'basicAllocator' is 0, the currently supplied
-//         // default allocator is used.
 //
 //     // ...
 //
@@ -167,63 +168,65 @@ BSLS_IDENT("$Id: $")
 //         // Destroy this vector.
 //
 //     // MANIPULATORS
+//
+//     /// Append a null element to this vector.  Note that the appended
+//     /// element will have the same value as a default constructed `TYPE`
+//     /// object.
 //     void appendNullElement();
-//         // Append a null element to this vector.  Note that the appended
-//         // element will have the same value as a default constructed 'TYPE'
-//         // object.
 //
+//     /// Append an element having the specified `value` to the end of
+//     /// this vector.
 //     void appendElement(const TYPE& value);
-//         // Append an element having the specified 'value' to the end of
-//         // this vector.
 //
+//     /// Make the element at the specified `index` in this vector
+//     /// non-null.  The behavior is undefined unless `index < length()`.
 //     void makeNonNull(bsl::size_t index);
-//         // Make the element at the specified 'index' in this vector
-//         // non-null.  The behavior is undefined unless 'index < length()'.
 //
+//     /// Make the element at the specified `index` in this vector null.
+//     /// The behavior is undefined unless `index < length()`.  Note that
+//     /// the new value of the element will be the default constructed
+//     /// value for `TYPE`.
 //     void makeNull(bsl::size_t index);
-//         // Make the element at the specified 'index' in this vector null.
-//         // The behavior is undefined unless 'index < length()'.  Note that
-//         // the new value of the element will be the default constructed
-//         // value for 'TYPE'.
 //
+//     /// Return a reference providing modifiable access to the (valid)
+//     /// element at the specified `index` in this vector.  The behavior
+//     /// is undefined unless `index < length()`.  Note that if the
+//     /// element at `index` is null then the nullness flag is reset and
+//     /// the returned value is the default constructed value for `TYPE`.
 //     TYPE& modifiableElement(bsl::size_t index);
-//         // Return a reference providing modifiable access to the (valid)
-//         // element at the specified 'index' in this vector.  The behavior
-//         // is undefined unless 'index < length()'.  Note that if the
-//         // element at 'index' is null then the nullness flag is reset and
-//         // the returned value is the default constructed value for 'TYPE'.
 //
+//     /// Remove the element at the specified `index` in this vector.  The
+//     /// behavior is undefined unless `index < length()`.
 //     void removeElement(bsl::size_t index);
-//         // Remove the element at the specified 'index' in this vector.  The
-//         // behavior is undefined unless 'index < length()'.
 //
 //     // ACCESSORS
+//
+//     /// Return a reference providing non-modifiable access to the
+//     /// element at the specified `index` in this vector.  The behavior
+//     /// is undefined unless `index < length()`.  Note that if the
+//     /// element at `index` is null then the nullness flag is not reset
+//     /// and the returned value is the default constructed value for
+//     /// `TYPE`.
 //     const TYPE& constElement(bsl::size_t index) const;
-//         // Return a reference providing non-modifiable access to the
-//         // element at the specified 'index' in this vector.  The behavior
-//         // is undefined unless 'index < length()'.  Note that if the
-//         // element at 'index' is null then the nullness flag is not reset
-//         // and the returned value is the default constructed value for
-//         // 'TYPE'.
 //
+//     /// Return `true` if any element in this vector is non-null, and
+//     /// `false` otherwise.
 //     bool isAnyElementNonNull() const;
-//         // Return 'true' if any element in this vector is non-null, and
-//         // 'false' otherwise.
 //
+//     /// Return `true` if any element in this vector is null, and `false`
+//     /// otherwise.
 //     bool isAnyElementNull() const;
-//         // Return 'true' if any element in this vector is null, and 'false'
-//         // otherwise.
 //
+//     /// Return `true` if the element at the specified `index` in this
+//     /// vector is null, and `false` otherwise.  The behavior is
+//     /// undefined unless `index < length()`.
 //     bool isElementNull(bsl::size_t index) const;
-//         // Return 'true' if the element at the specified 'index' in this
-//         // vector is null, and 'false' otherwise.  The behavior is
-//         // undefined unless 'index < length()'.
 //
+//     /// Return the number of elements in this vector.
 //     bsl::size_t length() const;
-//         // Return the number of elements in this vector.
 //
+//     /// Return the number of null elements in this vector.
 //     bsl::size_t numNullElements() const;
-//         // Return the number of null elements in this vector.
 // };
 // ```
 // Then, we implement, in turn, each of the methods declared above:

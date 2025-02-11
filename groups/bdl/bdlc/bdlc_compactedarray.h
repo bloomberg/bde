@@ -57,20 +57,21 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `my_DailySchedule` object having the specified
+//     /// `initialLocationId`.  Optionally specify a `basicAllocator` used
+//     /// to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     my_DailySchedule(int               initialLocationId,
 //                      bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_DailySchedule' object having the specified
-//         // 'initialLocationId'.  Optionally specify a 'basicAllocator' used
-//         // to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
 //     // ...
 //
 // };
 //
+// /// Return `true` if the specified `lhs` is lexicographically less than
+// /// the specified `rhs` object, and `false` otherwise.
 // bool operator<(const my_DailySchedule& lhs, const my_DailySchedule& rhs);
-//     // Return 'true' if the specified 'lhs' is lexicographically less than
-//     // the specified 'rhs' object, and 'false' otherwise.
 //
 //                          // ----------------
 //                          // my_DailySchedule
@@ -242,9 +243,9 @@ class CompactedArray_RemoveAllProctor {
                     // struct CompactedArray_CountedValue
                     // ==================================
 
-/// This `struct` represents a reference-counted value.  Note that
-/// comparison of `d_count` is intentionally omitted from the free
-/// equality-comparison operators of this class.
+/// This `struct` represents a reference-counted value.  Note that comparison
+/// of `d_count` is intentionally omitted from the free equality-comparison
+/// operators of this class.
 template <class TYPE>
 struct CompactedArray_CountedValue {
 
@@ -254,18 +255,17 @@ struct CompactedArray_CountedValue {
 
     // CREATORS
 
-    /// Create a `CompactedArray_CountedValue` having the specified `value`
-    /// and reference `count`.  The specified `basicAllocator` is used to
-    /// supply memory.  The behavior is undefined unless
-    /// `0 != basicAllocator`.
+    /// Create a `CompactedArray_CountedValue` having the specified `value` and
+    /// reference `count`.  The specified `basicAllocator` is used to supply
+    /// memory.  The behavior is undefined unless `0 != basicAllocator`.
     CompactedArray_CountedValue(const TYPE&       value,
                                 bsl::size_t       count,
                                 bslma::Allocator *basicAllocator);
 
     /// Create a `CompactedArray_CountedValue` having the same underlying
     /// object value and reference count as the specified `original` object.
-    /// The specified `basicAllocator` is used to supply memory.  The
-    /// behavior is undefined unless `0 != basicAllocator`.
+    /// The specified `basicAllocator` is used to supply memory.  The behavior
+    /// is undefined unless `0 != basicAllocator`.
     CompactedArray_CountedValue(
                      const CompactedArray_CountedValue<TYPE>&  original,
                      bslma::Allocator                         *basicAllocator);
@@ -275,34 +275,32 @@ struct CompactedArray_CountedValue {
 
     // MANIPULATORS
 
-    /// Assign to this object the underlying object value and reference
-    /// count of the specified `rhs` object, and return a reference
-    /// providing modifiable access to this object.
+    /// Assign to this object the underlying object value and reference count
+    /// of the specified `rhs` object, and return a reference providing
+    /// modifiable access to this object.
     CompactedArray_CountedValue& operator=(
                                  const CompactedArray_CountedValue<TYPE>& rhs);
 };
 
 // FREE OPERATORS
 
-/// Return `true` if the underlying object value of the specified `lhs` is
-/// the same as the underlying object value of the specified `rhs`, and
-/// `false` otherwise.  Note that the reference counts are intentionally
-/// ignored.
+/// Return `true` if the underlying object value of the specified `lhs` is the
+/// same as the underlying object value of the specified `rhs`, and `false`
+/// otherwise.  Note that the reference counts are intentionally ignored.
 template <class TYPE>
 bool operator==(const CompactedArray_CountedValue<TYPE>& lhs,
                 const CompactedArray_CountedValue<TYPE>& rhs);
 
-/// Return `true` if the underlying object value of the specified `lhs` is
-/// not the same as the underlying object value of the specified `rhs`, and
-/// `false` otherwise.  Note that the reference counts are intentionally
-/// ignored.
+/// Return `true` if the underlying object value of the specified `lhs` is not
+/// the same as the underlying object value of the specified `rhs`, and `false`
+/// otherwise.  Note that the reference counts are intentionally ignored.
 template <class TYPE>
 bool operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
                 const CompactedArray_CountedValue<TYPE>& rhs);
 
-/// Return `true` if the underlying object value of the specified `lhs` is
-/// less than the value of the specified `rhs`, and `false` otherwise.  Note
-/// that the reference count is intentionally ignored.
+/// Return `true` if the underlying object value of the specified `lhs` is less
+/// than the value of the specified `rhs`, and `false` otherwise.  Note that
+/// the reference count is intentionally ignored.
 template <class TYPE>
 bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs);
 
@@ -318,9 +316,9 @@ bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs);
 
 /// This value-semantic class represents a random access iterator providing
 /// non-modifiable access to the elements of a `CompactedArray`.  This class
-/// provides all functionality of a random access iterator, as defined by
-/// the standard, but is *not* compatible with most standard methods
-/// requiring a bidirectional `const_iterator`.
+/// provides all functionality of a random access iterator, as defined by the
+/// standard, but is *not* compatible with most standard methods requiring a
+/// bidirectional `const_iterator`.
 ///
 /// This class does not perform any bounds checking.  Any iterator, `it`,
 /// referencing a `CompactedArray` `array`, remains valid while
@@ -405,8 +403,8 @@ class CompactedArray_ConstIterator {
 
     /// Create a `CompactedArray_ConstIterator` object that refers to the
     /// element at the specified `index` in the specified `array`, or the
-    /// past-the-end iterator for `array` if `index == array->length()`.
-    /// The behavior is undefined unless `index <= array->length()`.
+    /// past-the-end iterator for `array` if `index == array->length()`.  The
+    /// behavior is undefined unless `index <= array->length()`.
     CompactedArray_ConstIterator(const CompactedArray<TYPE> *array,
                                  bsl::size_t                 index);
 
@@ -422,13 +420,13 @@ class CompactedArray_ConstIterator {
     /// specified `original` object.
     CompactedArray_ConstIterator(const CompactedArray_ConstIterator& original);
 
+    /// Destroy this object.
     //! ~CompactedArray_ConstIterator() = default;
-        // Destroy this object.
 
     // MANIPULATORS
 
-    /// Assign to this iterator the value of the specified `rhs` iterator,
-    /// and return a reference providing modifiable access to this iterator.
+    /// Assign to this iterator the value of the specified `rhs` iterator, and
+    /// return a reference providing modifiable access to this iterator.
     CompactedArray_ConstIterator&
                              operator=(
                                       const CompactedArray_ConstIterator& rhs);
@@ -640,13 +638,12 @@ class CompactedArray {
     /// undefined unless `index < uniqueLength()`.
     void erase(bsl::size_t index);
 
-    /// Find the element in `d_data` equal to the specified `value`,
-    /// increment the element's reference count by the specified `count`,
-    /// and return the element's index.  If the `value` is not in `d_data`,
-    /// insert the element so as to retain sorted order in `d_data`, assign
-    /// `count` as the new element's reference count, and return the
-    /// inserted element's index.  The behavior is undefined unless
-    /// `0 < count`.
+    /// Find the element in `d_data` equal to the specified `value`, increment
+    /// the element's reference count by the specified `count`, and return the
+    /// element's index.  If the `value` is not in `d_data`, insert the element
+    /// so as to retain sorted order in `d_data`, assign `count` as the new
+    /// element's reference count, and return the inserted element's index.
+    /// The behavior is undefined unless `0 < count`.
     bsl::size_t increment(const TYPE& value, bsl::size_t count = 1);
 
   public:
@@ -658,15 +655,15 @@ class CompactedArray {
     // CREATORS
 
     /// Create an empty `CompactedArray`.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit CompactedArray(bslma::Allocator *basicAllocator = 0);
 
     /// Create a `CompactedArray` having the specified `numElements`.
     /// Optionally specify a `value` to which each element will be set.  If
     /// `value` is not specified, `TYPE()` is used.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
     explicit CompactedArray(bsl::size_t       numElements,
                             const TYPE&       value = TYPE(),
                             bslma::Allocator *basicAllocator = 0);
@@ -683,8 +680,8 @@ class CompactedArray {
 
     // MANIPULATORS
 
-    /// Assign to this array the value of the specified `rhs` array, and
-    /// return a reference providing modifiable access to this array.
+    /// Assign to this array the value of the specified `rhs` array, and return
+    /// a reference providing modifiable access to this array.
     CompactedArray& operator=(const CompactedArray& rhs);
 
     /// Append to this array an element having the specified `value`.  Note
@@ -694,39 +691,39 @@ class CompactedArray {
     /// ```
     void append(const TYPE& value);
 
-    /// Append to this array the elements from the specified `srcArray`.
-    /// Note that if this array and `srcArray` are the same, the behavior is
-    /// as if a copy of `srcArray` were passed.
+    /// Append to this array the elements from the specified `srcArray`.  Note
+    /// that if this array and `srcArray` are the same, the behavior is as if a
+    /// copy of `srcArray` were passed.
     void append(const CompactedArray& srcArray);
 
     /// Append to this array the specified `numElements` starting at the
     /// specified `srcIndex` in the specified `srcArray`.  The behavior is
-    /// undefined unless `srcIndex + numElements <= srcArray.length()`.
-    /// Note that if this array and `srcArray` are the same, the behavior is
-    /// as if a copy of `srcArray` were passed.
+    /// undefined unless `srcIndex + numElements <= srcArray.length()`.  Note
+    /// that if this array and `srcArray` are the same, the behavior is as if a
+    /// copy of `srcArray` were passed.
     void append(const CompactedArray& srcArray,
                 bsl::size_t           srcIndex,
                 bsl::size_t           numElements);
 
-    /// Insert into this array, at the specified `dstIndex`, an element
-    /// having the specified `value`, shifting any elements originally at or
-    /// above `dstIndex` up by one index position.  The behavior is
-    /// undefined unless `dstIndex <= length()`.
+    /// Insert into this array, at the specified `dstIndex`, an element having
+    /// the specified `value`, shifting any elements originally at or above
+    /// `dstIndex` up by one index position.  The behavior is undefined unless
+    /// `dstIndex <= length()`.
     void insert(bsl::size_t dstIndex, const TYPE& value);
 
-    /// Insert into this array, at the specified `dst`, an element having
-    /// the specified `value`, shifting any elements originally at or above
-    /// `dst` up by one index position.  Return an iterator to the newly
-    /// inserted element.  The behavior is undefined unless `dst` is an
-    /// iterator over this array.
+    /// Insert into this array, at the specified `dst`, an element having the
+    /// specified `value`, shifting any elements originally at or above `dst`
+    /// up by one index position.  Return an iterator to the newly inserted
+    /// element.  The behavior is undefined unless `dst` is an iterator over
+    /// this array.
     const_iterator insert(const_iterator dst, const TYPE& value);
 
-    /// Insert into this array, at the specified `dstIndex`, the elements
-    /// from the specified `srcArray`, shifting any elements originally at
-    /// or above `dstIndex` up by `srcArray.length()` index positions.  The
-    /// behavior is undefined unless `dstIndex <= length()`.  Note that if
-    /// this array and `srcArray` are the same, the behavior is as if a copy
-    /// of `srcArray` were passed.
+    /// Insert into this array, at the specified `dstIndex`, the elements from
+    /// the specified `srcArray`, shifting any elements originally at or above
+    /// `dstIndex` up by `srcArray.length()` index positions.  The behavior is
+    /// undefined unless `dstIndex <= length()`.  Note that if this array and
+    /// `srcArray` are the same, the behavior is as if a copy of `srcArray`
+    /// were passed.
     void insert(bsl::size_t dstIndex, const CompactedArray& srcArray);
 
     /// Insert into this array, at the specified `dstIndex`, the specified
@@ -750,10 +747,10 @@ class CompactedArray {
     /// Append to this array an element having the specified `value`.
     void push_back(const TYPE& value);
 
-    /// Remove from this array the element at the specified `dstIndex`.
-    /// Each element having an index greater than `dstIndex` before the
-    /// removal is shifted down by one index position.  The behavior is
-    /// undefined unless `dstIndex < length()`.
+    /// Remove from this array the element at the specified `dstIndex`.  Each
+    /// element having an index greater than `dstIndex` before the removal is
+    /// shifted down by one index position.  The behavior is undefined unless
+    /// `dstIndex < length()`.
     void remove(bsl::size_t dstIndex);
 
     /// Remove from this array the specified `numElements` starting at the
