@@ -222,6 +222,23 @@ struct ArgTypingVisitor : ArgType {
     void operator()(unsigned long long) {
         d_argType = e_UNSIGNED_LONG_LONG;
     }
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) && \
+    __GLIBCXX__ >= 20240801 && defined(__SIZEOF_INT128__)
+    // gcc-14 supports printing its non-standard 128-bit integer types so we
+    // must "support" those signatures in our visitor.
+
+    void operator()(__int128) {
+        // We will not use `__int128` so we do not need to set anything here.
+        // But for paranoia we do `ASSERT` if we get here somehow.
+        ASSERT(0 == "`operator()(__int128)` must not be called!");
+    }
+    void operator()(unsigned __int128) {
+        // We will not use `unsigned __int128` so we do not need to set
+        // anything here.  But for paranoia we do `ASSERT` if we get here
+        // somehow.
+        ASSERT(0 == "`operator()(unsigned __int128)` must not be called!");
+    }
+#endif  // On GNU C++ lib and it uses __int128
     void operator()(float) {
         d_argType = e_FLOAT;
     }
@@ -839,16 +856,8 @@ int main(int argc, char** argv)
         if (verbose) puts("\nMOCK CONTEXT"
                           "\n============");
 
-        // The following test fails on gcc-14 with the c++20 flag set.  Since
-        // this is a test for the test environment, and not for the component
-        // as such, we will not call this test for the standard implementation
-        // for now. Later, this problem will be solved within the framework of
-        // a separate task.
-
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         verifyMockArgsContext<char>();
         verifyMockArgsContext<wchar_t>();
-#endif
     } break;
     case 1: {
         // --------------------------------------------------------------------
