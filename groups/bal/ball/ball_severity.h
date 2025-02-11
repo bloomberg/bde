@@ -91,6 +91,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+#include <bsla_deprecated.h>
+
 #if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
 
 #pragma push_macro("OFF")
@@ -141,25 +144,25 @@ struct Severity {
       , BAEL_TRACE = e_TRACE
 
 #ifndef OFF
-      , OFF   = e_OFF
+      , OFF   BSLA_DEPRECATED = e_OFF
 #endif
 #ifndef FATAL
-      , FATAL = e_FATAL
+      , FATAL BSLA_DEPRECATED = e_FATAL
 #endif
 #ifndef ERROR
-      , ERROR = e_ERROR
+      , ERROR BSLA_DEPRECATED = e_ERROR
 #endif
 #ifndef WARN
-      , WARN  = e_WARN
+      , WARN  BSLA_DEPRECATED = e_WARN
 #endif
 #ifndef INFO
-      , INFO  = e_INFO
+      , INFO  BSLA_DEPRECATED = e_INFO
 #endif
 #ifndef DEBUG
-      , DEBUG = e_DEBUG
+      , DEBUG BSLA_DEPRECATED = e_DEBUG
 #endif
 #ifndef TRACE
-      , TRACE = e_TRACE
+      , TRACE BSLA_DEPRECATED = e_TRACE
 #endif
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
