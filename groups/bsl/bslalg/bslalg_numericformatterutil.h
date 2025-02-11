@@ -1325,7 +1325,7 @@ struct NumericFormatterUtil::ToCharsMaxLength {
 
                             // Argument Related
 
-    static Cbool k_ARG_NOT_BASE   = (ARG < 2 || ARG > 37);
+    static Cbool k_ARG_NOT_BASE   = (ARG < 2 || ARG > 36);
     static Cbool k_ARG_NOT_FORMAT = (ARG != e_FIXED && ARG != e_SCIENTIFIC &&
                                      ARG != e_GENERAL && ARG != e_HEX);
 
