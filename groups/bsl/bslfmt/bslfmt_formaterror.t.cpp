@@ -204,7 +204,7 @@ int main(int argc, char **argv)
         };
         size_t k_NUM_DATA = sizeof k_DATA / sizeof *k_DATA;
 
-        for (size_t ti; ti < k_NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < k_NUM_DATA; ++ti) {
             const int          LINE = k_DATA[ti].d_line;
             const char * const MSG  = k_DATA[ti].d_msg;
 
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
         };
         size_t k_NUM_DATA = sizeof k_DATA / sizeof *k_DATA;
 
-        for (size_t ti; ti < k_NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < k_NUM_DATA; ++ti) {
             const int          LINE = k_DATA[ti].d_line;
             const char * const MSG  = k_DATA[ti].d_msg;
 
