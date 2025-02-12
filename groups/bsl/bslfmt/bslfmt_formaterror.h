@@ -27,13 +27,12 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: Indicate a formatting error
+///Example: Indicate a Formatting Error
 /// - - - - - - - - - - - - - - - - - -
 //
-// Typically a `format_error` exception this would be thrown from the `format`
-// or `vformat` functions.  However, as this is at the very bottom of the
-// dependency hierarchy the usage example cannot accurately reflect that case
-// in our usage example.
+// Typically a `format_error` exception would be thrown from the `format` or
+// `vformat` functions.  However, as this is at the very bottom of the
+// dependency hierarchy the usage example cannot accurately reflect that case.
 //
 // ```
 //   bool formatErrorCaught = false;
