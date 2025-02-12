@@ -10,41 +10,49 @@
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
-// 'format_error` is a standard-compliant implementation of
-// 'std::format_error'.
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements `format_error`,a standard-compliant
+// implementation of 'std::format_error'.  The type has no Primary Manipulators
+// and has a single Basic Accessor that is implemented by its base class
+// therefore the testing of this type while similar to a value-semantic type
+// will not include all tests a real value-semantic type would have.
 //
-//-----------------------------------------------------------------------------
-// CLASS 'bsl::format_error'
+// Note that the "Accessor" `what` is a virtual function, hence this class is
+// only *similar* to a value-semantic type with a string member, but also very
+// different as it serves in a type-hierarchy.  Most notably there is no
+// equality operator, which signifies the fact that while we do have what looks
+// like an attribute-class with an unconstrained string as its sole content it
+// is in fact not to be treated as a value.
 //
+// Also note that the Accessor testing is present for consistency, literally
+// every other test case also tests the Accessor.
+//
+// Notice that the type is not allocator-aware so allocator related testing is
+// also not applicable.
+//
+// Basic Accessor:
+//  - `what() const`
+//-----------------------------------------------------------------------------
 // CREATORS
-// [ 3] format_error();
-// [ 3] ~format_error();
-// [ 7] format_error(const format_error &);
-// [12] TBD
+// [ 2] format_error();
+// [ 2] format_error(const std:string&);
+// [ 2] format_error(const bsl::string&);
+// [ 2] ~format_error();
+// [ 3] format_error(const format_error &);
 //
 // MANIPULATORS
-// [ 6] operator==(const format_error &);
-// [ 9] operator=(const format_error &);
+// [ 5] operator=(const format_error &);
 //
 // ACCESSORS
-// [ 4] TBD
-//
-// FREE FUNCTIONS
-// [ 8] swap(format_error &, format_error &);
-// [11] TBD
-// [11] TBD
+// [ 4] const char *what() const;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING PRIMARY MANIPULATORS: Not Applicable
-// [ 5] TESTING OUTPUT:               Not Applicable
-// [10] STREAMING FUNCTIONALITY:      Not Applicable
-// [13] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -109,307 +117,305 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
-
-
-
-// ============================================================================
-//                     GLOBAL HELPER CLASSES FOR TESTING
-// ----------------------------------------------------------------------------
-
-
-
-
-
-// ============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
-
-
-
-
-// ============================================================================
-//                    GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
-// ----------------------------------------------------------------------------
-
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-
 int main(int argc, char **argv)
 {
-    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
+    int          test    = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 13: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
-        // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Construct an instance and verify it holds no value.
-        //:
-        //: 2 Construct an instance with a single value and verify contents.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
 ///Example: Throw an exception
 /// - - - - - - - - - - - - -
 //
-// Typically this would be thrown from attempts to use the `format` or
-// `vformat` functions. However, as this is at the very bottom of the
-// dependency hierarchy the usage example cannot accurately reflect that case.
+// Typically a `format_error` exception this would be thrown from the `format`
+// or `vformat` functions.  However, as this is at the very bottom of the
+// dependency hierarchy the usage example cannot accurately reflect that case
+// in our usage example.
 //
-//..
-         try
-         {
-           throw bsl::format_error("Error message");
-         }
-         catch (const bsl::format_error &exc)
-         {
-           ASSERT(true); // Successful catch.
-         }
-//..
-//
-      } break;
-      case 12: {
-        // --------------------------------------------
-        // TESTING TBD - WORK IN PROGRESS
-        //
-        // Testing:
-        // --------------------------------------------
-        if (verbose)
-            printf("\nCONSTRUCTION FROM ARG STORE"
-                   "\n= =========================\n");
-
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TESTING FREE FUNCTIONS - WORK IN PROGRESS
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-        if (verbose)
-            printf("\nFREE FUNCTIONS"
-                   "\n==============\n");
-
-      } break;
-      case 10: {
-        // -----------------------------------------------
-        // TESTING STREAMING FUNCTIONALITY: Not Applicable
-        //
-        // Testing:
-        //   STREAMING FUNCTIONALITY: Not Applicable
-        // -----------------------------------------------
-        if (verbose)
-            printf("\nSTREAMING FUNCTIONALITY: Not Applicable"
-                   "\n=======================================\n");
-      } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //   operator=(const basic_format_args &);
-        //   operator=(basic_format_args &&);
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf("\nTESTING ASSIGNMENT OPERATOR"
-                   "\n===========================\n");
-
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING SWAP
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //   swap(formatter &, formatter &)
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf("\nTESTING SWAP"
-                   "\n============\n");
-
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING COPY/MOVE CONSTRUCTOR
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //   formatter(const formatter &);
-        //   formatter(formatter &&);
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf("\nTESTING COPY CONSTRUCTOR"
-                   "\n========================\n");
-
-      } break;
-      case 6: {
-        // --------------------------------------------
-        // TESTING EQUALITY OPERATOR: Not Applicable
-        //
-        // Testing:
-        //   EQUALITY OPERATOR: Not Applicable
-        // --------------------------------------------
-        if (verbose)
-            printf("\nEQUALITY OPERATOR: Not Applicable"
-                   "\n= ===============================\n");
-
+// ```
+     bool formatErrorCaught = false;
+     try {
+         throw bsl::format_error("Error message");
+     }
+     catch (const bsl::format_error &exc) {
+         formatErrorCaught = true;
+     }
+     ASSERT(formatErrorCaught);
+// ```
       } break;
       case 5: {
-        // --------------------------------------------
-        // TESTING OUTPUT: Not Applicable
-        //
-        // Testing:
-        //   OUTPUT: Not Applicable
-        // --------------------------------------------
-        if (verbose)
-            printf("\nOUTPUT: Not Applicable"
-                   "\n======================\n");
-      } break;
-      case 4: {
-        // --------------------------------------------
-        // TESTING BASIC ACCESSORS
+        // --------------------------------------------------------------------
+        // ASSIGNMENT OPERATOR
         //
         // Concerns:
+        // 1. The copy assignment copies the `what` value.
+        //
+        // 2. We have no complex because the copy assignment itself is
+        //    implemented in the base class, which is a Standard Library class
+        //    so we do not need to test for aliasing and other such concern.
         //
         // Plan:
+        // 1. Construct const `format_error` objects, copy assign them to
+        //    non-const objects, verify that the copy has the same `what`
+        //    value.
         //
         // Testing:
-        //   TBD
-        // --------------------------------------------
-        if (verbose)
-            printf("\nTESTING BASIC ACCESSORS"
-                   "\n=======================\n");
+        //   format_error(const format_error &);
+        // --------------------------------------------------------------------
+        if (verbose) puts("\nASSIGNMENT OPERATOR"
+                          "\n===================");
+
+        struct {
+            int         d_line;
+            const char *d_msg;
+        } k_DATA[] = {
+            { L_, ""                   },
+            { L_, "Error message"      },
+            { L_, "Errorer messager"   },
+            { L_, "Errorest messagest" },
+        };
+        size_t k_NUM_DATA = sizeof k_DATA / sizeof *k_DATA;
+
+        for (size_t ti; ti < k_NUM_DATA; ++ti) {
+            const int          LINE = k_DATA[ti].d_line;
+            const char * const MSG  = k_DATA[ti].d_msg;
+
+            if (veryVerbose) { P_(LINE) P(MSG); }
+
+            const bsl::format_error OBJ(MSG);
+            bsl::format_error       copied("original value");
+
+            copied = OBJ;
+
+            ASSERTV(LINE, OBJ.what(), copied.what(),
+                    0 == strcmp(OBJ.what(), copied.what()));
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // ACCESSORS
+        //
+        // Concerns:
+        // 1. This test case is present for consistency only, since every other
+        //    test case have already tested `what`, and `what` is implemented
+        //    in a standard library class we inherit from we do not actually
+        //    have any actual concerns.
+        //
+        // Plan:
+        // 1. Just a simple table-based test with a few `what` messages that we
+        //    verify get properly stored and retrieved via `what`.
+        //
+        // Testing:
+        //   const char *what() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nACCESSORS"
+                          "\n=========");
+
+        struct {
+            int         d_line;
+            const char *d_msg;
+        } k_DATA[] = {
+            { L_, ""                   },
+            { L_, "Error message"      },
+            { L_, "Errorer messager"   },
+            { L_, "Errorest messagest" },
+        };
+        size_t k_NUM_DATA = sizeof k_DATA / sizeof *k_DATA;
+
+        for (size_t ti; ti < k_NUM_DATA; ++ti) {
+            const int          LINE = k_DATA[ti].d_line;
+            const char * const MSG  = k_DATA[ti].d_msg;
+
+            if (veryVerbose) { P_(LINE) P(MSG); }
+
+            const bsl::format_error OBJ(MSG);
+            ASSERTV(LINE, OBJ.what(), 0 == strcmp(OBJ.what(), MSG));
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING (PRIMITIVE) GENERATORS
+        // COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 We can default construct a `bslfmt::basic_format_arg` type.
-        //:
-        //: 2 We can construct a `bslfmt::basic_format_arg` type containing a
-        //:   value.
+        // 1. The copy constructor copies the `what` value.
+        //
+        // 2. We have no complex because the copying itself is implemented in
+        //    the base class, which is a Standard Library class so we do not
+        //    need to test for aliasing and other such concern.
         //
         // Plan:
-        //: 1 Construct a default `bslfmt::basic_format_arg` type. (C-1)
-        //:
-        //: 2 Construct a non-default `bslfmt::basic_format_arg` type. This
-        //:   will need to be performed indirectly as the constructors are
-        //:   private (C-2)
+        // 1. Construct `format_error` objects, copy them from a `const` alias,
+        //    verify that the copy has the same `what` value.
+        //
+        // 2. `throw` `bsl::format_error` objects, which action copies them,
+        //    verify that the caught object has the same `what` value.
         //
         // Testing:
-        //   basic_format_args();
-        //   ~basic_format_args()
+        //   format_error(const format_error &);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
-                            "\n==============================\n");
+        if (verbose) puts("\nCOPY CONSTRUCTOR"
+                          "\n================");
+
+        if (veryVerbose) puts("Direct copy");
+        {
+            bsl::format_error        mObj("Some message");
+            const bsl::format_error& OBJ(mObj);
+            const bsl::format_error  CPY(OBJ);
+
+            ASSERTV(CPY.what(), OBJ.what(),
+                    0 == strcmp(CPY.what(), OBJ.what()));
+        }
+
+        if (veryVerbose) puts("copied-by-`throw` verification");
+        try {
+            throw bsl::format_error("Error message");
+        }
+        catch (const bsl::format_error& exc) {
+            ASSERT(bsl::string("Error message") == exc.what());
+        }
+
+        try {
+            bsl::format_error exc1("Error message");
+            bsl::format_error exc2(exc1);
+            throw exc2;
+        }
+        catch (const bsl::format_error& exc) {
+            ASSERT(bsl::string("Error message") == exc.what());
+        }
+
+        try {
+            bsl::string msg("Error message");
+            throw bsl::format_error(msg);
+        }
+        catch (const bsl::format_error& exc) {
+            ASSERT(bsl::string("Error message") == exc.what());
+        }
+
+        try {
+            std::string msg("Error message");
+            throw bsl::format_error(msg);
+        }
+        catch (const bsl::format_error& exc) {
+            ASSERT(bsl::string("Error message") == exc.what());
+        }
+
       } break;
       case 2: {
-        // --------------------------------------------
-        // TESTING PRIMARY MANIPULATORS: Not Applicable
+        // --------------------------------------------------------------------
+        // CONSTRUCTORS AND DESTRUCTOR
+        //   Ensure that we can use the constructors to create an object and
+        //   use the destructor to destroy it safely.
+        //
+        // Concerns:
+        // 1. The error message constructor argument is copied into the object
+        //    and may be retrieved using the `what` method.
+        //
+        // 2. The object destruction is not implemented by us, so we do not
+        //    need to test (and cannot, due to the lack of allocator
+        //    support) for the proper releasing of the resources.
+        //
+        // Plan:
+        // 1. Create objects using different types of constructor arguments,
+        //    verify that the `what` message is equal to the constructor
+        //    argument.
         //
         // Testing:
-        //   PRIMARY MANIPULATORS: Not Applicable
-        // --------------------------------------------
-        if (verbose)
-            printf("\nPRIMARY MANIPULATORS: Not Applicable"
-                   "\n====================================\n");
+        //   CONSTRUCTORS AND DESTRUCTORs
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nCONSTRUCTORS AND DESTRUCTOR"
+                          "\n===========================");
+
+        if (veryVerbose) puts("\tString literal");
+        {
+            bsl::format_error        mObj("Literal message");
+            const bsl::format_error& OBJ(mObj);
+
+            ASSERTV(OBJ.what(),
+                    0 == strcmp(OBJ.what(), "Literal message"));
+        }
+
+        if (veryVerbose) puts("\tStandard string");
+        {
+            const std::string        msg = "std::message";
+            bsl::format_error        mObj(msg);
+            const bsl::format_error& OBJ(mObj);
+
+            ASSERTV(OBJ.what(), msg.c_str(), OBJ.what() == msg);
+        }
+
+        if (veryVerbose) puts("\tbsl::string");
+        {
+            const bsl::string        msg = "bsl::message";
+            bsl::format_error        mObj(msg);
+            const bsl::format_error& OBJ(mObj);
+
+            ASSERTV(OBJ.what(), msg.c_str(), OBJ.what() == msg);
+        }
+
+        if (veryVerbose) puts("\tEmpty string");
+        {
+            bsl::format_error        mObj("");
+            const bsl::format_error& OBJ(mObj);
+
+            ASSERTV(OBJ.what(), 0 == strcmp(OBJ.what(), ""));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 That basic functionality appears to work as advertised before
-        //:   before beginning testing in earnest:
-        //:   - default and copy constructors
-        //:   - assignment operator
-        //:   - primary manipulators, basic accessors
-        //:   - 'operator==', 'operator!='
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Test all public methods mentioned in concerns.  (C-1)
+        // 1. Create an object, throw it, and verify its `what` accessor.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
 
-        {
-            try {
-                throw bsl::format_error("Error message");
-            }
-            catch (const bsl::format_error& exc) {
-                ASSERT(bsl::string("Error message") == exc.what());
-            }
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
+
+        try {
+            throw bsl::format_error("Error message");
         }
-
-        {
-            try {
-                bsl::format_error exc1("Error message");
-                bsl::format_error exc2(exc1);
-                throw exc2;
-            }
-            catch (const bsl::format_error& exc) {
-                ASSERT(bsl::string("Error message") == exc.what());
-            }
+        catch (const bsl::format_error& exc) {
+            ASSERT(bsl::string("Error message") == exc.what());
         }
-
-        {
-            try {
-                bsl::string msg("Error message");
-                throw bsl::format_error(msg);
-            }
-            catch (const bsl::format_error& exc) {
-                ASSERT(bsl::string("Error message") == exc.what());
-            }
-        }
-
-        {
-            try {
-                std::string msg("Error message");
-                throw bsl::format_error(msg);
-            }
-            catch (const bsl::format_error& exc) {
-                ASSERT(bsl::string("Error message") == exc.what());
-            }
-        }
-
-
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
