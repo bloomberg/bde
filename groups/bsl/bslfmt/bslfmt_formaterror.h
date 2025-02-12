@@ -86,6 +86,12 @@ class format_error : public std::runtime_error {
 
     /// Create an object of this type which is a copy of the specified `other`.
     format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT;
+
+    // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
+    format_error& operator=(const format_error& rhs);
 };
 #endif
 
@@ -147,6 +153,16 @@ format_error::format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
 {
 }
 
+// MANIPULATORS
+inline
+format_error& format_error::operator=(const format_error& rhs)
+{
+    std::runtime_error& me = *this;
+
+    me = rhs;
+
+    return *this
+}
 
 }  // close package namespace
 }  // close enterprise namespace
