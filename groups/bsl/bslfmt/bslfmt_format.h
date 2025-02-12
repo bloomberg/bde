@@ -1,12 +1,11 @@
 // bslfmt_format.h                                                    -*-C++-*-
-
 #ifndef INCLUDED_BSLFMT_FORMAT
 #define INCLUDED_BSLFMT_FORMAT
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a standard compliant `format` implementation
+//@PURPOSE: Provide a standard compliant `format` implementation.
 //
 //@CLASSES:
 //  bsl::basic_format_arg:           access to standard-compliant argument
@@ -296,12 +295,12 @@ BSLS_IDENT("$Id: $")
 //
 //          // Reading format specification
 //          switch (*current) {
-//              case ('V'):
-//              case ('v'): {
+//              case 'V':
+//              case 'v': {
 //                d_format = e_VERBAL;
 //              } break;
-//              case ('N'):
-//              case ('n'): {
+//              case 'N':
+//              case 'n': {
 //                // `e_NUMERIC` value is assigned at object construction
 //              } break;
 //              default: {

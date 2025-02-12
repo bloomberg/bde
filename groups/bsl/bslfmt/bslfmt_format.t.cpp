@@ -375,12 +375,12 @@ struct formatter<FormattableType, t_CHAR> {
 
             // Reading format specification
             switch (*current) {
-                case ('V'):
-                case ('v'): {
+                case 'V':
+                case 'v': {
                   d_format = e_VERBAL;
                 } break;
-                case ('N'):
-                case ('n'): {
+                case 'N':
+                case 'n': {
                   // `e_NUMERIC` value is assigned at object construction
                 } break;
                 default: {
@@ -491,33 +491,38 @@ struct formatter<FormattableType, t_CHAR> {
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
+
 int main(int argc, char **argv)
 {
-    const int  test        = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose     = argc > 2;
-    const bool veryVerbose = argc > 3;
-
-    (void) veryVerbose;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;  (void) veryVerbose;
+    bool veryVeryVerbose = argc > 4;  (void) veryVeryVerbose;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
+    for (test = 1; testStatus == 0 && printf("TESTING %d\n",test);++test)
     switch (test) {  case 0:
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
-        // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Use test contexts to format a single integer.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
 ///Example 1: Simple Integer Formatting
 /// - - - - - - - - - - - - - - - - - -
@@ -546,69 +551,90 @@ int main(int argc, char **argv)
 // ```
       } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
+        //
+        // Plan:
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-        std::formatter<int, char>              dummy1a;
-        std::formatter<bsl::string, char>      dummy1b;
-        std::formatter<bsl::wstring, wchar_t>  dummy1c;
-        (void) dummy1a;
-        (void) dummy1b;
-        (void) dummy1c;
-#endif
-        bsl::formatter<bsl::string_view, char> dummy2a;
-        (void) dummy2a;
+#if BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        std::formatter<int, char>              dummy1a;  (void)dummy1a;
+        std::formatter<bsl::string, char>      dummy1b;  (void)dummy1b;
+        std::formatter<bsl::wstring, wchar_t>  dummy1c;  (void)dummy1c;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
-        { // simple test to see if we can pass in string and string_view
+        bsl::formatter<bsl::string_view, char> dummy2a;  (void)dummy2a;
 
-            const std::string v1("Test 1");
-            const bsl::string v2("Test 2");
+        // -----------------------------------------------------------
+        // simple test to see if we can pass in string and string_view
+        {
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+            const std::string V1("Test 1");
+            const bsl::string V2("Test 2");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 #if !defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE >= 14
              const char8_t *fmt = u8"{0:\U0001F600<4}";
 
              int intValue = 42;
 
              std::string rv1 = std::vformat((const char *)fmt,
-                                             std::make_format_args(intValue));
+                                            std::make_format_args(intValue));
 
-             // We cannot do this test yet without integer formatters.
-             //bsl::string rv2 = bslfmt::vformat((const char *)fmt,
-             //                            bslfmt::make_format_args(intValue));
+             bsl::string rv2 = bslfmt::vformat((const char *)fmt,
+                                         bslfmt::make_format_args(intValue));
 
-             //ASSERT(rv1 == rv2);
+             ASSERT(rv1 == rv2);
              ASSERT(rv1 == (const char *)u8"42\U0001F600\U0001F600");
-#endif
-#endif
+#endif  // not GNU C++ Library, or 14.0 or newer release GNU C++ Library
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             const std::string_view v3("Test 3");
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             const bsl::string_view v4("Test 4");
 
-            check(bsl::format("{}", v1), "Test 1");
-            check(bsl::format("{}", v2), "Test 2");
+            check(bsl::format("{}", V1), "Test 1");
+            check(bsl::format("{}", V2), "Test 2");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             check(bsl::format("{}", v3), "Test 3");
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
             check(bsl::format("{}", v4), "Test 4");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-            ASSERT(std::format("{}", v1) == bsl::string("Test 1"));
-            ASSERT(std::format("{}", v2) == bsl::string("Test 2"));
+#if BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+            ASSERT(std::format("{}", V1) == bsl::string("Test 1"));
+            ASSERT(std::format("{}", V2) == bsl::string("Test 2"));
 
             ASSERT(std::format("{}", v3) == bsl::string("Test 3"));
             ASSERT(std::format("{}", v4) == bsl::string("Test 4"));
-#endif
+#endif  //  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
         }
 
-        { // simple test of format with char
+        // -------------------------------
+        // simple test of format with char
+        {
             const bsl::string  intro  =  "Here is a simple equation";
             const int          x      = 1;
             const int          y      = 2;
@@ -616,26 +642,23 @@ int main(int argc, char **argv)
 
             check(bsl::format(L"{}", x), L"1");
 
-            check(bsl::format("{}", y),
-                "2");
+            check(bsl::format("{}", y),   "2");
             check(bsl::format("{}", 'x'), "x");
             check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
-                "Here is a simple equation: 1 + 2 = 3");
-            check(bsl::format(L"{}", L"Hello World"),
-                L"Hello World");
+                  "Here is a simple equation: 1 + 2 = 3");
+            check(bsl::format(L"{}", L"Hello World"), L"Hello World");
 
             DOTESTWITHORACLE("Here is a simple equation: 1 + 2 = 3",
-                        "{}: {} + {} = {}",
-                        intro,
-                        x,
-                        y,
-                        sum);
+                             "{}: {} + {} = {}",
+                             intro,
+                             x,
+                             y,
+                             sum);
             check(bsl::format("{}: {} + {} = {}", intro, x, y, sum),
-                "Here is a simple equation: 1 + 2 = 3");
-            check(bsl::vformat(
-                                        "{}: {} + {} = {}",
-                        bsl::make_format_args(intro, x, y, sum)),
-                "Here is a simple equation: 1 + 2 = 3");
+                  "Here is a simple equation: 1 + 2 = 3");
+            check(bsl::vformat("{}: {} + {} = {}",
+                               bsl::make_format_args(intro, x, y, sum)),
+                  "Here is a simple equation: 1 + 2 = 3");
 
             FormattableType ft;
             ft.x = 37;
@@ -643,119 +666,151 @@ int main(int argc, char **argv)
             check(bsl::format("The value of {1:{0}} is {0}", ft.x, ft),
                   "The value of FormattableType{37} is 37");
             check(bsl::vformat("The value of {1:{0}} is {0}",
-                                  bsl::make_format_args(ft.x, ft)),
+                               bsl::make_format_args(ft.x, ft)),
                   "The value of FormattableType{37} is 37");
 
             check(bsl::format("The value of {1:{0}} is {0}", ft.x, ft),
-               "The value of FormattableType{37} is 37");
+                  "The value of FormattableType{37} is 37");
             check(bsl::vformat("The value of {1:{0}} is {0}",
-                                bsl::make_format_args(ft.x, ft)),
-                "The value of FormattableType{37} is 37");
+                               bsl::make_format_args(ft.x, ft)),
+                  "The value of FormattableType{37} is 37");
 
-            std::size_t len =
+            const std::size_t len =
                   bsl::formatted_size("The value of {1:{0}} is {0}", ft.x, ft);
             ASSERTV(len, 38 == len);
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-             ASSERT((std::format("The value of {1:{0}} is {0}", ft.x, ft) ==
-                   "The value of FormattableType{37} is 37"));
+#if BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+             ASSERT((std::format("The value of {1:{0}} is {0}", ft.x, ft)
+                                 == "The value of FormattableType{37} is 37"));
              ASSERT((std::vformat("The value of {1:{0}} is {0}",
-                                bsl::make_format_args(ft.x, ft)) ==
-                   "The value of FormattableType{37} is 37"));
-#endif
+                                  bsl::make_format_args(ft.x, ft))
+                                 == "The value of FormattableType{37} is 37"));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         }
-        { // simple test of format with wchar_t
-            const bsl::wstring  intro = L"Here is a simple equation";
-            const int          x      = 1;
-            const int          y      = 2;
-            const int          sum    = x + y;
+
+        // ----------------------------------
+        // simple test of format with wchar_t
+        {
+            const bsl::wstring intro = L"Here is a simple equation";
+            const int          x     = 1;
+            const int          y     = 2;
+            const int          sum   = x + y;
 
             check(bsl::format(L"{}", x), L"1");
-
             check(bsl::format(L"{}", y), L"2");
+
             check(bsl::format(L"{}", (wchar_t)'x'), L"x");
+
             check(bsl::format(L"{}: {} + {} = {}", intro, x, y, sum),
-                L"Here is a simple equation: 1 + 2 = 3");
-            check(bsl::format(L"{}", L"Hello World"),
-                L"Hello World");
+                  L"Here is a simple equation: 1 + 2 = 3");
+
+            check(bsl::format(L"{}", L"Hello World"), L"Hello World");
 
             DOTESTWITHORACLE(L"Here is a simple equation: 1 + 2 = 3",
-                        L"{}: {} + {} = {}",
-                        intro,
-                        x,
-                        y,
-                        sum);
+                             L"{}: {} + {} = {}",
+                             intro,
+                             x,
+                             y,
+                             sum);
             check(bsl::format(L"{}: {} + {} = {}", intro, x, y, sum),
-                L"Here is a simple equation: 1 + 2 = 3");
+                  L"Here is a simple equation: 1 + 2 = 3");
             check(bsl::vformat(L"{}: {} + {} = {}",
-                        bsl::make_wformat_args(intro, x, y, sum)),
-                L"Here is a simple equation: 1 + 2 = 3");
+                               bsl::make_wformat_args(intro, x, y, sum)),
+                  L"Here is a simple equation: 1 + 2 = 3");
 
             FormattableType ft;
             ft.x = 37;
             check(bsl::format(L"The value of {1} is {0}", ft.x, ft),
-                L"The value of FormattableType{37} is 37");
+                  L"The value of FormattableType{37} is 37");
             check(bsl::vformat(L"The value of {1} is {0}",
-                                bsl::make_wformat_args(ft.x, ft)),
-                L"The value of FormattableType{37} is 37");
+                               bsl::make_wformat_args(ft.x, ft)),
+                  L"The value of FormattableType{37} is 37");
         }
-        { // Test format of char with wchar_t output
+
+        // ---------------------------------------
+        // Test format of char with wchar_t output
+        {
             check(bsl::format(L"{}", (char)'x'), L"x");
         }
-        { // Simple test of formatted_size with char
-            ptrdiff_t count = bsl::formatted_size("{}", "Hello World");
+
+        // ---------------------------------------
+        // Simple test of formatted_size with char
+        {
+            const ptrdiff_t count = bsl::formatted_size("{}", "Hello World");
             ASSERT(11 == count);
         }
-        { // Simple test of formatted_size with wchar_t
-            ptrdiff_t count = bsl::formatted_size(L"{}", L"Hello World");
+
+        // ------------------------------------------
+        // Simple test of formatted_size with wchar_t
+        {
+            const ptrdiff_t count = bsl::formatted_size(L"{}", L"Hello World");
             ASSERT(11 == count);
         }
-        { // Simple test of format_to with char output iterator
-            char temp2[64];
+
+        // --------------------------------------------------
+        // Simple test of format_to with char output iterator
+        {
+            char  temp2[64];
             char *it = bsl::format_to(temp2, "{}", "Hello World");
-            *it      = 0;
+            *it = 0;
             check(bsl::string(temp2), "Hello World");
-            format_to_n_result<char *> result =
+
+            const format_to_n_result<char *> result =
                                bsl::format_to_n(temp2, 5, "{}", "Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::string(temp2), "Hello");
         }
-        { // Simple test of format_to with wchar_t output iterator
-            wchar_t temp2[64];
+
+        // -----------------------------------------------------
+        // Simple test of format_to with wchar_t output iterator
+        {
+            wchar_t  temp2[64];
             wchar_t *it = bsl::format_to(temp2, L"{}", L"Hello World");
-            *it      = 0;
+            *it = 0;
             check(bsl::wstring(temp2), L"Hello World");
-            format_to_n_result<wchar_t *> result =
+            const format_to_n_result<wchar_t *> result =
                              bsl::format_to_n(temp2, 5, L"{}", L"Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::wstring(temp2), L"Hello");
         }
-        { // Simple test of vformat_to with char string
+
+        // ------------------------------------------
+        // Simple test of vformat_to with char string
+        {
             bsl::string temp;
             bsl::vformat_to(&temp, "{}", make_format_args("Hello World"));
             check(temp, "Hello World");
         }
-        { // Simple test of vformat_to with wchar_t string
+
+        // ---------------------------------------------
+        // Simple test of vformat_to with wchar_t string
+        {
             bsl::wstring temp;
             bsl::vformat_to(&temp, L"{}", make_wformat_args(L"Hello World"));
             check(temp, L"Hello World");
         }
-        { // Simple test of format_to with char output iterator
-            char temp2[64];
+
+        // --------------------------------------------------
+        // Simple test of format_to with char output iterator
+        {
+            char  temp2[64];
             char *it = bsl::vformat_to(temp2,
                                        "{}",
                                        make_format_args("Hello World"));
-            *it      = 0;
+            *it = 0;
             check(bsl::string(temp2), "Hello World");
         }
-        { // Simple test of format_to with wchar_t output iterator
-            wchar_t temp2[64];
+
+        // -----------------------------------------------------
+        // Simple test of format_to with wchar_t output iterator
+        {
+            wchar_t  temp2[64];
             wchar_t *it = bsl::vformat_to(temp2,
                                           L"{}",
                                           make_wformat_args(L"Hello World"));
-            *it      = 0;
+            *it = 0;
             check(bsl::wstring(temp2), L"Hello World");
         }
       } break;
