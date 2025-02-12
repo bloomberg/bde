@@ -161,7 +161,7 @@ format_error& format_error::operator=(const format_error& rhs)
 
     me = rhs;
 
-    return *this
+    return *this;
 }
 
 }  // close package namespace
