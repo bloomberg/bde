@@ -188,8 +188,8 @@ struct formatter<FormattableType, t_CHAR> {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating Custom Formatter For User Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Creating a Custom Formatter For User Defined Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date and we want to output it
 // to the stream in different formats depending on the circumstances using
 // `bsl::format` function.  The following example demonstrates how such custom
@@ -526,10 +526,9 @@ int main(int argc, char **argv)
 
 ///Example 1: Simple Integer Formatting
 /// - - - - - - - - - - - - - - - - - -
-//
-// Formatters for base types are already defined, so to output such objects the
-// `bsl::format` function can be used in exactly the same way as the original
-// one from the `stl` library:
+// Formatters for fundamental types are already defined, so to output such
+// objects the `bsl::format` function can be used in exactly the same way as
+// the original one from the `stl` library:
 // ```
     int         value = 99;
     bsl::string res   = bsl::format("{:#06x}", value);
@@ -537,8 +536,8 @@ int main(int argc, char **argv)
     ASSERT(bsl::string("0x0063") == res);
 // ```
 //
-///Example 2: Creating custom formatter for user type
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Creating a Custom Formatter For User Defined Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Finally, we create a `Date` object, output it to the string and verify the
 // result:
 // ```

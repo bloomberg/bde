@@ -28,14 +28,15 @@ BSLS_IDENT("$Id: $")
 //$@SEE_ALSO: ISO C++ Standard, <format>
 //$
 //$@DESCRIPTION: This component will provide, in the `bsl` namespace, wrappers
-//$ around the functions and types exposed by the standard <format> header where
-//$ such is available, otherwise aliases to the `bslfmt` implementation.
+//$ around the functions and types exposed by the standard <format> header,
+//$ where they are available, otherwise aliases to the `bslfmt` implementation.
 //$
-//$ This will provide, where such are available, wrappers around the
-//$ `std::format`, `std::format_to`, `std::format_to_n`, `std::vformat`, and
-//$ `std::vformat_to` functions of which the `format` and `vformat` wrappers are
-//$ allocator-aware.  Where they are not available such as on older compilers,
-//$ or when compiling C++17 and earlier, BSL implementation is provided.
+//$ This will provide, where a conforming library implementation is available,
+//$ wrappers around the `std::format`, `std::format_to`, `std::format_to_n`,
+//$ `std::vformat`, and `std::vformat_to` functions of which the `format` and
+//$ `vformat` wrappers are allocator-aware.  Where a conforming implementation
+//$ is not available, such as on older compilers, or when compiling C++17 and
+//$ earlier, a BSL implementation is provided.
 //$
 //$ Where a BSL implementation is provided, functionality is limited to that
 //$ provided by C++20 and excludes the following features:
@@ -48,11 +49,10 @@ BSLS_IDENT("$Id: $")
 //$ - Compile-time format string checking
 //$
 //$ This header is not intended to be included directly.  Please include
-//$ `<bsl_format.h>` to be able to use BDE formatting functionality.
+//$ `<bsl_format.h>` to be able to use `bsl::format` functionality.
 //$
 //$/User-provided Formatters
 //$/------------------------
-//$
 //$ User-provided formatters are supported by the BSL implementation, just as
 //$ they are by the standard library implementation. However, in order for them
 //$ to be compatible with both implementations, there are specific requirements,
@@ -100,10 +100,9 @@ BSLS_IDENT("$Id: $")
 //$
 //$/Example 1: Simple Integer Formatting
 //$/ - - - - - - - - - - - - - - - - - -
-//$
-//$ Formatters for base types are already defined, so to output such objects the
-//$ `bsl::format` function can be used in exactly the same way as the original
-//$ one from the `stl` library:
+//$ Formatters for fundamental types are already defined, so to output such
+//$ objects the `bsl::format` function can be used in exactly the same way as
+//$ the original one from the `stl` library:
 //$ ```
 //$  int         value = 99;
 //$  bsl::string res   = bsl::format("{:#06x}", value);
@@ -111,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //$  assert(bsl::string("0x0063") == res);
 //$ ```
 //$
-//$/Example 2: Creating Custom Formatter For User Type
-//$/ - - - - - - - - - - - - - - - - - - - - - - - - -
+//$/Example 2: Creating a Custom Formatter For User Defined Type
+//$/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //$ Suppose we have a custom type representing a date and we want to output it
 //$ to the stream in different formats depending on the circumstances using
 //$ `bsl::format` function.  The following example demonstrates how such custom
