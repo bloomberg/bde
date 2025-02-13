@@ -61,18 +61,18 @@ BSLS_IDENT("$Id$")
 // First, the externally supplied library defines the `struct` describing a
 // node in the linked list:
 // ```
+// /// This `struct` describes one node in a linked list containing strings.
 // struct Node {
-//     // This 'struct' describes one node in a linked list containing
-//     // strings.
 //
 //     Node *d_next;
 //     char  d_string[1];
 //
 //     // CLASS METHODS
+//
+//     /// Return the size in bytes needed to store a `Node` containing a
+//     /// copy of the specified `string`.
 //     static
 //     bsl::size_t sizeNeededForString(const char *string)
-//         // Return the size in bytes needed to store a 'Node' containing a
-//         // copy of the specified 'string'.
 //     {
 //         Node node;
 //
@@ -84,12 +84,12 @@ BSLS_IDENT("$Id$")
 // the linked list of nodes from a null-terminated array of pointers to
 // C-strings:
 // ```
+// /// Create a linked list of strings beginning with the specified `*head`
+// /// containing the null-terminated strings from the null-terminated
+// /// `stringArray`.  Use the specified `allocator` to supply memory.
 // void externalPopulateStringList(Node             **head,
 //                                 const char       **stringArray,
 //                                 bslma::Allocator  *allocator)
-//     // Create a linked list of strings beginning with the specified '*head'
-//     // containing the null-terminated strings from the null-terminated
-//     // 'stringArray'.  Use the specified 'allocator' to supply memory.
 // {
 //     *head = 0;
 //     const char *string;

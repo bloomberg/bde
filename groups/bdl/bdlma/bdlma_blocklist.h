@@ -51,11 +51,12 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Request a new memory block of at least the specified `numBytes`
+//     /// size and allocate the initial `numBytes` from this block.
+//     /// Return the address of the allocated memory.  The behavior is
+//     /// undefined unless `0 < numBytes`.
 //     void *allocateBlock(bsls::Types::size_type numBytes);
-//         // Request a new memory block of at least the specified 'numBytes'
-//         // size and allocate the initial 'numBytes' from this block.
-//         // Return the address of the allocated memory.  The behavior is
-//         // undefined unless '0 < numBytes'.
 //
 //   private:
 //     // NOT IMPLEMENTED
@@ -64,21 +65,23 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_StrPool(bslma::Allocator *basicAllocator = 0);
-//         // Create a memory manager.  Optionally specify a 'basicAllocator'
-//         // used to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Create a memory manager.  Optionally specify a `basicAllocator`
+//     /// used to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
+//     my_StrPool(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this object and release all associated memory.
 //     ~my_StrPool();
-//         // Destroy this object and release all associated memory.
 //
 //     // MANIPULATORS
-//     void *allocate(bsls::Types::size_type numBytes);
-//         // Allocate the specified 'numBytes' of memory and return its
-//         // address.  If 'numBytes' is 0, return 0 with no other effect.
 //
+//     /// Allocate the specified `numBytes` of memory and return its
+//     /// address.  If `numBytes` is 0, return 0 with no other effect.
+//     void *allocate(bsls::Types::size_type numBytes);
+//
+//     /// Release all memory currently allocated through this object.
 //     void release();
-//         // Release all memory currently allocated through this object.
 // };
 //
 // // MANIPULATORS

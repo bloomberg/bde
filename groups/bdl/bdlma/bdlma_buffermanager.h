@@ -54,8 +54,8 @@ BSLS_IDENT("$Id: $")
 // First, let's define the structure of a node inside our custom hash table
 // structure:
 // ```
+// /// This struct represents a node within a hash table.
 // struct my_Node {
-//     // This struct represents a node within a hash table.
 //
 //     // DATA
 //     int      d_value;   // integer value this node holds
@@ -63,9 +63,10 @@ BSLS_IDENT("$Id: $")
 //     my_Node *d_next_p;  // pointer to the next node
 //
 //     // CREATORS
+//
+//     /// Create a node having the specified `value` that refers to the
+//     /// specified `next` node.
 //     my_Node(int value, my_Node *next);
-//         // Create a node having the specified 'value' that refers to the
-//         // specified 'next' node.
 // };
 //
 // // CREATORS
@@ -84,14 +85,14 @@ BSLS_IDENT("$Id: $")
 // We can then define the structure of our specialized hash table used for
 // integer counting:
 // ```
+// /// This class represents a hash table that is used to keep track of the
+// /// number of occurrences of various integers.  Note that this is a
+// /// highly specialized class that uses a `bdlma::BufferManager` with
+// /// sufficient memory for memory allocations.
 // class my_IntegerCountingHashTable {
-//     // This class represents a hash table that is used to keep track of the
-//     // number of occurrences of various integers.  Note that this is a
-//     // highly specialized class that uses a 'bdlma::BufferManager' with
-//     // sufficient memory for memory allocations.
 //
 //     // DATA
-//     my_Node              **d_nodeArray;  // array of 'my_Node' pointers
+//     my_Node              **d_nodeArray;  // array of `my_Node` pointers
 //
 //     int                    d_size;       // size of the node array
 //
@@ -100,25 +101,28 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CLASS METHODS
+//
+//     /// Return the memory required by a `my_IntegerCountingHashTable`
+//     /// that has the specified `tableLength` and `numNodes`.
 //     static int calculateBufferSize(int tableLength, int numNodes);
-//         // Return the memory required by a 'my_IntegerCountingHashTable'
-//         // that has the specified 'tableLength' and 'numNodes'.
 //
 //     // CREATORS
+//
+//     /// Create a hash table of the specified `size`, using the specified
+//     /// `buffer` to supply memory.  The behavior is undefined unless
+//     /// `0 < size`, `buffer` is non-zero, and `buffer` has sufficient
+//     /// memory to support all memory allocations required.
 //     my_IntegerCountingHashTable(int size, bdlma::BufferManager *buffer);
-//         // Create a hash table of the specified 'size', using the specified
-//         // 'buffer' to supply memory.  The behavior is undefined unless
-//         // '0 < size', 'buffer' is non-zero, and 'buffer' has sufficient
-//         // memory to support all memory allocations required.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Insert the specified `value` with a count of 1 into this hash
+//     /// table if `value` does not currently exist in the hash table, and
+//     /// increment the count for `value` otherwise.  Return the number of
+//     /// occurrences of `value` in this hash table.
 //     int insert(int value);
-//         // Insert the specified 'value' with a count of 1 into this hash
-//         // table if 'value' does not currently exist in the hash table, and
-//         // increment the count for 'value' otherwise.  Return the number of
-//         // occurrences of 'value' in this hash table.
 //
 //     // ...
 // };
@@ -192,10 +196,10 @@ BSLS_IDENT("$Id: $")
 // table class to detect whether any integer value occurs at least `n` times
 // within a specified array:
 // ```
+// /// Return `true` if any integer value in the specified `array` having
+// /// the specified `length` appears at least the specified `n` times, and
+// /// `false` otherwise.
 // bool detectNOccurrences(int n, const int *array, int length)
-//     // Return 'true' if any integer value in the specified 'array' having
-//     // the specified 'length' appears at least the specified 'n' times, and
-//     // 'false' otherwise.
 // {
 //     const int MAX_SIZE = my_IntegerCountingHashTable::
 //                                        calculateBufferSize(length, length);

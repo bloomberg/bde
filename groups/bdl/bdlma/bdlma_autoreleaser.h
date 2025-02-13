@@ -52,10 +52,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the interface of our `my_FastStrArray` class:
 // ```
+// /// This class implements an array of C string elements.  Each C string
+// /// is allocated using the 'my_StrPool' member for fast memory
+// /// allocation and deallocation.
 // class my_FastCstrArray {
-//     // This class implements an array of C string elements.  Each C string
-//     // is allocated using the 'my_StrPool' member for fast memory
-//     // allocation and deallocation.
 //
 //     // DATA
 //     char             **d_array_p;      // dynamically allocated array
@@ -103,18 +103,18 @@ BSLS_IDENT("$Id: $")
 //     return size * k_MY_GROW_FACTOR;
 // }
 //
+// /// Reallocate memory in the specified `array` and update the specified
+// /// `size` to the specified `newSize`, using the specified `allocator`
+// /// to supply memory.  The specified `length` number of leading elements
+// /// are preserved.  If `allocate` should throw an exception, this
+// /// function has no effect.  The behavior is undefined unless
+// /// `1 <= newSize`, `0 <= length`, and `length <= newSize`.
 // static inline
 // void reallocate(char             ***array,
 //                 int                *size,
 //                 int                 newSize,
 //                 int                 length,
 //                 bslma::Allocator   *allocator)
-//     // Reallocate memory in the specified 'array' and update the specified
-//     // 'size' to the specified 'newSize', using the specified 'allocator'
-//     // to supply memory.  The specified 'length' number of leading elements
-//     // are preserved.  If 'allocate' should throw an exception, this
-//     // function has no effect.  The behavior is undefined unless
-//     // '1 <= newSize', '0 <= length', and 'length <= newSize'.
 // {
 //     ASSERT(array);
 //     ASSERT(*array);
@@ -255,28 +255,27 @@ class AutoReleaser {
     // CREATORS
 
     /// Create a proctor object to manage the specified `originalAllocator`.
-    /// Unless the `release` method of this proctor is invoked, the
-    /// `release` method of `originalAllocator` is automatically invoked
-    /// upon destruction of this proctor.
+    /// Unless the `release` method of this proctor is invoked, the `release`
+    /// method of `originalAllocator` is automatically invoked upon destruction
+    /// of this proctor.
     AutoReleaser(ALLOCATOR *originalAllocator);
 
-    /// Destroy this proctor object and, unless the `release` method has
-    /// been invoked on this object with no subsequent call to `reset`,
-    /// invoke the `release` method of the held allocator or pool.
+    /// Destroy this proctor object and, unless the `release` method has been
+    /// invoked on this object with no subsequent call to `reset`, invoke the
+    /// `release` method of the held allocator or pool.
     ~AutoReleaser();
 
     // MANIPULATORS
 
-    /// Release from management the allocator or pool currently managed by
-    /// this proctor.  If no allocator or pool is currently being managed,
-    /// this method has no effect.
+    /// Release from management the allocator or pool currently managed by this
+    /// proctor.  If no allocator or pool is currently being managed, this
+    /// method has no effect.
     void release();
 
-    /// Set the specified `newAllocator` as the allocator or pool to be
-    /// managed by this proctor.  Note that this method releases from
-    /// management any previously held allocator or pool, and so may be
-    /// invoked with or without having called `release` when reusing this
-    /// object.
+    /// Set the specified `newAllocator` as the allocator or pool to be managed
+    /// by this proctor.  Note that this method releases from management any
+    /// previously held allocator or pool, and so may be invoked with or
+    /// without having called `release` when reusing this object.
     void reset(ALLOCATOR *newAllocator);
 };
 

@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_bufferedintdoublearray.h
 //
+// /// This class implements an efficient container for an array that
+// /// stores both `int` and `double` values.
 // class my_BufferedIntDoubleArray {
-//     // This class implements an efficient container for an array that
-//     // stores both 'int' and 'double' values.
 //
 //     // DATA
 //     char  *d_typeArray_p;   // array indicating the type of corresponding
@@ -102,39 +102,42 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Increase the capacity of the internal arrays used to store
+//     /// elements added to this array by at least one element.
 //     void increaseCapacity();
-//         // Increase the capacity of the internal arrays used to store
-//         // elements added to this array by at least one element.
 //
 //   public:
 //     // TYPES
 //     enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //     // CREATORS
+//
+//     /// Create a fast `int`-`double` array that initially allocates
+//     /// memory sequentially from the specified `buffer` having the
+//     /// specified `size` (in bytes).  Optionally specify a
+//     /// `basicAllocator` used to supply memory if `buffer` capacity is
+//     /// exceeded.  If `basicAllocator` is 0, the currently installed
+//     /// default allocator is used.
 //     my_BufferedIntDoubleArray(char             *buffer,
 //                               int               size,
 //                               bslma::Allocator *basicAllocator = 0);
-//         // Create a fast 'int'-'double' array that initially allocates
-//         // memory sequentially from the specified 'buffer' having the
-//         // specified 'size' (in bytes).  Optionally specify a
-//         // 'basicAllocator' used to supply memory if 'buffer' capacity is
-//         // exceeded.  If 'basicAllocator' is 0, the currently installed
-//         // default allocator is used.
 //
+//     /// Destroy this array and all elements held by it.
 //     ~my_BufferedIntDoubleArray();
-//         // Destroy this array and all elements held by it.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Append the specified `int` `value` to this array.
 //     void appendInt(int value);
-//         // Append the specified 'int' 'value' to this array.
 //
+//     /// Append the specified `double` `value` to this array.
 //     void appendDouble(double value);
-//         // Append the specified 'double' 'value' to this array.
 //
+//     /// Remove all elements from this array.
 //     void removeAll();
-//         // Remove all elements from this array.
 //
 //     // ...
 // };
@@ -238,41 +241,43 @@ BSLS_IDENT("$Id: $")
 // example.  Please see `bdlma_bufferedsequentialallocator` for full
 // documentation of a similar class.
 // ```
+// /// This class implements the `bslma::Allocator` protocol to provide a
+// /// fast allocator of heterogeneous blocks of memory (of varying,
+// /// user-specified sizes) from an external buffer whose address and size
+// /// are supplied at construction.
 // class my_FastAllocator : public bslma::Allocator {
-//     // This class implements the 'bslma::Allocator' protocol to provide a
-//     // fast allocator of heterogeneous blocks of memory (of varying,
-//     // user-specified sizes) from an external buffer whose address and size
-//     // are supplied at construction.
 //
 //     // DATA
 //     bdlma::BufferedSequentialPool d_pool;  // memory manager for allocated
 //                                            // memory blocks
 //
 //     // CREATORS
+//
+//     /// Create an allocator for allocating memory blocks from the
+//     /// specified external `buffer` of the specified `size` (in bytes).
+//     /// Optionally specify a `basicAllocator` used to supply memory
+//     /// should the capacity of `buffer` be exhausted.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     my_FastAllocator(char             *buffer,
 //                      int               size,
 //                      bslma::Allocator *basicAllocator = 0);
-//         // Create an allocator for allocating memory blocks from the
-//         // specified external 'buffer' of the specified 'size' (in bytes).
-//         // Optionally specify a 'basicAllocator' used to supply memory
-//         // should the capacity of 'buffer' be exhausted.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//      /// Destroy this allocator.  All memory allocated from this
+//      /// allocator is released.
 //     ~my_FastAllocator();
-//         // Destroy this allocator.  All memory allocated from this
-//         // allocator is released.
 //
 //     // MANIPULATORS
-//     virtual void *allocate(size_type size);
-//         // Return the address of a contiguous block of memory of the
-//         // specified 'size' (in bytes).
 //
+//     /// Return the address of a contiguous block of memory of the
+//     /// specified `size` (in bytes).
+//     virtual void *allocate(size_type size);
+//
+//     /// This method has no effect on the memory block at the specified
+//     /// `address` as all memory allocated by this allocator is managed.
+//     /// The behavior is undefined unless `address` was allocated by this
+//     /// allocator, and has not already been deallocated.
 //     virtual void deallocate(void *address);
-//         // This method has no effect on the memory block at the specified
-//         // 'address' as all memory allocated by this allocator is managed.
-//         // The behavior is undefined unless 'address' was allocated by this
-//         // allocator, and has not already been deallocated.
 // };
 //
 // // CREATORS
@@ -524,32 +529,32 @@ class BufferedSequentialPool {
 }  // close package namespace
 }  // close enterprise namespace
 
-// Note that the 'new' and 'delete' operators are declared outside the
-// 'BloombergLP' namespace so that they do not hide the standard placement
-// 'new' and 'delete' operators (i.e.,
-// 'void *operator new(bsl::size_t, void *)' and
-// 'void operator delete(void *)').
+// Note that the `new` and `delete` operators are declared outside the
+// `BloombergLP` namespace so that they do not hide the standard placement
+// `new` and `delete` operators (i.e.,
+// `void *operator new(bsl::size_t, void *)` and
+// `void operator delete(void *)`).
 //
-// Also note that only the scalar versions of operators 'new' and 'delete' are
-// provided, because overloading 'new' (and 'delete') with their array versions
+// Also note that only the scalar versions of operators `new` and `delete` are
+// provided, because overloading `new` (and `delete`) with their array versions
 // would cause dangerous ambiguity.  Consider what would have happened had we
-// overloaded the array version of 'operator new':
+// overloaded the array version of `operator new`:
 //..
 //   void *operator new[](bsl::size_t                                 size,
 //                        BloombergLP::bdlma::BufferedSequentialPool& pool);
 //..
 // The user of the pool class would have expected to be able to use operator
-// 'new' as follows:
+// `new` as follows:
 //..
 //   new (*pool) my_Type[...];
 //..
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
-// overloaded 'operator delete'; on the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly because
-// the pointer is different from the one returned by the 'allocate' method.
+// overloaded `operator delete`; on the other hand, the pointer returned by
+// `operator new` cannot be passed to the `deallocate` method directly because
+// the pointer is different from the one returned by the `allocate` method.
 // The compiler offsets the value of this pointer by a header, which is used to
-// maintain the number of objects in the array (so that the 'operator delete'
+// maintain the number of objects in the array (so that the `operator delete`
 // can destroy the right number of objects).
 
 // FREE OPERATORS

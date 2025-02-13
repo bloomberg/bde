@@ -94,10 +94,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // We can then create our memory manager using `BlockList`:
 // ```
+// /// This class allocates memory from an internal pool of memory buffers
+// /// using natural alignment.  All allocated memory is managed internally
+// /// by the pool and released when the pool is destroyed.
 // class my_SequentialPool {
-//     // This class allocates memory from an internal pool of memory buffers
-//     // using natural alignment.  All allocated memory is managed internally
-//     // by the pool and released when the pool is destroyed.
 //
 //     // DATA
 //     char                   *d_buffer_p;    // pointer to current buffer
@@ -112,27 +112,30 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Replenish the current buffer with memory that satisfies an
+//     /// allocation request having at least the specified `size` (in
+//     /// bytes).
 //     void replenishBuffer(bsls::Types::size_type size);
-//         // Replenish the current buffer with memory that satisfies an
-//         // allocation request having at least the specified 'size' (in
-//         // bytes).
 //
 //   public:
 //     // CREATORS
-//     explicit my_SequentialPool(bslma::Allocator *basicAllocator = 0);
-//         // Create a memory pool that dispenses heterogeneous blocks of
-//         // memory (of varying, user-specified sizes).  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create a memory pool that dispenses heterogeneous blocks of
+//     /// memory (of varying, user-specified sizes).  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     explicit my_SequentialPool(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this memory pool and release all associated memory.
 //     ~my_SequentialPool();
-//         // Destroy this memory pool and release all associated memory.
 //
 //     // MANIPULATORS
+//
+//     /// Return the address of a contiguous block of naturally-aligned
+//     /// memory of the specified `size` (in bytes).  The behavior is
+//     /// undefined unless `0 < size`.
 //     void *allocate(bsls::Types::size_type size);
-//         // Return the address of a contiguous block of naturally-aligned
-//         // memory of the specified 'size' (in bytes).  The behavior is
-//         // undefined unless '0 < size'.
 // };
 // ```
 // The implementations of the constructor and destructor are elided since
