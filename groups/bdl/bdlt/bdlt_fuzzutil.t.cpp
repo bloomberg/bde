@@ -337,8 +337,8 @@ int main(int argc, char *argv[])
         //   Datetime consumeDatetimeInRange(bslim::FuzzDataView *, b, e);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `consumeDateTzInRange`"
-                          << "\n==============================" << endl;
+        if (verbose) cout << "\nTESTING `consumeDatetimeInRange`"
+                          << "\n===============================" << endl;
 
         const bsl::uint8_t FUZZ_DATA[] = {0xF8, 0x33, 0x45, 0x1F, 0x9D, 0x31,
                                           0xD9, 0x52, 0x1A, 0xF6, 0xAB, 0x73,
