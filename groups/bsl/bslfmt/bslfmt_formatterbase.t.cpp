@@ -1,7 +1,9 @@
 // bslfmt_formatterbase.t.cpp                                         -*-C++-*-
 #include <bslfmt_formatterbase.h>
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 #include <bslmf_isaccessiblebaseof.h>
+#endif
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
@@ -17,8 +19,27 @@ using namespace BloombergLP;
 using namespace bsl;
 
 // ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test is not a value-semantic attribute class.  It is
+// just an empty template facade for filling which with content the creators of
+// specific specializations are responsible.  Therefore there are no even
+// Primary Manipulators and Basic Accessors to be tested.  However, there are
+// still a few concerns that need to be checked.
+//
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
+// [ 2] CONCERN: `formatter` template is declared in the `bsl` namespace
+// [ 2] CONCERN:  Default template parameter of `bsl::formatter`
+// [ 2] CONCERN: `bsl` specializations promotion to the `std` namespace
+
+// ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
@@ -382,7 +403,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -400,9 +421,9 @@ int main(int argc, char **argv)
                             "=============\n");
 
 // Unfortunately, due to the position of this component in the class hierarchy,
-// a full-fledged example would require duplicating a huge amount of code. A
-// full example of a custom formatter implementation can be found in
-// the `bslfmt_format` component.
+// a full-fledged example would require duplicating a huge amount of code.  A
+// complete example of a custom formatter implementation can be found in the
+// `bslfmt_format` component.
 
         // Here we have only dummy implementations to verify visibility of the
         // formatter.
@@ -413,6 +434,112 @@ int main(int argc, char **argv)
 
         formatter.parse(context);
         formatter.format(date, context);
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERNS
+        //
+        // Concerns:
+        //: 1 `formatter` is declared in the `bsl` namespace.
+        //:
+        //: 2 Default type for the second template parameter of
+        //:  `bsl::formatter` is `char`.
+        //:
+        //: 3 `bsl::formatter` specialization is promoted to the `std`
+        //:   namespace only in absence of the special type declaration.
+        //:
+        //: 4 Special type declaration prevents compiler complain about
+        //:   ambiguity in case of simultaneous declaration of formatter
+        //:   specialization for the same type in the `bsl` and `std`
+        //:   namespaces.
+        //
+        // Plan:
+        //: 1 Using meta-functions check the presence of the `formatter`
+        //:   template in the `bsl` namespace and its template parameter's
+        //:   default value.  (C-1..2)
+        //:
+        //: 2 Using meta-functions check the propagation of the
+        //:   `bsl::formatter` specializations to the `std` namespace depending
+        //:   on the presence or lack of defined special type.  (C-3..4)
+        //
+        // Testing:
+        //   CONCERN: `formatter` template is declared in the `bsl` namespace
+        //   CONCERN:  Default template parameter of `bsl::formatter`
+        //   CONCERN: `bsl` specializations promotion to the `std` namespace
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERNS"
+                            "\n================\n");
+
+        // Concerns:
+        // - `formatter` is declared in the `bsl` namespace
+        // - default type for the second template parameter is `char`
+
+        ASSERT(false == (bsl::is_same<bsl::formatter<char, char>,
+                                      bsl::formatter<int,  int > >::value));
+        ASSERT(true  == (bsl::is_same<bsl::formatter<int,  char>,
+                                      bsl::formatter<int,  char> >::value));
+        ASSERT(true  == (bsl::is_same<bsl::formatter<int>,
+                                      bsl::formatter<int,  char> >::value));
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+
+        // Explicit trait definition.
+        // Concern:
+        // - `bsl::formatter` is **NOT** propagated to the `std` namespace
+        //   under any circumstances
+
+        ASSERT(false ==
+               (IsStructInherited<
+                   std::formatter<TestTypeExplicitTrait, char> >::value));
+
+        // No trait definition.
+        // Concern:
+        // - `bsl::formatter` is propagated to the `std` namespace under any
+        //   circumstances
+
+        ASSERT(true ==
+               (IsStructInherited<
+                   std::formatter<TestTypeWithoutTrait, char> >::value));
+        ASSERT(true ==
+               (bslmf::IsAccessibleBaseOf<
+                   bsl::formatter<TestTypeWithoutTrait, char>,
+                   std::formatter<TestTypeWithoutTrait, char> >::value));
+
+        // Trait is added to the formatter as a macro.
+        // Concern:
+        // - `bsl::formatter` is propagated to the `std` namespace depending on
+        //   the version of the standard
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
+        ASSERT(false ==
+               (IsStructInherited<
+                   std::formatter<TestTypeMacroTrait, char> >::value));
+#else
+        ASSERT(true == (IsStructInherited<
+                           std::formatter<TestTypeMacroTrait, char> >::value));
+        ASSERT(true == (bslmf::IsAccessibleBaseOf<
+                           bsl::formatter<TestTypeMacroTrait, char>,
+                           std::formatter<TestTypeMacroTrait, char> >::value));
+#endif
+
+        // Formatters are defined in both `std` and `bsl` namespaces.
+        // Concern:
+        // - `bsl::formatter` is **NOT** propagated to the `std` namespace, but
+        //   the standard implementation is used for formatting.
+
+        ASSERT(false ==
+               (IsStructInherited<std::formatter<int, char> >::value));
+        ASSERT(false ==
+               (bslmf::IsAccessibleBaseOf<bsl::formatter<int, char>,
+                                          std::formatter<int, char> >::value));
+
+        bsl::formatter<int, char> bslIntFormatter;
+        (void) bslIntFormatter;  // suppress compiler warning
+
+        std::formatter<int, char> stdIntFormatter;
+        (void) stdIntFormatter;  // suppress compiler warning
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
