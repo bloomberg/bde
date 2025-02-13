@@ -41,13 +41,13 @@ BSLS_IDENT("$Id: $")
 //   }
 //   catch (const bsl::format_error &exc) {
 //       formatErrorCaught = true;
+//       assert(0 == strcmp(exc.what(), "Error message"));
 //   }
 //   assert(formatErrorCaught);
 // ```
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
 
@@ -72,7 +72,7 @@ class format_error : public std::runtime_error {
     // CREATORS
 
     /// Create an object of this type holding the error message given by the
-    /// specified `whatArg`
+    /// specified `whatArg`.
     BSLS_KEYWORD_EXPLICIT format_error(const std::string& whatArg);
     BSLS_KEYWORD_EXPLICIT format_error(const char *whatArg);
 
@@ -91,7 +91,7 @@ class format_error : public std::runtime_error {
 
     /// Assign to this object the value of the specified `rhs` object, and
     /// return a non-`const` reference to this object.
-    format_error& operator=(const format_error& rhs);
+    format_error& operator=(const format_error& rhs) BSLS_KEYWORD_NOEXCEPT;
 };
 #endif
 
@@ -155,7 +155,8 @@ format_error::format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
 
 // MANIPULATORS
 inline
-format_error& format_error::operator=(const format_error& rhs)
+format_error& format_error::operator=(
+                                 const format_error& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     std::runtime_error& me = *this;
 

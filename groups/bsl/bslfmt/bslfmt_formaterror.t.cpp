@@ -15,7 +15,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements `format_error`,a standard-compliant
+// The component under test implements `format_error`, a standard-compliant
 // implementation of 'std::format_error'.  The type has no Primary Manipulators
 // and has a single Basic Accessor that is implemented by its base class
 // therefore the testing of this type while similar to a value-semantic type
@@ -167,6 +167,7 @@ int main(int argc, char **argv)
      }
      catch (const bsl::format_error &exc) {
          formatErrorCaught = true;
+         ASSERT(0 == strcmp(exc.what(), "Error message"));
      }
      ASSERT(formatErrorCaught);
 // ```
@@ -188,8 +189,9 @@ int main(int argc, char **argv)
         //    value.
         //
         // Testing:
-        //   format_error(const format_error &);
+        //   format_error& operator=(const format_error &);
         // --------------------------------------------------------------------
+
         if (verbose) puts("\nASSIGNMENT OPERATOR"
                           "\n===================");
 
@@ -305,30 +307,13 @@ int main(int argc, char **argv)
         }
 
         try {
-            bsl::format_error exc1("Error message");
+            const bsl::format_error exc1("Error message");
             bsl::format_error exc2(exc1);
             throw exc2;
         }
         catch (const bsl::format_error& exc) {
             ASSERT(bsl::string("Error message") == exc.what());
         }
-
-        try {
-            bsl::string msg("Error message");
-            throw bsl::format_error(msg);
-        }
-        catch (const bsl::format_error& exc) {
-            ASSERT(bsl::string("Error message") == exc.what());
-        }
-
-        try {
-            std::string msg("Error message");
-            throw bsl::format_error(msg);
-        }
-        catch (const bsl::format_error& exc) {
-            ASSERT(bsl::string("Error message") == exc.what());
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
