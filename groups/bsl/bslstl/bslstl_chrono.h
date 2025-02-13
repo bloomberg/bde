@@ -212,6 +212,9 @@ namespace bsl {
             using std::chrono::gps_time;
             using std::chrono::gps_seconds;
 
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_USE_CXX11_ABI ||    \
+                                                         !_GLIBCXX_USE_DUAL_ABI
+    // When gcc-14 is compiled w/o C++11 ABI support these names aren't defined.
         using std::chrono::tzdb;
         using std::chrono::tzdb_list;
         using std::chrono::sys_info;
@@ -232,9 +235,10 @@ namespace bsl {
         using std::chrono::ambiguous_local_time;
 
         using std::chrono::leap_second;
+#endif  // not GNU lib C++ or at least C++20
         using std::chrono::leap_second_info;
         using std::chrono::get_leap_second_info;
-#endif
+#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
 
         using std::chrono::from_stream;
         using std::chrono::parse;
