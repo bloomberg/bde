@@ -92,8 +92,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+  #include <bsls_nativestd.h>
+#endif // not BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
@@ -118,20 +118,20 @@ namespace bsl {
         using std::chrono::microseconds;
         using std::chrono::nanoseconds;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
         /// This template variable represents the result value of the
         /// `std::chrono::treat_as_floating_point` meta-function.
         template <class TYPE>
         constexpr bool treat_as_floating_point_v =
                       std::chrono::treat_as_floating_point<TYPE>::value;
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         using std::chrono::abs;
         using std::chrono::ceil;
         using std::chrono::floor;
         using std::chrono::round;
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
         // Calendar and Time Zones
@@ -242,7 +242,7 @@ namespace bsl {
 
         using std::chrono::from_stream;
         using std::chrono::parse;
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
     }  // close namespace chrono
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
@@ -251,7 +251,7 @@ inline namespace chrono_literals {
     using namespace std::literals::chrono_literals;
 }  // close chrono_literals namespace
 }  // close literals namespace
-#endif
+#endif  // not BSLS_PLATFORM_OS_WINDOWS
 
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
     defined (BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)
@@ -314,7 +314,7 @@ inline namespace chrono_literals {
 
 }  // close chrono_literals namespace
 }  // close literals namespace
-#endif
+#endif  // has C++11 baseline and inline namespaces
 
 // ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
@@ -404,7 +404,7 @@ inline namespace chrono_literals {
 
 }  // close chrono_literals namespace
 }  // close literals namespace
-#endif
+#endif  // has C++11 baseline and inline namespaces
 }  // close package namespace
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
