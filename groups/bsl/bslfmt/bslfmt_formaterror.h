@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an exception type for format library errors
+//@PURPOSE: Provide an exception type for format library errors.
 //
 //@CLASSES:
 //  bsl::format_error: standard-compliant format library exception type
@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CANONICAL_HEADER: bsl_format.h
 //
 //@DESCRIPTION: This component provides an implementation of the C++20 Standard
-// Library's `format_error`, providing an excption type thrown in the event of
+// Library's `format_error`, providing an exception type thrown in the event of
 // an error in the formatting library.
 //
 // Where the standard library `<format>` header is available, this is an alias
@@ -27,28 +27,27 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: Throw an exception
-/// - - - - - - - - - - - - -
+///Example: Indicate a Formatting Error
+/// - - - - - - - - - - - - - - - - - -
 //
-// Typically this would be thrown from attempts to use the `format` or
+// Typically a `format_error` exception would be thrown from the `format` or
 // `vformat` functions.  However, as this is at the very bottom of the
 // dependency hierarchy the usage example cannot accurately reflect that case.
 //
 // ```
-//   try
-//   {
-//     throw bsl::format_error("Error message");
+//   bool formatErrorCaught = false;
+//   try {
+//       throw bsl::format_error("Error message");
 //   }
-//   catch (const bsl::format_error &exc)
-//   {
-//     assert(true); // Successful catch.
+//   catch (const bsl::format_error &exc) {
+//       formatErrorCaught = true;
+//       assert(0 == strcmp(exc.what(), "Error message"));
 //   }
+//   assert(formatErrorCaught);
 // ```
-//
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
 
@@ -59,26 +58,27 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                             // ==================
-                             // class format_error
-                             // ==================
+                           // ==================
+                           // class format_error
+                           // ==================
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 using std::format_error;
 #else
-/// This class represents exceptions thrown by the formatting library.
+/// This class represents exceptions thrown by the formatting library, its main
+/// method of reporting errors during formatting.
 class format_error : public std::runtime_error {
   public:
     // CREATORS
 
     /// Create an object of this type holding the error message given by the
-    /// specified `whatArg`
+    /// specified `whatArg`.
     BSLS_KEYWORD_EXPLICIT format_error(const std::string& whatArg);
     BSLS_KEYWORD_EXPLICIT format_error(const char *whatArg);
 
     /// Create an object of this type holding the error message given by the
-    /// specified `whatArg` Note that if a `bsl::string` is passed to the
-    /// `std::string` constructor, two copies occur (one to initialize
+    /// specified `whatArg`.  Note that if a `bsl::string` would be passed to
+    /// the `std::string` constructor, two copies occur (one to initialize
     /// `whatArg`, and one to initialize the internal reference-counted
     /// string).  This constructor ensures that only a single copy needs to be
     /// performed.
@@ -86,6 +86,12 @@ class format_error : public std::runtime_error {
 
     /// Create an object of this type which is a copy of the specified `other`.
     format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT;
+
+    // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
+    format_error& operator=(const format_error& rhs) BSLS_KEYWORD_NOEXCEPT;
 };
 #endif
 
@@ -118,30 +124,26 @@ namespace bsl {
 namespace BloombergLP {
 namespace bslfmt {
 
-                             // ------------------
-                             // class format_error
-                             // ------------------
+                           // ------------------
+                           // class format_error
+                           // ------------------
 
 // CREATORS
 inline
 format_error::format_error(const std::string& whatArg)
-: runtime_error(whatArg)
+: std::runtime_error(whatArg)
 {
 }
 
 inline
 format_error::format_error(const char *whatArg)
-: runtime_error(whatArg)
+: std::runtime_error(whatArg)
 {
 }
 
-// If a `bsl::string` is passed to the `std::string` constructor, two copies
-// occur (one to initialize `whatArg`, and one to initialize the internal
-// reference-counted string).  This constructor ensures that only a single copy
-// needs to be performed.
 inline
 format_error::format_error(const bsl::string& whatArg)
-: runtime_error(whatArg.c_str())
+: std::runtime_error(whatArg.c_str())
 {
 }
 
@@ -151,6 +153,17 @@ format_error::format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT
 {
 }
 
+// MANIPULATORS
+inline
+format_error& format_error::operator=(
+                                 const format_error& rhs) BSLS_KEYWORD_NOEXCEPT
+{
+    std::runtime_error& me = *this;
+
+    me = rhs;
+
+    return *this;
+}
 
 }  // close package namespace
 }  // close enterprise namespace
