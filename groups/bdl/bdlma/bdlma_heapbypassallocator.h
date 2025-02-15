@@ -122,7 +122,7 @@ class HeapBypassAllocator : public bslma::Allocator {
     struct Chunk {
 
         // PUBLIC DATA
-        bsls::AtomicUint64  d_offset;  // byte offset from 'this' to free bytes
+        bsls::AtomicUint64  d_offset;  // byte offset from `this` to free bytes
         size_type           d_size;    // total size, in bytes, of this chunk
         Chunk              *d_nextChunk_p;
     };

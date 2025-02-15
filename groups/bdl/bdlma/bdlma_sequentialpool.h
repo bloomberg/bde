@@ -79,13 +79,13 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_intdoublearray.h
 //
+// /// This class implements an efficient container for an array that
+// /// stores both `int` and `double` values.
 // class my_IntDoubleArray {
-//     // This class implements an efficient container for an array that
-//     // stores both 'int' and 'double' values.
 //
 //     // DATA
 //     char  *d_typeArray_p;   // array indicating the type of corresponding
-//                             // values stored in 'd_valueArray_p'
+//                             // values stored in `d_valueArray_p`
 //
 //     void **d_valueArray_p;  // array of pointers to the values stored
 //
@@ -99,11 +99,11 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
-//     void increaseSize();
 //         // Increase the capacity of the internal arrays used to store
 //         // elements added to this array by at least one element.
+//     void increaseSize();
 //
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     my_IntDoubleArray(const my_IntDoubleArray&);
 //
 //   public:
@@ -111,25 +111,27 @@ BSLS_IDENT("$Id: $")
 //     enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //     // CREATORS
-//     explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
-//         // Create an 'int'-'double' array.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an `int`-`double` array.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
+//     explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this array and all elements held by it.
 //     ~my_IntDoubleArray();
-//         // Destroy this array and all elements held by it.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Append the specified `int` `value` to this array.
 //     void appendInt(int value);
-//         // Append the specified 'int' 'value' to this array.
 //
+//     /// Append the specified `double` `value` to this array.
 //     void appendDouble(double value);
-//         // Append the specified 'double' 'value' to this array.
 //
+//     /// Remove all elements from this array.
 //     void removeAll();
-//         // Remove all elements from this array.
 //
 //     // ...
 // };
@@ -226,10 +228,10 @@ BSLS_IDENT("$Id: $")
 // example.  Please see `bdlma_sequentialallocator` for full documentation of a
 // similar class.
 // ```
+// /// This class implements the `bslma::Allocator` protocol to provide a
+// /// fast allocator of heterogeneous blocks of memory (of varying,
+// /// user-specified sizes) from dynamically-allocated internal buffers.
 // class my_SequentialAllocator : public bslma::Allocator {
-//     // This class implements the 'bslma::Allocator' protocol to provide a
-//     // fast allocator of heterogeneous blocks of memory (of varying,
-//     // user-specified sizes) from dynamically-allocated internal buffers.
 //
 //     // DATA
 //     bdlma::SequentialPool d_pool;  // memory manager for allocated memory
@@ -237,26 +239,28 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit my_SequentialAllocator(bslma::Allocator *basicAllocator = 0);
-//         // Create an allocator for allocating memory blocks from
-//         // dynamically-allocated internal buffers.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
+//     /// Create an allocator for allocating memory blocks from
+//     /// dynamically-allocated internal buffers.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+//     /// the currently installed default allocator is used.
+//     explicit my_SequentialAllocator(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this allocator.  All memory allocated from this
+//     /// allocator is released.
 //     ~my_SequentialAllocator();
-//         // Destroy this allocator.  All memory allocated from this
-//         // allocator is released.
 //
 //     // MANIPULATORS
-//     virtual void *allocate(size_type size);
-//         // Return the address of a contiguous block of memory of the
-//         // specified 'size' (in bytes).
 //
+//     /// Return the address of a contiguous block of memory of the
+//     /// specified `size` (in bytes).
+//     virtual void *allocate(size_type size);
+//
+//     /// This method has no effect on the memory block at the specified
+//     /// `address` as all memory allocated by this allocator is managed.
+//     /// The behavior is undefined unless `address` was allocated by this
+//     /// allocator, and has not already been deallocated.
 //     virtual void deallocate(void *address);
-//         // This method has no effect on the memory block at the specified
-//         // 'address' as all memory allocated by this allocator is managed.
-//         // The behavior is undefined unless 'address' was allocated by this
-//         // allocator, and has not already been deallocated.
 // };
 //
 // // CREATORS
@@ -332,7 +336,6 @@ class SequentialPool {
     /// blocks, and thereby enabling constant-time additions to the list of
     /// blocks.
     struct Block {
-
         Block                               *d_next_p;  // next pointer
         bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
     };
@@ -621,32 +624,32 @@ class SequentialPool {
 }  // close package namespace
 }  // close enterprise namespace
 
-// Note that the 'new' and 'delete' operators are declared outside the
-// 'BloombergLP' namespace so that they do not hide the standard placement
-// 'new' and 'delete' operators (i.e.,
-// 'void *operator new(bsl::size_t, void *)' and
-// 'void operator delete(void *)').
+// Note that the `new` and `delete` operators are declared outside the
+// `BloombergLP` namespace so that they do not hide the standard placement
+// `new` and `delete` operators (i.e.,
+// `void *operator new(bsl::size_t, void *)` and
+// `void operator delete(void *)`).
 //
-// Also note that only the scalar versions of operators 'new' and 'delete' are
-// provided, because overloading 'new' (and 'delete') with their array versions
+// Also note that only the scalar versions of operators `new` and `delete` are
+// provided, because overloading `new` (and `delete`) with their array versions
 // would cause dangerous ambiguity.  Consider what would have happened had we
-// overloaded the array version of operator 'new':
-//..
+// overloaded the array version of operator `new`:
+// ```
 //   void *operator new[](bsl::size_t                         size,
 //                        BloombergLP::bdlma::SequentialPool& pool);
-//..
+// ```
 // The user of the pool class would have expected to be able to use operator
-// 'new' as follows:
-//..
+// `new` as follows:
+// ```
 //   new (*pool) my_Type[...];
-//..
+// ```
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
-// overloaded 'operator delete'; on the other hand, the pointer returned by
-// operator 'new' cannot be passed to the 'deallocate' method directly because
-// the pointer is different from the one returned by the 'allocate' method.
+// overloaded `operator delete`; on the other hand, the pointer returned by
+// operator `new` cannot be passed to the `deallocate` method directly because
+// the pointer is different from the one returned by the `allocate` method.
 // The compiler offsets the value of this pointer by a header, which is used to
-// maintain the number of objects in the array (so that the 'operator delete'
+// maintain the number of objects in the array (so that the `operator delete`
 // can destroy the right number of objects).
 
 // FREE OPERATORS

@@ -56,9 +56,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_bufferallocator.h
 //
+// /// This `class` provides a concrete buffer allocator that implements
+// /// the `bdlma::ManagedAllocator` protocol.
 // class my_BufferAllocator : public bdlma::ManagedAllocator {
-//     // This 'class' provides a concrete buffer allocator that implements
-//     // the 'bdlma::ManagedAllocator' protocol.
 //
 //     // DATA
 //     char                   *d_buffer_p;    // external buffer (held, not
@@ -77,28 +77,29 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     my_BufferAllocator(char *buffer, bsls::Types::size_type bufferSize);
-//         // Create a buffer allocator for allocating maximally-aligned
-//         // memory blocks from the specified external 'buffer' having the
-//         // specified 'bufferSize' (in bytes).
 //
+//     /// Create a buffer allocator for allocating maximally-aligned
+//     /// memory blocks from the specified external `buffer` having the
+//     /// specified `bufferSize` (in bytes).
+//     my_BufferAllocator(char *buffer, bsls::Types::size_type bufferSize);
+//
+//     /// Destroy this buffer allocator.
 //     ~my_BufferAllocator();
-//         // Destroy this buffer allocator.
 //
 //     // MANIPULATORS
+//
+//     /// Return the address of a maximally-aligned contiguous block of
+//     /// memory of the specified `size` (in bytes) on success, and 0 if
+//     /// the allocation request exceeds the remaining free memory space
+//     /// in the external buffer.
 //     void *allocate(bsls::Types::size_type size);
-//         // Return the address of a maximally-aligned contiguous block of
-//         // memory of the specified 'size' (in bytes) on success, and 0 if
-//         // the allocation request exceeds the remaining free memory space
-//         // in the external buffer.
 //
+//     /// This method has no effect for this buffer allocator.
 //     void deallocate(void *address);
-//         // This method has no effect for this buffer allocator.
 //
+//     /// Release all memory allocated through this object.  This allocator
+//     /// is reset to the state it was in immediately following construction.
 //     void release();
-//         // Release all memory allocated through this object.  This
-//         // allocator is reset to the state it was in immediately following
-//         // construction.
 // };
 // ```
 // Next, we define the `inline` methods of `my_BufferAllocator`.  Note that the
@@ -136,21 +137,21 @@ BSLS_IDENT("$Id: $")
 // // my_bufferallocator.cpp
 //
 // // STATIC HELPER FUNCTIONS
+//
+// /// Allocate a maximally-aligned memory block of the specified `size`
+// /// (in bytes) from the specified `buffer` having the specified
+// /// `bufferSize` (in bytes) at the specified `cursor` position.  Return
+// /// the address of the allocated memory block if `buffer` contains
+// /// sufficient available memory, and 0 otherwise.  The `cursor` is set
+// /// to the first byte position immediately after the allocated memory if
+// /// there is sufficient memory, and not modified otherwise.  The
+// /// behavior is undefined unless `0 < size`, `0 <= *cursor`, and
+// /// `*cursor <= bufferSize`.
 // static
 // void *allocateFromBufferImp(bsls::Types::IntPtr    *cursor,
 //                             char                   *buffer,
 //                             bsls::Types::size_type  bufferSize,
 //                             bsls::Types::size_type  size)
-//     // Allocate a maximally-aligned memory block of the specified 'size'
-//     // (in bytes) from the specified 'buffer' having the specified
-//     // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
-//     // the address of the allocated memory block if 'buffer' contains
-//     // sufficient available memory, and 0 otherwise.  The 'cursor' is set
-//     // to the first byte position immediately after the allocated memory if
-//     // there is sufficient memory, and not modified otherwise.  The
-//     // behavior is undefined unless '0 < size', '0 <= *cursor', and
-//     // '*cursor <= bufferSize'.
-//
 // {
 //     const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
 //                                   buffer + *cursor,
@@ -229,27 +230,27 @@ BSLS_IDENT("$Id: $")
 // The top-level function in our example takes a `bdlma::ManagedAllocator *`
 // and the collection of market indices that we wish to process:
 // ```
+// /// Process the specified market `indices` using the specified
+// /// `managedAllocator` to supply memory.
 // static
 // void processIndices(bdlma::ManagedAllocator *managedAllocator,
 //                     const IndexCollection&   indices);
-//     // Process the specified market 'indices' using the specified
-//     // 'managedAllocator' to supply memory.
 // ```
 // `processIndices` makes use of two helper functions to process each index:
 // ```
+// /// Load into the specified collection of `securities` the attributes of
+// /// the securities comprising the specified market `index` using the
+// /// specified `managedAllocator` to supply memory.
 // static
 // void loadIndex(SecurityCollection      *securities,
 //                bdlma::ManagedAllocator *managedAllocator,
 //                const IndexAttributes&   index);
-//     // Load into the specified collection of 'securities' the attributes of
-//     // the securities comprising the specified market 'index' using the
-//     // specified 'managedAllocator' to supply memory.
 //
+// /// Process the specified collection of `securities` that comprise the
+// /// specified market `index`.
 // static
 // void processIndex(const SecurityCollection& securities,
 //                   const IndexAttributes&    index);
-//     // Process the specified collection of 'securities' that comprise the
-//     // specified market 'index'.
 // ```
 // Since we plan to use `my_BufferAllocator` as our managed allocator, we need
 // to supply it with an external buffer.  The `calculateMaxBufferSize` function
@@ -257,9 +258,9 @@ BSLS_IDENT("$Id: $")
 // corresponding to the largest index to be processed by a given call to
 // `processIndices`:
 // ```
+// /// Return the maximum buffer size (in bytes) required to process the
+// /// specified collection of market `indices`.
 // int calculateMaxBufferSize(const IndexCollection& indices);
-//     // Return the maximum buffer size (in bytes) required to process the
-//     // specified collection of market 'indices'.
 // ```
 // Before showing the implementation of `processIndices`, where the most
 // interesting use of our managed allocator takes place, we show the site of
@@ -287,11 +288,11 @@ BSLS_IDENT("$Id: $")
 // Next, we show the implementation of `processIndices`, within which we
 // iterate over the market `indices` that are passed to it:
 // ```
+// /// Process the specified market `indices` using the specified
+// /// `managedAllocator` to supply memory.
 // static
 // void processIndices(bdlma::ManagedAllocator *managedAllocator,
 //                     const IndexCollection&   indices)
-//     // Process the specified market 'indices' using the specified
-//     // 'managedAllocator' to supply memory.
 // {
 //     for (IndexCollection::const_iterator citer = indices.begin();
 //                                          citer != indices.end(); ++citer) {

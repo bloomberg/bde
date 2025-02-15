@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 // memory allocations across our two thread-enabled vectors.  For the purpose
 // of this discussion, we first define a simple thread-enabled vector:
 // ```
+// /// This class defines a trivial thread-enabled vector.
 // template <class TYPE>
 // class ThreadEnabledVector {
-//     // This class defines a trivial thread-enabled vector.
 //
 //     // DATA
 //     mutable bslmt::Mutex d_mutex;     // synchronize access
@@ -60,49 +60,52 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a thread-enabled vector.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
-//         // Create a thread-enabled vector.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //     : d_elements(basicAllocator)
 //     {
 //     }
 //
+//     /// Destroy this thread-enabled vector object.
 //     ~ThreadEnabledVector() {}
-//         // Destroy this thread-enabled vector object.
 //
 //     // MANIPULATORS
+//
+//     /// Append the specified `value` to this thread-enabled vector and
+//     /// return the index of the new element.
 //     int pushBack(const TYPE& value)
-//         // Append the specified 'value' to this thread-enabled vector and
-//         // return the index of the new element.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 //         d_elements.push_back(value);
 //         return static_cast<int>(d_elements.size()) - 1;
 //     }
 //
+//     /// Set the element at the specified `index` in this thread-enabled
+//     /// vector to the specified `value`.  The behavior is undefined
+//     /// unless `0 <= index < length()`.
 //     void set(int index, const TYPE& value)
-//         // Set the element at the specified 'index' in this thread-enabled
-//         // vector to the specified 'value'.  The behavior is undefined
-//         // unless '0 <= index < length()'.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 //         d_elements[index] = value;
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return the value of the element at the specified `index` in this
+//     /// thread-enabled vector.  Note that elements are returned *by*
+//     /// *value* because references to elements managed by this container
+//     /// may be invalidated by another thread.
 //     TYPE element(int index) const
-//         // Return the value of the element at the specified 'index' in this
-//         // thread-enabled vector.  Note that elements are returned *by*
-//         // *value* because references to elements managed by this container
-//         // may be invalidated by another thread.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 //         return d_elements[index];
 //     }
 //
+//     /// Return the number of elements in this thread-enabled vector.
 //     int length() const
-//         // Return the number of elements in this thread-enabled vector.
 //     {
 //         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 //         return static_cast<int>(d_elements.size());
@@ -117,14 +120,14 @@ BSLS_IDENT("$Id: $")
 // `d_allocatorAdapter` and `d_mutex` are initialized before the thread-enabled
 // vectors that depend on them:
 // ```
+// /// This `struct` contains a mutex and an allocator adapter.  The
+// /// `AddressBook` class will inherit from this structure, ensuring that
+// /// the mutex and adapter are initialized before other member variables
+// /// that depend on them.
 // struct AddressBook_PrivateData {
-//     // This 'struct' contains a mutex and an allocator adapter.  The
-//     // 'AddressBook' class will inherit from this structure, ensuring that
-//     // the mutex and adapter are initialized before other member variables
-//     // that depend on them.
 //
 //   private:
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     AddressBook_PrivateData(const AddressBook_PrivateData&);
 //
 //   public:
@@ -133,86 +136,89 @@ BSLS_IDENT("$Id: $")
 //     bdlma::ConcurrentAllocatorAdapter
 //                           d_allocatorAdapter;  // adapter for allocator
 //
+//     /// Create a empty AddressBook private data object.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
-//         // Create a empty AddressBook private data object.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //     : d_allocatorAdapter(&d_mutex, basicAllocator)
 //     {
 //     }
 // };
 //
+// /// This `class` defines a thread-enabled AddressBook containing vectors
+// /// of names and addresses.  Note that this class uses private
+// /// inheritance to ensure that the allocator adapter and mutex are
+// /// initialized before the vectors of names and addresses.
 // class AddressBook : private AddressBook_PrivateData {
-//     // This 'class' defines a thread-enabled AddressBook containing vectors
-//     // of names and addresses.  Note that this class uses private
-//     // inheritance to ensure that the allocator adapter and mutex are
-//     // initialized before the vectors of names and addresses.
 //
 //     // DATA
 //     ThreadEnabledVector<bsl::string> d_names;      // list of names
 //     ThreadEnabledVector<bsl::string> d_addresses;  // list of addresses
 //
 //   private:
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     AddressBook(const AddressBook&);
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an empty AddressBook for storing names and addresses.
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     AddressBook(bslma::Allocator *basicAllocator = 0)
-//         // Create an empty AddressBook for storing names and addresses.
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //     : AddressBook_PrivateData(basicAllocator)
 //     , d_names(&d_allocatorAdapter)
 //     , d_addresses(&d_allocatorAdapter)
 //     {
 //     }
 //
+//     /// Destroy this AddressBook.
 //     ~AddressBook()
-//         // Destroy this AddressBook.
 //     {
 //     }
 //
 //     // MANIPULATORS
+//
+//     /// Add the specified `name` to this AddressBook and return the
+//     /// index of the newly-added name.
 //     int addName(const bsl::string& name)
-//         // Add the specified 'name' to this AddressBook and return the
-//         // index of the newly-added name.
 //     {
 //         return d_names.pushBack(name);
 //     }
 //
+//     /// Add the specified `address` to this AddressBook and return the
+//     /// index of the newly-added address.
 //     int addAddress(const bsl::string& address)
-//         // Add the specified 'address' to this AddressBook and return the
-//         // index of the newly-added address.
 //     {
 //         return d_addresses.pushBack(address);
 //     }
 //
 //     // ACCESSORS
+//
+//     /// Return the value of the name at the specified `index` in this
+//     /// AddressBook.
 //     bsl::string name(int index) const
-//         // Return the value of the name at the specified 'index' in this
-//         // AddressBook.
 //     {
 //         return d_names.element(index);
 //     }
 //
+//     /// Return the value of the address at the specified `index` in this
+//     /// AddressBook.
 //     bsl::string address(int index) const
-//         // Return the value of the address at the specified 'index' in this
-//         // AddressBook.
 //     {
 //         return d_addresses.element(index);
 //     }
 //
+//     /// Return the number of names in this AddressBook.
 //     int numNames() const
-//         // Return the number of names in this AddressBook.
 //     {
 //         return d_names.length();
 //     }
 //
+//     /// Return the number of addresses in this AddressBook.
 //     int numAddresses() const
-//         // Return the number of addresses in this AddressBook.
 //     {
 //         return d_addresses.length();
 //     }

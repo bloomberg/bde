@@ -214,9 +214,10 @@ class LocalSequentialAllocator : public BufferedSequentialAllocator {
 
   private:
     // NOT IMPLEMENTED
+
     //! LocalSequentialAllocator(const LocalSequentialAllocator&) = delete;
     //! LocalSequentialAllocator& operator=(
-    //                               const LocalSequentialAllocator&) = delete;
+    //!                              const LocalSequentialAllocator&) = delete;
 
   public:
     // CREATORS
@@ -228,9 +229,9 @@ class LocalSequentialAllocator : public BufferedSequentialAllocator {
     /// is 0, the currently installed default allocator is used.
     explicit LocalSequentialAllocator(bslma::Allocator *basicAllocator = 0);
 
+    /// Destroy this local sequential allocator.  All memory allocated from
+    /// this allocator is released.
     //! virtual ~LocalSequentialAllocator() = default;
-        // Destroy this local sequential allocator.  All memory allocated from
-        // this allocator is released.
 };
 
 // ============================================================================

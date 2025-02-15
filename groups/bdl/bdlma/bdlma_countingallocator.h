@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 // ```
 // // doublestack.h
 //
+// /// This class implements a stack of out-of-place `double` values.
 // class DoubleStack {
-//     // This class implements a stack of out-of-place 'double' values.
 //
 //     // DATA
 //     double           **d_stack_p;      // dynamically allocated array of
@@ -104,28 +104,31 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Increase the capacity of this stack by at least one element.
 //     void increaseCapacity();
-//         // Increase the capacity of this stack by at least one element.
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a stack for 'double' values having an initial capacity to
+//     /// hold one element.  Optionally specify a 'basicAllocator' used to
+//     /// supply memory.  If 'basicAllocator' is 0, the currently
+//     /// installed default allocator is used.
 //     explicit
 //     DoubleStack(bslma::Allocator *basicAllocator = 0);
-//         // Create a stack for 'double' values having an initial capacity to
-//         // hold one element.  Optionally specify a 'basicAllocator' used to
-//         // supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Delete this object.
 //     ~DoubleStack();
-//         // Delete this object.
 //
 //     // MANIPULATORS
-//     void push(double value);
-//         // Add the specified 'value' to the top of this stack.
 //
+//     /// Add the specified 'value' to the top of this stack.
+//     void push(double value);
+//
+//     /// Remove the element at the top of this stack.  The behavior is
+//     /// undefined unless this stack is non-empty.
 //     void pop();
-//         // Remove the element at the top of this stack.  The behavior is
-//         // undefined unless this stack is non-empty.
 //
 //     // ACCESSORS
 //     // ...
@@ -187,15 +190,16 @@ BSLS_IDENT("$Id: $")
 // called:
 // ```
 // // HELPER FUNCTIONS
+//
+// /// Reallocate memory in the specified `array` to accommodate the
+// /// specified `newCapacity` elements using the specified `allocator`.
+// /// The specified `length` number of leading elements are preserved.
+// /// The behavior is undefined unless `newCapacity > length`.
 // static
 // void reallocate(double           ***array,
 //                 int                 newCapacity,
 //                 int                 length,
 //                 bslma::Allocator   *allocator)
-//     // Reallocate memory in the specified 'array' to accommodate the
-//     // specified 'newCapacity' elements using the specified 'allocator'.
-//     // The specified 'length' number of leading elements are preserved.
-//     // The behavior is undefined unless 'newCapacity > length'.
 // {
 //     BSLS_ASSERT(newCapacity > length);
 //

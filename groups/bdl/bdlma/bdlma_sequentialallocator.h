@@ -101,8 +101,8 @@ BSLS_IDENT("$Id: $")
 // // my_doublestack.h
 // // ...
 //
+// /// This class implements a stack that stores `double` values.
 // class my_DoubleStack {
-//     // This class implements a stack that stores 'double' values.
 //
 //     // DATA
 //     double           *d_stack_p;      // dynamically-allocated array
@@ -112,27 +112,30 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Increase the capacity of this stack by at least one element.
 //     void increaseCapacity();
-//         // Increase the capacity of this stack by at least one element.
 //
 //     // Not implemented:
 //     my_DoubleStack(const my_DoubleStack&);
 //
 //   public:
 //     // CREATORS
-//     explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-//         // Create a stack that stores 'double' values.  Optionally specify
-//         // a 'basicAllocator' used to supply memory.  If 'basicAllocator'
-//         // is 0, the currently installed default allocator is used.
 //
+//     /// Create a stack that stores `double` values.  Optionally specify
+//     /// a `basicAllocator` used to supply memory.  If `basicAllocator`
+//     /// is 0, the currently installed default allocator is used.
+//     explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this stack and all elements held by it.
 //     ~my_DoubleStack();
-//         // Destroy this stack and all elements held by it.
 //
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Push the specified `value` onto this stack.
 //     void push(double value);
-//         // Push the specified 'value' onto this stack.
 //
 //     // ...
 // };
@@ -246,12 +249,12 @@ class SequentialAllocator : public ManagedAllocator {
     /// `basicAllocator` used to supply memory for the dynamically-allocated
     /// buffers.  If `basicAllocator` is 0, the currently installed default
     /// allocator is used.  Optionally specify a `growthStrategy` used to
-    /// control buffer growth.  If no `growthStrategy` is specified,
-    /// geometric growth is used.  Optionally specify an `alignmentStrategy`
-    /// used to control alignment of allocated memory blocks.  If no
-    /// `alignmentStrategy` is specified, natural alignment is used.  Note
-    /// that no limit is imposed on the size of the internal buffers when
-    /// geometric growth is used.
+    /// control buffer growth.  If no `growthStrategy` is specified, geometric
+    /// growth is used.  Optionally specify an `alignmentStrategy` used to
+    /// control alignment of allocated memory blocks.  If no
+    /// `alignmentStrategy` is specified, natural alignment is used.  Note that
+    /// no limit is imposed on the size of the internal buffers when geometric
+    /// growth is used.
     explicit SequentialAllocator(bslma::Allocator *basicAllocator = 0);
     explicit SequentialAllocator(
                               bsls::BlockGrowth::Strategy  growthStrategy,

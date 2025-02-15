@@ -92,7 +92,7 @@ class MemoryBlockDescriptor {
     /// value if and only if they have the same address and size.
     MemoryBlockDescriptor(const MemoryBlockDescriptor& original);
 
-    // Destroy this object.
+    /// Destroy this object.
     //! ~MemoryBlockDescriptor() = default;
 
     // MANIPULATORS

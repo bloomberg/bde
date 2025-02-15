@@ -145,12 +145,12 @@ BSLS_IDENT("$Id: $")
 // ```
 // // my_poolarray.h
 //
+// /// This class implements a container that stores values of (template
+// /// parameter) `TYPE` out-of-place.  It is assumed that `TYPE` does not
+// /// require an allocator, and that calls to the destructor of `TYPE` can
+// /// be elided.
 // template <class TYPE>
 // class my_PooledArray {
-//     // This class implements a container that stores values of (template
-//     // parameter) 'TYPE' out-of-place.  It is assumed that 'TYPE' does not
-//     // require an allocator, and that calls to the destructor of 'TYPE' can
-//     // be elided.
 //
 //     // DATA
 //     bsl::vector<TYPE *> d_array_p;  // array of pooled elements
@@ -162,30 +162,33 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
-//         // Create a pooled array that stores the 'TYPE' element values
-//         // "out-of-place".  Optionally specify a 'basicAllocator' used to
-//         // supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
+//     /// Create a pooled array that stores the `TYPE` element values
+//     /// "out-of-place".  Optionally specify a `basicAllocator` used to
+//     /// supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
+//     explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this array and all elements held by it.
 //     ~my_PooledArray();
-//         // Destroy this array and all elements held by it.
 //
 //     // MANIPULATORS
-//     void append(const TYPE& value);
-//         // Append the specified 'value' to this array.
 //
+//     /// Append the specified `value` to this array.
+//     void append(const TYPE& value);
+//
+//     /// Remove all elements from this array.
 //     void removeAll();
-//         // Remove all elements from this array.
 //
 //     // ACCESSORS
-//     bsl::size_t length() const;
-//         // Return the number of elements in this array.
 //
+//     /// Return the number of elements in this array.
+//     bsl::size_t length() const;
+//
+//     /// Return a reference providing non-modifiable access to the value
+//     /// at the specified `index` in this array.  The behavior is
+//     /// undefined unless `0 <= index < length()`.
 //     const TYPE& operator[](int index) const;
-//         // Return a reference providing non-modifiable access to the value
-//         // at the specified 'index' in this array.  The behavior is
-//         // undefined unless '0 <= index < length()'.
 // };
 // ```
 // Next, we provide the implementation of the `my_PooledArray` methods that are
@@ -386,8 +389,8 @@ class Pool {
     void *allocate();
 
     /// Relinquish the memory block at the specified `address` back to this
-    /// pool object for reuse.  The behavior is undefined unless `address`
-    /// is non-zero, was allocated by this pool, and has not already been
+    /// pool object for reuse.  The behavior is undefined unless `address` is
+    /// non-zero, was allocated by this pool, and has not already been
     /// deallocated.
     void deallocate(void *address);
 
@@ -401,66 +404,66 @@ class Pool {
     template <class TYPE>
     void deleteObject(const TYPE *object);
 
-    /// Destroy the specified `object` and then use this pool to deallocate
-    /// its memory footprint.  This method has no effect if `object` is 0.
-    /// The behavior is undefined unless `object` is **not** a secondary base
-    /// class pointer (i.e., the address is (numerically) the same as when
-    /// it was originally dispensed by this pool), was allocated using this
-    /// pool, and has not already been deallocated.
+    /// Destroy the specified `object` and then use this pool to deallocate its
+    /// memory footprint.  This method has no effect if `object` is 0.  The
+    /// behavior is undefined unless `object` is **not** a secondary base class
+    /// pointer (i.e., the address is (numerically) the same as when it was
+    /// originally dispensed by this pool), was allocated using this pool, and
+    /// has not already been deallocated.
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
 
     /// Relinquish all memory currently allocated via this pool object.
     void release();
 
-    /// Reserve memory from this pool to satisfy memory requests for at
-    /// least the specified `numBlocks` before the pool replenishes.  The
-    /// behavior is undefined unless `0 <= numBlocks`.
+    /// Reserve memory from this pool to satisfy memory requests for at least
+    /// the specified `numBlocks` before the pool replenishes.  The behavior is
+    /// undefined unless `0 <= numBlocks`.
     void reserveCapacity(int numBlocks);
 
     // ACCESSORS
 
     /// Return the size (in bytes) of the memory blocks allocated from this
-    /// pool object.  Note that all blocks dispensed by this pool have the
-    /// same size.
+    /// pool object.  Note that all blocks dispensed by this pool have the same
+    /// size.
     bsls::Types::size_type blockSize() const;
 
                                   // Aspects
 
-    /// Return the allocator used by this object to allocate memory.  Note
-    /// that this allocator can not be used to deallocate memory
-    /// allocated through this pool.
+    /// Return the allocator used by this object to allocate memory.  Note that
+    /// this allocator can not be used to deallocate memory allocated through
+    /// this pool.
     bslma::Allocator *allocator() const;
 };
 
 }  // close package namespace
 }  // close enterprise namespace
 
-// Note that the 'new' and 'delete' operators are declared outside the
-// 'BloombergLP' namespace so that they do not hide the standard placement
-// 'new' and 'delete' operators (i.e.,
-// 'void *operator new(bsl::size_t, void *)' and
-// 'void operator delete(void *)').
+// Note that the `new` and `delete` operators are declared outside the
+// `BloombergLP` namespace so that they do not hide the standard placement
+// `new` and `delete` operators (i.e.,
+// `void *operator new(bsl::size_t, void *)` and
+// `void operator delete(void *)`).
 //
-// Also note that only the scalar versions of operators 'new' and 'delete' are
-// provided, because overloading 'new' (and 'delete') with their array versions
+// Also note that only the scalar versions of operators `new` and `delete` are
+// provided, because overloading `new` (and `delete`) with their array versions
 // would cause dangerous ambiguity.  Consider what would have happened had we
-// overloaded the array version of 'operator new':
-//..
+// overloaded the array version of `operator new`:
+// ```
 //  void *operator new[](bsl::size_t size, BloombergLP::bdlma::Pool& pool);
-//..
-// A user of 'bdlma::Pool' may expect to be able to use array 'operator new' as
+// ```
+// A user of `bdlma::Pool` may expect to be able to use array `operator new` as
 // follows:
-//..
+// ```
 //   new (*pool) my_Type[...];
-//..
+// ```
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
-// overloaded 'operator delete'; on the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly because
-// the pointer is different from the one returned by the 'allocate' method.
+// overloaded `operator delete`; on the other hand, the pointer returned by
+// `operator new` cannot be passed to the `deallocate` method directly because
+// the pointer is different from the one returned by the `allocate` method.
 // The compiler offsets the value of this pointer by a header, which is used to
-// maintain the number of objects in the array (so that 'operator delete' can
+// maintain the number of objects in the array (so that `operator delete` can
 // destroy the right number of objects).
 
 // FREE OPERATORS

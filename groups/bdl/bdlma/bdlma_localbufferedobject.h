@@ -223,9 +223,9 @@ class LocalBufferedObject {
     typedef t_TYPE                  value_type;
     typedef bsl::allocator<>        allocator_type;
 
-    enum { k_BUFFER_SIZE = t_BUFFER_SIZE };   // The 'size' template
-                                              // parameter to 'LocalAllocator'
-                                              // takes an 'int', not 'size_t'.
+    enum { k_BUFFER_SIZE = t_BUFFER_SIZE };   // The `size` template
+                                              // parameter to `LocalAllocator`
+                                              // takes an `int`, not `size_t`.
 
   private:
     // DATA

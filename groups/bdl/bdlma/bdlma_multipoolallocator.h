@@ -67,17 +67,17 @@ BSLS_IDENT("$Id: $")
 //   - the unique growth strategy for all pools, or
 //   - (if the number of pools is specified) an array of growth strategies
 //     corresponding to each individual pool.
-//   If the growth strategy is not specified, geometric growth is used for all
-//   pools.
+//    If the growth strategy is not specified, geometric growth is used for all
+//    pools.
 // 3. MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
 //    chunk, specified as either:
 //     - the unique maximum-blocks-per-chunk value for all of the pools, or
 //     - an array of maximum-blocks-per-chunk values corresponding to each
 //       individual pool.
-//   If the maximum blocks per chunk is not specified, an
-//   implementation-defined default value is used.  Note that the maximum
-//   blocks per chunk can be configured only if the number of pools is also
-//   configured.
+//    If the maximum blocks per chunk is not specified, an
+//    implementation-defined default value is used.  Note that the maximum
+//    blocks per chunk can be configured only if the number of pools is also
+//    configured.
 // 4. BASIC ALLOCATOR -- the allocator used to supply memory (to replenish an
 //    internal pool, or directly if the maximum block size is exceeded).  If
 //    not specified, the currently installed default allocator is used (see
@@ -118,9 +118,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // class my_Node;
 //
+// /// This class represents an edge within a graph.  Both ends of an edge
+// /// must be connected to nodes.
 // class my_Edge {
-//     // This class represents an edge within a graph.  Both ends of an edge
-//     // must be connected to nodes.
 //
 //     // DATA
 //     my_Node *d_first;   // first node
@@ -130,9 +130,10 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create an edge that connects to the specified `first` and
+//     /// `second` nodes.
 //     my_Edge(my_Node *first, my_Node *second);
-//         // Create an edge that connects to the specified 'first' and
-//         // 'second' nodes.
 //
 //     // ...
 // };
@@ -146,9 +147,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, the node class, `my_Node`, is defined as follows:
 // ```
+// /// This class represents a node within a graph.  A node can be
+// /// connected to any number of edges.
 // class my_Node {
-//     // This class represents a node within a graph.  A node can be
-//     // connected to any number of edges.
 //
 //     // DATA
 //     bsl::set<my_Edge *> d_edges;  // set of edges this node connects to
@@ -164,11 +165,12 @@ BSLS_IDENT("$Id: $")
 //     BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create a node not connected to any other nodes.  Optionally
+//     /// specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator
+//     /// is used.
 //     explicit my_Node(bslma::Allocator *basicAllocator = 0);
-//         // Create a node not connected to any other nodes.  Optionally
-//         // specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
 //     // ...
 // };
@@ -181,8 +183,8 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, we define the graph class, `my_Graph`, as follows:
 // ```
+// /// This class represents a graph having sets of nodes and edges.
 // class my_Graph {
-//     // This class represents a graph having sets of nodes and edges.
 //
 //     // DATA
 //     bsl::set<my_Edge> d_edges;  // set of edges in this graph
@@ -199,10 +201,11 @@ BSLS_IDENT("$Id: $")
 //     BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create an empty graph.  Optionally specify a `basicAllocator`
+//     /// used to supply memory.  If `basicAllocator` is 0, the currently
+//     /// installed default allocator is used.
 //     explicit my_Graph(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty graph.  Optionally specify a 'basicAllocator'
-//         // used to supply memory.  If 'basicAllocator' is 0, the currently
-//         // installed default allocator is used.
 //
 //     // ...
 // };
@@ -216,15 +219,15 @@ BSLS_IDENT("$Id: $")
 // Next, the container for the collection of named graphs,
 // `my_NamedGraphContainer`, is defined as follows:
 // ```
+// /// This class stores a map that indexes graph names to graph objects.
 // class my_NamedGraphContainer {
-//     // This class stores a map that indexes graph names to graph objects.
 //
 //     // DATA
 //     bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph name to
 //                                                  // graph
 //
 //   private:
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     my_NamedGraphContainer(const my_NamedGraphContainer&);
 //
 //   public:
@@ -233,10 +236,11 @@ BSLS_IDENT("$Id: $")
 //                                    bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
+//
+//     /// Create an empty named graph container.  Optionally specify a
+//     /// 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+//     /// 0, the currently installed default allocator is used.
 //     explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);
-//         // Create an empty named graph container.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // ...
 // };

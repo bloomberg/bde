@@ -125,62 +125,64 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we define the (elided) interface of our data translation utility:
 // ```
+// /// This `struct` provides a namespace for data translation utilities.
 // struct my_DataTranslationUtil {
-//     // This 'struct' provides a namespace for data translation utilities.
 //
 //     // CLASS METHODS
+//
+//     /// Return the buffer size (in bytes) required to store the result
+//     /// of converting input data of the specified `inputLength` (in
+//     /// bytes), in the specified `inputStyle`, into the specified
+//     /// `outputStyle`.  The behavior is undefined unless
+//     /// `0 <= inputLength`.
 //     static int outputSize(my_DataStyle outputStyle,
 //                           my_DataStyle inputStyle,
 //                           int          inputLength);
-//         // Return the buffer size (in bytes) required to store the result
-//         // of converting input data of the specified 'inputLength' (in
-//         // bytes), in the specified 'inputStyle', into the specified
-//         // 'outputStyle'.  The behavior is undefined unless
-//         // '0 <= inputLength'.
 //
+//     /// Load into the specified `output` buffer the result of converting
+//     /// the specified `input` data, in the specified `inputStyle`, into
+//     /// the specified `outputStyle`.  Return 0 on success, and a
+//     /// non-zero value otherwise.  The behavior is undefined unless
+//     /// `output` has sufficient capacity to hold the translated result.
+//     /// Note that this method assumes that `input` originated from a
+//     /// trusted source.
 //     static int translate(char         *output,
 //                          my_DataStyle  outputStyle,
 //                          const char   *input,
 //                          my_DataStyle  inputStyle);
-//         // Load into the specified 'output' buffer the result of converting
-//         // the specified 'input' data, in the specified 'inputStyle', into
-//         // the specified 'outputStyle'.  Return 0 on success, and a
-//         // non-zero value otherwise.  The behavior is undefined unless
-//         // 'output' has sufficient capacity to hold the translated result.
-//         // Note that this method assumes that 'input' originated from a
-//         // trusted source.
 // };
 // ```
 // Next, we define `my_DataHandler`, a simple class that makes use of
 // `my_DataTranslationUtil`:
 // ```
+// /// This `class` provides a basic data handler.
 // class my_DataHandler {
-//     // This 'class' provides a basic data handler.
 //
 //     // DATA
-//     my_DataStyle      d_inStyle;     // style of 'd_inBuffer' contents
+//     my_DataStyle      d_inStyle;     // style of `d_inBuffer` contents
 //     char             *d_inBuffer;    // input supplied at construction
-//     int               d_inCapacity;  // capacity (in bytes) of 'd_inBuffer'
+//     int               d_inCapacity;  // capacity (in bytes) of `d_inBuffer`
 //     my_DataStyle      d_altStyle;    // alternative style (if requested)
 //     char             *d_altBuffer;   // buffer for alternative style
 //     bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
 //
 //   private:
-//     // Not implemented:
+//     // NOT IMPLEMENTED
 //     my_DataHandler(const my_DataHandler&);
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a data handler for the specified `input` data, in the
+//     /// specified `inputStyle`, having the specified `inputLength` (in
+//     /// bytes).  Optionally specify a `basicAllocator` used to supply
+//     /// memory.  If `basicAllocator` is 0, the currently installed
+//     /// default allocator is used.  The behavior is undefined unless
+//     /// `0 <= inputLength`.
 //     my_DataHandler(const char       *input,
 //                    int               inputLength,
 //                    my_DataStyle      inputStyle,
 //                    bslma::Allocator *basicAllocator = 0);
-//         // Create a data handler for the specified 'input' data, in the
-//         // specified 'inputStyle', having the specified 'inputLength' (in
-//         // bytes).  Optionally specify a 'basicAllocator' used to supply
-//         // memory.  If 'basicAllocator' is 0, the currently installed
-//         // default allocator is used.  The behavior is undefined unless
-//         // '0 <= inputLength'.
 //
 //     ~my_DataHandler();
 //         // Destroy this data handler.
@@ -188,11 +190,12 @@ BSLS_IDENT("$Id: $")
 //     // ...
 //
 //     // MANIPULATORS
+//
+//     /// Generate data for this data handler in the specified
+//     /// `alternateStyle`.  Return 0 on success, and a non-zero value
+//     /// otherwise.  If `alternateStyle` is the same as the style of data
+//     /// supplied at construction, this method returns 0 with no effect.
 //     int generateAlternate(my_DataStyle alternateStyle);
-//         // Generate data for this data handler in the specified
-//         // 'alternateStyle'.  Return 0 on success, and a non-zero value
-//         // otherwise.  If 'alternateStyle' is the same as the style of data
-//         // supplied at construction, this method returns 0 with no effect.
 //
 //     // ...
 // };
@@ -306,23 +309,23 @@ BSLS_IDENT("$Id: $")
 // Suppose one must test a function, `myIntSort`, having the signature and
 // contract:
 // ```
+// /// Efficiently sort in place the values in the specified range
+// /// `[start .. end - 1]` into ascending order.
 // void myIntSort(int *begin, int *end);
-//     // Efficiently sort in place the values in the specified range
-//     // '[start .. end - 1]' into ascending order.
 // ```
 // If the `myIntSort` function uses some manner of partitioning algorithm the
 // implementation will involve considerable pointer arithmetic, recursion,
 // etc., then a reasonable test concern would be:
 // ```
 //     // Concerns:
-//     //: 1 The implementation never modifies or even reads data outside of
-//     //:   the given input range.
-//     //:
-//     //: 2 Some other concern.
-//     //:
-//     //: 3 Yet another concern.
-//     //:
-//     //: 4 ...
+//     // 1. The implementation never modifies or even reads data outside of
+//     //    the given input range.
+//     //
+//     // 2. Some other concern.
+//     //
+//     // 3. Yet another concern.
+//     //
+//     // 4. ...
 // ```
 // Addressing that test concern is ordinarily challenging.  One approach is to
 // bracket the data for each test with data having a distinctive value (e.g.,
@@ -335,17 +338,17 @@ BSLS_IDENT("$Id: $")
 // case.  Thus, our test plan would include:
 // ```
 //     // Plan:
-//     //: 1 Test for range overflow and underflow by positioning test data in
-//     //:   memory obtained from 'bdlma::GuardingAllocator' objects.  Each
-//     //:   test is run twice, once with the guard page below the test data,
-//     //:   and again with the guard page above the test data.
+//     // 1. Test for range overflow and underflow by positioning test data in
+//     //    memory obtained from 'bdlma::GuardingAllocator' objects.  Each
+//     //    test is run twice, once with the guard page below the test data,
+//     //    and again with the guard page above the test data.
 // ```
 // First, create a set of test data for thoroughly testing all concerns of
 // `myIntSort`, and a framework for running through those tests:
 // ```
+// /// Thoroughly test the `myIntSort` function using a table-driven
+// /// framework.  Note that the testing concerns were listed above.
 // void testMyIntSort()
-//     // Thoroughly test the 'myIntSort' function using a table-driven
-//     // framework.  Note that the testing concerns were listed above.
 // {
 //     const bsl::size_t MAX_NUM_INPUTS = 5;
 //     struct {
@@ -502,21 +505,21 @@ class GuardingAllocator : public bslma::Allocator {
 
   public:
     // TYPES
-    enum GuardPageLocation {
-        // Enumerate the configuration options for 'GuardingAllocator' that may
-        // be (optionally) supplied at construction.
 
+    /// Enumerate the configuration options for `GuardingAllocator` that may
+    /// be (optionally) supplied at construction.
+    enum GuardPageLocation {
         e_AFTER_USER_BLOCK,  // locate the guard page after the user block
         e_BEFORE_USER_BLOCK  // locate the guard page before the user block
     };
 
   private:
     // DATA
-    GuardPageLocation d_guardPageLocation;  // if 'e_AFTER_USER_BLOCK', place
+    GuardPageLocation d_guardPageLocation;  // if `e_AFTER_USER_BLOCK`, place
                                             // the read/write protected guard
                                             // page after the user block;
                                             // otherwise, place it before the
-                                            // block ('e_BEFORE_USER_BLOCK')
+                                            // block (`e_BEFORE_USER_BLOCK`)
 
   private:
     // NOT IMPLEMENTED
