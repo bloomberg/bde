@@ -232,6 +232,7 @@
 // [23] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
 // [22] BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
 // [24] BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -526,6 +527,15 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT_defined =
 #else
                                                                          false;
 #endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
                         // case 19
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -2021,41 +2031,44 @@ int main(int argc, char *argv[])
         // `BSLS_LIBRARYFEATURES_HAS_CPP20_*` MISCELLANY
         //
         // Concerns:
-        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` is defined only when the
-        //    native standard library provides it.
+        //  1. `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` is defined only when
+        //     the native standard library provides it.
         //
-        // 2. `BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS` is defined only when
-        //    the native standard library provides it.
+        //  2. `BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS` is defined only when
+        //     the native standard library provides it.
         //
-        // 3. `BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES` is defined only when the
-        //    native standard library provides it.
+        //  3. `BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES` is defined only when the
+        //     native standard library provides it.
         //
-        // 3. `BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION` is defined only
-        //    when the native standard library provides it.
+        //  3. `BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION` is defined only
+        //     when the native standard library provides it.
         //
-        // 4. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF` is
-        //    defined only when the native standard library provides it.
+        //  4. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF` is
+        //     defined only when the native standard library provides it.
         //
-        // 5. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES` is
-        //    defined only when the native standard library provides it.
+        //  5. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES`
+        //     is defined only when the native standard library provides it.
         //
-        // 6. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS` is
-        //    defined only when the native standard library provides it.
+        //  6. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS` is
+        //     defined only when the native standard library provides it.
         //
-        // 7. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS`
-        //    is defined only when the native standard library provides it.
+        //  7. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS`
+        //     is defined only when the native standard library provides it.
         //
-        // 8. `BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE` is
-        //    defined only when the native standard library provides it.
+        //  8. `BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE` is
+        //     defined only when the native standard library provides it.
         //
-        // 9. `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` is defined only when
-        //    the native standard library provides it.
+        //  9. `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` is defined only when
+        //     the native standard library provides it.
         //
-        // 10. `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` is defined only
-        //    when the native standard library provides it.
+        // 10. `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` is defined only when
+        //     the native standard library provides it.
         //
-        // 11 `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined only
-        //    when the native standard library provides it.
+        // 11. `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` is defined only
+        //     when the native standard library provides it.
+        //
+        // 12. `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined only
+        //    w hen the native standard library provides it.
         //
         // Plan:
         // 1. When these macros are defined include the appropriate headers and
@@ -2074,6 +2087,7 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        //   BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP20_*' MISCELLANY"
@@ -2095,6 +2109,7 @@ int main(int argc, char *argv[])
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT);
+            PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE);
 #undef PMD
         }
 
@@ -2169,6 +2184,10 @@ int main(int argc, char *argv[])
         using namespace std::chrono_literals;
         using std::chrono::May;
         (void)(1d/May/2000y);
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+        (void)std::chrono::tzdb{};
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
