@@ -976,8 +976,261 @@ int main(int argc, char *argv[])
 
         if (verbose) puts("\n`bsl_chrono.h`"
                           "\n==============");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        {
+            using BslDuration = bsl::chrono::duration<int>;
+            using StdDuration = std::chrono::duration<int>;
+            ASSERT((bsl::is_same<BslDuration, StdDuration>::value));
+        }
+
+        {
+            using BslTmPt = bsl::chrono::time_point<bsl::chrono::system_clock>;
+            using StdTmPt = std::chrono::time_point<std::chrono::system_clock>;
+            ASSERT((bsl::is_same<BslTmPt, StdTmPt>::value));
+        }
+
+        ASSERT((bsl::is_same<bsl::chrono::high_resolution_clock,
+                             std::chrono::high_resolution_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::steady_clock,
+                             std::chrono::steady_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::system_clock,
+                             std::chrono::system_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::treat_as_floating_point<
+                                 bsl::chrono::system_clock>,
+                             std::chrono::treat_as_floating_point<
+                                 bsl::chrono::system_clock> >::value));
+
+        {
+            using BslDurVals = bsl::chrono::duration_values<int>;
+            using StdDurVals = std::chrono::duration_values<int>;
+            ASSERT((bsl::is_same<BslDurVals, StdDurVals>::value));
+        }
+
+        {
+            const auto inHours =
+                bsl::chrono::duration_cast<bsl::chrono::hours>(
+                                                         bsl::chrono::days(2));
+            ASSERTV(inHours.count(), 48 == inHours.count());
+        }
+
+        {
+            using namespace bsl::chrono;
+
+            const auto inHours = time_point_cast<hours>(
+                                      time_point<system_clock, days>{days{2}});
+            ASSERTV(inHours.time_since_epoch().count(),
+                    48 == inHours.time_since_epoch().count());
+        }
+
+        ASSERT(bsl::chrono::hours::period::num == 3600);
+        ASSERT(bsl::chrono::hours::period::den == 1);
+
+        ASSERT(bsl::chrono::microseconds::period::num == 1);
+        ASSERT(bsl::chrono::microseconds::period::den == 1'000'000);
+
+        ASSERT(bsl::chrono::milliseconds::period::num == 1);
+        ASSERT(bsl::chrono::milliseconds::period::den == 1'000);
+
+        ASSERT(bsl::chrono::minutes::period::num == 60);
+        ASSERT(bsl::chrono::minutes::period::den == 1);
+
+        ASSERT(bsl::chrono::nanoseconds::period::num == 1);
+        ASSERT(bsl::chrono::nanoseconds::period::den == 1'000'000'000);
+
+        ASSERT(bsl::chrono::seconds::period::num == 1);
+        ASSERT(bsl::chrono::seconds::period::den == 1);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+        // How to test `bsl::chrono::treat_as_floating_point_v`?
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // How to test `bsl::chrono::abs`,  `std::chrono::ceil`,
+        // `std::chrono::floor`, `std::chrono::round`?
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+        ASSERT(bsl::chrono::days::period::num == 86'400);
+        ASSERT(bsl::chrono::days::period::den == 1);
+
+        ASSERT(bsl::chrono::weeks::period::num == 604'800);
+        ASSERT(bsl::chrono::weeks::period::den == 1);
+
+        ASSERT(bsl::chrono::months::period::num == 2'629'746);
+        ASSERT(bsl::chrono::months::period::den == 1);
+
+        ASSERT(bsl::chrono::years::period::num == 31'556'952);
+        ASSERT(bsl::chrono::years::period::den == 1);
+
+        {
+            using BslIsClk = bsl::chrono::is_clock<bsl::chrono::system_clock>;
+            using StdIsClk = std::chrono::is_clock<std::chrono::system_clock>;
+            ASSERT((bsl::is_same<BslIsClk, StdIsClk>::value));
+        }
+        // How to test `bsl::chrono::is_clock_v`?
+
+        {
+            using BslSysTime = bsl::chrono::sys_time<bsl::chrono::seconds>;
+            using StdSysTime = std::chrono::sys_time<std::chrono::seconds>;
+            ASSERT((bsl::is_same<BslSysTime, StdSysTime>::value));
+
+        }
+
+        ASSERT(
+             (bsl::is_same<bsl::chrono::sys_days,
+                           bsl::chrono::sys_time<bsl::chrono::days> >::value));
+        ASSERT(
+             (bsl::is_same<bsl::chrono::sys_seconds,
+                           bsl::chrono::sys_time<bsl::chrono::seconds>
+                                                                    >::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::file_clock,
+                             std::chrono::file_clock>::value));
+
+        {
+            using BslFileTime = bsl::chrono::file_time<bsl::chrono::days>;
+            using StdFileTime = std::chrono::file_time<std::chrono::days>;
+            ASSERT((bsl::is_same<BslFileTime, StdFileTime>::value));
+        }
+
+
+        ASSERT((bsl::is_same<bsl::chrono::local_days,
+                             bsl::chrono::local_time<bsl::chrono::days>
+                                                                    >::value));
+        ASSERT((bsl::is_same<bsl::chrono::local_seconds,
+                             bsl::chrono::local_time<bsl::chrono::seconds>
+                                                                    >::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::local_t,
+                             std::chrono::local_t>::value));
+        {
+            using BslLocalTime = bsl::chrono::local_time<bsl::chrono::days>;
+            using StdLocalTime = std::chrono::local_time<std::chrono::days>;
+            ASSERT((bsl::is_same<BslLocalTime, StdLocalTime>::value));
+        }
+
+        // How to test `bsl::chrono::clock_time_conversion`?
+        // How to test `bsl::chrono::clock_cast`?
+
+        ASSERT((bsl::is_same<bsl::chrono::last_spec,
+                             std::chrono::last_spec>::value));
+
+        // How to test `bsl::chrono::last`?
+
+        ASSERT((bsl::is_same<bsl::chrono::day,   std::chrono::day>::value));
+        ASSERT((bsl::is_same<bsl::chrono::month, std::chrono::month>::value));
+        ASSERT((bsl::is_same<bsl::chrono::year,   std::chrono::year>::value));
+        ASSERT((bsl::is_same<bsl::chrono::weekday,
+                             std::chrono::weekday>::value));
+
+        // How to test `bsl::chrono::January`..`bsl::chrono::December`?
+        // How to test `bsl::chrono::Monday`..`bsl::chrono::Sunday`?
+
+        ASSERT((bsl::is_same<bsl::chrono::weekday_indexed,
+                             std::chrono::weekday_indexed>::value));
+        ASSERT((bsl::is_same<bsl::chrono::weekday_last,
+                             std::chrono::weekday_last>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::month_day,
+                             std::chrono::month_day>::value));
+        ASSERT((bsl::is_same<bsl::chrono::month_day_last,
+                             std::chrono::month_day_last>::value));
+        ASSERT((bsl::is_same<bsl::chrono::month_weekday,
+                             std::chrono::month_weekday>::value));
+        ASSERT((bsl::is_same<bsl::chrono::month_weekday_last,
+                             std::chrono::month_weekday_last>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::year_month,
+                             std::chrono::year_month>::value));
+        ASSERT((bsl::is_same<bsl::chrono::year_month_day,
+                             std::chrono::year_month_day>::value));
+        ASSERT((bsl::is_same<bsl::chrono::year_month_day_last,
+                             std::chrono::year_month_day_last>::value));
+        ASSERT((bsl::is_same<bsl::chrono::year_month_weekday,
+                             std::chrono::year_month_weekday>::value));
+        ASSERT((bsl::is_same<bsl::chrono::year_month_weekday_last,
+                             std::chrono::year_month_weekday_last>::value));
+
+        {
+            using BslHhMmSs = bsl::chrono::hh_mm_ss<bsl::chrono::days>;
+            using StdHhMmSs = std::chrono::hh_mm_ss<std::chrono::days>;
+            ASSERT((bsl::is_same<BslHhMmSs, StdHhMmSs>::value));
+        }
+
+        // How to test `bsl::chrono::is_am`, `bsl::chrono::is_pm`?
+        // How to test `bsl::chrono::make12`, `bsl::chrono::make24`?
+
+        ASSERT((bsl::is_same<bsl::chrono::gps_clock,
+                             std::chrono::gps_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::gps_seconds,
+                             std::chrono::gps_seconds>::value));
+        ASSERT((bsl::is_same<bsl::chrono::gps_time<bsl::chrono::days>,
+                             std::chrono::gps_time<bsl::chrono::days>
+                                                                    >::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::tai_clock,
+                             std::chrono::tai_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::tai_seconds,
+                             std::chrono::tai_seconds>::value));
+        ASSERT((bsl::is_same<bsl::chrono::tai_time<bsl::chrono::days>,
+                             std::chrono::tai_time<bsl::chrono::days>
+                                                                    >::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::utc_clock,
+                             std::chrono::utc_clock>::value));
+        ASSERT((bsl::is_same<bsl::chrono::utc_seconds,
+                             std::chrono::utc_seconds>::value));
+        ASSERT((bsl::is_same<bsl::chrono::utc_time<bsl::chrono::days>,
+                             std::chrono::utc_time<bsl::chrono::days>
+                                                                    >::value));
+
+        // How to test `bsl::chrono::from_stream`?
+        // How to test `bsl::chrono::parse`?
+        //
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+        ASSERT((bsl::is_same<bsl::chrono::tzdb, std::chrono::tzdb>::value));
+        ASSERT((bsl::is_same<bsl::chrono::tzdb_list,
+                             std::chrono::tzdb_list>::value));
+        // How to test `bsl::chrono::get_tzdb`?
+        // How to test `bsl::chrono::get_tzdb_list`?
+        // How to test `bsl::chrono::reload_tzdb`?
+        // How to test `bsl::chrono::remote_version`?
+
+        ASSERT((bsl::is_same<bsl::chrono::local_info,
+                             std::chrono::local_info>::value));
+        ASSERT((bsl::is_same<bsl::chrono::sys_info,
+                             std::chrono::sys_info>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::time_zone,
+                             std::chrono::time_zone>::value));
+        ASSERT((bsl::is_same<bsl::chrono::choose,
+                             std::chrono::choose>::value));
+
+        // How to test `bsl::chrono::zoned_traits`?
+        // How to test `::chrono::zoned_time`?
+
+        ASSERT((bsl::is_same<bsl::chrono::zoned_seconds,
+                             std::chrono::zoned_seconds>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::time_zone_link,
+                             std::chrono::time_zone_link>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::nonexistent_local_time,
+                             std::chrono::nonexistent_local_time>::value));
+        ASSERT((bsl::is_same<bsl::chrono::ambiguous_local_time,
+                             std::chrono::ambiguous_local_time>::value));
+
+        ASSERT((bsl::is_same<bsl::chrono::leap_second,
+                             std::chrono::leap_second>::value));
+        ASSERT((bsl::is_same<bsl::chrono::leap_second_info,
+                             std::chrono::leap_second_info>::value));
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
       } break;
       case 41: {
         // --------------------------------------------------------------------
