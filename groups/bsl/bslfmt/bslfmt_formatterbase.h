@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter: standard-compliant formatter base template
 //
 //@MACROS:
-//  BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20: promotion ban mechanism
+//  BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20: delegation ban mechanism
 //
 //@CANONICAL_HEADER: bsl_format.h
 //
@@ -23,22 +23,23 @@ BSLS_IDENT("$Id: $")
 // available, to forward those partial specializations to the `std` namespace
 // to enable use of `std::format` as well as `bsl::format`.
 //
-// Trait macros are provided to enable the prevention of that promotion where
-// formatters already exist in the `std` namespace.
+// Trait macro `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` is provided
+// to enable the prevention of that delegation where formatters already exist
+// in the `std` namespace.
 //
 // This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`.
+// `<bsl_format.h>` to be able to use specializations of `bsl::formatter`.
 //
-///User-provided formatters
+///User-provided Formatters
 ///------------------------
 //
 // User-provided formatters are supported by the BSL implementation, just as
 // they are by the standard library implementation.  However, in order for them
 // to be compatible with both implementations, there are specific requirements,
 // notably:
-//: o The formatter for `T`, should be declared in the same component header in
-//:   which type `T` is declared to avoid issues due to users forgetting to
-//:   include the header for the formatter.
+//: o The formatter for a user defined type `T`, should be declared in the same
+//:   component header in which this type is declared to avoid issues due to
+//:   users forgetting to include the header for the formatter.
 //: o Formatter must be defined in the namespace `bsl`, not `std`.
 //: o Template arguments must be used for the format and parse context
 //:   parameters.  This is essential as the parameter type passed in might
@@ -50,7 +51,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating custom formatter for user type
+///Example 1: Creating Custom Formatter For User Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date. And we want to output it
 // to the stream in different formats depending on the circumstances using
@@ -131,7 +132,7 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatterBase_PreventStdPromotion
+    typedef void FormatterBase_PreventStdDelegation
 #else
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
@@ -162,7 +163,7 @@ struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
 template <class t_FORMATTER>
 struct FormatterBase_IsStdAliasingEnabled<
     t_FORMATTER,
-    typename t_FORMATTER::FormatterBase_PreventStdPromotion>
+    typename t_FORMATTER::FormatterBase_PreventStdDelegation>
 : bsl::false_type {
 };
 

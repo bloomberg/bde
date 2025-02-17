@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // This header is not intended to be included directly.  Please include
 // `<bsl_format.h>` to be able to use BDE formatting functionality.
 //
-///User-provided formatters
+///User-provided Formatters
 ///------------------------
 //
 // User-provided formatters are supported by the BSL implementation, just as
@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended use of this component.
 //
-///Example 1: Simple integer formatting
+///Example 1: Simple Integer Formatting
 /// - - - - - - - - - - - - - - - - - -
 //
 // Formatters for base types are already defined, so to output such objects the
@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //  assert(bsl::string("0x0063") == res);
 // ```
 //
-///Example 2: Creating custom formatter for user type
+///Example 2: Creating Custom Formatter For User Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date and we want to output it
 // to the stream in different formats depending on the circumstances using

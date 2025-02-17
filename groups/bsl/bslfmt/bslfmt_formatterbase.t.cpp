@@ -245,7 +245,7 @@ struct formatter<int, t_CHAR>
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating custom formatter for user type
+///Example 1: Creating Custom Formatter For User Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date. And we want to output it
 // to the stream in different formats depending on the circumstances using
