@@ -1162,6 +1162,7 @@ int main(int argc, char *argv[])
         // How to test `bsl::chrono::is_am`, `bsl::chrono::is_pm`?
         // How to test `bsl::chrono::make12`, `bsl::chrono::make24`?
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         ASSERT((bsl::is_same<bsl::chrono::gps_clock,
                              std::chrono::gps_clock>::value));
         ASSERT((bsl::is_same<bsl::chrono::gps_seconds,
@@ -1185,6 +1186,8 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<bsl::chrono::utc_time<bsl::chrono::days>,
                              std::chrono::utc_time<bsl::chrono::days>
                                                                     >::value));
+#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
+
 
         // How to test `bsl::chrono::from_stream`?
         // How to test `bsl::chrono::parse`?
@@ -1192,6 +1195,7 @@ int main(int argc, char *argv[])
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
         ASSERT((bsl::is_same<bsl::chrono::tzdb, std::chrono::tzdb>::value));
         ASSERT((bsl::is_same<bsl::chrono::tzdb_list,
@@ -1231,6 +1235,7 @@ int main(int argc, char *argv[])
                              std::chrono::leap_second_info>::value));
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
       } break;
       case 41: {
         // --------------------------------------------------------------------
