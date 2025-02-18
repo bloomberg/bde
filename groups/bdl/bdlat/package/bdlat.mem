@@ -9,6 +9,8 @@ bdlat_enumeratorinfo
 bdlat_enumfunctions
 bdlat_enumutil
 bdlat_formattingmode
+bdlat_fuzzutil
+bdlat_fuzzutiloptions
 bdlat_nullablevaluefunctions
 bdlat_nullablevalueutil
 bdlat_selectioninfo
