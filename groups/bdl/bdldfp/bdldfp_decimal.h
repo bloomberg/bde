@@ -494,8 +494,8 @@ BSLS_IDENT("$Id$")
 // Portable `Decimal128` literals are created using the `BDLDFP_DECIMAL_DL`
 // macro.
 //
-///Decimal Number Formatting
-///-------------------------
+///Decimal Number Stream-based Formatting
+///--------------------------------------
 // Streaming decimal floating point numbers to an output stream supports
 // formatting flags for width, capitalization and justification and flags used
 // to output numbers in natural, scientific and fixed notations.  When
@@ -598,6 +598,69 @@ BSLS_IDENT("$Id$")
 // assert(BDLDFP_DECIMAL_DD(0.1) + BDLDFP_DECIMAL_DD(0.2)
 //     == BDLDFP_DECIMAL_DD(0.3));
 // ```
+//
+///Example 3: Formatting With `bsl::format`
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we need to format decimal floating point numbers in a variety of
+// forms.  This, arguably somewhat artificial, example will demonstrate the
+// ways these numbers can be formatted.
+//
+// First, we define some numbers we later want to format into text.  Notice
+// that we define cohorts as the default precision used in printing is the
+// "natural precision" stored inside the decimal floating point number:
+//```
+// const bdldfp::Decimal64 D1 = BDLDFP_DECIMAL_DD(1.250);
+// const bdldfp::Decimal64 D2 = BDLDFP_DECIMAL_DD(1.25000);
+// const bdldfp::Decimal64 D3 = BDLDFP_DECIMAL_DD(12.50);
+// const bdldfp::Decimal64 D4 = BDLDFP_DECIMAL_DD(12.5000);
+// const bdldfp::Decimal64 D5 = BDLDFP_DECIMAL_DD(1.250e5);
+// const bdldfp::Decimal64 D6 = BDLDFP_DECIMAL_DD(1.25000e5);
+//```
+// We use `Decimal64` only for brevity, all 3 types can be formatted.
+//
+// Then, we demonstrate the default formatting:
+//```
+// assert(bsl::format("D1 = {}", D1) == "D1 = 1.250"    );
+// assert(bsl::format("D2 = {}", D2) == "D2 = 1.25000"  );
+// assert(bsl::format("D3 = {}", D3) == "D3 = 12.50"    );
+// assert(bsl::format("D4 = {}", D4) == "D4 = 12.5000"  );
+// assert(bsl::format("D5 = {}", D5) == "D5 = 1.250e+05");
+// assert(bsl::format("D6 = {}", D6) == "D6 = 125000"   );
+//```
+// Next, we format the same numbers in the scientific way:
+//```
+// assert(bsl::format("D1 = {:e}", D1) == "D1 = 1.250e+00"  );
+// assert(bsl::format("D2 = {:e}", D2) == "D2 = 1.25000e+00");
+// assert(bsl::format("D3 = {:e}", D3) == "D3 = 1.250e+01"  );
+// assert(bsl::format("D4 = {:e}", D4) == "D4 = 1.25000e+01");
+// assert(bsl::format("D5 = {:e}", D5) == "D5 = 1.250e+05"  );
+// assert(bsl::format("D6 = {:e}", D6) == "D6 = 1.25000e+05");
+//```
+// Then, we specify the number of decimals for the scientific format:
+//```
+// assert(bsl::format("D1 = {:.2e}", D1) == "D1 = 1.25e+00");
+// assert(bsl::format("D2 = {:.2e}", D2) == "D2 = 1.25e+00");
+// assert(bsl::format("D3 = {:.2e}", D3) == "D3 = 1.25e+01");
+// assert(bsl::format("D4 = {:.2e}", D4) == "D4 = 1.25e+01");
+//```
+// Next, we use the fixed format:
+//```
+// assert(bsl::format("D1 = {:f}", D1) == "D1 = 1.250"  );
+// assert(bsl::format("D2 = {:f}", D2) == "D2 = 1.25000");
+// assert(bsl::format("D3 = {:f}", D3) == "D3 = 12.50"  );
+// assert(bsl::format("D4 = {:f}", D4) == "D4 = 12.5000");
+// assert(bsl::format("D5 = {:f}", D5) == "D5 = 125000" );
+// assert(bsl::format("D6 = {:f}", D6) == "D6 = 125000" );
+//```
+// Finally, we specify the number of decimals for the fixed format:
+//```
+// assert(bsl::format("D1 = {:.2f}", D1) == "D1 = 1.25"     );
+// assert(bsl::format("D2 = {:.2f}", D2) == "D2 = 1.25"     );
+// assert(bsl::format("D3 = {:.2f}", D3) == "D3 = 12.50"    );
+// assert(bsl::format("D4 = {:.2f}", D4) == "D4 = 12.50"    );
+// assert(bsl::format("D5 = {:.2f}", D5) == "D5 = 125000.00");
+// assert(bsl::format("D6 = {:.2f}", D6) == "D6 = 125000.00");
+//```
 
 #include <bdldfp_decimal.fwd.h>
 
