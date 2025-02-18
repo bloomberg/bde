@@ -32,20 +32,19 @@ BSLS_IDENT("$Id: $")
 //
 ///User-provided Formatters
 ///------------------------
-//
 // User-provided formatters are supported by the BSL implementation, just as
 // they are by the standard library implementation.  However, in order for them
 // to be compatible with both implementations, there are specific requirements,
 // notably:
-//: o The formatter for a user defined type `T`, should be declared in the same
-//:   component header in which this type is declared to avoid issues due to
-//:   users forgetting to include the header for the formatter.
-//: o Formatter must be defined in the namespace `bsl`, not `std`.
-//: o Template arguments must be used for the format and parse context
-//:   parameters.  This is essential as the parameter type passed in might
-//:   depend upon underlying implementation.
-//: o The `parse` function should be constexpr in C++20, but this is not
-//:   required (and may not be possible) for earlier C++ standards.
+// * The formatter for a user defined type `T`, should be declared in the same
+//   component header in which this type is declared to avoid issues due to
+//   users forgetting to include the header for the formatter.
+// * Formatter must be defined in the namespace `bsl`, not `std`.
+// * Template arguments must be used for the format and parse context
+//   parameters.  This is essential as the parameter type passed in might
+//   depend upon underlying implementation.
+// * The `parse` function should be constexpr in C++20, but this is not
+//   required (and may not be possible) for earlier C++ standards.
 //
 ///Usage
 ///-----
