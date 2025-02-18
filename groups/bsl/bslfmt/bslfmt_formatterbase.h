@@ -1,55 +1,56 @@
 // bslfmt_formatterbase.h                                             -*-C++-*-
-
 #ifndef INCLUDED_BSLFMT_FORMATTERBASE
 #define INCLUDED_BSLFMT_FORMATTERBASE
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a base template for formatter specializations
+//@PURPOSE: Provide a base template for formatter specializations.
 //
 //@CLASSES:
 //  bsl::formatter: standard-compliant formatter base template
 //
+//@MACROS:
+//  BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20: delegation ban mechanism
+//
 //@CANONICAL_HEADER: bsl_format.h
 //
-//@DESCRIPTION: This component provides an base template of the C++20 Standard
-// Library's `formatter`, which provides a customization point for use defined
+//@DESCRIPTION: This component provides a base template of the C++20 Standard
+// Library's `formatter`, which is a customization point for user defined
 // types seeking to use the formatting library.
 //
 // It also provides a mechanism, when the standard library `<format>` header is
-// available, to enable those partial specializations to be forwarded to the
-// `std` namespace to enable use of `std::format` as well as `bsl::format`
+// available, to forward those partial specializations to the `std` namespace
+// to enable use of `std::format` as well as `bsl::format`.
 //
-// Trait macros are provided to enable the prevention of that promotion where
-// formatters already exist in the `std` namespace.
+// Trait macro `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` is provided
+// to enable the prevention of that delegation where formatters already exist
+// in the `std` namespace.
 //
 // This header is not intended to be included directly.  Please include
-// `<bsl_format.h>` to be able to use specializations of the `bsl::formatter`.
+// `<bsl_format.h>` to be able to use specializations of `bsl::formatter`.
 //
-///User-provided formatters
+///User-provided Formatters
 ///------------------------
-//
 // User-provided formatters are supported by the BSL implementation, just as
-// they are by the standard library implementation. However, in order for them
+// they are by the standard library implementation.  However, in order for them
 // to be compatible with both implementations, there are specific requirements,
 // notably:
-//
-// - If you will define a formatter for your type `T`, do so in the same
-//   component header that defines `T` itself.  This avoids issues due to
+// * The formatter for a user defined type `T`, should be declared in the same
+//   component header in which this type is declared to avoid issues due to
 //   users forgetting to include the header for the formatter.
-// - Define `bsl::formatter<T>` - *DO NOT* define `std::formatter<T>` - Use
-//   template arguments for the format context and parse context
-//   parameters. This is essential as the parameter type passed in will
+// * Formatter must be defined in the namespace `bsl`, not `std`.
+// * Template arguments must be used for the format and parse context
+//   parameters.  This is essential as the parameter type passed in might
 //   depend upon underlying implementation.
-// - The `parse` function should be constexpr in C++20, but this is not
+// * The `parse` function should be constexpr in C++20, but this is not
 //   required (and may not be possible) for earlier C++ standards.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating custom formatter for user type
+///Example 1: Creating Custom Formatter For User Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date. And we want to output it
 // to the stream in different formats depending on the circumstances using
@@ -117,9 +118,9 @@ BSLS_IDENT("$Id: $")
 //  }  // close namespace bsl
 // ```
 // Unfortunately, due to the position of this component in the class hierarchy,
-// a full-fledged example would require duplicating a huge amount of code. A
-// full example of a custom formatter implementation can be found in
-// the `bslfmt_format` component.
+// a full-fledged example would require duplicating a huge amount of code.  A
+// complete example of a custom formatter implementation can be found in the
+// `bslfmt_format` component.
 
 #include <bslscm_version.h>
 
@@ -130,12 +131,43 @@ BSLS_IDENT("$Id: $")
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatterBase_PreventStdPromotion
+    typedef void FormatterBase_PreventStdDelegation
 #else
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
     typedef void FormatterBase_DoNotPreventStdPromotion
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+namespace BloombergLP {
+namespace bslfmt {
+
+               // =========================================
+               // struct FormatterBase_IsStdAliasingEnabled
+               // =========================================
+
+/// This type exists to enable SFINAE-based detection of the presence or
+/// absence of the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait as
+/// appropriate.
+template <class t_FORMATTER, class = void>
+struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
+};
+
+/// This specialization of `FormatterBase_IsStdAliasingEnabled` is used when
+/// `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait is defined in
+/// formatter specialization and standard formatting functionality is supported
+/// by compiler.  In this case such formatter specialization will **NOT** be
+/// promoted to the `std` namespace.
+template <class t_FORMATTER>
+struct FormatterBase_IsStdAliasingEnabled<
+    t_FORMATTER,
+    typename t_FORMATTER::FormatterBase_PreventStdDelegation>
+: bsl::false_type {
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 #endif
 
 namespace bsl {
@@ -144,7 +176,7 @@ namespace bsl {
                           // struct formatter
                           // ================
 
-/// This is the base template for the `bsl::formatter` class. Its members are
+/// This is the base template for the `bsl::formatter` class.  Its members are
 /// deleted to ensure attempts to format a type without a partial
 /// specialization of `formatter` for that type will result in a compile time
 /// error.
@@ -162,27 +194,6 @@ struct formatter {
 }  // close namespace bsl
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-namespace BloombergLP {
-namespace bslfmt {
-
-/// This type exists to enable SFINAE-based detection of the presence or
-/// absence of the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait as
-/// appropriate.
-template <class t_FORMATTER, class = void>
-struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
-};
-
-template <class t_FORMATTER>
-struct FormatterBase_IsStdAliasingEnabled<
-    t_FORMATTER,
-    typename t_FORMATTER::FormatterBase_PreventStdPromotion>
-: bsl::false_type {
-};
-
-}  // close package namespace
-}  // close enterprise namespace
-
 namespace std {
 
 template <class t_ARG, class t_CHAR>

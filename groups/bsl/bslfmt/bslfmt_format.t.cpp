@@ -187,7 +187,7 @@ struct formatter<FormattableType, t_CHAR> {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating custom formatter for user type
+///Example 1: Creating Custom Formatter For User Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a custom type representing a date and we want to output it
 // to the stream in different formats depending on the circumstances using
@@ -518,7 +518,7 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-///Example 1: Simple integer formatting
+///Example 1: Simple Integer Formatting
 /// - - - - - - - - - - - - - - - - - -
 //
 // Formatters for base types are already defined, so to output such objects the
