@@ -59,13 +59,14 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS:
 //                                           `bsl::atomic_flag_test[_explicit]`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: `*_for_overwrite`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: `<chrono>` Calendar/TZ additions
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: `<chrono>` calendar additions
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV: `mbrtoc8` & `c8rtomb`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT: `<format>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: `std::jthread`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` timezone additions
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
@@ -1204,16 +1205,28 @@ BSLS_IDENT("$Id: $")
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR`
 ///-----------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` is defined if the C++20
-// Calendar/TZ feature is available in `bsl::chrono` namespace.
+// calendar features are available in `bsl::chrono` namespace.
 //
 // This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
 // has at least `201907L` value.
 //
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:  "While the STL
+// generally provides all features on all supported versions of Windows, leap
+// seconds and time zones (which change over time) require OS support that was
+// added to Windows 10.  Specifically, updating the leap second database
+// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
+// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
+// both client and server OSes; note that Windows Server 2019 is based on
+// Windows 10 version 1809."  If the feature is used on a host that doesn't
+// provide `icu.dll`, an exception with "The specified module could not be
+// found." message will be thrown.  For this reason those features are disabled
+// by default on Windows.
+//
 // This macro is defined first for the following compiler versions:
 //
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of GCC or clang supports this feature)
+//   - GCC 14+
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV`
 ///----------------------------------------------
@@ -1298,6 +1311,33 @@ BSLS_IDENT("$Id: $")
 //   - GCC 10.1
 //   - Microsoft Visual Studio 2019 Update 9 / _MSC_FULL_VER 192829913
 //   - clang 18.0 with -fexperimental-library
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE`
+///----------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` is defined if the C++20
+// timezone features are available in `bsl::chrono` namespace.
+//
+// This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
+// has at least `201907L` value, and on GCC the compiler is allowed to use the
+// C++11 (or later) ABI.
+//
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:  "While the STL
+// generally provides all features on all supported versions of Windows, leap
+// seconds and time zones (which change over time) require OS support that was
+// added to Windows 10.  Specifically, updating the leap second database
+// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
+// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
+// both client and server OSes; note that Windows Server 2019 is based on
+// Windows 10 version 1809."  If the feature is used on a host that doesn't
+// provide `icu.dll`, an exception with "The specified module could not be
+// found." message will be thrown.  For this reason those features are disabled
+// by default on Windows.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//   - GCC 14+
 //
 ///`BSLS_LIBRARYFEATURES_STDCPP_GNU`
 ///---------------------------------
@@ -2275,6 +2315,13 @@ BSLS_IDENT("$Id: $")
 
   #if defined(__cpp_lib_chrono) && __cpp_lib_chrono >= 201907L
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR                           1
+
+    #if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_USE_CXX11_ABI   \
+        || !_GLIBCXX_USE_DUAL_ABI
+      // GCC's standard library only supports the timezone features if the
+      // C++11 ABI, or dual ABI is enabled.
+      #define BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE                         1
+    #endif
   #endif
 
   // The following macro is not defined as it is not covered by any C++20
