@@ -200,7 +200,8 @@ using std::chrono::is_pm;
 using std::chrono::make12;
 using std::chrono::make24;
 
-//#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+// See {C++20 Calendar/TZ feature on Windows}
 using std::chrono::utc_clock;
     using std::chrono::utc_time;
     using std::chrono::utc_seconds;
@@ -210,13 +211,14 @@ using std::chrono::tai_clock;
 using std::chrono::gps_clock;
     using std::chrono::gps_time;
     using std::chrono::gps_seconds;
-//#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
+#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
 
 using std::chrono::from_stream;
 using std::chrono::parse;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 
-//#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+// See {C++20 Calendar/TZ feature on Windows}
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 using std::chrono::tzdb;
 using std::chrono::tzdb_list;
@@ -240,7 +242,7 @@ using std::chrono::ambiguous_local_time;
 using std::chrono::leap_second;
 using std::chrono::leap_second_info;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
-//#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
+#endif  // ndef BSLS_PLATFORM_OS_WINDOWS
 }  // close namespace chrono
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
