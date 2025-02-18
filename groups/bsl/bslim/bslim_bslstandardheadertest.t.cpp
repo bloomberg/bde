@@ -1009,18 +1009,18 @@ int main(int argc, char *argv[])
 
         {
             const auto inHours =
-                bsl::chrono::duration_cast<bsl::chrono::hours>(
-                                                         bsl::chrono::days(2));
-            ASSERTV(inHours.count(), 48 == inHours.count());
+                bsl::chrono::duration_cast<bsl::chrono::minutes>(
+                                                        bsl::chrono::hours(2));
+            ASSERTV(inHours.count(), 120 == inHours.count());
         }
 
         {
             using namespace bsl::chrono;
 
-            const auto inHours = time_point_cast<hours>(
-                                      time_point<system_clock, days>{days{2}});
+            const auto inHours = time_point_cast<minutes>(
+                                    time_point<system_clock, hours>{hours{2}});
             ASSERTV(inHours.time_since_epoch().count(),
-                    48 == inHours.time_since_epoch().count());
+                    120 == inHours.time_since_epoch().count());
         }
 
         ASSERT(bsl::chrono::hours::period::num == 3600);
