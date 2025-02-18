@@ -1210,6 +1210,19 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
 // has at least `201907L` value.
 //
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:  "While the STL
+// generally provides all features on all supported versions of Windows, leap
+// seconds and time zones (which change over time) require OS support that was
+// added to Windows 10.  Specifically, updating the leap second database
+// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
+// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
+// both client and server OSes; note that Windows Server 2019 is based on
+// Windows 10 version 1809."  If the feature is used on a host that doesn't
+// provide `icu.dll`, an exception with "The specified module could not be
+// found." message will be thrown.  For this reason those features are disabled
+// by default on Windows.
+//
 // This macro is defined first for the following compiler versions:
 //
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
@@ -1307,6 +1320,19 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
 // has at least `201907L` value, and on GCC the compiler is allowed to use the
 // C++11 (or later) ABI.
+//
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:  "While the STL
+// generally provides all features on all supported versions of Windows, leap
+// seconds and time zones (which change over time) require OS support that was
+// added to Windows 10.  Specifically, updating the leap second database
+// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
+// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
+// both client and server OSes; note that Windows Server 2019 is based on
+// Windows 10 version 1809."  If the feature is used on a host that doesn't
+// provide `icu.dll`, an exception with "The specified module could not be
+// found." message will be thrown.  For this reason those features are disabled
+// by default on Windows.
 //
 // This macro is defined first for the following compiler versions:
 //
