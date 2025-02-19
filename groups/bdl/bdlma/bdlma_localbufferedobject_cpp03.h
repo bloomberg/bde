@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 06:02:06 2024
+// Generated on Wed Feb 19 10:30:58 2025
 // Command line: sim_cpp11_features.pl bdlma_localbufferedobject.h
 
 #ifdef COMPILING_BDLMA_LOCALBUFFEREDOBJECT_H
@@ -59,9 +59,9 @@ class LocalBufferedObject {
     typedef t_TYPE                  value_type;
     typedef bsl::allocator<>        allocator_type;
 
-    enum { k_BUFFER_SIZE = t_BUFFER_SIZE };   // The 'size' template
-                                              // parameter to 'LocalAllocator'
-                                              // takes an 'int', not 'size_t'.
+    enum { k_BUFFER_SIZE = t_BUFFER_SIZE };   // The `size` template
+                                              // parameter to `LocalAllocator`
+                                              // takes an `int`, not `size_t`.
 
   private:
     // DATA
