@@ -366,16 +366,17 @@ template <class TYPE>
 void AutoDestructor<TYPE>::destroy()
 {
     if (0 < d_length) {
-        for (; d_length > 0; --d_length, ++d_origin_p) {
-            d_origin_p->~TYPE();
+        for (TYPE *next_p = d_origin_p; d_length > 0; --d_length) {
+            (next_p++)->~TYPE();
         }
     }
     else {
-        --d_origin_p;
-        for (; d_length < 0; ++d_length, --d_origin_p) {
-            d_origin_p->~TYPE();
+        for (TYPE *next_p = d_origin_p; d_length < 0; ++d_length) {
+            (--next_p)->~TYPE();
         }
     }
+
+    BSLS_ASSERT_SAFE(0 == d_length);
 }
 
 // CREATORS

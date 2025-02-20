@@ -1330,8 +1330,8 @@ int main(int argc, char *argv[])
             }
             void *allocated_p = mX.allocate(s);
             typedef bsls::AlignmentUtil AlignUtil;
-            const int a = AlignUtil::calculateAlignmentFromSize(s);
-            ASSERT(0 == AlignUtil::calculateAlignmentOffset(allocated_p, a));
+            const std::size_t a = AlignUtil::calculateAlignmentFromSize(s);
+            ASSERT(AlignUtil::isAligned(allocated_p, a));
             ASSERT(allocated_p != 0);
             mX.deallocate(allocated_p);
         }

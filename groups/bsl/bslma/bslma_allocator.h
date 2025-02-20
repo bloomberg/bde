@@ -122,249 +122,330 @@ BSLS_IDENT("$Id: $")
 // following subsections illustrate (1) use, and (2) implementation of the
 // abstract `bslma::Allocator` base class:
 //
-///Example 1: Container Objects
-/// - - - - - - - - - - - - - -
-// Allocators are often supplied to objects requiring dynamically-allocated
-// memory at construction.  For example, consider the following
-// `my_DoubleStack` class, parameterized by a `bslma::Allocator`:
-// ```
-// // my_doublestack.h
-// // ...
-//
-// #include <bslma_allocator.h>
-//
-// class my_DoubleStack {
-//     // DATA
-//     double           *d_stack_p;     // dynamically allocated array (d_size
-//                                      // elements)
-//
-//     int               d_size;        // physical capacity of this stack (in
-//                                      // elements)
-//
-//     int               d_length;      // logical index of next available
-//                                      // stack element
-//
-//     bslma::Allocator *d_allocator_p; // holds (but does not own) object
-//
-//     // FRIENDS
-//     friend class my_DoubleStackIter;
-//
-//   private:
-//     // PRIVATE MANIPULATORS
-//
-//     /// Increase the capacity by at least one element.
-//     void increaseSize();
-//
-//   public:
-//     // CREATORS
-//     my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-//     my_DoubleStack(const my_DoubleStack&  other,
-//                    bslma::Allocator       *basicAllocator = 0);
-//     ~my_DoubleStack();
-//
-//     // MANIPULATORS
-//     my_DoubleStack& operator=(const my_DoubleStack& rhs);
-//     void push(double value);
-//     void pop();
-//
-//     // ACCESSORS
-//     const double& top() const;
-//     bool isEmpty() const;
-// };
-//
-// // ...
-//
-// inline
-// void my_DoubleStack::push(double value)
-// {
-//     if (d_length >= d_size) {
-//         increaseSize();
-//     }
-//     d_stack_p[d_length++] = item;
-// }
-//
-// // ...
-// ```
-// The stack interface takes an optional `basicAllocator` supplied only at
-// construction.  (We avoid use of the name `allocator` so as not to conflict
-// with the STL use of the word, which differs slightly.)  If non-zero, the
-// stack holds a pointer to this allocator, but does not own it.  If no
-// allocator is supplied, the implementation itself must either conditionally
-// invoke global `new` and `delete` explicitly whenever dynamic memory must be
-// managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts
-// use of these global operators to the `bslma_allocator` interface (see
-// `bslma_newdeleteallocator`).
-// ```
-// // my_doublestack.cpp
-// #include <my_doublestack.h>
-// #include <bslma_allocator.h>
-// #include <bslma_newdeleteallocator.h>  // adapter for 'new' and 'delete'
-// // ...
-//
-// enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
-//
-// // ...
-//
-// // CREATORS
-// my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
-// : d_size(INITIAL_SIZE)
-// , d_length(0)
-// , d_allocator_p(bslma::NewDeleteAllocator::allocator(basicAllocator))
-//     // The above initialization expression is equivalent to 'basicAllocator
-//     // ? basicAllocator : &bslma::NewDeleteAllocator::singleton()'.
-// {
-//     assert(d_allocator_p);
-//     d_stack_p = (double *)
-//                 d_allocator_p->allocate(d_size * sizeof *d_stack_p);
-// }
-//
-// my_DoubleStack::~my_DoubleStack()
-// {
-//     // CLASS INVARIANTS
-//     assert(d_allocator_p);
-//     assert(d_stack_p);
-//     assert(0 <= d_length);
-//     assert(0 <= d_size);
-//     assert(d_length <= d_size);
-//
-//     d_allocator_p->deallocate(d_stack_p);
-// }
-// ```
-// Even in this simplified implementation, all use of the allocator protocol is
-// relegated to the `.cpp` file.  Subsequent use of the allocator is
-// demonstrated by the following file-scope static reallocation function:
-// ```
-// /// Reallocate memory in the specified `array` to the specified
-// /// `newSize` using the specified `basicAllocator`.  The specified
-// /// `length` number of leading elements are preserved.  Since the
-// /// class invariant requires that the physical capacity of the
-// /// container may grow but never shrink, the behavior is undefined
-// /// unless `length <= newSize`.
-// static inline
-// void reallocate(double          **array,
-//                 int               newSize,
-//                 int               length,
-//                 bslma::Allocator  *basicAllocator)
-// {
-//     assert(array);
-//     assert(1 <= newSize);
-//     assert(0 <= length);
-//     assert(basicAllocator);
-//     assert(length <= newSize);  // enforce class invariant
-//
-//     double *tmp = *array;       // support exception neutrality
-//     *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
-//
-//     // COMMIT POINT
-//
-//     std::memcpy(*array, tmp, length * sizeof **array);
-//     basicAllocator->deallocate(tmp);
-// }
-//
-// // PRIVATE MANIPULATORS
-// void my_DoubleStack::increaseSize()
-// {
-//     int proposedNewSize = d_size * GROW_FACTOR;  // reallocate can throw
-//     assert(proposedNewSize > d_length);
-//     reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
-//     d_size = proposedNewSize;                    // we're committed
-// }
-// ```
-//
-///Example 2: Derived Concrete Allocators
-/// - - - - - - - - - - - - - - - - - - -
+///Example 1: Derived Concrete Allocator
+/// - - - - - - - - - - - - - - - - - -
 // In order for the `bslma::Allocator` interface to be useful, we must supply a
 // concrete allocator that implements it.  In this example we demonstrate how
 // to adapt `operator new` and `operator delete` to this protocol base class.
+//
+// First, in a component `.h` file, we define a class, derived from
+// `bslma::Allocator`, that provides concrete implementations of the `virtual`
+// `allocate` and `deallocate` methods:
 // ```
-// // my_newdeleteallocator.h
-// // ...
+//  // my_newdeleteallocator.h
+//  // ...
 //
-// /// This class is a sample concrete implementation of the
-// /// `bslma::Allocator` protocol that provides direct access to the
-// /// system-supplied (native) global operators `new` and `delete`.
-// class my_NewDeleteAllocator : public bslma::Allocator {
+//  #include <bslma_allocator.h>
+//  #include <bsls_keyword.h>
+//  #include <new>
 //
-//     // NOT IMPLEMENTED
-//     my_NewDeleteAllocator(const bslma::NewDeleteAllocator&);
-//     my_NewDeleteAllocator& operator=(const bslma::NewDeleteAllocator&);
+//  /// This class is a sample concrete implementation of the
+//  /// `bslma::Allocator` protocol that provides direct access to the
+//  /// system-supplied (native) global operators `new` and `delete`.
+//  class my_NewDeleteAllocator : public bslma::Allocator {
 //
-//   public:
-//     // CREATORS
+//      // NOT IMPLEMENTED
+//      my_NewDeleteAllocator(const my_NewDeleteAllocator&);
+//      my_NewDeleteAllocator& operator=(const my_NewDeleteAllocator&);
 //
-//     /// Create an allocator that wraps the global (native) operators
-//     /// `new` and `delete` to supply memory.  Note that all objects of
-//     /// this class share the same underlying resource.
-//     my_NewDeleteAllocator();
+//    public:
+//      // CLASS METHODS
 //
-//     /// Destroy this allocator object.  Note that destroying this
-//     /// allocator has no effect on any outstanding allocated memory.
-//     virtual ~my_NewDeleteAllocator();
+//      /// Return the address of a singleton object of
+//      /// `my_NewDeleteAllocator`. Since `my_NewDeleteAllocator` has no
+//      /// state, there is never a need for more than one.
+//      static my_NewDeleteAllocator *singleton();
 //
-//     // MANIPULATORS
+//      // CREATORS
 //
-//     /// Return a newly allocated block of memory of (at least) the
-//     /// specified positive `size` (in bytes).  If `size` is 0, a null
-//     /// pointer is returned with no other effect.  If this allocator
-//     /// cannot return the requested number of bytes, then it will throw
-//     /// a `std::bad_alloc` exception in an exception-enabled build, or
-//     /// else will abort the program in a non-exception build.  The
-//     /// behavior is undefined unless `0 <= size`.  Note that the
-//     /// alignment of the address returned is the maximum alignment for
-//     /// any type defined on this platform.  Also note that global
-//     /// `operator new` is *not* called when `size` is 0 (in order to
-//     /// avoid having to acquire a lock, and potential contention in
-//     /// multi-threaded programs).
-//     virtual void *allocate(size_type size);
+//      /// Create an allocator that wraps the global (native) operators
+//      /// `new` and `delete` to supply memory.  Note that all objects of
+//      /// this class share the same underlying resource.
+//      my_NewDeleteAllocator() { }
 //
-//     /// Return the memory block at the specified `address` back to this
-//     /// allocator.  If `address` is 0, this function has no effect.  The
-//     /// behavior is undefined unless `address` was allocated using this
-//     /// allocator object and has not already been deallocated.  Note
-//     /// that global `operator delete` is *not* called when `address` is
-//     /// 0 (in order to avoid having to acquire a lock, and potential
-//     /// contention in multi-treaded programs).
-//     virtual void deallocate(void *address);
-// };
+//      /// Destroy this allocator object.  Note that destroying this
+//      /// allocator has no effect on any outstanding allocated memory.
+//      ~my_NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE;
 //
-// // CREATORS
-// inline
-// my_NewDeleteAllocator::my_NewDeleteAllocator()
-// {
-// }
-// // ...
+//      // MANIPULATORS
+//
+//      /// Return a newly allocated block of memory of (at least) the
+//      /// specified positive `size` (in bytes).  If `size` is 0, a null
+//      /// pointer is returned with no other effect.  If this allocator
+//      /// cannot return the requested number of bytes, then it will throw
+//      /// a `std::bad_alloc` exception in an exception-enabled build, or
+//      /// else will abort the program in a non-exception build.  The
+//      /// behavior is undefined unless `0 <= size`.  Note that the
+//      /// alignment of the address returned is the maximum alignment for
+//      /// any type defined on this platform.  Also note that global
+//      /// `operator new` is *not* called when `size` is 0 (in order to
+//      /// avoid having to acquire a lock, and potential contention in
+//      /// multi-threaded programs).
+//      void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+//
+//      /// Return the memory block at the specified `address` back to this
+//      /// allocator.  If `address` is 0, this function has no effect.  The
+//      /// behavior is undefined unless `address` was allocated using this
+//      /// allocator object and has not already been deallocated.  Note
+//      /// that global `operator delete` is *not* called when `address` is
+//      /// 0 (in order to avoid having to acquire a lock, and potential
+//      /// contention in multi-treaded programs).
+//      void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
+//  };
 // ```
-// The virtual methods of `my_NewDeleteAllocator` are defined in the component
-// `.cpp` file as they would not be inlined when invoked from the base class,
-// which would be the typical usage in this case:
+// Next, in the component `.cpp` file, we define the `singleton()` method,
+// which provides the typical way of obtaining an instance of this allocator:
 // ```
-// // my_newdeleteallocator.cpp
-// #include <my_newdeleteallocator.h>
+//  // my_newdeleteallocator.cpp
+//  #include <my_newdeleteallocator.h>
 //
-// // CREATORS
-// my_NewDeleteAllocator::~my_NewDeleteAllocator()
-// {
-// }
+//  // CLASS METHODS
+//  my_NewDeleteAllocator *my_NewDeleteAllocator::singleton()
+//  {
+//      static my_NewDeleteAllocator obj;
+//      return &obj;
+//  }
+// ```
+// Next, we implement the `bslma::Allocator` protocol by defining (also in the
+// component `.cpp` file) the virtual methods:
+// ```
+//  // CREATORS
+//  my_NewDeleteAllocator::~my_NewDeleteAllocator()
+//  {
+//  }
 //
-// // MANIPULATORS
-// void *my_NewDeleteAllocator::allocate(size_type size)
-// {
-//     BSLS_ASSERT_SAFE(0 <= size);
+//  // MANIPULATORS
+//  void *my_NewDeleteAllocator::allocate(size_type size)
+//  {
+//      return 0 == size ? 0 : ::operator new(size);
+//  }
 //
-//     return 0 == size ? 0 : ::operator new(size);
-// }
+//  void my_NewDeleteAllocator::deallocate(void *address)
+//  {
+//      // While the C++ standard guarantees that calling delete(0) is safe
+//      // (3.7.3.2 paragraph 3), some libc implementations take out a lock to
+//      // deal with the free(0) case, so this check can improve efficiency of
+//      // threaded programs.
 //
-// void my_NewDeleteAllocator::deallocate(void *address)
-// {
-//     // While the C++ standard guarantees that calling delete(0) is safe
-//     // (3.7.3.2 paragraph 3), some libc implementations take out a lock to
-//     // deal with the free(0) case, so this check can improve efficiency of
-//     // threaded programs.
+//      if (address) {
+//          ::operator delete(address);
+//      }
+//  }
+// ```
+// Now we can use `my_NewDeleteAllocator` to allocate and deallocate storage
+// for (in this case, `int`) objects:
+// ```
+//  int main()
+//  {
+//      typedef int T;  // Can be any type
 //
-//     if (address) {
-//         ::operator delete(address);
-//     }
-// }
+//      my_NewDeleteAllocator myA;
+//      T *p = static_cast<T *>(myA.allocate(sizeof(T)));
+//      new (p) T(5);    // Construct object at `p`.
+//      assert(5 == *p);
+//      p->~T();         // not needed for `int`, but important for class types
+//      myA.deallocate(p);
+// ```
+// Finally, we repeat the previous example using the `singleton` object instead
+// of constructing a new `my_NewDeleteAllocator` and using the `operator new`
+// and `deleteObject` interface instead of raw `allocate`-construct and
+// destroy-`deallocate`.  Note that these interfaces can be mixed and matched
+// (e.g., `singleton` can be used with `allocate`):
+// ```
+//      p = new (*my_NewDeleteAllocator::singleton()) T(6);
+//      assert(6 == *p);
+//      my_NewDeleteAllocator::singleton()->deleteObject(p);
+//  }
+// ```
+//
+///Example 2: Container Objects
+/// - - - - - - - - - - - - - -
+// Allocators are often supplied to objects requiring dynamically-allocated
+// memory at construction.  For example, consider the following
+// `my_DoubleStack` class, which uses a `bslma::Allocator` to allocate memory.
+//
+// First, we define the class interface, which is a minimal subset of a typical
+// container interface:
+// ```
+//  // my_doublestack.h
+//  // ...
+//
+//  #include <bslma_allocator.h>
+//  #include <my_NewDeleteAllocator.h>
+//
+//  /// dynamically growing stack of `double` values
+//  class my_DoubleStack {
+//      enum { k_INITIAL_SIZE = 1, k_GROWTH_FACTOR = 2 };
+//
+//      int               d_capacity;    // physical capacity of this stack (in
+//                                       // elements)
+//      int               d_size;        // number of available stack elements
+//                                       // currently in use
+//      double           *d_stack_p;     // dynamically allocated array of
+//                                       // `d_capacity` elements
+//      bslma::Allocator *d_allocator_p; // holds (but doesn't own) allocator
+//
+//    private:
+//      /// Increase the capacity by `k_GROWTH_FACTOR`.
+//      void increaseSize();
+//
+//    public:
+//      // CREATORS
+//      explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+//      my_DoubleStack(const my_DoubleStack&  other,
+//                     bslma::Allocator      *basicAllocator = 0);
+//      ~my_DoubleStack();
+//
+//      // MANIPULATORS
+//      my_DoubleStack& operator=(const my_DoubleStack& rhs);
+//      void pop() { --d_size; }
+//      void push(double value);
+//
+//      // ACCESSORS
+//      double operator[](int i) const { return d_stack_p[i]; }
+//      bslma::Allocator *allocator() const { return d_allocator_p; }
+//      int capacity() const { return d_capacity; }
+//      bool isEmpty() const { return 0 == d_size; }
+//      int size() const { return d_size; }
+//      double top() const { return d_stack_p[d_size - 1]; }
+//  };
+// ```
+// Next, we define the constructor, which takes an optional `basicAllocator`
+// supplied only at construction.  (We avoid use of the name `allocator` so as
+// not to conflict with the STL use of the word, which differs slightly.)  If
+// non-zero, the stack holds a pointer to this allocator, but does not own it.
+// If no allocator is supplied, the implementation itself must either
+// conditionally invoke global `new` and `delete` explicitly whenever dynamic
+// memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator
+// that adapts use of these global operators to the `bslma_allocator` interface
+// (see `bslma_default`).  The constructor uses the selected allocator to
+// allocate memory via the `allocate` method.
+// ```
+//  // my_doublestack.cpp
+//  #include <my_doublestack.h>
+//  #include <bslma_allocator.h>
+//  #include <bslma_default.h>    // for selecting a default allocator
+//
+//  // CREATORS
+//  my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
+//  : d_capacity(k_INITIAL_SIZE)
+//  , d_size(0)
+//  , d_allocator_p(basicAllocator ?
+//                  basicAllocator : my_NewDeleteAllocator::singleton())
+//      // The above initialization expression is roughly equivalent to
+//      // `bslma::Default::allocator(basicAllocator)`
+//  {
+//      assert(d_allocator_p);
+//      d_stack_p = (double *)
+//          d_allocator_p->allocate(d_capacity * sizeof *d_stack_p);
+//  }
+// ```
+// Next, we define a destructor that frees the memory held by the container
+// using the allocator's `deallocate` method:
+// ```
+//  my_DoubleStack::~my_DoubleStack()
+//  {
+//      // CLASS INVARIANTS
+//      assert(d_allocator_p);
+//      assert(d_stack_p);
+//      assert(0 <= d_size);
+//      assert(0 <= d_capacity);
+//      assert(d_size <= d_capacity);
+//
+//      d_allocator_p->deallocate(d_stack_p);
+//  }
+// ```
+// Next, we define a `reallocation` function that expands a dynamic array of
+// `double`s.  Even in this simplified implementation, all use of the allocator
+// protocol is relegated to the `.cpp` file:
+// ```
+//  /// Reallocate memory in the specified `array` to the specified `newSize`
+//  /// using the specified `basicAllocator`.  The specified `length` number of
+//  /// leading elements are preserved.  Since the class invariant requires
+//  /// that the physical capacity of the container may grow but never shrink;
+//  /// the behavior is undefined unless `length <= newSize`.
+//  static inline
+//  void reallocate(double           **array,
+//                  int                newSize,
+//                  int                length,
+//                  bslma::Allocator  *basicAllocator)
+//  {
+//      assert(array);
+//      assert(1 <= newSize);
+//      assert(0 <= length);
+//      assert(basicAllocator);
+//      assert(length <= newSize);        // enforce class invariant
+//
+//      double *tmp = *array;             // support exception neutrality
+//      *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
+//
+//      // COMMIT POINT
+//
+//      memcpy(*array, tmp, length * sizeof **array);
+//      basicAllocator->deallocate(tmp);
+//  }
+// ```
+// Next, we define the private `increaseSize` method to allocate more space for
+// container elements as needed:
+// ```
+//  void my_DoubleStack::increaseSize()
+//  {
+//      int proposedNewSize = d_capacity * k_GROWTH_FACTOR;
+//      assert(proposedNewSize > d_size);
+//
+//      // Reallocate might throw.
+//      reallocate(&d_stack_p, proposedNewSize, d_size, d_allocator_p);
+//
+//      // Commit change only after `reallocate` succeeds.
+//      d_capacity = proposedNewSize;
+//  }
+// ```
+// Now we have what we need to implement the `push` method:
+// ```
+//  void my_DoubleStack::push(double value)
+//  {
+//      if (d_size >= d_capacity) {
+//          increaseSize();
+//      }
+//      d_stack_p[d_size++] = value;
+//  }
+// ```
+// Now, to test our stack class, we first verify that its constructor captures
+// the allocator correctly; if supplied an allocator pointer, it holds on to
+// that pointer, otherwise it uses `my_NewDeleteAllocator::singleton()`:
+// ```
+//  int main()
+//  {
+//      my_NewDeleteAllocator myA;
+//
+//      my_DoubleStack ds1(&myA); // Supply an allocator.
+//      assert(ds1.allocator() == &myA);
+//
+//      my_DoubleStack ds2;       // Do not supply an allocator.
+//      assert(ds2.allocator() == my_NewDeleteAllocator::singleton());
+// ```
+// Finally, we exercise and verify the behavior of the manipulators and
+// accessors:
+// ```
+//      assert(ds2.isEmpty());
+//      assert(1 == ds2.capacity());
+//      ds2.push(1.25);
+//      ds2.push(1.5);
+//      ds2.push(1.75);
+//
+//      assert(! ds2.isEmpty());
+//      assert(4    == ds2.capacity());
+//      assert(3    == ds2.size());
+//      assert(1.75 == ds2.top());
+//      assert(1.25 == ds2[0]);
+//      assert(1.5  == ds2[1]);
+//      assert(1.75 == ds2[2]);
+//
+//      ds2.pop();
+//      assert(4   == ds2.capacity());
+//      assert(2   == ds2.size());
+//      assert(1.5 == ds2.top());
+//  }
 // ```
 
 #include <bslma_allocator.fwd.h>
@@ -386,7 +467,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 
-#include <cstddef>       // for 'std::size_t', 'std::ptrdiff_t'
+#include <cstddef>       // for `std::size_t`, `std::ptrdiff_t`
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_cpp11.h>
@@ -418,19 +499,23 @@ class Allocator : public bsl::memory_resource {
     /// `this->allocate(bytes)`.  If this allocator cannot return the requested
     /// number of bytes or cannot satisfy the alignment request, then it will
     /// throw a `std::bad_alloc` exception in an exception-enabled build, or
-    /// else will abort the program in a non-exception build.  The behavior is
-    /// undefined unless '0 <= bytes'.  Unless overriden in a derived class,
-    /// the behavior is undefined if `alignment >
-    /// bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.
+    /// else will abort the program in a non-exception build.  Unless overriden
+    /// in a derived class, this function will forward the allocation request
+    /// to the `allocate` virtual function, padding `bytes` and adjusting the
+    /// return value as necessary to ensure sufficient alignment.  Note that if
+    /// `bytes` is `0`, the same non-null value will be returned every time.
     void* do_allocate(std::size_t bytes,
                       std::size_t alignment) BSLS_KEYWORD_OVERRIDE;
 
     /// Return the memory block at the specified `p` address, having the
     /// specified `bytes` and specified `alignment`, back to this allocator.
-    /// If `address` is 0, this function has no effect.  The behavior is
-    /// undefined unless `address` is 0 or a block allocated from this
-    /// allocator object using the same `bytes` and `alignment` and has not
-    /// already been deallocated.
+    /// Unless overriden in a derived class, this function will forward the
+    /// deallocation request to the `deallocate` virtual function, padding
+    /// `bytes` and adjusting `p` as necessary to account for `alignment`
+    /// values other than the natural alignment for an object of size `bytes`.
+    /// The behavior is undefined unless `address` is a block allocated from
+    /// this allocator object using the same `bytes` and `alignment` and not
+    /// already deallocated.
     void do_deallocate(void        *p,
                        std::size_t  bytes,
                        std::size_t  alignment) BSLS_KEYWORD_OVERRIDE;
@@ -536,34 +621,34 @@ class Allocator : public bsl::memory_resource {
 
 // FREE OPERATORS
 
-// Note that the operators 'new' and 'delete' are declared outside the
-// 'BloombergLP' namespace so that they do not hide the standard placement
-// 'new' and 'delete' operators (i.e.,
-// 'void *operator new(std::size_t, void *)' and
-// 'void operator delete(void *)').
+// Note that the operators `new` and `delete` are declared outside the
+// `BloombergLP` namespace so that they do not hide the standard placement
+// `new` and `delete` operators (i.e.,
+// `void *operator new(std::size_t, void *)` and
+// `void operator delete(void *)`).
 //
-// Note also that only the scalar versions of operators 'new' and 'delete' are
-// provided, because overloading 'new' (and 'delete') with their array versions
+// Note also that only the scalar versions of operators `new` and `delete` are
+// provided, because overloading `new` (and `delete`) with their array versions
 // would cause dangerous ambiguity.  Consider what would have happened had we
-// overloaded the array version of operator 'new':
-//..
+// overloaded the array version of operator `new`:
+// ```
 //  void *operator new[](std::size_t size,
 //                       BloombergLP::bslma::Allocator& basicAllocator)
-//..
+// ```
 // The user of the allocator class may expect to be able to use array
-// 'operator new' as follows:
-//..
+// `operator new` as follows:
+// ```
 //  new (*basicAllocator) my_Type[...];
-//..
+// ```
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
-// overloaded 'operator delete' that, other than deallocating memory, would
+// overloaded `operator delete` that, other than deallocating memory, would
 // invoke the destructor.  On the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly because
-// the pointer is different from the one returned by the 'allocate' method.
+// `operator new` cannot be passed to the `deallocate` method directly because
+// the pointer is different from the one returned by the `allocate` method.
 // The compiler offsets the value of this pointer by a header, which is used to
 // maintain the number of objects in the array (so that the non-overloaded
-// 'operator delete' can destroy the right number of objects).
+// `operator delete` can destroy the right number of objects).
 
 /// Return the memory allocated from the specified `basicAllocator` of at
 /// least the specified `size` bytes, or 0 if `size` is 0.  The behavior is

@@ -9,8 +9,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_keyword.h>
+#include <bsls_performancehint.h>
 
-#include <stdint.h>  // 'uintptr_t' -- portable to all supported compilers
+typedef BloombergLP::bsls::AlignmentUtil AlignUtil;
 
 namespace BloombergLP {
 namespace bslma {
@@ -35,29 +36,67 @@ Allocator::~Allocator()
 }
 
 // PROTECTED MANIPULATORS
-void *Allocator::do_allocate(std::size_t bytes, std::size_t)
+void *Allocator::do_allocate(std::size_t bytes, std::size_t align)
 {
-    void *p = this->allocate(bytes);
-
-    if (0 == bytes && 0 == p) {
-        // `do_allocate` is not allowed to return null, so return special ptr.
-        return bslma::MemoryResourceImpSupport::singularPointer();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == bytes)) {
+        void *p = this->allocate(bytes);
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 == p)) {
+            // Convert null pointer to singular pointer.
+            p = bslma::MemoryResourceImpSupport::singularPointer();
+        }
+        return p;
     }
 
-    return p;
+    int naturalAlign = bsls::AlignmentUtil::calculateAlignmentFromSize(bytes);
+
+    if ((int) align <= naturalAlign) {
+        return this->allocate(bytes);  // Forward to 'Allocator::allocate'
+    }
+    else if (align <= AlignUtil::BSLS_MAX_ALIGNMENT) {
+        // Round 'bytes' up to a larger size that has a natural alignment of
+        // 'align'.
+        bytes = (bytes + align - 1) & ~(align - 1);
+        return this->allocate(bytes);  // Forward to 'Allocator::allocate'
+    }
+    else {
+        // Allocate extra memory to hold an aligned sub-block preceded by a
+        // 'int' header representing the offset from the start of the allocated
+        // block to the start of the aligned sub-block:
+        //```
+        //   <------ allocated block --------->
+        //   <- offset -->
+        //  |    | header | returned block |   |
+        //```
+
+        bytes += sizeof(int) + align - 1;
+        char *block = static_cast<char *>(this->allocate(bytes));
+        int offset = sizeof(int) +
+            AlignUtil::calculateAlignmentOffset(block + sizeof(int),
+                                                (int) align);
+        void *ret  = block + offset;
+        static_cast<int *>(ret)[-1] = offset;  // Store offset in header
+        return ret;
+    }
 }
 
-void Allocator::do_deallocate(void *p, std::size_t bytes, std::size_t)
+void Allocator::do_deallocate(void *p, std::size_t bytes, std::size_t align)
 {
-    (void) bytes;  // Not used in an OPT build
+    (void) bytes;  // Used only for `BSLS_ASSERT`; not used in an OPT build.
 
     if (bslma::MemoryResourceImpSupport::singularPointer() == p) {
         // Special pointer indicates zero-byte `memory_resource` allocation.
         BSLS_ASSERT(0 == bytes);
-        p = 0;  // Change pointer to zero-byte expected value for `Allocator`.
+
+        // Convert singular poiinter to null pointer before forwarding to
+        // 'Allocator::deallocate'.
+        p = 0;
+    }
+    else if (align > AlignUtil::BSLS_MAX_ALIGNMENT) {
+        int offset = static_cast<int *>(p)[-1];  // Read offset before 'p'
+        char* block = static_cast<char *>(p) - offset; // Find enclosing block
+        p = block;  // Forward enclosing block to 'Allocator::deallocate'.
     }
 
-    // Forward to `Allocator` interface.
     this->deallocate(p);
 }
 

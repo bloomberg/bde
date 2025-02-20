@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Oct  4 16:23:48 2024
+// Generated on Thu Jan 23 19:48:37 2025
 // Command line: sim_cpp11_features.pl bslma_allocatorutil.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORUTIL_H
@@ -141,18 +141,20 @@ struct AllocatorUtil {
 
     /// Return a pointer to a block of raw memory allocated from the specified
     /// `allocator` having the specified `nbytes` size and optionally specified
-    /// `alignment`.  If `alignment` is larger than the largest supported
-    /// alignment, either the block will be aligned to the maximum supported
-    /// alignment or an exception will be thrown.  The specific choice of
-    /// behavior is determined by the allocator: for polymorphic allocators the
-    /// behavior is determined by the memory resource, whereas for
+    /// `alignment`.  If `alignment` is not specified, the natural alignment
+    /// for an object of size `nbytes` is used.  If `alignment` is larger than
+    /// the largest supported alignment for `t_ALLOCATOR`, either the block
+    /// will be aligned to the maximum supported alignment or an exception will
+    /// be thrown; the specific choice of behavior is determined by the
+    /// allocator.  For polymorphic allocators the behavior of extended
+    /// alignment is determined by the memory resource, whereas for
     /// non-polymorphic allocators, the alignment is always truncated to the
     /// maximum non-extended alignment.
     template <class t_ALLOCATOR>
     static typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer
     allocateBytes(const t_ALLOCATOR& allocator,
                   std::size_t        nbytes,
-                  std::size_t        alignment = k_MAX_ALIGNMENT);
+                  std::size_t        alignment = 0);
 
     /// Return a pointer to a block of raw memory allocated from the specified
     /// `allocator` having a size and alignment appropriate for an object of
@@ -184,18 +186,19 @@ struct AllocatorUtil {
                           const t_TYPE&    rhs,
                           bsl::false_type  allowed);
 
-    /// Return to the specified allocator the block raw memory at the specified
-    /// `p` address having the specified `nbytes` size and optionally specified
-    /// `alignment`.  The behavior is undefined unless `p` refers to a block
-    /// having the same size and alignment previously allocated from a copy of
-    /// `allocator` and not yet deallocated.
+    /// Give back, to the specified `allocator`, the block of raw memory at the
+    /// specified `p` address having the specified `nbytes` size and optionally
+    /// specified `alignment`.  If `alignment` is not specified, the natural
+    /// alignment for an object of size `nbytes` is used.  The behavior is
+    /// undefined unless `p` refers to a block having the same size and
+    /// alignment previously allocated from a copy of `allocator` and not yet
+    /// deallocated.
     template <class t_ALLOCATOR>
     static void deallocateBytes(
         const t_ALLOCATOR&                                       allocator,
         typename AllocatorUtil_Traits<t_ALLOCATOR>::void_pointer p,
         std::size_t                                              nbytes,
-        std::size_t                                              alignment
-                                                            = k_MAX_ALIGNMENT);
+        std::size_t                                              alignment =0);
 
     /// Return to the specified `allocator` a block of raw memory at the
     /// specified `p` address that is suitably sized and aligned to hold an
@@ -1044,6 +1047,10 @@ AllocatorUtil::allocateBytes(const t_ALLOCATOR& allocator,
                              std::size_t        nbytes,
                              std::size_t        alignment)
 {
+    if (0 == alignment) {
+        alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(nbytes);
+    }
+
     BSLS_ASSERT(isPowerOf2(alignment));
 
     typedef
@@ -1086,6 +1093,10 @@ void AllocatorUtil::deallocateBytes(
     std::size_t                                              nbytes,
     std::size_t                                              alignment)
 {
+    if (0 == alignment) {
+        alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(nbytes);
+    }
+
     BSLS_ASSERT(isPowerOf2(alignment));
 
     typedef

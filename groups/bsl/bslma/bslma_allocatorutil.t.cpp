@@ -115,11 +115,16 @@ typedef bslma::AllocatorUtil Util;
 
 const std::size_t k_MAX_ALIGNMENT = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
+/// Return `true` if the specified `p` (which was probably returned by an
+/// allocator) is correctly aligned for the parameterized `TYPE`. Some
+/// allocators fail to correctly handle overaligned types, yielding a
+/// misaligned pointer that might cause a loss of performance, but is unlikely
+/// to produce a bus fault.
 template <class TYPE>
-bool isAligned(const TYPE *p)
+bool isCorrectlyAligned(const TYPE *p)
 {
-    static const std::size_t k_T_ALIGN = bsls::AlignmentFromType<TYPE>::VALUE;
-    return 0 == bsls::AlignmentUtil::calculateAlignmentOffset(p, k_T_ALIGN);
+    return
+        bsls::AlignmentUtil::isAligned(p,bsls::AlignmentFromType<TYPE>::VALUE);
 }
 
 template <class TYPE>
@@ -712,8 +717,10 @@ struct OveralignedObj {
     bsls::AlignmentUtil::MaxAlignedType d_data;
 #endif
 
-    OveralignedObj()                      { ASSERTV(this, isAligned(this)); }
-    OveralignedObj(const OveralignedObj&) { ASSERTV(this, isAligned(this)); }
+    OveralignedObj()
+        { ASSERTV(this, isCorrectlyAligned(this)); }
+    OveralignedObj(const OveralignedObj&)
+        { ASSERTV(this, isCorrectlyAligned(this)); }
 };
 
 BSLA_MAYBE_UNUSED
@@ -834,14 +841,37 @@ long *TestType::makeValue(long v)
 template <class ALLOCATOR, class POINTER>
 void testAllocBytes(int line)
 {
-    const std::size_t SIZES[] = { 1, 2, 3, 4, 8, 10, 16, 64, 256 };
-    const std::size_t NUM_SIZES = sizeof(SIZES) / sizeof(SIZES[0]);
+    static const std::size_t SIZES[] = { 1, 2, 3, 4, 8, 10, 16, 64, 256 };
+    static const std::size_t NUM_SIZES = sizeof(SIZES) / sizeof(SIZES[0]);
 
     CheckedResource cr;
     ALLOCATOR alloc(&cr);
 
     for (std::size_t si = 0; si < NUM_SIZES; ++si) {
         const std::size_t nbytes = SIZES[si];
+
+        // Test without specifying alignment (use natural alignment)
+        {
+            const std::size_t expAlign =
+                bsls::AlignmentUtil::calculateAlignmentFromSize(nbytes);
+
+            ASSERT(typeid(Util::allocateBytes(alloc, nbytes)) ==
+                   typeid(POINTER));
+            POINTER  block_p = Util::allocateBytes(alloc, nbytes);
+            void    *raw_p   = rawPtr(block_p);
+            ASSERTV(line, nbytes, expAlign, 0 != raw_p);
+            ASSERTV(line, nbytes, expAlign, cr.numBlocksInUse() == 1);
+            ASSERTV(line, nbytes, expAlign, cr.hasExpSize(raw_p, nbytes));
+            ASSERTV(line, nbytes, expAlign,
+                    cr.hasExpAlignment(raw_p, expAlign));
+
+            Util::deallocateBytes(alloc, block_p, nbytes);
+            ASSERTV(line, nbytes, expAlign, cr.numBlocksInUse() == 0);
+            ASSERTV(line, nbytes, expAlign, cr.hasExpSize(raw_p, 0));
+            ASSERTV(line, nbytes, expAlign, cr.hasExpAlignment(raw_p, 0));
+        }
+
+        // Test with explicit alignment
         for (std::size_t alignment = 1;
              alignment <= 2 * k_MAX_ALIGNMENT; alignment <<= 1) {
 
@@ -866,18 +896,19 @@ void testAllocBytes(int line)
 template <class ALLOCATOR, class TYPE, class POINTER>
 void testAllocObjImp(int Tline, int Aline)
 {
-    const std::size_t expAlign = bsls::AlignmentFromType<TYPE>::VALUE;
+    static const std::size_t expAlign = bsls::AlignmentFromType<TYPE>::VALUE;
 
     CheckedResource cr;
-    ALLOCATOR alloc(&cr);
+    ALLOCATOR       alloc(&cr);
 
     ASSERT(typeid(Util::allocateObject<TYPE>(alloc)) == typeid(POINTER));
 
     // Allocate a single object
-    POINTER      obj1_p = Util::allocateObject<TYPE>(alloc);
+    POINTER      obj1_p  = Util::allocateObject<TYPE>(alloc);
     TYPE        *raw1_p  = rawPtr(obj1_p);
     std::size_t  expSize = sizeof(TYPE);
-    ASSERTV(Tline, Aline, expSize, expAlign, (void*)raw1_p, isAligned(raw1_p));
+    ASSERTV(Tline, Aline, expSize, expAlign, (void*)raw1_p,
+            isCorrectlyAligned(raw1_p));
     ASSERTV(Tline, Aline, expSize, expAlign, 0 != raw1_p);
     ASSERTV(Tline, Aline, expSize, expAlign, cr.numBlocksInUse() == 1);
     ASSERTV(Tline, Aline, expSize, expAlign, cr.hasExpSize(raw1_p, expSize));
@@ -1663,7 +1694,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // 1. The `allocateBytes` method allocates the specified number of
-        //    bytes and attempts honor the specified alignment.
+        //    bytes and attempts honor the specified alignment.  If alignment
+        //    is not specified, natural alignment is used.
         // 2. The `deallocateBytes` method returns the bytes back to the
         //    allocator.
         // 3. The previous concerns apply for any reasonable number of bytes
@@ -1671,7 +1703,7 @@ int main(int argc, char *argv[])
         // 4. If the allocator cannot honor the specified alignment, the
         //    maximum platform alignment is used.
         // 5. The previous concerns apply to any type of allocator, including
-        //    `bslma::Allocator *`, `bsl::allocator`,
+        //    `bslma::Allocator *`, `bsl::allocator`, and
         //    `bsl::polymorphic_allocator`.
         // 6. The pointer type returned by `allocateBytes` and accepted by
         //    `deallocateBytes` matches the void pointer type for the specified

@@ -1,7 +1,6 @@
 // bslma_allocator.t.cpp                                              -*-C++-*-
 
 #include <bslma_allocator.h>
-#include <bslma_allocator.fwd.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
@@ -15,6 +14,15 @@
 #include <string.h>
 
 #include <new>
+
+#ifdef BDE_VERIFY
+// Suppress some pedantic bde_verify checks in this test driver
+#pragma bde_verify -FD01   // Function declaration requires contract
+#pragma bde_verify -FD03   // Parameter not documented in function contract
+#pragma bde_verify -FABC01 // Function not in alphabetical order
+#pragma bde_verify -TP19   // Missing or malformed standard test driver section
+#pragma bde_verify -TY02   // Template parameter uses single-letter name
+#endif
 
 using namespace BloombergLP;
 
@@ -40,23 +48,23 @@ using namespace BloombergLP;
 // [ 1] virtual ~Allocator();
 // [ 1] virtual void *allocate(size_type) = 0;
 // [ 1] virtual void deallocate(void *) = 0;
-// [ 1] virtual void* do_allocate(std::size_t, std::size_t);
-// [ 1] virtual void do_deallocate(void *p, std::size_t, std::size_t);
-// [ 1] virtual bool do_is_equal(const bsl::memory_resource&) const;
-// [ 2] template<class TYPE> void deleteObject(const TYPE *);
-// [ 3] template<class TYPE> void deleteObjectRaw(const TYPE *);
-// [ 2] void deleteObject(bsl::nulptr_t);
-// [ 3] void deleteObjectRaw(bsl::nulptr_t);
-// [ 4] void *operator new(int size, bslma::Allocator& basicAllocator);
-// [ 5] void operator delete(void *address, bslma::Allocator& bA);
+// [ 3] virtual void* do_allocate(std::size_t, std::size_t);
+// [ 3] virtual void do_deallocate(void *p, std::size_t, std::size_t);
+// [ 3] virtual bool do_is_equal(const bsl::memory_resource&) const;
+// [ 4] template<class TYPE> void deleteObject(const TYPE *);
+// [ 5] template<class TYPE> void deleteObjectRaw(const TYPE *);
+// [ 4] void deleteObject(bsl::nulptr_t);
+// [ 5] void deleteObjectRaw(bsl::nulptr_t);
+// [ 6] void *operator new(int size, bslma::Allocator& basicAllocator);
+// [ 7] void operator delete(void *address, bslma::Allocator& bA);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [  ] static throwBadAlloc();
 #endif
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
-// [ 4] OPERATOR TEST - Make sure overloaded operators call correct functions.
-// [ 5] EXCEPTION SAFETY - Ensure operator delete is invoked on an exception.
-// [ 6] USAGE EXAMPLE - Make sure usage examples compiles and works properly.
+// [ 7] EXCEPTION SAFETY - Ensure operator delete is invoked on an exception.
+// [ 2] TEST HARNESS  - Make sure test classes and functions work properly.
+// [ 8] USAGE EXAMPLE - Make sure usage examples compiles and works properly.
 //=============================================================================
 
 // ============================================================================
@@ -87,15 +95,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-
 #define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
@@ -117,8 +116,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-/// This class is used with `bsls::ProtocolTest` to test the
-/// `bslma::Allocator` protocol.
+typedef bsls::AlignmentUtil Align;
+
+typedef Align::MaxAlignedType MaxAlignedType;
+
+const int k_MAX_ALIGNMENT = Align::BSLS_MAX_ALIGNMENT;
+
+/// This class is used with `bsls::ProtocolTest` to test the `bslma::Allocator`
+/// protocol.
 class AllocatorProtocolTest : public bsls::ProtocolTestImp<bslma::Allocator> {
 
   protected:
@@ -183,58 +188,106 @@ void IndirectProtocolTest::deallocate(void *)
     markDone();
 }
 
-/// Test class used to verify protocol.
+enum AllocOp { e_INIT, e_ALLOC, e_DEALLOC };
+
+/// Instrumented test allocator for single-shot allocations.  This allocator
+/// keeps track of the most recent calls to `allocate` or `deallocate`.  The
+/// `allocate` method return a pointer whose alignment exactly matches the
+/// natural alignment for the requested size.  Only one block may be
+/// outstanding at a time; if `allocate` is called twice without an
+/// intervening `deallocate`, the result of the previous allocation is
+/// discarded and the fixed buffer is reused.  There are no negative
+/// consequences to failing to deallocate an allocated block nor to calling
+/// `allocate` multiple times without calling `deallocate` in-between, so
+/// long as no object is actually constructed in the allocated storage.
 class my_Allocator : public bslma::Allocator {
 
-    int d_fun;  // holds code describing function:
-                //   + 1 allocate
-                //   + 2 deallocate
+    AllocOp    d_lastOp;    // most recent operation
+    size_type  d_lastSize;  // size argument from most recent allocation
+    void      *d_lastBlock; // block returned from most recent allocation
+    char       d_storage[256 + 32 + 4];
 
-    size_type d_arg;  // holds argument from alloc
-
-    char d_storage[32];  // space to allow for "large" allocations
-
-    int d_allocateCount;    // number of times allocate called
-    int d_deallocateCount;  // number of times deallocate called
-
-    bsls::AlignmentUtil::MaxAlignedType d_align; // no use but to align this
-                                                 // struct
+    int        d_allocateCount;    // number of times allocate called
+    int        d_deallocateCount;  // number of times deallocate called
 
   public:
-    my_Allocator() : d_allocateCount(0), d_deallocateCount(0) { }
+    // CREATORS
+    my_Allocator()
+        : d_lastOp(e_INIT), d_lastSize(0), d_lastBlock(0)
+    , d_allocateCount(0), d_deallocateCount(0) { }
+
     ~my_Allocator() BSLS_KEYWORD_OVERRIDE { }
 
-    void *allocate(size_type s) BSLS_KEYWORD_OVERRIDE {
-        d_fun = 1;
-        d_arg = s;
-        ++d_allocateCount;
-        return s ? this : 0;
-    }
-
     // MANIPULATORS
-    void deallocate(void *) BSLS_KEYWORD_OVERRIDE
-    {
-        d_fun = 2;
-        ++d_deallocateCount;
-    }
+
+    /// Return a pointer exactly aligned on the natural alignment of the
+    /// specified `s`, and record the inputs and outputs for subsequent
+    /// queries.  Note that the returned block might not be large enough to
+    /// fit an object of size `s`.
+    void *allocate(size_type s) BSLS_KEYWORD_OVERRIDE;
+
+    /// Verify that `p` corresponds to the return value of the most recent
+    /// call to `allocate` and record the `deallocation` for subsequent
+    /// queries.
+    void deallocate(void *p) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
 
-    /// Return number of times allocate called.
+    /// Return the number of times that `allocate` was called.
     int allocateCount() const { return d_allocateCount; }
 
-    /// Return last argument value for allocate.
-    size_type arg() const { return d_arg; }
-
-    /// Return number of times deallocate called.
+    /// Return the number of times that `deallocate` was called.
     int deallocateCount() const { return d_deallocateCount; }
 
-    /// Return descriptive code for the function called.
-    int fun() const { return d_fun; }
+    /// Return last argument value for `allocate`.
+    size_type lastSize() const { return d_lastSize; }
+
+    /// Return the address of the most recently allocated block.
+    void *lastBlock() const { return d_lastBlock; }
+
+    /// Return a descriptive code for the last `allocate` or `deallocate` call.
+    AllocOp lastOp() const { return d_lastOp; }
 };
 
+// MANIPULATORS
+void *my_Allocator::allocate(size_type s)
+{
+    d_lastOp    = e_ALLOC;
+    d_lastSize  = s;
+
+    if (0 == s) {
+        d_lastBlock = 0;
+    }
+    else {
+        // Allocate a correctly aligned block from `d_storage`.
+        int   alignment = Align::calculateAlignmentFromSize(s);
+        int   offset = Align::calculateAlignmentOffset(d_storage, alignment);
+        char *p      = static_cast<char *>(d_storage) + offset;
+
+        // Make sure `p` is exactly aligned, not overaligned.
+        if (Align::isAligned(p, alignment << 1)) {
+            p += alignment;
+        }
+
+        d_lastBlock = p;
+    }
+
+    ++d_allocateCount;
+
+    return d_lastBlock;
+}
+
+void my_Allocator::deallocate(void *p)
+{
+    ASSERT(e_ALLOC == d_lastOp);
+    ASSERT(p       == d_lastBlock);
+    d_lastOp    = e_DEALLOC;
+    d_lastBlock = p;
+    ++d_deallocateCount;
+}
+
 /// Test class used to verify examples.
-class my_NewDeleteAllocator : public bslma::Allocator {
+class CountingNewDeleteAlloc : public bslma::Allocator {
 
     int d_count;
 
@@ -242,8 +295,8 @@ class my_NewDeleteAllocator : public bslma::Allocator {
            DELETED = 0xBADF000D };
 
   public:
-    my_NewDeleteAllocator(): d_count(0) { }
-    ~my_NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE { }
+    CountingNewDeleteAlloc(): d_count(0) { }
+    ~CountingNewDeleteAlloc() BSLS_KEYWORD_OVERRIDE { }
 
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE {
         ++d_count;
@@ -252,11 +305,10 @@ class my_NewDeleteAllocator : public bslma::Allocator {
             return 0;
         }
 
-        unsigned *p = (unsigned *) operator new(
-                               size + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        unsigned *p = (unsigned *) operator new(size + k_MAX_ALIGNMENT);
         *p = MAGIC;
 
-        return (char *) p + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        return (char *) p + k_MAX_ALIGNMENT;
     }
 
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE {
@@ -266,8 +318,7 @@ class my_NewDeleteAllocator : public bslma::Allocator {
             return;
         }
 
-        unsigned *p = (unsigned *)
-                         ((bsls::AlignmentUtil::MaxAlignedType *) address - 1);
+        unsigned *p = (unsigned *) ((MaxAlignedType *) address - 1);
         ASSERT(MAGIC == *p);
         *p = DELETED;
 
@@ -349,141 +400,331 @@ class my_MostDerived : public my_LeftBase, public my_RightBase {
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-class my_DoubleStack {
-    double           *d_stack_p;     // dynamically allocated array (d_size
-                                     // elements)
-    int               d_size;        // physical capacity of this stack (in
-                                     // elements)
-    int               d_length;      // logical index of next available stack
-                                     // element
-    bslma::Allocator *d_allocator_p; // holds (but doesn't own) object
+///Example 1: Derived Concrete Allocator
+/// - - - - - - - - - - - - - - - - - -
+// In order for the `bslma::Allocator` interface to be useful, we must supply a
+// concrete allocator that implements it.  In this example we demonstrate how
+// to adapt `operator new` and `operator delete` to this protocol base class.
+//
+// First, in a component `.h` file, we define a class, derived from
+// `bslma::Allocator`, that provides concrete implementations of the `virtual`
+// `allocate` and `deallocate` methods:
+// ```
+    // my_newdeleteallocator.h
+    // ...
 
-    friend class my_DoubleStackIter;
+//  #include <bslma_allocator.h>
+//  #include <bsls_keyword.h>
+//  #include <new>
 
-  private:
-    void increaseSize(); // Increase the capacity by at least one element.
+    /// This class is a sample concrete implementation of the
+    /// `bslma::Allocator` protocol that provides direct access to the
+    /// system-supplied (native) global operators `new` and `delete`.
+    class my_NewDeleteAllocator : public bslma::Allocator {
 
-  public:
+        // NOT IMPLEMENTED
+        my_NewDeleteAllocator(const my_NewDeleteAllocator&);
+        my_NewDeleteAllocator& operator=(const my_NewDeleteAllocator&);
+
+      public:
+        // CLASS METHODS
+
+        /// Return the address of a singleton object of
+        /// `my_NewDeleteAllocator`. Since `my_NewDeleteAllocator` has no
+        /// state, there is never a need for more than one.
+        static my_NewDeleteAllocator *singleton();
+
+        // CREATORS
+
+        /// Create an allocator that wraps the global (native) operators
+        /// `new` and `delete` to supply memory.  Note that all objects of
+        /// this class share the same underlying resource.
+        my_NewDeleteAllocator() { }
+
+        /// Destroy this allocator object.  Note that destroying this
+        /// allocator has no effect on any outstanding allocated memory.
+        ~my_NewDeleteAllocator() BSLS_KEYWORD_OVERRIDE;
+
+        // MANIPULATORS
+
+        /// Return a newly allocated block of memory of (at least) the
+        /// specified positive `size` (in bytes).  If `size` is 0, a null
+        /// pointer is returned with no other effect.  If this allocator
+        /// cannot return the requested number of bytes, then it will throw
+        /// a `std::bad_alloc` exception in an exception-enabled build, or
+        /// else will abort the program in a non-exception build.  The
+        /// behavior is undefined unless `0 <= size`.  Note that the
+        /// alignment of the address returned is the maximum alignment for
+        /// any type defined on this platform.  Also note that global
+        /// `operator new` is *not* called when `size` is 0 (in order to
+        /// avoid having to acquire a lock, and potential contention in
+        /// multi-threaded programs).
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// Return the memory block at the specified `address` back to this
+        /// allocator.  If `address` is 0, this function has no effect.  The
+        /// behavior is undefined unless `address` was allocated using this
+        /// allocator object and has not already been deallocated.  Note
+        /// that global `operator delete` is *not* called when `address` is
+        /// 0 (in order to avoid having to acquire a lock, and potential
+        /// contention in multi-treaded programs).
+        void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
+    };
+// ```
+// Next, in the component `.cpp` file, we define the `singleton()` method,
+// which provides the typical way of obtaining an instance of this allocator:
+// ```
+    // my_newdeleteallocator.cpp
+//  #include <my_newdeleteallocator.h>
+
+    // CLASS METHODS
+    my_NewDeleteAllocator *my_NewDeleteAllocator::singleton()
+    {
+        static my_NewDeleteAllocator obj;
+        return &obj;
+    }
+// ```
+// Next, we implement the `bslma::Allocator` protocol by defining (also in the
+// component `.cpp` file) the virtual methods:
+// ```
     // CREATORS
-    explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-    my_DoubleStack(const my_DoubleStack&  other,
-                   bslma::Allocator      *basicAllocator = 0);
-    ~my_DoubleStack();
+    my_NewDeleteAllocator::~my_NewDeleteAllocator()
+    {
+    }
 
     // MANIPULATORS
-    my_DoubleStack& operator=(const my_DoubleStack& rhs);
-    void pop();
-    void push(double value);
-
-    // ACCESSORS
-    bool isEmpty() const;
-    const double& top() const;
-};
-
-enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
-
-// ..
-
-my_NewDeleteAllocator myA;
-
-/// The above initialization expression is equivalent to 'basicAllocator
-/// ? basicAllocator : &bslma::NewDeleteAllocator::singleton()'.
-my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
-: d_size(INITIAL_SIZE)
-, d_length(0)
-, d_allocator_p(basicAllocator ? basicAllocator : &myA)
-{
-    ASSERT(d_allocator_p);
-    d_stack_p = (double *) d_allocator_p->allocate(d_size * sizeof *d_stack_p);
-}
-
-my_DoubleStack::~my_DoubleStack()
-{
-    // CLASS INVARIANTS
-    ASSERT(d_allocator_p);
-    ASSERT(d_stack_p);
-    ASSERT(0 <= d_length);
-    ASSERT(0 <= d_size);
-    ASSERT(d_length <= d_size);
-
-    d_allocator_p->deallocate(d_stack_p);
-}
-
-/// Reallocate memory in the specified `array` to the specified `newSize`
-/// using the specified `basicAllocator`.  The specified `length` number of
-/// leading elements are preserved.  Since the class invariant requires that
-/// the physical capacity of the container may grow but never shrink; the
-/// behavior is undefined unless `length <= newSize`.
-static inline
-void reallocate(double           **array,
-                int                newSize,
-                int                length,
-                bslma::Allocator  *basicAllocator)
-{
-    ASSERT(array);
-    ASSERT(1 <= newSize);
-    ASSERT(0 <= length);
-    ASSERT(basicAllocator);
-    ASSERT(length <= newSize);        // enforce class invariant
-
-    double *tmp = *array;             // support exception neutrality
-    *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
-
-    // COMMIT POINT
-
-    memcpy(*array, tmp, length * sizeof **array);
-    basicAllocator->deallocate(tmp);
-}
-
-void my_DoubleStack::increaseSize()
-{
-    int proposedNewSize = d_size * GROW_FACTOR;      // reallocate can throw
-    ASSERT(proposedNewSize > d_length);
-
-    reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
-    d_size = proposedNewSize;                        // we're committed
-}
-
-inline
-void my_DoubleStack::push(double value)
-{
-    if (d_length >= d_size) {
-        increaseSize();
+    void *my_NewDeleteAllocator::allocate(size_type size)
+    {
+        return 0 == size ? 0 : ::operator new(size);
     }
-    d_stack_p[d_length++] = value;
-}
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//           Additional Functionality Need to Complete Usage Test Case
+    void my_NewDeleteAllocator::deallocate(void *address)
+    {
+        // While the C++ standard guarantees that calling delete(0) is safe
+        // (3.7.3.2 paragraph 3), some libc implementations take out a lock to
+        // deal with the free(0) case, so this check can improve efficiency of
+        // threaded programs.
 
-class my_DoubleStackIter {
-    // PRIVATE DATA
-    const double *d_stack_p;
-    int           d_index;
-
-  private:
-    // NOT DEFINED
-    my_DoubleStackIter(const my_DoubleStackIter&);
-    my_DoubleStackIter& operator=(const my_DoubleStackIter&);
-
-  public:
-    explicit my_DoubleStackIter(const my_DoubleStack& stack)
-    : d_stack_p(stack.d_stack_p), d_index(stack.d_length - 1) { }
-
-    void operator++() { --d_index; }
-
-    operator const void *() const { return d_index >= 0 ? this : 0; }
-
-    const double& operator()() const { return d_stack_p[d_index]; }
-};
-
-void debugprint(const my_DoubleStack& val) {
-    printf("(top) [");
-    for (my_DoubleStackIter it(val); it; ++it) {
-        printf(" %g", it());
+        if (address) {
+            ::operator delete(address);
+        }
     }
-    printf(" ] (bottom)");
-}
+// ```
+// Now we can use `my_NewDeleteAllocator` to allocate and deallocate storage
+// for (in this case, `int`) objects:
+// ```
+    void usageExample1()
+    {
+        typedef int T;  // Can be any type
+
+        my_NewDeleteAllocator myA;
+        T *p = static_cast<T *>(myA.allocate(sizeof(T)));
+        new (p) T(5);    // Construct object at `p`.
+        ASSERT(5 == *p);
+        p->~T();         // not needed for `int`, but important for class types
+        myA.deallocate(p);
+// ```
+// Finally, we repeat the previous example using the `singleton` object instead
+// of constructing a new `my_NewDeleteAllocator` and using the `operator new`
+// and `deleteObject` interface instead of raw `allocate`-construct and
+// destroy-`deallocate`.  Note that these interfaces can be mixed and matched
+// (e.g., `singleton` can be used with `allocate`):
+// ```
+        p = new (*my_NewDeleteAllocator::singleton()) T(6);
+        ASSERT(6 == *p);
+        my_NewDeleteAllocator::singleton()->deleteObject(p);
+    }
+// ```
+//
+///Example 2: Container Objects
+/// - - - - - - - - - - - - - -
+// Allocators are often supplied to objects requiring dynamically-allocated
+// memory at construction.  For example, consider the following
+// `my_DoubleStack` class, which uses a `bslma::Allocator` to allocate memory.
+//
+// First, we define the class interface, which is a minimal subset of a typical
+// container interface:
+// ```
+    // my_doublestack.h
+    // ...
+
+//  #include <bslma_allocator.h>
+//  #include <my_NewDeleteAllocator.h>
+
+    /// dynamically growing stack of `double` values
+    class my_DoubleStack {
+        enum { k_INITIAL_SIZE = 1, k_GROWTH_FACTOR = 2 };
+
+        int               d_capacity;    // physical capacity of this stack (in
+                                         // elements)
+        int               d_size;        // number of available stack elements
+                                         // currently in use
+        double           *d_stack_p;     // dynamically allocated array of
+                                         // `d_capacity` elements
+        bslma::Allocator *d_allocator_p; // holds (but doesn't own) allocator
+
+      private:
+        /// Increase the capacity by `k_GROWTH_FACTOR`.
+        void increaseSize();
+
+      public:
+        // CREATORS
+        explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+        my_DoubleStack(const my_DoubleStack&  other,
+                       bslma::Allocator      *basicAllocator = 0);
+        ~my_DoubleStack();
+
+        // MANIPULATORS
+        my_DoubleStack& operator=(const my_DoubleStack& rhs);
+        void pop() { --d_size; }
+        void push(double value);
+
+        // ACCESSORS
+        double operator[](int i) const { return d_stack_p[i]; }
+        bslma::Allocator *allocator() const { return d_allocator_p; }
+        int capacity() const { return d_capacity; }
+        bool isEmpty() const { return 0 == d_size; }
+        int size() const { return d_size; }
+        double top() const { return d_stack_p[d_size - 1]; }
+    };
+// ```
+// Next, we define the constructor, which takes an optional `basicAllocator`
+// supplied only at construction.  (We avoid use of the name `allocator` so as
+// not to conflict with the STL use of the word, which differs slightly.)  If
+// non-zero, the stack holds a pointer to this allocator, but does not own it.
+// If no allocator is supplied, the implementation itself must either
+// conditionally invoke global `new` and `delete` explicitly whenever dynamic
+// memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator
+// that adapts use of these global operators to the `bslma_allocator` interface
+// (see `bslma_default`).  The constructor uses the selected allocator to
+// allocate memory via the `allocate` method.
+// ```
+    // my_doublestack.cpp
+//  #include <my_doublestack.h>
+//  #include <bslma_allocator.h>
+//  #include <bslma_default.h>    // for selecting a default allocator
+
+    // CREATORS
+    my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
+    : d_capacity(k_INITIAL_SIZE)
+    , d_size(0)
+    , d_allocator_p(basicAllocator ?
+                    basicAllocator : my_NewDeleteAllocator::singleton())
+        // The above initialization expression is roughly equivalent to
+        // `bslma::Default::allocator(basicAllocator)`
+    {
+        ASSERT(d_allocator_p);
+        d_stack_p = (double *)
+            d_allocator_p->allocate(d_capacity * sizeof *d_stack_p);
+    }
+// ```
+// Next, we define a destructor that frees the memory held by the container
+// using the allocator's `deallocate` method:
+// ```
+    my_DoubleStack::~my_DoubleStack()
+    {
+        // CLASS INVARIANTS
+        ASSERT(d_allocator_p);
+        ASSERT(d_stack_p);
+        ASSERT(0 <= d_size);
+        ASSERT(0 <= d_capacity);
+        ASSERT(d_size <= d_capacity);
+
+        d_allocator_p->deallocate(d_stack_p);
+    }
+// ```
+// Next, we define a `reallocation` function that expands a dynamic array of
+// `double`s.  Even in this simplified implementation, all use of the allocator
+// protocol is relegated to the `.cpp` file:
+// ```
+    /// Reallocate memory in the specified `array` to the specified `newSize`
+    /// using the specified `basicAllocator`.  The specified `length` number of
+    /// leading elements are preserved.  Since the class invariant requires
+    /// that the physical capacity of the container may grow but never shrink;
+    /// the behavior is undefined unless `length <= newSize`.
+    static inline
+    void reallocate(double           **array,
+                    int                newSize,
+                    int                length,
+                    bslma::Allocator  *basicAllocator)
+    {
+        ASSERT(array);
+        ASSERT(1 <= newSize);
+        ASSERT(0 <= length);
+        ASSERT(basicAllocator);
+        ASSERT(length <= newSize);        // enforce class invariant
+
+        double *tmp = *array;             // support exception neutrality
+        *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
+
+        // COMMIT POINT
+
+        memcpy(*array, tmp, length * sizeof **array);
+        basicAllocator->deallocate(tmp);
+    }
+// ```
+// Next, we define the private `increaseSize` method to allocate more space for
+// container elements as needed:
+// ```
+    void my_DoubleStack::increaseSize()
+    {
+        int proposedNewSize = d_capacity * k_GROWTH_FACTOR;
+        ASSERT(proposedNewSize > d_size);
+
+        // Reallocate might throw.
+        reallocate(&d_stack_p, proposedNewSize, d_size, d_allocator_p);
+
+        // Commit change only after `reallocate` succeeds.
+        d_capacity = proposedNewSize;
+    }
+// ```
+// Now we have what we need to implement the `push` method:
+// ```
+    void my_DoubleStack::push(double value)
+    {
+        if (d_size >= d_capacity) {
+            increaseSize();
+        }
+        d_stack_p[d_size++] = value;
+    }
+// ```
+// Now, to test our stack class, we first verify that its constructor captures
+// the allocator correctly; if supplied an allocator pointer, it holds on to
+// that pointer, otherwise it uses `my_NewDeleteAllocator::singleton()`:
+// ```
+    void usageExample2()
+    {
+        my_NewDeleteAllocator myA;
+
+        my_DoubleStack ds1(&myA); // Supply an allocator.
+        ASSERT(ds1.allocator() == &myA);
+
+        my_DoubleStack ds2;       // Do not supply an allocator.
+        ASSERT(ds2.allocator() == my_NewDeleteAllocator::singleton());
+// ```
+// Finally, we exercise and verify the behavior of the manipulators and
+// accessors:
+// ```
+        ASSERT(ds2.isEmpty());
+        ASSERT(1 == ds2.capacity());
+        ds2.push(1.25);
+        ds2.push(1.5);
+        ds2.push(1.75);
+
+        ASSERT(! ds2.isEmpty());
+        ASSERT(4    == ds2.capacity());
+        ASSERT(3    == ds2.size());
+        ASSERT(1.75 == ds2.top());
+        ASSERT(1.25 == ds2[0]);
+        ASSERT(1.5  == ds2[1]);
+        ASSERT(1.75 == ds2[2]);
+
+        ds2.pop();
+        ASSERT(4   == ds2.capacity());
+        ASSERT(2   == ds2.size());
+        ASSERT(1.5 == ds2.top());
+    }
+// ```
 
 //-----------------------------------------------------------------------------
 //                      OVERLOADED OPERATOR NEW USAGE EXAMPLE
@@ -552,7 +793,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 6: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -569,50 +810,16 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        if (verbose) printf("\nMain example usage test.\n");
-
-        if (verbose) printf("\tCreating a stack with a specified allocatorn");
-        {
-            my_NewDeleteAllocator myA;
-            bslma::Allocator& a = myA;
-            my_DoubleStack s(&a);
-            s.push(1.25);
-            s.push(1.5);
-            s.push(1.75);
-
-            if (verbose) {
-                T_ T_ P(s);
-            }
-        }
-
-        if (verbose) printf(
-                "\tCreating a stack without a specified allocator\n");
-        {
-            my_DoubleStack s;
-            s.push(2.25);
-            s.push(2.5);
-            s.push(2.75);
-
-            if (verbose) {
-                T_ T_ P(s);
-            }
-        }
-
-        if (verbose) printf("\nUsage test for `new` operator.\n");
-        {
-            my_NewDeleteAllocator myA;
-            bslma::Allocator& a = myA;
-            my_Type *t = newMyType(&a);
-            deleteMyType(&a, t);
-        }
+        usageExample1();
+        usageExample2();
 
       } break;
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
-        // EXCEPTION SAFETY OF OPERATOR NEW TEST
-        //   We want to make sure that when the overloaded operator new
+        // TEST `operator delete` AND EXCEPTION SAFETY
+        //   We want to make sure that when the overloaded `operator new`
         //   is invoked and the constructor of the new object throws an
-        //   exception, the overloaded delete operator is invoked
+        //   exception, the overloaded `operator delete` is invoked
         //   automatically to deallocate the object.
         //
         // Plan:
@@ -625,13 +832,13 @@ int main(int argc, char *argv[])
         //   CONCERN: EXCEPTION SAFETY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nEXCEPTION SAFETY OF OPERATOR NEW TEST"
-                            "\n=====================================\n");
+        if (verbose) printf("\n`operator delete` AND EXCEPTION SAFETY"
+                            "\n======================================\n");
         {
-            my_Allocator myA;
-            bslma::Allocator& a = myA;
+            my_Allocator                         myA;
+            bslma::Allocator&                    a   = myA;
+            my_ClassThatMayThrowFromConstructor *p   = 0;
 
-            my_ClassThatMayThrowFromConstructor *p=0;
 #ifdef BDE_BUILD_TARGET_EXC
             try
 #endif
@@ -644,20 +851,20 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
             catch(int n)
             {
-                if (verbose) printf("\nCaught exception.\n");
+                if (veryVerbose) printf("\nCaught exception.\n");
                 ASSERT(13 == n);
             }
 #endif
-            ASSERT(!p);
-            ASSERT(2 == myA.fun());
+            ASSERT(!p);  // `operator new` never returned, hence never set `p`.
+            ASSERT(e_DEALLOC == myA.lastOp());
             ASSERT(1 == myA.allocateCount());
             ASSERT(1 == myA.deallocateCount());
         }
 
       } break;
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
-        // OPERATOR TEST
+        // TEST `operator new`
         //   We want to make sure that the correct underlying method is
         //   called based on the type of the overloaded `new` operator.
         //
@@ -669,32 +876,44 @@ int main(int argc, char *argv[])
         //   void *operator new(int size, bslma::Allocator& basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nOPERATOR TEST"
-                            "\n=============\n");
-        my_Allocator myA;
-        bslma::Allocator& a = myA;
+        if (verbose) printf("\nTEST `operator new`"
+                            "\n===================\n");
 
-        if (verbose) printf("\nTesting scalar input operators.\n");
+        my_Allocator      myA;
+        bslma::Allocator& a   = myA;
+
         {
-            ASSERT((char *) &myA == new(a) char);
-            ASSERT(1 == myA.fun());     ASSERT(1 == myA.arg());
+            void *p;
 
-            ASSERT((short *) &myA == new(a) short);
-            ASSERT(1 == myA.fun());     ASSERT(sizeof(short) == myA.arg());
+            p = new(a) char;
+            ASSERT(myA.lastOp()    == e_ALLOC);
+            ASSERT(myA.lastSize()  == sizeof(char));
+            ASSERT(myA.lastBlock() == p);
 
-            ASSERT((int *) &myA == new(a) int);
-            ASSERT(1 == myA.fun());     ASSERT(sizeof(int) == myA.arg());
+            p = new(a) short;
+            ASSERT(myA.lastOp()    == e_ALLOC);
+            ASSERT(myA.lastSize()  == sizeof(short));
+            ASSERT(myA.lastBlock() == p);
 
-            ASSERT((double *) &myA == new(a) double);
-            ASSERT(1 == myA.fun());     ASSERT(sizeof(double) == myA.arg());
+            p = new(a) int;
+            ASSERT(myA.lastOp()    == e_ALLOC);
+            ASSERT(myA.lastSize()  == sizeof(int));
+            ASSERT(myA.lastBlock() == p);
 
-            struct X15 { char d_z[15]; };       ASSERT(15 == sizeof(X15));
-            ASSERT((X15 *) &myA == new(a) X15);
-            ASSERT(1 == myA.fun());     ASSERT(15 == myA.arg());
+            p = new(a) double;
+            ASSERT(myA.lastOp()    == e_ALLOC);
+            ASSERT(myA.lastSize()  == sizeof(double));
+            ASSERT(myA.lastBlock() == p);
+
+            struct X15 { char d_z[15]; };        ASSERT(15 == sizeof(X15));
+            p = new(a) X15;
+            ASSERT(myA.lastOp()    == e_ALLOC);
+            ASSERT(myA.lastSize()  == sizeof(X15));
+            ASSERT(myA.lastBlock() == p);
         }
 
       } break;
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // MEMBER TEMPLATE METHOD `deleteObjectRaw` TEST
         //   We want to make sure that when `deleteObjRaw` is used both
@@ -716,13 +935,13 @@ int main(int argc, char *argv[])
                           "\nMEMBER TEMPLATE METHOD `deleteObjectRaw` TEST"
                           "\n=============================================\n");
 
-        if (verbose) printf("\nTesting `deleteObjectRaw`:\n");
+        if (veryVerbose) printf("\nTesting `deleteObjectRaw`:\n");
         {
-            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
+            CountingNewDeleteAlloc myA;  bslma::Allocator& a = myA;
 
-            if (verbose) printf("\twith a my_Class1 object\n");
+            if (veryVerbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == myA.getCount());
@@ -731,18 +950,18 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == myA.getCount());
             a.deleteObjectRaw(pC1CONST);
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
             ASSERT(2 == myA.getCount());
 
-            if (verbose) printf("\twith a my_Class2 object\n");
+            if (veryVerbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == myA.getCount());
@@ -751,16 +970,16 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == myA.getCount());
             a.deleteObjectRaw(pC2CONST);
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
             ASSERT(4 == myA.getCount());
 
-            if (verbose) printf("\tWith a polymorphic object\n");
+            if (veryVerbose) printf("\tWith a polymorphic object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -771,27 +990,27 @@ int main(int argc, char *argv[])
             ASSERT(5 == myA.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
             a.deleteObjectRaw(pC3);
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) printf("\tWith a null my_Class3 pointer\n");
+            if (veryVerbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             a.deleteObjectRaw(pC3);
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) printf("\tWith a null pointer literal\n");
+            if (veryVerbose) printf("\tWith a null pointer literal\n");
 
             a.deleteObjectRaw(0);
             ASSERT(6 == myA.getCount());
@@ -803,9 +1022,9 @@ int main(int argc, char *argv[])
 
         }
         {
-            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
+            CountingNewDeleteAlloc myA;  bslma::Allocator& a = myA;
 
-            if (verbose) printf("\tdeleteObjectRaw(my_MostDerived*)\n");
+            if (veryVerbose) printf("\tdeleteObjectRaw(my_MostDerived*)\n");
 
             ASSERT(0 == myA.getCount());
             my_MostDerived *pMost =
@@ -833,7 +1052,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
         // MEMBER TEMPLATE METHOD `deleteObject` TEST
         //
@@ -867,13 +1086,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMEMBER TEMPLATE METHOD `deleteObject` TEST"
                             "\n==========================================\n");
 
-        if (verbose) printf("\nTesting `deleteObject`:\n");
+        if (veryVerbose) printf("\nTesting `deleteObject`:\n");
         {
-            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
+            CountingNewDeleteAlloc myA;  bslma::Allocator& a = myA;
 
-            if (verbose) printf("\twith a my_Class1 object\n");
+            if (veryVerbose) printf("\twith a my_Class1 object\n");
 
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(0 == myA.getCount());
@@ -882,18 +1101,18 @@ int main(int argc, char *argv[])
             ASSERT(1 == myA.getCount());
 
             new(pC1) my_Class1;
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(1 == myA.getCount());
             a.deleteObject(pC1CONST);
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
             ASSERT(2 == myA.getCount());
 
-            if (verbose) printf("\twith a my_Class2 object\n");
+            if (veryVerbose) printf("\twith a my_Class2 object\n");
 
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(2 == myA.getCount());
@@ -902,16 +1121,16 @@ int main(int argc, char *argv[])
             ASSERT(3 == myA.getCount());
 
             new(pC2) my_Class2;
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(1 == globalObjectStatus);
 
             ASSERT(3 == myA.getCount());
             a.deleteObject(pC2CONST);
-            if (verbose) { T_;  T_;  P(globalObjectStatus); }
+            if (veryVerbose) { T_;  T_;  P(globalObjectStatus); }
             ASSERT(0 == globalObjectStatus);
             ASSERT(4 == myA.getCount());
 
-            if (verbose) printf("\tWith a my_Class3Base object\n");
+            if (veryVerbose) printf("\tWith a my_Class3Base object\n");
 
             ASSERT(0 == class3ObjectCount);
             my_Class3 *pC3 = (my_Class3 *) a.allocate(sizeof(my_Class3));
@@ -921,27 +1140,27 @@ int main(int argc, char *argv[])
             ASSERT(5 == myA.getCount());
 
             new(pC3) my_Class3;
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(1 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
 
             ASSERT(5 == myA.getCount());
             a.deleteObject(pC3bCONST);
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) printf("\tWith a null my_Class3 pointer\n");
+            if (veryVerbose) printf("\tWith a null my_Class3 pointer\n");
 
             pC3 = 0;
             a.deleteObject(pC3);
-            if (verbose) { T_;  T_;  P(class3ObjectCount); }
+            if (veryVerbose) { T_;  T_;  P(class3ObjectCount); }
             ASSERT(0 == class3ObjectCount);
             ASSERT(0 == globalObjectStatus);
             ASSERT(6 == myA.getCount());
 
-            if (verbose) printf("\tWith a null pointer literal\n");
+            if (veryVerbose) printf("\tWith a null pointer literal\n");
 
             a.deleteObject(0);
             ASSERT(6 == myA.getCount());
@@ -952,9 +1171,9 @@ int main(int argc, char *argv[])
 #endif // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         }
         {
-            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
+            CountingNewDeleteAlloc myA;  bslma::Allocator& a = myA;
 
-            if (verbose) printf("\tdeleteObject(my_MostDerived*)\n");
+            if (veryVerbose) printf("\tdeleteObject(my_MostDerived*)\n");
 
             ASSERT(0 == myA.getCount());
             my_MostDerived *pMost =
@@ -979,7 +1198,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) printf("\tdeleteObject(my_LeftBase*)\n");
+            if (veryVerbose) printf("\tdeleteObject(my_LeftBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(3 == myA.getCount());
@@ -998,7 +1217,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) printf("\tdeleteObject(my_RightBase*)\n");
+            if (veryVerbose) printf("\tdeleteObject(my_RightBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(5 == myA.getCount());
@@ -1020,7 +1239,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
 
-            if (verbose) printf("\tdeleteObject(my_VirtualBase*)\n");
+            if (veryVerbose) printf("\tdeleteObject(my_VirtualBase*)\n");
 
             pMost = (my_MostDerived *) a.allocate(sizeof(my_MostDerived));
             ASSERT(7 == myA.getCount());
@@ -1038,6 +1257,238 @@ int main(int argc, char *argv[])
             ASSERT(0 == rightBaseObjectCount);
             ASSERT(0 == leftBaseObjectCount);
             ASSERT(0 == virtualBaseObjectCount);
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // `memory_resource` METHODS
+        //   `bslma::Allocator` is unlike other protocol classes in that it
+        //   contains a small amount of implementation, not just an interface.
+        //   The `do_allocate` and `do_deallocate` virtual methods that it
+        //   inherits from `memory_resource` have default implementations that
+        //   adapt and forward calls to the traditional BDE allocator
+        //   interface.  The implementation of these adaptor methods are tested
+        //   in this test case.
+        //
+        // Concerns:
+        // 1. A class, `my_Allocator`, derived from `bslma::Allocator`, which
+        //    overrides `allocate(size_type)` and `deallocate(p)` but does not
+        //    override `do_allocate`, `do_deallocate`, or `do_is_equal` is a
+        //    concrete class.
+        // 2. An object, `alloc` of this type can be used through the
+        //    `bslma::Allocator` interface (`alloc.allocate(bytes)` and
+        //    `alloc.deallocate(p)`.
+        // 3. Upcasting `alloc` to a reference, `mr` to `bsl::memory_resource`,
+        //    allows it to be used through the `memory_resource` interface
+        //    (`mr.allocate(bytes, align)` and `mr.deallocate(p, bytes,
+        //    align)`).
+        // 4. When `bytes == 0`, `mr.allocate(bytes, align)` invokes
+        //    `alloc.allocate(0)` then returns a non-null pointer distinct from
+        //    any potential object pointer.  The `align` argument is ignored
+        //    and same pointer is returned each time `mr.allocate` is called.
+        // 5. The pointer returned from `mr.allocate(bytes, align)` refers
+        //    to an address having at least the requested alignment.
+        //    Specifically, for `natAlign` being the natural alignment for an
+        //    object of `bytes` size:
+        //
+        //    1. When `align <= natAlign`, `mr.allocate(bytes, align)` is
+        //       identical to `alloc.allocate(bytes)`.
+        //    2. When `natAlign < align && align <= k_MAX_ALIGNMENT`,
+        //       `mr.allocate(bytes, align)` returns `alloc.allocate(bytes2)`,
+        //       where `bytes2 > bytes`.
+        //    3. When `natAlign > k_MAX_ALIGNMENT`, `mr_allocate(bytes, align)`
+        //       `mr.allocate(bytes, align)` invokes `alloc.allocate(bytes2)`,
+        //       where `bytes2 > bytes` and modifies the return pointer such
+        //       that it points within the same block, but does not point to
+        //       the start of of the block.
+        //
+        // 6. Given `p = mr.allocate(bytes, align), `mr.deallocate(p,
+        //    bytes, align)` invokes `alloc.deallocate(p2)`, where `p2` is
+        //    the address originally returned by `alloc.allocate`, regardless
+        //    of the value of `align`.
+        // 7. Given two `bslma::Allocator` references, `a1` and `a2`, refering
+        //    to `my_Allocator` objects, `a1.is_equal(a2)` returns `true` if
+        //    `a1` and `a2` refer to the same object and `false` otherwise.
+        //
+        // Plan:
+        // 1. Define a class, `my_Allocator`, derived from `bslma::Allocator`,
+        //    that overrides the `allocate` and `deallocate` virtual functions
+        //    but not the `do_allocate`, `do_deallocate`, or `do_is_equal`
+        //    virtual functions.  The `allocate` function always returns a
+        //    block exactly aligned for the natural alignment of the supplied
+        //    size argument, up to a maximum alignment of `k_MAX_ALIGNMENT`.
+        // 2. Create an object, `alloc` of type `my_Allocator`.  (C-1)
+        // 3. Create a reference, `mr`, of type `bsl::memory_resource&`, to
+        //    `alloc`.  Loop over sizes from 0 to 2048 bytes and alignments
+        //    from 1 to 256 (powers of 2 only).  For each combination:
+        //
+        //    1. Verify that `alloc.allocate(bytes)` and `alloc.deallocate(p)`
+        //       are callable and produce expected results.  (C-2)
+        //    2. Verify that `mr.allocate(bytes, align)` and `mr.deallocate(p,
+        //       bytes, align)` are callable and produce expected results.
+        //       (C-3)
+        //    3. Verify that calling `mr.allocate(bytes, align)` always returns
+        //       a correctly aligned result from the expected corresponding
+        //       call to `allocate` through the `bslma::Allocator` interface.
+        //       (C-4, C-5)
+        //    4. Verify that calling `mr.deallocate(p, bytes, align)` always
+        //       returns invokes the expected corresponding invocation of
+        //       `deallocate` through the `bslma::Allocator` interface.  (C-6)
+        //
+        // 4. Create a second `my_Allocator` object, `alloc2`.  Verify that
+        //    `alloc.is_equal(alloc)` returns `true` and that
+        //    `alloc.is_equal(alloc2)` returns `false`.  (C-7)
+        //
+        // Testing:
+        //      void* do_allocate(std::size_t, std::size_t);
+        //      void do_deallocate(void *p, std::size_t, std::size_t);
+        //      bool do_is_equal(const bsl::memory_resource&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n`memory_resource` METHODS"
+                            "\n=========================\n");
+
+        my_Allocator alloc;     const my_Allocator& ALLOC  = alloc;
+        my_Allocator alloc2;    const my_Allocator& ALLOC2 = alloc2;
+
+        bsl::memory_resource& mr = alloc;  const bsl::memory_resource& MR = mr;
+
+        // Always expect the same pointer when allocating 0 bytes through the
+        // `memory_resouce` interface.
+        void *const zeroAlloc_p = mr.allocate(0, 1);
+        ASSERTV(zeroAlloc_p, 0 != zeroAlloc_p);
+
+        for (std::size_t bytes = 0; bytes <= 2048; ++bytes) {
+
+            std::size_t natAlign = bytes > 0 ?
+                (std::size_t) Align::calculateAlignmentFromSize(bytes) : 0;
+
+            {
+                // Use `bslma::Allocator` interface.
+                void *p = alloc.allocate(bytes);
+                ASSERTV(bytes, natAlign, p, ALLOC.lastOp() == e_ALLOC);
+                ASSERTV(bytes, natAlign, p,
+                        Align::pointerAlignment(p) == natAlign);
+                ASSERTV(bytes, natAlign, p, ALLOC.lastBlock() == p);
+
+                alloc.deallocate(p);
+                ASSERTV(bytes, natAlign, p, ALLOC.lastOp() == e_DEALLOC);
+                ASSERTV(bytes, natAlign, p, ALLOC.lastBlock() == p);
+            }
+
+            for (std::size_t align = 1; align <= 256; align <<= 1) {
+
+                // Use `bsl::memory_resource` interface
+                void *p = mr.allocate(bytes, align);
+                ASSERTV(bytes, align, p, ALLOC.lastOp() == e_ALLOC);
+
+                // Actual allocated block; contains returned block (`p`) but
+                // might be bigger than block `p`.
+                void *block = ALLOC.lastBlock();
+
+                if (0 == bytes) {
+                    // Special case for 0-sized allocation
+                    ASSERTV(bytes, align, p, zeroAlloc_p      == p);
+                    ASSERTV(bytes, align, p, block            == 0);
+                    ASSERTV(bytes, align, p, ALLOC.lastSize() == 0);
+                }
+                else if (align > k_MAX_ALIGNMENT) {
+                    // Over-aligned allocation:
+                    ASSERTV(bytes, align, p, Align::isAligned(p, align));
+
+                    // Verify that `p` is within `block`.
+                    ASSERTV(bytes, align, p, block, (char*)block < (char*)p);
+                    ASSERTV(bytes, align, p, block,
+                            (char*)p-(char*)block + bytes <= ALLOC.lastSize());
+                }
+                else if (align > natAlign) {
+                    // allocation aligned to more than natural alignment
+                    ASSERTV(bytes, align, p, Align::isAligned(p, align));
+                    ASSERTV(bytes, align, p, block            == p);
+                    ASSERTV(bytes, align, p, ALLOC.lastSize() >  bytes);
+                }
+                else {
+                    // allocation aligned to natural alignment or less
+                    ASSERTV(bytes, align, p, Align::isAligned(p, align));
+                    ASSERTV(bytes, align, p, block            == p);
+                    ASSERTV(bytes, align, p, ALLOC.lastSize() == bytes);
+                }
+
+                mr.deallocate(p, bytes, align);
+                ASSERTV(p, bytes, align, ALLOC.lastOp()    == e_DEALLOC);
+                ASSERTV(p, bytes, align, ALLOC.lastBlock() == block);
+            }
+
+            ASSERT(  MR.is_equal(ALLOC));
+            ASSERT(! MR.is_equal(ALLOC2));
+            ASSERT(  ALLOC2.is_equal(ALLOC2));
+            ASSERT(! ALLOC2.is_equal(MR));
+        }
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TEST HARNESS
+        //   Test the utilities used to test this component.
+        //
+        // Concerns:
+        // 1. The `my_Allocator::allocate` method records most recent
+        //    allocation operation, the returned block, and the block`s size,
+        //    and makes them available via the `lastOp`, lastBlock`, and
+        //    `lastSize` accessors.
+        // 2. The `my_Allocator::allocate` method returns a block exactly
+        //    aligned to the natural alignment for its size argument.
+        // 3. The `my_Allocator::deallocate` method records the most recent
+        //    operation as being a deallocation.
+        //
+        // Plan:
+        // 2. For a list of sizes from 1 to `2 * k_MAX_ALIGNEMNT`, verify that
+        //    the `allocate` method returns an address that is correctly
+        //    aligned and is not overaligned, and that `lastOp, `lastSize`, and
+        //    `lastBlock` return the correct values.  (C-1, C-2)
+        // 3. For each block allocated in step 2, verify that `deallocate` can
+        //    be invoked and that `lastOp` subsequently reflects the
+        //    deallocation.  (C-3)
+        //
+        // Testing:
+        //     TEST HARNESS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTEST HARNESS"
+                            "\n============\n");
+
+        if (veryVerbose) printf("\tTesting `my_Allocator`\n");
+        {
+            my_Allocator mA;  const my_Allocator& A = mA;
+
+            for (int size = 1; size <= 2 * k_MAX_ALIGNMENT; ++size) {
+
+                void *p = mA.allocate(size);
+                ASSERT(A.lastOp()          == e_ALLOC);
+                ASSERT((int) A.lastSize()  == size);
+                ASSERT(A.lastBlock()       == p);
+                ASSERT(A.allocateCount()   == size);
+                ASSERT(A.deallocateCount() == size - 1);
+
+                std::size_t expAlign = Align::calculateAlignmentFromSize(size);
+                ASSERT(Align::pointerAlignment(p) == expAlign);
+
+                mA.deallocate(p);
+                ASSERT(A.lastOp()          == e_DEALLOC);
+                ASSERT(A.lastBlock()       == p);
+                ASSERT(A.allocateCount()   == size);
+                ASSERT(A.deallocateCount() == size);
+            }
+
+            // special case for zero-sized allocations
+            ASSERT(mA.allocate(0) == 0);
+            ASSERT(A.lastOp()     == e_ALLOC);
+            ASSERT(A.lastBlock()  == 0);
+
+            mA.deallocate(0);
+            ASSERT(A.lastOp()     == e_DEALLOC);
+            ASSERT(A.lastBlock()  == 0);
         }
 
       } break;
@@ -1067,9 +1518,9 @@ int main(int argc, char *argv[])
         //    parameterized by `AllocatorProtocolTest`, and use it to verify
         //    that:
         //
-        //   1. The protocol is abstract. (C-1)
-        //   2. The protocol has no data members. (C-2)
-        //   3. The protocol has a virtual destructor. (C-3)
+        //    1. The protocol is abstract. (C-1)
+        //    2. The protocol has no data members. (C-2)
+        //    3. The protocol has a virtual destructor. (C-3)
         //
         // 3. Use the `BSLS_PROTOCOLTEST_ASSERT` macro to verify that
         //    non-creator methods of the `bslma::Allocator` protocol are
@@ -1079,18 +1530,15 @@ int main(int argc, char *argv[])
         //    virtual and available through public pass-through functions.
         //    (C-5)
         // 5. Define a concrete derivded implementation of the protocol,
-        //    `IndirectProtocolTest`, that overrides the new (pure)
-        //    virtual methods introduced by `bslma::Allocator` but not the (not
-        //    pure) virtual methods inherited from `bsl::memory_resource`.
-        //    Repeat steps 2-4 with this `IndirectProtocolTest`.
+        //    `IndirectProtocolTest`, that overrides the new (pure) virtual
+        //    methods introduced by `bslma::Allocator` but not the (non-pure)
+        //    virtual methods inherited from `bsl::memory_resource`.  Repeat
+        //    steps 2-4 with this `IndirectProtocolTest`.
         //
         // Testing:
         //      ~Allocator();
         //      void *allocate(size_type);
         //      void deallocate(void *);
-        //      void* do_allocate(std::size_t, std::size_t);
-        //      void do_deallocate(void *p, std::size_t, std::size_t);
-        //      bool do_is_equal(const bsl::memory_resource&) const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPROTOCOL TEST"
@@ -1145,7 +1593,7 @@ int main(int argc, char *argv[])
         // TBD: This is a very basic and undocumented test.  A more
         // sophisticated test will be added as part of the fix for DRQS
         // 176364960.
-        my_NewDeleteAllocator myA;
+        CountingNewDeleteAlloc myA;
 
         // Zero-byte allocation through `bslma::Allocator` interface.
         void *p1 = myA.allocate(0);

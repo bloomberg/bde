@@ -320,8 +320,7 @@ int main(int argc, char *argv[])
         }
 
         // Test alignment
-        ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(p,
-                                                             k_MAX_ALIGNMENT));
+        ASSERT(bsls::AlignmentUtil::isAligned(p, k_MAX_ALIGNMENT));
 
         // Test that it is evaluated at compile time
         BSLS_KEYWORD_CONSTEXPR static void *const sp = Util::singularPointer();
