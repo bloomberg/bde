@@ -156,6 +156,26 @@ int ParserUtil::getUnquotedString(bsl::string             *value,
                           bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
 }
 
+int ParserUtil::getUnquotedString(std::string             *value,
+                                  const bsl::string_view&  data)
+{
+    return bdljsn::StringUtil::readUnquotedString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+int ParserUtil::getUnquotedString(std::pmr::string        *value,
+                                  const bsl::string_view&  data)
+{
+    return bdljsn::StringUtil::readUnquotedString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+#endif
+
 int ParserUtil::getValue(bool *value, const bsl::string_view& data)
 {
     enum { k_TRUE_LENGTH = 4, k_FALSE_LENGTH = 5 };

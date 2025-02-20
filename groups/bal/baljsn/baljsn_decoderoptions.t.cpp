@@ -188,49 +188,49 @@ static
 const DefaultDataRow DEFAULT_DATA[] =
 {
     //LINE DEPTH    SKIP   UTF8   CONS   FORM   UNES
-    //---- -------  ----   ----   ----   ----   ---- 
+    //---- -------  ----   ----   ----   ----   ----
 
     { L_,      512, true,  false, true,  true,  true  } // default first
 
-,   { L_,      512, false, false, false, false, false } 
-,   { L_,      512, false, false, false, false, true  } 
-,   { L_,      512, false, false, false, true,  false } 
-,   { L_,      512, false, false, false, true,  true  } 
+,   { L_,      512, false, false, false, false, false }
+,   { L_,      512, false, false, false, false, true  }
+,   { L_,      512, false, false, false, true,  false }
+,   { L_,      512, false, false, false, true,  true  }
 
-,   { L_,        1, false, false, true,  false, false } 
-,   { L_,        1, false, false, true,  false, true  } 
-,   { L_,        1, false, false, true,  true,  false } 
-,   { L_,        1, false, false, true,  true,  true  } 
+,   { L_,        1, false, false, true,  false, false }
+,   { L_,        1, false, false, true,  false, true  }
+,   { L_,        1, false, false, true,  true,  false }
+,   { L_,        1, false, false, true,  true,  true  }
 
-,   { L_,  INT_MAX, false, true,  false, false, false } 
-,   { L_,  INT_MAX, false, true,  false, false, true  } 
-,   { L_,  INT_MAX, false, true,  false, true,  false } 
-,   { L_,  INT_MAX, false, true,  false, true,  true  } 
+,   { L_,  INT_MAX, false, true,  false, false, false }
+,   { L_,  INT_MAX, false, true,  false, false, true  }
+,   { L_,  INT_MAX, false, true,  false, true,  false }
+,   { L_,  INT_MAX, false, true,  false, true,  true  }
 
-,   { L_,        0, false, true,  true,  false, false } 
-,   { L_,        0, false, true,  true,  false, true  } 
-,   { L_,        0, false, true,  true,  true,  false } 
-,   { L_,        0, false, true,  true,  true,  true  } 
+,   { L_,        0, false, true,  true,  false, false }
+,   { L_,        0, false, true,  true,  false, true  }
+,   { L_,        0, false, true,  true,  true,  false }
+,   { L_,        0, false, true,  true,  true,  true  }
 
-,   { L_,      512, true,  false, false, false, false } 
-,   { L_,      512, true,  false, false, false, true  } 
-,   { L_,      512, true,  false, false, true,  false } 
-,   { L_,      512, true,  false, false, true,  true  } 
+,   { L_,      512, true,  false, false, false, false }
+,   { L_,      512, true,  false, false, false, true  }
+,   { L_,      512, true,  false, false, true,  false }
+,   { L_,      512, true,  false, false, true,  true  }
 
-,   { L_,        1, true,  false, true,  false, false } 
-,   { L_,        1, true,  false, true,  false, true  } 
-,   { L_,        1, true,  false, true,  true,  false } 
-,   { L_,        1, true,  false, true,  true,  true  } 
+,   { L_,        1, true,  false, true,  false, false }
+,   { L_,        1, true,  false, true,  false, true  }
+,   { L_,        1, true,  false, true,  true,  false }
+,   { L_,        1, true,  false, true,  true,  true  }
 
-,   { L_,  INT_MAX, true,  true,  false, false, false } 
-,   { L_,  INT_MAX, true,  true,  false, false, true  } 
-,   { L_,  INT_MAX, true,  true,  false, true,  false } 
-,   { L_,  INT_MAX, true,  true,  false, true,  true  } 
+,   { L_,  INT_MAX, true,  true,  false, false, false }
+,   { L_,  INT_MAX, true,  true,  false, false, true  }
+,   { L_,  INT_MAX, true,  true,  false, true,  false }
+,   { L_,  INT_MAX, true,  true,  false, true,  true  }
 
-,   { L_,        0, true,  true,  true,  false, false } 
-,   { L_,        0, true,  true,  true,  false, true  } 
-,   { L_,        0, true,  true,  true,  true,  false } 
-,   { L_,        0, true,  true,  true,  true,  true  } 
+,   { L_,        0, true,  true,  true,  false, false }
+,   { L_,        0, true,  true,  true,  false, true  }
+,   { L_,        0, true,  true,  true,  true,  false }
+,   { L_,        0, true,  true,  true,  true,  true  }
 
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -812,8 +812,8 @@ int main(int argc, char *argv[])
                              P_(SKIP1)
                              P_(UTF81)
                              P_(CONS1)
-                             P_(FORM1)   
-                             P(UNESC1)   
+                             P_(FORM1)
+                             P(UNESC1)
             }
 
             // Ensure an object compares correctly with itself (alias test).
@@ -824,8 +824,8 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
                 mX.setAllowConsecutiveSeparators(CONS1);
-                mX.setAllowFormFeedAsWhitespace(FORM1);   
-                mX.setAllowUnescapedControlCharacters(UNESC1);   
+                mX.setAllowFormFeedAsWhitespace(FORM1);
+                mX.setAllowUnescapedControlCharacters(UNESC1);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -848,8 +848,8 @@ int main(int argc, char *argv[])
                                     P_(SKIP2)
                                     P_(UTF82)
                                     P_(CONS2)
-                                    P_(FORM2)   
-                                    P(UNESC2)   
+                                    P_(FORM2)
+                                    P(UNESC2)
                 }
 
                 Obj mX;  const Obj& X = mX;
@@ -859,8 +859,8 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
                 mX.setAllowConsecutiveSeparators(CONS1);
-                mX.setAllowFormFeedAsWhitespace(FORM1);   
-                mX.setAllowUnescapedControlCharacters(UNESC1);   
+                mX.setAllowFormFeedAsWhitespace(FORM1);
+                mX.setAllowUnescapedControlCharacters(UNESC1);
 
                 mY.setMaxDepth(DEPTH2);
                 mY.setSkipUnknownElements(SKIP2);
@@ -870,8 +870,8 @@ int main(int argc, char *argv[])
                 mY.setSkipUnknownElements(SKIP2);
                 mY.setValidateInputIsUtf8(UTF82);
                 mY.setAllowConsecutiveSeparators(CONS2);
-                mY.setAllowFormFeedAsWhitespace(FORM2);   
-                mY.setAllowUnescapedControlCharacters(UNESC2);   
+                mY.setAllowFormFeedAsWhitespace(FORM2);
+                mY.setAllowUnescapedControlCharacters(UNESC2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -1150,8 +1150,8 @@ int main(int argc, char *argv[])
                              P_(SKIP_ELEMS)
                              P_(VALID_UTF8)
                              P_(CONS)
-                             P_(FORM)   
-                             P(UNESC)   
+                             P_(FORM)
+                             P(UNESC)
                 }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }

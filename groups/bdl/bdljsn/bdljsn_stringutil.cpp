@@ -15,12 +15,14 @@ BSLS_IDENT_RCSID(bdljsn_stringutil_cpp, "$Id$ $CSID$")
 namespace {
 namespace u {
 
+using namespace BloombergLP;
+using namespace bdljsn;
+
 /// Write the sequence of characters in the range specified by
 /// `[*currentStart, iter)` to the specified `stream` followed by the escape
 /// character ('\\') and the specified `value` character.  After that update
 /// `*currentStart` to point to the address following `iter`.
 inline
-static
 void writeEscapedChar(bsl::ostream&   stream,
                       const char    **currentStart,
                       const char     *iter,
@@ -32,29 +34,19 @@ void writeEscapedChar(bsl::ostream&   stream,
     *currentStart = iter + 1;
 }
 
-}  // close namespace u
-}  // close unnamed namespace
-
-namespace BloombergLP {
-namespace bdljsn {
-
-                             // -----------------
-                             // struct StringUtil
-                             // -----------------
-
-// CLASS METHODS
-int StringUtil::readUnquotedString(bsl::string             *value,
-                                   const bsl::string_view&  string,
-                                   int                      flags)
+template <class STRING>
+inline
+int readUnquotedStringImp(STRING                  *value,
+                          const bsl::string_view&  string,
+                          int                      flags)
 {
     BSLS_ASSERT(value);
 
     value->clear();
     value->reserve(string.length());
 
-    const bool acceptCapitalUnicodeEscape =
-                flags & static_cast<unsigned>(e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
-
+    const bool acceptCapitalUnicodeEscape = flags &
+                                  StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE;
     for (const char *iter = string.data(),
                     *end  = string.data() + string.length();
                      iter < end; ++iter) {
@@ -198,6 +190,40 @@ int StringUtil::readUnquotedString(bsl::string             *value,
 
     return 0;
 }
+
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bdljsn {
+
+                             // -----------------
+                             // struct StringUtil
+                             // -----------------
+
+// CLASS METHODS
+int StringUtil::readUnquotedString(bsl::string             *value,
+                                   const bsl::string_view&  string,
+                                   int                      flags)
+{
+    return u::readUnquotedStringImp(value, string, flags);
+}
+
+int StringUtil::readUnquotedString(std::string             *value,
+                                   const bsl::string_view&  string,
+                                   int                      flags)
+{
+    return u::readUnquotedStringImp(value, string, flags);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+int StringUtil::readUnquotedString(std::pmr::string        *value,
+                                   const bsl::string_view&  string,
+                                   int                      flags)
+{
+    return u::readUnquotedStringImp(value, string, flags);
+}
+#endif
 
 int StringUtil::writeString(bsl::ostream&           stream,
                             const bsl::string_view& string)

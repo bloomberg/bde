@@ -292,9 +292,15 @@ int main(int argc, char *argv[])
                       << "DECODING STRINGS" << bsl::endl
                       << "================" << bsl::endl;
         }
-        {
-            typedef bsl::string Type;
 
+        enum StringType { e_BSL_STRING,
+                          e_STD_STRING,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                          e_PMR_STRING,
+#endif
+                          k_NUM_STRING_TYPES };
+
+        {
             const char *ERROR_VALUE = "";
 
             static const struct Data {
@@ -449,8 +455,11 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const Data&        data     = DATA[i];
+            for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA; ++ti) {
+                const int          di       = ti % NUM_DATA;
+                const int          si       = ti / NUM_DATA;
+                const StringType   ST       = static_cast<StringType>(si);
+                const Data&        data     = DATA[di];
                 const int          LINE     = data.d_line;
                 const char        *IN_P     = data.d_input_p;
                 const bsl::size_t  IN_LEN   = data.d_inputLen < 0
@@ -466,9 +475,8 @@ int main(int argc, char *argv[])
                                                IN_P,  static_cast<int>(IN_LEN),
                                                "\\U", 2);
 
-
                 if (veryVerbose) {
-                    P_(i) P_(LINE) P_(IN_LEN) P_(EXP_LEN) P_(IS_VALID)
+                    P_(di) P_(si) P_(LINE) P_(IN_LEN) P_(EXP_LEN) P_(IS_VALID)
                                                                  P(HAS_SLASH_U)
                     P(IN_P)
                 }
@@ -477,18 +485,49 @@ int main(int argc, char *argv[])
                 const bsl::string_view unq_isb(IN_P + 1, IN_LEN - 2);
                 const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                Type value2 = ERROR_VALUE;
-                Type value3 = ERROR_VALUE;
-
                 const unsigned mode = HAS_SLASH_U
                                     ? Util::e_ACCEPT_CAPITAL_UNICODE_ESCAPE
                                     : Util::e_NONE;
 
-                const int rc2 = Util::readString        (&value2, isb, mode);
-                const int rc3 = Util::readUnquotedString(&value3, unq_isb,
-                                                                       mode);
+                int rc2 = 0, rc3 = 0;
+                bsl::string_view value2, value3;
+                switch (ST) {
+                  case e_BSL_STRING: {
+                    static bsl::string s2, s3;
+                    s2 = s3 = ERROR_VALUE;
 
-                ASSERTV(value2, value3, value2 == value3);
+                    rc2 = Util::readString        (&s2, isb, mode);
+                    value2 = s2;
+
+                    rc3 = Util::readUnquotedString(&s3, unq_isb, mode);
+                    value3 = s3;
+                  } break;
+                  case e_STD_STRING: {
+                    static std::string s2, s3;
+                    s2 = s3 = ERROR_VALUE;
+
+                    rc2 = Util::readString        (&s2, isb, mode);
+                    value2 = s2;
+                    rc3 = Util::readUnquotedString(&s3, unq_isb, mode);
+                    value3 = s3;
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                  case e_PMR_STRING: {
+                    static std::pmr::string s2, s3;
+                    s2 = s3 = ERROR_VALUE;
+
+                    rc2 = Util::readString        (&s2, isb, mode);
+                    value2 = s2;
+                    rc3 = Util::readUnquotedString(&s3, unq_isb, mode);
+                    value3 = s3;
+                  } break;
+#endif
+                  default: {
+                    BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
+                  }
+                }
+
+                ASSERTV(ST, LINE, value2, value3, value2 == value3);
 
                 if (IS_VALID) {
                     ASSERTV(LINE, rc3, 0 == rc3);
@@ -504,9 +543,35 @@ int main(int argc, char *argv[])
                                                                     original);
                     ASSERTV(LINE, rcW, 0 == rcW);
 
-                    bsl::string generated = oss.str();
-                    bsl::string roundTrip;
-                    const int   rcG = Util::readString(&roundTrip, generated);
+                    bsl::string      generated = oss.str();
+                    bsl::string_view roundTrip;
+                    int              rcG;
+                    switch (ST) {
+                      case e_BSL_STRING: {
+                        static bsl::string s;
+
+                        rcG = Util::readString(&s, generated);
+                        roundTrip = s;
+                      } break;
+                      case e_STD_STRING: {
+                        static std::string s;
+
+                        rcG = Util::readString(&s, generated);
+                        roundTrip = s;
+                      } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                      case e_PMR_STRING: {
+                        static std::pmr::string s;
+
+                        rcG = Util::readString(&s, generated);
+                        roundTrip = s;
+                      } break;
+#endif
+                      default: {
+                        BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
+                      }
+                    }
+
                     ASSERTV(LINE, rcG, 0         == rcG);
                     ASSERTV(LINE,      roundTrip == original);
                 }
@@ -522,8 +587,11 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA2 = sizeof DATA2 / sizeof *DATA2;
 
-            for (int i = 0; i < NUM_DATA2; ++i) {
-                const Data&        data     = DATA2[i];
+            for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA2; ++ti) {
+                const int          di       = ti % NUM_DATA2;
+                const int          si       = ti / NUM_DATA2;
+                const StringType   ST       = static_cast<StringType>(si);
+                const Data&        data     = DATA2[di];
                 const int          LINE     = data.d_line;
                 const char        *IN_P     = data.d_input_p;
                 const bsl::size_t  IN_LEN   = data.d_inputLen < 0
@@ -536,15 +604,43 @@ int main(int argc, char *argv[])
                 const bool         IS_VALID = data.d_isValid;
 
                 if (veryVerbose) {
-                    P_(i) P_(LINE) P_(IN_LEN) P_(EXP_LEN) P(IS_VALID)
+                    P_(di) P_(si) P_(LINE) P_(IN_LEN) P_(EXP_LEN) P(IS_VALID)
                 }
 
                 const bsl::string_view isb(IN_P,  IN_LEN);
                 const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                Type value = ERROR_VALUE;
+                bsl::string_view value;
+                int rc;
 
-                const int rc = Util::readUnquotedString(&value, isb);
+                switch(ST) {
+                  case e_BSL_STRING: {
+                    static bsl::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::readUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+                  case e_STD_STRING: {
+                    static std::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::readUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                  case e_PMR_STRING: {
+                    static std::pmr::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::readUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+#endif
+                  default: {
+                    BSLS_ASSERT_OPT(0);
+                  }
+                }
 
                 if (IS_VALID) {
                     ASSERTV(LINE, rc, 0 == rc);
@@ -552,7 +648,7 @@ int main(int argc, char *argv[])
                 else {
                     ASSERTV(LINE, rc, rc);
                 }
-                ASSERTV(LINE, EXP, value, EXP == value);
+                ASSERTV(LINE, di, si, EXP, value, EXP == value);
             }
         }
 
@@ -589,30 +685,40 @@ int main(int argc, char *argv[])
 
                 int rc = -2;
 
-                bsl::string output; bsl::string *o = &output;
+#define U_TEST(STRING_TYPE)                                                   \
+                {                                                             \
+                    STRING_TYPE output;    STRING_TYPE *o = &output;          \
+                                                                              \
+                    rc = Util::readString(o, INPUT);                          \
+                    ASSERTV(rc, EXP_S, 1, EXP_S == rc);                       \
+                                                                              \
+                    rc = Util::readString(o, INPUT, Util::e_NONE);            \
+                    ASSERTV(rc, EXP_S, 2, EXP_S == rc);                       \
+                                                                              \
+                    rc = Util::readString(o, INPUT,                           \
+                                      Util::e_ACCEPT_CAPITAL_UNICODE_ESCAPE); \
+                    ASSERTV(rc, EXP_A, 3, EXP_A == rc);                       \
+                                                                              \
+                    if (veryVeryVerbose) Q(Sans delimiting quotes)            \
+                                                                              \
+                    rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES);      \
+                    ASSERTV(rc, EXP_S, 4, EXP_S == rc);                       \
+                                                                              \
+                    rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES,       \
+                                                               Util::e_NONE); \
+                    ASSERTV(rc, EXP_S, 5, EXP_S == rc);                       \
+                                                                              \
+                    rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES,       \
+                                      Util::e_ACCEPT_CAPITAL_UNICODE_ESCAPE); \
+                    ASSERTV(rc, EXP_A, 6, EXP_A == rc);                       \
+                }
 
-                rc = Util::readString(o, INPUT);
-                ASSERTV(rc, EXP_S, EXP_S == rc);
-
-                rc = Util::readString(o, INPUT, Util::e_NONE);
-                ASSERTV(rc, EXP_S, EXP_S == rc);
-
-                rc = Util::readString(o, INPUT,
-                                        Util::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
-                ASSERTV(rc, EXP_A, EXP_A == rc);
-
-                // Sans delimiting quotes
-
-                rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES);
-                ASSERTV(rc, EXP_S, EXP_S == rc);
-
-                rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES,
-                                                                 Util::e_NONE);
-                ASSERTV(rc, EXP_S, EXP_S == rc);
-
-                rc = Util::readUnquotedString(o, INPUT_SANS_QUOTES,
-                                        Util::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
-                ASSERTV(rc, EXP_A, EXP_A == rc);
+                U_TEST(bsl::string);
+                U_TEST(std::string);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                U_TEST(std::pmr::string);
+#endif
+#undef U_TEST
             }
         }
 

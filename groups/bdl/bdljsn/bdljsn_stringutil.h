@@ -192,6 +192,20 @@ struct StringUtil {
       , e_ACCEPT_CAPITAL_UNICODE_ESCAPE = 1 << 0
     };
 
+  private:
+    // PRIVATE CLASS METHODS
+
+    /// Load to the specified `value` the UTF-8 codepoint sequence equivalent
+    /// to the specified (JSON) `string` (see [](#JSON Strings)).  Return 0 on
+    /// success and a non-zero value otherwise.  Optionally specify `flags` to
+    /// request variances from certain rules of JSON decoding (see
+    /// [](#Strictness)).
+    template <class STRING>
+    static int readStringImp(STRING                  *value,
+                             const bsl::string_view&  string,
+                             int                      flags);
+
+  public:
     // CLASS METHODS
 
     /// Load to the specified `value` the UTF-8 codepoint sequence equivalent
@@ -202,6 +216,14 @@ struct StringUtil {
     static int readString(bsl::string             *value,
                           const bsl::string_view&  string,
                           int                      flags = e_NONE);
+    static int readString(std::string             *value,
+                          const bsl::string_view&  string,
+                          int                      flags = e_NONE);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static int readString(std::pmr::string        *value,
+                          const bsl::string_view&  string,
+                          int                      flags = e_NONE);
+#endif
 
     /// Load to the specified `value` the UTF-8 codepoint sequence equivalent
     /// to the specified `string`, that is JSON-compliant absent the leading
@@ -212,6 +234,14 @@ struct StringUtil {
     static int readUnquotedString(bsl::string             *value,
                                   const bsl::string_view&  string,
                                   int                      flags = e_NONE);
+    static int readUnquotedString(std::string             *value,
+                                  const bsl::string_view&  string,
+                                  int                      flags = e_NONE);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static int readUnquotedString(std::pmr::string        *value,
+                                  const bsl::string_view&  string,
+                                  int                      flags = e_NONE);
+#endif
 
     /// Write to the specified `stream` a JSON-compliant string that is
     /// equivalent to the specified `string`, an arbitrary UTF-8 codepoint
@@ -231,11 +261,12 @@ struct StringUtil {
                              // struct StringUtil
                              // -----------------
 
-// CLASS METHODS
+// PRIVATE CLASS METHODS
+template <class STRING>
 inline
-int StringUtil::readString(bsl::string             *value,
-                           const bsl::string_view&  string,
-                           int                      flags)
+int StringUtil::readStringImp(STRING                  *value,
+                              const bsl::string_view&  string,
+                              int                      flags)
 {
     BSLS_ASSERT(value);
 
@@ -250,6 +281,34 @@ int StringUtil::readString(bsl::string             *value,
     const bsl::string_view contents = string.substr(1, string.size() - 2);
     return readUnquotedString(value, contents, flags);
 }
+
+// CLASS METHODS
+
+inline
+int StringUtil::readString(bsl::string             *value,
+                           const bsl::string_view&  string,
+                           int                      flags)
+{
+    return readStringImp(value, string, flags);
+}
+
+inline
+int StringUtil::readString(std::string             *value,
+                           const bsl::string_view&  string,
+                           int                      flags)
+{
+    return readStringImp(value, string, flags);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+inline
+int StringUtil::readString(std::pmr::string        *value,
+                           const bsl::string_view&  string,
+                           int                      flags)
+{
+    return readStringImp(value, string, flags);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

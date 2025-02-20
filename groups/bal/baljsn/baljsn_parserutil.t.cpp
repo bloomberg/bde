@@ -4804,12 +4804,14 @@ int main(int argc, char *argv[])
                     "`getValue` for string values"
                     "\n===================================================="
                     "============================" << endl;
+
+        enum StringType { e_BSL,
+                          e_STD,
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                          e_PMR,
+#endif
+                          k_NUM_STRING_TYPES };
         {
-            typedef bsl::string Type;
-
-            const Type LDELIM("<<");
-            const Type RDELIM(">>");
-
             const char *ERROR_VALUE = "";
 
             static const struct Data {
@@ -4964,8 +4966,11 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const Data&        data     = DATA[i];
+            for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA; ++ti) {
+                const int          di       = ti % NUM_DATA;
+                const int          si       = ti / NUM_DATA;
+                const StringType   ST       = static_cast<StringType>(si);
+                const Data&        data     = DATA[di];
                 const int          LINE     = data.d_line;
                 const char        *IN_P     = data.d_input_p;
                 const bsl::size_t  IN_LEN   = data.d_inputLen < 0
@@ -4981,13 +4986,48 @@ int main(int argc, char *argv[])
                 const bsl::string_view unq_isb(IN_P + 1, IN_LEN - 2);
                 const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                Type value  = ERROR_VALUE;
-                Type value2 = ERROR_VALUE;
-                Type value3 = ERROR_VALUE;
+                bsl::string_view value, value2, value3;
+                int              rc,    rc2,    rc3;
+                switch (ST) {
+                  case e_BSL: {
+                    static bsl::string s, s2, s3;
+                    s = s2 = s3 = ERROR_VALUE;
 
-                const int rc  = Util::getValue(&value, isb);
-                const int rc2 = Util::getQuotedString(&value2, isb);
-                const int rc3 = Util::getUnquotedString(&value3, unq_isb);
+                    rc  = Util::getValue(&s, isb);
+                    value = s;
+                    rc2 = Util::getQuotedString(&s2, isb);
+                    value2 = s2;
+                    rc3 = Util::getUnquotedString(&s3, unq_isb);
+                    value3 = s3;
+                  } break;
+                  case e_STD: {
+                    static std::string s, s2, s3;
+                    s = s2 = s3 = ERROR_VALUE;
+
+                    rc  = Util::getValue(&s, isb);
+                    value = s;
+                    rc2 = Util::getQuotedString(&s2, isb);
+                    value2 = s2;
+                    rc3 = Util::getUnquotedString(&s3, unq_isb);
+                    value3 = s3;
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                  case e_PMR: {
+                    static std::pmr::string s, s2, s3;
+                    s = s2 = s3 = ERROR_VALUE;
+
+                    rc  = Util::getValue(&s, isb);
+                    value = s;
+                    rc2 = Util::getQuotedString(&s2, isb);
+                    value2 = s2;
+                    rc3 = Util::getUnquotedString(&s3, unq_isb);
+                    value3 = s3;
+                  } break;
+#endif
+                  default: {
+                    BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
+                  }
+                }
 
                 ASSERTV(rc, rc2, rc == rc2);
                 ASSERTV(value, value2, value == value2);
@@ -5013,8 +5053,11 @@ int main(int argc, char *argv[])
 
             const int NUM_DATA2 = sizeof(DATA2) / sizeof(*DATA2);
 
-            for (int i = 0; i < NUM_DATA2; ++i) {
-                const Data&        data     = DATA2[i];
+            for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA2; ++ti) {
+                const int          di       = ti % NUM_DATA2;
+                const int          si       = ti / NUM_DATA2;
+                const StringType   ST       = static_cast<StringType>(si);
+                const Data&        data     = DATA2[di];
                 const int          LINE     = data.d_line;
                 const char        *IN_P     = data.d_input_p;
                 const bsl::size_t  IN_LEN   = data.d_inputLen < 0
@@ -5029,9 +5072,37 @@ int main(int argc, char *argv[])
                 const bsl::string_view isb(IN_P,  IN_LEN);
                 const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                Type value = ERROR_VALUE;
+                bsl::string_view value;
+                int rc;
 
-                const int rc = Util::getUnquotedString(&value, isb);
+                switch (ST) {
+                  case e_BSL: {
+                    static bsl::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::getUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+                  case e_STD: {
+                    static std::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::getUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                  case e_PMR: {
+                    static std::pmr::string s;
+                    s = ERROR_VALUE;
+
+                    rc = Util::getUnquotedString(&s, isb);
+                    value = s;
+                  } break;
+#endif
+                  default: {
+                    BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
+                  }
+                }
 
                 if (IS_VALID) {
                     ASSERTV(LINE, rc, 0 == rc);

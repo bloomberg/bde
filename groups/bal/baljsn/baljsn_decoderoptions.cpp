@@ -188,7 +188,7 @@ DecoderOptions::operator=(DecoderOptions&& rhs)
         d_skipUnknownElements = bsl::move(rhs.d_skipUnknownElements);
         d_validateInputIsUtf8 = bsl::move(rhs.d_validateInputIsUtf8);
 
-        d_allowConsecutiveSeparators = 
+        d_allowConsecutiveSeparators =
                                     bsl::move(rhs.d_allowConsecutiveSeparators);
         d_allowFormFeedAsWhitespace =
                                      bsl::move(rhs.d_allowFormFeedAsWhitespace);

@@ -75,6 +75,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
 #include <bsl_limits.h>
@@ -84,7 +85,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 
 #include <string>
-#include <vector>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -170,11 +170,23 @@ struct ParserUtil {
     /// non-zero value otherwise.
     static int getQuotedString(bsl::string             *value,
                                const bsl::string_view&  data);
+    static int getQuotedString(std::string             *value,
+                               const bsl::string_view&  data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static int getQuotedString(std::pmr::string        *value,
+                               const bsl::string_view&  data);
+#endif
 
     /// Load into the specified `value` the string value in the specified
     /// `data`.  Return 0 on success and a non-zero value otherwise.
     static int getUnquotedString(bsl::string             *value,
-                               const bsl::string_view&  data);
+                                 const bsl::string_view&  data);
+    static int getUnquotedString(std::string             *value,
+                                 const bsl::string_view&  data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static int getUnquotedString(std::pmr::string        *value,
+                                 const bsl::string_view&  data);
+#endif
 
     /// Load into the specified `value` the characters read from the
     /// specified `data`.  Return 0 on success or a non-zero value on
@@ -232,6 +244,12 @@ struct ParserUtil {
     /// non-zero value otherwise.
     static int getValue(bsl::string             *value,
                         const bsl::string_view&  data);
+    static int getValue(std::string             *value,
+                        const bsl::string_view&  data);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static int getValue(std::pmr::string        *value,
+                        const bsl::string_view&  data);
+#endif
 
     /// If the specified `*str` is at least two characters long and begins
     /// and ends with quotation marks ("), then remove the first and last
@@ -258,6 +276,28 @@ int ParserUtil::getQuotedString(bsl::string             *value,
                           data,
                           bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
 }
+
+inline
+int ParserUtil::getQuotedString(std::string             *value,
+                                const bsl::string_view&  data)
+{
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+inline
+int ParserUtil::getQuotedString(std::pmr::string        *value,
+                                const bsl::string_view&  data)
+{
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+#endif
 
 template <class TYPE>
 int ParserUtil::getUnsignedIntegralValue(TYPE                    *value,
@@ -424,6 +464,26 @@ int ParserUtil::getValue(bsl::string *value, const bsl::string_view& data)
                           data,
                           bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
 }
+
+inline
+int ParserUtil::getValue(std::string *value, const bsl::string_view& data)
+{
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+inline
+int ParserUtil::getValue(std::pmr::string *value, const bsl::string_view& data)
+{
+    return bdljsn::StringUtil::readString(
+                          value,
+                          data,
+                          bdljsn::StringUtil::e_ACCEPT_CAPITAL_UNICODE_ESCAPE);
+}
+#endif
 
 inline
 int ParserUtil::getValue(bdlt::Date *value, const bsl::string_view& data)
