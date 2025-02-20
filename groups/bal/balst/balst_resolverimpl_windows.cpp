@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_windows_cpp,"$Id$ $CSID$")
 #include <balst_stacktraceconfigurationutil.h>
 
 #include <bdlb_string.h>
+#include <bdlb_numericparseutil.h>
 #include <bdlma_heapbypassallocator.h>
 
 #include <bslmf_assert.h>
@@ -28,6 +29,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_windows_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 #include <windows.h>
+#include <WinError.h>
 #include <intrin.h>
 #include <dbghelp.h>
 
@@ -56,7 +58,7 @@ struct DbgHelpRecord {
     // This struct contains the handle of the DLL and a collection of function
     // pointers that will point to functions loaded at run time from it.  Only
     // one instance of this type is to exist, a static instance whose
-    // destructor will call 'SymCleanup' if the object has been initialized.
+    // destructor will call `SymCleanup` if the object has been initialized.
 
     // TYPES
     typedef DWORD __stdcall SymSetOptionsProc(DWORD);
@@ -67,8 +69,8 @@ struct DbgHelpRecord {
                                             PDWORD64,
                                             PSYMBOL_INFO);
 #else
-    // 'symFromAddr' doesn't work on 64 bit, so we conditionally compile to use
-    // 'SymGetSymFromAddr64'.
+    // `symFromAddr` doesn't work on 64 bit, so we conditionally compile to use
+    // `SymGetSymFromAddr64`.
 
     typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
                                                     DWORD64,
@@ -86,21 +88,21 @@ struct DbgHelpRecord {
                                                       // that we will load the
                                                       // functions from
 
-    SymSetOptionsProc               *d_symSetOptions; // 'SymSetOptions' func
+    SymSetOptionsProc               *d_symSetOptions; // `SymSetOptions` func
 
-    SymInitializeProc               *d_symInitialize; // 'SymInitialize' func
+    SymInitializeProc               *d_symInitialize; // `SymInitialize` func
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    SymFromAddrProc                 *d_symFromAddr;   // 'SymFromAddr' func
+    SymFromAddrProc                 *d_symFromAddr;   // `SymFromAddr` func
 #else
     SymGetSymFromAddr64Proc         *d_symGetSymFromAddr64;
-                                                      // 'SymGetSymFromAddr64'
+                                                      // `SymGetSymFromAddr64`
                                                       // func
 #endif
     SymGetLineFromAddr64Proc        *d_symGetLineFromAddr64;
-                                                 // 'SymGetLineFromAddr64' func
+                                                 // `SymGetLineFromAddr64` func
 
-    SymCleanupProc                  *d_symCleanup;    // 'SymCleanup' func
+    SymCleanupProc                  *d_symCleanup;    // `SymCleanup` func
 
     HANDLE                           d_hProcess;
 
@@ -131,73 +133,73 @@ struct DbgHelpRecord {
     // MANIPULATORS
     bool isLoaded();
         // Everything is fully loaded.  Manipulator to make sure it's inlined
-        // when called by 'init'.
+        // when called by `init`.
 
     int init();
         // Ensure the dll is loaded.  Return 0 on success and a non-zero value
-        // otherwise.  Note that the initialization is broken up into 'init'
-        // and 'load' so that 'init' is a small, fast inline function that, if
-        // necessary, calls the large, out-of-line 'load' function.
+        // otherwise.  Note that the initialization is broken up into `init`
+        // and `load` so that `init` is a small, fast inline function that, if
+        // necessary, calls the large, out-of-line `load` function.
 
     // ACCESSORS
     HANDLE hProcess() const;
         // The handle to the process.
 
-                    // *** Methods corresponding to Windows 'dbghelp.dll'
+                    // *** Methods corresponding to Windows `dbghelp.dll`
                     // functions ***
 
     BOOL symSetOptions(DWORD symOptions) const;
-        // Invoke the 'SymSetOptions' function of 'dbghelp.dll' with the
-        // specified 'symOptions' options.  Return 'TRUE' on success, and
-        // 'FALSE' on failure.  The behavior is undefined if the mutex provided
-        // by the 'lock' method is not held.
+        // Invoke the `SymSetOptions` function of `dbghelp.dll` with the
+        // specified `symOptions` options.  Return `TRUE` on success, and
+        // `FALSE` on failure.  The behavior is undefined if the mutex provided
+        // by the `lock` method is not held.
         //
-        // Note that 'symOptions' (a bitwise-OR of 'SYMOPT_*' values) specifies
-        // flags affecting subsequent calls to the '.dll'.  Also note that the
+        // Note that `symOptions` (a bitwise-OR of `SYMOPT_*` values) specifies
+        // flags affecting subsequent calls to the `.dll`.  Also note that the
         // current options are returned.  Also note that the signature of this
-        // function does not match that of 'SymSetOptions'.  Finally, note that
-        // further details are available at 'http://msdn.com'.
+        // function does not match that of `SymSetOptions`.  Finally, note that
+        // further details are available at `http://msdn.com`.
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
-    // 'symFromAddr' doesn't work on 64-bit, so we conditionally compile and
-    // use 'SymFromAddr' on 32-bit and 'SymGetSymFromAddr64' on 64-bit.
+    // `symFromAddr` doesn't work on 64-bit, so we conditionally compile and
+    // use `SymFromAddr` on 32-bit and `SymGetSymFromAddr64` on 64-bit.
 
     BOOL symFromAddr(HANDLE       hProcess,
                      DWORD64      address,
                      PDWORD64     displacement,
                      PSYMBOL_INFO symbol) const;
-        // Invoke the 'SymFromAddr' function of 'dbghelp.dll' with the
-        // specified 'hProcess', 'address', 'displacement', and 'symbol', and
+        // Invoke the `SymFromAddr` function of `dbghelp.dll` with the
+        // specified `hProcess`, `address`, `displacement`, and `symbol`, and
         // return the result.  The behavior is undefined unless the mutex
-        // provided by the 'lock' method is held and 'symbol->MaxNameLen' is
-        // set to the maximum length (a value of '2000' is recommended).
+        // provided by the `lock` method is held and `symbol->MaxNameLen` is
+        // set to the maximum length (a value of `2000` is recommended).
         //
-        // Note that 'symbol' is loaded with a pointer to the symbol
-        // information for the symbol at 'address', and 'displacement' is
-        // loaded with the difference between 'address' and the address of the
-        // symbol described at 'symbol'.  Also note that 'true' is returned if
-        // a symbol is found for 'address', and 'false' is returned otherwise.
-        // Finally, note that further details of 'SymFromAddr' are available at
-        // 'http://msdn.com'.
+        // Note that `symbol` is loaded with a pointer to the symbol
+        // information for the symbol at `address`, and `displacement` is
+        // loaded with the difference between `address` and the address of the
+        // symbol described at `symbol`.  Also note that `true` is returned if
+        // a symbol is found for `address`, and `false` is returned otherwise.
+        // Finally, note that further details of `SymFromAddr` are available at
+        // `http://msdn.com`.
 
 #else
     BOOL symGetSymFromAddr64(HANDLE             hProcess,
                              DWORD64            address,
                              PDWORD64           displacement,
                              PIMAGEHLP_SYMBOL64 symbol) const;
-        // Invoke the 'SymFromAddr64' function of 'dbghelp.dll' with the
-        // specified 'hProcess, 'address', 'displacement', and 'symbol', and
+        // Invoke the `SymFromAddr64` function of `dbghelp.dll` with the
+        // specified `hProcess`, `address`, `displacement`, and `symbol`, and
         // return the result.  The behavior is undefined unless the mutex
-        // provided by the 'lock' method is held and 'symbol->MaxNameLen' is
-        // set to the maximum length (a value of '2000' is recommended).
+        // provided by the `lock` method is held and `symbol->MaxNameLen` is
+        // set to the maximum length (a value of `2000` is recommended).
         //
-        // Note that 'symbol' is loaded with a pointer to the symbol
-        // information for the symbol at 'address', and 'displacement' is
-        // loaded with the difference between 'address' and the address of the
-        // symbol described at 'symbol'.  Also note that 'true' is returned if
-        // a symbol is found for 'address', and 'false' is returned otherwise.
-        // Finally, note that further details of 'SymFromAddr64' are available
-        // at 'http://msdn.com'.
+        // Note that `symbol` is loaded with a pointer to the symbol
+        // information for the symbol at `address`, and `displacement` is
+        // loaded with the difference between `address` and the address of the
+        // symbol described at `symbol`.  Also note that `true` is returned if
+        // a symbol is found for `address`, and `false` is returned otherwise.
+        // Finally, note that further details of `SymFromAddr64` are available
+        // at `http://msdn.com`.
 
 #endif
 
@@ -205,19 +207,19 @@ struct DbgHelpRecord {
                               DWORD64          dwAddr,
                               PDWORD           pdwDisplacement,
                               PIMAGEHLP_LINE64 line) const;
-        // Invoke the 'SymGetLineFromAddr64' function of 'dbghelp.dll' with the
-        // specified 'dwAddr', 'pdwDisplacement', and 'line', and with an
+        // Invoke the `SymGetLineFromAddr64` function of `dbghelp.dll` with the
+        // specified `dwAddr`, `pdwDisplacement`, and `line`, and with an
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined if the mutex provided
-        // by the 'lock' method is not held.
+        // by the `lock` method is not held.
         //
-        // Note that 'line' is loaded with a pointer to line information (e.g.,
-        // source file name and line number) for the code at 'dwAddr' and
-        // 'pdwDisplacement' is loaded with the displacement of that code from
-        // the beginning of the line.  Also note that 'true' is returned if
-        // information is found for 'dwAddr', and 'false' is returned
+        // Note that `line` is loaded with a pointer to line information (e.g.,
+        // source file name and line number) for the code at `dwAddr` and
+        // `pdwDisplacement` is loaded with the displacement of that code from
+        // the beginning of the line.  Also note that `true` is returned if
+        // information is found for `dwAddr`, and `false` is returned
         // otherwise.  Finally, note that further details of
-        // 'SymGetLineFromAddr64' are available at 'http://msdn.com'.
+        // `SymGetLineFromAddr64` are available at `http://msdn.com`.
 };
 
                             // --------------------
@@ -250,7 +252,7 @@ int DbgHelpRecord::load()
 
     d_moduleHandle = LoadLibraryA("dbghelp.dll");
     if (0 == d_moduleHandle) {
-        U_ZPRINTF("balst::DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
+        U_ZPRINTF("balst::DbghelpDllImpl_Windows: `LoadLibraryA` failed\n");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -284,8 +286,8 @@ int DbgHelpRecord::load()
       || 0 == d_symCleanup
       || 0 == d_hProcess) {
         U_ZPRINTF("balst::DbghelpDllImpl_Windows: %s failed\n",
-                                        0 == d_hProcess ? "'GetCurrentProcess'"
-                                                        : "'GetProcAddress'");
+                                        0 == d_hProcess ? "`GetCurrentProcess`"
+                                                        : "`GetProcAddress`");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -295,7 +297,7 @@ int DbgHelpRecord::load()
 
     BOOL rc = (*d_symInitialize)(d_hProcess, 0, TRUE);
     if (!rc) {
-        U_ZPRINTF("balst::DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
+        U_ZPRINTF("balst::DbghelpDllImpl_Windows: `SymInitialize` failed\n");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -355,7 +357,7 @@ int DbgHelpRecord::init()
 {
     int rc;
 
-    // Sometimes, under multithreaded conditions, 'load' spuriously fails and
+    // Sometimes, under multithreaded conditions, `load` spuriously fails and
     // returns non-zero.  In that case, try again a few more times.
 
     for (int ii = 0; (rc = !isLoaded()) && ii < 20; ++ii) {
@@ -422,14 +424,16 @@ BOOL DbgHelpRecord::symGetLineFromAddr64(HANDLE           hProcess,
                                      line);
 }
 
+/// If an environment variable is set, report the result of `GetLastError` to
+/// `cerr`, but only do it a limited number of times (test case 2 causes a huge
+/// number of these errors).
 void reportError(const char *string)
-    // If an environment variable is set, report the result of 'GetLastError'
-    // to 'cerr', but only do it a limited number of times (test case 2 causes
-    // a huge number of these errors).
 {
-    DWORD lastError = GetLastError();
+    // Usually we don't want this output to show in front of clients, so
+    // `reportTimes` defaults to 0.
 
-    static int reportTimes = 0;
+    static int  reportTimes = 0;
+
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
@@ -437,14 +441,18 @@ void reportError(const char *string)
         const char *nrString =
               bsl::getenv("BALST_RESOLVERIMPL_WINDOWS_REPORT_TIMES");
         if (nrString) {
-            reportTimes = bsl::atoi(nrString);
+            // if `parseInt` fails `reportTimes` is unmodified.
+
+            (void) bdlb::NumericParseUtil::parseInt(&reportTimes, nrString);
         }
     }
 
     if (reportTimes > 0) {
         --reportTimes;
 
-        fprintf(stderr, "%s: %d", string, static_cast<int>(lastError));
+        DWORD lastError = GetLastError();
+
+        fprintf(stderr, "%s: %d\n", string, static_cast<int>(lastError));
     }
 }
 
@@ -460,9 +468,9 @@ namespace balst {
 
 int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
                                                      bool        demangle)
-    // Given a specified stack trace object 'stackTrace' of stack trace frames
-    // with only their 'address' fields valid, set as many other fields of the
-    // frames as possible.  The 'demangle' argument is ignored, demangling
+    // Given a specified stack trace object `stackTrace` of stack trace frames
+    // with only their `address` fields valid, set as many other fields of the
+    // frames as possible.  The `demangle` argument is ignored, demangling
     // always happens on Windows.  Return 0 if successful and a non-zero value
     // otherwise.
 {
@@ -481,8 +489,8 @@ int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
 
     HANDLE hProcess = u::dbgHelpRecord.hProcess();
 
-    // Note that some of these functions return 'bool' and some 'DWORD', but
-    // whenever the variable 'success' is used, 0 means failure.
+    // Note that some of these functions return `bool` and some `DWORD`, but
+    // whenever the variable `success` is used, 0 means failure.
 
     bool success = u::dbgHelpRecord.symSetOptions(SYMOPT_NO_PROMPTS
                                                 | SYMOPT_LOAD_LINES
@@ -526,6 +534,12 @@ int ResolverImpl<ObjectFileFormat::Windows>::resolve(StackTrace *stackTrace,
         if (success) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
+        }
+        else if (ERROR_INVALID_ADDRESS == GetLastError()) {
+            // In practice, in this context, this usually means the DLL
+            // containing the code does not have source file name or line
+            // number debug information.  Keep going, the symbol name will
+            // probably be there.
         }
         else {
             u::reportError("stack trace resolver error: symGetLineFromAddr64"
