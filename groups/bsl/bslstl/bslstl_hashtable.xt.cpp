@@ -62,7 +62,7 @@ using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION >= 100000
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
-#endif                                                                          
+#endif
 
 // ============================================================================
 //                                TEST PLAN

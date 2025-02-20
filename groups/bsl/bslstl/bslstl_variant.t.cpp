@@ -1022,7 +1022,7 @@ struct MyClassDef {
     bslma::Allocator *d_allocator_p;
 
     MyClassDef();
-    
+
     // In optimized builds, some compilers will elide some of the operations in
     // the destructors of the test classes defined below.  In order to force
     // the compiler to retain all of the code in the destructors, we provide

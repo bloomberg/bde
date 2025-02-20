@@ -10300,7 +10300,7 @@ int main(int argc, char *argv[])
         TestDriver<signed char, bsltf::MoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 
-        TestDriver<signed char, bsltf::WellBehavedMoveOnlyAllocTestType)>::
+        TestDriver<signed char, bsltf::WellBehavedMoveOnlyAllocTestType>::
                            testCase28_propagate_on_container_move_assignment();
 
         TestDriver<bsltf::MovableAllocTestType,

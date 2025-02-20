@@ -1294,24 +1294,24 @@ class map {
                                    &d_tree,
                                    this->comparator(),
                                    key);
-    
+
         if (!comparisonResult) { // ASSIGN
             iterator(insertLocation)->second =
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
             return Result(iterator(insertLocation), false);           // RETURN
         }
-    
+
         // INSERT
         BloombergLP::bslalg::RbTreeNode *node =
             nodeFactory().emplaceIntoNewNode(
                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
+
         BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                                   insertLocation,
                                                   comparisonResult < 0,
                                                   node);
-    
+
         return Result(iterator(node), true);
     }
 
@@ -1372,24 +1372,24 @@ class map {
                                    this->comparator(),
                                    key,
                                    hintNode);
-    
+
         if (!comparisonResult) { // ASSIGN
             iterator(insertLocation)->second =
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
             return iterator(insertLocation);                          // RETURN
         }
-    
+
         // INSERT
         BloombergLP::bslalg::RbTreeNode *node =
             nodeFactory().emplaceIntoNewNode(
                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
+
         BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                                   insertLocation,
                                                   comparisonResult < 0,
                                                   node);
-    
+
         return iterator(node);
     }
 #endif

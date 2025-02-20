@@ -2300,11 +2300,11 @@ int main(int argc, char *argv[])
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
         ASSERT((std::is_same_v<
-                     const size_t, 
+                     const size_t,
                      decltype(std::hardware_destructive_interference_size)>));
 
         ASSERT((std::is_same_v<
-                     const size_t, 
+                     const size_t,
                      decltype(std::hardware_constructive_interference_size)>));
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE

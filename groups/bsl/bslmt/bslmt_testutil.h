@@ -593,7 +593,7 @@ BSLS_IDENT("$Id: $")
 
 #define BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)                                      \
     if (X) ; else do { BSLMT_TESTUTIL_GUARD;                                  \
-                       bsl::cout << #I << ": " << (I) << "\n";                \
+                       bsl::cout << #I << ": " << (I) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP_ASSERT(X) BSLMT_TESTUTIL_LOOP1_ASSERT(X)
@@ -601,14 +601,14 @@ BSLS_IDENT("$Id: $")
 #define BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)                                    \
     if (X) ; else do { BSLMT_TESTUTIL_GUARD;                                  \
                        bsl::cout << #I << ": " << (I) << "\t"                 \
-                                 << #J << ": " << (J) << "\n";                \
+                                 << #J << ": " << (J) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                  \
     if (X) ; else do { BSLMT_TESTUTIL_GUARD;                                  \
                        bsl::cout << #I << ": " << (I) << "\t"                 \
                                  << #J << ": " << (J) << "\t"                 \
-                                 << #K << ": " << (K) << "\n";                \
+                                 << #K << ": " << (K) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                \
@@ -616,7 +616,7 @@ BSLS_IDENT("$Id: $")
                        bsl::cout << #I << ": " << (I) << "\t"                 \
                                  << #J << ": " << (J) << "\t"                 \
                                  << #K << ": " << (K) << "\t"                 \
-                                 << #L << ": " << (L) << "\n";                \
+                                 << #L << ": " << (L) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                              \
@@ -625,7 +625,7 @@ BSLS_IDENT("$Id: $")
                                  << #J << ": " << (J) << "\t"                 \
                                  << #K << ": " << (K) << "\t"                 \
                                  << #L << ": " << (L) << "\t"                 \
-                                 << #M << ": " << (M) << "\n";                \
+                                 << #M << ": " << (M) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                            \
@@ -635,7 +635,7 @@ BSLS_IDENT("$Id: $")
                                  << #K << ": " << (K) << "\t"                 \
                                  << #L << ": " << (L) << "\t"                 \
                                  << #M << ": " << (M) << "\t"                 \
-                                 << #N << ": " << (N) << "\n";                \
+                                 << #N << ": " << (N) << "    (context)\n";   \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 // The 'BSLMT_TESTUTIL_EXPAND' macro is required to work around a preprocessor

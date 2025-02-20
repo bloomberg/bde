@@ -2487,9 +2487,9 @@ bool containsOracle(bsl::basic_string_view<TYPE, TRAITS> pattern,
     if (pattern.size() > corpus.size()) return false;
     // For each substring of the correct length, is it equal to the pattern?
     for (size_t i = 0; i <= corpus.size() - pattern.size(); ++i) {
-    	if (pattern == corpus.substr(i, pattern.size()))
-    	    return true;
-    	}
+        if (pattern == corpus.substr(i, pattern.size()))
+            return true;
+        }
     return false;
 }
 

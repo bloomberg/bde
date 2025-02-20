@@ -1508,7 +1508,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\nError %s(%d):"
+                     "I: %d    (context)\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      __FILE__,
@@ -1564,7 +1564,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\nError %s(%d): idx > LOOP_ITERATIONS"
+                     "I: %d\tJ: %d    (context)\n"
+                         "Error %s(%d): idx > LOOP_ITERATIONS"
                          "    (failed)\n",
                      I,
                      J,
@@ -1621,7 +1622,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\nError %s(%d):"
+                     "I: %d\tJ: %d\tK: %d    (context)\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,
@@ -1682,7 +1683,7 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
+                     "I: %d\tJ: %d\tK: %d\tL: %d    (context)\nError %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,
@@ -1746,7 +1747,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,
@@ -1813,7 +1815,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\nError %s(%d):"
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,
@@ -1893,7 +1896,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO:"
+                           " %d    (context)\n"
                            "Error %s(%d): idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,
@@ -1975,7 +1979,8 @@ void TestDriver::testCase8(OutputRedirector *output)
             ASSERT(output->load());
             snprintf(s_expectedOutput,
                      BUFFER_SIZE,
-                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\tV: %d\n"
+                     "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\tV: %d"
+                           "    (context)\n"
                            "Error %s(%d): idx > LOOP_ITERATIONS    (failed)\n",
                      I,
                      J,

@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\nError %s(%d):"
+                         "I: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I,
                          __FILE__,
@@ -1391,7 +1391,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\nError %s(%d):"
+                         "I: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I,
                          __FILE__,
@@ -1435,7 +1435,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\nError %s(%d):"
+                         "I: %d\tJ: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J,
                          __FILE__,
@@ -1462,7 +1462,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\nError %s(%d):"
+                         "I: %d\tJ: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J,
                          __FILE__,
@@ -1509,7 +1509,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K,
                          __FILE__,
@@ -1537,7 +1537,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K,
                          __FILE__,
@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -1615,7 +1615,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\nError %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -1676,7 +1676,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
@@ -1718,7 +1719,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d    (context)\n"
+                         "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
@@ -1781,7 +1783,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
                          "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
@@ -1813,7 +1815,7 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
                          "Error %s(%d):"
                          " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
@@ -1880,7 +1882,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
+                         "    (context)\n"
                          "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N, O,
                          __FILE__,
@@ -1922,7 +1925,8 @@ int main(int argc, char *argv[])
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
+                         "    (context)\n"
                          "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N, O,
                          __FILE__,
@@ -1991,7 +1995,7 @@ int main(int argc, char *argv[])
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
-                         "\tV: %d\n"
+                         "\tV: %d    (context)\n"
                          "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N, O, V,
                          __FILE__,
@@ -2035,7 +2039,7 @@ int main(int argc, char *argv[])
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\tO: %d"
-                         "\tV: %d\n"
+                         "\tV: %d    (context)\n"
                          "Error %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N, O, V,
                          __FILE__,

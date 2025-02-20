@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 11 07:38:13 2024
+// Generated on Tue Feb 18 11:56:06 2025
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 #ifdef COMPILING_BSLSTL_MAP_H
@@ -751,23 +751,23 @@ class map {
                                    &d_tree,
                                    this->comparator(),
                                    key);
-    
+
         if (!comparisonResult) {
             iterator(insertLocation)->second =
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
             return Result(iterator(insertLocation), false);
         }
-    
+
         BloombergLP::bslalg::RbTreeNode *node =
             nodeFactory().emplaceIntoNewNode(
                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
+
         BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                                   insertLocation,
                                                   comparisonResult < 0,
                                                   node);
-    
+
         return Result(iterator(node), true);
     }
 
@@ -802,23 +802,23 @@ class map {
                                    this->comparator(),
                                    key,
                                    hintNode);
-    
+
         if (!comparisonResult) {
             iterator(insertLocation)->second =
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
             return iterator(insertLocation);
         }
-    
+
         BloombergLP::bslalg::RbTreeNode *node =
             nodeFactory().emplaceIntoNewNode(
                 BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                 BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-    
+
         BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                                   insertLocation,
                                                   comparisonResult < 0,
                                                   node);
-    
+
         return iterator(node);
     }
 // }}} END GENERATED CODE

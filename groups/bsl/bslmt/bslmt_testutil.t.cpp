@@ -1105,7 +1105,7 @@ void TestFunctor::operator()()
         push("Error " __FILE__ "(): 00 == 11    (failed)\n");
 
         MT_ASSERTV(12, 13, 14, 15, 16 < 14);
-        push("12: 12\t13: 13\t14: 14\t15: 15\n"
+        push("12: 12\t13: 13\t14: 14\t15: 15    (context)\n"
             "Error " __FILE__ "(): 16 < 14    (failed)\n");
 
         // Output block containing regular stream output.
@@ -1144,33 +1144,33 @@ void TestFunctor::operator()()
         push("Error " __FILE__ "(): 21 > 2 * 44    (failed)\n");
 
         MT_ASSERTV(67, 20 > 3 * 17);
-        push("67: 67\n"
+        push("67: 67    (context)\n"
              "Error " __FILE__ "(): 20 > 3 * 17    (failed)\n");
 
         MT_ASSERTV(59, 32, 57 >= 3 * 32);
-        push("59: 59\t32: 32\n"
+        push("59: 59\t32: 32    (context)\n"
              "Error " __FILE__ "(): 57 >= 3 * 32    (failed)\n");
 
         MT_ASSERTV(28, 16, 98,
                    26 + 16 == 3 * 98);
-        push("28: 28\t16: 16\t98: 98\n"
+        push("28: 28\t16: 16\t98: 98    (context)\n"
              "Error " __FILE__ "(): 26 + 16 == 3 * 98    (failed)\n");
 
         MT_ASSERTV(98, 97, 100, 95, 2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
-        push("98: 98\t97: 97\t100: 100\t95: 95\n"
+        push("98: 98\t97: 97\t100: 100\t95: 95    (context)\n"
              "Error " __FILE__ "(): "
                      "2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95    (failed)\n");
 
         MT_ASSERTV(77, 88, 87, 86, 85,
                                7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
-        push("77: 77\t88: 88\t87: 87\t86: 86\t85: 85\n"
+        push("77: 77\t88: 88\t87: 87\t86: 86\t85: 85    (context)\n"
              "Error " __FILE__ "(): "
                            "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
                                                              "    (failed)\n");
 
         MT_ASSERTV(9999, 78, 77, 76, 75, 74,
                           2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
-        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74\n"
+        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74    (context)\n"
              "Error " __FILE__ "(): "
                       "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
                                                              "    (failed)\n");
@@ -1184,7 +1184,7 @@ void TestFunctor::operator()()
             MT_ASSERTV(66, 20 > 3 * 17);
 
             push("Error " __FILE__ "(): 21 > 2 * 43    (failed)\n"
-                 "66: 66\n"
+                 "66: 66    (context)\n"
                  "Error " __FILE__ "(): 20 > 3 * 17    (failed)\n");
         }
 
@@ -1195,9 +1195,9 @@ void TestFunctor::operator()()
             MT_ASSERTV(26, 16, 98,
                        26 + 16 == 3 * 98);
 
-            push("57: 57\t32: 32\n"
+            push("57: 57\t32: 32    (context)\n"
                  "Error " __FILE__ "(): 57 >= 3 * 32    (failed)\n"
-                 "26: 26\t16: 16\t98: 98\n"
+                 "26: 26\t16: 16\t98: 98    (context)\n"
                  "Error " __FILE__ "(): 26 + 16 == 3 * 98    (failed)\n");
         }
 
@@ -1208,14 +1208,14 @@ void TestFunctor::operator()()
                                      2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
             subRoutine();
 
-            push("98: 98\t97: 97\t96: 96\t95: 95\n"
+            push("98: 98\t97: 97\t96: 96\t95: 95    (context)\n"
                  "Error " __FILE__ "(): "
                      "2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95    (failed)\n"
-                 "89: 89\t88: 88\t87: 87\t86: 86\t85: 85\n"
+                 "89: 89\t88: 88\t87: 87\t86: 86\t85: 85    (context)\n"
                  "Error " __FILE__ "(): "
                                "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
                                                              "    (failed)\n"
-                 "79: 79\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74\n"
+                 "79: 79\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74    (context)\n"
                  "Error " __FILE__ "(): "
                           "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
                                                              "    (failed)\n");
@@ -1776,7 +1776,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\nError %s(%d): idx > k_REPEAT    (failed)\n",
+                         "I: %d    (context)\n"
+                         "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1801,7 +1802,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\nError %s(%d): idx > k_REPEAT    (failed)\n",
+                         "I: %d    (context)\n"
+                         "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1844,7 +1846,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\n"
+                         "I: %d\tJ: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J,
                          __FILE__,
@@ -1871,7 +1873,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\n"
+                         "I: %d\tJ: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J,
                          __FILE__,
@@ -1917,7 +1919,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\n"
+                         "I: %d\tJ: %d\tK: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K,
                          __FILE__,
@@ -1945,7 +1947,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\n"
+                         "I: %d\tJ: %d\tK: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K,
                          __FILE__,
@@ -1993,7 +1995,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -2022,7 +2024,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L,
                          __FILE__,
@@ -2072,7 +2074,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
@@ -2108,7 +2110,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
@@ -2160,7 +2162,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
@@ -2191,7 +2193,7 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
