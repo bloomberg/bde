@@ -1027,16 +1027,16 @@ int main(int argc, char *argv[])
         ASSERT(bsl::chrono::hours::period::den == 1);
 
         ASSERT(bsl::chrono::microseconds::period::num == 1);
-        ASSERT(bsl::chrono::microseconds::period::den == 1'000'000);
+        ASSERT(bsl::chrono::microseconds::period::den == 1000000);
 
         ASSERT(bsl::chrono::milliseconds::period::num == 1);
-        ASSERT(bsl::chrono::milliseconds::period::den == 1'000);
+        ASSERT(bsl::chrono::milliseconds::period::den == 1000);
 
         ASSERT(bsl::chrono::minutes::period::num == 60);
         ASSERT(bsl::chrono::minutes::period::den == 1);
 
         ASSERT(bsl::chrono::nanoseconds::period::num == 1);
-        ASSERT(bsl::chrono::nanoseconds::period::den == 1'000'000'000);
+        ASSERT(bsl::chrono::nanoseconds::period::den == 1000000000);
 
         ASSERT(bsl::chrono::seconds::period::num == 1);
         ASSERT(bsl::chrono::seconds::period::den == 1);
