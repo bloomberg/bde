@@ -1960,7 +1960,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -2312,7 +2312,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -3314,7 +3314,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(LOC, MESSAGE, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG,
@@ -3635,7 +3635,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(objAllocatorPtr);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                BSLS_ASSERT_OPT(0 == "Bad allocator config.");
               } break;
             }
 

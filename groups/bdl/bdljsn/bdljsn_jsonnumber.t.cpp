@@ -1,8 +1,6 @@
 // bdljsn_jsonnumber.t.cpp                                            -*-C++-*-
 #include <bdljsn_jsonnumber.h>
 
-#include <bdlb_stringviewutil.h>
-
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalutil.h>
 
@@ -15,7 +13,6 @@
 #include <bslma_bslallocator.h>  // `operator!=`
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslma_polymorphicallocator.h>  // 'operator!='
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -23,7 +20,6 @@
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
-#include <bsls_types.h>  // 'bsls::Types::Int64'
 
 #include <bsl_cassert.h>
 #include <bsl_cstddef.h>     // `bsl::size_t`
@@ -100,15 +96,13 @@ using bsl::endl;
 // [ 2] JsonNumber(const bsl::string_view& text, *bA= 0);
 // [ 7] JsonNumber(MovableRef<bsl::string> text);
 // [ 7] JsonNumber(MovableRef<bsl::string> text, *bA = 0);
-// [11] JsonNumber(int                value, *bA =0);
-// [11] JsonNumber(unsigned int       value, *bA = 0);
-// [11] JsonNumber(long               value, *bA = 0);
-// [11] JsonNumber(unsigned long      value, *bA = 0);
-// [11] JsonNumber(long long          value, *bA = 0);
-// [11] JsonNumber(unsigned long long value, *bA = 0);
-// [11] JsonNumber(float              value, *bA = 0);
-// [11] JsonNumber(double             value, *bA = 0);
-// [11] JsonNumber(bdldfp::Decimal64  value, *bA = 0);
+// [11] JsonNumber(int                 value, *bA =0);
+// [11] JsonNumber(unsigned int        value, *bA = 0);
+// [11] JsonNumber(bsls::Types::Int64  value, *bA = 0);
+// [11] JsonNumber(bsls::Types::Uint64 value, *bA = 0);
+// [11] JsonNumber(float               value, *bA = 0);
+// [11] JsonNumber(double              value, *bA = 0);
+// [11] JsonNumber(bdldfp::Decimal64   value, *bA = 0);
 // [ 5] JsonNumber(const JsonNumber&      original, *bA = 0);
 // [ 6] JsonNumber(MovableRef<JsonNumber> original);
 // [ 6] JsonNumber(MovableRef<JsonNumber> original, *bA);
@@ -117,15 +111,13 @@ using bsl::endl;
 // MANIPULATORS
 // [ 9] JsonNumber& operator=(const JsonNumber& rhs);
 // [10] JsonNumber& operator=(MovableRef<JsonNumber> rhs);
-// [11] JsonNumber& operator=(int                rhs);
-// [11] JsonNumber& operator=(unsigned int       rhs);
-// [11] JsonNumber& operator=(long               rhs);
-// [11] JsonNumber& operator=(unsigned long      rhs);
-// [11] JsonNumber& operator=(long long          rhs);
-// [11] JsonNumber& operator=(unsigned long long rhs);
-// [11] JsonNumber& operator=(float              rhs);
-// [11] JsonNumber& operator=(double             rhs);
-// [11] JsonNumber& operator=(bdldfp::Decimal64  rhs);
+// [11] JsonNumber& operator=(int                 rhs);
+// [11] JsonNumber& operator=(unsigned int        rhs);
+// [11] JsonNumber& operator=(bsls::Types::Int64  rhs);
+// [11] JsonNumber& operator=(bsls::Types::Uint64 rhs);
+// [11] JsonNumber& operator=(float             rhs);
+// [11] JsonNumber& operator=(double            rhs);
+// [11] JsonNumber& operator=(bdldfp::Decimal64 rhs);
 //
 // [ 8] void swap(JsonNumber& other);
 //
@@ -134,16 +126,10 @@ using bsl::endl;
 // [13] bool isIntegral() const;
 // [ 2] const bsl::string& value() const;
 //
-// [11] int asShort    (short              *result) const;
-// [11] int asInt      (int                *result) const;
-// [11] int asLong     (long               *result) const;
-// [11] int asLonglong (long long          *result) const;
-// [11] int asInt64    (Int64              *result) const;
-// [11] int asUint     (unsigned int       *result) const;
-// [11] int asUshort   (unsigned short     *result) const;
-// [11] int asUlong    (unsigned long      *result) const;
-// [11] int asUlonglong(unsigned long long *result) const;
-// [11] int asUint64   (Uint64             *result) const;
+// [11] int asInt   (int                 *result) const;
+// [11] int asInt64 (bsls::Types::Int64  *result) const;
+// [11] int asUint  (unsigned int        *result) const;
+// [11] int asUint64(bsls::Types::Uint64 *result) const;
 // [11] float              asFloat()     const;
 // [11] double             asDouble()    const;
 // [11] bdldfp::Decimal64  asDecimal64() const;
@@ -169,8 +155,7 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] USAGE EXAMPLE
-// [  ] CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures
-// [  ] CONCERN: Only expected 'bsls' log messages occur.
+// [  ] CONCERN: `BSLS_REVIEW` failures should lead to test failures
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -242,9 +227,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdljsn::JsonNumber  Obj;
-typedef bdljsn::NumberUtil  NU;
-typedef bdldfp::Decimal64   Deci64;
+typedef bdljsn::JsonNumber Obj;
+typedef bdljsn::NumberUtil NU;
+typedef bdldfp::Decimal64  Deci64;
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
@@ -255,7 +240,7 @@ typedef bsl::string_view    SV;
 //                                TYPE TRAITS
 // ----------------------------------------------------------------------------
 
-BSLMF_ASSERT(bslmf::IsBitwiseMoveable <Obj>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 
 // ============================================================================
@@ -299,85 +284,6 @@ const DefaultDataRow DEFAULT_DATA[] =
     , { L_  , 'Y', LONGEST_STRING }
 };
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
-
-// ============================================================================
-//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
-// ----------------------------------------------------------------------------
-
-static bool containsCaseless(const bsl::string_view& string,
-                             const bsl::string_view& subString)
-    // Return 'true' if the specified 'subString' is present in the specified
-    // 'string' disregarding case of alphabet characters '[a-zA-Z]', otherwise
-    // return 'false'.
-{
-    if (subString.empty()) {
-        return true;                                                  // RETURN
-    }
-
-    typedef bdlb::StringViewUtil SVU;
-    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
-
-    return !rsv.empty();
-}
-
-// ============================================================================
-//                   EXPECTED 'BSLS_REVIEW' TEST HANDLERS
-// ----------------------------------------------------------------------------
-
-// These handlers are needed only temporarily until we determine how to fix the
-// broken contract of 'bdlb::NumericParseUtil::parseDouble()' that says under-
-// and overflow is not allowed yet the function supports it.
-
-bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' has been raised by the
-    // 'bdlb_numericparseutil' component or no source file names are supported
-    // by the build, otherwise return 'false'.
-{
-    const char *fn     = reviewViolation.fileName();
-    const bool  fileOk = ('\0' == fn[0] // empty or has the component name
-                             || containsCaseless(fn, "bdlb_numericparseutil"));
-    return fileOk;
-}
-
-bool isUnderflowReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' is an underflow message
-    // from the 'bdlb_numericparseutil' component (or no source file names are
-    // supported by the build), otherwise return 'false'.
-{
-
-    return containsCaseless(reviewViolation.comment(), "underflow")
-        && isBdlbNumericParseUtilReview(reviewViolation);
-}
-
-bool isOverflowReview(const bsls::ReviewViolation& reviewViolation)
-    // Return 'true' if the specified 'reviewViolation' is an overflow message
-    // from the 'bdlb_numericparseutil' component (or no source file names are
-    // supported by the build), otherwise return 'false'.
-{
-
-    return containsCaseless(reviewViolation.comment(), "overflow")
-        && isBdlbNumericParseUtilReview(reviewViolation);
-}
-
-void expectUnderflow(const bsls::ReviewViolation& reviewViolation)
-    // If the specified 'reviewViolation' is an expected underflow-related
-    // message from 'parseDouble' do nothing, otherwise call
-    // 'bsls::Review::failByAbort()'.
-{
-    if (!isUnderflowReview(reviewViolation)) {
-        bsls::Review::failByAbort(reviewViolation);
-    }
-}
-
-void expectOverflow(const bsls::ReviewViolation& reviewViolation)
-    // If the specified 'reviewViolation' is an expected overflow-related
-    // message from 'parseDouble' do nothing, otherwise call
-    // 'bsls::Review::failByAbort()'.
-{
-    if (!isOverflowReview(reviewViolation)) {
-        bsls::Review::failByAbort(reviewViolation);
-    }
-}
 
 // ============================================================================
 //                          CLASSES FOR TESTING
@@ -543,7 +449,7 @@ void testCase11I(int        argc,
                     objPtr = new (fa) Obj(VALUE, objAllocatorPtr);      // TEST
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -574,7 +480,7 @@ void testCase11I(int        argc,
                    // Skip test
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),
@@ -809,7 +715,7 @@ void testCase11F(int                  argc,
                     objPtr = new (fa) Obj(VALUE, objAllocatorPtr);      // TEST
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -840,7 +746,7 @@ void testCase11F(int                  argc,
                    // Skip test
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),
@@ -1116,13 +1022,13 @@ int main(int argc, char *argv[])
             bsl::cout << "Integral: ";
 // ```
 // If integral, we check if the value is a usable range.  Let us assume that
-// `long long` is as large a number as we can accept.
+// `bslsl::Type::Int64` is as large a number as we can accept.
 //
 // Then, we convert the JSON number to that type and check for overflow and
 // underflow:
 // ```
-            long long value;
-            int       rc = obj.asLonglong(&value);
+            bsls::Types::Int64 value;
+            int                rc = obj.asInt64(&value);
             switch (rc) {
                 case 0: {
                     bsl::cout << value      << " : OK to USE" << bsl::endl;
@@ -1134,7 +1040,7 @@ int main(int argc, char *argv[])
                     bsl::cout << obj.value() << ": NG too small" << bsl::endl;
                 } break;
                 case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-                  ASSERT(false && "reached");
+                  ASSERT(0 == "reached");
                 } break;
             }
 // ```
@@ -1155,7 +1061,7 @@ int main(int argc, char *argv[])
                     bsl::cout << value << ": inexact: USE approximation";
                 } break;
                 case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-                  ASSERT(false && "reached");
+                  ASSERT(0 == "reached");
                 } break;
             }
 
@@ -1470,7 +1376,7 @@ int main(int argc, char *argv[])
                                Deci64(0) == result);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "reachable");
+                BSLS_ASSERT_OPT(0 == "reachable");
               } break;
             }
 
@@ -2015,34 +1921,24 @@ int main(int argc, char *argv[])
         //      established in P-1 and P-2.
         //
         // Testing:
-        //   JsonNumber(int                value, *bA =0);
-        //   JsonNumber(unsigned int       value, *bA = 0);
-        //   JsonNumber(long               value, *bA = 0);
-        //   JsonNumber(unsigned long      value, *bA = 0);
-        //   JsonNumber(long long          value, *bA = 0);
-        //   JsonNumber(unsigned long long value, *bA = 0);
-        //   JsonNumber(float              value, *bA = 0);
-        //   JsonNumber(double             value, *bA = 0);
-        //   JsonNumber(bdldfp::Decimal64  value, *bA = 0);
-        //   JsonNumber& operator=(int                rhs);
-        //   JsonNumber& operator=(unsigned int       rhs);
-        //   JsonNumber& operator=(long               rhs);
-        //   JsonNumber& operator=(unsigned long      rhs);
-        //   JsonNumber& operator=(long long          rhs);
-        //   JsonNumber& operator=(unsigned long long rhs);
-        //   JsonNumber& operator=(float              rhs);
-        //   JsonNumber& operator=(double             rhs);
-        //   JsonNumber& operator=(bdldfp::Decimal64  rhs);
-        //   int asShort    (short              *result) const;
-        //   int asInt      (int                *result) const;
-        //   int asLong     (long               *result) const;
-        //   int asLonglong (long long          *result) const;
-        //   int asInt64    (Int64              *result) const;
-        //   int asUshort   (unsigned short     *result) const;
-        //   int asUint     (unsigned int       *result) const;
-        //   int asUlong    (unsigned long      *result) const;
-        //   int asUlonglong(unsigned long long *result) const;
-        //   int asUint64   (Uint64             *result) const;
+        //   JsonNumber(int                 value, *bA =0);
+        //   JsonNumber(unsigned int        value, *bA = 0);
+        //   JsonNumber(bsls::Types::Int64  value, *bA = 0);
+        //   JsonNumber(bsls::Types::Uint64 value, *bA = 0);
+        //   JsonNumber(float               value, *bA = 0);
+        //   JsonNumber(double              value, *bA = 0);
+        //   JsonNumber(bdldfp::Decimal64   value, *bA = 0);
+        //   JsonNumber& operator=(int                 rhs);
+        //   JsonNumber& operator=(unsigned int        rhs);
+        //   JsonNumber& operator=(bsls::Types::Int64  rhs);
+        //   JsonNumber& operator=(bsls::Types::Uint64 rhs);
+        //   JsonNumber& operator=(float             rhs);
+        //   JsonNumber& operator=(double            rhs);
+        //   JsonNumber& operator=(bdldfp::Decimal64 rhs);
+        //   int asInt   (int                 *result) const;
+        //   int asInt64 (bsls::Types::Int64  *result) const;
+        //   int asUint  (unsigned int        *result) const;
+        //   int asUint64(bsls::Types::Uint64 *result) const;
         //   float              asFloat()     const;
         //   double             asDouble()    const;
         //   bdldfp::Decimal64  asDecimal64() const;
@@ -2057,21 +1953,14 @@ int main(int argc, char *argv[])
                 << "=================================================" << endl;
         }
 
-        testCase11I<             short>(argc, argv, &Obj::asShort);
-        testCase11I<               int>(argc, argv, &Obj::asInt);
-        testCase11I<              long>(argc, argv, &Obj::asLong);
-        testCase11I<         long long>(argc, argv, &Obj::asLonglong);
-        testCase11I<             Int64>(argc, argv, &Obj::asInt64);
+        testCase11I<                int>(argc, argv, &Obj::asInt);
+        testCase11I<bsls::Types:: Int64>(argc, argv, &Obj::asInt64);
+        testCase11I<       unsigned int>(argc, argv, &Obj::asUint);
+        testCase11I<bsls::Types::Uint64>(argc, argv, &Obj::asUint64);
 
-        testCase11I<    unsigned short>(argc, argv, &Obj::asUshort);
-        testCase11I<      unsigned int>(argc, argv, &Obj::asUint);
-        testCase11I<     unsigned long>(argc, argv, &Obj::asUlong);
-        testCase11I<unsigned long long>(argc, argv, &Obj::asUlonglong);
-        testCase11I<            Uint64>(argc, argv, &Obj::asUint64);
-
-        testCase11F<             float>(argc, argv, &Obj::asFloat);
-        testCase11F<            double>(argc, argv, &Obj::asDouble);
-        testCase11F< bdldfp::Decimal64>(argc, argv, &Obj::asDecimal64);
+        testCase11F<              float>(argc, argv, &Obj::asFloat);
+        testCase11F<             double>(argc, argv, &Obj::asDouble);
+        testCase11F<  bdldfp::Decimal64>(argc, argv, &Obj::asDecimal64);
 
       } break;
       case 10: {
@@ -3277,7 +3166,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -3605,7 +3494,7 @@ int main(int argc, char *argv[])
                                               objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2*sizeof(Obj) == fa.numBytesInUse());
@@ -3903,7 +3792,7 @@ int main(int argc, char *argv[])
                         objPtr = new (fa) Obj(Z, objAllocatorPtr);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(false && "Bad allocator config.");
+                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -4544,7 +4433,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -4569,14 +4458,7 @@ int main(int argc, char *argv[])
 #endif
 
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic pop
-#endif
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #ifdef BSLS_PLATFORM_CMP_CLANG
@@ -4660,7 +4542,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(SV(TEXT), objAllocatorPtr);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
 
@@ -4685,14 +4567,7 @@ int main(int argc, char *argv[])
 #endif
 
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
                 ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.allocator());
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic pop
-#endif
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #ifdef BSLS_PLATFORM_CMP_CLANG
@@ -4710,7 +4585,7 @@ int main(int argc, char *argv[])
                             0 ==  oa.numBlocksTotal());
                   } break;
                   default : {
-                    BSLS_ASSERT_OPT(false && "reachable");
+                    BSLS_ASSERT_OPT(0 == "reachable");
                   } break;
                 }
                 ASSERTV(CONFIG, noa.numBlocksTotal(),
@@ -4769,15 +4644,15 @@ int main(int argc, char *argv[])
         ASSERT(       0. == X.asDouble());
         ASSERT(Deci64(0) == X.asDecimal64());
 
-        int                xInt;
-        unsigned           xUint;
-        long long          xInt64;
-        unsigned long long xUint64;
+        int      xInt;
+        unsigned xUint;
+        Int64    xInt64;
+        Uint64   xUint64;
 
         ASSERT(0 == X.asInt(&xInt));
         ASSERT(0 == X.asUint(&xUint));
-        ASSERT(0 == X.asLonglong(&xInt64));
-        ASSERT(0 == X.asUlonglong(&xUint64));
+        ASSERT(0 == X.asInt64(&xInt64));
+        ASSERT(0 == X.asUint64(&xUint64));
 
         ASSERT(0 == xInt);
         ASSERT(0 == xUint);
@@ -4794,15 +4669,15 @@ int main(int argc, char *argv[])
         ASSERT(       0. == Y.asDouble());
         ASSERT(Deci64(0) == Y.asDecimal64());
 
-        int                yInt;
-        unsigned           yUint;
-        long long          yInt64;
-        unsigned long long yUint64;
+        int      yInt;
+        unsigned yUint;
+        Int64    yInt64;
+        Uint64   yUint64;
 
         ASSERT(0 == Y.asInt(&yInt));
         ASSERT(0 == Y.asUint(&yUint));
-        ASSERT(0 == Y.asLonglong(&yInt64));
-        ASSERT(0 == Y.asUlonglong(&yUint64));
+        ASSERT(0 == Y.asInt64(&yInt64));
+        ASSERT(0 == Y.asUint64(&yUint64));
 
         ASSERT(0 == yInt);
         ASSERT(0 == yUint);
@@ -4814,15 +4689,15 @@ int main(int argc, char *argv[])
         ASSERT(       0.   == Z.asDouble());
         ASSERT(Deci64(0)   == Z.asDecimal64());
 
-        int                zInt;
-        unsigned           zUint;
-        long long          zInt64;
-        unsigned long long zUint64;
+        int      zInt;
+        unsigned zUint;
+        Int64    zInt64;
+        Uint64   zUint64;
 
         ASSERT(0 == Z.asInt(&zInt));
         ASSERT(0 == Z.asUint(&zUint));
-        ASSERT(0 == Z.asLonglong(&zInt64));
-        ASSERT(0 == Z.asUlonglong(&zUint64));
+        ASSERT(0 == Z.asInt64(&zInt64));
+        ASSERT(0 == Z.asUint64(&zUint64));
 
         ASSERT(0 == zInt);
         ASSERT(0 == zUint);

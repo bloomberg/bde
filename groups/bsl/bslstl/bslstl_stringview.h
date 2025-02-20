@@ -2833,6 +2833,8 @@ void bslh::hashAppend(
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
+#undef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+
 #endif
 
 // ----------------------------------------------------------------------------

@@ -26,15 +26,6 @@ bsl::ostream& JsonNull::print(bsl::ostream& stream,
     return stream;
 }
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-
-                               // ---------------
-                               // object jsonNull
-                               // ---------------
-
-const JsonNull jsonNull = { };
-#endif
-
 }  // close package namespace
 }  // close enterprise namespace
 
