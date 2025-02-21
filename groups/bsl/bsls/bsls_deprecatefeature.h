@@ -6,6 +6,7 @@
 //
 //@MACROS:
 //  BSLS_DEPRECATE_FEATURE: mark a C++ entity as deprecated
+//  BSLS_DEPRECATE_FEATURE_HEADER: mark entire header file as deprecated
 //
 //@DESCRIPTION:  This component provides facilities to identify deprecated C++
 // entities.  The deprecation annotations supplied by this component may,
@@ -72,6 +73,13 @@
 //   > `BSLS_DEPRECATE_FEATURE_SUPPORTED_PLATFORM` is defined and the build
 //   > configuration macros are configured in a way that the annotations will
 //   > instantiate as the `[[deprecated]]` attribute).
+//
+// * `BSLS_DEPRECATE_FEATURE_HEADER(UOR, FEATURE, MESSAGE)`
+//   > This macro is used to annotate a header file to indicate that header
+//   > has been deprecated, and is associated with the specified `UOR`
+//   > (Unit-Of-Release), deprecated `FEATURE`, and `MESSAGE`.  This macro can
+//   > be used for the headers that contain no actual code to generate compile
+//   > warning when the header is included.
 //
 ///Configuration Reference
 ///-----------------------
@@ -173,8 +181,8 @@
 // };
 // ```
 //
-///Deprecating a Feature Across Multiple Headers
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Deprecating a Feature Across Multiple Headers
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Frequently a feature being deprecated may span multiple components.  For
 // example, we may want to deprecate all the date and time types in the `bde`
 // library.  In those instances one may define a macro in the lowest level
@@ -220,6 +228,21 @@
 //     // ...
 // };
 // ```
+///Example 3: Deprecating a Header
+///- - - - - - - - - - - - - - - -
+// Once all the deprecated features has been removed from a header, the header
+// itself cannot be removed as long as there are `#include`s with the header.
+// To warn user about including the obsolete header, use the
+// `BSLS_DEPRECATE_FEATURE_HEADER` macro:
+// ```
+// // bdet_date.h
+//
+// #include <bsls_deprecate_feature.h>
+//
+// BSLS_DEPRECATE_FEATURE_HEADER("bdet",
+//                               "bdet_date",
+//                               "Do not include obsolete bdet_date.h");
+// ```
 
                        // ==============================
                        // Component Configuration Macros
@@ -229,7 +252,7 @@
 // moment, this header has 0 dependencies, which may be a useful feature to
 // maintain.
 
-#if (defined(__cplusplus) && (__cplusplus >= 201703L)) || \
+#if (defined(__cplusplus) && (__cplusplus >= 201703L)) ||                     \
     (defined(_MSVC_LANG)  && (_MSVC_LANG  >= 201703L))
 #define BSLS_DEPRECATE_FEATURE_IS_SUPPORTED
 #endif
@@ -247,17 +270,57 @@
                     // ====================================
 
 #ifndef BSLS_DEPRECATE_FEATURE_ANNOTATION_IS_ACTIVE
-#define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)
+    // Settings are off. We should be doing nothing.
+
+    #define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)
+    #define BSLS_DEPRECATE_FEATURE_HEADER_IMP(UOR, FEATURE, MESSAGE)
 #else
-#if defined(BB_DEPRECATE_ENABLE_JSON_MESSAGE) ||                              \
-    defined(BSLS_DEPRECATE_FEATURE_ENABLE_JSON_MESSAGE)
-#define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)                     \
-    [[deprecated("{\"library\": \"" UOR "\", \"feature\": \"" FEATURE         \
-    "\", \"message\": \"" MESSAGE "\"}")]]
-#else
-#define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)                     \
-    [[deprecated(MESSAGE)]]
-#endif  // BB_DEPRECATE_ENABLE_JSON_MESSAGE
+    // ------------------------------------------------------------------------
+    // Utility macros
+
+    #define BSLS_DEPRECATE_FEATURE_HEADER_IMP_STRINGIFY(...) #__VA_ARGS__
+
+    // Lower level compiler macros are used as these macros may migrate out of
+    // bde in the future.
+    #if defined(__GNUC__) || defined(__clang__)
+        #define BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA_DO(x)                \
+            _Pragma (#x)
+    #else
+        #define BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA_DO(x)
+    #endif
+
+    // ------------------------------------------------------------------------
+    // Main implementation macros
+
+    #define BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA(MESSAGE)                 \
+        BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA_DO(GCC warning MESSAGE)
+
+    #if defined(BB_DEPRECATE_ENABLE_JSON_MESSAGE) ||                          \
+        defined(BSLS_DEPRECATE_FEATURE_ENABLE_JSON_MESSAGE)
+
+        // a. General c++ deprecation
+        #define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)             \
+            [[deprecated("{\"library\": \"" UOR "\", \"feature\": \"" FEATURE \
+            "\", \"message\": \"" MESSAGE "\"}")]]
+
+        // b. Deprecated header
+        #define BSLS_DEPRECATE_FEATURE_HEADER_IMP(UOR, FEATURE, MESSAGE)      \
+            BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA(                         \
+                BSLS_DEPRECATE_FEATURE_HEADER_IMP_STRINGIFY(                  \
+            {                                                                 \
+                "library": UOR,                                               \
+                "feature": FEATURE,                                           \
+                "message": MESSAGE                                            \
+            }))
+    #else
+        // a. General c++ deprecation
+        #define BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)             \
+            [[deprecated(MESSAGE)]]
+
+        // b. Deprecated header
+        #define BSLS_DEPRECATE_FEATURE_HEADER_IMP(UOR, FEATURE, MESSAGE)      \
+            BSLS_DEPRECATE_FEATURE_HEADER_IMP_PRAGMA(MESSAGE)
+    #endif  // BB_DEPRECATE_ENABLE_JSON_MESSAGE
 #endif
 
 // If the number of arguments needs to be expanded, commit
@@ -268,8 +331,17 @@
                              // Annotation Macros
                              // =================
 
+// Usage: Macro for stating a general c++ deprecation (wraps c++'s
+// [[deprecated]]) ex. BSLS_DEPRECATE_FEATURE("my_uor", "my_feature", "Please
+// use y.h instead")
 #define BSLS_DEPRECATE_FEATURE(UOR, FEATURE, MESSAGE)                         \
     BSLS_DEPRECATE_FEATURE_IMP(UOR, FEATURE, MESSAGE)
+
+// Usage: Macro for stating a deprecated header
+// ex. BSLS_DEPRECATE_FEATURE_HEADER("my_uor", "my_feature", "Please use y.h
+// instead")
+#define BSLS_DEPRECATE_FEATURE_HEADER(UOR, FEATURE, MESSAGE)                  \
+    BSLS_DEPRECATE_FEATURE_HEADER_IMP(UOR, FEATURE, MESSAGE)
 
 #endif  // INCLUDED_BSLS_DEPRECATEFEATURE
 
