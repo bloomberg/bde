@@ -1,5 +1,36 @@
-bsl-internal (4.20.0.0) unstable; urgency=low
+bsl-internal (4.21.0.0) unstable; urgency=low
 
+  * 7276edf6d Bumped version to 4.21.0.0
+  * 80d6ed797 Add header deprecation macro [ENG6BVDEVX-1843] (#5014)
+  * af1a61b54 bslma::Allocator should respect `do_allocate` alignment parameter -- DRQS 176364960 (#5083)
+  * 64992640a bslim_assert: print '(context)' after showing expression by an ASSERTV (#5192)
+  * 84daa1108 Baljsn parserutil std overloads drqs 177821773 (#5157)
+  * f25734256 Merge pull request #5219 from afeher/fix-cpp11-no-number-deimiter-in-litrerals
+  * a121a0f0b Merge pull request #5100 from bchapman/balst_stacktraceutil-TC-10-drqs-177340534
+  * 51fc70f09 Revert bdljsn enhancements: commits f6e9c12, 6bda2f5, 9498c63. (#5217)
+  * 86475b0e9 Merge pull request #5214 from afeher/fix-bslim_bslstandardheadertest-test-driver
+  * d152f58b1 Merge pull request #5210 from dsokolov7/review/bde-bsl-format-formatterbase-gold-drqs-178234714
+  * b3cc96039 Merge pull request #5211 from afeher/drqs-178251362-chrono-tz-not-implemented
+  * c37745610 Create bdlat_fuzzutil for BAS-messages (DRQS 177524171) (#5153)
+  * 86d08af78 Merge pull request #5208 from afeher/drqs-178234667-bslfmt-fotmat_error-polishing
+  * c54ee6c61 Add more types to bdlt_fuzzutil (DRQS 178189974) (#5199)
+  * b63e85a51 Merge pull request #5207 from afeher/drqs-178237058-NumericFormatterUtil-allows-base-37
+  * 87462bb97 Merge pull request #5204 from afeher/drqs-178069344-numericformatterutil-gcc-13-test-errors
+  * 37d7d93fa Merge pull request #5203 from afeher/github-PR-302
+  * 1dbfd687c Add note about disallowing top-level decoding of arrays (#5197)
+  * f6e9c1249 Remove initializer_list constructor from JSON (#5194)
+  * 0837de8a7 Merge pull request #5201 from afeher/drqs-178180780-13.2-compilation-error
+  * fadf69d05 Added missing concepts (#5200)
+  * 68d32a27a Address test failures for C++20 changing traits results (#5164)
+  * 7af0e46c9 Add testing for `maxDepth` in encoders (#5146)
+  * 160e4984c Drqs 178096040 bsl format remove checks from visit (#5189)
+  * 54ec051e0 Add missing inline in bslfmt_format_imp (#5188)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Feb 2025 15:56:08 -0500
+
+bsl-internal (4.20.0.0) git; urgency=low
+
+  * 78249b261 Changelog for version 4.20.0.0
   * beea0193d Bumped version to 4.20.0.0
   * 9d58988a2 Fix numericformatterutil gcc-13 test errors. (#5186)
   * 2bdc1a2ea Merge pull request #5181 from bde/integration/bsl-format
@@ -31,7 +62,7 @@ bsl-internal (4.20.0.0) unstable; urgency=low
   * d6c57ad59 use STARTPOOL where appropriate (#5174)
   * 161f2e2aa improve bound for unnecessary check (#5173)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 30 Jan 2025 15:44:54 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 30 Jan 2025 15:47:13 -0500
 
 bsl-internal (4.19.0.0) git; urgency=low
 
