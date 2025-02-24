@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Creating a Message
-// - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - -
 // Suppose we have a message type `MyMessage` and we wish to fuzz test it.
 //
 // We have to provide a function like this for libFuzzer:
