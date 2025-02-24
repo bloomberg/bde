@@ -3,7 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <bslstl_string.h>
+#include <cstring>    // `strlen`, `strcmp`, `strcpy`, `strncpy`,`memset`
 
 #include <stdio.h>    // `printf`
 #include <stdlib.h>   // `atoi`
@@ -19,12 +19,18 @@ using namespace bslfmt;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// TBD
-// ----------------------------------------------------------------------------
-//
+// The component under test implements a namespace for utility functions that
+// convert characters (e.g. from `char` to `wchar_t` or lowercase characters to
+// uppercase).  This test driver tests each implemented utility function
+// independently.
+// --------------------------------------------------------------------
+// CLASS METHODS
+// [ 3] t_ITER outputFromChar(const char *b, const char *e, t_ITER o);
+// [ 3] t_ITER outputFromChar(const char value, t_ITER out);
+// [ 2] void toUpper(char *begin, const char *end);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -89,6 +95,139 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                          GLOBAL TEST DATA
+// ----------------------------------------------------------------------------
+
+/// Data structure containing printable `char` values.
+static const struct {
+    int            d_line;        // source line number
+    const char    *d_charStr_p;   // original string
+    const char    *d_upperStr_p;  // expected uppercase result
+    const wchar_t *d_wcharStr_p;  // expected `wchar_t` output
+    size_t         d_length;      // string length
+} DEFAULT_DATA[] = {
+    //LINE  CHAR     UPPER    WCHAR     LENGTH
+    //----  ------   ------   ------    ------
+    // 0 characters
+    { L_,   "",      "",      L"",      0      },
+
+    // 1 character
+    { L_,   "a",     "A",     L"a",     1      },
+    { L_,   "0",     "0",     L"0",     1      },
+    { L_,   " ",     " ",     L" ",     1      },
+
+    // 2 characters
+    { L_,   "az",    "AZ",    L"az",    2      },
+    { L_,   "aZ",    "AZ",    L"aZ",    2      },
+    { L_,   "Az",    "AZ",    L"Az",    2      },
+    { L_,   "AZ",    "AZ",    L"AZ",    2      },
+
+    { L_,   "by",    "BY",    L"by",    2      },
+    { L_,   "b9",    "B9",    L"b9",    2      },
+    { L_,   "0y",    "0Y",    L"0y",    2      },
+    { L_,   "09",    "09",    L"09",    2      },
+
+    { L_,   "cx",    "CX",    L"cx",    2      },
+    { L_,   "c~",    "C~",    L"c~",    2      },
+    { L_,   " x",    " X",    L" x",    2      },
+    { L_,   " ~",    " ~",    L" ~",    2      },
+
+    // 3 characters
+    { L_,   "dmw",   "DMW",   L"dmw",   3      },
+    { L_,   "dmW",   "DMW",   L"dmW",   3      },
+    { L_,   "dMw",   "DMW",   L"dMw",   3      },
+    { L_,   "dMW",   "DMW",   L"dMW",   3      },
+    { L_,   "Dmw",   "DMW",   L"Dmw",   3      },
+    { L_,   "DmW",   "DMW",   L"DmW",   3      },
+    { L_,   "DMw",   "DMW",   L"DMw",   3      },
+    { L_,   "DMW",   "DMW",   L"DMW",   3      },
+
+    { L_,   "elv",   "ELV",   L"elv",   3      },
+    { L_,   "el8",   "EL8",   L"el8",   3      },
+    { L_,   "e5v",   "E5V",   L"e5v",   3      },
+    { L_,   "e58",   "E58",   L"e58",   3      },
+    { L_,   "1lv",   "1LV",   L"1lv",   3      },
+    { L_,   "1l8",   "1L8",   L"1l8",   3      },
+    { L_,   "15v",   "15V",   L"15v",   3      },
+    { L_,   "158",   "158",   L"158",   3      },
+
+    { L_,   "fnu",   "FNU",   L"fnu",   3      },
+    { L_,   "fn}",   "FN}",   L"fn}",   3      },
+    { L_,   "f?u",   "F?U",   L"f?u",   3      },
+    { L_,   "f?}",   "F?}",   L"f?}",   3      },
+    { L_,   "!nu",   "!NU",   L"!nu",   3      },
+    { L_,   "!n}",   "!N}",   L"!n}",   3      },
+    { L_,   "!?u",   "!?U",   L"!?u",   3      },
+    { L_,   "!?}",   "!?}",   L"!?}",   3      },
+};
+
+size_t NUM_DEFAULT_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+
+/// Data structure containing non-printable `char` values (including zero and
+/// negative values).
+static const struct {
+    int           d_line;         // source line number
+    const char    d_charStr[8];   // enumerator value
+    const char    d_upperStr[8];  // expected result
+    const wchar_t d_wcharStr[8];  // expected result
+    size_t        d_length;       // expected result
+} SPECIAL_DATA[] = {
+    //LINE  CHAR                UPPER               WCHAR               LEN
+    //----  -----------------   -----------------   -----------------   ---
+    // 1 character
+    { L_,   {  0            },  {  0            },  {  0            },  1   },
+    { L_,   { -1            },  { -1            },  { -1            },  1   },
+    { L_,   {  1            },  {  1            },  {  1            },  1   },
+    { L_,   {  31           },  {  31           },  {  31           },  1   },
+    { L_,   {  CHAR_MIN     },  { CHAR_MIN      },  {  CHAR_MIN     },  1   },
+    { L_,   {  CHAR_MAX     },  { CHAR_MAX      },  {  CHAR_MAX     },  1   },
+
+    // 2 characters
+    { L_,   {  0,   0       },  {  0,   0       },  {  0,   0       },  2   },
+    { L_,   {  0,  'a'      },  {  0,  'A'      },  {  0,  'a'      },  2   },
+    { L_,   { 'b',  0       },  { 'B',  0       },  { 'b',  0       },  2   },
+    { L_,   { 'b', 'a'      },  { 'B', 'A'      },  { 'b', 'a'      },  2   },
+
+    { L_,   { -1,  -2       },  { -1,  -2       },  { -1,  -2       },  2   },
+    { L_,   { -1,  'x'      },  { -1,  'X'      },  { -1,  'x'      },  2   },
+    { L_,   { 'y', -2       },  { 'Y', -2       },  { 'y', -2       },  2   },
+
+    { L_,   {  1,   2       },  {  1,   2       },  {  1,   2       },  2   },
+    { L_,   {  1,  'k'      },  {  1,  'K'      },  {  1,  'k'      },  2   },
+    { L_,   { 'l',  2       },  { 'L',  2       },  { 'l',  2       },  2   },
+
+    // 3 characters
+    { L_,   {  0,   0,   0  },  {  0,   0,   0  },  {  0,   0,   0  },  3   },
+    { L_,   {  0,   0,  'a' },  {  0,   0,  'A' },  {  0,   0,  'a' },  3   },
+    { L_,   {  0,  'b',  0  },  {  0,  'B',  0  },  {  0,  'b',  0  },  3   },
+    { L_,   {  0,  'b', 'a' },  {  0,  'B', 'A' },  {  0,  'b', 'a' },  3   },
+    { L_,   { 'c',  0,   0  },  { 'C',  0,   0  },  { 'c',  0,   0  },  3   },
+    { L_,   { 'c',  0,  'a' },  { 'C',  0,  'A' },  { 'c',  0,  'a' },  3   },
+    { L_,   { 'c', 'b',  0  },  { 'C', 'B',  0  },  { 'c', 'b',  0  },  3   },
+    { L_,   { 'c', 'b', 'a' },  { 'C', 'B', 'A' },  { 'c', 'b', 'a' },  3   },
+
+    { L_,   { -1,  -2,  -3  },  { -1,  -2,  -3  },  { -1,  -2,  -3  },  3   },
+    { L_,   { -1,  -2,  'x' },  { -1,  -2,  'X' },  { -1,  -2,  'x' },  3   },
+    { L_,   { -1,  'y', -3  },  { -1,  'Y', -3  },  { -1,  'y', -3  },  3   },
+    { L_,   { -1,  'y', 'x' },  { -1,  'Y', 'X' },  { -1,  'y', 'x' },  3   },
+    { L_,   { 'z', -2,  -3  },  { 'Z', -2,  -3  },  { 'z', -2,  -3  },  3   },
+    { L_,   { 'z', -2,  'x' },  { 'Z', -2,  'X' },  { 'z', -2,  'x' },  3   },
+    { L_,   { 'z', 'y', -3  },  { 'Z', 'Y', -3  },  { 'z', 'y', -3  },  3   },
+    { L_,   { 'z', 'y', 'x' },  { 'Z', 'Y', 'X' },  { 'z', 'y', 'x' },  3   },
+
+    { L_,   {  1,   2,   3  },  {  1,   2,   3  },  {  1,   2,   3  },  3   },
+    { L_,   {  1,   2,  'k' },  {  1,   2,  'K' },  {  1,   2,  'k' },  3   },
+    { L_,   {  1,  'l',  3  },  {  1,  'L',  3  },  {  1,  'l',  3  },  3   },
+    { L_,   {  1,  'l', 'k' },  {  1,  'L', 'K' },  {  1,  'l', 'k' },  3   },
+    { L_,   { 'm',  2,   3  },  { 'M',  2,   3  },  { 'm',  2,   3  },  3   },
+    { L_,   { 'm',  2,  'k' },  { 'M',  2,  'K' },  { 'm',  2,  'k' },  3   },
+    { L_,   { 'm', 'l',  3  },  { 'M', 'L',  3  },  { 'm', 'l',  3  },  3   },
+    { L_,   { 'm', 'l', 'k' },  { 'M', 'L', 'K' },  { 'm', 'l', 'k' },  3   },
+};
+
+size_t NUM_SPECIAL_DATA = sizeof SPECIAL_DATA / sizeof *SPECIAL_DATA;
+
+// ============================================================================
 //                       HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -135,6 +274,14 @@ class OutputIterator {
     }
 
     // MANIPULATORS
+
+    /// Set the  specified `array` as a sequence to iterate through.
+    template<size_t t_SIZE>
+    void reset(t_CHAR_TYPE (&array)[t_SIZE])
+    {
+        d_value_p = array;
+        d_end_p = array + sizeof(array) / sizeof(*array);
+    }
 
     /// Increment to the next element and return a reference providing
     /// modifiable access to this iterator.  The behavior is undefined if
@@ -197,13 +344,14 @@ class OutputIterator {
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
+    const int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose     = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 2: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -211,7 +359,9 @@ int main(int argc, char **argv)
         //: 1 Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single integer.
+        //: 1 Using `toUpper` function modify some buffer, containing character
+        //:   sequence and output it to the different character array using
+        //:   `outputFromChar`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -227,7 +377,7 @@ int main(int argc, char **argv)
 ///Example: Outputting a hexadecimal in upper case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to output a hexadecimal number to some object (e.g. some
-// character buffer) represented by the output iterator .  Additionally, we are
+// character buffer) represented by the output iterator.  Additionally, we are
 // required to have the number displayed in uppercase.
 // ```
     char         number[]     = "0x12cd";
@@ -241,8 +391,8 @@ int main(int argc, char **argv)
 // ```
 // Next, we output this uppercase number to the destination, using
 // `outputFromChar` function.  `OutputIterator` in this example is just a
-// primitive class that minimally satisfies the requirements of the
-// output iterator.
+// primitive class that minimally satisfies the requirements of the output
+// iterator.
 // ```
     char destination[8];
     std::memset(destination, 0, sizeof(destination));
@@ -256,7 +406,7 @@ int main(int argc, char **argv)
     ASSERT(destination + sourceLength == charIt.ptr());
     ASSERT(0 == std::strcmp(number, destination));
 // ```
-// Finally we demonstrate the main purpose of these functions - to unify the
+// Finally, we demonstrate the main purpose of these functions - to unify the
 // output of values to character strings and wide character strings.  All we
 // need to do is just change the template parameter:
 // ```
@@ -273,6 +423,274 @@ int main(int argc, char **argv)
     ASSERT(wDestination + sourceLength == wcharIt.ptr());
     ASSERT(0 == std::wcscmp(wcharExpected, wDestination));
 // ```
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING `outputFromChar`
+        //
+        // Concern:
+        //: 1 All `outputFromChar` specializations and overloads successfully
+        //:   outputs any `char` value (including zero, negative and control
+        //:   ones).
+        //:
+        //: 2 All `outputFromChar` specializations and overloads return a copy
+        //:   of the iterator passed to the function, shifted by the number of
+        //:   characters output.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   strings (one per row) consisting of various characters.
+        //:
+        //: 2 For each row `R` in the table of P-1:
+        //:
+        //:   1 Output string value from `R` to the `char` buffer using both
+        //:     `outputFromChar` overloads of the appropriate
+        //:     `FormatterCharUtil` specialization.
+        //:
+        //:   2 Verify the value of the returned iterator and compare the
+        //:     content of the output buffer with the expected predefined
+        //:     result.
+        //:
+        //:   3 Output string value from `R` to the `wchar_t` buffer using both
+        //:     `outputFromChar` overloads of the appropriate
+        //:     `FormatterCharUtil` specialization.
+        //:
+        //:   4 Verify the value of the returned iterator and compare the
+        //:     content of the output buffer with the expected predefined
+        //:     result.  (C-1,2)
+        //
+        // Testing:
+        //   t_ITER outputFromChar(const char *b, const char *e, t_ITER o);
+        //   t_ITER outputFromChar(const char value, t_ITER out);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING `outputFromChar`"
+                            "\n========================\n");
+
+        for (size_t i = 0; i < NUM_DEFAULT_DATA; ++i) {
+            const int      LINE              = DEFAULT_DATA[i].d_line;
+            const char    *CHAR_SOURCE_BEGIN = DEFAULT_DATA[i].d_charStr_p;
+            const wchar_t *WCHAR_EXPECTED    = DEFAULT_DATA[i].d_wcharStr_p;
+            const size_t   LENGTH            = DEFAULT_DATA[i].d_length;
+            const char    *CHAR_SOURCE_END   = CHAR_SOURCE_BEGIN + LENGTH;
+
+            if (veryVerbose) { T_ T_ P_(LINE) P(CHAR_SOURCE_BEGIN) }
+
+            // Testing sequence overload for `char`
+
+            char charDestination[8];
+            std::memset(charDestination, 0, sizeof(charDestination));
+
+            OutputIterator<char> charOut(charDestination);
+            charOut = FormatterCharUtil<char>::outputFromChar(
+                                                             CHAR_SOURCE_BEGIN,
+                                                             CHAR_SOURCE_END,
+                                                             charOut);
+
+            ASSERTV(charDestination + LENGTH == charOut.ptr());
+            ASSERTV(LINE, CHAR_SOURCE_BEGIN, charDestination,
+                    0 == std::strcmp(CHAR_SOURCE_BEGIN, charDestination));
+
+            // Testing one character overload for `char`
+
+            std::memset(charDestination, 0, sizeof(charDestination));
+            charOut.reset(charDestination);
+            for (size_t j = 0; j < LENGTH; ++j)
+            {
+                const char CHARACTER = CHAR_SOURCE_BEGIN[j];
+                charOut = FormatterCharUtil<char>::outputFromChar(CHARACTER,
+                                                                  charOut);
+
+                ASSERTV(charDestination + j + 1 == charOut.ptr());
+                ASSERTV(LINE, CHAR_SOURCE_BEGIN[j], charDestination[j],
+                        CHAR_SOURCE_BEGIN[j] == charDestination[j]);
+
+            }
+
+            // Testing sequence overload for `wchar_t`
+
+            wchar_t wcharDestination[8];
+            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+
+            OutputIterator<wchar_t> wcharOut(wcharDestination);
+            wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
+                                                             CHAR_SOURCE_BEGIN,
+                                                             CHAR_SOURCE_END,
+                                                             wcharOut);
+
+            ASSERTV(wcharDestination + LENGTH == wcharOut.ptr());
+            ASSERTV(LINE, CHAR_SOURCE_BEGIN, wcharDestination,
+                    0 == std::wcscmp(WCHAR_EXPECTED, wcharDestination));
+
+            // Testing one character overload for `wchar_t`
+
+            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            wcharOut.reset(wcharDestination);
+
+            for (size_t j = 0; j < LENGTH; ++j)
+            {
+                const char CHARACTER = CHAR_SOURCE_BEGIN[j];
+                wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
+                                                                     CHARACTER,
+                                                                     wcharOut);
+
+                ASSERTV(wcharDestination + j + 1 == wcharOut.ptr());
+                ASSERTV(LINE, WCHAR_EXPECTED[j], wcharDestination[j],
+                        WCHAR_EXPECTED[j] == wcharDestination[j]);
+            }
+
+        }
+
+        for (size_t i = 0; i < NUM_SPECIAL_DATA; ++i) {
+            const int      LINE              = SPECIAL_DATA[i].d_line;
+            const char    *CHAR_SOURCE_BEGIN = SPECIAL_DATA[i].d_charStr;
+            const wchar_t *WCHAR_EXPECTED    = SPECIAL_DATA[i].d_wcharStr;
+            const size_t   LENGTH            = SPECIAL_DATA[i].d_length;
+            const char    *CHAR_SOURCE_END   = CHAR_SOURCE_BEGIN + LENGTH;
+
+            if (veryVerbose) { T_ T_ P_(LINE) P(CHAR_SOURCE_BEGIN) }
+
+            // Testing sequence overload for `char`
+
+            char charDestination[8];
+            std::memset(charDestination, 0, sizeof(charDestination));
+
+            OutputIterator<char> charOut(charDestination);
+            charOut = FormatterCharUtil<char>::outputFromChar(
+                                                             CHAR_SOURCE_BEGIN,
+                                                             CHAR_SOURCE_END,
+                                                             charOut);
+
+            ASSERTV(charDestination + LENGTH == charOut.ptr());
+            ASSERTV(LINE, CHAR_SOURCE_BEGIN, charDestination,
+                    0 == std::strncmp(CHAR_SOURCE_BEGIN,
+                                      charDestination,
+                                      LENGTH));
+
+            // Testing one character overload for `char`
+
+            std::memset(charDestination, 0, sizeof(charDestination));
+            charOut.reset(charDestination);
+            for (size_t j = 0; j < LENGTH; ++j)
+            {
+                const char CHARACTER = CHAR_SOURCE_BEGIN[j];
+                charOut = FormatterCharUtil<char>::outputFromChar(CHARACTER,
+                                                                  charOut);
+
+                ASSERTV(charDestination + j + 1 == charOut.ptr());
+                ASSERTV(LINE, CHAR_SOURCE_BEGIN[j], charDestination[j],
+                        CHAR_SOURCE_BEGIN[j] == charDestination[j]);
+
+            }
+
+            // Testing sequence overload for `wchar_t`
+
+            wchar_t wcharDestination[8];
+            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+
+            OutputIterator<wchar_t> wcharOut(wcharDestination);
+            wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
+                                                             CHAR_SOURCE_BEGIN,
+                                                             CHAR_SOURCE_END,
+                                                             wcharOut);
+
+            ASSERTV(wcharDestination + LENGTH == wcharOut.ptr());
+            ASSERTV(LINE, CHAR_SOURCE_BEGIN, wcharDestination,
+                    0 == std::wcsncmp(WCHAR_EXPECTED,
+                                      wcharDestination,
+                                      LENGTH));
+
+            // Testing one character overload for `wchar_t`
+
+            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            wcharOut.reset(wcharDestination);
+
+            for (size_t j = 0; j < LENGTH; ++j)
+            {
+                const char CHARACTER = CHAR_SOURCE_BEGIN[j];
+                wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
+                                                                     CHARACTER,
+                                                                     wcharOut);
+
+                ASSERTV(wcharDestination + j + 1 == wcharOut.ptr());
+                ASSERTV(LINE, WCHAR_EXPECTED[j], wcharDestination[j],
+                        WCHAR_EXPECTED[j] == wcharDestination[j]);
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING `toUpper`
+        //
+        // Concern:
+        //: 1 `toUpper` capitalizes any lowercase alphabet character.
+        //:
+        //: 2 All non-alphabet characters remain unaffected.
+        //:
+        //: 3 Conversion occurs in-place.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   strings (one per row) consisting of various characters (alphabet
+        //:   and non-alphabet) of both type cases (lowercase and uppercase).
+        //:
+        //: 2 For each row `R` in the table of P-1:
+        //:
+        //:   1 Copy string value from `R` to the `char` buffer.
+        //:
+        //:   2 Modify this buffer using `toUpper` function.
+        //:
+        //:   3 Compare the content of the buffer with the expected predefined
+        //:     result.  (C-1..3)
+        //
+        // Testing:
+        //   void toUpper(char *begin, const char *end);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING `toUpper`"
+                            "\n=================\n");
+
+        char buffer[8];
+
+        for (size_t i = 0; i < NUM_DEFAULT_DATA; ++i) {
+            const int     LINE     = DEFAULT_DATA[i].d_line;
+            const char   *ORIGINAL = DEFAULT_DATA[i].d_charStr_p;
+            const char   *EXPECTED = DEFAULT_DATA[i].d_upperStr_p;
+            const size_t  LENGTH   = DEFAULT_DATA[i].d_length;
+
+            if (veryVerbose) { T_ T_ P_(LINE) P(ORIGINAL) }
+
+            std::memset(buffer, 0, sizeof(buffer));
+            std::strcpy(buffer, ORIGINAL);
+
+            char *buffernBegin = buffer;
+            char *bufferEnd    = buffer + LENGTH;
+
+            FormatterCharUtil<char>::toUpper(buffernBegin, bufferEnd);
+
+            ASSERTV(LINE, EXPECTED, buffer,
+                    0 == std::strcmp(EXPECTED, buffer));
+        }
+
+        for (size_t i = 0; i < NUM_SPECIAL_DATA; ++i) {
+            const int     LINE     = SPECIAL_DATA[i].d_line;
+            const char   *ORIGINAL = SPECIAL_DATA[i].d_charStr;
+            const char   *EXPECTED = SPECIAL_DATA[i].d_upperStr;
+            const size_t  LENGTH   = SPECIAL_DATA[i].d_length;
+
+            if (veryVerbose) { T_ T_ P_(LINE) P(ORIGINAL) }
+
+            std::memset(buffer, 0, sizeof(buffer));
+            std::strcpy(buffer, ORIGINAL);
+
+            char *bufferBegin = buffer;
+            char *bufferEnd   = buffer + LENGTH;
+
+            FormatterCharUtil<char>::toUpper(bufferBegin, bufferEnd);
+
+            ASSERTV(LINE, EXPECTED, buffer,
+                    0 == std::strcmp(EXPECTED, buffer));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
