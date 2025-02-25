@@ -211,6 +211,15 @@ void Review::failByLog(const ReviewViolation& violation)
             file = "(* Empty File Name *)";
         }
 
+        // remove full path from file, just output the base file name as part
+        // of the review failure message
+        const char *shortfile = file;
+        for (const char * rest = file; *rest != '\0'; ++rest) {
+            if (*rest == '/' || *rest == '\\') {
+                shortfile = rest + 1;
+            }
+        }
+
         const char *level = violation.reviewLevel();
         if (!level) {
             level = "(* Unspecified Level *)";
@@ -223,8 +232,11 @@ void Review::failByLog(const ReviewViolation& violation)
             Log::logFormattedMessage(LogSeverity::e_ERROR,
                                      file,
                                      violation.lineNumber(),
-                                     "BSLS_REVIEW failure: (level:%s"
+                                     "BSLS_REVIEW failure: (%s:%d"
+                                     " level:%s"
                                      " skipped:%d) '%s'%s",
+                                     shortfile,
+                                     violation.lineNumber(),
                                      level,
                                      skipped,
                                      comment,
@@ -234,7 +246,10 @@ void Review::failByLog(const ReviewViolation& violation)
             Log::logFormattedMessage(LogSeverity::e_ERROR,
                                      file,
                                      violation.lineNumber(),
-                                     "BSLS_REVIEW failure: (level:%s) '%s'%s",
+                                     "BSLS_REVIEW failure: (%s:%d"
+                                     " level:%s) '%s'%s",
+                                     shortfile,
+                                     violation.lineNumber(),
                                      level,
                                      comment,
                                      stack);

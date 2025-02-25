@@ -587,8 +587,8 @@ inline int FunctionsV2::myFunc(int x, int y)
 // The log messages you should look for are those produced by `bsls::Review`s
 // default review failure handler and will be similar to:
 // ```
-//  ERROR myfunction.h::17 BSLS_REVIEW failure (level:R-DBG): `x > 0`
-//                                     Please run "/bb/bin/showfunc.tsk ...
+// ERROR myfunction.h:17 BSLS_REVIEW failure (myfunction.h:17 level:R-DBG): 
+//                                'x > 0' Please run "/bb/bin/showfunc.tsk ...
 // ```
 // `showfunc.tsk` is a Bloomberg application that can be used (along with the
 // task binary) to convert the reported stack addresses to a more traditional
@@ -2232,12 +2232,17 @@ void test_case_7() {
                 ASSERT( IS_POWER_OF_TWO( i+1 ) );
 
                 LogProfile &profile = HandlerLoggingTest::lastProfile();
-                LOOP2_ASSERT( line, profile.d_line, line == profile.d_line );
+                ASSERTV( line, profile.d_line, line == profile.d_line );
 
                 const char *file = __FILE__;
 
-                LOOP2_ASSERT(file, profile.d_file,
-                             0 == std::strcmp(file, profile.d_file));
+                ASSERTV(file, profile.d_file,
+                        0 == std::strcmp(file, profile.d_file));
+
+                char shorttext[32];
+                sprintf(shorttext,"(bsls_review.t.cpp:%d", line);
+                ASSERTV(shorttext, profile.d_text,
+                        NULL != std::strstr(profile.d_text,shorttext));
 
                 if (skipped > 0) {
                     char skipText[32];
