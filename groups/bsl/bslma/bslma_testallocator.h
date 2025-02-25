@@ -831,8 +831,8 @@ class TestAllocatorStashedStatistics {
 
     /// Set the `origin` to a null pointer to indicate that this stash has been
     /// restored and must not be used again with
-    /// `TestAllocator::restoreStatistics`.  The behavior is undefined unless
-    /// this method is called only once during the lifetime of this object.
+    /// `TestAllocator::restoreStatistics`.  The behavior is undefined if this
+    /// function has been previously invoked on this object.
     void markRestored();
 
     /// Call `origin->restoreStatistics(*this)`.
