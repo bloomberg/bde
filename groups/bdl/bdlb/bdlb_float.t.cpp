@@ -8,12 +8,6 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-// xlC 8 has a more-or-less C99-compliant math library that we can
-// use for more thorough testing.
-#include <bsl_c_math.h>
-#endif
-
 using namespace BloombergLP;
 
 // ============================================================================
@@ -124,13 +118,7 @@ static bool veryVeryVerbose = 0;
 #define TEST_FLOAT_SIGNALING_NAN
 #define TEST_DOUBLE_SIGNALING_NAN
 
-#if defined(BSLS_PLATFORM_CPU_POWERPC)
-// PowerPC starts to "show" `float` signaling NaN values with xlC 16 compiler,
-// but not reliably enough for testing.
-
-# undef TEST_FLOAT_SIGNALING_NAN
-
-#elif defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 // Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
 // are performed on SNaNs, especially when x87 math is used, making the tests
 // for SNaN's non-deterministic.  See internal-ticket D37511035.
@@ -750,27 +738,6 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(-dnan));
         ASSERT(! Obj::isSignalingNan(-f));
         ASSERT(! Obj::isSignalingNan(-d));
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-        // Extra testing to ensure consistency with native C math library
-        ASSERT(  isinf(finf));
-        ASSERT(  isinf(dinf));
-        ASSERT(! isinf(fnan));
-        ASSERT(! isinf(dnan));
-        ASSERT(! isinf(fsnan));
-        ASSERT(! isinf(dsnan));
-        ASSERT(! isinf(f));
-        ASSERT(! isinf(d));
-
-        ASSERT(! isnan(finf));
-        ASSERT(! isnan(dinf));
-        ASSERT(  isnan(fnan));
-        ASSERT(  isnan(dnan));
-        ASSERT(  isnan(fsnan));
-        ASSERT(  isnan(dsnan));
-        ASSERT(! isnan(f));
-        ASSERT(! isnan(d));
-#endif
 
         if (veryVerbose) {
 #if defined(TEST_FLOAT_SIGNALING_NAN)

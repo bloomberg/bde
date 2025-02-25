@@ -103,13 +103,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
 
-#ifdef BSLS_PLATFORM_CMP_IBM    // Use IBM intrinsics
-#include <builtins.h>
-# define BDLB_BITUTIL_USE_IBM_INTRINSICS 1
-    // Use the intrinsics that map directly to CPU instructions on IBM
-#endif
-
-
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 /// Use optimal intrinsics that know about CPU instruction sets on compilers
 /// the recognize the Gnu intrinsic spellings.
@@ -321,9 +314,7 @@ int BitUtil::log2(unsigned long value)
 inline
 int BitUtil::numBitsSet(unsigned int value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __popcnt4(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcount(value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
 # if !defined(BDLB_BITUTIL_USE_MSVC_COUNT_ONE_BITS)
@@ -339,9 +330,7 @@ int BitUtil::numBitsSet(unsigned int value)
 inline
 int BitUtil::numBitsSet(unsigned long long value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __popcnt8(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcountll(value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
     #if !defined(BDLB_BITUTIL_USE_MSVC_COUNT_ONE_BITS)
@@ -370,9 +359,7 @@ int BitUtil::numBitsSet(unsigned long value)
 inline
 int BitUtil::numLeadingUnsetBits(unsigned int value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __cntlz4(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
@@ -389,9 +376,7 @@ int BitUtil::numLeadingUnsetBits(unsigned int value)
 inline
 int BitUtil::numLeadingUnsetBits(unsigned long long value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __cntlz8(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clzll(0)' is undefined
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
 #elif defined(BDLB_BITUTIL_USE_MSVC_INTRINSICS)
@@ -423,9 +408,7 @@ int BitUtil::numLeadingUnsetBits(unsigned long value)
 inline
 int BitUtil::numTrailingUnsetBits(unsigned int value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __cnttz4(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     enum {
         k_INT32_MASK = k_BITS_PER_INT32 - 1
     };
@@ -448,9 +431,7 @@ int BitUtil::numTrailingUnsetBits(unsigned int value)
 inline
 int BitUtil::numTrailingUnsetBits(unsigned long long value)
 {
-#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
-    return __cnttz8(value);
-#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
+#if defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     enum {
         k_INT64_MASK = k_BITS_PER_INT64 - 1,
         k_INT32_MASK = k_BITS_PER_INT32 - 1

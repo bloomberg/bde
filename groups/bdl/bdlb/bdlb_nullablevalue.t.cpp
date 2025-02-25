@@ -256,11 +256,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT-SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)
-# define BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION 1
-#endif
-
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
@@ -281,38 +276,6 @@ const int   MAX_NUM_PARAMS = 5; // max in simulation of variadic templates
                                  "123456789012345678901234567890123"
 #endif
 BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
-
-// NOTE: A bug in the IBM xlC compiler (Version: 12.01.0000.0012) was worked
-// around with the following otherwise unnecessary overload added to the
-// interface:
-// ```
-//  TYPE& makeValue(const TYPE& value);
-// ```
-// However, it was decided that we would not change the interface to cater to
-// xlC and had the client modify their code instead.
-//
-// The obscure test case (distilled from DRQS 98587609) that demonstrates the
-// issue could not be replicated in the test driver because it apparently
-// requires two translation units (`paramutil.cpp` and `client.cpp` below):
-// ```
-//  // paramutil.h
-//  namespace ParamUtil {
-//      extern const char L_SOME_STRING[];
-//  }
-//
-//  // paramutil.cpp
-//  #include <paramutil.h>
-//  namespace ParamUtil {
-//      const char L_SOME_STRING[] = "L_SOME_STRING";
-//  }
-//
-//  // client.cpp
-//  #include <paramutil.h>
-//  ...
-//      bdlb::NullableValue<bsl::string> mX;
-//      mX.makeValue(ParamUtil::L_SOME_STRING);
-//  ...
-// ```
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -11871,10 +11834,8 @@ int main(int argc, char *argv[])
                 ObjType mY;  const ObjType& Y = mY;
                 ASSERT( Y.isNull());
 
-#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
                 mY.makeValue(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
-#endif
             }
         }
 
@@ -12075,10 +12036,8 @@ int main(int argc, char *argv[])
                 const ObjType X(&dummyFunction);  // explicitly take address
                 ASSERT(!X.isNull());
 
-#if !defined(BDLB_FUNCTION_DOES_NOT_DECAY_TO_POINTER_TO_FUNCTION)
                 const ObjType Y(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
-#endif
             }
 
             if (verbose) cout <<

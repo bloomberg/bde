@@ -1223,18 +1223,9 @@ struct VerifyExplicitConstructorUtil {
     /// definition of `k_PASSED` below.
     static LargerThanChar testcall(const TESTED_TYPE&);
     static char testcall(...);
-#ifdef BSLS_PLATFORM_CMP_AIX
-#pragma  report(disable, "1540-2924")
-    // 1540-2924 (W) Cannot pass an argument of non - POD class type "<type>"
-    // through ellipsis.  Obviously no argument is passed through ellipsis,
-    // because `testcall` is within `sizeof`, a *non-evaluated* context.
-#endif
     static const bool k_PASSED =
         sizeof(testcall(            U_DECLVAL(PARAM_TYPE))) == sizeof(char) &&
         sizeof(testcall(TESTED_TYPE(U_DECLVAL(PARAM_TYPE)))) > sizeof(char);
-#ifdef BSLS_PLATFORM_CMP_AIX
-#pragma  report(pop)
-#endif
 #undef U_PARAM
 };
 
