@@ -20,26 +20,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Example: Testing a formatter
 /// - - - - - - - - - - - - - -
-// Suppose we need to test some formatter meeting `BasicFormatter`
-// requirements.
-//
-// First we define our `IntegerFormatter` template class.  Actually the
-// implementation features are not of particular importance.  In this case,
-// what is important to us is that the class contains `parse` and `format`
-// methods with the expected interfaces. In place of this class, we can
-// always substitute one of the existing `bsl::formatter` specializations, such
-// as `bsl::formatter<long, char>` or `bsl::formatter<bool, wchar_t>`.
+// Suppose we want to test `format` function of some formatter that meets
+// `BasicFormatter` requirements.  For example a formatter that formats integer
+// values:
 // ```
 //  template <class t_VALUE>
 //  class IntegerFormatter {
-//      // DATA
-//      bsl::string_view d_resultString;  // pre-defined result string
-//
 //    public:
 //      // CREATORS
 //
-//      /// Creates the formatter having the specified 'resultString'.
-//      IntegerFormatter(const char* resultString);
+//      /// Create a formatter object.
+//      IntegerFormatter();
 //
 //      // MANIPULATORS
 //
@@ -61,70 +52,35 @@ BSLS_IDENT("$Id: $")
 //                                      t_FORMAT_CONTEXT& formatContext) const;
 //  };
 // ```
-// Next we define our `ParseContext` template class.  As with the formatter, in
-// this example we are interested in the expected interface, not the actual
-// implementation:
+// First, we create an object of our formatter:
 // ```
-//  template <class t_CHAR>
-//  struct ParseContext {
-//    public:
-//      // TYPES
-//      typedef typename bsl::basic_string_view<t_CHAR>::const_iterator
-//                                                              const_iterator;
-//      typedef const_iterator                                  iterator;
+//  IntegerFormatter<int> formatter;
+// ```
+// Next, we specify a value to format and define expected result of formatting.
+// In this example we will skip the spec parsing step, but let's say we want to
+// format the number `42` with the following spec: "*<5x".
+// ```
+//  const int     value                = 42;
+//  const char   *expectedResult       = "2a***";
+//  const size_t  expectedResultLength = std::strlen(expectedResult);
+// ```
+// Now create a `MockFormatContext` and format the value using our formatter:
+// ```
+//  typedef bslfmt::MockFormatContext<char> FormatContext;
 //
-//    private:
-//      // DATA
-//      iterator d_begin;  // beginning of the unparsed part of the format spec
-//      iterator d_end;    // end of the unparsed part of the format spec
-//
-//      // NOT IMPLEMENTED
-//      ParseContext(const ParseContext&) BSLS_KEYWORD_DELETED;
-//      ParseContext& operator=(const ParseContext&) BSLS_KEYWORD_DELETED;
-//
-//    public:
-//      // CREATORS
-//      /// Create an object having the specified `fmt` as a format
-//      /// specification and the specified `numArgs`.
-//      explicit ParseContext(bsl::basic_string_view<t_CHAR> fmt,
-//                            size_t                         numArgs = 0);
-//
-//      // MANIPULATORS
-//      /// Update the held iterator to the unparsed portion of the format
-//      /// string to be the specified `it`. Subsequent calls to `begin` will
-//      /// return this value.
-//      BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
-//
-//      // ACCESSORS
-//      /// Return an iterator to the end of the format specification.
-//      const_iterator end() const;
-//  };
-// ```
-// Then, define format specification, value to output and the expected
-// operation result:
-// ```
-//  const char *formatSpecification = "*<5x";
-//  const char *expectedResult      = "2a***";
-//  const int   value               = 42;
-// ```
-// Next, create a `ParseContext` object based on the defined specification and
-// parse it:
-// ```
-//  ParseContext<char> pc(formatSpecification, 1);
-//
-//  IntegerFormatter<int> formatter(expectedResult);
-//  pc.advance_to(formatter.parse(pc));
-// ```
-// Now create a `MockFormatContext` and format previously specified value using
-// our formatter:
-// ```
-//  bslfmt::MockFormatContext<char> mfc(value, 0, 0);
+//  FormatContext           mfc(value);
+//  FormatContext::iterator begin  = mfc.out();
 //
 //  mfc.advance_to(bsl::as_const(formatter).format(value, mfc));
+//  FormatContext::iterator end  = mfc.out();
 // ```
-// Finally check the resulting string:
+// Finally, verify that `format` function returns the correct past-the-end
+// iterator and produces the expected result string:
 // ```
-//  assert(expectedResult == mfc.finalString());
+//  const size_t actualResultLength = static_cast<size_t>(end.rawPointer() -
+//                                                        begin.rawPointer());
+//  ASSERT(expectedResultLength == actualResultLength);
+//  assert(expectedResult       == mfc.finalString());
 // ```
 
 #include <bslscm_version.h>
@@ -132,8 +88,10 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_format_arg.h>
 #include <bslfmt_format_args.h>
 #include <bslfmt_format_context.h>
+#include <bslfmt_formatterbase.h>
 
 #include <bsls_keyword.h>
+#include <bsls_compilerfeatures.h>
 
 #include <bslstl_array.h>
 #include <bslstl_stringview.h>
@@ -195,7 +153,9 @@ class MockFormatContext_Iterator {
                   // class MockFormatContext
                   // =======================
 
-/// This
+/// This unconstrained (value-semantic) class provides an access to the current
+/// state of the format operation and is used for testing `bsl::formatter`
+/// specializations.
 template <class t_CHAR>
 class MockFormatContext {
   public:
@@ -218,9 +178,19 @@ class MockFormatContext {
     t_CHAR   d_buffer[k_BUFFER_SIZE];  // output buffer
     iterator d_iterator;               // output iterator
 
+  private:
+    // NOT IMPLEMENTED
+    MockFormatContext(const MockFormatContext& original);
+    MockFormatContext& operator=(const MockFormatContext& original);
+
   public:
     // TYPES
     typedef t_CHAR char_type;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    template <class t_TYPE>
+    using formatter_type = bsl::formatter<t_TYPE, t_CHAR>;
+#endif
 
     // CREATORS
 

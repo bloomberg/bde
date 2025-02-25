@@ -6,6 +6,7 @@
 #include <bslstl_string.h>
 
 #include <stdio.h>
+#include <string.h>  // `strlen`
 
 using namespace BloombergLP;
 
@@ -82,26 +83,17 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example: Testing an integer formatter
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose we need to test some formatter meeting `BasicFormatter`
-// requirements.
-//
-// First we define our `IntegerFormatter` template class.  Actually the
-// implementation features are not of particular importance.  In this case,
-// what is important to us is that the class contains `parse` and `format`
-// methods with the expected interfaces. In place of this class, we can
-// always substitute one of the existing `bsl::formatter` specializations, such
-// as `bsl::formatter<long, char>` or `bsl::formatter<bool, wchar_t>`.
+// Suppose we want to test `format` function of some formatter that meets
+// `BasicFormatter` requirements.  For example a formatter that formats integer
+// values:
 // ```
     template <class t_VALUE>
     class IntegerFormatter {
-        // DATA
-        bsl::string_view d_resultString;  // pre-defined result string
-
       public:
         // CREATORS
 
-        /// Creates the formatter having the specified 'resultString'.
-        IntegerFormatter(const char* resultString);
+        /// Create a formatter object.
+        IntegerFormatter();
 
         // MANIPULATORS
 
@@ -123,45 +115,6 @@ void aSsErT(bool condition, const char *message, int line)
                                         t_FORMAT_CONTEXT& formatContext) const;
     };
 // ```
-// Next we define our `ParseContext` template class.  As with the formatter, in
-// this example we are interested in the expected interface, not the actual
-// implementation:
-// ```
-    template <class t_CHAR>
-    struct ParseContext {
-      public:
-        // TYPES
-        typedef typename bsl::basic_string_view<t_CHAR>::const_iterator
-                                                                const_iterator;
-        typedef const_iterator                                  iterator;
-
-      private:
-        // DATA
-        iterator d_begin;  // beginning of the unparsed part of the format spec
-        iterator d_end;    // end of the unparsed part of the format spec
-
-        // NOT IMPLEMENTED
-        ParseContext(const ParseContext&) BSLS_KEYWORD_DELETED;
-        ParseContext& operator=(const ParseContext&) BSLS_KEYWORD_DELETED;
-
-      public:
-        // CREATORS
-        /// Create an object having the specified `fmt` as a format
-        /// specification and the specified `numArgs`.
-        explicit ParseContext(bsl::basic_string_view<t_CHAR> fmt,
-                              size_t                         numArgs = 0);
-
-        // MANIPULATORS
-        /// Update the held iterator to the unparsed portion of the format
-        /// string to be the specified `it`. Subsequent calls to `begin` will
-        /// return this value.
-        BSLS_KEYWORD_CONSTEXPR_CPP20 void advance_to(const_iterator it);
-
-        // ACCESSORS
-        /// Return an iterator to the end of the format specification.
-        const_iterator end() const;
-    };
-// ```
 
                          // ----------------------
                          // class IntegerFormatter
@@ -169,8 +122,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // CREATORS
 template <class t_VALUE>
-IntegerFormatter<t_VALUE>::IntegerFormatter(const char* resultString)
- : d_resultString(resultString)
+IntegerFormatter<t_VALUE>::IntegerFormatter()
 {}
 
 // MANIPULATORS
@@ -193,39 +145,11 @@ typename t_FORMAT_CONTEXT::iterator IntegerFormatter<t_VALUE>::format(
 
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
-    outIterator = bsl::copy(d_resultString.data(),
-                            d_resultString.data() + d_resultString.size(),
-                            outIterator);
+    const char   *result       = "2a***";
+    const size_t  resultLength = std::strlen(result);
+
+    outIterator = bsl::copy(result, result + resultLength, outIterator);
     return outIterator;
-}
-
-                         // ------------------
-                         // class ParseContext
-                         // ------------------
-
-// CREATORS
-template <class t_CHAR>
-ParseContext<t_CHAR>::ParseContext(bsl::basic_string_view<t_CHAR> fmt,
-                                   size_t                         numArgs)
-: d_begin(fmt.begin())
-, d_end(fmt.end())
-{
-    (void)numArgs;
-}
-
-// MANIPULATORS
-template <class t_CHAR>
-BSLS_KEYWORD_CONSTEXPR_CPP20 void ParseContext<t_CHAR>::advance_to(
-                                                             const_iterator it)
-{
-    d_begin = it;
-}
-
-// ACCESSORS
-template <class t_CHAR>
-typename ParseContext<t_CHAR>::const_iterator ParseContext<t_CHAR>::end() const
-{
-    return d_end;
 }
 
 //=============================================================================
@@ -256,31 +180,35 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, define format specification, value to output and the expected
-// operation result:
+// First, we create an object of our formatter:
 // ```
-    const char *formatSpecification = "*<5x";
-    const char *expectedResult      = "2a***";
-    const int   value               = 42;
+    IntegerFormatter<int> formatter;
 // ```
-// Next, create a `ParseContext` object based on the defined specification and
-// parse it:
+// Next, we specify a value to format and define expected result of formatting.
+// In this example we will skip the spec parsing step, but let's say we want to
+// format the number `42` with the following spec: "*<5x".
 // ```
-    ParseContext<char> pc(formatSpecification, 1);
+    const int     value                = 42;
+    const char   *expectedResult       = "2a***";
+    const size_t  expectedResultLength = std::strlen(expectedResult);
+// ```
+// Now create a `MockFormatContext` and format the value using our formatter:
+// ```
+    typedef bslfmt::MockFormatContext<char> FormatContext;
 
-    IntegerFormatter<int> formatter(expectedResult);
-    pc.advance_to(formatter.parse(pc));
-// ```
-// Now create a `MockFormatContext` and format previously specified value using
-// our formatter:
-// ```
-    bslfmt::MockFormatContext<char> mfc(value, 0, 0);
+    FormatContext           mfc(value);
+    FormatContext::iterator begin  = mfc.out();
 
     mfc.advance_to(bsl::as_const(formatter).format(value, mfc));
+    FormatContext::iterator end  = mfc.out();
 // ```
-// Finally check the resulting string:
+// Finally, verify that `format` function returns the correct past-the-end
+// iterator and produces the expected result string:
 // ```
-    ASSERT(expectedResult == mfc.finalString());
+    const size_t actualResultLength = static_cast<size_t>(end.rawPointer() -
+                                                          begin.rawPointer());
+    ASSERT(expectedResultLength == actualResultLength);
+    ASSERT(expectedResult       == mfc.finalString());
 // ```
       } break;
       case 1: {
@@ -298,11 +226,10 @@ int main(int argc, char **argv)
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-        if (verbose) printf("\tMockFormatContext_Iterator\n");
+        if (verbose) printf("\tTesting `MockFormatContext_Iterator`.\n");
         {
             char arr[] = {0, 1, 2, 3, 4};
             int  size  = static_cast<int>(sizeof arr / sizeof *arr);
@@ -334,7 +261,7 @@ int main(int argc, char **argv)
 #endif
         }
 
-        if (verbose) printf("\tMockFormatContext\n");
+        if (verbose) printf("\tTesting `MockFormatContext`.\n");
         {
             typedef bslfmt::MockFormatContext<char>     CharMockFormatContext;
             typedef bslfmt::MockFormatContext_Iterator<char>
@@ -385,6 +312,28 @@ int main(int argc, char **argv)
             ASSERTV( mockFormatContext3.arg(2));
             ASSERTV( mockFormatContext3.arg(3));
             ASSERTV(!mockFormatContext3.arg(4));
+        }
+
+        if (verbose)
+            printf("\tTesting `MockFormatContext::formatter_type`.\n");
+        {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+            typedef bslfmt::MockFormatContext<char>     CharMockFormatContext;
+            typedef bslfmt::MockFormatContext<wchar_t> WcharMockFormatContext;
+            ASSERT(true ==
+                   (bsl::is_same<
+                       bsl::formatter<int, char>,
+                       CharMockFormatContext::formatter_type<int> >::value));
+            ASSERT(
+                  true ==
+                  (bsl::is_same<
+                      bsl::formatter<float, wchar_t>,
+                      WcharMockFormatContext::formatter_type<float> >::value));
+#else
+            if (verbose)
+                printf("\t\t`MockFormatContext::formatter_type` is not "
+                       "supported.\n");
+#endif
         }
       } break;
       default: {
