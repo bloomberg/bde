@@ -4,6 +4,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_asserttest.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
@@ -94,9 +95,11 @@ using namespace BloombergLP;
 // [11] friend t_OS& operator<<(t_OS& stream, const TestAllocator& ta);
 // [11] void print() const;
 // [ 2] int status() const;
+// [16] TestAllocatorStashedStatistics stashStatistics();
+// [16] void restoreStatistics(const TestAllocatorStashedStatistics&);
 //-----------------------------------------------------------------------------
-// [17] USAGE EXAMPLE
-// [16] DRQS 129104858
+// [18] USAGE EXAMPLE
+// [17] DRQS 129104858
 // [ 1] BASIC TEST
 // [ 4] SIMPLE STREAMING
 // [ 5] CONCERN: exception is thrown after allocation limit is exceeded.
@@ -160,6 +163,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -870,6 +884,28 @@ bool verifyBlockList(const bslma::TestAllocator&    ta,
     return true;
 }
 
+/// A guard object that stashes and restores test allocator statistics to make
+/// verification code easier on the eyes, and closer to what it the final use
+/// will look like.  See also `bslma::TestAllocatorStatisticsGuard`.  Notice
+/// that this object is a `struct` to indicate that it is not meant for
+/// production use and to allow access to the stashed data in case it is needed
+/// in verification.
+struct StatisticsStashGuard {
+    // DATA
+    bslma::TestAllocatorStashedStatistics d_stash;
+
+    // CREATORS
+    StatisticsStashGuard(bslma::TestAllocator *ta)
+    : d_stash(ta->stashStatistics())
+    {
+    }
+
+    ~StatisticsStashGuard()
+    {
+        d_stash.restore();
+    }
+};
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -890,7 +926,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1015,7 +1051,7 @@ int main(int argc, char *argv[])
 // indicate whether or not exceptions are enabled.
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // DRQS 129104858
         //   Ensure that the unification of the tracing strings do not change
@@ -1093,6 +1129,206 @@ int main(int argc, char *argv[])
 
             LOOP1_ASSERT(ti, 0 == std::strcmp(preBuf, postBuf));
         }
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // STASHING STATISTICS
+        //
+        // Concerns:
+        // 1. Statistics are stashed and reset as expected (see contract).
+        //
+        // 2. Maximum are unchanged if in the scope of stash-restore they are
+        //    not exceeded, but they are set to the scope's maximum if those
+        //    values are larger.
+        //
+        // 3. All the other statistics values are restored properly.
+        //
+        // 4. Negative testing:
+        //
+        //    1. Attempt to restore statistics stashed from test allocator A to
+        //       a test allocator B will assert in proper build modes.
+        //
+        //    2. Attempt to restore statistics twice will assert in proper
+        //       build modes.
+        //
+        // Plan:
+        // 1. Create a `TestAllocator` on which the methods will be called.
+        //
+        // 2. Allocate and deallocate memory to create a situation where the
+        //    maximums are larger than the in-use values.
+        //
+        // 3. Use the `StatisticsGuard` helper class to stash and restore
+        //    statistics for a scope.  In that scope
+        //
+        //    1. Verify that the statistics have been reset as expected.
+        //
+        //    2. Allocate and deallocate memory that does not raise the stashed
+        //       maximums.
+        //
+        // 5. After the scope verify that statistics are restored correctly.
+        //
+        // 6. Use the `StatisticsGuard` helper class to stash and restore
+        //    statistics for a scope.  In that scope
+        //
+        //    1. Allocate and deallocate memory that should raise the stashed
+        //       maximums.  Use a nested scope with another guard to ensure
+        //       nesting works.
+        //
+        // 7. After the scope end verify that the maximums are not overwritten
+        //    by the stashed lower values.
+        //
+        // 8. Negative testing, if build modes where exceptions and asserts are
+        //    enabled:
+        //
+        //    1. Create two test allocators `ta` and `tb`.  Verify that
+        //       statistics stashed from `ta` won't restore into `tb` due to
+        //       assertion failure.
+        //
+        //    2. Create a test allocators `ta`, stash its statistics, restore
+        //       it then verify that it won't restore a second time due to
+        //       assertion failure.
+        //
+        // Testing:
+        //   TestAllocatorStashedStatistics stashStatistics();
+        //   void restoreStatistics(const TestAllocatorStashedStatistics&);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTASHING STATISTICS"
+                            "\n===================\n");
+
+        bslma::TestAllocator mX;
+
+        // Step 1, setting up maximums above the in-use values
+        void* p1 = mX.allocate(1024);
+        void* p2 = mX.allocate(1024);
+        void* p3 = mX.allocate(1024);
+        mX.deallocate(mX.allocate(1024));
+        mX.deallocate(p3);
+
+        ASSERTV(mX.numAllocations(),   4 == mX.numAllocations());
+        ASSERTV(mX.numDeallocations(), 2 == mX.numDeallocation());
+
+        ASSERTV(mX.numBlocksTotal(),   4 == mX.numBlocksTotal());
+        ASSERTV(mX.numBytesTotal(), 4096 == mX.numBytesTotal());
+
+        ASSERTV(mX.numMismatches(),   0 == mX.numMismatches());
+        ASSERTV(mX.numBoundsErrors(), 0 == mX.numBoundsErrors());
+
+        ASSERTV(mX.numBlocksInUse(),   2 == mX.numBlocksInUse());
+        ASSERTV(mX.numBytesInUse(), 2048 == mX.numBytesInUse());
+
+        ASSERTV(mX.numBlocksMax(),   4 == mX.numBlocksMax());
+        ASSERTV(mX.numBytesMax(), 4096 == mX.numBytesMax());
+
+        if (veryVerbose) puts("Scope maximums are smaller than stashed");
+        {
+            StatisticsStashGuard guard(&mX);
+            const bslma::TestAllocatorStashedStatistics& saved = guard.d_stash;
+
+            // Totals are the in-use values after resetting
+            ASSERTV(mX.numAllocations(),
+                    mX.numBlocksInUse() == mX.numAllocations());
+            ASSERTV(mX.numDeallocations(),
+                    0 == mX.numDeallocation());
+            ASSERTV(mX.numBlocksTotal(),
+                    mX.numBlocksInUse() == mX.numBlocksTotal());
+            ASSERTV(mX.numBytesTotal(),
+                    mX.numBytesInUse() == mX.numBytesTotal());
+
+            // Errors are set to zero
+            ASSERTV(mX.numMismatches(),   0 == mX.numMismatches());
+            ASSERTV(mX.numBoundsErrors(), 0 == mX.numBoundsErrors());
+
+            // Maximums are the in-use values after reset
+            ASSERTV(mX.numBlocksMax(),
+                    mX.numBlocksInUse() == mX.numBlocksMax());
+            ASSERTV(mX.numBytesMax(),
+                    mX.numBytesInUse() == mX.numBytesMax());
+
+            // Saved maximums are the original values
+            ASSERTV(saved.numBlocksMax(),   4 == saved.numBlocksMax());
+            ASSERTV(saved.numBytesMax(), 4096 == saved.numBytesMax());
+
+            // Allocate and deallocate memory but keep the maximums below the
+            // stashed values (so we need to restore them)
+            mX.deallocate(mX.allocate(1024));
+
+            ASSERTV(mX.numAllocations(),
+                    mX.numBlocksInUse() + 1 == mX.numAllocations());
+            ASSERTV(mX.numDeallocations(),
+                    1 == mX.numDeallocation());
+            ASSERTV(mX.numBlocksTotal(),
+                    mX.numBlocksInUse() + 1 == mX.numBlocksTotal());
+            ASSERTV(mX.numBytesTotal(),
+                    mX.numBytesInUse() + 1024 == mX.numBytesTotal());
+
+            // No errors
+            ASSERTV(mX.numMismatches(),   0 == mX.numMismatches());
+            ASSERTV(mX.numBoundsErrors(), 0 == mX.numBoundsErrors());
+
+            // These are our lower, "scoped" maximums
+            ASSERTV(mX.numBlocksMax(),   3 == mX.numBlocksMax());
+            ASSERTV(mX.numBytesMax(), 3072 == mX.numBytesMax());
+
+        }  // Statistics are restored here by the guard
+
+        // Restore should make the "reset disappear"
+        ASSERTV(mX.numAllocations(),   5 == mX.numAllocations());
+        ASSERTV(mX.numBytesTotal(), 5120 == mX.numBytesTotal());
+
+        ASSERTV(mX.numBlocksMax(),   4 == mX.numBlocksMax());
+        ASSERTV(mX.numBytesMax(), 4096 == mX.numBytesMax());
+
+        if (veryVerbose) puts("Scope overrides stashed maximums and nesting");
+        {
+            StatisticsStashGuard guard(&mX);
+
+            // Allocate and deallocate memory to raise the maximum above the
+            // stashed maximums
+            p3 = mX.allocate(1024);
+
+            if (veryVerbose) puts("Nested scope/stash-restore");
+            {
+                StatisticsStashGuard guard(&mX);
+
+                void *p4 = mX.allocate(1024);
+                mX.deallocate(mX.allocate(1024));
+                mX.deallocate(p4);
+            }
+            mX.deallocate(p3);
+
+            // Running totals and the maximums are the same
+            ASSERTV(mX.numAllocations(),   5 == mX.numAllocations());
+            ASSERTV(mX.numBytesTotal(), 5120 == mX.numBytesTotal());
+
+            // Maximums are larger than the stashed values
+            ASSERTV(mX.numBlocksMax(),   5 == mX.numBlocksMax());
+            ASSERTV(mX.numBytesMax(), 5120 == mX.numBytesMax());
+
+        }  // Statistics are restored here by the guard
+
+        // Restore should *not* change the larger maximum values back to the
+        // stashed values
+        ASSERTV(mX.numBlocksMax(),   5 == mX.numBlocksMax());
+        ASSERTV(mX.numBytesMax(), 5120 == mX.numBytesMax());
+
+        // Avoid memory leaks
+        mX.deallocate(p2);
+        mX.deallocate(p1);
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (veryVerbose) puts("Negative testing");
+        {
+            bslma::TestAllocator ta;
+            bslma::TestAllocator tb;
+
+            bslma::TestAllocatorStashedStatistics stash = ta.stashStatistics();
+            bsls::AssertTestHandlerGuard hG;
+            ASSERT_FAIL(tb.restoreStatistics(&stash));
+            ASSERT_PASS(ta.restoreStatistics(&stash));
+            ASSERT_FAIL(ta.restoreStatistics(&stash));
+        }
+#endif
       } break;
       case 15: {
         // --------------------------------------------------------------------
