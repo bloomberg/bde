@@ -1,6 +1,6 @@
 // bslma_allocator.fwd.h                                              -*-C++-*-
-#ifndef FWD_INCLUDED_BSLMA_ALLOCATOR
-#define FWD_INCLUDED_BSLMA_ALLOCATOR
+#ifndef INCLUDED_BSLMA_ALLOCATOR_FWD
+#define INCLUDED_BSLMA_ALLOCATOR_FWD
 
 //@PURPOSE: Provide forward declarations for memory-allocation mechanisms.
 //
