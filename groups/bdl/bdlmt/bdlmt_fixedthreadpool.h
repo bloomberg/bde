@@ -472,7 +472,9 @@ class FixedThreadPool {
     /// a `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
     /// the currently installed default allocator is used.  The name used for
     /// created threads is "bdl.FixedPool".  The behavior is undefined unless
-    /// `1 <= numThreads`.
+    /// `1 <= numThreads`.  Note that the actual job queue capacity can be
+    /// obtained using `queueCapacity`, and may be more than
+    /// `maxNumPendingJobs`.
     FixedThreadPool(int               numThreads,
                     int               maxNumPendingJobs,
                     bslma::Allocator *basicAllocator = 0);
@@ -487,7 +489,9 @@ class FixedThreadPool {
     /// If `basicAllocator` is 0, the currently installed default allocator
     /// is used.  The name used for created threads is `threadPoolName` if not
     /// empty, otherwise "bdl.FixedPool".  The behavior is undefined unless
-    /// `1 <= numThreads`.
+    /// `1 <= numThreads`.  Note that the actual job queue capacity can be
+    /// obtained using `queueCapacity`, and may be more than
+    /// `maxNumPendingJobs`.
     FixedThreadPool(int                      numThreads,
                     int                      maxNumPendingJobs,
                     const bsl::string_view&  threadPoolName,
@@ -503,7 +507,9 @@ class FixedThreadPool {
     /// `threadAttributes.threadName()` if not empty, otherwise
     /// "bdl.FixedPool".  The detached state of `threadAttributes` is ignored,
     /// and `e_CREATE_JOINABLE` is used in all cases.  The behavior is
-    /// undefined unless `1 <= numThreads`.
+    /// undefined unless `1 <= numThreads`.  Note that the actual job queue
+    /// capacity can be obtained using `queueCapacity`, and may be more than
+    /// `maxNumPendingJobs`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
@@ -522,7 +528,9 @@ class FixedThreadPool {
     /// otherwise `threadPoolName` if not empty, otherwise "bdl.FixedPool".
     /// The detached state of `threadAttributes` is ignored, and
     /// `e_CREATE_JOINABLE` is used in all cases.  The behavior is undefined
-    /// unless `1 <= numThreads`.
+    /// unless `1 <= numThreads`.  Note that the actual job queue capacity can
+    /// be obtained using `queueCapacity`, and may be more than
+    /// `maxNumPendingJobs`.
     FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
