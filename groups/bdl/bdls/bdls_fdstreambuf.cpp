@@ -26,6 +26,7 @@ BSLS_IDENT_RCSID(bdls_fdstreambuf_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -516,7 +517,9 @@ FdStreamBuf::FdStreamBuf(FilesystemUtil::FileDescriptor  fileDescriptor,
 
 FdStreamBuf::~FdStreamBuf()
 {
-    clear();
+    int rc = clear();    (void) rc;
+    BSLS_REVIEW_OPT(0 == rc &&
+                "`bdls::FdStreamBuf::clear` in d'tor failed, probably bad FD");
     deallocateBuffer();
 }
 
