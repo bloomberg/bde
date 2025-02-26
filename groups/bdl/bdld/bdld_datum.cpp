@@ -969,7 +969,8 @@ Datum Datum::copyBinary(const void            *value,
         return result;                                                // RETURN
     }
 
-    BSLS_ASSERT(size <= bsl::numeric_limits<int>::max());
+    BSLS_ASSERT(size <= static_cast<SizeType>(
+                                             bsl::numeric_limits<int>::max()));
     size = static_cast<int>(size);
 
     result.d_as.d_type  = e_INTERNAL_BINARY_ALLOC;

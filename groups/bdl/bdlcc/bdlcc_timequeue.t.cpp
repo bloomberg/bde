@@ -12,6 +12,8 @@
 #include <bdlb_numericparseutil.h>
 #include <bdlb_tokenizer.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
@@ -427,7 +429,8 @@ void gg(bdlcc::TimeQueue<char> *result, const bsl::string_view& input)
         int timeSecs;
         bsl::string_view remainder;
 
-        int rc = bdlb::NumericParseUtil::parseInt(&timeSecs, &remainder, node);
+        BSLA_MAYBE_UNUSED int rc =
+                 bdlb::NumericParseUtil::parseInt(&timeSecs, &remainder, node);
 
         BSLS_ASSERT_OPT(0 == rc);
         BSLS_ASSERT_OPT(1 == remainder.size());

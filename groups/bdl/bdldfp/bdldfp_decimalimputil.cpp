@@ -826,8 +826,10 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
         result = (sign == 1) ? result : negate(result);
       } break;
 
-      default:
+      default: {
+        result = makeDecimalRaw32(0, 0);  // suppress compile warning
         BSLS_ASSERT(false);
+      } break;
     }
 
     return result;
@@ -876,8 +878,10 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
         result = (sign == 1) ? result : negate(result);
       } break;
 
-      default:
+      default: {
+        result = makeDecimalRaw64(0, 0);  // suppress compile warning
         BSLS_ASSERT(false);
+      } break;
     }
 
     return result;

@@ -3462,7 +3462,7 @@ int main(int argc, char *argv[])
                     bsls::Types::Int64 s1Alloc = s1.numBytesInUse();
 
                     Obj                  *objPtr          = 0;
-                    bsls::Types::Int64    objAlloc;
+                    bsls::Types::Int64    objAlloc        = 0;
                     bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {

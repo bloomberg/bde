@@ -4,6 +4,8 @@
 
 #include <bdlf_bind.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
@@ -3035,7 +3037,7 @@ int main(int argc, char *argv[]) {
             const int queueId = pool.createQueue();
             BSLS_ASSERT_OPT(queueId);
 
-            int rc;
+            BSLA_MAYBE_UNUSED int rc;
 
             rc = pool.enqueueJob(queueId, DoNothing());
             BSLS_ASSERT_OPT(rc == 0);
@@ -3076,7 +3078,7 @@ int main(int argc, char *argv[]) {
         const int queueId = pool.createQueue();
         BSLS_ASSERT_OPT(queueId);
 
-        int rc;
+        BSLA_MAYBE_UNUSED int rc;
 
         rc = pool.enqueueJob(queueId, DoNothing());
         BSLS_ASSERT_OPT(rc == 0);

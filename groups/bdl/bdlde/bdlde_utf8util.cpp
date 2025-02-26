@@ -769,7 +769,7 @@ int Utf8Util_ImpUtil::getLineAndColumnNumber(
     // lineNumber and currentColumn are computed using 0 based values (and +1
     // is added to the return)
 
-    bsl::size_t targetOffset = byteOffset;
+    bsl::size_t targetOffset = static_cast<bsl::size_t>(byteOffset);
 
     bsl::size_t currentPosition    = 0;  // current byte offset in 'input'
     bsl::size_t currentLineNum     = 0;  // current line number in 'input'
