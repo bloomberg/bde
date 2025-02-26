@@ -3,8 +3,6 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstring>    // `strlen`, `strcmp`, `strcpy`, `strncpy`,`memset`
-
 #include <stdio.h>    // `printf`
 #include <stdlib.h>   // `atoi`
 #include <string.h>   // `strlen`, `strcmp`, `memset`
@@ -161,7 +159,7 @@ static const struct {
     { L_,   "!?}",   "!?}",   L"!?}",   3      },
 };
 
-size_t NUM_DEFAULT_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const size_t NUM_DEFAULT_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 /// Data structure containing non-printable `char` values (including zero and
 /// negative values).
@@ -225,7 +223,7 @@ static const struct {
     { L_,   { 'm', 'l', 'k' },  { 'M', 'L', 'K' },  { 'm', 'l', 'k' },  3   },
 };
 
-size_t NUM_SPECIAL_DATA = sizeof SPECIAL_DATA / sizeof *SPECIAL_DATA;
+const size_t NUM_SPECIAL_DATA = sizeof SPECIAL_DATA / sizeof *SPECIAL_DATA;
 
 // ============================================================================
 //                       HELPER CLASSES FOR TESTING
@@ -387,7 +385,7 @@ int main(int argc, char **argv)
 // ```
     bslfmt::FormatterCharUtil<char>::toUpper(number, number + sourceLength);
     const char *expectedUppercaseNumber = "0X12CD";
-    ASSERT(0 == std::strcmp(number, expectedUppercaseNumber));
+    ASSERT(0 == strcmp(number, expectedUppercaseNumber));
 // ```
 // Next, we output this uppercase number to the destination, using
 // `outputFromChar` function.  `OutputIterator` in this example is just a
@@ -395,7 +393,7 @@ int main(int argc, char **argv)
 // iterator.
 // ```
     char destination[8];
-    std::memset(destination, 0, sizeof(destination));
+    memset(destination, 0, sizeof(destination));
     OutputIterator<char> charIt(destination);
 
     charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
@@ -404,14 +402,14 @@ int main(int argc, char **argv)
                                                          charIt);
 
     ASSERT(destination + sourceLength == charIt.ptr());
-    ASSERT(0 == std::strcmp(number, destination));
+    ASSERT(0 == strcmp(number, destination));
 // ```
 // Finally, we demonstrate the main purpose of these functions - to unify the
 // output of values to character strings and wide character strings.  All we
 // need to do is just change the template parameter:
 // ```
     wchar_t wDestination[8];
-    std::memset(wDestination, 0, sizeof(wchar_t) * 8);
+    memset(wDestination, 0, sizeof(wchar_t) * 8);
 
     wchar_t wcharExpected[] = L"0X12CD";
 
@@ -421,7 +419,7 @@ int main(int argc, char **argv)
                                                          number + sourceLength,
                                                          wcharIt);
     ASSERT(wDestination + sourceLength == wcharIt.ptr());
-    ASSERT(0 == std::wcscmp(wcharExpected, wDestination));
+    ASSERT(0 == wcscmp(wcharExpected, wDestination));
 // ```
       } break;
       case 3: {
@@ -479,7 +477,7 @@ int main(int argc, char **argv)
             // Testing sequence overload for `char`
 
             char charDestination[8];
-            std::memset(charDestination, 0, sizeof(charDestination));
+            memset(charDestination, 0, sizeof(charDestination));
 
             OutputIterator<char> charOut(charDestination);
             charOut = FormatterCharUtil<char>::outputFromChar(
@@ -489,11 +487,11 @@ int main(int argc, char **argv)
 
             ASSERTV(charDestination + LENGTH == charOut.ptr());
             ASSERTV(LINE, CHAR_SOURCE_BEGIN, charDestination,
-                    0 == std::strcmp(CHAR_SOURCE_BEGIN, charDestination));
+                    0 == strcmp(CHAR_SOURCE_BEGIN, charDestination));
 
             // Testing one character overload for `char`
 
-            std::memset(charDestination, 0, sizeof(charDestination));
+            memset(charDestination, 0, sizeof(charDestination));
             charOut.reset(charDestination);
             for (size_t j = 0; j < LENGTH; ++j)
             {
@@ -510,7 +508,7 @@ int main(int argc, char **argv)
             // Testing sequence overload for `wchar_t`
 
             wchar_t wcharDestination[8];
-            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            memset(wcharDestination, 0, sizeof(wcharDestination));
 
             OutputIterator<wchar_t> wcharOut(wcharDestination);
             wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
@@ -520,11 +518,11 @@ int main(int argc, char **argv)
 
             ASSERTV(wcharDestination + LENGTH == wcharOut.ptr());
             ASSERTV(LINE, CHAR_SOURCE_BEGIN, wcharDestination,
-                    0 == std::wcscmp(WCHAR_EXPECTED, wcharDestination));
+                    0 == wcscmp(WCHAR_EXPECTED, wcharDestination));
 
             // Testing one character overload for `wchar_t`
 
-            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            memset(wcharDestination, 0, sizeof(wcharDestination));
             wcharOut.reset(wcharDestination);
 
             for (size_t j = 0; j < LENGTH; ++j)
@@ -553,7 +551,7 @@ int main(int argc, char **argv)
             // Testing sequence overload for `char`
 
             char charDestination[8];
-            std::memset(charDestination, 0, sizeof(charDestination));
+            memset(charDestination, 0, sizeof(charDestination));
 
             OutputIterator<char> charOut(charDestination);
             charOut = FormatterCharUtil<char>::outputFromChar(
@@ -563,13 +561,11 @@ int main(int argc, char **argv)
 
             ASSERTV(charDestination + LENGTH == charOut.ptr());
             ASSERTV(LINE, CHAR_SOURCE_BEGIN, charDestination,
-                    0 == std::strncmp(CHAR_SOURCE_BEGIN,
-                                      charDestination,
-                                      LENGTH));
+                    0 == strncmp(CHAR_SOURCE_BEGIN, charDestination, LENGTH));
 
             // Testing one character overload for `char`
 
-            std::memset(charDestination, 0, sizeof(charDestination));
+            memset(charDestination, 0, sizeof(charDestination));
             charOut.reset(charDestination);
             for (size_t j = 0; j < LENGTH; ++j)
             {
@@ -586,7 +582,7 @@ int main(int argc, char **argv)
             // Testing sequence overload for `wchar_t`
 
             wchar_t wcharDestination[8];
-            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            memset(wcharDestination, 0, sizeof(wcharDestination));
 
             OutputIterator<wchar_t> wcharOut(wcharDestination);
             wcharOut = FormatterCharUtil<wchar_t>::outputFromChar(
@@ -596,13 +592,11 @@ int main(int argc, char **argv)
 
             ASSERTV(wcharDestination + LENGTH == wcharOut.ptr());
             ASSERTV(LINE, CHAR_SOURCE_BEGIN, wcharDestination,
-                    0 == std::wcsncmp(WCHAR_EXPECTED,
-                                      wcharDestination,
-                                      LENGTH));
+                    0 == wcsncmp(WCHAR_EXPECTED, wcharDestination, LENGTH));
 
             // Testing one character overload for `wchar_t`
 
-            std::memset(wcharDestination, 0, sizeof(wcharDestination));
+            memset(wcharDestination, 0, sizeof(wcharDestination));
             wcharOut.reset(wcharDestination);
 
             for (size_t j = 0; j < LENGTH; ++j)
@@ -660,16 +654,15 @@ int main(int argc, char **argv)
 
             if (veryVerbose) { T_ T_ P_(LINE) P(ORIGINAL) }
 
-            std::memset(buffer, 0, sizeof(buffer));
-            std::strcpy(buffer, ORIGINAL);
+            memset(buffer, 0, sizeof(buffer));
+            strcpy(buffer, ORIGINAL);
 
             char *buffernBegin = buffer;
             char *bufferEnd    = buffer + LENGTH;
 
             FormatterCharUtil<char>::toUpper(buffernBegin, bufferEnd);
 
-            ASSERTV(LINE, EXPECTED, buffer,
-                    0 == std::strcmp(EXPECTED, buffer));
+            ASSERTV(LINE, EXPECTED, buffer, 0 == strcmp(EXPECTED, buffer));
         }
 
         for (size_t i = 0; i < NUM_SPECIAL_DATA; ++i) {
@@ -680,16 +673,15 @@ int main(int argc, char **argv)
 
             if (veryVerbose) { T_ T_ P_(LINE) P(ORIGINAL) }
 
-            std::memset(buffer, 0, sizeof(buffer));
-            std::strcpy(buffer, ORIGINAL);
+            memset(buffer, 0, sizeof(buffer));
+            strcpy(buffer, ORIGINAL);
 
             char *bufferBegin = buffer;
             char *bufferEnd   = buffer + LENGTH;
 
             FormatterCharUtil<char>::toUpper(bufferBegin, bufferEnd);
 
-            ASSERTV(LINE, EXPECTED, buffer,
-                    0 == std::strcmp(EXPECTED, buffer));
+            ASSERTV(LINE, EXPECTED, buffer, 0 == strcmp(EXPECTED, buffer));
         }
       } break;
       case 1: {
@@ -743,7 +735,7 @@ int main(int argc, char **argv)
         // Testing `char` specialization
         {
             char destination[BUFFER_SIZE];
-            std::memset(destination, 0, sizeof(destination));
+            memset(destination, 0, sizeof(destination));
 
             const char *sourceBegin = SOURCE;
             const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;
@@ -796,7 +788,7 @@ int main(int argc, char **argv)
         // Testing `wchar_t` specialization
         {
             wchar_t destination[BUFFER_SIZE];
-            std::memset(destination, 0, sizeof(destination));
+            memset(destination, 0, sizeof(destination));
 
             const char *sourceBegin = SOURCE;
             const char *sourceEnd   = SOURCE + NUM_CHARACTERS_TO_OUTPUT;

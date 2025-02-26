@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // ```
 //  bslfmt::FormatterCharUtil<char>::toUpper(number, number + sourceLength);
 //  const char *expectedUppercaseNumber = "0X12CD";
-//  assert(0 == std::strcmp(number, expectedUppercaseNumber));
+//  assert(0 == strcmp(number, expectedUppercaseNumber));
 // ```
 // Next, we output this uppercase number to the destination, using
 // `outputFromChar` function.  `OutputIterator` in this example is just a
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // iterator.
 // ```
 //  char destination[8];
-//  std::memset(destination, 0, sizeof(destination));
+//  memset(destination, 0, sizeof(destination));
 //  OutputIterator<char> charIt(destination);
 //
 //  charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
@@ -49,14 +49,14 @@ BSLS_IDENT("$Id: $")
 //                                                       charIt);
 //
 //  assert(destination + sourceLength == charIt.ptr());
-//  assert(0 == std::strcmp(number, destination));
+//  assert(0 == strcmp(number, destination));
 // ```
 // Finally, we demonstrate the main purpose of these functions - to unify the
 // output of values to character strings and wide character strings.  All we
 // need to do is just change the template parameter:
 // ```
 //  wchar_t wDestination[8];
-//  std::memset(wDestination, 0, sizeof(wchar_t) * 8);
+//  memset(wDestination, 0, sizeof(wchar_t) * 8);
 //
 //  wchar_t wcharExpected[] = L"0X12CD";
 //
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //                                                       number + sourceLength,
 //                                                       wcharIt);
 //  assert(wDestination + sourceLength == wcharIt.ptr());
-//  assert(0 == std::wcscmp(wcharExpected, wDestination));
+//  assert(0 == wcscmp(wcharExpected, wDestination));
 // ```
 
 #include <bslscm_version.h>
@@ -88,6 +88,8 @@ namespace bslfmt {
 
 /// This struct provides a namespace for a utility functions that convert
 /// characters (e.g. `char` to `wchar_t` or lowercase characters to uppercase).
+/// Notice that this structure has specializations only for `char` and
+/// `wchar_t` types.
 template <class t_CHAR>
 struct FormatterCharUtil {
 };
@@ -102,7 +104,7 @@ struct FormatterCharUtil<char> {
     /// Output to the specified output iterator `out` the character sequence
     /// starting at the specified `begin` address and ending immediately before
     /// the specified `end` address.  Return `out` incremented by the number of
-    /// characters written.  The behaviour is undefined unless `begin <= end`.
+    /// characters written.  The behavior is undefined unless `begin <= end`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
@@ -116,7 +118,7 @@ struct FormatterCharUtil<char> {
     /// Convert all characters in the sequence starting at the specified
     /// `begin` address and ending immediately before the specified `end`
     /// address to uppercase.  Note that conversion happens in-place.  The
-    /// behaviour is undefined unless `begin <= end`.
+    /// behavior is undefined unless `begin <= end`.
     static void toUpper(char *begin, const char *end);
 };
 
@@ -130,7 +132,7 @@ struct FormatterCharUtil<wchar_t> {
     /// Output to the specified output iterator `out` the character sequence
     /// starting at the specified `begin` address and ending immediately before
     /// the specified `end` address.  Return `out` incremented by the number of
-    /// characters written.  The behaviour is undefined unless `begin <= end`.
+    /// characters written.  The behavior is undefined unless `begin <= end`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
