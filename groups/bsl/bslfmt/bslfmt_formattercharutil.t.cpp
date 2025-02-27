@@ -372,7 +372,7 @@ int main(int argc, char **argv)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example: Outputting a hexadecimal in upper case
+///Example: Outputting A Hexadecimal In Upper Case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to output a hexadecimal number to some object (e.g. some
 // character buffer) represented by the output iterator.  Additionally, we are

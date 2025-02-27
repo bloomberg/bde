@@ -11,15 +11,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::FormatterCharUtil: utilities to perform character conversions
 //
-//@DESCRIPTION: This component provide the `FormatterCharUtil` `struct`
-// template that is a namespace to utility functions that convert characters
-// (e.g. from `char` to `wchar_t` or lowercase characters to uppercase).
+//@DESCRIPTION: This component provides a `FormatterCharUtil` `struct` template
+// that is a namespace for utility functions that convert characters (e.g. from
+// `char` to `wchar_t` or lowercase characters to uppercase).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example: Outputting a hexadecimal in upper case
+///Example: Outputting A Hexadecimal In Upper Case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to output a hexadecimal number to some object (e.g. some
 // character buffer) represented by the output iterator.  Additionally, we are
