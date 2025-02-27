@@ -15,7 +15,6 @@
 // `#includes` the renamed header, `bslma_bslallocator.h`, which provides the
 // `bsl::allocator` class template.  See `bslma_bslallocator` component-level
 // documentation for more information.
-// ----------------------------------------------------------------------------
 
 #include <bslma_bslallocator.h>
 

@@ -65,9 +65,9 @@ BSLS_IDENT("$Id: $")
 // value and copy constructors, `operator==`, an accessor for the allocator,
 // and other methods.
 // ```
+// /// This unconstrained (value-semantic) attribute class has a single,
+// /// null-terminated ascii string attribute, `description`.
 // class MyClass {
-//     // This unconstrained (value-semantic) attribute class has a single,
-//     // null-terminated ascii string attribute, 'description'.
 //
 //     // DATA
 //     size_t            d_capacity;      // available memory
@@ -76,29 +76,31 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
-//     explicit MyClass(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'MyClass' object having the (default) attribute values:
-//         //..
-//         //  description() == ""
-//         //..
-//         // Optionally specify a 'basicAllocator' used to supply memory.  If
-//         // 'basicAllocator' is 0, the currently installed default allocator
-//         // is used.
 //
+//     /// Create a `MyClass` object having the (default) attribute values:
+//     /// ```
+//     ///  description() == ""
+//     /// ```
+//     /// Optionally specify a `basicAllocator` used to supply memory.  If
+//     /// `basicAllocator` is 0, the currently installed default allocator is
+//     /// used.
+//     explicit MyClass(bslma::Allocator *basicAllocator = 0);
+//
+//     /// Destroy this object.
 //     ~MyClass();
-//         // Destroy this object.
 //
 //     // MANIPULATORS
+//
+//     /// Set the null-terminated ascii string `description` attribute of this
+//     /// object to the specified `value`.  On completion, the `description`
+//     /// method returns the address of a copy of the ascii string at `value`.
 //     void setDescription(const char *value);
-//         // Set the null-terminated ascii string 'description' attribute of
-//         // this object to the specified 'value'.  On completion, the
-//         // 'description' method returns the address of a copy of the ascii
-//         // string at 'value'.
 //
 //     // ACCESSORS
+//
+//     /// Return the value of the null-terminated ascii string `description`
+//     /// attribute of this object.
 //     const char *description() const;
-//         // Return the value of the null-terminated ascii string
-//         // 'description' attribute of this object.
 // };
 //
 // // ========================================================================
@@ -160,17 +162,17 @@ BSLS_IDENT("$Id: $")
 // for `MyClass` include:
 // ```
 // Concerns:
-// //: 1 Any memory allocation is from the object allocator.
-// //:
-// //: 2 Every object releases any allocated memory at destruction.
-// //:
-// //: 3 No accessor allocates any memory.
-// //:
-// //: 4 All memory allocation is exception-neutral.
-// //:
-// //: 5 QoI: The default constructor allocates no memory.
-// //:
-// //: 6 QoI: When possible, memory is cached for reuse.
+// // 1. Any memory allocation is from the object allocator.
+// //
+// // 2. Every object releases any allocated memory at destruction.
+// //
+// // 3. No accessor allocates any memory.
+// //
+// // 4. All memory allocation is exception-neutral.
+// //
+// // 5. QoI: The default constructor allocates no memory.
+// //
+// // 6. QoI: When possible, memory is cached for reuse.
 // ```
 // Notice that some of these concerns (e.g., C-5..6) are not part of the
 // class's documented, contractual behavior.  These are classified as Quality
@@ -179,56 +181,56 @@ BSLS_IDENT("$Id: $")
 // Next, we define a test plan.  For example, a plan to test these concerns is:
 // ```
 // Plan:
-// //: 1 Setup global and default allocators:
-// //:
-// //:   1 Create two 'bslma::TestAllocator' objects and, for each of these,
-// //:     create an associated 'bslma::TestAllocatorMonitor' object.
-// //:
-// //:   2 Install the two allocators as the global and default allocators.
-// //:
-// //: 2 Confirm that default construction allocates no memory: (C-5)
-// //:
-// //:   1 Construct a 'bslma::TestAllocatorMonitor' object to be used passed
-// //:     to test objects on their construction, and an associated
-// //:
-// //:   2 In an inner block, default construct an object of 'MyClass' using
-// //:     the designated "object" test allocator.
-// //:
-// //:   3 Allow the object to go out of scope (destroyed).  Confirm that no
-// //:     memory has been allocated from any of the allocators.
-// //:
-// //: 3 Exercise an object of 'MyClass' such that memory should be allocated,
-// //:   and then confirm that the object allocator (only) is used: (C-2..4,6)
-// //:
-// //:   1 In another inner block, default construct a new test object using
-// //:     the (as yet unused) object allocator.
-// //:
-// //:   2 Force the test object to allocate memory by setting its
-// //:     'descriptor' attribute to a value whose size exceeds the size of
-// //:     the object itself.  Confirm that the attribute was set and that
-// //:     memory was allocated.
-// //:
-// //:   3 Confirm that the primary manipulator (the 'setDescription' method)
-// //:     is exception-neutral (i.e., exceptions from the allocator are
-// //:     propagated and no memory is leaked).  Use the
-// //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
-// //:     and use the test allocator monitor to confirm that memory is
-// //:     allocated on the no-exception code path.  (C-4)
-// //:
-// //:   4 When the object is holding memory, create an additional test
-// //:     allocator monitor allocator for the object allocator.  Use the
-// //:     basic accessor (i.e., the 'description' method) to confirm that the
-// //:     object has the expected value.  Check this test allocator monitor
-// //:     to confirm that accessor allocated no memory.  (C-3)
-// //:
-// //:   5 Change the attribute to a smaller value and confirm that the
-// //:     current memory was reused (i.e., no memory is allocated). (C-6)
-// //:
-// //:   6 Destroy the test object by allowing it to go out of scope, and
-// //:     confirm that all allocations are returned.  (C-2)
-// //:
-// //: 4 Confirm that at no time were the global allocator or the default
-// //:   allocator were used.  (C-1)
+// // 1. Setup global and default allocators:
+// //
+// //   1. Create two `bslma::TestAllocator` objects and, for each of these,
+// //      create an associated `bslma::TestAllocatorMonitor` object.
+// //
+// //   2. Install the two allocators as the global and default allocators.
+// //
+// // 2. Confirm that default construction allocates no memory: (C-5)
+// //
+// //   1. Construct a `bslma::TestAllocatorMonitor` object to be used passed
+// //      to test objects on their construction, and an associated
+// //
+// //   2. In an inner block, default construct an object of `MyClass` using
+// //      the designated "object" test allocator.
+// //
+// //   3. Allow the object to go out of scope (destroyed).  Confirm that no
+// //      memory has been allocated from any of the allocators.
+// //
+// // 3. Exercise an object of `MyClass` such that memory should be allocated,
+// //    and then confirm that the object allocator (only) is used: (C-2..4,6)
+// //
+// //   1. In another inner block, default construct a new test object using
+// //      the (as yet unused) object allocator.
+// //
+// //   2. Force the test object to allocate memory by setting its
+// //      `descriptor` attribute to a value whose size exceeds the size of
+// //      the object itself.  Confirm that the attribute was set and that
+// //      memory was allocated.
+// //
+// //   3. Confirm that the primary manipulator (the `setDescription` method)
+// //      is exception-neutral (i.e., exceptions from the allocator are
+// //      propagated and no memory is leaked).  Use the
+// //      `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros to manage the test,
+// //      and use the test allocator monitor to confirm that memory is
+// //      allocated on the no-exception code path.  (C-4)
+// //
+// //   4. When the object is holding memory, create an additional test
+// //      allocator monitor allocator for the object allocator.  Use the
+// //      basic accessor (i.e., the `description` method) to confirm that the
+// //      object has the expected value.  Check this test allocator monitor
+// //      to confirm that accessor allocated no memory.  (C-3)
+// //
+// //   5. Change the attribute to a smaller value and confirm that the
+// //      current memory was reused (i.e., no memory is allocated). (C-6)
+// //
+// //   6. Destroy the test object by allowing it to go out of scope, and
+// //      confirm that all allocations are returned.  (C-2)
+// //
+// // 4. Confirm that at no time were the global allocator or the default
+// //    allocator were used.  (C-1)
 // ```
 // The implementation of the plan is shown below:
 //
@@ -385,7 +387,7 @@ BSLS_IDENT("$Id: $")
 //                                  // outstanding byte count increased).
 //
 //     assert(oam3.isMaxSame());    // A repeat of the scenario for
-//                                  // 'DESCRIPTION2', so no change in the
+//                                  // `DESCRIPTION2`, so no change in the
 //                                  // allocator's maximum.
 // ```
 // Now, we close scope and check that all object memory was deallocated

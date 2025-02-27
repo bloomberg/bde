@@ -180,11 +180,11 @@ BSLS_IDENT("$Id: $")
 // Below we provide a `static` function, `areEqual`, that will allow us to
 // compare two short arrays:
 // ```
+// /// Return `true` if the specified initial `numElements` in the
+// /// specified `array1` and `array2` have the same values, and `false`
+// /// otherwise.
 // static
 // bool areEqual(const short *array1, const short *array2, int numElements)
-//     // Return 'true' if the specified initial 'numElements' in the
-//     // specified 'array1' and 'array2' have the same values, and 'false'
-//     // otherwise.
 // {
 //     for (int i = 0; i < numElements; ++i) {
 //         if (array1[i] != array2[i]) {
