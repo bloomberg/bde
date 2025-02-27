@@ -1,5 +1,11 @@
-bsl-internal (4.21.0.0) unstable; urgency=low
+bsl-internal (4.21.0.1) unstable; urgency=low
 
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 11 Feb 2025 13:41:19 -0500
+
+bsl-internal (4.21.0.0) git; urgency=low
+
+  * 2c7ef378b Changelog for version 4.21.0.0
   * 7276edf6d Bumped version to 4.21.0.0
   * 80d6ed797 Add header deprecation macro [ENG6BVDEVX-1843] (#5014)
   * af1a61b54 bslma::Allocator should respect `do_allocate` alignment parameter -- DRQS 176364960 (#5083)
@@ -26,7 +32,7 @@ bsl-internal (4.21.0.0) unstable; urgency=low
   * 160e4984c Drqs 178096040 bsl format remove checks from visit (#5189)
   * 54ec051e0 Add missing inline in bslfmt_format_imp (#5188)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Feb 2025 15:56:08 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Feb 2025 16:05:34 -0500
 
 bsl-internal (4.20.0.0) git; urgency=low
 
