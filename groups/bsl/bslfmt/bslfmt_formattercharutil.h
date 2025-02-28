@@ -11,18 +11,18 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslfmt::FormatterCharUtil: utilities to perform character conversions
 //
-//@DESCRIPTION: This component provide the `FormatterCharUtil` `struct`
-// template that is a namespace to utility functions that convert characters
-// (e.g. from `char` to `wchar_t` or lowercase characters to uppercase).
+//@DESCRIPTION: This component provides a `FormatterCharUtil` `struct` template
+// that is a namespace for utility functions that convert characters (e.g. from
+// `char` to `wchar_t` or lowercase characters to uppercase).
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example: Outputting a hexadecimal in upper case
+///Example: Outputting A Hexadecimal In Upper Case
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to output a hexadecimal number to some object (e.g. some
-// character buffer) represented by the output iterator .  Additionally, we are
+// character buffer) represented by the output iterator.  Additionally, we are
 // required to have the number displayed in uppercase.
 // ```
 //  char         number[]     = "0x12cd";
@@ -32,15 +32,15 @@ BSLS_IDENT("$Id: $")
 // ```
 //  bslfmt::FormatterCharUtil<char>::toUpper(number, number + sourceLength);
 //  const char *expectedUppercaseNumber = "0X12CD";
-//  assert(0 == std::strcmp(number, expectedUppercaseNumber));
+//  assert(0 == strcmp(number, expectedUppercaseNumber));
 // ```
 // Next, we output this uppercase number to the destination, using
 // `outputFromChar` function.  `OutputIterator` in this example is just a
-// primitive class that minimally satisfies the requirements of the
-// output iterator.
+// primitive class that minimally satisfies the requirements of the output
+// iterator.
 // ```
 //  char destination[8];
-//  std::memset(destination, 0, sizeof(destination));
+//  memset(destination, 0, sizeof(destination));
 //  OutputIterator<char> charIt(destination);
 //
 //  charIt = bslfmt::FormatterCharUtil<char>::outputFromChar(
@@ -49,14 +49,14 @@ BSLS_IDENT("$Id: $")
 //                                                       charIt);
 //
 //  assert(destination + sourceLength == charIt.ptr());
-//  assert(0 == std::strcmp(number, destination));
+//  assert(0 == strcmp(number, destination));
 // ```
-// Finally we demonstrate the main purpose of these functions - to unify the
+// Finally, we demonstrate the main purpose of these functions - to unify the
 // output of values to character strings and wide character strings.  All we
 // need to do is just change the template parameter:
 // ```
 //  wchar_t wDestination[8];
-//  std::memset(wDestination, 0, sizeof(wchar_t) * 8);
+//  memset(wDestination, 0, sizeof(wchar_t) * 8);
 //
 //  wchar_t wcharExpected[] = L"0X12CD";
 //
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //                                                       number + sourceLength,
 //                                                       wcharIt);
 //  assert(wDestination + sourceLength == wcharIt.ptr());
-//  assert(0 == std::wcscmp(wcharExpected, wDestination));
+//  assert(0 == wcscmp(wcharExpected, wDestination));
 // ```
 
 #include <bslscm_version.h>
@@ -82,15 +82,17 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-/// This struct provides a namespace for a utility functions that convert
-/// characters (e.g. `char` to `wchar_t` or lowercase characters to uppercase).
-template <class t_CHAR>
-struct FormatterCharUtil {
-};
-
                          // ========================
                          // struct FormatterCharUtil
                          // ========================
+
+/// This struct provides a namespace for a utility functions that convert
+/// characters (e.g. `char` to `wchar_t` or lowercase characters to uppercase).
+/// Notice that this structure has specializations only for `char` and
+/// `wchar_t` types.
+template <class t_CHAR>
+struct FormatterCharUtil {
+};
 
 /// This is a specialization of `FormatterCharUtil` template providing utility
 /// functions for outputting data to the objects specialized by `char` type and
@@ -102,7 +104,7 @@ struct FormatterCharUtil<char> {
     /// Output to the specified output iterator `out` the character sequence
     /// starting at the specified `begin` address and ending immediately before
     /// the specified `end` address.  Return `out` incremented by the number of
-    /// characters written.
+    /// characters written.  The behavior is undefined unless `begin <= end`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
@@ -115,7 +117,8 @@ struct FormatterCharUtil<char> {
 
     /// Convert all characters in the sequence starting at the specified
     /// `begin` address and ending immediately before the specified `end`
-    /// address to uppercase.  Note that conversion happens in-place.
+    /// address to uppercase.  Note that conversion happens in-place.  The
+    /// behavior is undefined unless `begin <= end`.
     static void toUpper(char *begin, const char *end);
 };
 
@@ -129,7 +132,7 @@ struct FormatterCharUtil<wchar_t> {
     /// Output to the specified output iterator `out` the character sequence
     /// starting at the specified `begin` address and ending immediately before
     /// the specified `end` address.  Return `out` incremented by the number of
-    /// characters written.
+    /// characters written.  The behavior is undefined unless `begin <= end`.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
@@ -154,9 +157,11 @@ t_ITERATOR FormatterCharUtil<char>::outputFromChar(const char *begin,
                                                    const char *end,
                                                    t_ITERATOR  out)
 {
-    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type valuetype;
-    BSLMF_ASSERT((bsl::is_same<valuetype, char>::value) ||
-                 (bsl::is_same<valuetype, void>::value));
+    BSLS_ASSERT(begin <= end);
+
+    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type ValueType;
+    BSLMF_ASSERT((bsl::is_same<ValueType, char>::value) ||
+                 (bsl::is_same<ValueType, void>::value));
 
     return bsl::copy(begin, end, out);
 }
@@ -165,9 +170,9 @@ template <class t_ITERATOR>
 t_ITERATOR FormatterCharUtil<char>::outputFromChar(const char value,
                                                    t_ITERATOR out)
 {
-    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type valuetype;
-    BSLMF_ASSERT((bsl::is_same<valuetype, char>::value) ||
-                 (bsl::is_same<valuetype, void>::value));
+    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type ValueType;
+    BSLMF_ASSERT((bsl::is_same<ValueType, char>::value) ||
+                 (bsl::is_same<ValueType, void>::value));
 
     *out++ = value;
 
@@ -177,6 +182,8 @@ t_ITERATOR FormatterCharUtil<char>::outputFromChar(const char value,
 inline
 void FormatterCharUtil<char>::toUpper(char *begin, const char *end)
 {
+    BSLS_ASSERT(begin <= end);
+
     for (; begin != end; (void)++begin) {
         if (*begin >= 'a' && *begin <= 'z') {
             *begin = static_cast<char>(*begin + 'A' - 'a');
@@ -189,9 +196,11 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char *begin,
                                                       const char *end,
                                                       t_ITERATOR  out)
 {
-    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type valuetype;
-    BSLMF_ASSERT((bsl::is_same<valuetype, wchar_t>::value) ||
-                 (bsl::is_same<valuetype, void>::value));
+    BSLS_ASSERT(begin <= end);
+
+    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type ValueType;
+    BSLMF_ASSERT((bsl::is_same<ValueType, wchar_t>::value) ||
+                 (bsl::is_same<ValueType, void>::value));
 
     static const std::ctype<wchar_t>& ct =
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
@@ -205,11 +214,11 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char *begin,
 
 template <class t_ITERATOR>
 t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char value,
-                                                             t_ITERATOR out)
+                                                      t_ITERATOR out)
 {
-    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type valuetype;
-    BSLMF_ASSERT((bsl::is_same<valuetype, wchar_t>::value) ||
-                 (bsl::is_same<valuetype, void>::value));
+    typedef typename bsl::iterator_traits<t_ITERATOR>::value_type ValueType;
+    BSLMF_ASSERT((bsl::is_same<ValueType, wchar_t>::value) ||
+                 (bsl::is_same<ValueType, void>::value));
 
     static const std::ctype<wchar_t>& ct =
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
