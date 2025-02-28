@@ -914,6 +914,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
+class Context;
 class LoggerManager;
 class Observer;
 class RecordBuffer;
@@ -1065,6 +1066,11 @@ class Logger {
     /// the record buffer of this logger and indicate to the observer the
     /// specified publication `cause`.
     void publish(Transmission::Cause cause);
+
+    /// Publish to the observer held by this logger the specified `record` with
+    /// the specified `context`.
+    void publish(const bsl::shared_ptr<Record>& record,
+                 const Context&                 context);
 
   public:
     // MANIPULATORS

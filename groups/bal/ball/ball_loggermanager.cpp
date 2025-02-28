@@ -485,10 +485,10 @@ void Logger::logMessage(const Category&                category,
 
         // Publish this record.
 
-        d_observer->publish(record,
-                            Context(Transmission::e_PASSTHROUGH,
-                                    0,                 // recordIndex
-                                    1));               // sequenceLength
+        publish(record,
+                Context(Transmission::e_PASSTHROUGH,
+                        0,                 // recordIndex
+                        1));               // sequenceLength
 
     }
 
@@ -509,7 +509,7 @@ void Logger::logMessage(const Category&                category,
 
             marker->fixedFields().setMessage(k_TRIGGER_BEGIN);
 
-            d_observer->publish(marker, triggerContext);
+            publish(marker, triggerContext);
 
             // Publish all records archived by *this* logger.
 
@@ -517,7 +517,7 @@ void Logger::logMessage(const Category&                category,
 
             marker->fixedFields().setMessage(k_TRIGGER_END);
 
-            d_observer->publish(marker, triggerContext);
+            publish(marker, triggerContext);
         }
         else {
             // Publish all records archived by *this* logger.
@@ -541,7 +541,7 @@ void Logger::logMessage(const Category&                category,
 
             marker->fixedFields().setMessage(k_TRIGGER_ALL_BEGIN);
 
-            d_observer->publish(marker, triggerContext);
+            publish(marker, triggerContext);
 
             // Publish all records archived by *all* loggers.
 
@@ -549,7 +549,7 @@ void Logger::logMessage(const Category&                category,
 
             marker->fixedFields().setMessage(k_TRIGGER_ALL_END);
 
-            d_observer->publish(marker, triggerContext);
+            publish(marker, triggerContext);
         }
         else {
             // Publish all records archived by *all* loggers.
@@ -568,26 +568,37 @@ void Logger::publish(Transmission::Cause cause)
 
     if (1 == len) {  // for len == 1, order does not matter, so optimize it
         context.setRecordIndexRaw(0);
-        d_observer->publish(d_recordBuffer_p->back(), context);
+        publish(d_recordBuffer_p->back(), context);
         d_recordBuffer_p->popBack();
     }
     else {
         if (LoggerManagerConfiguration::e_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer->publish(d_recordBuffer_p->back(), context);
+                publish(d_recordBuffer_p->back(), context);
                 d_recordBuffer_p->popBack();
             }
         }
         else {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer->publish(d_recordBuffer_p->front(), context);
+                publish(d_recordBuffer_p->front(), context);
                 d_recordBuffer_p->popFront();
             }
         }
     }
     d_recordBuffer_p->endSequence();
+}
+
+inline
+void Logger::publish(const bsl::shared_ptr<Record>& record,
+                     const Context&                 context)
+{
+    // Avoid temporary shared_ptr copy when passing `shared_ptr<Record>` as
+    // `shared_ptr<const Record>`
+    d_observer->publish(
+                reinterpret_cast<const bsl::shared_ptr<const Record>&>(record),
+                context);
 }
 
 // MANIPULATORS
