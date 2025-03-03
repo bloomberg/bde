@@ -2416,11 +2416,16 @@ int main(int argc, char *argv[])
             for (int j = 0; j < k_NUM_PUSHER_THREADS; ++j) {
                 nextValue[j] = reserved + k_NUM_VALUES*j;
                 lastValue[j] = reserved + k_NUM_VALUES*(j+1) - 1;
-                tg.addThread(bdlf::BindUtil::bind(&abaThread,
-                                                 nextValue[j], lastValue[j],
-                                                 &mX, &barrier, false));
+                ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(&abaThread,
+                                                              nextValue[j],
+                                                              lastValue[j],
+                                                              &mX,
+                                                              &barrier,
+                                                              false)));
             }
-            tg.addThread(bdlf::BindUtil::bind(&sleepAndWait, 100, &barrier));
+            ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(&sleepAndWait,
+                                                          100,
+                                                          &barrier)));
 
             for (int numReceived = 0; numReceived < k_NUM_ENTRIES;
                  ++numReceived) {
