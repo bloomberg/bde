@@ -607,6 +607,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_epochutil.h>
 #include <bdlt_time.h>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    #include <bsla_deprecated.h>
+#endif
+
 #include <bslma_allocator.h>
 #include <bslma_allocatorutil.h>
 #include <bslma_bslallocator.h>
@@ -733,8 +737,8 @@ class Datum {
         , e_DECIMAL64            = 15  // Decimal64
         , e_INT_MAP              = 16  // integer map reference
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        , e_REAL                 = e_DOUBLE // old spelling
-        , e_ERROR_VALUE          = e_ERROR
+        , e_REAL         BSLA_DEPRECATED = e_DOUBLE // old spelling
+        , e_ERROR_VALUE  BSLA_DEPRECATED = e_ERROR  // old spelling
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

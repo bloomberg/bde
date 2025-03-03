@@ -381,14 +381,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-/// This type declares the prototype for functions that are suitable to
-/// be specified `bdlmt::FixedThreadPool::enqueueJob`.
-extern "C" typedef void (*bcep_ThreadPoolJobFunc)(void *);
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 namespace bdlmt {
 
 struct ThreadPoolWaitNode;
