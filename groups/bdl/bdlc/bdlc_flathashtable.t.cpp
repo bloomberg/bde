@@ -941,7 +941,6 @@ void testTransparentComparatorMutableMap(const t_CONTAINER& container,
                                          bool               isTransparent,
                                          int                initKeyValue)
 {
-    typedef typename t_CONTAINER::iterator     Iterator;
     typedef bsl::size_t                        Count;
 
     const int            expectedConversionCount = isTransparent ? 0 : 1;
@@ -979,6 +978,7 @@ void testTransparentComparatorMutableMap(const t_CONTAINER& container,
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
     {
         // Testing `try_emplace`.
+        typedef typename t_CONTAINER::iterator  Iterator;
         typedef const bsl::pair<Iterator, bool> ReturnType;
 
         t_CONTAINER c(container, &oa);
