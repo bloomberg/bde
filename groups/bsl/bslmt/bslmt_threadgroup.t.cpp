@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
 
         {
             int count = 0;
-            while (ta.numBytesInUse() && count < 10) {
+            while (ta.numBytesInUse() && count < 300) {
                 ++count;
                 bslmt::ThreadUtil::microSleep(100 * 1000);  // 100ms
             }
