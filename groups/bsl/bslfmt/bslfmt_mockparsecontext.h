@@ -18,42 +18,212 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Simulating format specification parsing
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// `MockParseContext` is designed to imitate the behavior of the
-// `basic_format_parse_context`. Therefore, let's look at the examples of
-// real-life context usage (`FormatSpecificationParser::parse()`), repeat
-// these steps and see the results.
+///Example 1: Testing Formatter's `parse` Method
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have a formatter for our custom type representing a month and we
+// want to test it.  The following example demonstrates how we can test its
+// `parse` method using `bslfmt::MockParseContext`.
 //
-// First, create a `MockParseContext` based on the defined specification:
+// First, we define our `Month` class:
 // ```
-//  typedef bslfmt::MockParseContext<char> ParseContext;
-//  typedef ParseContext::const_iterator   ContextIterator;
+// /// This class implements a complex-constrained, value-semantic type for
+// /// representing months.
+// class Month {
+//   private:
+//     // DATA
+//     int d_index;   // month's index
 //
-//  const char   *formatSpecification       = "*<5x";
-//  const int     formatSpecificationLength = 4;
-//  const int     numArgs                   = 1;
-//  ParseContext  mpc(formatSpecification, numArgs);
-// ```
-// Next call basic accessors:
-// ```
-//  typename ParseContext::const_iterator current = mpc.begin();
-//  typename ParseContext::const_iterator end     = mpc.end();
+//   public:
+//     // CREATORS
 //
-//  assert(formatSpecification == BSLS_UTIL_ADDRESSOF(*current));
-//  assert(current + formatSpecificationLength == end);
+//     /// Create an object having the value represented by the specified
+//     /// `index`.
+//     Month(int index)
+//     : d_index(index)
+//     {
+//         assert((1 <= index) && (12 >= index));
+//     }
+//
+//     // ACCESSORS
+//
+//     /// Return the index of this month.
+//     int index() const { return d_index; }
+// };
 // ```
-// Now check the work with arguments:
+// Then, we define our custom formatter for this class.  In it, two methods are
+// necessary: `parse` and `format`.  The `parse` method parses the format
+// string itself to determine the formatting to be used by the `format` method,
+// which writes the formatted object into user-supplied output iterator.
 // ```
-//  mpc.check_arg_id(0);
-//  assert(ParseContext::e_MANUAL == mpc.indexingMode());
+// /// This struct is a base class for `bsl::formatter` specializations for
+// /// the `Month` class.
+// template <class t_CHAR>
+// struct MonthFormatter {
 // ```
-// Finally, advance our mock context:
+// The convenience of using the `bsl::format` function is that the users can
+// come up with the description language themselves.  In our case, for
+// simplicity, we will present month in two formats - numeric ("03") and verbal
+// ("March").  Accordingly, to indicate the desired type, we will use one of
+// the two letters in the format description: 'n' ('N') or 'v' ('V').
+// Additionally, user can specify minimal width of the output either string via
+// digit in the format specification or via additional parameter for
+// `bsl::format` function.
 // ```
-//  ++current;
-//  assert(current != mpc.begin());
-//  mpc.advance_to(current);
-//  assert(current == mpc.begin());
+//     // TYPES
+//     enum Format {
+//         e_NUMERIC,  // "03"
+//         e_VERBAL    // "March"
+//     };
+//
+//     typedef bslfmt::FormatterSpecificationNumericValue NumericValue;
+//
+//     // DATA
+//     Format       d_format;    // output format
+//     NumericValue d_rawWidth;  // minimal output width
+//
+//   public:
+//     // CREATORS
+//
+//     /// Create a formatter that outputs values in the `e_NUMERIC` format.
+//     /// Thus, numeric is the default format for the `Month` object.
+//     BSLS_KEYWORD_CONSTEXPR_CPP20 MonthFormatter()
+//     : d_format(e_NUMERIC)
+//     {
+//     }
+//
+//     // MANIPULATORS
+//
+//     /// Parse the specified `context` and return end iterator of parsed
+//     /// range.
+//     template <class t_PARSE_CONTEXT>
+//     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+//                                                    t_PARSE_CONTEXT& context)
+//     {
+// ```
+// `MockParseContext` completely repeats the interface and behavior of the
+// `bslfmt::basic_format_parse_context`, but provides an additional accessor
+// that allows users to get information about the parsing process.  Therefore
+// users do not need to declare a separate overload of `parse` for test
+// purposes as long as their formatter's `parse` method is templated.
+// ```
+//         typename t_PARSE_CONTEXT::const_iterator current = context.begin();
+//         typename t_PARSE_CONTEXT::const_iterator end     = context.end();
+//
+//         // Handling empty string or empty specification
+//         if (current == end || *current == '}') {
+//             return context.begin();                                // RETURN
+//         }
+//
+//         d_rawWidth.parse(&current, end, false);
+//         // Non-relative widths must be strictly positive.
+//         if (d_rawWidth == NumericValue(NumericValue::e_VALUE, 0)) {
+//             BSLS_THROW(bsl::format_error("Field widths must be > 0."));
+//         }
+//
+//         if (d_rawWidth.category() == NumericValue::e_ARG_ID) {
+//             context.check_arg_id(d_rawWidth.value());
+//         }
+//         else if (d_rawWidth.category() == NumericValue::e_NEXT_ARG) {
+//             d_rawWidth = NumericValue(
+//                                   NumericValue::e_ARG_ID,
+//                                   static_cast<int>(context.next_arg_id()));
+//         }
+//
+//         if (current == end || *current == '}') {
+//             return context.begin();                                // RETURN
+//         }
+//
+//         // Reading format specification
+//         switch (*current) {
+//             case 'V':
+//             case 'v': {
+//               d_format = e_VERBAL;
+//             } break;
+//             case 'N':
+//             case 'n': {
+//               // `e_NUMERIC` value is assigned at object construction
+//             } break;
+//             default: {
+//               BSLS_THROW(bsl::format_error(
+//                    "Unexpected symbol in format specification"));   // THROW
+//             }
+//         }
+//
+//         // Move the iterator to the next position and check that there are
+//         // no extra characters in the description.
+//
+//         ++current;
+//
+//         if (current != end && *current != '}') {
+//             BSLS_THROW(bsl::format_error(
+//                     "Too many symbols in format specification"));   // THROW
+//         }
+//
+//         context.advance_to(current);
+//         return context.begin();
+//     }
+// ```
+// To reduce the size of this example, we will omit the implementation of the
+// `format` method as it is not essential for our purposes.
+// ```
+// };
+// ```
+// Finally, we can test the operation of the `parse` function for different
+// input specifications:
+// ```
+// typedef bslfmt::MockParseContext<char> Context;
+// typedef Context::iterator              ContextIterator;
+//
+// {
+//     MonthFormatter<char> formatter;
+//     Context              context("v");
+//
+//     ContextIterator iterator = formatter.parse(context);
+//
+//     assert(context.end() == iterator);
+// ```
+// Since width is not presented in the format specification, we don't expect
+// our context to change its indexing mode.
+// ```
+//     assert(Context::e_UNKNOWN == context.indexingMode());
+// }
+// {
+//     MonthFormatter<char> formatter;
+//     Context              context("8v");
+//
+//     ContextIterator iterator = formatter.parse(context);
+//
+//     assert(context.end()      == iterator);
+//     assert(Context::e_UNKNOWN == context.indexingMode());
+// }
+// {
+//     MonthFormatter<char> formatter;
+//     Context              context("{}v", 1);
+//
+//     ContextIterator iterator = formatter.parse(context);
+//
+//     assert(context.end()        == iterator);
+// ```
+// And here it is assumed that the width will be determined by the next
+// parameter of the `bsl::format` function.  The indexing mode of the context
+// changes accordingly.
+// ```
+//     assert(Context::e_AUTOMATIC == context.indexingMode());
+// }
+// {
+//     MonthFormatter<char> formatter;
+//     Context              context("{1}v", 2);
+//
+//     ContextIterator iterator = formatter.parse(context);
+//
+//     assert(context.end()     == iterator);
+// ```
+// Here we explicitly indicate the ordinal number of the `bsl::format`
+// parameter storing the width value.
+// ```
+//     assert(Context::e_MANUAL == context.indexingMode());
+// }
+//
 // ```
 
 #include <bslscm_version.h>
@@ -109,7 +279,7 @@ class MockParseContext {
     typedef t_CHAR char_type;
 
     // CREATORS
-    /// Create an object having the specified `fmt` as a fomat specification
+    /// Create an object having the specified `fmt` as a format specification
     /// and the specified `numArgs`.
     BSLS_KEYWORD_CONSTEXPR_CPP20 explicit MockParseContext(
              bsl::basic_string_view<t_CHAR> fmt,
