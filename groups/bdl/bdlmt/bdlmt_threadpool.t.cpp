@@ -2395,22 +2395,28 @@ int main(int argc, char *argv[])
             ASSERTV(i, MAX == X.maxThreads());
             ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
+            setWatchdogText("`stop`: before `STARTPOOL`");
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
+            setWatchdogText("`stop`: before `mutex.lock`");
             mutex.lock();
             ASSERT(x.numWaitingThreads() == MIN);
             for (int j=0; j < MAX; j++) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
+                setWatchdogText("`stop`: before `enqueueJob`");
                 x.enqueueJob(TestJobFunction1, &args);
                 while ( !args.d_startSig ) {
+                    setWatchdogText("`stop`: before `startCond.wait`");
                     startCond.wait(&mutex);
                 }
             }
             args.d_stopSig++;
             mutex.unlock();
             stopCond.broadcast();
+            setWatchdogText("`stop`: before `stop`");
             x.stop();
+            setWatchdogText("`stop`: after `stop`");
             ASSERT(0 == x.enabled());
             ASSERT(MAX == args.d_count);
             ASSERT(0 == x.numActiveThreads());
