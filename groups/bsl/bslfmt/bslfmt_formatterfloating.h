@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show the intended use of this component.
 //
 ///Example: Formatting a floating point number
-///- - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`, so this example is
 // necessarily unrealistic.
@@ -94,8 +94,9 @@ namespace bslfmt {
 /// This class template provides the implementation for all possible floating
 /// point formatting styles and the parsing of the format specification.  The
 /// specified `t_VALUE` template type argument determines the type of floating
-/// point value use (`float` or `double`), while the specified `t_CHAR`
-/// determines the output's character type (`char` or `wchar_t`).
+/// point value use, while the specified `t_CHAR` determines the output's
+/// character type.  The behavior is undefined unless `t_VALUE` is one of
+/// `float` or `double`, and `t_CHAR` is on of `char` or `wchar_t`.
 template <class t_VALUE, class t_CHAR>
 struct FormatterFloating_Base {
   private:
@@ -250,7 +251,9 @@ struct FormatterFloating_Base {
     /// Create string representation of the specified `value`, customized in
     /// accordance with the requested format and the specified `formatContext`,
     /// and write the result to the output iterator that the `formatContext`
-    /// points to.
+    /// points to.  The behavior is undefined unless `t_FORMAT_CONTEXT` is
+    /// either `std::format_context` if that is supported, or otherwise
+    /// `bslfmt::format_context`.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
                                         t_VALUE           value,
@@ -258,7 +261,9 @@ struct FormatterFloating_Base {
 
     /// Parse the specified `parseContext`, store the resulting parsed
     /// specification and return an iterator, pointing to the beginning of the
-    /// format string.
+    /// format string.  The behavior is undefined unless `t_PARSE_CONTEXT` is
+    /// either `std::parse_context` if that is supported, or otherwise
+    /// `bslfmt::parse_context`.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
     parse(t_PARSE_CONTEXT& parseContext);
@@ -687,8 +692,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::formatGeneralImpl(
 
     /// Must be general format
     BSLS_ASSERT(
-               Specification::e_FLOATING_GENERAL == finalSpec.formatType() ||
-               Specification::e_FLOATING_GENERAL_UC == finalSpec.formatType());
+              Specification::e_FLOATING_GENERAL == finalSpec.formatType() ||
+              Specification::e_FLOATING_GENERAL_UC == finalSpec.formatType() ||
+              Specification::e_FLOATING_DEFAULT == finalSpec.formatType());
 
     // Determine the precision
     typedef FormatterSpecificationNumericValue FSNVAlue;
