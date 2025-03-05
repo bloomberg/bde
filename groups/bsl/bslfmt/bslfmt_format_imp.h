@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Thu Jan 23 14:54:23 2025
+// Generated on Wed Mar  5 09:57:03 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 # define COMPILING_BSLFMT_FORMAT_IMP_H
@@ -825,7 +825,7 @@ t_OUT Format_Imp_Processor<t_CHAR>::processImp(
                 *out = '{';
                 ++out;  // prefer prefix increment
                 fc.advance_to(out);
-                continue;
+                continue;                                           // CONTINUE
             }
             size_t id = -1;
             if (*it >= '0' && *it <= '9') {
@@ -848,9 +848,16 @@ t_OUT Format_Imp_Processor<t_CHAR>::processImp(
             else {
                 pc.check_arg_id(id);
             }
+
+            // Separator between arg Id and format specification
+
             if (*it == ':') {
                 ++it;
             }
+            else if (*it != '}') {
+                BSLS_THROW(format_error("Separator ':' missing"));
+            }
+
             pc.advance_to(it);
             visit_format_arg(visitor, args.get(id));
             it = pc.begin();

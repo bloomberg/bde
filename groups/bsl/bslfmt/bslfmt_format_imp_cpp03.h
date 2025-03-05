@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jan 31 09:33:20 2025
+// Generated on Wed Mar  5 10:00:53 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -2843,7 +2843,7 @@ t_OUT Format_Imp_Processor<t_CHAR>::processImp(
                 *out = '{';
                 ++out;  // prefer prefix increment
                 fc.advance_to(out);
-                continue;
+                continue;                                           // CONTINUE
             }
             size_t id = -1;
             if (*it >= '0' && *it <= '9') {
@@ -2866,9 +2866,16 @@ t_OUT Format_Imp_Processor<t_CHAR>::processImp(
             else {
                 pc.check_arg_id(id);
             }
+
+            // Separator between arg Id and format specification
+
             if (*it == ':') {
                 ++it;
             }
+            else if (*it != '}') {
+                BSLS_THROW(format_error("Separator ':' missing"));
+            }
+
             pc.advance_to(it);
             visit_format_arg(visitor, args.get(id));
             it = pc.begin();
