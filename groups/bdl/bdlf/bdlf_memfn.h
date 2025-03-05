@@ -172,6 +172,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
+#include <bsls_platform.h>
+
 
 namespace BloombergLP {
 
@@ -324,6 +326,13 @@ class MemFn {
 
     // ACCESSORS
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && \
+    BSLS_PLATFORM_CMP_VERSION >= 110000 && \
+    BSLS_PLATFORM_CMP_VERSION <  150000
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111750
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     /// Invoke the member function pointer held by this wrapper on the
     /// specified `object` reference to a modifiable instance of the
     /// parameterized `INSTANCE` type, with no specified arguments, and
@@ -754,6 +763,11 @@ class MemFn {
                                                 arg6,  arg7, arg8, arg9, arg10,
                                                 arg11, arg12, arg13, arg14);
     }
+#if defined(BSLS_PLATFORM_CMP_GNU) && \
+    BSLS_PLATFORM_CMP_VERSION >= 110000 && \
+    BSLS_PLATFORM_CMP_VERSION <  150000
+#  pragma GCC diagnostic pop
+#endif
 };
 
                             // ===================

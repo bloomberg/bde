@@ -307,12 +307,19 @@ void *workerThread(void *arg) {
                    static_cast<int>(bslmt::ThreadUtil::selfIdAsUint64()),
                    buffer);
         }
-        LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
-        LOOP_ASSERT(i, buffer);
+        if ((void*)buffer == (void*)0xAB || !buffer) {
+            LOOP_ASSERT(i, false);
+            continue;                                               // CONTINUE
+        }
         *buffer = 0xAB;
-        LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
+        if ((void*)buffer == (void*)0xAB) {
+            LOOP_ASSERT(i, false);
+            continue;                                               // CONTINUE
+        }
         mX->deallocate((void*)buffer);
-        LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
+        if ((void*)buffer == (void*)0xAB) {
+            LOOP_ASSERT(i, false);
+        }
     }
     return arg;
 }
