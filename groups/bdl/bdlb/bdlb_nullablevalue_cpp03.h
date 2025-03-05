@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 21 17:01:55 2025
+// Generated on Wed Mar  5 13:23:05 2025
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -278,9 +278,9 @@ class NullableValue : public bsl::optional<TYPE> {
     /// Create a nullable object having the null value if the specified
     /// `original` object is null, and the value of `original.value()` (of
     /// `BDE_OTHER_TYPE`) converted to `TYPE` otherwise.  If `TYPE` takes an
-    /// optional allocator at construction, use the currently installed
-    /// default allocator to supply memory.  Note that this method will fail
-    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
+    /// optional allocator at construction, use the currently installed default
+    /// allocator to supply memory.  Note that this method will fail to compile
+    /// if `TYPE` and `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     explicit NullableValue(const NullableValue<BDE_OTHER_TYPE>& original);
 
@@ -289,28 +289,28 @@ class NullableValue : public bsl::optional<TYPE> {
     /// `BDE_OTHER_TYPE`) converted to `TYPE` otherwise.  Use the specified
     /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
     /// supply memory.  Note that this constructor will not participate in
-    /// overload resolution unless `TYPE` is allocator aware.  Also note
-    /// that compilation will fail if this function is called with a
+    /// overload resolution unless `TYPE` is allocator aware.  Also note that
+    /// compilation will fail if this function is called with a
     /// `BDE_OTHER_TYPE` that is not convertible to `TYPE`.
     template <class BDE_OTHER_TYPE>
     NullableValue(const NullableValue<BDE_OTHER_TYPE>& original,
                   const allocator_type&                allocator);
 
     /// Create a nullable object having the null value.  If `TYPE` takes an
-    /// optional allocator at construction, use the currently installed
-    /// default allocator to supply memory for subsequent values assigned to
-    /// this object.
+    /// optional allocator at construction, use the currently installed default
+    /// allocator to supply memory for subsequent values assigned to this
+    /// object.
     NullableValue(const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;     // IMPLICIT
 
     /// Create a nullable object that has the null value; use the specified
     /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory for subsequent values assigned to this object.  Note
-    /// that this constructor will not participate in overload resolution
-    /// unless `TYPE` is allocator aware.
+    /// supply memory for subsequent values assigned to this object.  Note that
+    /// this constructor will not participate in overload resolution unless
+    /// `TYPE` is allocator aware.
     NullableValue(const bsl::nullopt_t&,
                   const allocator_type& allocator) BSLS_KEYWORD_NOEXCEPT;
 
-    // Destroy this object.
+    /// Destroy this object.
     //! ~NullableValue();
 
     // MANIPULATORS
@@ -320,44 +320,44 @@ class NullableValue : public bsl::optional<TYPE> {
     NullableValue<TYPE>& operator=(const NullableValue& rhs);
 
     /// Assign to this object the value of the specified `rhs`, and return a
-    /// reference providing modifiable access to this object.  The contents
-    /// of `rhs` are either move-inserted into or move-assigned to this
-    /// object.  `rhs` is left in a valid but unspecified state.
+    /// reference providing modifiable access to this object.  The contents of
+    /// `rhs` are either move-inserted into or move-assigned to this object.
+    /// `rhs` is left in a valid but unspecified state.
     NullableValue<TYPE>& operator=(bslmf::MovableRef<NullableValue> rhs);
 
-    /// Assign to this object the null value if the specified `rhs` object
-    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
-    /// converted to `TYPE` otherwise.  Return a reference providing
-    /// modifiable access to this object.  Note that this method will fail
-    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
+    /// Assign to this object the null value if the specified `rhs` object is
+    /// null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`) converted to
+    /// `TYPE` otherwise.  Return a reference providing modifiable access to
+    /// this object.  Note that this method will fail to compile if `TYPE` and
+    /// `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(const NullableValue<BDE_OTHER_TYPE>& rhs);
 
-    /// Assign to this object the null value if the specified `rhs` object
-    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
-    /// converted to `TYPE` otherwise.  Return a reference providing
-    /// modifiable access to this object.  Note that this method will fail
-    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
+    /// Assign to this object the null value if the specified `rhs` object is
+    /// null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`) converted to
+    /// `TYPE` otherwise.  Return a reference providing modifiable access to
+    /// this object.  Note that this method will fail to compile if `TYPE` and
+    /// `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     NullableValue<TYPE>& operator=(
                             BSLMF_MOVABLEREF_DEDUCE(
                                            NullableValue<BDE_OTHER_TYPE>) rhs);
 
-    /// Assign to this object the null value if the specified `rhs` object
-    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
-    /// converted to `TYPE` otherwise.  Return a reference providing
-    /// modifiable access to this object.  Note that this method will fail
-    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
+    /// Assign to this object the null value if the specified `rhs` object is
+    /// null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`) converted to
+    /// `TYPE` otherwise.  Return a reference providing modifiable access to
+    /// this object.  Note that this method will fail to compile if `TYPE` and
+    /// `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             NullableValue<TYPE>&>::type
     operator=(const bsl::optional<BDE_OTHER_TYPE>& rhs);
 
-    /// Assign to this object the null value if the specified `rhs` object
-    /// is null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`)
-    /// converted to `TYPE` otherwise.  Return a reference providing
-    /// modifiable access to this object.  Note that this method will fail
-    /// to compile if `TYPE and `BDE_OTHER_TYPE' are not compatible.
+    /// Assign to this object the null value if the specified `rhs` object is
+    /// null, and the value of `rhs.value()` (of `BDE_OTHER_TYPE`) converted to
+    /// `TYPE` otherwise.  Return a reference providing modifiable access to
+    /// this object.  Note that this method will fail to compile if `TYPE` and
+    /// `BDE_OTHER_TYPE' are not compatible.
     template <class BDE_OTHER_TYPE>
     typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
                             NullableValue<TYPE>&>::type
@@ -406,7 +406,7 @@ class NullableValue : public bsl::optional<TYPE> {
     /// Assign to this object the specified `value` (of `BDE_OTHER_TYPE`)
     /// converted to `TYPE`, and return a reference providing modifiable
     /// access to the underlying `TYPE` object.  Note that this method will
-    /// fail to compile if `TYPE and `BDE_OTHER_TYPE` are not compatible.
+    /// fail to compile if `TYPE` and `BDE_OTHER_TYPE` are not compatible.
     template <class BDE_OTHER_TYPE>
     TYPE& makeValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value);
 
