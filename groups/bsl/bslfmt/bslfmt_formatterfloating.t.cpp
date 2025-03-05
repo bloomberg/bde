@@ -164,7 +164,7 @@ bool testRuntimeFormat(int           line,
                                                                      value,
                                                                      dummyArg,
                                                                      dummyArg);
-    ASSERTV(line, format, message.c_str(), rv);
+    ASSERTV(line, format, message.c_str(), _MSC_FULL_VER, rv);
 
     return rv;
 }
@@ -1264,6 +1264,7 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
+#define u_MSVC_LAST_BAD_VER 194334808
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37f),
@@ -2036,7 +2037,6 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37),
-#define u_MSVC_LAST_BAD_VER 194234435
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37),
