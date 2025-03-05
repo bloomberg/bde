@@ -208,7 +208,6 @@ bool testRuntimeFormat(int           line,
                        t_TYPE3       value3)
 {
     bsl::string message;
-    int         dummyArg = 0;
 
     bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(&message,
                                                                      expected,
