@@ -291,25 +291,26 @@ int main(int argc, char **argv)
 // ```
       } break;
       case 8: {
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
         // FORMAT STRING PARSING
         //
         // Concerns:
-        //: 1 Invalid format specs will generate a parse error
-        //:
-        //: 2 Valid format specs will not generate a parse error
+        // 1. Invalid format specs will generate a parse error
+        //
+        // 2. Valid format specs will not generate a parse error
         //
         // Plan:
-        //: 1 Construct format specs corresponding to each of the known error
-        //:   conditions and verify that they result in a parse error. (C-1)
-        //:
-        //: 2 Construct format specs containing different combinations of
-        //:   valid specification components and verify that they correctly
-        //:   parse. (C-2)
+        // 1. Construct format specs corresponding to each of the known error
+        //    conditions and verify that they result in a parse error. (C-1)
+        //
+        // 2. Construct format specs containing different combinations of
+        //    valid specification components and verify that they correctly
+        //    parse. (C-2)
         //
         // Testing:
         //   CONCERN: Format string parsing with context
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
+
         if (verbose) puts("\nFORMAT STRING PARSING"
                           "\n=====================");
 
@@ -574,6 +575,12 @@ int main(int argc, char **argv)
         TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , oracle_uni);
 
 #undef TPS
+#undef TEST_PARSE_FAIL_
+#undef TEST_PARSE_FAIL
+#undef TEST_PARSE_SUCCESS_F_
+#undef TEST_PARSE_SUCCESS_F
+#undef TEST_PARSE_SUCCESS_VF_
+#undef TEST_PARSE_SUCCESS_VF
       } break;
       case 7: {
         // --------------------------------------------------------------------

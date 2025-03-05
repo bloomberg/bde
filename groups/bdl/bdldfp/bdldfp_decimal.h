@@ -4306,7 +4306,9 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
              // =============================================
 
 /// This template is the implementation of the `bsl::format` specification for
-/// `bdldfp::Decimal*` types.
+/// `bdldfp::Decimal*` types.  It parses as well as postprocesses format
+/// specifications for `bdldfp::Decimal*` type formatted arguments, as well as
+/// stores the results of that pasring: the specification.
 template <class t_CHAR>
 struct Decimal_FormatterSpecification {
 
@@ -4469,9 +4471,10 @@ struct Decimal_FormatterSpecification {
 /// This class template provides the implementation for all possible decimal
 /// floating point formatting styles and the parsing of the format
 /// specification.  The specified `t_VALUE` template type argument determines
-/// the type of floating point value use (`Decimal32`, ``Decimal64, or
-/// `Decimal128`), while the specified `t_CHAR` determines both the formatting
-/// string and the output's character type.
+/// the type of decimal floating point value use, while the specified `t_CHAR`
+/// determines both the formatting string and the output's character type.  The
+/// behavior is undefined unless `t_VALUE` is one of `Decimal32`, `Decimal64,
+/// or `Decimal128``, and `t_CHAR` is on of `char` or `wchar_t`.
 template <class t_VALUE, class t_CHAR>
 struct Decimal_BslFmtFormatterImpl {
   private:
@@ -4495,6 +4498,9 @@ struct Decimal_BslFmtFormatterImpl {
     /// Copy the specified `numberBuffer` of size `numberLength` aligned with
     /// fills according to the specified `finalSpec` to the output iterator of
     /// the `formatContext` and return an iterator one-past the last written.
+    /// The behavior is undefined unless `t_FORMAT_CONTEXT` is either
+    /// `std::format_context` if that is supported, or otherwise
+    /// `bslfmt::format_context`.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator alignAndCopy(
                                         const char           *numberBuffer,
@@ -4507,14 +4513,19 @@ struct Decimal_BslFmtFormatterImpl {
     /// Create string representation of the specified `value`, customized in
     /// accordance with the requested format and the specified `formatContext`,
     /// and copy it to the output that the output iterator of the
-    /// `formatContext` points to.
+    /// `formatContext` points to.  The behavior is undefined unless
+    /// `t_FORMAT_CONTEXT` is either `std::format_context` if that is
+    /// supported, or otherwise `bslfmt::format_context`.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
                                         const t_VALUE&    value,
                                         t_FORMAT_CONTEXT& formatContext) const;
 
     /// Parse the specified `parseContext` and return an iterator, pointing to
-    /// the beginning of the unparsed section of the format string.
+    /// the beginning of the unparsed section of the format string.  The
+    /// behavior is undefined unless `t_PARSE_CONTEXT` is either
+    /// `std::parse_context` if that is supported, or otherwise
+    /// `bslfmt::parse_context`.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20
     typename t_PARSE_CONTEXT::iterator
