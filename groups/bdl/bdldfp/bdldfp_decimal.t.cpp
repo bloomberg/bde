@@ -142,8 +142,9 @@ using bsl::atoi;
 // [ 2] Decimal64 Type
 // [ 3] Decimal128 Type
 // [ 9] REGRESSIONS
-// [10] BSLFMT FORMATTERS
-// [11] USAGE EXAMPLE
+// [10] BSLFMT FORMAT STRING PARSING
+// [11] BSLFMT FORMATTERS
+// [12] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -207,6 +208,58 @@ namespace UsageExample {
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::format` function
+/// produces the specified `expected` result for the specified `format`,
+/// `value1`, and `value2`.  The specified `line` is used to identify the
+/// function call location.
+template <class t_CHAR, class t_TYPE1, class t_TYPE2>
+bool testRuntimeFormat(int           line,
+                       const t_CHAR *expected,
+                       const t_CHAR *format,
+                       t_TYPE1       value1,
+                       t_TYPE2       value2)
+{
+    bsl::string message;
+    int         dummyArg = 0;
+
+    bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(&message,
+                                                                     expected,
+                                                                     true,
+                                                                     format,
+                                                                     value1,
+                                                                     value2,
+                                                                     dummyArg);
+    ASSERTV(line, format, message.c_str(), rv);
+
+    return rv;
+}
+
+/// Check whether the `bslfmt::formatter<t_TYPE, t_CHAR>::format` function
+/// produces the specified `expected` result for the specified `format`,
+/// `value1`, `value2`, and `value3`.  The specified `line` is used to identify
+/// the function call location.
+template <class t_CHAR, class t_TYPE1, class t_TYPE2, class t_TYPE3>
+bool testRuntimeFormat(int           line,
+                       const t_CHAR *expected,
+                       const t_CHAR *format,
+                       t_TYPE1       value1,
+                       t_TYPE2       value2,
+                       t_TYPE3       value3)
+{
+    bsl::string message;
+
+    bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(&message,
+                                                                     expected,
+                                                                     true,
+                                                                     format,
+                                                                     value1,
+                                                                     value2,
+                                                                     value3);
+    ASSERTV(line, format, message.c_str(), rv);
+
+    return rv;
+}
 
                  // stringstream helpers - not thread safe!
 
@@ -443,6 +496,7 @@ bool testRuntimeFormat(int           line,
 /// compile-time performance issues on some platforms.
 struct TestDriver {
 
+    static void testCase12();
     static void testCase11();
     static void testCase10();
     static void testCase9();
@@ -457,7 +511,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase11()
+void TestDriver::testCase12()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
@@ -519,6 +573,311 @@ void TestDriver::testCase11()
                BDLDFP_DECIMAL_DD(0.3));
         // ```
     }
+}
+
+void TestDriver::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // FORMAT STRING PARSING
+    //
+    // Concerns:
+    //  1. Invalid format specs will generate a parse error
+    //
+    //  2. Valid format specs will not generate a parse error
+    //
+    // Plan:
+    // 1. Construct format specs corresponding to each of the known error
+    //    conditions and verify that they result in a parse error. (C-1)
+    //
+    // 2. Construct format specs containing different combinations of
+    //    valid specification components and verify that they correctly
+    //    parse. (C-2)
+    //
+    // Testing:
+    //   CONCERN: Format string parsing with context
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nFORMAT STRING PARSING"
+                      "\n=====================");
+
+#define TEST_PARSE_FAIL_(charType, type, fmtStr, useOracle)                   \
+    do {                                                                      \
+        bsl::string errorMsg;                                                 \
+        bool rv;                                                              \
+        rv = bslfmt::FormatterTestUtil<charType>::                            \
+                 testParseFailure<type>(&errorMsg, useOracle, fmtStr);        \
+        if (!rv) {                                                            \
+            bsl::basic_string<charType> formatStr(fmtStr);                    \
+            ASSERTV(L_, errorMsg.c_str(), rv);                                \
+        }                                                                     \
+    } while (false)
+
+#define TEST_PARSE_FAIL(charType, fmtStr, useOracle)                          \
+    do {                                                                      \
+        TEST_PARSE_FAIL_(charType, bdldfp::Decimal32,  fmtStr, useOracle);    \
+        TEST_PARSE_FAIL_(charType, bdldfp::Decimal64,  fmtStr, useOracle);    \
+        TEST_PARSE_FAIL_(charType, bdldfp::Decimal128, fmtStr, useOracle);    \
+    } while (false)
+
+#define TEST_PARSE_SUCCESS_F_(charType, type, fmtStr, useOracle)              \
+    do {                                                                      \
+        bsl::string errorMsg;                                                 \
+        bool rv;                                                              \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<charType>::                            \
+                 testParseFormat<type>(&errorMsg, useOracle, fmtStr);         \
+        if (!rv) {                                                            \
+            bsl::basic_string<charType> formatStr(fmtStr);                    \
+            ASSERTV(L_, errorMsg.c_str(), rv);                                \
+        }                                                                     \
+    } while (false)
+
+#define TEST_PARSE_SUCCESS_F(charType, fmtStr, useOracle)                     \
+    do {                                                                      \
+        TEST_PARSE_SUCCESS_F_(charType, bdldfp::Decimal32, fmtStr, useOracle);\
+        TEST_PARSE_SUCCESS_F_(charType, bdldfp::Decimal64, fmtStr, useOracle);\
+        TEST_PARSE_SUCCESS_F_(charType,                                       \
+                              bdldfp::Decimal128,                             \
+                              fmtStr,                                         \
+                              useOracle);                                     \
+    } while (false)
+
+#define TEST_PARSE_SUCCESS_VF_(charType, type, fmtStr, useOracle)             \
+    do {                                                                      \
+        bsl::string errorMsg;                                                 \
+        bool        rv;                                                       \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<charType>::testParseVFormat<type>      \
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<charType> formatStr(fmtStr);                    \
+            ASSERTV(L_, errorMsg.c_str(), rv);                                \
+        }                                                                     \
+    } while (false)
+
+#define TEST_PARSE_SUCCESS_VF(charType, fmtStr, useOracle)                    \
+    do {                                                                      \
+        TEST_PARSE_SUCCESS_VF_(charType,                                      \
+                               bdldfp::Decimal32,                             \
+                               fmtStr,                                        \
+                               useOracle);                                    \
+        TEST_PARSE_SUCCESS_VF_(charType,                                      \
+                               bdldfp::Decimal64,                             \
+                               fmtStr,                                        \
+                               useOracle);                                    \
+        TEST_PARSE_SUCCESS_VF_(charType,                                      \
+                               bdldfp::Decimal128,                            \
+                               fmtStr,                                        \
+                               useOracle);                                    \
+    } while (false)
+
+        // Bad fill character
+        // Note can only test '{' as '}' closes the parse string.
+        TEST_PARSE_FAIL(char,     "{:{<5.5}",    true);
+        TEST_PARSE_FAIL(wchar_t, L"{:{<5.5}",    true);
+
+        // Missing fill specifier
+        TEST_PARSE_FAIL(char,     "{:*5.5}",     true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*5.5}",     true);
+
+        // Locale option
+        TEST_PARSE_FAIL(char,     "{:*<5.5L}",   false);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<5.5L}",   false);
+
+        // Non-float type
+        TEST_PARSE_FAIL(char,     "{:*<5.5d}",    true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<5.5d}",    true);
+
+        // Non-numeric width or precision
+        TEST_PARSE_FAIL(char,     "{:*< X.5}",   true);
+        TEST_PARSE_FAIL(char,     "{:*<+5.X}",   true);
+        TEST_PARSE_FAIL(char,     "{:*<-X.X}",   true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*< X.5}",   true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<+5.X}",   true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<-X.X}",   true);
+
+        // Missing precision marker
+        TEST_PARSE_FAIL(char,     "{:*<{}{}}",      false);
+        TEST_PARSE_FAIL(char,     "{0:*<{3}{2}}",   false);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<{}{}}",      false);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{3}{2}}",   false);
+
+        // Mixed numeric and non-numeric nested args
+        TEST_PARSE_FAIL(char,     "{:*<{}.{2}}",     true);
+        TEST_PARSE_FAIL(char,     "{:*<{1}.{}}",     true);
+        TEST_PARSE_FAIL(char,     "{:*<{1}.{2}}",    true);
+        TEST_PARSE_FAIL(char,     "{0:*<{}.{}}",     true);
+        TEST_PARSE_FAIL(char,     "{0:*<{}.{2}}",    true);
+        TEST_PARSE_FAIL(char,     "{0:*<{1}.{}}",    true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<{}.{2}}",     true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<{1}.{}}",     true);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<{1}.{2}}",    true);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{}.{}}",     true);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{}.{2}}",    true);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{1}.{}}",    true);
+
+        // Nested args out of range
+        // Not checked in std parsing
+        TEST_PARSE_FAIL(char,     "{0:*<{1}.{3}}",   false);
+        TEST_PARSE_FAIL(char,     "{0:*<{3}.{2}}",   false);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{1}.{3}}",   false);
+        TEST_PARSE_FAIL(wchar_t, L"{0:*<{3}.{2}}",   false);
+
+        // A selection of valid format strings (non-unicode)
+        TEST_PARSE_SUCCESS_F(char,     "{:}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:#}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:#}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:0}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:0}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:+}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:+}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:-}"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:-}"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{: }"                   , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{: }"                   , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:e}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:e}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:f}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:f}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:g}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:g}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:E}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:E}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:F}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:F}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:G}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:G}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:.0}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:.0}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:.8}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:.8}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5}"                  , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5}"                  , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5.0}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5.0}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:5.8}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:5.8}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^}"                 , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^}"                 , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^.0}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^.8}"               , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5}"                , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5}"                , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5.0}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^5.8}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:{}.{}}"              , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*>{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{:*^{}.{}}"            , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:{1}.{1}}"           , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*<{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*>{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(char,     "{0:*^{1}.{1}}"         , true);
+        TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*^{1}.{1}}"         , true);
+
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
+        #define TPS TEST_PARSE_SUCCESS_VF
+        BSLS_KEYWORD_CONSTEXPR_CPP20 bool oracle_uni = false;
+#else
+        #define TPS TEST_PARSE_SUCCESS_F
+        BSLS_KEYWORD_CONSTEXPR_CPP20 bool oracle_uni = true;
+#endif
+
+        // A selection of vaid format strings (unicode)
+        TPS(char,     "{:\xF0\x9F\x98\x80<}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^}"         , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^}"               , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^.0}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^.0}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^.8}"       , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^.8}"             , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5}"        , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5}"              , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5.0}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5.0}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^5.8}"      , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^5.8}"            , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80<{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600<{}.{}}"          , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80>{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600>{}.{}}"          , oracle_uni);
+        TPS(char,     "{:\xF0\x9F\x98\x80^{}.{}}"    , oracle_uni);
+        TPS(wchar_t, L"{:\U0001F600^{}.{}}"          , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80<{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600<{1}.{1}}"       , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80>{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600>{1}.{1}}"       , oracle_uni);
+        TPS(char,     "{0:\xF0\x9F\x98\x80^{1}.{1}}" , oracle_uni);
+        TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , oracle_uni);
+
+#undef TPS
+#undef TEST_PARSE_FAIL_
+#undef TEST_PARSE_FAIL
+#undef TEST_PARSE_SUCCESS_F_
+#undef TEST_PARSE_SUCCESS_F
+#undef TEST_PARSE_SUCCESS_VF_
+#undef TEST_PARSE_SUCCESS_VF
 }
 
 void TestDriver::testCase10()
@@ -8964,6 +9323,9 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 12: {
+        TestDriver::testCase12();
+      } break;
       case 11: {
         TestDriver::testCase11();
       } break;

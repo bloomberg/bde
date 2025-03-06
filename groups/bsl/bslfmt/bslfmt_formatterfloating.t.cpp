@@ -164,7 +164,7 @@ bool testRuntimeFormat(int           line,
                                                                      value,
                                                                      dummyArg,
                                                                      dummyArg);
-    ASSERTV(line, format, message.c_str(), rv);
+    ASSERTV(line, format, message.c_str(), _MSC_FULL_VER, rv);
 
     return rv;
 }
@@ -208,7 +208,6 @@ bool testRuntimeFormat(int           line,
                        t_TYPE3       value3)
 {
     bsl::string message;
-    int         dummyArg = 0;
 
     bool rv = bslfmt::FormatterTestUtil<t_CHAR>::testEvaluateVFormat(&message,
                                                                      expected,
@@ -291,25 +290,26 @@ int main(int argc, char **argv)
 // ```
       } break;
       case 8: {
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
         // FORMAT STRING PARSING
         //
         // Concerns:
-        //: 1 Invalid format specs will generate a parse error
-        //:
-        //: 2 Valid format specs will not generate a parse error
+        // 1. Invalid format specs will generate a parse error
+        //
+        // 2. Valid format specs will not generate a parse error
         //
         // Plan:
-        //: 1 Construct format specs corresponding to each of the known error
-        //:   conditions and verify that they result in a parse error. (C-1)
-        //:
-        //: 2 Construct format specs containing different combinations of
-        //:   valid specification components and verify that they correctly
-        //:   parse. (C-2)
+        // 1. Construct format specs corresponding to each of the known error
+        //    conditions and verify that they result in a parse error. (C-1)
+        //
+        // 2. Construct format specs containing different combinations of
+        //    valid specification components and verify that they correctly
+        //    parse. (C-2)
         //
         // Testing:
         //   CONCERN: Format string parsing with context
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
+
         if (verbose) puts("\nFORMAT STRING PARSING"
                           "\n=====================");
 
@@ -574,6 +574,12 @@ int main(int argc, char **argv)
         TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , oracle_uni);
 
 #undef TPS
+#undef TEST_PARSE_FAIL_
+#undef TEST_PARSE_FAIL
+#undef TEST_PARSE_SUCCESS_F_
+#undef TEST_PARSE_SUCCESS_F
+#undef TEST_PARSE_SUCCESS_VF_
+#undef TEST_PARSE_SUCCESS_VF
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1258,6 +1264,7 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
+#define u_MSVC_LAST_BAD_VER 194334808
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37f),
@@ -2030,7 +2037,6 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37),
-#define u_MSVC_LAST_BAD_VER 194234435
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37),
