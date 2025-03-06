@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // /// `newSize < bdlat_arraySize(*array)`, then the
 // /// `bdlat_arraySize(*array) - newSize` elements at the end of `array`
 // /// are destroyed.  The behavior is undefined unless `0 <= newSize`.
-// void resize(YOUR_TYPE *array, int newSize);
+// void bdlat_arrayResize(YOUR_TYPE *array, int newSize);
 //
 // // ACCESSORS
 //

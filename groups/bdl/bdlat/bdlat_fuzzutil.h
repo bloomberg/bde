@@ -60,7 +60,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typecategory.h>
-#include <bdlat_valuetypefunctions.h>
+
+#include <bdldfp_decimal.h>
+
+#include <bdlt_fuzzutil.h>
 
 #include <bslim_fuzzdataview.h>
 #include <bslim_fuzzutil.h>
@@ -137,52 +140,96 @@ class FuzzUtil {
     /// specified `fuzzData` and the specified `options`.
     template <class t_ARRAY>
     static typename EnableIf<t_ARRAY,
-                             bdlat_TypeCategory::e_ARRAY_CATEGORY
-    >::type consume(t_ARRAY               *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_ARRAY_CATEGORY>::type
+    consume(t_ARRAY               *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_CHOICE>
     static typename EnableIf<t_CHOICE,
-                             bdlat_TypeCategory::e_CHOICE_CATEGORY
-    >::type consume(t_CHOICE              *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_CHOICE_CATEGORY>::type
+    consume(t_CHOICE              *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_CUSTOMIZED>
     static typename EnableIf<t_CUSTOMIZED,
-                             bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
-    >::type consume(t_CUSTOMIZED          *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                          bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY>::type
+    consume(t_CUSTOMIZED          *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_DYNAMIC>
     static typename EnableIf<t_DYNAMIC,
-                             bdlat_TypeCategory::e_DYNAMIC_CATEGORY
-    >::type consume(t_DYNAMIC             *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_DYNAMIC_CATEGORY>::type
+    consume(t_DYNAMIC             *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_ENUM>
     static typename EnableIf<t_ENUM,
-                             bdlat_TypeCategory::e_ENUMERATION_CATEGORY
-    >::type consume(t_ENUM                *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_ENUMERATION_CATEGORY>::type
+    consume(t_ENUM                *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_NULLABLE>
     static typename EnableIf<t_NULLABLE,
-                             bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
-    >::type consume(t_NULLABLE            *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                           bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY>::type
+    consume(t_NULLABLE            *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_SEQUENCE>
     static typename EnableIf<t_SEQUENCE,
-                             bdlat_TypeCategory::e_SEQUENCE_CATEGORY
-    >::type consume(t_SEQUENCE            *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_SEQUENCE_CATEGORY>::type
+    consume(t_SEQUENCE            *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
     template <class t_SIMPLE>
     static typename EnableIf<t_SIMPLE,
-                             bdlat_TypeCategory::e_SIMPLE_CATEGORY
-    >::type consume(t_SIMPLE              *object,
-                    bslim::FuzzDataView   *fuzzData,
-                    const FuzzUtilOptions *options);
+                             bdlat_TypeCategory::e_SIMPLE_CATEGORY>::type
+    consume(t_SIMPLE              *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
+    static void
+    consume(bsl::vector<char>     *object,
+            bslim::FuzzDataView   *fuzzData,
+            const FuzzUtilOptions *options);
+
+    /// Initialize the specified `object` with a value generated using the
+    /// specified `fuzzData` and the specified `options`.
+    template<class t_NUMBER>
+    static typename bsl::enable_if<
+        bsl::is_integral<t_NUMBER>::value ||
+        bsl::is_floating_point<t_NUMBER>::value>::type
+    consumeSimple(t_NUMBER              *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options);
+    static void consumeSimple(bdldfp::Decimal64     *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bool                  *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bsl::string           *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bsl::vector<char>     *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::Date            *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::DateTz          *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::Datetime        *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::DatetimeTz      *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::Time            *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
+    static void consumeSimple(bdlt::TimeTz          *object,
+                              bslim::FuzzDataView   *fuzzData,
+                              const FuzzUtilOptions *options);
 
     // FRIENDS
     friend struct FuzzUtil_Manipulator;
@@ -265,10 +312,10 @@ int FuzzUtil_ManipulatorWithCategory::operator()(t_TYPE         *object,
 template <class t_ARRAY>
 inline
 typename FuzzUtil::EnableIf<t_ARRAY,
-                            bdlat_TypeCategory::e_ARRAY_CATEGORY
->::type FuzzUtil::consume(t_ARRAY               *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                            bdlat_TypeCategory::e_ARRAY_CATEGORY>::type
+FuzzUtil::consume(t_ARRAY               *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
     unsigned maxSize = options ? options->maxArrayLength()
                                : FuzzUtilOptions::k_MAX_ARRAY_LENGTH_DEFAULT;
@@ -297,10 +344,10 @@ typename FuzzUtil::EnableIf<t_ARRAY,
 template <class t_CHOICE>
 inline
 typename FuzzUtil::EnableIf<t_CHOICE,
-                            bdlat_TypeCategory::e_CHOICE_CATEGORY
->::type FuzzUtil::consume(t_CHOICE              *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                            bdlat_TypeCategory::e_CHOICE_CATEGORY>::type
+FuzzUtil::consume(t_CHOICE              *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
     BSLMF_ASSERT(bdlat_IsBasicChoice<t_CHOICE>::value);
     int selectionIndex = bslim::FuzzUtil::consumeNumberInRange<int>(
@@ -317,10 +364,10 @@ typename FuzzUtil::EnableIf<t_CHOICE,
 template <class t_CUSTOMIZED>
 inline
 typename FuzzUtil::EnableIf<t_CUSTOMIZED,
-                            bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY
->::type FuzzUtil::consume(t_CUSTOMIZED          *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                          bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY>::type
+FuzzUtil::consume(t_CUSTOMIZED          *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -342,10 +389,10 @@ typename FuzzUtil::EnableIf<t_CUSTOMIZED,
 template <class t_DYNAMIC>
 inline
 typename FuzzUtil::EnableIf<t_DYNAMIC,
-                            bdlat_TypeCategory::e_DYNAMIC_CATEGORY
->::type FuzzUtil::consume(t_DYNAMIC             *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                            bdlat_TypeCategory::e_DYNAMIC_CATEGORY>::type
+FuzzUtil::consume(t_DYNAMIC             *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
     FuzzUtil_ManipulatorWithCategory manipulator = {fuzzData, options};
     bdlat_TypeCategoryUtil::manipulateByCategory(object, manipulator);
@@ -354,10 +401,10 @@ typename FuzzUtil::EnableIf<t_DYNAMIC,
 template <class t_ENUM>
 inline
 typename FuzzUtil::EnableIf<t_ENUM,
-                            bdlat_TypeCategory::e_ENUMERATION_CATEGORY
->::type FuzzUtil::consume(t_ENUM                *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *)
+                            bdlat_TypeCategory::e_ENUMERATION_CATEGORY>::type
+FuzzUtil::consume(t_ENUM                *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *)
 {
     BSLMF_ASSERT(bdlat_IsBasicEnumeration<t_ENUM>::value);
     typedef typename bdlat_BasicEnumerationWrapper<t_ENUM>::Wrapper Wrapper;
@@ -372,10 +419,10 @@ typename FuzzUtil::EnableIf<t_ENUM,
 template <class t_NULLABLE>
 inline
 typename FuzzUtil::EnableIf<t_NULLABLE,
-                            bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY
->::type FuzzUtil::consume(t_NULLABLE            *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                           bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY>::type
+FuzzUtil::consume(t_NULLABLE            *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
     bool addValue = bslim::FuzzUtil::consumeBool(fuzzData);
     if (addValue) {
@@ -388,10 +435,10 @@ typename FuzzUtil::EnableIf<t_NULLABLE,
 template <class t_SEQUENCE>
 inline
 typename FuzzUtil::EnableIf<t_SEQUENCE,
-                            bdlat_TypeCategory::e_SEQUENCE_CATEGORY
->::type FuzzUtil::consume(t_SEQUENCE            *object,
-                          bslim::FuzzDataView   *fuzzData,
-                          const FuzzUtilOptions *options)
+                            bdlat_TypeCategory::e_SEQUENCE_CATEGORY>::type
+FuzzUtil::consume(t_SEQUENCE            *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
     FuzzUtil_Manipulator manipulator = {fuzzData, options};
     bdlat_SequenceFunctions::manipulateAttributes(object, manipulator);
@@ -400,12 +447,117 @@ typename FuzzUtil::EnableIf<t_SEQUENCE,
 template <class t_SIMPLE>
 inline
 typename FuzzUtil::EnableIf<t_SIMPLE,
-                            bdlat_TypeCategory::e_SIMPLE_CATEGORY
->::type FuzzUtil::consume(t_SIMPLE              *object,
-                          bslim::FuzzDataView   *,
-                          const FuzzUtilOptions *)
+                            bdlat_TypeCategory::e_SIMPLE_CATEGORY>::type
+FuzzUtil::consume(t_SIMPLE              *object,
+                  bslim::FuzzDataView   *fuzzData,
+                  const FuzzUtilOptions *options)
 {
-    bdlat_ValueTypeFunctions::reset(object);
+    consumeSimple(object, fuzzData, options);
+}
+
+inline
+void FuzzUtil::consume(bsl::vector<char>     *object,
+                       bslim::FuzzDataView   *fuzzData,
+                       const FuzzUtilOptions *options)
+{
+    consumeSimple(object, fuzzData, options);
+}
+
+template<class t_NUMBER>
+inline
+typename bsl::enable_if<
+    bsl::is_integral<t_NUMBER>::value ||
+    bsl::is_floating_point<t_NUMBER>::value>::type
+FuzzUtil::consumeSimple(t_NUMBER              *number,
+                        bslim::FuzzDataView   *fuzzData,
+                        const FuzzUtilOptions *)
+{
+    *number = bslim::FuzzUtil::consumeNumber<t_NUMBER>(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdldfp::Decimal64     *number,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *number = bdldfp::Decimal64(
+                             bslim::FuzzUtil::consumeNumber<double>(fuzzData));
+}
+
+inline
+void FuzzUtil::consumeSimple(bool                  *boolean,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *boolean = bslim::FuzzUtil::consumeBool(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bsl::string           *chars,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *options)
+{
+    unsigned maxLen = options ? options->maxStringLength()
+                              : FuzzUtilOptions::k_MAX_STRING_LENGTH_DEFAULT;
+    bslim::FuzzUtil::consumeRandomLengthString(chars, fuzzData, maxLen);
+}
+
+inline
+void FuzzUtil::consumeSimple(bsl::vector<char>     *chars,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *options)
+{
+    unsigned maxLen = options ? options->maxStringLength()
+                              : FuzzUtilOptions::k_MAX_STRING_LENGTH_DEFAULT;
+    bslim::FuzzUtil::consumeRandomLengthChars(chars, fuzzData, maxLen);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::Date            *date,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *date = bdlt::FuzzUtil::consumeDate(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::DateTz          *date,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *date = bdlt::FuzzUtil::consumeDateTz(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::Datetime        *datetime,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *datetime = bdlt::FuzzUtil::consumeDatetime(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::DatetimeTz      *datetime,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *datetime = bdlt::FuzzUtil::consumeDatetimeTz(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::Time            *time,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *time = bdlt::FuzzUtil::consumeTime(fuzzData);
+}
+
+inline
+void FuzzUtil::consumeSimple(bdlt::TimeTz          *time,
+                             bslim::FuzzDataView   *fuzzData,
+                             const FuzzUtilOptions *)
+{
+    *time = bdlt::FuzzUtil::consumeTimeTz(fuzzData);
 }
 
 // CLASS METHODS
