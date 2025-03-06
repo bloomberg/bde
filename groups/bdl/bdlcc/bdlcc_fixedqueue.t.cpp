@@ -157,6 +157,24 @@ const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
+#define STARTTHREAD(tg, f)                                              \
+    int rc1 = tg.addThread(f);                                          \
+    if (0 != rc1) {                                                     \
+        bslmt::ThreadUtil::microSleep(250000);                          \
+        int rc2 = tg.addThread(f);                                      \
+        if (0 != rc2) {                                                 \
+            bslmt::ThreadUtil::microSleep(0, 1);                        \
+            int rc3 = tg.addThread(f);                                  \
+            if (0 != rc3) {                                             \
+                cout << "ThreadGroup addThread() failed."               \
+                     << "  Thread quota exceeded?"                      \
+                     << "  (" << rc1 << ',' << rc2 << ',' << rc3 << ')' \
+                     << bsl::endl;                                      \
+                ASSERT(false);                                          \
+            }                                                           \
+        }                                                               \
+    }
+
 namespace {
 namespace u {
 
@@ -2416,16 +2434,16 @@ int main(int argc, char *argv[])
             for (int j = 0; j < k_NUM_PUSHER_THREADS; ++j) {
                 nextValue[j] = reserved + k_NUM_VALUES*j;
                 lastValue[j] = reserved + k_NUM_VALUES*(j+1) - 1;
-                ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(&abaThread,
-                                                              nextValue[j],
-                                                              lastValue[j],
-                                                              &mX,
-                                                              &barrier,
-                                                              false)));
+                STARTTHREAD(tg, bdlf::BindUtil::bind(&abaThread,
+                                                     nextValue[j],
+                                                     lastValue[j],
+                                                     &mX,
+                                                     &barrier,
+                                                     false));
             }
-            ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(&sleepAndWait,
-                                                          100,
-                                                          &barrier)));
+            STARTTHREAD(tg, bdlf::BindUtil::bind(&sleepAndWait,
+                                                 100,
+                                                 &barrier));
 
             for (int numReceived = 0; numReceived < k_NUM_ENTRIES;
                  ++numReceived) {
