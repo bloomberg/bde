@@ -223,8 +223,8 @@ struct ArgTypingVisitor : ArgType {
         d_argType = e_UNSIGNED_LONG_LONG;
     }
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) && \
-    __GLIBCXX__ >= 20240801 && defined(__SIZEOF_INT128__)
-    // gcc-14 supports printing its non-standard 128-bit integer types so we
+    __GLIBCXX__ >= 20230426 && defined(__SIZEOF_INT128__)
+    // gcc-13 supports printing its non-standard 128-bit integer types so we
     // must "support" those signatures in our visitor.
 
     void operator()(__int128) {
