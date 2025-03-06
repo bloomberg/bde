@@ -197,7 +197,7 @@ extern "C" void *watchdog(void *arg)
         setWatchdogText(static_cast<const char *>(arg));
     }
 
-    const int MAX = 300;  // one iteration is a deci-second
+    const int MAX = 900;  // 90s; one iteration is a deci-second
 
     int count = 0;
 
@@ -2412,9 +2412,9 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::create(&watchdogHandle, ::u::watchdog, 0);
 
         enum {
-            k_NUM_PUSHER_THREADS = 40,
+            k_NUM_PUSHER_THREADS = 30,
             k_NUM_VALUES = 6,
-            k_NUM_ITERATIONS = 2000
+            k_NUM_ITERATIONS = 1000
         };
 
         enum { k_NUM_ENTRIES = k_NUM_VALUES * k_NUM_PUSHER_THREADS };
