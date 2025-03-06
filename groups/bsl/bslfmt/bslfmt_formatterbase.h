@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 // On earlier C++ compilers we use a dummy typedef to avoid the compiler
 // warning about extra semicolons.
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatterBase_DoNotPreventStdPromotion
+    typedef void FormatterBase_DoNotPreventStdDelegation
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)

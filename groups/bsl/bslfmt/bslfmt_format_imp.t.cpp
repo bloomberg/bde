@@ -9,7 +9,7 @@
 #include <bslstl_stringstream.h>  // Testing only
 
 #include <stdio.h>
-#include <string.h>
+#include <string.h>   // `strcmp`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -89,6 +89,90 @@ void check(const bsl::wstring& actual, const wchar_t *expected)
 void check(const std::string&, const char *) {
     printf("'bslfmt::format' should return 'bsl::string'\n");
     ASSERT(false);
+}
+
+/// Verify that `vformat` throws an exception with the specified
+/// 'expectedMessage' while formatting the specified `value` using the
+/// specified `spec`.  The specified `line` is used to identify a function call
+/// location in case of a failure.
+template <class TYPE>
+void checkExceptionIsThrown(const bsl::string_view&  spec,
+                            TYPE                     value,
+                            const char              *expectedMessage,
+                            int                      line)
+{
+    try {
+        bslfmt::vformat(spec, bslfmt::make_format_args(value));
+        ASSERTV(line, "Exception was not thrown", false);
+    }
+    catch (const bslfmt::format_error& err) {
+        ASSERTV(line, expectedMessage, err.what(),
+                0 == strcmp(expectedMessage, err.what()));
+    }
+    catch (...) {
+        ASSERTV(line, "Unexpected exception was thrown", false);
+    }
+}
+
+/// Verify that `vformat` throws an exception with the specified
+/// 'expectedMessage' while formatting the specified `value` using the
+/// specified `spec`.  The specified `line` is used to identify a function call
+/// location in case of a failure.
+template <class TYPE>
+void checkExceptionIsThrown(const bsl::wstring_view&  spec,
+                            TYPE                      value,
+                            const char               *expectedMessage,
+                            int                       line)
+{
+    try {
+        bslfmt::vformat(spec, bslfmt::make_wformat_args(value));
+        ASSERTV(line, "Exception was not thrown", false);
+    }
+    catch (const bslfmt::format_error& err) {
+        ASSERTV(line, expectedMessage, err.what(),
+                0 == strcmp(expectedMessage, err.what()));
+    }
+    catch (...) {
+        ASSERTV(line, "Unexpected exception was thrown", false);
+    }
+}
+
+/// Verify that `vformat` does not throw an exception while formatting the
+/// specified `value` using the specified `spec`.  The specified `line` is used
+/// to identify a function call location in case of a failure.
+template <class TYPE>
+void checkExceptionIsNotThrown(const bsl::string_view& spec,
+                               TYPE                    value,
+                               int                     line)
+{
+    try {
+        bslfmt::vformat(spec, bslfmt::make_format_args(value));
+    }
+    catch (const bslfmt::format_error& err) {
+        ASSERTV(line, "Exception was thrown: ", err.what(),  false);
+    }
+    catch (...) {
+        ASSERTV(line, "Unexpected exception was thrown", false);
+    }
+}
+
+/// Verify that `vformat` does not throw an exception while formatting the
+/// specified `value` using the specified `spec`.  The specified `line` is used
+/// to identify a function call location in case of a failure.
+template <class TYPE>
+void checkExceptionIsNotThrown(const bsl::wstring_view& spec,
+                               TYPE                     value,
+                               int                      line)
+{
+    try {
+        bslfmt::vformat(spec, bslfmt::make_wformat_args(value));
+    }
+    catch (const bslfmt::format_error& err) {
+        ASSERTV(line, "Exception was thrown: ", err.what(),  false);
+    }
+    catch (...) {
+        ASSERTV(line, "Unexpected exception was thrown", false);
+    }
 }
 
 
@@ -430,7 +514,7 @@ int main(int argc, char **argv)
             *it      = 0;
             check(bsl::string(temp2), "Hello World");
             bslfmt::format_to_n_result<char *> result =
-                               bslfmt::format_to_n(temp2, 5, "{}", "Hello World");
+                            bslfmt::format_to_n(temp2, 5, "{}", "Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::string(temp2), "Hello");
@@ -441,38 +525,109 @@ int main(int argc, char **argv)
             *it      = 0;
             check(bsl::wstring(temp2), L"Hello World");
             bslfmt::format_to_n_result<wchar_t *> result =
-                             bslfmt::format_to_n(temp2, 5, L"{}", L"Hello World");
+                          bslfmt::format_to_n(temp2, 5, L"{}", L"Hello World");
             *result.out = 0;
             ASSERT(11 == result.size);
             check(bsl::wstring(temp2), L"Hello");
         }
         { // Simple test of vformat_to with char string
             bsl::string temp;
-            bslfmt::vformat_to(&temp, "{}", bslfmt::make_format_args("Hello World"));
+            bslfmt::vformat_to(&temp,
+                               "{}",
+                               bslfmt::make_format_args("Hello World"));
             check(temp, "Hello World");
         }
         { // Simple test of vformat_to with wchar_t string
             bsl::wstring temp;
-            bslfmt::vformat_to(&temp, L"{}", bslfmt::make_wformat_args(L"Hello World"));
+            bslfmt::vformat_to(&temp,
+                               L"{}",
+                               bslfmt::make_wformat_args(L"Hello World"));
             check(temp, L"Hello World");
         }
         { // Simple test of format_to with char output iterator
             char temp2[64];
-            char *it = bslfmt::vformat_to(temp2,
-                                       "{}",
-                                       bslfmt::make_format_args("Hello World"));
+            char *it = bslfmt::vformat_to(
+                                      temp2,
+                                      "{}",
+                                      bslfmt::make_format_args("Hello World"));
             *it      = 0;
             check(bsl::string(temp2), "Hello World");
         }
         { // Simple test of format_to with wchar_t output iterator
             wchar_t temp2[64];
-            wchar_t *it = bslfmt::vformat_to(temp2,
-                                          L"{}",
-                                          bslfmt::make_wformat_args(L"Hello World"));
+            wchar_t *it = bslfmt::vformat_to(
+                                    temp2,
+                                    L"{}",
+                                    bslfmt::make_wformat_args(L"Hello World"));
             *it      = 0;
             check(bsl::wstring(temp2), L"Hello World");
         }
 
+        if (verbose) printf("Negative Testing\n");
+        {
+            // Test invalid specifications
+
+            int         value            = 5;
+            const char *expectedMessage1 = "Separator ':' missing";
+
+            // char
+
+            checkExceptionIsThrown("{*>6}",    value, expectedMessage1, L_);
+            checkExceptionIsThrown("{;*>6}",   value, expectedMessage1, L_);
+            checkExceptionIsThrown("{ :*>6}",  value, expectedMessage1, L_);
+
+            checkExceptionIsThrown("{x}",      value, expectedMessage1, L_);
+            checkExceptionIsThrown("{;x}",     value, expectedMessage1, L_);
+            checkExceptionIsThrown("{ :x}",    value, expectedMessage1, L_);
+
+             // wchar_t
+
+            checkExceptionIsThrown(L"{*>6}",   value, expectedMessage1, L_);
+            checkExceptionIsThrown(L"{;*>6}",  value, expectedMessage1, L_);
+            checkExceptionIsThrown(L"{ :*>6}", value, expectedMessage1, L_);
+
+            checkExceptionIsThrown(L"{x}",     value, expectedMessage1, L_);
+            checkExceptionIsThrown(L"{;x}",    value, expectedMessage1, L_);
+            checkExceptionIsThrown(L"{ :x}",   value, expectedMessage1, L_);
+
+            const char *expectedMessage2 =
+                                         "Standard types are single-character";
+
+            // char
+
+            checkExceptionIsThrown("{: *>6}",  value, expectedMessage2, L_);
+
+            checkExceptionIsThrown("{:  x}",   value, expectedMessage2, L_);
+
+             // wchar_t
+
+            checkExceptionIsThrown(L"{: *>6}", value, expectedMessage2, L_);
+
+            checkExceptionIsThrown(L"{:  x}",  value, expectedMessage2, L_);
+
+            // Test valid specifications
+
+            // char
+
+            checkExceptionIsNotThrown("{:}",     value, L_);
+            checkExceptionIsNotThrown("{: }",    value, L_);
+
+            checkExceptionIsNotThrown("{:*>6}",  value, L_);
+
+            checkExceptionIsNotThrown("{:x}",    value, L_);
+            checkExceptionIsNotThrown("{: x}",   value, L_);
+
+             // wchar_t
+
+
+            checkExceptionIsNotThrown(L"{:}",    value, L_);
+            checkExceptionIsNotThrown(L"{: }",   value, L_);
+
+            checkExceptionIsNotThrown(L"{:*>6}", value, L_);
+
+            checkExceptionIsNotThrown(L"{:x}",   value, L_);
+            checkExceptionIsNotThrown(L"{: x}",  value, L_);
+        }
       } break;
       case -1: {
         // --------------------------------------------------------------------
