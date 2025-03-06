@@ -103,14 +103,14 @@ void checkExceptionIsThrown(const bsl::string_view&  spec,
 {
     try {
         bslfmt::vformat(spec, bslfmt::make_format_args(value));
-        ASSERTV(line, "Exception is not thrown", false);
+        ASSERTV(line, "Exception was not thrown", false);
     }
     catch (const bslfmt::format_error& err) {
         ASSERTV(line, expectedMessage, err.what(),
                 0 == strcmp(expectedMessage, err.what()));
     }
     catch (...) {
-        ASSERTV(line, "Unexpected exception is thrown", false);
+        ASSERTV(line, "Unexpected exception was thrown", false);
     }
 }
 
@@ -126,14 +126,14 @@ void checkExceptionIsThrown(const bsl::wstring_view&  spec,
 {
     try {
         bslfmt::vformat(spec, bslfmt::make_wformat_args(value));
-        ASSERTV(line, "Exception is not thrown", false);
+        ASSERTV(line, "Exception was not thrown", false);
     }
     catch (const bslfmt::format_error& err) {
         ASSERTV(line, expectedMessage, err.what(),
                 0 == strcmp(expectedMessage, err.what()));
     }
     catch (...) {
-        ASSERTV(line, "Unexpected exception is thrown", false);
+        ASSERTV(line, "Unexpected exception was thrown", false);
     }
 }
 
@@ -149,10 +149,10 @@ void checkExceptionIsNotThrown(const bsl::string_view& spec,
         bslfmt::vformat(spec, bslfmt::make_format_args(value));
     }
     catch (const bslfmt::format_error& err) {
-        ASSERTV(line, "Exception is thrown: ", err.what(),  false);
+        ASSERTV(line, "Exception was thrown: ", err.what(),  false);
     }
     catch (...) {
-        ASSERTV(line, "Unexpected exception is thrown", false);
+        ASSERTV(line, "Unexpected exception was thrown", false);
     }
 }
 
@@ -168,10 +168,10 @@ void checkExceptionIsNotThrown(const bsl::wstring_view& spec,
         bslfmt::vformat(spec, bslfmt::make_wformat_args(value));
     }
     catch (const bslfmt::format_error& err) {
-        ASSERTV(line, "Exception is thrown: ", err.what(),  false);
+        ASSERTV(line, "Exception was thrown: ", err.what(),  false);
     }
     catch (...) {
-        ASSERTV(line, "Unexpected exception is thrown", false);
+        ASSERTV(line, "Unexpected exception was thrown", false);
     }
 }
 
