@@ -471,8 +471,8 @@ struct FilesystemUtil {
     /// * 'e_WRITE_ONLY
     /// * `e_READ_WRITE`
     /// The parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static FileDescriptor open(const char         *path,
                                FileOpenPolicy      openPolicy,
                                FileIOPolicy        ioPolicy,
@@ -500,8 +500,8 @@ struct FilesystemUtil {
     /// Set the working directory of the current process to the specified
     /// `path`.  Return 0 on success and a non-zero value otherwise.  The
     /// parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static int setWorkingDirectory(const char *path);
     template <class STRING_TYPE>
     static int setWorkingDirectory(const STRING_TYPE& path);
@@ -511,8 +511,8 @@ struct FilesystemUtil {
     /// the result of this function is platform dependent. On POSIX/Unix
     /// platforms this method dereferences symlinks, while on Windows it
     /// does not.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     static bool exists(const char *path);
     template <class STRING_TYPE>
     static bool exists(const STRING_TYPE& path);
@@ -527,8 +527,8 @@ struct FilesystemUtil {
     /// negative test on the "directory" attribute, i.e., on Windows,
     /// everything that exists and is not a directory is a regular file.
     /// The parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static bool isRegularFile(const char *path, bool followLinksFlag = false);
     template <class STRING_TYPE>
     static bool isRegularFile(const STRING_TYPE& path,
@@ -540,7 +540,8 @@ struct FilesystemUtil {
     /// is `true` (otherwise return `false`).  Platform-specific note: On
     /// Windows, a "shortcut" is not a symbolic link.  The parameterized
     /// `STRING_TYPE` must be one of `bsl::string`, `std::string`,
-    /// `std::pmr::string` (if supported), or `bslstl::StringRef`.
+    /// `std::pmr::string` (if supported), `bsl::string_view`, or
+    /// `bslstl::StringRef`.
     static bool isDirectory(const char *path, bool followLinksFlag = false);
     template <class STRING_TYPE>
     static bool isDirectory(const STRING_TYPE& path,
@@ -550,8 +551,8 @@ struct FilesystemUtil {
     /// specified `path`, and `false` otherwise.  Windows directory
     /// junctions are treated as directory symbolic links.  The
     /// parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static bool isSymbolicLink(const char *path);
     template <class STRING_TYPE>
     static bool isSymbolicLink(const STRING_TYPE& path);
@@ -560,8 +561,8 @@ struct FilesystemUtil {
     /// file at the specified `path`, as reported by the filesystem.  Return
     /// 0 on success, and a non-zero value otherwise.  The time is reported
     /// in UTC.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     static int getLastModificationTime(bdlt::Datetime *time, const char *path);
     template <class STRING_TYPE>
     static int getLastModificationTime(bdlt::Datetime     *time,
@@ -585,8 +586,8 @@ struct FilesystemUtil {
     /// component used as a directory in `path` exists but is not a
     /// directory, and a negative value for any other kind of error.  The
     /// parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static int createDirectories(const char *path,
                                  bool        isLeafDirectoryFlag = false);
     template <class STRING_TYPE>
@@ -604,8 +605,8 @@ struct FilesystemUtil {
     /// caller's userid only.  Note that directories created on Microsoft
     /// Windows may receive default, not restricted permissions.  The
     /// parameterized `STRING_TYPE` must be one of `bsl::string`,
-    /// `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `std::string`, `std::pmr::string` (if supported), `bsl::string_view`,
+    /// or `bslstl::StringRef`.
     static int createPrivateDirectory(const char *path);
     template <class STRING_TYPE>
     static int createPrivateDirectory(const STRING_TYPE& path);
@@ -715,8 +716,8 @@ struct FilesystemUtil {
     /// visited.  See `findMatchingPaths` for a discussion of how `pattern`
     /// is interpreted.  Also note that `.` and `..` are never matched by
     /// wild cards.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     ///
     /// IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
     /// implementation of the system `glob` function can temporarily change
@@ -776,8 +777,8 @@ struct FilesystemUtil {
     /// Return the number of paths matched on success, and a negative value
     /// otherwise; if a negative value is returned, the contents of `*result`
     /// are undefined.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     ///
     /// WINDOWS-SPECIFIC NOTE: To support DOS idioms, the OS-provided search
     /// function has behavior that we have chosen not to work around: an
@@ -814,7 +815,8 @@ struct FilesystemUtil {
     /// system where the file or directory with the specified `path`
     /// resides, or a negative value if an error occurs.  The parameterized
     /// `STRING_TYPE` must be one of `bsl::string`, `std::string`,
-    /// `std::pmr::string` (if supported), or `bslstl::StringRef`.
+    /// `std::pmr::string` (if supported), `bsl::string_view`, or
+    /// `bslstl::StringRef`.
     static Offset getAvailableSpace(const char *path);
     template <class STRING_TYPE>
     static Offset getAvailableSpace(const STRING_TYPE& path);
@@ -828,8 +830,8 @@ struct FilesystemUtil {
     /// `path`, or a negative value if an error occurs.  Note that the size
     /// of a symbolic link is the size of the file or directory to which it
     /// points.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     static Offset getFileSize(const char *path);
     template <class STRING_TYPE>
     static Offset getFileSize(const STRING_TYPE& path);
@@ -854,7 +856,8 @@ struct FilesystemUtil {
     /// treated as directory symbolic links.  If `path` is a relative path, it
     /// is evaluated against the current working directory.  The parameterized
     /// `STRING_TYPE` must be one of `bsl::string`, `std::string`,
-    /// `std::pmr::string` (if supported), or `bslstl::StringRef`.
+    /// `std::pmr::string` (if supported), `bsl::string_view`, or
+    /// `bslstl::StringRef`.
     static int getSymbolicLinkTarget(bsl::string *result,
                                      const char  *path);
     static int getSymbolicLinkTarget(std::string *result,
@@ -1009,8 +1012,8 @@ struct FilesystemUtil {
     /// or may not have removed *some* files or directories before failing.
     /// Also note that if `remove` is called on "." or "..", it will fail
     /// with no effect.  The parameterized `STRING_TYPE` must be one of
-    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported), or
-    /// `bslstl::StringRef`.
+    /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
+    /// `bsl::string_view`, or `bslstl::StringRef`.
     ///
     /// IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
     /// implementation of the system `glob` function can temporarily change
@@ -1027,25 +1030,28 @@ struct FilesystemUtil {
     /// suffix.  Return 0 on success, and non-zero otherwise.
     static int rollFileChain(const bsl::string_view& path, int maxSuffix);
 
-    /// Move the file or directory at the specified `oldPath` to the
-    /// specified `newPath`.  If there is a file or directory at `newPath`,
-    /// it will be removed and replaced.  In that case, `newPath` must refer
-    /// to the same type of filesystem item as `oldPath` - that is, they
-    /// must both be directories or both be files.  Return 0 on success, and
-    /// a non-zero value otherwise.  If `oldPath` is a symbolic link, the
-    /// link will be renamed.  If a symbolic link already exists at
-    /// `newPath`, the resulting behavior is platform dependent.  Note that
-    /// this operation is carried out via library/system facilities
-    /// (`rename` in UNIX and `MoveFile` in Windows) that usually cannot
-    /// move files between file systems or volumes, and that the behavior of
-    /// the underlying library/system facilities differs when `oldPath` and
-    /// `newPath` refer to the same file (in that case, UNIX succeeds,
-    /// Windows fails).  Note that a symbolic link already exists at
-    /// `newPath` POSIX/Unix systems will overwrite that existing symbolic
-    /// link, while Windows will return an error status (`GetLastError` will
-    /// report `ERROR_ALREADY_EXISTS`).  The parameterized `OLD_STRING_TYPE`
-    /// and `NEW_STRING_TYPE` must be one of `bsl::string`, `std::string`,
-    /// `std::pmr::string` (if supported), or `bslstl::StringRef`.
+    /// Move the file or directory at the specified `oldPath` to the specified
+    /// `newPath`.  On Windows, this operation occurs in two steps: first, if
+    /// there is a regular file or file symbolic link at `newPath`, it is
+    /// removed; if there is a directory or directory symbolic link at
+    /// `newPath`, this function fails with no effect.  Second, the file or
+    /// directory at `oldPath` is actually moved; this operation fails with no
+    /// further effect if the source and destination are on different volumes
+    /// or if the source does not exist (including in the case where `oldPath`
+    /// and `newPath` are the same path).  On Unix, the operation is always
+    /// atomic, with the file or directory at `newPath` being replaced by the
+    /// item at `oldPath`; the operation fails if the source and destination
+    /// are on different filesystems, if the source and destination are
+    /// different kinds of item (that is, one is a file and the other is a
+    /// directory), or if the destination is a non-empty directory, except that
+    /// it succeeds if the source and destination are the same directory; a
+    /// symbolic link is considered an existing file even if it is broken or it
+    /// points to a directory.  On all platforms, if `oldPath` is a symbolic
+    /// link, the link will be moved, not its target.  Return 0 on success, and
+    /// a non-zero value otherwise.  The parameterized `OLD_STRING_TYPE` and
+    /// `NEW_STRING_TYPE` must be one of `bsl::string`, `std::string`,
+    /// `std::pmr::string` (if supported), `bsl::string_view`, or
+    /// `bslstl::StringRef`.
     static int move(const char *oldPath, const char *newPath);
     template <class OLD_STRING_TYPE, class NEW_STRING_TYPE>
     static int move(const OLD_STRING_TYPE& oldPath,
@@ -1094,20 +1100,20 @@ struct FilesystemUtil {
 /// the function and supplying it with the result of `flatten` invoked on
 /// the deduced argument.  This `flatten` invocation will call `c_str()` on
 /// various supported `string` types, will produce a temporary `bsl::string`
-/// for possibly non-null-terminated `bslstl::StringRef`, and will result in
-/// a `BSLMF_ASSERT` for any unsupported type.  Calling the function with
-/// the temporary `bsl::string` produced from `bslstl::StringRef` will
-/// result in a second invocation of `flatten`, this time producing
-/// `const char *`, and finally calling the function with a null-terminated
-/// string.
+/// for possibly non-null-terminated `bsl::string_view` or `bslstl::StringRef`,
+/// and will result in a `BSLMF_ASSERT` for any unsupported type.  Calling the
+/// function with the temporary `bsl::string` produced from `bsl::string_view`
+/// or `bslstl::StringRef` will result in a second invocation of `flatten`,
+/// this time producing `const char *`, and finally calling the function with a
+/// null-terminated string.
 ///
 /// Note that the `bslstl::StringRef` overload for `flatten` is provided for
 /// backwards compatibility.  Without it, the `bsl::string` and
 /// `std::string` overloads would be ambiguous.  In new code, it is
 /// preferable to not provide `bslstl::StringRef` overload in a similar
 /// facility and require the clients to explicitly state the string type in
-/// their code, making a potential allocation obvious.  The
-/// `bsl::string_view` overload is not provided for the same reason.
+/// their code, making a potential allocation obvious.  The same considerations
+/// apply to `bsl::string_view`.
 struct FilesystemUtil_CStringUtil {
 
     // CLASS METHODS
