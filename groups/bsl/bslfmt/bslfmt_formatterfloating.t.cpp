@@ -164,7 +164,7 @@ bool testRuntimeFormat(int           line,
                                                                      value,
                                                                      dummyArg,
                                                                      dummyArg);
-    ASSERTV(line, format, message.c_str(), _MSC_FULL_VER, rv);
+    ASSERTV(line, format, message.c_str(), rv);
 
     return rv;
 }
