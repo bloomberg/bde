@@ -67,6 +67,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_iosfwd.h>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#include <bsla_deprecated.h>
+#endif
+
 namespace BloombergLP {
 namespace baltzo {
                               // ================
@@ -97,12 +101,12 @@ struct DstPolicy {
                        // appropriate).
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BALTZO_DST = e_DST
-      , BALTZO_STANDARD = e_STANDARD
-      , BALTZO_UNSPECIFIED = e_UNSPECIFIED
-      , BAETZO_DST         = e_DST
-      , BAETZO_STANDARD    = e_STANDARD
-      , BAETZO_UNSPECIFIED = e_UNSPECIFIED
+      , BALTZO_DST         BSLA_DEPRECATED = e_DST
+      , BALTZO_STANDARD    BSLA_DEPRECATED = e_STANDARD
+      , BALTZO_UNSPECIFIED BSLA_DEPRECATED = e_UNSPECIFIED
+      , BAETZO_DST         BSLA_DEPRECATED = e_DST
+      , BAETZO_STANDARD    BSLA_DEPRECATED = e_STANDARD
+      , BAETZO_UNSPECIFIED BSLA_DEPRECATED = e_UNSPECIFIED
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
