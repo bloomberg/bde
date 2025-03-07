@@ -972,7 +972,7 @@ inline
 typename bsl::remove_reference<t_TYPE>::type& MovableRefUtil::access(
                                             t_TYPE&& ref) BSLS_KEYWORD_NOEXCEPT
 {
-    return ref;
+    return static_cast<typename bsl::remove_reference<t_TYPE>::type&>(ref);
 }
 
 #else // if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)

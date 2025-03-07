@@ -235,6 +235,10 @@ using namespace BloombergLP;
   #pragma clang diagnostic ignored "-Wconstant-evaluated"
 #endif  // clang 10.0+
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
+  #pragma GCC diagnostic ignored "-Wtautological-compare"
+#endif
+
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
@@ -244,6 +248,7 @@ using namespace BloombergLP;
 // defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
+// [43] CONCERN: `bsl::aligned_storage` allows deduction.
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 // [41] CONCERN: `bsl::format` is available and usable
@@ -938,6 +943,25 @@ struct T { };
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#endif
+template <std::size_t t_SIZE>
+void testCase43a(bsl::aligned_storage<t_SIZE>) {}
+
+template <std::size_t t_SIZE, std::size_t t_ALIGNMENT>
+void testCase43b(bsl::aligned_storage<t_SIZE, t_ALIGNMENT>) {}
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#endif
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -959,6 +983,48 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 43: {
+        // --------------------------------------------------------------------
+        // `bsl::aligned_storage` DEDUCTION
+        //
+        // Concerns:
+        // 1. In `bsl::aligned_storage<t_SIZE>`, `t_SIZE` is deducible.
+        //
+        // 2. In `bsl::aligned_storage<t_SIZE, t_ALIGNMENT>`, both `t_SIZE` and
+        //    `t_ALIGNMENT` are deducible.
+        //
+        // Plan:
+        // 1. Define a function template with a parameter type of
+        //    `bsl::aligned_storage<t_SIZE>`, with `t_SIZE` a template
+        //    parameter, and verify that `t_SIZE` can be deduced in a call.
+        //    (C-1)
+        //
+        // 2. Repeat P-1 to verify that both template parameters are deducible.
+        //    (C-2)
+        //
+        // Testing
+        //   CONCERN: `bsl::aligned_storage` allows deduction.
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\n`bsl::aligned_storage` DEDUCTION"
+                          "\n================================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#endif
+        testCase43a(bsl::aligned_storage<2>());
+        testCase43b(bsl::aligned_storage<2, 1>());
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#endif
+#endif
+      } break;
       case 42: {
         // --------------------------------------------------------------------
         // `bsl_chrono.h`

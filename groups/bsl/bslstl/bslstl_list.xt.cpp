@@ -554,11 +554,32 @@ bool is_mutable(const TYPE&)
     return false;
 }
 
-// Compare two integral types where possibly one of them is signed type and the
-// other isn't.
+namespace {
+/// Return `true` if the specified `x` and `y` are equal, `false` otherwise.
+/// `t_TYPE1` and `t_TYPE2` shall be integer types (possibly of different
+/// signedness).
+template <class t_TYPE1, class t_TYPE2>
+bool eq(t_TYPE1 x, t_TYPE2 y)
+{
+    return (x >= 0) == (y >= 0) &&
+           static_cast<Int64>(x) == static_cast<Int64>(y);
+}
 
-#define CMPINT(a, op, b) (((a) >= 0) == ((b) >= 0) &&                         \
-                                static_cast<Int64>(a) op static_cast<Int64>(b))
+/// Return `true` if the specified `x` is greater than or equal to the
+/// specified `y`, `false` otherwise.  `t_TYPE1` and `t_TYPE2` shall be integer 
+/// types (possibly of different signedness).
+template <class t_TYPE1, class t_TYPE2>
+bool ge(t_TYPE1 x, t_TYPE2 y)
+{
+    if (x >= 0) {
+        return y < 0 ||
+               static_cast<Int64>(x) >= static_cast<Int64>(y);        // RETURN
+    } else {
+        return y < 0 &&
+               static_cast<Int64>(x) >= static_cast<Int64>(y);        // RETURN
+    }
+}
+}  // close unnamed namespace
 
 /// Return the distance between the specified `lhs` and the specified `rhs`.
 /// The distance returned is unsigned, and it is an error if `lhs` > `rhs`
@@ -3863,7 +3884,7 @@ void TestDriver<TYPE,ALLOC>::test31_moveAssign()
         // Create control object `W`.
         Obj mW(xoa);  const Obj& W = gg(&mW, XSPEC);
 
-        ASSERTV(ti, CMPINT(XLENGTH, ==, W.size())); // same lengths
+        ASSERTV(ti, eq(XLENGTH, W.size())); // same lengths
 
         if (veryVerbose) { printf("\tControl Obj: "); P(W); }
 
@@ -4459,7 +4480,7 @@ void TestDriver<TYPE,ALLOC>::test30_moveCtor()
                     ASSERTV(SPEC, Y == W);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERT(k_NO_EXCEPT || CMPINT(numThrows, >=, LENGTH));
+                ASSERT(k_NO_EXCEPT || ge(numThrows, LENGTH));
             }
 #endif // BDE_BUILD_TARGET_EXC
         }
@@ -6083,10 +6104,8 @@ void TestDriver<TYPE,ALLOC>::test26_unique()
                 if (bsl::is_same<TYPE, TestType>::value) {
                     ASSERTV(op, X, RES_EXP, CTORS_AFTER  == CTORS_BEFORE);
                     ASSERTV(op, X, RES_EXP, ASSIGN_AFTER == ASSIGN_BEFORE);
-                    ASSERTV(op, X, RES_EXP,
-                                         CMPINT(DTORS_AFTER,
-                                                ==,
-                                                DTORS_BEFORE + (LEN-res_len)));
+                    ASSERTV(op, X, RES_EXP, eq(DTORS_AFTER,
+                                               DTORS_BEFORE + (LEN-res_len)));
                 }
 
               } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END

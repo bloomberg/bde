@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_disjunction.h>
 #include <bslmf_negation.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
@@ -149,10 +150,51 @@ using std::make_unsigned;
 using std::remove_all_extents;
 
     // 20.10.7.6, other transformations:
-using std::aligned_storage;
-#if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-using std::aligned_union;
+
+    // `std::aligned_storage` and `std::aligned_union` are deprecated in C++23.
+    // Silence the warning that would result from including this header, but
+    // mark the bsl aliases deprecated.
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#  define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED [[deprecated]]
+#else
+#  define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
 #endif
+
+template <std::size_t t_LEN,
+          std::size_t t_ALIGNMENT =
+              BloombergLP::bsls::AlignmentUtil
+              ::defaultAlignmentOfAlignedStorage<t_LEN>()>
+using aligned_storage BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+= std::aligned_storage<t_LEN, t_ALIGNMENT>;
+
+template <std::size_t t_LEN,
+          std::size_t t_ALIGNMENT =
+              BloombergLP::bsls::AlignmentUtil
+              ::defaultAlignmentOfAlignedStorage<t_LEN>()>
+using aligned_storage_t BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+= typename std::aligned_storage<t_LEN, t_ALIGNMENT>::type;
+
+#if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+template <std::size_t t_LEN, class... t_TYPES>
+using aligned_union BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+= std::aligned_union<t_LEN, t_TYPES...>;
+
+template <std::size_t t_LEN, class... t_TYPES>
+using aligned_union_t BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+= typename std::aligned_union<t_LEN, t_TYPES...>::type;
+#endif
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#  undef BSL_TYPE_TRAITS_DEPRECATED_ALIGNED_STORAGE
+#endif
+
 using std::common_type;
 using std::underlying_type;
 #if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
@@ -161,19 +203,7 @@ using std::result_of;
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-template <std::size_t LEN, std::size_t ALIGN>
-using aligned_storage_t =
-                        typename std::aligned_storage<LEN, ALIGN>::type;
-    // 'aligned_storage_t' is an alias to the return type of the
-    // 'std::aligned_storage' meta-function.
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-template <std::size_t LEN, class... TYPES>
-using aligned_union_t =
-                       typename std::aligned_union<LEN, TYPES...>::type;
-    // 'aligned_union_t' is an alias to the return type of the
-    // 'std::aligned_union' meta-function.
-
 template <class... TYPES>
 using common_type_t = typename std::common_type<TYPES...>::type;
     // 'common_type_t' is an alias to the return type of the

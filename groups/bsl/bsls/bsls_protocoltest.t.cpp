@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 130000
+#  pragma GCC diagnostic ignored "-Wdangling-reference"
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================

@@ -169,11 +169,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentimp.h>
 #include <bsls_alignmenttotype.h>
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <limits>       // 'std::numeric_limits'
 #include <cstddef>      // 'std::size_t'
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <type_traits>  // `std::aligned_storage`, `std::integral_constant`
+#endif
 
 namespace BloombergLP {
 
@@ -224,6 +229,25 @@ struct AlignmentUtil {
                      d_8bytesAlignedType;
 #endif
     };
+
+    // PRIVATE CLASS METHODS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#endif
+    /// This helper function is not defined.
+    template <std::size_t t_SIZE, std::size_t t_ALIGNMENT>
+    static std::integral_constant<std::size_t, t_ALIGNMENT>
+    alignmentOfAlignedStorage(std::aligned_storage<t_SIZE, t_ALIGNMENT>);
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#endif
+#endif
 
   public:
     // CONSTANTS
@@ -301,15 +325,24 @@ struct AlignmentUtil {
     ///         - BSLS_MAX_ALIGNMENT + 1
     /// ```
     static std::size_t roundUpToMaximalAlignment(std::size_t size);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Return the default value of the alignment argument for
+    /// `std::aligned_storage` when the size argument is the specified
+    /// `t_SIZE`.  This function is an implementation detail of BDE and should
+    /// not be used elsewhere.
+    template <std::size_t t_SIZE>
+    static constexpr std::size_t defaultAlignmentOfAlignedStorage();
+#endif
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct Alignment
-                            // ----------------
+                            // --------------------
+                            // struct AlignmentUtil
+                            // --------------------
 
 // CLASS METHODS
 inline
@@ -446,6 +479,25 @@ std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
             ~(static_cast<std::size_t>(BSLS_MAX_ALIGNMENT) - 1));
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <std::size_t t_SIZE>
+constexpr std::size_t AlignmentUtil::defaultAlignmentOfAlignedStorage()
+{
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#endif
+    return decltype(alignmentOfAlignedStorage(
+                                       std::aligned_storage<t_SIZE>()))::value;
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#endif
+}
+#endif
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY

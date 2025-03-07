@@ -58,8 +58,9 @@ using namespace std;
 // [ 5] static bool isAligned(const void *, std::size_t);
 // [ 6] static std::size_t pointerAlignment(const void *address);
 // [ 7] static int roundUpToMaximalAlignment(std::size_t);
+// [ 8] static constexpr int defaultAlignmentOfAlignedStorage();
 //-----------------------------------------------------------------------------
-// [ 8] USAGE EXAMPLE -- Ensure the usage example compiles and works.
+// [ 9] USAGE EXAMPLE -- Ensure the usage example compiles and works.
 //=============================================================================
 
 //-----------------------------------------------------------------------------
@@ -242,6 +243,40 @@ static const int DOUBLE_ALIGNMENT      =
 static const int LONG_DOUBLE_ALIGNMENT =
                                    bsls::AlignmentFromType<long double>::VALUE;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <std::size_t t_START, std::size_t t_LEN>
+struct Case8 {
+    static void run()
+    {
+        Case8<t_START, t_LEN / 2>::run();
+        Case8<t_START + t_LEN / 2, t_LEN - (t_LEN / 2)>::run();
+    }
+};
+
+template <std::size_t t_START>
+struct Case8<t_START, std::size_t(1)> {
+    static void run()
+    {
+        constexpr std::size_t a =
+                            Class::defaultAlignmentOfAlignedStorage<t_START>();
+
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#  endif
+#endif
+        ASSERT((std::is_same<std::aligned_storage<t_START>,
+                             std::aligned_storage<t_START, a>>::value));
+#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#  if defined(BSLS_PLATFORM_CMP_GNU)
+#    pragma GCC diagnostic pop
+#  endif
+#endif
+    }
+};
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -255,7 +290,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE TEST
         //   Make sure main usage examples compile and work as advertized.
@@ -361,6 +396,33 @@ static
 // unlikely that `MyType` would have an actual (and therefore natural)
 // alignment of 4 on a 64-bit platform when using default compiler settings.
 
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING `defaultAlignmentOfAlignedStorage`
+        //
+        // Concerns:
+        // 1. For each object size `N` up to `alignof(std::max_align_t)`, the
+        //    value of `defaultAlignmentOfAlignedStorage<N>()` is equal to the
+        //    value of the second template argument for `std::aligned_storage`
+        //    when the first template argument is specified as `N`.
+        //
+        // Plan:
+        // 1. For each such object size, verify that `std::aligned_storage<N>`
+        //    is the same type as `std::aligned_storage<N,
+        //    defaultAlignmentOfAlignedStorage...<N>()>`.
+        //
+        // Testing:
+        //   static constexpr int defaultAlignmentOfAlignedStorage();
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING `defaultAlignmentOfAlignedStorage`"
+                 << "\n==========================================" << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        Case8<1, alignof(std::max_align_t)>::run();
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------

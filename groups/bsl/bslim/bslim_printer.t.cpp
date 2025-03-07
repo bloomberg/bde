@@ -38,7 +38,7 @@
 
 #include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
                        // include `snprintf`]
-#include <stdlib.h>    // `atoi`
+#include <stdlib.h>    // `atoi`, `abs`
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -725,9 +725,9 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    bsl::ostringstream tmp;
    tmp << d_localDate;
 
-   const char sign    = d_offset < 0 ? '-' : '+';
-   const int  minutes = '-' == sign ? -d_offset : d_offset;
-   const int  hours   = minutes / 60;
+   const char     sign    = d_offset < 0 ? '-' : '+';
+   const unsigned minutes = abs(d_offset);
+   const unsigned hours   = minutes / 60;
 
    // space usage: +-  hh  mm  nil
    const int SIZE = 1 + 2 + 2 + 1;

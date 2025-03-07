@@ -1795,8 +1795,6 @@ int main(int argc, char *argv[])
         ASSERTV("__cpp_lib_jthread >= 201911L check", __cpp_lib_jthread,
                 __cpp_lib_jthread >= 201911L);
 
-        using std_jthread_test = std::jthread;
-
         ASSERT((std::is_same_v<std::jthread::id, std::thread::id>));
 #else
         if (veryVerbose) {
