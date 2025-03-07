@@ -91,22 +91,11 @@ Description: PCRE 2 Regular Expression Library
 
 
 Package: libbbryu-dev-extra
-Depends: libbbryu-dev, libryu-dev-extra
+Depends: libbbryu-dev
 Architecture: any
 Description: Bloomberg LP Extended Ryu Float Formatting Library
  thirdparty/bbryu extra libraries
 
 Package: libbbryu-dev
-Depends: libryu-dev
-Architecture: any
-Description: Bloomberg LP Extended Ryu Float Formatting Library
-
-Package: libryu-dev-extra
-Depends: libryu-dev
-Architecture: any
-Description: Bloomberg LP Extended Ryu Float Formatting Library
- thirdparty/ryu extra libraries
-
-Package: libryu-dev
 Architecture: any
 Description: Bloomberg LP Extended Ryu Float Formatting Library

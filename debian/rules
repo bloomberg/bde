@@ -5,7 +5,7 @@ include $(DEBHELPER_PATH)/bbs-debhelper.mk
 
 debian/bde-build-stamp: debian/lintian-overrides-stamp
 debian/lintian-overrides-stamp:
-	for uor in bal bbl bdl bsl inteldfp pcre2 bbryu ryu; do \
+	for uor in bal bbl bdl bsl inteldfp pcre2 bbryu; do \
 		mkdir -p debian/lib$${uor}-dev-extra$(PREFIX)/share/lintian/overrides; \
 		cp debian/lib$${uor}-dev-extra.lintian-overrides \
 			debian/lib$${uor}-dev-extra$(PREFIX)/share/lintian/overrides/lib$${uor}-dev-extra; \

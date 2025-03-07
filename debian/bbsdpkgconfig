@@ -27,10 +27,7 @@
                                   "pcre2-bdemeta_direct" ],
             "libbbryu-dev":     [ "bbryu", "bbryu-symlinks",
                                   "bbryu-release", "bbryu-pkgconfig",
-                                  "bbryu-headers_direct", "bbryu-bdemeta_direct" ],
-            "libryu-dev":       [ "ryu", "ryu-symlinks",
-                                  "ryu-release", "ryu-pkgconfig",
-                                  "ryu-headers_direct", "ryu-bdemeta_direct" ]
+                                  "bbryu-headers_direct", "bbryu-bdemeta_direct" ]
         }
     },
     {
@@ -43,8 +40,7 @@
             "libbsl-dev":      [ "bsl", "bsl-symlinks" ],
             "libinteldfp-dev": [ "inteldfp", "inteldfp-symlinks" ],
             "libpcre2-dev":    [ "pcre2", "pcre2-symlinks" ],
-            "libbbryu-dev":    [ "bbryu", "bbryu-symlinks" ],
-            "libryu-dev":      [ "ryu", "ryu-symlinks" ]
+            "libbbryu-dev":    [ "bbryu", "bbryu-symlinks" ]
         }
     },
     {
@@ -64,9 +60,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-release", "pcre2-pkgconfig" ],
             "libbbryu-dev":     [ "bbryu", "bbryu-symlinks",
-                                  "bbryu-release", "bbryu-pkgconfig" ],
-            "libryu-dev":       [ "ryu", "ryu-symlinks",
-                                  "ryu-release", "ryu-pkgconfig" ]
+                                  "bbryu-release", "bbryu-pkgconfig" ]
         }
     },
     {
@@ -89,8 +83,7 @@
             "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ],
             "libinteldfp-dev-extra": [ "inteldfp", "inteldfp-symlinks" ],
             "libpcre2-dev-extra":    [ "pcre2",    "pcre2-symlinks" ],
-            "libbbryu-dev-extra":    [ "bbryu",    "bbryu-symlinks" ],
-            "libryu-dev-extra":      [ "ryu",      "ryu-symlinks" ]
+            "libbbryu-dev-extra":    [ "bbryu",    "bbryu-symlinks" ]
         }
     },
     {
@@ -132,11 +125,7 @@
             "libbbryu-dev":     [ "bbryu", "bbryu-symlinks",
                                   "bbryu-release", "bbryu-pkgconfig",
                                   "bbryu-headers_direct",
-                                  "bbryu-bdemeta_direct" ],
-            "libryu-dev":       [ "ryu", "ryu-symlinks",
-                                  "ryu-release", "ryu-pkgconfig",
-                                  "ryu-headers_direct",
-                                  "ryu-bdemeta_direct" ]
+                                  "bbryu-bdemeta_direct" ]
         }
     },
     {
@@ -156,9 +145,7 @@
             "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
                                   "pcre2-release", "pcre2-pkgconfig" ],
             "libbbryu-dev":     [ "bbryu", "bbryu-symlinks",
-                                  "bbryu-release", "bbryu-pkgconfig" ],
-            "libryu-dev":       [ "ryu", "ryu-symlinks",
-                                  "ryu-release", "ryu-pkgconfig" ]
+                                  "bbryu-release", "bbryu-pkgconfig" ]
         }
     },
     {
@@ -181,8 +168,7 @@
             "libbsl-dev-extra": [ "bsl", "bsl-symlinks" ],
             "libinteldfp-dev-extra": [ "inteldfp", "inteldfp-symlinks" ],
             "libpcre2-dev-extra":    [ "pcre2",    "pcre2-symlinks" ],
-            "libbbryu-dev-extra":    [ "bbryu",    "bbryu-symlinks" ],
-            "libryu-dev-extra":      [ "ryu",      "ryu-symlinks" ]
+            "libbbryu-dev-extra":    [ "bbryu",    "bbryu-symlinks" ]
         }
     },
     {
