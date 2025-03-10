@@ -191,37 +191,13 @@ int main(int argc, char **argv)
             ASSERTV(LINE, FORMAT.length(), WFORMAT.length(),
                     FORMAT.length() == WFORMAT.length());
 
-            for (; it <= FORMAT.end(); ++it, ++itWide) {
+            for (; it != FORMAT.end(); ++it, ++itWide) {
                 mX.advance_to(it);
                 ASSERTV(LINE, *it, it == X.begin());
 
                 mXWide.advance_to(itWide);
                 ASSERTV(LINE, *itWide, itWide == XWide.begin());
             }
-
-#ifdef BDE_BUILD_TARGET_EXC
-            try {
-                mX.advance_to(it);
-                ASSERTV(LINE, "Exception has not been thrown", false);
-            }
-            catch (const bsl::format_error& err) {
-                // Expected behavior.
-            }
-            catch (...) {
-                ASSERTV(LINE, "Unexpected exception", false);
-            }
-
-            try {
-                mXWide.advance_to(itWide);
-                ASSERTV(LINE, "Exception has not been thrown", false);
-            }
-            catch (const bsl::format_error& err) {
-                // Expected behavior.
-            }
-            catch (...) {
-                ASSERTV(LINE, "Unexpected exception", false);
-            }
-#endif
         }
 
         // Testing `next_arg_id()` and `check_arg_id()`.

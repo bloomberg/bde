@@ -271,6 +271,9 @@ void FormatterSpecificationNumericValue::parse(
         }
         ++digitCount;
         ++current;
+        if (current == end) {
+            break;                                                     // BREAK
+        }
     }
     value = static_cast<int>(accumulator);
 
