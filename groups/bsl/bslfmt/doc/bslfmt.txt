@@ -82,7 +82,7 @@ bslfmt.txt
 :      Provide a string_view wrapper for formatting library usage
 :
 : 'bslfmt_formaterror':
-:      Provide an exception type for format library errors
+:      Provide an exception type for format library errors.
 :
 : 'bslfmt_formatparsecontext':
 :      Provides access to formatting parsing string and parsing state.
@@ -91,7 +91,7 @@ bslfmt.txt
 :      Tokenization utility for use within BSL `format` spec parsers
 :
 : 'bslfmt_formatterbase':
-:      Provide a base template for formatter specializations
+:      Provide a base template for formatter specializations.
 :
 : 'bslfmt_formatterbool':
 :      Provide a formatter customization for bool type

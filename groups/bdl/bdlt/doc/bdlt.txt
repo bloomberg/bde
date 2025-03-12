@@ -31,6 +31,7 @@
 
   7. bdlt_currenttime
      bdlt_fixutil
+     bdlt_fuzzutil
      bdlt_iso8601util
 
   6. bdlt_calendarutil
@@ -47,7 +48,6 @@
 
   4. bdlt_datetime
      bdlt_dateutil
-     bdlt_fuzzutil
      bdlt_packedcalendar
      bdlt_timetz
      bdlt_timeutil

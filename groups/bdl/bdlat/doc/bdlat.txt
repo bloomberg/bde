@@ -392,7 +392,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlat' package currently has 20 components having 6 levels of physical
+ The 'bdlat' package currently has 22 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -401,6 +401,7 @@
      bdlat_symbolicconverter
 
   5. bdlat_arrayutil
+     bdlat_fuzzutil
      bdlat_nullablevalueutil
      bdlat_valuetypefunctions
 
@@ -422,6 +423,7 @@
      bdlat_typetraits
 
   1. bdlat_bdeatoverrides
+     bdlat_fuzzutiloptions
 ..
 
 /Component Synopsis
@@ -458,6 +460,12 @@
 :
 : 'bdlat_formattingmode':
 :      Provide formatting mode constants.
+:
+: 'bdlat_fuzzutil':
+:      Provide fuzz test utilities for `bdlat`-types.
+:
+: 'bdlat_fuzzutiloptions':
+:      Provide options for `bdlat::FuzzUtil`.
 :
 : 'bdlat_nullablevaluefunctions':
 :      Provide a namespace defining nullable value functions.
