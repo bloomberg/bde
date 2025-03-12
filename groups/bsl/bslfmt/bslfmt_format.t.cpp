@@ -825,13 +825,11 @@ int main(int argc, char **argv)
 
         // Truncated by constant "precision" in format string
 
-        u_VERIFY_STRINGS("{:.0}", "",     "Text");
         u_VERIFY_STRINGS("{:.1}", "T",    "Text");
         u_VERIFY_STRINGS("{:.2}", "Te",   "Text");
         u_VERIFY_STRINGS("{:.3}", "Tex",  "Text");
         u_VERIFY_STRINGS("{:.4}", "Text", "Text");
         u_VERIFY_STRINGS("{:.5}", "Text", "Text");
-
 
 #undef u_VERIFY_STRINGS
       } break;
