@@ -624,7 +624,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -669,6 +669,56 @@ int main(int argc, char **argv)
     result = bsl::format("{:N}", date);
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // BAD FORMAT STRINGS
+        //
+        // Concerns:
+        // 1. Too many format placeholders cause an error (not enough
+        //    arguments to format).
+        //
+        // Plan:
+        // 1. Use `bsl::vformat` for runtime testing.
+        //
+        // Testing:
+        //   CONCERN: BAD FORMAT STRINGS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nBAD FORMAT STRINGS"
+                          "\n==================");
+
+        // `char`
+        bool formatErrorCaught = false;
+        try {
+            bsl::string temp;
+            bsl::vformat_to(&temp, "{}{}", make_format_args("Hello World"));
+        }
+        catch (const bsl::format_error& e) {
+            formatErrorCaught = true;
+            if (veryVerbose) P(e.what());
+        }
+        catch (...) {
+            ASSERT(0 == "Unexpected exception caught!");
+            throw;
+        }
+        ASSERT(formatErrorCaught);
+
+        // `wchar_t`
+        formatErrorCaught = false;
+        try {
+            bsl::wstring temp;
+            bsl::vformat_to(&temp, L"{}{}", make_wformat_args(L"Hello World"));
+        }
+        catch (const bsl::format_error& e) {
+            formatErrorCaught = true;
+            if (veryVerbose) P(e.what());
+        }
+        catch (...) {
+            ASSERT(0 == "Unexpected exception caught!");
+            throw;
+        }
+        ASSERT(formatErrorCaught);
       } break;
       case 8: {
         // --------------------------------------------------------------------
