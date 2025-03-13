@@ -711,13 +711,32 @@ int main(int argc, char **argv)
         // POINTERS
         //
         // Concerns:
-        // 1. TBD
+        // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as
+        //    0x0.
+        //
+        // 2. Pointer values are printed as hexadecimal addresses with `0x`
+        //    prefix.
+        //
+        // 3. Zero padding places the right number of zeros after the prefix.
+        //
+        // 4. Width and alignment combinations work as expected.
+        //
+        // 5. Width may be specified as an argument, without or with arg id.
+        //
+        // 6. Presentation may be specified as 'p' and it results in the same
+        //    output as no presentation format specified.
+        //
+        // 7. Presentation may be specified as 'P' and it results in the prefix
+        //    changing to "0X" and the hexadecimal output being uppercase.
+        //
+        // 8. `char` and `wchar_t` formatting both work.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
-        //   POINTERS
+        //   CONCERN: POINTERS
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nPOINTERS"
@@ -792,23 +811,33 @@ int main(int argc, char **argv)
 
         u_VERIFY_FORMAT_BOTH("{:p}", "0x0", bsl::nullptr_t());
 
-        u_VERIFY_POINTER("{:p}", "0x12345", 0x12345);
+        u_VERIFY_POINTER("{:p}", "0x123ab", 0x123AB);
+
+        u_VERIFY_FORMAT_BOTH("{:P}", "0X0", bsl::nullptr_t());
+
+        u_VERIFY_POINTER("{:P}", "0X123AB", 0x123AB);
 
 #undef u_VERIFY_POINTER
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
         // BOOLEAN
         //
         // Concerns:
-        // 1. TBD
+        // 1. Static text in format string is copied to the output unmodified.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. Format specification characters have the intended result.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
-        //   BOOLEAN
+        //   CONCERN: BOOLEAN
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nBOOLEAN"
@@ -893,13 +922,23 @@ int main(int argc, char **argv)
         // STRINGS
         //
         // Concerns:
-        // 1. TBD
+        // 1. All supported string types print their value properly.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. The 's' format specification character may be used.
+        //
+        // 4. A "precision" specification ('.' followed by an integer)
+        //   truncates the printed string.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
-        //   STRINGS
+        //   CONCERN: STRINGS
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nSTRINGS"
@@ -964,13 +1003,29 @@ int main(int argc, char **argv)
         // FLOAT AND DOUBLE
         //
         // Concerns:
-        // 1. TBD
+        // 1. Both supported types ('double', and 'float') print their values
+        //    properly.
+        //
+        // 2. Sign format specification works as intended (' ', '+', '-').
+        //
+        // 3. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 4. Presentation format specifiers (characters) print using the
+        //    specified standard presentation format.
+        //
+        // 5. Precision specification works as per standard in all presentation
+        //    formats including the default.
+        //
+        // 6. Alternate formats work as per standard.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
-        //   FLOAT AND DOUBLE
+        //   CONCERN: FLOAT AND DOUBLE
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nFLOAT AND DOUBLE"
@@ -1173,10 +1228,21 @@ int main(int argc, char **argv)
         // CHAR AND WCHAR_T
         //
         // Concerns:
-        // 1. TBD
+        // 1. Characters and wide characters are printed (by default) as a
+        //    string that consists of that character only.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. Presentation format specifiers (characters) work as per standard.
+        //
+        // 4. Alternate format adds the format prefixes in the appropriate
+        //    presentation formats as per standard.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
         //   CHAR AND WCHAR_T
@@ -1279,10 +1345,22 @@ int main(int argc, char **argv)
         // INTEGERS
         //
         // Concerns:
-        // 1. TBD
+        // 1. All integers types are converted to string properly.
+        //
+        // 2. Sign format specification works as intended (' ', '+', '-').
+        //
+        // 3. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 4. Presentation format specifiers (characters) print using the
+        //    specified standard presentation format.
+        //
+        // 5. Alternate formats work as per standard.
         //
         // Plan:
-        // 1. TBD
+        // 1. Use individual macros to create rows of a table-like test that
+        //    covers the concerns.
         //
         // Testing:
         //   INTEGERS
