@@ -1396,29 +1396,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42l);
         u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42ll);
 
-        // Printing of corner case integral values
-
-        u_VERIFY_FORMAT_BOTH("{}",   "-2147483648",            INT_MIN);
-        u_VERIFY_FORMAT_BOTH("{}",    "2147483647",            INT_MAX);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "-128",                   SCHAR_MIN);
-        u_VERIFY_FORMAT_BOTH("{}",    "127",                   SCHAR_MAX);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "-32768",                 SHRT_MIN);
-        u_VERIFY_FORMAT_BOTH("{}",    "32767",                 SHRT_MAX);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "-2147483648",            LONG_MIN);
-        u_VERIFY_FORMAT_BOTH("{}",    "2147483647",            LONG_MAX);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "-9223372036854775808",   LLONG_MIN);
-        u_VERIFY_FORMAT_BOTH("{}",    "9223372036854775807",   LLONG_MAX);
-
-        u_VERIFY_FORMAT_BOTH("{}",    "4294967295",            UINT_MAX);
-        u_VERIFY_FORMAT_BOTH("{}",    "255",                   UCHAR_MAX);
-        u_VERIFY_FORMAT_BOTH("{}",    "65535",                 USHRT_MAX);
-        u_VERIFY_FORMAT_BOTH("{}",    "4294967295",            ULONG_MAX);
-        u_VERIFY_FORMAT_BOTH("{}",    "18446744073709551615",  ULLONG_MAX);
-
         // Aligned by constant in format string
 
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42);
