@@ -623,9 +623,8 @@ int main(int argc, char **argv)
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
-    for(test=1;testStatus!=-1&&printf("TEST: %d\n",test);++test)
     switch (test) {  case 0:
-      case 7: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -670,6 +669,133 @@ int main(int argc, char **argv)
     result = bsl::format("{:N}", date);
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // COMBINATIONS
+        //
+        // Concerns:
+        // 1. Mixed kinds (types) of arguments result in the invocation of
+        //    differently configured parser that have to all do proper parsing
+        //    of portions of the format string.
+        //
+        // Plan:
+        // 1. Spot check different combinations by using real-life looking
+        //    format strings.
+        //
+        // Testing:
+        //   COMBINATIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nCOMBINATIONS"
+                          "\n============");
+
+        u_VERIFY_FORMAT(
+                       "this={:010}, name={:<8}, id={:04x}, heat={:a}",
+                       "this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                       reinterpret_cast<const void *>(0xC0FFEE),
+                       "PgDown",
+                       32,
+                       13.75);
+
+        u_VERIFY_WFORMAT(
+                      L"this={:010}, name={:<8}, id={:04x}, heat={:a}",
+                      L"this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                      reinterpret_cast<const void *>(0xC0FFEE),
+                      L"PgDown",
+                      32,
+                      13.75);
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // POINTERS
+        //
+        // Concerns:
+        // 1. TBD
+        //
+        // Plan:
+        // 1. TBD
+        //
+        // Testing:
+        //   POINTERS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nPOINTERS"
+                          "\n========");
+
+        // Verify `nullptr`
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        u_VERIFY_FORMAT_BOTH("{}", "0x0", nullptr);
+#endif  // C++11 or later
+        u_VERIFY_FORMAT_BOTH("{}", "0x0", bsl::nullptr_t());
+
+#define u_VERIFY_POINTER(fmt, res, val) \
+    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val))
+
+        // Simple printing of pointer values
+
+        u_VERIFY_POINTER("{}", "0x12345", 0x12345);
+
+        // Zero padding
+
+        u_VERIFY_FORMAT_BOTH("{:010}", "0x00000000", bsl::nullptr_t());
+
+        u_VERIFY_POINTER("{:010}", "0x00012345", 0x12345);
+
+        // Aligned by constant in format string
+
+        u_VERIFY_FORMAT_BOTH("{:1}",  "0x0",   bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:2}",  "0x0",   bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:3}",  "0x0",   bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:4}",  " 0x0",  bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:5}",  "  0x0", bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:<5}", "0x0  ", bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:^5}", " 0x0 ", bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{:>5}", "  0x0", bsl::nullptr_t());
+
+        u_VERIFY_POINTER("{:1}",  "0x12345",   0x12345);
+        u_VERIFY_POINTER("{:2}",  "0x12345",   0x12345);
+        u_VERIFY_POINTER("{:6}",  "0x12345",   0x12345);
+        u_VERIFY_POINTER("{:7}",  "0x12345",   0x12345);
+        u_VERIFY_POINTER("{:8}",  " 0x12345",  0x12345);
+        u_VERIFY_POINTER("{:9}",  "  0x12345", 0x12345);
+        u_VERIFY_POINTER("{:<9}", "0x12345  ", 0x12345);
+        u_VERIFY_POINTER("{:^9}", " 0x12345 ", 0x12345);
+        u_VERIFY_POINTER("{:>9}", "  0x12345", 0x12345);
+
+        // Aligned by parameter
+
+        u_VERIFY_FORMAT_BOTH("{:<{}}", "0x0  ", bsl::nullptr_t(), 5);
+        u_VERIFY_FORMAT_BOTH("{:^{}}", " 0x0 ", bsl::nullptr_t(), 5);
+        u_VERIFY_FORMAT_BOTH("{:>{}}", "  0x0", bsl::nullptr_t(), 5);
+
+        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "0x0  ", 5, bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 0x0 ", 5, bsl::nullptr_t());
+        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  0x0", 5, bsl::nullptr_t());
+
+#define u_VERIFY_POINTER_WIDTH(fmt, res, val, width)                          \
+    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val), width)
+
+        u_VERIFY_POINTER_WIDTH("{:<{}}", "0x12345  ", 0x12345, 9);
+        u_VERIFY_POINTER_WIDTH("{:^{}}", " 0x12345 ", 0x12345, 9);
+        u_VERIFY_POINTER_WIDTH("{:>{}}", "  0x12345", 0x12345, 9);
+#undef u_VERIFY_POINTER_WIDTH
+
+#define u_VERIFY_WIDTH_POINTER(fmt, res, width, val)                          \
+    u_VERIFY_FORMAT_BOTH(fmt, res, width, reinterpret_cast<const void *>(val))
+        u_VERIFY_WIDTH_POINTER("{1:<{0}}", "0x12345  ", 9, 0x12345);
+        u_VERIFY_WIDTH_POINTER("{1:^{0}}", " 0x12345 ", 9, 0x12345);
+        u_VERIFY_WIDTH_POINTER("{1:>{0}}", "  0x12345", 9, 0x12345);
+#undef u_VERIFY_WIDTH_POINTER
+
+        // Explicitly specified presentation
+
+        u_VERIFY_FORMAT_BOTH("{:p}", "0x0", bsl::nullptr_t());
+
+        u_VERIFY_POINTER("{:p}", "0x12345", 0x12345);
+
+#undef u_VERIFY_POINTER
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -926,7 +1052,6 @@ int main(int argc, char **argv)
 
         // Aligned by constant in format string
 
-        u_VERIFY_FORMAT_BOTH("{:0}",  "42.24",   42.24);
         u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24);
         u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24);
         u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24);
@@ -938,7 +1063,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^7}", " 42.24 ", 42.24);
         u_VERIFY_FORMAT_BOTH("{:>7}", "  42.24", 42.24);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",  "42.24",   42.24f);
         u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24f);
         u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24f);
         u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24f);
@@ -1297,7 +1421,6 @@ int main(int argc, char **argv)
 
         // Aligned by constant in format string
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     42);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42);
@@ -1310,7 +1433,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     (signed char)42);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (signed char)42);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (signed char)42);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (signed char)42);
@@ -1323,7 +1445,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (signed char)42);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (signed char)42);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     (short)42);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (short)42);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (short)42);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (short)42);
@@ -1336,7 +1457,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (short)42);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (short)42);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     42l);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42l);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42l);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42l);
@@ -1349,7 +1469,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42l);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42l);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     42ll);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ll);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ll);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ll);
@@ -1362,7 +1481,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42ll);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42ll);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     42u);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42u);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42u);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42u);
@@ -1375,7 +1493,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42u);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42u);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     (unsigned char)42);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned char)42);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned char)42);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned char)42);
@@ -1388,7 +1505,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned char)42);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned char)42);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     (unsigned short)42);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned short)42);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned short)42);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned short)42);
@@ -1401,7 +1517,6 @@ int main(int argc, char **argv)
         u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned short)42);
         u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned short)42);
 
-        u_VERIFY_FORMAT_BOTH("{:0}",   "42",     42ul);
         u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ul);
         u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ul);
         u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ul);
