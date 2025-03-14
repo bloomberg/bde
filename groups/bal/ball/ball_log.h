@@ -1225,7 +1225,7 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
 #define BALL_LOG_FMT(formatString, ...)                                       \
     bsl::format_to(                                                           \
         bsl::ostreambuf_iterator<char>(                                       \
-            &ball_log_lOg_StReAm.record()->fixedFields().messageStreamBuf()), \
+            &BALL_LOG_RECORD->fixedFields().messageStreamBuf()),              \
         formatString,                                                         \
         __VA_ARGS__)
 
