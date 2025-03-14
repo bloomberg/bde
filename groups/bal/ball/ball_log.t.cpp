@@ -9124,12 +9124,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_TRACE << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
             ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
 
+            LINE = L_ + 1;
+   BALL_LOG_FMT_TRACE("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
+            ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -9150,12 +9153,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_DEBUG << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
             ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
 
+            LINE = L_ + 1;
+   BALL_LOG_FMT_DEBUG("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
+            ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -9176,10 +9182,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_INFO << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
+            ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MESSAGE));
+
+            LINE = L_ + 1;
+    BALL_LOG_FMT_INFO("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MESSAGE));
         }
 
@@ -9201,10 +9211,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_WARN << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
+            ASSERT(u::isRecordOkay(observer, CAT, WARN, FILE, LINE, MESSAGE));
+
+            LINE = L_ + 1;
+    BALL_LOG_FMT_WARN("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
             ASSERT(u::isRecordOkay(observer, CAT, WARN, FILE, LINE, MESSAGE));
         }
 
@@ -9226,10 +9240,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_ERROR << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
+            ASSERT(u::isRecordOkay(observer, CAT, ERROR, FILE, LINE, MESSAGE));
+
+            LINE = L_ + 1;
+   BALL_LOG_FMT_ERROR("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
             ASSERT(u::isRecordOkay(observer, CAT, ERROR, FILE, LINE, MESSAGE));
         }
 
@@ -9251,10 +9269,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            const int LINE = L_ + 1;
+            int LINE = L_ + 1;
             BALL_LOG_FATAL << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
+            ASSERT(u::isRecordOkay(observer, CAT, FATAL, FILE, LINE, MESSAGE));
+
+            LINE = L_ + 1;
+   BALL_LOG_FMT_FATAL("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
             ASSERT(u::isRecordOkay(observer, CAT, FATAL, FILE, LINE, MESSAGE));
         }
 
