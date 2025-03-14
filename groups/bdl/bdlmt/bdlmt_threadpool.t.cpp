@@ -2851,6 +2851,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "HELPER FUNCTION TEST" << endl
                           << "====================" << endl;
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                                    &watchdogHandle,
+                                    watchdog,
+                                    const_cast<char *>("`TestJobFunction1`")));
+
         {
             const int NITERATIONS=50;
 
@@ -2874,11 +2883,11 @@ int main(int argc, char *argv[])
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                bslmt::ThreadUtil::create(
+                ASSERT(0 == bslmt::ThreadUtil::create(
                         &threadHandles[i],
                         attributes,
                         (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction1,
-                        &args);
+                        &args));
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -2894,6 +2903,8 @@ int main(int argc, char *argv[])
             }
             ASSERT(NITERATIONS == args.d_count);
         }
+
+        setWatchdogText("`TestJobFunction2`");
 
         if (veryVerbose) cout << "\tTesting: `TestJobFunction2`\n"
                               << "\t===========================" << endl;
@@ -2917,11 +2928,11 @@ int main(int argc, char *argv[])
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                bslmt::ThreadUtil::create(
+                ASSERT(0 == bslmt::ThreadUtil::create(
                         &threadHandles[i],
                         attributes,
                         (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction2,
-                        &args);
+                        &args));
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -2935,6 +2946,10 @@ int main(int argc, char *argv[])
             }
             ASSERT(NITERATIONS == args.d_count);
         }
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case -1: {
         // --------------------------------------------------------------------

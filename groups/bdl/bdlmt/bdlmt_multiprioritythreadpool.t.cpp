@@ -169,6 +169,67 @@ static const bool k_threadNameCanBeEmpty = false;
 
 }  // close unnamed namespace
 
+const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
+
+static bsls::AtomicInt s_continue;
+
+static char s_watchdogText[128];
+
+/// Assign the specified `value` to be displayed if the watchdog expires.
+void setWatchdogText(const char *value)
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+/// Watchdog function used to determine when a timeout should occur.  This
+/// function returns without expiration if `0 == s_continue` before one
+/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
+/// program is aborted.
+extern "C" void *watchdog(void *arg)
+{
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
+    const int MAX = 100;  // one iteration is a deci-second
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(k_DECISECOND);
+        ++count;
+
+        ASSERTV(s_watchdogText, count < MAX);
+
+        if (MAX == count && s_continue) {
+            // `abort` is preferred here but, on Windows, may result in a
+            // dialog box and the process not terminating.
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            abort();
+#else
+            exit(1);
+#endif
+        }
+    }
+
+    return 0;
+}
+
+#define STARTTHREADS(x) \
+    if (0 != x.startThreads()) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.startThreads()) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.startThreads()) { \
+                cout << "Thread start() failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
+
 // ============================================================================
 //                      Classes for usage example 1
 // ============================================================================
@@ -1544,10 +1605,7 @@ int main(int argc, char *argv[])
         ASSERT(!pool.isSuspended());
         checkOutPool(&pool);
 
-        if (pool.startThreads()) {
-            bslmt::ThreadUtil::microSleep(250000);  // 250 milliseconds
-            ASSERT(0 == pool.startThreads());
-        }
+        STARTTHREADS(pool);
 
         ASSERT(pool.isStarted());
         ASSERT(!pool.isSuspended());
@@ -1582,7 +1640,7 @@ int main(int argc, char *argv[])
         ASSERT(pool.isSuspended());
         checkOutPool(&pool);
 
-        pool.startThreads();
+        STARTTHREADS(pool);
 
         ASSERT(pool.isStarted());
         ASSERT(pool.isSuspended());
@@ -1601,7 +1659,7 @@ int main(int argc, char *argv[])
         ASSERT(!pool.isSuspended());
         checkOutPool(&pool);
 
-        pool.startThreads();
+        STARTTHREADS(pool);
 
         ASSERT(pool.isStarted());
         ASSERT(!pool.isSuspended());
@@ -1869,6 +1927,15 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_2;
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                               &watchdogHandle,
+                               watchdog,
+                               const_cast<char *>("basic operation")));
+
         static bsl::uintptr_t incBy[] =
                                      {473, 9384, 273, 132, 182, 191, 282, 934};
         enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
@@ -1892,7 +1959,7 @@ int main(int argc, char *argv[])
 
             ASSERT(!counter && !otherCounter);
 
-            pool.startThreads();
+            STARTTHREADS(pool);
 
             for (int i = 0; i < k_INC_BY_LENGTH; ++i) {
                 barrier.wait();
@@ -1909,6 +1976,10 @@ int main(int argc, char *argv[])
 
             pool.stopThreads();
         }  // for j
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 1: {
         // --------------------------------------------------------------------

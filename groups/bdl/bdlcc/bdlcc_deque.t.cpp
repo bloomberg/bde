@@ -319,6 +319,53 @@ const bsltf::MoveState::Enum expAssignMoveState = e_NOT_MOVED;
 const bool                   expAssignMove      = false;
 #endif
 
+const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
+
+static bsls::AtomicInt s_continue;
+
+static char s_watchdogText[128];
+
+/// Assign the specified `value` to be displayed if the watchdog expires.
+void setWatchdogText(const char *value)
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+/// Watchdog function used to determine when a timeout should occur.  This
+/// function returns without expiration if `0 == s_continue` before one
+/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
+/// program is aborted.
+extern "C" void *watchdog(void *arg)
+{
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
+    const int MAX = 300;  // one iteration is a deci-second
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(k_DECISECOND);
+        ++count;
+
+        ASSERTV(s_watchdogText, count < MAX);
+
+        if (MAX == count && s_continue) {
+            // `abort` is preferred here but, on Windows, may result in a
+            // dialog box and the process not terminating.
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            abort();
+#else
+            exit(1);
+#endif
+        }
+    }
+
+    return 0;
+}
+
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
@@ -4152,6 +4199,14 @@ void highWaterMarkTest()
 
     const char *name = NameOf<ELEMENT>();
 
+    bslmt::ThreadUtil::Handle watchdogHandle;
+
+    s_continue = 1;
+
+    ASSERT(0 == bslmt::ThreadUtil::create(&watchdogHandle,
+                                          watchdog,
+                                          const_cast<char *>(name)));
+
     if (verbose) cout << "highWaterMarkTest<" << name << ">()\n";
 
     {
@@ -4167,7 +4222,7 @@ void highWaterMarkTest()
         HighWaterMarkFunctor<ELEMENT> functor(&mX);
 
         bslmt::ThreadUtil::Handle handle;
-        bslmt::ThreadUtil::create(&handle, functor);
+        ASSERT(0 == bslmt::ThreadUtil::create(&handle, functor));
 
         while (X.length() < 4) {
             bslmt::ThreadUtil::yield();
@@ -4215,6 +4270,10 @@ void highWaterMarkTest()
 
     ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
     ASSERTV(da.numBlocksInUse(), 0 == da.numBytesInUse());
+
+    s_continue = 0;
+
+    bslmt::ThreadUtil::join(watchdogHandle);
 }
 
 }  // close namespace TEST_CASE_11
