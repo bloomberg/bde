@@ -1,5 +1,42 @@
-bsl-internal (4.21.0.0) unstable; urgency=low
+bsl-internal (4.22.0.0) unstable; urgency=low
 
+  * e6fedb05f Bumped version to 4.22.0.0
+  * ac9a3cf00 Drqs 178484473 bslfmt fix end dereference (#5247)
+  * b3c20ced2 fix bdls::FilesystemUtil::move docstring and add tests (DRQS 178057845) (#5220)
+  * 6d1d9c4e4 Merge pull request #5246 from dsokolov7/review/bde-bsl-format-formatterfloating-matrix-build-error-drqs-178494696
+  * 651cd2551 fix gcc13 c++23 build errors in bsl (#5245)
+  * 03ece7255 Deprecate bad enum values in bal. (#5206)
+  * c35e68245 Remove ryu (#5218)
+  * 8e0020b83 Merge pull request #5215 from afeher/drqs-178234843-polish-bdldfp_decimal-bsl_format
+  * ea3887471 Please Support Simple-Type Fuzzing in bdlat_fuzzutil (DRQS 178035133) (#5216)
+  * fbac55db3 Merge pull request #5244 from dsokolov7/review/bsl-format-matrix-build-issues-drqs-178482943
+  * 440c4d4ba decreas threads, decreads iterations, increase timeout (#5243)
+  * d0da7f872 Merge pull request #5240 from dsokolov7/review/bde-bsl-format-invalid-spec-drqs-178456402
+  * db6dc5123 retry thread creations (#5241)
+  * e2d729229 bdls_testutil.t.cpp: update TC 6 to reflect changes to bslim_testutil (#5242)
+  * 57b970384 Polish formatterfloating. (#5213)
+  * dd4da69cb Fix bdl test driver warnings on gcc 12 (#5239)
+  * 978f5fe2b [bsl::format] Usage example for 'bslfmt::MockParseContext' has been rewritten. DRQS 178095835 (#5229)
+  * 7d501842e increase delay before failing test (#5236)
+  * a6a52bd7d refine watchdog (#5233)
+  * ce41338b4 Move `Iterator` typedef to avoid unused warning (#5234)
+  * d4ab48bc7 check return values for addThread in case 7 (#5232)
+  * 520fe3ba5 added watchdog (#5230)
+  * 311728fda Merge pull request #5223 from dsokolov7/review/bde-bsl-format-formattercharutil-gold-drqs-178234724
+  * 124bc57e3 Avoid temporary shared pointer copy for const mismatch - {DRQS 177653766} (#5140)
+  * 7d8a2c894 bdls_fdstreambuf: BSLS_REVIEW fails if streambuf destroyed with invla… (#5104)
+  * 96a6f1d70 reduce warnings (#5227)
+  * e3ea0e1b9 add Note that for maxNumPendingJobs (#5225)
+  * 256566f19 Merge pull request #5108 from afeher/drqs-177471128-nestable-maximums
+  * 375b8e346 Merge pull request #5127 from jberne4/review_filenames
+  * 96f4f75fc [bsl::format] Usage example of 'MockFormatContext' has been refactored. DRQS 178070286 (#5198)
+  * fdea83311 Remove unsupported platform/compiler ifdefs/workarounds in bdlb (DRQS 177859641) (#5221)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Mar 2025 14:08:16 -0400
+
+bsl-internal (4.21.0.0) git; urgency=low
+
+  * 2c7ef378b Changelog for version 4.21.0.0
   * 7276edf6d Bumped version to 4.21.0.0
   * 80d6ed797 Add header deprecation macro [ENG6BVDEVX-1843] (#5014)
   * af1a61b54 bslma::Allocator should respect `do_allocate` alignment parameter -- DRQS 176364960 (#5083)
@@ -26,7 +63,7 @@ bsl-internal (4.21.0.0) unstable; urgency=low
   * 160e4984c Drqs 178096040 bsl format remove checks from visit (#5189)
   * 54ec051e0 Add missing inline in bslfmt_format_imp (#5188)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Feb 2025 15:56:08 -0500
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 21 Feb 2025 16:05:34 -0500
 
 bsl-internal (4.20.0.0) git; urgency=low
 
@@ -1507,25 +1544,10 @@ bsl-internal (3.99.6.0) git; urgency=low
   * 15ba57c29 fix MSVC warning about 'unary minus operator applied to unsigned type' - ENG2BASINF-3036 (#3697)
   * 437bc777e add allocator-aware default constructors to striped unordered map and multimap (#3689)
   * 54330a5b1 Gcc11 warnings drqs 169251019 (#3694)
-
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:39:17 -0400
-
-bsl-internal (3.99.5.0.2.testpromotion) git; urgency=low
-
   * 00e3d98e1 Changelog for version 3.99.5.0.2.testpromotion
   * 30f4d1d74 drqs-169243159: 'bslstl_stringbuf.h': 'static_cast' to quell warnings. (#3691)
   * dcd6d7fb5 Throughputbenchmark drqs 169191413.1 (#3690)
-
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2022 07:03:35 -0400
-
-bsl-internal (3.99.5.0.1.testpromotion) git; urgency=low
-
   * d9222f118 Changelog for version 3.99.5.0.1.testpromotion
-
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:44:07 -0400
-
-bsl-internal (3.99.5.0.1.test-promotion) git; urgency=low
-
   * 830198c70 Changelog for version 3.99.5.0.1.test-promotion
   * 0fcaad2c9 Bumped version to 3.99.6.0
   * 1e0c98bc2 Apple m1 fixes 169105973 (#3666)
@@ -1541,7 +1563,7 @@ bsl-internal (3.99.5.0.1.test-promotion) git; urgency=low
   * f1815b6cb drqs-168968405: 'bdlcc_deque': GCC11: TC10 reorg due to '-m32' segfau… (#3660)
   * b3a7f52cb baljsn: Support arrays of arrays (#3630)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:36:13 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:39:17 -0400
 
 bsl-internal (3.99.3.0) git; urgency=low
 
