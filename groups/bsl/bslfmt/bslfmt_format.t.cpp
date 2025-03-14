@@ -1,6 +1,8 @@
 // bslfmt_format.t.cpp                                                -*-C++-*-
 #include <bslfmt_format.h>
 
+#include <bslma_testallocator.h>
+
 #include <bslfmt_standardformatspecification.h>
 
 #include <bsls_bsltestutil.h>
@@ -218,6 +220,10 @@ struct formatter<FormattableType, t_CHAR> {
         const bsl::string result = bsl::format(fmtstr, __VA_ARGS__);          \
         ASSERTV(result.c_str(), result == expected);                          \
                                                                               \
+        const bsl::string resulta = bsl::format(&oa, fmtstr, __VA_ARGS__);    \
+        ASSERTV(resulta.c_str(), result == expected);                         \
+        ASSERT(resulta.get_allocator() == &oa);                               \
+                                                                              \
         const size_t fmtdSize = bsl::formatted_size(fmtstr, __VA_ARGS__);     \
         ASSERTV(strlen(expected), fmtdSize, strlen(expected) == fmtdSize);    \
                                                                               \
@@ -259,6 +265,10 @@ struct formatter<FormattableType, t_CHAR> {
     do {                                                                      \
         const bsl::wstring result = bsl::format(fmtstr, __VA_ARGS__);         \
         ASSERT(result == expected);                                           \
+                                                                              \
+        const bsl::wstring resulta = bsl::format(&oa, fmtstr, __VA_ARGS__);   \
+        ASSERT(resulta == expected);                                          \
+        ASSERT(resulta.get_allocator() == &oa);                               \
                                                                               \
         const size_t fmtdSize = bsl::formatted_size(fmtstr, __VA_ARGS__);     \
         ASSERTV(wcslen(expected), fmtdSize, wcslen(expected) == fmtdSize);    \
@@ -611,15 +621,1215 @@ struct formatter<FormattableType, t_CHAR> {
 // ```
 
 //=============================================================================
+//                          GLOBAL VERBOSITIES
+//-----------------------------------------------------------------------------
+
+static bool             verbose;
+static bool         veryVerbose;
+static bool     veryVeryVerbose;
+static bool veryVeryVeryVerbose;
+
+//=============================================================================
+//                          TEST CASE FUNCTIONS
+//-----------------------------------------------------------------------------
+
+void testCase9()
+{
+    // ------------------------------------------------------------------------
+    // BAD FORMAT STRINGS
+    //
+    // Concerns:
+    // 1. Too many format placeholders cause an error (not enough
+    //    arguments to format).
+    //
+    // Plan:
+    // 1. Use `bsl::vformat` for runtime testing.
+    //
+    // Testing:
+    //   CONCERN: BAD FORMAT STRINGS
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nBAD FORMAT STRINGS"
+                      "\n==================");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // `char`
+    bool formatErrorCaught = false;
+    try {
+        bsl::string temp;
+        bsl::vformat_to(&temp, "{}{}", make_format_args("Hello World"));
+    }
+    catch (const bsl::format_error& e) {
+        formatErrorCaught = true;
+        if (veryVerbose) P(e.what());
+    }
+    catch (...) {
+        ASSERT(0 == "Unexpected exception caught!");
+        throw;
+    }
+    ASSERT(formatErrorCaught);
+
+    // `wchar_t`
+    formatErrorCaught = false;
+    try {
+        bsl::wstring temp;
+        bsl::vformat_to(&temp, L"{}{}", make_wformat_args(L"Hello World"));
+    }
+    catch (const bsl::format_error& e) {
+        formatErrorCaught = true;
+        if (veryVerbose) P(e.what());
+    }
+    catch (...) {
+        ASSERT(0 == "Unexpected exception caught!");
+        throw;
+    }
+    ASSERT(formatErrorCaught);
+}
+
+void testCase8()
+{
+    // ------------------------------------------------------------------------
+    // COMBINATIONS
+    //
+    // Concerns:
+    // 1. Mixed kinds (types) of arguments result in the invocation of
+    //    differently configured parser that have to all do proper parsing
+    //    of portions of the format string.
+    //
+    // Plan:
+    // 1. Spot check different combinations by using real-life looking
+    //    format strings.
+    //
+    // Testing:
+    //   COMBINATIONS
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nCOMBINATIONS"
+                      "\n============");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    u_VERIFY_FORMAT("this={:010}, name={:<8}, id={:04x}, heat={:a}",
+                    "this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                    reinterpret_cast<const void *>(0xC0FFEE),
+                    "PgDown",
+                    32,
+                    13.75);
+
+    u_VERIFY_WFORMAT(L"this={:010}, name={:<8}, id={:04x}, heat={:a}",
+                     L"this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                     reinterpret_cast<const void *>(0xC0FFEE),
+                     L"PgDown",
+                     32,
+                     13.75);
+
+}
+
+void testCase7()
+{
+    // ------------------------------------------------------------------------
+    // POINTERS
+    //
+    // Concerns:
+    // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as
+    //    0x0.
+    //
+    // 2. Pointer values are printed as hexadecimal addresses with `0x`
+    //    prefix.
+    //
+    // 3. Zero padding places the right number of zeros after the prefix.
+    //
+    // 4. Width and alignment combinations work as expected.
+    //
+    // 5. Width may be specified as an argument, without or with arg id.
+    //
+    // 6. Presentation may be specified as 'p' and it results in the same
+    //    output as no presentation format specified.
+    //
+    // 7. Presentation may be specified as 'P' and it results in the prefix
+    //    changing to "0X" and the hexadecimal output being uppercase.
+    //
+    // 8. `char` and `wchar_t` formatting both work.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   CONCERN: POINTERS
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nPOINTERS"
+                      "\n========");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // Verify `nullptr`
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+        u_VERIFY_FORMAT_BOTH("{}", "0x0", nullptr);
+#endif  // C++11 or later
+        u_VERIFY_FORMAT_BOTH("{}", "0x0", bsl::nullptr_t());
+
+#define u_VERIFY_POINTER(fmt, res, val) \
+    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val))
+
+    // Simple printing of pointer values
+
+    u_VERIFY_POINTER("{}", "0x12345", 0x12345);
+
+    // Zero padding
+
+    u_VERIFY_FORMAT_BOTH("{:010}", "0x00000000", bsl::nullptr_t());
+
+    u_VERIFY_POINTER("{:010}", "0x00012345", 0x12345);
+
+    // Aligned by constant in format string
+
+    u_VERIFY_FORMAT_BOTH("{:1}",  "0x0",   bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:2}",  "0x0",   bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:3}",  "0x0",   bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:4}",  " 0x0",  bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:5}",  "  0x0", bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:<5}", "0x0  ", bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:^5}", " 0x0 ", bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{:>5}", "  0x0", bsl::nullptr_t());
+
+    u_VERIFY_POINTER("{:1}",  "0x12345",   0x12345);
+    u_VERIFY_POINTER("{:2}",  "0x12345",   0x12345);
+    u_VERIFY_POINTER("{:6}",  "0x12345",   0x12345);
+    u_VERIFY_POINTER("{:7}",  "0x12345",   0x12345);
+    u_VERIFY_POINTER("{:8}",  " 0x12345",  0x12345);
+    u_VERIFY_POINTER("{:9}",  "  0x12345", 0x12345);
+    u_VERIFY_POINTER("{:<9}", "0x12345  ", 0x12345);
+    u_VERIFY_POINTER("{:^9}", " 0x12345 ", 0x12345);
+    u_VERIFY_POINTER("{:>9}", "  0x12345", 0x12345);
+
+    // Aligned by parameter
+
+    u_VERIFY_FORMAT_BOTH("{:<{}}", "0x0  ", bsl::nullptr_t(), 5);
+    u_VERIFY_FORMAT_BOTH("{:^{}}", " 0x0 ", bsl::nullptr_t(), 5);
+    u_VERIFY_FORMAT_BOTH("{:>{}}", "  0x0", bsl::nullptr_t(), 5);
+
+    u_VERIFY_FORMAT_BOTH("{1:<{0}}", "0x0  ", 5, bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 0x0 ", 5, bsl::nullptr_t());
+    u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  0x0", 5, bsl::nullptr_t());
+
+#define u_VERIFY_POINTER_WIDTH(fmt, res, val, width)                          \
+    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val), width)
+
+    u_VERIFY_POINTER_WIDTH("{:<{}}", "0x12345  ", 0x12345, 9);
+    u_VERIFY_POINTER_WIDTH("{:^{}}", " 0x12345 ", 0x12345, 9);
+    u_VERIFY_POINTER_WIDTH("{:>{}}", "  0x12345", 0x12345, 9);
+#undef u_VERIFY_POINTER_WIDTH
+
+#define u_VERIFY_WIDTH_POINTER(fmt, res, width, val)                          \
+    u_VERIFY_FORMAT_BOTH(fmt, res, width, reinterpret_cast<const void *>(val))
+
+    u_VERIFY_WIDTH_POINTER("{1:<{0}}", "0x12345  ", 9, 0x12345);
+    u_VERIFY_WIDTH_POINTER("{1:^{0}}", " 0x12345 ", 9, 0x12345);
+    u_VERIFY_WIDTH_POINTER("{1:>{0}}", "  0x12345", 9, 0x12345);
+#undef u_VERIFY_WIDTH_POINTER
+
+    // Explicitly specified presentation
+
+    u_VERIFY_FORMAT_BOTH("{:p}", "0x0", bsl::nullptr_t());
+
+    u_VERIFY_POINTER("{:p}", "0x123ab", 0x123AB);
+
+    u_VERIFY_FORMAT_BOTH("{:P}", "0X0", bsl::nullptr_t());
+
+    u_VERIFY_POINTER("{:P}", "0X123AB", 0x123AB);
+
+#undef u_VERIFY_POINTER
+}
+
+void testCase6()
+{
+    // ------------------------------------------------------------------------
+    // BOOLEAN
+    //
+    // Concerns:
+    // 1. Static text in format string is copied to the output unmodified.
+    //
+    // 2. Width specification with and without alignment works according to
+    //    the standard requirements in its direct form as well as when
+    //    width is specified by an argument (embedded).
+    //
+    // 3. Format specification characters have the intended result.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   CONCERN: BOOLEAN
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nBOOLEAN"
+                      "\n========");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // Simple printing of boolean values
+
+    u_VERIFY_FORMAT_BOTH("{}",            "true",            true);
+    u_VERIFY_FORMAT_BOTH("Verified: {}",  "Verified: true",  true);
+    u_VERIFY_FORMAT_BOTH("{} love",       "true love",       true);
+    u_VERIFY_FORMAT_BOTH("autoConsumeData() {} (default)",
+                         "autoConsumeData() true (default)", true);
+
+    u_VERIFY_FORMAT_BOTH("{}",           "false",            false);
+    u_VERIFY_FORMAT_BOTH("Error: {}",    "Error: false",     false);
+    u_VERIFY_FORMAT_BOTH("{} dichotomy", "false dichotomy",  false);
+    u_VERIFY_FORMAT_BOTH("Alternate format {} (default)",
+                         "Alternate format false (default)", false);
+
+    // Aligned by constant in format string
+
+    u_VERIFY_FORMAT_BOTH("{:1}",  "true",   true);
+    u_VERIFY_FORMAT_BOTH("{:2}",  "true",   true);
+    u_VERIFY_FORMAT_BOTH("{:3}",  "true",   true);
+    u_VERIFY_FORMAT_BOTH("{:4}",  "true",   true);
+    u_VERIFY_FORMAT_BOTH("{:5}",  "true ",  true);
+    u_VERIFY_FORMAT_BOTH("{:6}",  "true  ", true);
+    u_VERIFY_FORMAT_BOTH("{:<6}", "true  ", true);
+    u_VERIFY_FORMAT_BOTH("{:^6}", " true ", true);
+    u_VERIFY_FORMAT_BOTH("{:>6}", "  true", true);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",  "false",   false);
+    u_VERIFY_FORMAT_BOTH("{:2}",  "false",   false);
+    u_VERIFY_FORMAT_BOTH("{:3}",  "false",   false);
+    u_VERIFY_FORMAT_BOTH("{:4}",  "false",   false);
+    u_VERIFY_FORMAT_BOTH("{:5}",  "false",   false);
+    u_VERIFY_FORMAT_BOTH("{:6}",  "false ",  false);
+    u_VERIFY_FORMAT_BOTH("{:7}",  "false  ", false);
+    u_VERIFY_FORMAT_BOTH("{:<7}", "false  ", false);
+    u_VERIFY_FORMAT_BOTH("{:^7}", " false ", false);
+    u_VERIFY_FORMAT_BOTH("{:>7}", "  false", false);
+
+    // Aligned boolean values by parameter
+
+    u_VERIFY_FORMAT_BOTH("{:<{}}", "true  ", true, 6);
+    u_VERIFY_FORMAT_BOTH("{:^{}}", " true ", true, 6);
+    u_VERIFY_FORMAT_BOTH("{:>{}}", "  true", true, 6);
+
+    u_VERIFY_FORMAT_BOTH("{1:<{0}}", "true  ", 6, true);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}", " true ", 6, true);
+    u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  true", 6, true);
+
+    u_VERIFY_FORMAT_BOTH("{:<{}}", "false  ", false, 7);
+    u_VERIFY_FORMAT_BOTH("{:^{}}", " false ", false, 7);
+    u_VERIFY_FORMAT_BOTH("{:>{}}", "  false", false, 7);
+
+    u_VERIFY_FORMAT_BOTH("{1:<{0}}", "false  ", 7, false);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}", " false ", 7, false);
+    u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  false", 7, false);
+
+    // Explicitly specified presentations
+
+    u_VERIFY_FORMAT_BOTH("{:s}", "true",  true);
+    u_VERIFY_FORMAT_BOTH("{:s}", "false", false);
+
+    u_VERIFY_FORMAT_BOTH("{:b}", "1", true);
+    u_VERIFY_FORMAT_BOTH("{:b}", "0", false);
+    u_VERIFY_FORMAT_BOTH("{:B}", "1", true);
+    u_VERIFY_FORMAT_BOTH("{:B}", "0", false);
+
+    u_VERIFY_FORMAT_BOTH("{:d}", "1", true);
+    u_VERIFY_FORMAT_BOTH("{:d}", "0", false);
+
+    u_VERIFY_FORMAT_BOTH("{:o}", "1", true);
+    u_VERIFY_FORMAT_BOTH("{:o}", "0", false);
+
+    u_VERIFY_FORMAT_BOTH("{:x}", "1", true);
+    u_VERIFY_FORMAT_BOTH("{:x}", "0", false);
+}
+
+void testCase5()
+{
+    // ------------------------------------------------------------------------
+    // STRINGS
+    //
+    // Concerns:
+    // 1. All supported string types print their value properly.
+    //
+    // 2. Width specification with and without alignment works according to
+    //    the standard requirements in its direct form as well as when
+    //    width is specified by an argument (embedded).
+    //
+    // 3. The 's' format specification character may be used.
+    //
+    // 4. A "precision" specification ('.' followed by an integer)
+    //   truncates the printed string.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   CONCERN: STRINGS
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nSTRINGS"
+                      "\n=======");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
+    defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+  #define u_VERIFY_STD_VIEWS(fmt, res, lit)                                   \
+      u_VERIFY_FORMAT(fmt, res, std::string_view(lit));                       \
+      u_VERIFY_WFORMAT(L##fmt, L##res, std::wstring_view(L##lit))
+#else
+  #define u_VERIFY_STD_VIEWS(fmt, res, lit)
+#endif
+
+#define u_VERIFY_STRINGS(fmt, res, lit)                                       \
+    u_VERIFY_FORMAT(fmt, res, lit);                                           \
+    u_VERIFY_WFORMAT(L##fmt, L##res, L##lit);                                 \
+    u_VERIFY_FORMAT(fmt, res, std::string(lit));                              \
+    u_VERIFY_WFORMAT(L##fmt, L##res, std::wstring(L##lit));                   \
+    u_VERIFY_FORMAT(fmt, res, bsl::string(lit));                              \
+    u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring(L##lit));                   \
+    u_VERIFY_FORMAT(fmt, res, bsl::string_view(lit));                         \
+    u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring_view(L##lit));              \
+    u_VERIFY_STD_VIEWS(fmt, res, lit)
+
+    // Simple printing of strings values
+
+    u_VERIFY_STRINGS("{}",   "Text",   "Text");
+    u_VERIFY_STRINGS(" {}",  " Text",  "Text");
+    u_VERIFY_STRINGS("{} ",  "Text ",  "Text");
+    u_VERIFY_STRINGS(" {} ", " Text ", "Text");
+
+    u_VERIFY_STRINGS("{:s}",   "Text",   "Text");
+    u_VERIFY_STRINGS(" {:s}",  " Text",  "Text");
+    u_VERIFY_STRINGS("{:s} ",  "Text ",  "Text");
+    u_VERIFY_STRINGS(" {:s} ", " Text ", "Text");
+
+    // Aligned by constant width in format string
+
+    u_VERIFY_STRINGS("{:1}",  "Text",   "Text");
+    u_VERIFY_STRINGS("{:2}",  "Text",   "Text");
+    u_VERIFY_STRINGS("{:3}",  "Text",   "Text");
+    u_VERIFY_STRINGS("{:4}",  "Text",   "Text");
+    u_VERIFY_STRINGS("{:5}",  "Text ",  "Text");
+    u_VERIFY_STRINGS("{:6}",  "Text  ", "Text");
+    u_VERIFY_STRINGS("{:<6}", "Text  ", "Text");
+    u_VERIFY_STRINGS("{:^6}", " Text ", "Text");
+    u_VERIFY_STRINGS("{:>6}", "  Text", "Text");
+
+    // Truncated by constant "precision" in format string
+
+    u_VERIFY_STRINGS("{:.1}", "T",    "Text");
+    u_VERIFY_STRINGS("{:.2}", "Te",   "Text");
+    u_VERIFY_STRINGS("{:.3}", "Tex",  "Text");
+    u_VERIFY_STRINGS("{:.4}", "Text", "Text");
+    u_VERIFY_STRINGS("{:.5}", "Text", "Text");
+
+#undef u_VERIFY_STRINGS
+}
+
+void testCase4()
+{
+    // ------------------------------------------------------------------------
+    // FLOAT AND DOUBLE
+    //
+    // Concerns:
+    // 1. Both supported types ('double', and 'float') print their values
+    //    properly.
+    //
+    // 2. Sign format specification works as intended (' ', '+', '-').
+    //
+    // 3. Width specification with and without alignment works according to
+    //    the standard requirements in its direct form as well as when
+    //    width is specified by an argument (embedded).
+    //
+    // 4. Presentation format specifiers (characters) print using the
+    //    specified standard presentation format.
+    //
+    // 5. Precision specification works as per standard in all presentation
+    //    formats including the default.
+    //
+    // 6. Alternate formats work as per standard.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   CONCERN: FLOAT AND DOUBLE
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nFLOAT AND DOUBLE"
+                      "\n================");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // Simple printing of float/double values
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42.24",  42.24);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42.24 ",  42.24);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42.24 ", 42.24);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42.24",  42.24f);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42.24 ",  42.24f);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42.24 ", 42.24f);
+
+    // Sign formatting specification
+
+    u_VERIFY_FORMAT_BOTH("{: }",   " 42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH(" {: }",  "  42.24",  42.24);
+    u_VERIFY_FORMAT_BOTH("{: } ",  " 42.24 ",  42.24);
+    u_VERIFY_FORMAT_BOTH(" {: } ", "  42.24 ", 42.24);
+
+    u_VERIFY_FORMAT_BOTH("{: }",   " 42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH(" {: }",  "  42.24",  42.24f);
+    u_VERIFY_FORMAT_BOTH("{: } ",  " 42.24 ",  42.24f);
+    u_VERIFY_FORMAT_BOTH(" {: } ", "  42.24 ", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{: }",   "-42.24",   -42.24);
+    u_VERIFY_FORMAT_BOTH(" {: }",  " -42.24",  -42.24);
+    u_VERIFY_FORMAT_BOTH("{: } ",  "-42.24 ",  -42.24);
+    u_VERIFY_FORMAT_BOTH(" {: } ", " -42.24 ", -42.24);
+
+    u_VERIFY_FORMAT_BOTH("{: }",   "-42.24",   -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {: }",  " -42.24",  -42.24f);
+    u_VERIFY_FORMAT_BOTH("{: } ",  "-42.24 ",  -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {: } ", " -42.24 ", -42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:-}",   "42.24",    42.24);
+    u_VERIFY_FORMAT_BOTH(" {:-}",  " 42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:-} ",  "42.24 ",   42.24);
+    u_VERIFY_FORMAT_BOTH(" {:-} ", " 42.24 ",  42.24);
+
+    u_VERIFY_FORMAT_BOTH("{:-}",   "42.24",    42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:-}",  " 42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:-} ",  "42.24 ",   42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:-} ", " 42.24 ",  42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:-}",   "-42.24",   -42.24);
+    u_VERIFY_FORMAT_BOTH(" {:-}",  " -42.24",  -42.24);
+    u_VERIFY_FORMAT_BOTH("{:-} ",  "-42.24 ",  -42.24);
+    u_VERIFY_FORMAT_BOTH(" {:-} ", " -42.24 ", -42.24);
+
+    u_VERIFY_FORMAT_BOTH("{:-}",   "-42.24",   -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:-}",  " -42.24",  -42.24f);
+    u_VERIFY_FORMAT_BOTH("{:-} ",  "-42.24 ",  -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:-} ", " -42.24 ", -42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:+}",   "+42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH(" {:+}",  " +42.24",  42.24);
+    u_VERIFY_FORMAT_BOTH("{:+} ",  "+42.24 ",  42.24);
+    u_VERIFY_FORMAT_BOTH(" {:+} ", " +42.24 ", 42.24);
+
+    u_VERIFY_FORMAT_BOTH("{:+}",   "+42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:+}",  " +42.24",  42.24f);
+    u_VERIFY_FORMAT_BOTH("{:+} ",  "+42.24 ",  42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:+} ", " +42.24 ", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:+}",   "-42.24",   -42.24);
+    u_VERIFY_FORMAT_BOTH(" {:+}",  " -42.24",  -42.24);
+    u_VERIFY_FORMAT_BOTH("{:+} ",  "-42.24 ",  -42.24);
+    u_VERIFY_FORMAT_BOTH(" {:+} ", " -42.24 ", -42.24);
+
+    u_VERIFY_FORMAT_BOTH("{:+}",   "-42.24",   -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:+}",  " -42.24",  -42.24f);
+    u_VERIFY_FORMAT_BOTH("{:+} ",  "-42.24 ",  -42.24f);
+    u_VERIFY_FORMAT_BOTH(" {:+} ", " -42.24 ", -42.24f);
+
+    // Aligned by constant in format string
+
+    u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:4}",  "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:5}",  "42.24",   42.24);
+    u_VERIFY_FORMAT_BOTH("{:6}",  " 42.24",  42.24);
+    u_VERIFY_FORMAT_BOTH("{:7}",  "  42.24", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:<7}", "42.24  ", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:^7}", " 42.24 ", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:>7}", "  42.24", 42.24);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:4}",  "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:5}",  "42.24",   42.24f);
+    u_VERIFY_FORMAT_BOTH("{:6}",  " 42.24",  42.24f);
+    u_VERIFY_FORMAT_BOTH("{:7}",  "  42.24", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:<7}", "42.24  ", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:^7}", " 42.24 ", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:>7}", "  42.24", 42.24f);
+
+    // Aligned by additional argument
+
+    u_VERIFY_FORMAT_BOTH("{:<{}}", "42.24  ", 42.24, 7);
+    u_VERIFY_FORMAT_BOTH("{:^{}}", " 42.24 ", 42.24, 7);
+    u_VERIFY_FORMAT_BOTH("{:>{}}", "  42.24", 42.24, 7);
+
+    u_VERIFY_FORMAT_BOTH("{:<{}}", "42.24  ", 42.24f, 7);
+    u_VERIFY_FORMAT_BOTH("{:^{}}", " 42.24 ", 42.24f, 7);
+    u_VERIFY_FORMAT_BOTH("{:>{}}", "  42.24", 42.24f, 7);
+
+    u_VERIFY_FORMAT_BOTH("{1:<{0}}", "42.24  ", 7, 42.24);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 42.24 ", 7, 42.24);
+    u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  42.24", 7, 42.24);
+
+    u_VERIFY_FORMAT_BOTH("{1:<{0}}", "42.24  ", 7, 42.24f);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 42.24 ", 7, 42.24f);
+    u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  42.24", 7, 42.24f);
+
+    // Explicitly specified presentations
+
+    u_VERIFY_FORMAT_BOTH(  "{:e}", "4.224000e+01", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:E}", "4.224000E+01", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:e}", "4.224000e+01", 42.24f);
+    u_VERIFY_FORMAT_BOTH(  "{:E}", "4.224000E+01", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH(  "{:f}", "42.240000", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:F}", "42.240000", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:f}", "42.240002", 42.24f);
+    u_VERIFY_FORMAT_BOTH(  "{:F}", "42.240002", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH(  "{:g}", "42.24", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:G}", "42.24", 42.24);
+    u_VERIFY_FORMAT_BOTH(  "{:g}", "42.24", 42.24f);
+    u_VERIFY_FORMAT_BOTH(  "{:G}", "42.24", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH(  "{:g}", "1.23e+25", 1.23e25);
+    u_VERIFY_FORMAT_BOTH(  "{:G}", "1.23E+25", 1.23e25);
+    u_VERIFY_FORMAT_BOTH(  "{:g}", "1.23e+25", 1.23e25f);
+    u_VERIFY_FORMAT_BOTH(  "{:G}", "1.23E+25", 1.23e25f);
+
+    u_VERIFY_FORMAT_BOTH("{:a}", "1.51eb851eb851fp+5", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:A}", "1.51EB851EB851FP+5", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:a}", "1.51eb86p+5", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:A}", "1.51EB86P+5", 42.24f);
+
+    // Precision is specified
+
+    u_VERIFY_FORMAT_BOTH("{:.3e}", "4.224e+01", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.3E}", "4.224E+01", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.3e}", "4.224e+01", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:.3E}", "4.224E+01", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:.2f}", "42.24", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.2F}", "42.24", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.2f}", "42.24", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:.2F}", "42.24", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:.3g}", "42.2", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.3G}", "42.2", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:.3g}", "42.2", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:.3G}", "42.2", 42.24f);
+
+    u_VERIFY_FORMAT_BOTH("{:.2g}", "1.2e+25", 1.23e25);
+    u_VERIFY_FORMAT_BOTH("{:.2G}", "1.2E+25", 1.23e25);
+    u_VERIFY_FORMAT_BOTH("{:.2g}", "1.2e+25", 1.23e25f);
+    u_VERIFY_FORMAT_BOTH("{:.2G}", "1.2E+25", 1.23e25f);
+
+    // Alternate forms
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",  42.);
+    u_VERIFY_FORMAT_BOTH("{:#}", "42.", 42.);
+    u_VERIFY_FORMAT_BOTH("{}",   "42",  42.f);
+    u_VERIFY_FORMAT_BOTH("{:#}", "42.", 42.f);
+
+    u_VERIFY_FORMAT_BOTH("{:.0e}",  "4e+00",  4.);
+    u_VERIFY_FORMAT_BOTH("{:#.0e}", "4.e+00", 4.);
+    u_VERIFY_FORMAT_BOTH("{:.0e}",  "4e+00",  4.f);
+    u_VERIFY_FORMAT_BOTH("{:#.0e}", "4.e+00", 4.f);
+
+    u_VERIFY_FORMAT_BOTH("{:.0f}",  "4",  4.);
+    u_VERIFY_FORMAT_BOTH("{:#.0F}", "4.", 4.);
+    u_VERIFY_FORMAT_BOTH("{:.0f}",  "4",  4.f);
+    u_VERIFY_FORMAT_BOTH("{:#.0F}", "4.", 4.f);
+
+    u_VERIFY_FORMAT_BOTH("{:.0a}",  "1p+2",  4.);
+    u_VERIFY_FORMAT_BOTH("{:#.0A}", "1.P+2", 4.);
+    u_VERIFY_FORMAT_BOTH("{:.0a}",  "1p+2",  4.f);
+    u_VERIFY_FORMAT_BOTH("{:#.0A}", "1.P+2", 4.f);
+
+    u_VERIFY_FORMAT_BOTH("{:#g}", "42.2400", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:#G}", "42.2400", 42.24);
+    u_VERIFY_FORMAT_BOTH("{:#g}", "42.2400", 42.24f);
+    u_VERIFY_FORMAT_BOTH("{:#G}", "42.2400", 42.24f);
+}
+
+void testCase3()
+{
+    // ------------------------------------------------------------------------
+    // CHAR AND WCHAR_T
+    //
+    // Concerns:
+    // 1. Characters and wide characters are printed (by default) as a
+    //    string that consists of that character only.
+    //
+    // 2. Width specification with and without alignment works according to
+    //    the standard requirements in its direct form as well as when
+    //    width is specified by an argument (embedded).
+    //
+    // 3. Presentation format specifiers (characters) work as per standard.
+    //
+    // 4. Alternate format adds the format prefixes in the appropriate
+    //    presentation formats as per standard.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   CHAR AND WCHAR_T
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nCHAR AND WCHAR_T"
+                      "\n================");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // Simple printing of char/wchar_t values
+
+    u_VERIFY_FORMAT("{}",   "*",   '*');
+    u_VERIFY_FORMAT(" {}",  " *",  '*');
+    u_VERIFY_FORMAT("{} ",  "* ",  '*');
+    u_VERIFY_FORMAT(" {} ", " * ", '*');
+
+    u_VERIFY_WFORMAT(L"{}",   L"*",   L'*');
+    u_VERIFY_WFORMAT(L" {}",  L" *",  L'*');
+    u_VERIFY_WFORMAT(L"{} ",  L"* ",  L'*');
+    u_VERIFY_WFORMAT(L" {} ", L" * ", L'*');
+
+    // Aligned by constant in format string
+
+    u_VERIFY_FORMAT("{:1}",  "*",   '*');
+    u_VERIFY_FORMAT("{:2}",  "* ",  '*');
+    u_VERIFY_FORMAT("{:3}",  "*  ", '*');
+    u_VERIFY_FORMAT("{:<3}", "*  ", '*');
+    u_VERIFY_FORMAT("{:^3}", " * ", '*');
+    u_VERIFY_FORMAT("{:>3}", "  *", '*');
+
+    u_VERIFY_WFORMAT(L"{:1}",  L"*",   L'*');
+    u_VERIFY_WFORMAT(L"{:2}",  L"* ",  L'*');
+    u_VERIFY_WFORMAT(L"{:3}",  L"*  ", L'*');
+    u_VERIFY_WFORMAT(L"{:<3}", L"*  ", L'*');
+    u_VERIFY_WFORMAT(L"{:^3}", L" * ", L'*');
+    u_VERIFY_WFORMAT(L"{:>3}", L"  *", L'*');
+
+    // Aligned by additional argument
+
+    u_VERIFY_FORMAT("{:<{}}", "*  ", '*', 3);
+    u_VERIFY_FORMAT("{:^{}}", " * ", '*', 3);
+    u_VERIFY_FORMAT("{:>{}}", "  *", '*', 3);
+
+    u_VERIFY_WFORMAT(L"{:<{}}", L"*  ", L'*', 3);
+    u_VERIFY_WFORMAT(L"{:^{}}", L" * ", L'*', 3);
+    u_VERIFY_WFORMAT(L"{:>{}}", L"  *", L'*', 3);
+
+    u_VERIFY_FORMAT("{1:<{0}}", "*  ", 3, '*');
+    u_VERIFY_FORMAT("{1:^{0}}", " * ", 3, '*');
+    u_VERIFY_FORMAT("{1:>{0}}", "  *", 3, '*');
+
+    u_VERIFY_WFORMAT(L"{1:<{0}}", L"*  ", 3, L'*');
+    u_VERIFY_WFORMAT(L"{1:^{0}}", L" * ", 3, L'*');
+    u_VERIFY_WFORMAT(L"{1:>{0}}", L"  *", 3, L'*');
+
+    // Explicitly specified presentations
+
+    u_VERIFY_FORMAT(  "{:c}",  "*",  '*');
+    u_VERIFY_WFORMAT(L"{:c}", L"*", L'*');
+
+    u_VERIFY_FORMAT(  "{:d}",  "42",  '*');
+    u_VERIFY_WFORMAT(L"{:d}", L"42", L'*');
+
+    u_VERIFY_FORMAT(  "{:o}",  "52",  '*');
+    u_VERIFY_WFORMAT(L"{:o}", L"52", L'*');
+
+    u_VERIFY_FORMAT(  "{:x}",  "2a",  '*');
+    u_VERIFY_WFORMAT(L"{:x}", L"2a", L'*');
+
+    u_VERIFY_FORMAT(  "{:X}",  "2A",  '*');
+    u_VERIFY_WFORMAT(L"{:X}", L"2A", L'*');
+
+    u_VERIFY_FORMAT(  "{:b}",  "101010",  '*');
+    u_VERIFY_WFORMAT(L"{:b}", L"101010", L'*');
+
+    u_VERIFY_FORMAT(  "{:B}",  "101010",  '*');
+    u_VERIFY_WFORMAT(L"{:B}", L"101010", L'*');
+
+    // Alternate form with prefix
+
+    u_VERIFY_FORMAT(  "{:#o}",  "052",  '*');
+    u_VERIFY_WFORMAT(L"{:#o}", L"052", L'*');
+    u_VERIFY_FORMAT(  "{:#o}",  "0",    '\0');
+    u_VERIFY_WFORMAT(L"{:#o}", L"0",   L'\0');
+
+    u_VERIFY_FORMAT(  "{:#x}",  "0x2a",  '*');
+    u_VERIFY_WFORMAT(L"{:#x}", L"0x2a", L'*');
+
+    u_VERIFY_FORMAT("{:#X}",    "0X2A", '*');
+    u_VERIFY_WFORMAT(L"{:#X}", L"0X2A", L'*');
+
+    u_VERIFY_FORMAT(  "{:#b}",  "0b101010", '*');
+    u_VERIFY_WFORMAT(L"{:#b}", L"0b101010", L'*');
+
+    u_VERIFY_FORMAT(  "{:#B}",  "0B101010", '*');
+    u_VERIFY_WFORMAT(L"{:#B}", L"0B101010", L'*');
+}
+
+void testCase2()
+{
+    // ------------------------------------------------------------------------
+    // INTEGERS
+    //
+    // Concerns:
+    // 1. All integers types are converted to string properly.
+    //
+    // 2. Sign format specification works as intended (' ', '+', '-').
+    //
+    // 3. Width specification with and without alignment works according to
+    //    the standard requirements in its direct form as well as when
+    //    width is specified by an argument (embedded).
+    //
+    // 4. Presentation format specifiers (characters) print using the
+    //    specified standard presentation format.
+    //
+    // 5. Alternate formats work as per standard.
+    //
+    // Plan:
+    // 1. Use individual macros to create rows of a table-like test that
+    //    covers the concerns.
+    //
+    // Testing:
+    //   INTEGERS
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nINTEGERS"
+                        "\n========");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    // Simple printing of integral values
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (signed char)42);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (signed char)42);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   (short)42);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (short)42);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (short)42);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (short)42);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42l);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42l);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42l);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42l);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42ll);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ll);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ll);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ll);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42u);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42u);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42u);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42u);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (unsigned char)42);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (unsigned short)42);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42ul);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ul);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ul);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{}",   "42",   42ull);
+    u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ull);
+    u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ull);
+    u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ull);
+
+    // Sign format specifications
+
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  (short)42);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42l);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ll);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42u);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ul);
+    u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ull);
+
+    u_VERIFY_FORMAT_BOTH("{: }", "-42", -42);
+    u_VERIFY_FORMAT_BOTH("{: }", "-42", (signed char)-42);
+    u_VERIFY_FORMAT_BOTH("{: }", "-42", (short)-42);
+    u_VERIFY_FORMAT_BOTH("{: }", "-42", -42l);
+    u_VERIFY_FORMAT_BOTH("{: }", "-42", -42ll);
+
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42l);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42u);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ull);
+
+    u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "-42", (signed char)-42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "-42", (short)-42);
+    u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42l);
+    u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42ll);
+
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (short)42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42l);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ll);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42u);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ul);
+    u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ull);
+
+    u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "-42", (signed char)-42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "-42", (short)-42);
+    u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42l);
+    u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42ll);
+
+    // Aligned by constant in format string
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (signed char)42);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (short)42);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (short)42);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (short)42);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (short)42);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (short)42);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42l);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42l);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42l);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42l);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42l);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42l);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42l);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42l);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42l);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42l);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42l);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ll);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ll);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ll);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42ll);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42ll);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42u);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42u);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42u);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42u);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42u);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42u);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42u);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42u);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42u);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42u);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42u);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned char)42);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned short)42);
+
+    u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ul);
+    u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ul);
+    u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ul);
+    u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42ul);
+    u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42ul);
+
+    // Aligned by additional argument
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042", 42, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ", 42, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ", 42, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42", 42, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042", (signed char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ", (signed char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ", (signed char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42", (signed char)42, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (short)42, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42l, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42l, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42l, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42l, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42ll, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42ll, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42ll, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42ll, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42u, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42u, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42u, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42u, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (unsigned char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (unsigned char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (unsigned char)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (unsigned char)42, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (unsigned short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (unsigned short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (unsigned short)42, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (unsigned short)42, 4);
+
+    u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42ul, 4);
+    u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42ul, 4);
+    u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42ul, 4);
+    u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42ul, 4);
+
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (short)42);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42l);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42ll);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42u);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42ul);
+
+    // Explicitly specified presentations
+
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", 42);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", 42l);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", 42u);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:d}", "42", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", 42);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", 42l);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", 42u);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:c}", "*", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42l);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42u);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42l);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42u);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", 42);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", 42l);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", 42u);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:o}", "52", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42l);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42u);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42l);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42u);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42ul);
+
+    // Alternate form with prefix
+
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42l);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42u);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42l);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42u);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42l);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42u);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", (signed char)0);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", (short)0);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0l);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0ll);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0u);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", (unsigned char)0);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", (unsigned short)0);
+    u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0ul);
+
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42l);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42u);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42ul);
+
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (signed char)42);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (short)42);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42l);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42ll);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42u);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (unsigned char)42);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (unsigned short)42);
+    u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42ul);
+}
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
-    bool         verbose = argc > 2;
-    bool     veryVerbose = argc > 3;  (void) veryVerbose;
-    bool veryVeryVerbose = argc > 4;  (void) veryVeryVerbose;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;  (void) veryVerbose;
+        veryVeryVerbose = argc > 4;  (void) veryVeryVerbose;
+    veryVeryVeryVerbose = argc > 5;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -671,1159 +1881,28 @@ int main(int argc, char **argv)
 // ```
       } break;
       case 9: {
-        // --------------------------------------------------------------------
-        // BAD FORMAT STRINGS
-        //
-        // Concerns:
-        // 1. Too many format placeholders cause an error (not enough
-        //    arguments to format).
-        //
-        // Plan:
-        // 1. Use `bsl::vformat` for runtime testing.
-        //
-        // Testing:
-        //   CONCERN: BAD FORMAT STRINGS
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nBAD FORMAT STRINGS"
-                          "\n==================");
-
-        // `char`
-        bool formatErrorCaught = false;
-        try {
-            bsl::string temp;
-            bsl::vformat_to(&temp, "{}{}", make_format_args("Hello World"));
-        }
-        catch (const bsl::format_error& e) {
-            formatErrorCaught = true;
-            if (veryVerbose) P(e.what());
-        }
-        catch (...) {
-            ASSERT(0 == "Unexpected exception caught!");
-            throw;
-        }
-        ASSERT(formatErrorCaught);
-
-        // `wchar_t`
-        formatErrorCaught = false;
-        try {
-            bsl::wstring temp;
-            bsl::vformat_to(&temp, L"{}{}", make_wformat_args(L"Hello World"));
-        }
-        catch (const bsl::format_error& e) {
-            formatErrorCaught = true;
-            if (veryVerbose) P(e.what());
-        }
-        catch (...) {
-            ASSERT(0 == "Unexpected exception caught!");
-            throw;
-        }
-        ASSERT(formatErrorCaught);
+        testCase9();
       } break;
       case 8: {
-        // --------------------------------------------------------------------
-        // COMBINATIONS
-        //
-        // Concerns:
-        // 1. Mixed kinds (types) of arguments result in the invocation of
-        //    differently configured parser that have to all do proper parsing
-        //    of portions of the format string.
-        //
-        // Plan:
-        // 1. Spot check different combinations by using real-life looking
-        //    format strings.
-        //
-        // Testing:
-        //   COMBINATIONS
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nCOMBINATIONS"
-                          "\n============");
-
-        u_VERIFY_FORMAT(
-                       "this={:010}, name={:<8}, id={:04x}, heat={:a}",
-                       "this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
-                       reinterpret_cast<const void *>(0xC0FFEE),
-                       "PgDown",
-                       32,
-                       13.75);
-
-        u_VERIFY_WFORMAT(
-                      L"this={:010}, name={:<8}, id={:04x}, heat={:a}",
-                      L"this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
-                      reinterpret_cast<const void *>(0xC0FFEE),
-                      L"PgDown",
-                      32,
-                      13.75);
+        testCase8();
       } break;
       case 7: {
-        // --------------------------------------------------------------------
-        // POINTERS
-        //
-        // Concerns:
-        // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as
-        //    0x0.
-        //
-        // 2. Pointer values are printed as hexadecimal addresses with `0x`
-        //    prefix.
-        //
-        // 3. Zero padding places the right number of zeros after the prefix.
-        //
-        // 4. Width and alignment combinations work as expected.
-        //
-        // 5. Width may be specified as an argument, without or with arg id.
-        //
-        // 6. Presentation may be specified as 'p' and it results in the same
-        //    output as no presentation format specified.
-        //
-        // 7. Presentation may be specified as 'P' and it results in the prefix
-        //    changing to "0X" and the hexadecimal output being uppercase.
-        //
-        // 8. `char` and `wchar_t` formatting both work.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   CONCERN: POINTERS
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nPOINTERS"
-                          "\n========");
-
-        // Verify `nullptr`
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-        u_VERIFY_FORMAT_BOTH("{}", "0x0", nullptr);
-#endif  // C++11 or later
-        u_VERIFY_FORMAT_BOTH("{}", "0x0", bsl::nullptr_t());
-
-#define u_VERIFY_POINTER(fmt, res, val) \
-    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val))
-
-        // Simple printing of pointer values
-
-        u_VERIFY_POINTER("{}", "0x12345", 0x12345);
-
-        // Zero padding
-
-        u_VERIFY_FORMAT_BOTH("{:010}", "0x00000000", bsl::nullptr_t());
-
-        u_VERIFY_POINTER("{:010}", "0x00012345", 0x12345);
-
-        // Aligned by constant in format string
-
-        u_VERIFY_FORMAT_BOTH("{:1}",  "0x0",   bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:2}",  "0x0",   bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:3}",  "0x0",   bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:4}",  " 0x0",  bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:5}",  "  0x0", bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:<5}", "0x0  ", bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:^5}", " 0x0 ", bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{:>5}", "  0x0", bsl::nullptr_t());
-
-        u_VERIFY_POINTER("{:1}",  "0x12345",   0x12345);
-        u_VERIFY_POINTER("{:2}",  "0x12345",   0x12345);
-        u_VERIFY_POINTER("{:6}",  "0x12345",   0x12345);
-        u_VERIFY_POINTER("{:7}",  "0x12345",   0x12345);
-        u_VERIFY_POINTER("{:8}",  " 0x12345",  0x12345);
-        u_VERIFY_POINTER("{:9}",  "  0x12345", 0x12345);
-        u_VERIFY_POINTER("{:<9}", "0x12345  ", 0x12345);
-        u_VERIFY_POINTER("{:^9}", " 0x12345 ", 0x12345);
-        u_VERIFY_POINTER("{:>9}", "  0x12345", 0x12345);
-
-        // Aligned by parameter
-
-        u_VERIFY_FORMAT_BOTH("{:<{}}", "0x0  ", bsl::nullptr_t(), 5);
-        u_VERIFY_FORMAT_BOTH("{:^{}}", " 0x0 ", bsl::nullptr_t(), 5);
-        u_VERIFY_FORMAT_BOTH("{:>{}}", "  0x0", bsl::nullptr_t(), 5);
-
-        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "0x0  ", 5, bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 0x0 ", 5, bsl::nullptr_t());
-        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  0x0", 5, bsl::nullptr_t());
-
-#define u_VERIFY_POINTER_WIDTH(fmt, res, val, width)                          \
-    u_VERIFY_FORMAT_BOTH(fmt, res, reinterpret_cast<const void *>(val), width)
-
-        u_VERIFY_POINTER_WIDTH("{:<{}}", "0x12345  ", 0x12345, 9);
-        u_VERIFY_POINTER_WIDTH("{:^{}}", " 0x12345 ", 0x12345, 9);
-        u_VERIFY_POINTER_WIDTH("{:>{}}", "  0x12345", 0x12345, 9);
-#undef u_VERIFY_POINTER_WIDTH
-
-#define u_VERIFY_WIDTH_POINTER(fmt, res, width, val)                          \
-    u_VERIFY_FORMAT_BOTH(fmt, res, width, reinterpret_cast<const void *>(val))
-        u_VERIFY_WIDTH_POINTER("{1:<{0}}", "0x12345  ", 9, 0x12345);
-        u_VERIFY_WIDTH_POINTER("{1:^{0}}", " 0x12345 ", 9, 0x12345);
-        u_VERIFY_WIDTH_POINTER("{1:>{0}}", "  0x12345", 9, 0x12345);
-#undef u_VERIFY_WIDTH_POINTER
-
-        // Explicitly specified presentation
-
-        u_VERIFY_FORMAT_BOTH("{:p}", "0x0", bsl::nullptr_t());
-
-        u_VERIFY_POINTER("{:p}", "0x123ab", 0x123AB);
-
-        u_VERIFY_FORMAT_BOTH("{:P}", "0X0", bsl::nullptr_t());
-
-        u_VERIFY_POINTER("{:P}", "0X123AB", 0x123AB);
-
-#undef u_VERIFY_POINTER
+        testCase7();
       } break;
       case 6: {
-        // --------------------------------------------------------------------
-        // BOOLEAN
-        //
-        // Concerns:
-        // 1. Static text in format string is copied to the output unmodified.
-        //
-        // 2. Width specification with and without alignment works according to
-        //    the standard requirements in its direct form as well as when
-        //    width is specified by an argument (embedded).
-        //
-        // 3. Format specification characters have the intended result.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   CONCERN: BOOLEAN
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nBOOLEAN"
-                          "\n========");
-
-        // Simple printing of boolean values
-
-        u_VERIFY_FORMAT_BOTH("{}",            "true",            true);
-        u_VERIFY_FORMAT_BOTH("Verified: {}",  "Verified: true",  true);
-        u_VERIFY_FORMAT_BOTH("{} love",       "true love",       true);
-        u_VERIFY_FORMAT_BOTH("autoConsumeData() {} (default)",
-                             "autoConsumeData() true (default)", true);
-
-        u_VERIFY_FORMAT_BOTH("{}",           "false",            false);
-        u_VERIFY_FORMAT_BOTH("Error: {}",    "Error: false",     false);
-        u_VERIFY_FORMAT_BOTH("{} dichotomy", "false dichotomy",  false);
-        u_VERIFY_FORMAT_BOTH("Alternate format {} (default)",
-                             "Alternate format false (default)", false);
-
-        // Aligned by constant in format string
-
-        u_VERIFY_FORMAT_BOTH("{:1}",  "true",   true);
-        u_VERIFY_FORMAT_BOTH("{:2}",  "true",   true);
-        u_VERIFY_FORMAT_BOTH("{:3}",  "true",   true);
-        u_VERIFY_FORMAT_BOTH("{:4}",  "true",   true);
-        u_VERIFY_FORMAT_BOTH("{:5}",  "true ",  true);
-        u_VERIFY_FORMAT_BOTH("{:6}",  "true  ", true);
-        u_VERIFY_FORMAT_BOTH("{:<6}", "true  ", true);
-        u_VERIFY_FORMAT_BOTH("{:^6}", " true ", true);
-        u_VERIFY_FORMAT_BOTH("{:>6}", "  true", true);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",  "false",   false);
-        u_VERIFY_FORMAT_BOTH("{:2}",  "false",   false);
-        u_VERIFY_FORMAT_BOTH("{:3}",  "false",   false);
-        u_VERIFY_FORMAT_BOTH("{:4}",  "false",   false);
-        u_VERIFY_FORMAT_BOTH("{:5}",  "false",   false);
-        u_VERIFY_FORMAT_BOTH("{:6}",  "false ",  false);
-        u_VERIFY_FORMAT_BOTH("{:7}",  "false  ", false);
-        u_VERIFY_FORMAT_BOTH("{:<7}", "false  ", false);
-        u_VERIFY_FORMAT_BOTH("{:^7}", " false ", false);
-        u_VERIFY_FORMAT_BOTH("{:>7}", "  false", false);
-
-        // Aligned boolean values by parameter
-
-        u_VERIFY_FORMAT_BOTH("{:<{}}", "true  ", true, 6);
-        u_VERIFY_FORMAT_BOTH("{:^{}}", " true ", true, 6);
-        u_VERIFY_FORMAT_BOTH("{:>{}}", "  true", true, 6);
-
-        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "true  ", 6, true);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " true ", 6, true);
-        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  true", 6, true);
-
-        u_VERIFY_FORMAT_BOTH("{:<{}}", "false  ", false, 7);
-        u_VERIFY_FORMAT_BOTH("{:^{}}", " false ", false, 7);
-        u_VERIFY_FORMAT_BOTH("{:>{}}", "  false", false, 7);
-
-        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "false  ", 7, false);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " false ", 7, false);
-        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  false", 7, false);
-
-        // Explicitly specified presentations
-
-        u_VERIFY_FORMAT_BOTH("{:s}", "true",  true);
-        u_VERIFY_FORMAT_BOTH("{:s}", "false", false);
-
-        u_VERIFY_FORMAT_BOTH("{:b}", "1", true);
-        u_VERIFY_FORMAT_BOTH("{:b}", "0", false);
-        u_VERIFY_FORMAT_BOTH("{:B}", "1", true);
-        u_VERIFY_FORMAT_BOTH("{:B}", "0", false);
-
-        u_VERIFY_FORMAT_BOTH("{:d}", "1", true);
-        u_VERIFY_FORMAT_BOTH("{:d}", "0", false);
-
-        u_VERIFY_FORMAT_BOTH("{:o}", "1", true);
-        u_VERIFY_FORMAT_BOTH("{:o}", "0", false);
-
-        u_VERIFY_FORMAT_BOTH("{:x}", "1", true);
-        u_VERIFY_FORMAT_BOTH("{:x}", "0", false);
+        testCase6();
       } break;
       case 5: {
-        // --------------------------------------------------------------------
-        // STRINGS
-        //
-        // Concerns:
-        // 1. All supported string types print their value properly.
-        //
-        // 2. Width specification with and without alignment works according to
-        //    the standard requirements in its direct form as well as when
-        //    width is specified by an argument (embedded).
-        //
-        // 3. The 's' format specification character may be used.
-        //
-        // 4. A "precision" specification ('.' followed by an integer)
-        //   truncates the printed string.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   CONCERN: STRINGS
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nSTRINGS"
-                          "\n=======");
-
-#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
-    defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-  #define u_VERIFY_STD_VIEWS(fmt, res, lit)                                   \
-      u_VERIFY_FORMAT(fmt, res, std::string_view(lit));                       \
-      u_VERIFY_WFORMAT(L##fmt, L##res, std::wstring_view(L##lit))
-#else
-  #define u_VERIFY_STD_VIEWS(fmt, res, lit)
-#endif
-
-#define u_VERIFY_STRINGS(fmt, res, lit)                                       \
-    u_VERIFY_FORMAT(fmt, res, lit);                                           \
-    u_VERIFY_WFORMAT(L##fmt, L##res, L##lit);                                 \
-    u_VERIFY_FORMAT(fmt, res, std::string(lit));                              \
-    u_VERIFY_WFORMAT(L##fmt, L##res, std::wstring(L##lit));                   \
-    u_VERIFY_FORMAT(fmt, res, bsl::string(lit));                              \
-    u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring(L##lit));                   \
-    u_VERIFY_FORMAT(fmt, res, bsl::string_view(lit));                         \
-    u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring_view(L##lit));              \
-    u_VERIFY_STD_VIEWS(fmt, res, lit)
-
-        // Simple printing of strings values
-
-        u_VERIFY_STRINGS("{}",   "Text",   "Text");
-        u_VERIFY_STRINGS(" {}",  " Text",  "Text");
-        u_VERIFY_STRINGS("{} ",  "Text ",  "Text");
-        u_VERIFY_STRINGS(" {} ", " Text ", "Text");
-
-        u_VERIFY_STRINGS("{:s}",   "Text",   "Text");
-        u_VERIFY_STRINGS(" {:s}",  " Text",  "Text");
-        u_VERIFY_STRINGS("{:s} ",  "Text ",  "Text");
-        u_VERIFY_STRINGS(" {:s} ", " Text ", "Text");
-
-        // Aligned by constant width in format string
-
-        u_VERIFY_STRINGS("{:1}",  "Text",   "Text");
-        u_VERIFY_STRINGS("{:2}",  "Text",   "Text");
-        u_VERIFY_STRINGS("{:3}",  "Text",   "Text");
-        u_VERIFY_STRINGS("{:4}",  "Text",   "Text");
-        u_VERIFY_STRINGS("{:5}",  "Text ",  "Text");
-        u_VERIFY_STRINGS("{:6}",  "Text  ", "Text");
-        u_VERIFY_STRINGS("{:<6}", "Text  ", "Text");
-        u_VERIFY_STRINGS("{:^6}", " Text ", "Text");
-        u_VERIFY_STRINGS("{:>6}", "  Text", "Text");
-
-        // Truncated by constant "precision" in format string
-
-        u_VERIFY_STRINGS("{:.1}", "T",    "Text");
-        u_VERIFY_STRINGS("{:.2}", "Te",   "Text");
-        u_VERIFY_STRINGS("{:.3}", "Tex",  "Text");
-        u_VERIFY_STRINGS("{:.4}", "Text", "Text");
-        u_VERIFY_STRINGS("{:.5}", "Text", "Text");
-
-#undef u_VERIFY_STRINGS
+        testCase5();
       } break;
       case 4: {
-        // --------------------------------------------------------------------
-        // FLOAT AND DOUBLE
-        //
-        // Concerns:
-        // 1. Both supported types ('double', and 'float') print their values
-        //    properly.
-        //
-        // 2. Sign format specification works as intended (' ', '+', '-').
-        //
-        // 3. Width specification with and without alignment works according to
-        //    the standard requirements in its direct form as well as when
-        //    width is specified by an argument (embedded).
-        //
-        // 4. Presentation format specifiers (characters) print using the
-        //    specified standard presentation format.
-        //
-        // 5. Precision specification works as per standard in all presentation
-        //    formats including the default.
-        //
-        // 6. Alternate formats work as per standard.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   CONCERN: FLOAT AND DOUBLE
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nFLOAT AND DOUBLE"
-                          "\n================");
-
-        // Simple printing of float/double values
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42.24",  42.24);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42.24 ",  42.24);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42.24 ", 42.24);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42.24",  42.24f);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42.24 ",  42.24f);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42.24 ", 42.24f);
-
-        // Sign formatting specification
-
-        u_VERIFY_FORMAT_BOTH("{: }",   " 42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH(" {: }",  "  42.24",  42.24);
-        u_VERIFY_FORMAT_BOTH("{: } ",  " 42.24 ",  42.24);
-        u_VERIFY_FORMAT_BOTH(" {: } ", "  42.24 ", 42.24);
-
-        u_VERIFY_FORMAT_BOTH("{: }",   " 42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH(" {: }",  "  42.24",  42.24f);
-        u_VERIFY_FORMAT_BOTH("{: } ",  " 42.24 ",  42.24f);
-        u_VERIFY_FORMAT_BOTH(" {: } ", "  42.24 ", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{: }",   "-42.24",   -42.24);
-        u_VERIFY_FORMAT_BOTH(" {: }",  " -42.24",  -42.24);
-        u_VERIFY_FORMAT_BOTH("{: } ",  "-42.24 ",  -42.24);
-        u_VERIFY_FORMAT_BOTH(" {: } ", " -42.24 ", -42.24);
-
-        u_VERIFY_FORMAT_BOTH("{: }",   "-42.24",   -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {: }",  " -42.24",  -42.24f);
-        u_VERIFY_FORMAT_BOTH("{: } ",  "-42.24 ",  -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {: } ", " -42.24 ", -42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:-}",   "42.24",    42.24);
-        u_VERIFY_FORMAT_BOTH(" {:-}",  " 42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:-} ",  "42.24 ",   42.24);
-        u_VERIFY_FORMAT_BOTH(" {:-} ", " 42.24 ",  42.24);
-
-        u_VERIFY_FORMAT_BOTH("{:-}",   "42.24",    42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:-}",  " 42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:-} ",  "42.24 ",   42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:-} ", " 42.24 ",  42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:-}",   "-42.24",   -42.24);
-        u_VERIFY_FORMAT_BOTH(" {:-}",  " -42.24",  -42.24);
-        u_VERIFY_FORMAT_BOTH("{:-} ",  "-42.24 ",  -42.24);
-        u_VERIFY_FORMAT_BOTH(" {:-} ", " -42.24 ", -42.24);
-
-        u_VERIFY_FORMAT_BOTH("{:-}",   "-42.24",   -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:-}",  " -42.24",  -42.24f);
-        u_VERIFY_FORMAT_BOTH("{:-} ",  "-42.24 ",  -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:-} ", " -42.24 ", -42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:+}",   "+42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH(" {:+}",  " +42.24",  42.24);
-        u_VERIFY_FORMAT_BOTH("{:+} ",  "+42.24 ",  42.24);
-        u_VERIFY_FORMAT_BOTH(" {:+} ", " +42.24 ", 42.24);
-
-        u_VERIFY_FORMAT_BOTH("{:+}",   "+42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:+}",  " +42.24",  42.24f);
-        u_VERIFY_FORMAT_BOTH("{:+} ",  "+42.24 ",  42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:+} ", " +42.24 ", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:+}",   "-42.24",   -42.24);
-        u_VERIFY_FORMAT_BOTH(" {:+}",  " -42.24",  -42.24);
-        u_VERIFY_FORMAT_BOTH("{:+} ",  "-42.24 ",  -42.24);
-        u_VERIFY_FORMAT_BOTH(" {:+} ", " -42.24 ", -42.24);
-
-        u_VERIFY_FORMAT_BOTH("{:+}",   "-42.24",   -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:+}",  " -42.24",  -42.24f);
-        u_VERIFY_FORMAT_BOTH("{:+} ",  "-42.24 ",  -42.24f);
-        u_VERIFY_FORMAT_BOTH(" {:+} ", " -42.24 ", -42.24f);
-
-        // Aligned by constant in format string
-
-        u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:4}",  "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:5}",  "42.24",   42.24);
-        u_VERIFY_FORMAT_BOTH("{:6}",  " 42.24",  42.24);
-        u_VERIFY_FORMAT_BOTH("{:7}",  "  42.24", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:<7}", "42.24  ", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:^7}", " 42.24 ", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:>7}", "  42.24", 42.24);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",  "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:2}",  "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:3}",  "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:4}",  "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:5}",  "42.24",   42.24f);
-        u_VERIFY_FORMAT_BOTH("{:6}",  " 42.24",  42.24f);
-        u_VERIFY_FORMAT_BOTH("{:7}",  "  42.24", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:<7}", "42.24  ", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:^7}", " 42.24 ", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:>7}", "  42.24", 42.24f);
-
-        // Aligned by additional argument
-
-        u_VERIFY_FORMAT_BOTH("{:<{}}", "42.24  ", 42.24, 7);
-        u_VERIFY_FORMAT_BOTH("{:^{}}", " 42.24 ", 42.24, 7);
-        u_VERIFY_FORMAT_BOTH("{:>{}}", "  42.24", 42.24, 7);
-
-        u_VERIFY_FORMAT_BOTH("{:<{}}", "42.24  ", 42.24f, 7);
-        u_VERIFY_FORMAT_BOTH("{:^{}}", " 42.24 ", 42.24f, 7);
-        u_VERIFY_FORMAT_BOTH("{:>{}}", "  42.24", 42.24f, 7);
-
-        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "42.24  ", 7, 42.24);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 42.24 ", 7, 42.24);
-        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  42.24", 7, 42.24);
-
-        u_VERIFY_FORMAT_BOTH("{1:<{0}}", "42.24  ", 7, 42.24f);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}", " 42.24 ", 7, 42.24f);
-        u_VERIFY_FORMAT_BOTH("{1:>{0}}", "  42.24", 7, 42.24f);
-
-        // Explicitly specified presentations
-
-        u_VERIFY_FORMAT_BOTH(  "{:e}", "4.224000e+01", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:E}", "4.224000E+01", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:e}", "4.224000e+01", 42.24f);
-        u_VERIFY_FORMAT_BOTH(  "{:E}", "4.224000E+01", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH(  "{:f}", "42.240000", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:F}", "42.240000", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:f}", "42.240002", 42.24f);
-        u_VERIFY_FORMAT_BOTH(  "{:F}", "42.240002", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH(  "{:g}", "42.24", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:G}", "42.24", 42.24);
-        u_VERIFY_FORMAT_BOTH(  "{:g}", "42.24", 42.24f);
-        u_VERIFY_FORMAT_BOTH(  "{:G}", "42.24", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH(  "{:g}", "1.23e+25", 1.23e25);
-        u_VERIFY_FORMAT_BOTH(  "{:G}", "1.23E+25", 1.23e25);
-        u_VERIFY_FORMAT_BOTH(  "{:g}", "1.23e+25", 1.23e25f);
-        u_VERIFY_FORMAT_BOTH(  "{:G}", "1.23E+25", 1.23e25f);
-
-        u_VERIFY_FORMAT_BOTH("{:a}", "1.51eb851eb851fp+5", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:A}", "1.51EB851EB851FP+5", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:a}", "1.51eb86p+5", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:A}", "1.51EB86P+5", 42.24f);
-
-        // Precision is specified
-
-        u_VERIFY_FORMAT_BOTH("{:.3e}", "4.224e+01", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.3E}", "4.224E+01", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.3e}", "4.224e+01", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:.3E}", "4.224E+01", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:.2f}", "42.24", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.2F}", "42.24", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.2f}", "42.24", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:.2F}", "42.24", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:.3g}", "42.2", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.3G}", "42.2", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:.3g}", "42.2", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:.3G}", "42.2", 42.24f);
-
-        u_VERIFY_FORMAT_BOTH("{:.2g}", "1.2e+25", 1.23e25);
-        u_VERIFY_FORMAT_BOTH("{:.2G}", "1.2E+25", 1.23e25);
-        u_VERIFY_FORMAT_BOTH("{:.2g}", "1.2e+25", 1.23e25f);
-        u_VERIFY_FORMAT_BOTH("{:.2G}", "1.2E+25", 1.23e25f);
-
-        // Alternate forms
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",  42.);
-        u_VERIFY_FORMAT_BOTH("{:#}", "42.", 42.);
-        u_VERIFY_FORMAT_BOTH("{}",   "42",  42.f);
-        u_VERIFY_FORMAT_BOTH("{:#}", "42.", 42.f);
-
-        u_VERIFY_FORMAT_BOTH("{:.0e}",  "4e+00",  4.);
-        u_VERIFY_FORMAT_BOTH("{:#.0e}", "4.e+00", 4.);
-        u_VERIFY_FORMAT_BOTH("{:.0e}",  "4e+00",  4.f);
-        u_VERIFY_FORMAT_BOTH("{:#.0e}", "4.e+00", 4.f);
-
-        u_VERIFY_FORMAT_BOTH("{:.0f}",  "4",  4.);
-        u_VERIFY_FORMAT_BOTH("{:#.0F}", "4.", 4.);
-        u_VERIFY_FORMAT_BOTH("{:.0f}",  "4",  4.f);
-        u_VERIFY_FORMAT_BOTH("{:#.0F}", "4.", 4.f);
-
-        u_VERIFY_FORMAT_BOTH("{:.0a}",  "1p+2",  4.);
-        u_VERIFY_FORMAT_BOTH("{:#.0A}", "1.P+2", 4.);
-        u_VERIFY_FORMAT_BOTH("{:.0a}",  "1p+2",  4.f);
-        u_VERIFY_FORMAT_BOTH("{:#.0A}", "1.P+2", 4.f);
-
-        u_VERIFY_FORMAT_BOTH("{:#g}", "42.2400", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:#G}", "42.2400", 42.24);
-        u_VERIFY_FORMAT_BOTH("{:#g}", "42.2400", 42.24f);
-        u_VERIFY_FORMAT_BOTH("{:#G}", "42.2400", 42.24f);
+        testCase4();
       } break;
       case 3: {
-        // --------------------------------------------------------------------
-        // CHAR AND WCHAR_T
-        //
-        // Concerns:
-        // 1. Characters and wide characters are printed (by default) as a
-        //    string that consists of that character only.
-        //
-        // 2. Width specification with and without alignment works according to
-        //    the standard requirements in its direct form as well as when
-        //    width is specified by an argument (embedded).
-        //
-        // 3. Presentation format specifiers (characters) work as per standard.
-        //
-        // 4. Alternate format adds the format prefixes in the appropriate
-        //    presentation formats as per standard.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   CHAR AND WCHAR_T
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nCHAR AND WCHAR_T"
-                          "\n================");
-
-        // Simple printing of char/wchar_t values
-
-        u_VERIFY_FORMAT("{}",   "*",   '*');
-        u_VERIFY_FORMAT(" {}",  " *",  '*');
-        u_VERIFY_FORMAT("{} ",  "* ",  '*');
-        u_VERIFY_FORMAT(" {} ", " * ", '*');
-
-        u_VERIFY_WFORMAT(L"{}",   L"*",   L'*');
-        u_VERIFY_WFORMAT(L" {}",  L" *",  L'*');
-        u_VERIFY_WFORMAT(L"{} ",  L"* ",  L'*');
-        u_VERIFY_WFORMAT(L" {} ", L" * ", L'*');
-
-        // Aligned by constant in format string
-
-        u_VERIFY_FORMAT("{:1}",  "*",   '*');
-        u_VERIFY_FORMAT("{:2}",  "* ",  '*');
-        u_VERIFY_FORMAT("{:3}",  "*  ", '*');
-        u_VERIFY_FORMAT("{:<3}", "*  ", '*');
-        u_VERIFY_FORMAT("{:^3}", " * ", '*');
-        u_VERIFY_FORMAT("{:>3}", "  *", '*');
-
-        u_VERIFY_WFORMAT(L"{:1}",  L"*",   L'*');
-        u_VERIFY_WFORMAT(L"{:2}",  L"* ",  L'*');
-        u_VERIFY_WFORMAT(L"{:3}",  L"*  ", L'*');
-        u_VERIFY_WFORMAT(L"{:<3}", L"*  ", L'*');
-        u_VERIFY_WFORMAT(L"{:^3}", L" * ", L'*');
-        u_VERIFY_WFORMAT(L"{:>3}", L"  *", L'*');
-
-
-        // Aligned by additional argument
-
-        u_VERIFY_FORMAT("{:<{}}", "*  ", '*', 3);
-        u_VERIFY_FORMAT("{:^{}}", " * ", '*', 3);
-        u_VERIFY_FORMAT("{:>{}}", "  *", '*', 3);
-
-        u_VERIFY_WFORMAT(L"{:<{}}", L"*  ", L'*', 3);
-        u_VERIFY_WFORMAT(L"{:^{}}", L" * ", L'*', 3);
-        u_VERIFY_WFORMAT(L"{:>{}}", L"  *", L'*', 3);
-
-        u_VERIFY_FORMAT("{1:<{0}}", "*  ", 3, '*');
-        u_VERIFY_FORMAT("{1:^{0}}", " * ", 3, '*');
-        u_VERIFY_FORMAT("{1:>{0}}", "  *", 3, '*');
-
-        u_VERIFY_WFORMAT(L"{1:<{0}}", L"*  ", 3, L'*');
-        u_VERIFY_WFORMAT(L"{1:^{0}}", L" * ", 3, L'*');
-        u_VERIFY_WFORMAT(L"{1:>{0}}", L"  *", 3, L'*');
-
-        // Explicitly specified presentations
-
-        u_VERIFY_FORMAT(  "{:c}",  "*",  '*');
-        u_VERIFY_WFORMAT(L"{:c}", L"*", L'*');
-
-        u_VERIFY_FORMAT(  "{:d}",  "42",  '*');
-        u_VERIFY_WFORMAT(L"{:d}", L"42", L'*');
-
-        u_VERIFY_FORMAT(  "{:o}",  "52",  '*');
-        u_VERIFY_WFORMAT(L"{:o}", L"52", L'*');
-
-        u_VERIFY_FORMAT(  "{:x}",  "2a",  '*');
-        u_VERIFY_WFORMAT(L"{:x}", L"2a", L'*');
-
-        u_VERIFY_FORMAT(  "{:X}",  "2A",  '*');
-        u_VERIFY_WFORMAT(L"{:X}", L"2A", L'*');
-
-        u_VERIFY_FORMAT(  "{:b}",  "101010",  '*');
-        u_VERIFY_WFORMAT(L"{:b}", L"101010", L'*');
-
-        u_VERIFY_FORMAT(  "{:B}",  "101010",  '*');
-        u_VERIFY_WFORMAT(L"{:B}", L"101010", L'*');
-
-        // Alternate form with prefix
-
-        u_VERIFY_FORMAT(  "{:#o}",  "052",  '*');
-        u_VERIFY_WFORMAT(L"{:#o}", L"052", L'*');
-        u_VERIFY_FORMAT(  "{:#o}",  "0",    '\0');
-        u_VERIFY_WFORMAT(L"{:#o}", L"0",   L'\0');
-
-        u_VERIFY_FORMAT(  "{:#x}",  "0x2a",  '*');
-        u_VERIFY_WFORMAT(L"{:#x}", L"0x2a", L'*');
-
-        u_VERIFY_FORMAT("{:#X}",    "0X2A", '*');
-        u_VERIFY_WFORMAT(L"{:#X}", L"0X2A", L'*');
-
-        u_VERIFY_FORMAT(  "{:#b}",  "0b101010", '*');
-        u_VERIFY_WFORMAT(L"{:#b}", L"0b101010", L'*');
-
-        u_VERIFY_FORMAT(  "{:#B}",  "0B101010", '*');
-        u_VERIFY_WFORMAT(L"{:#B}", L"0B101010", L'*');
+        testCase3();
       } break;
       case 2: {
-        // --------------------------------------------------------------------
-        // INTEGERS
-        //
-        // Concerns:
-        // 1. All integers types are converted to string properly.
-        //
-        // 2. Sign format specification works as intended (' ', '+', '-').
-        //
-        // 3. Width specification with and without alignment works according to
-        //    the standard requirements in its direct form as well as when
-        //    width is specified by an argument (embedded).
-        //
-        // 4. Presentation format specifiers (characters) print using the
-        //    specified standard presentation format.
-        //
-        // 5. Alternate formats work as per standard.
-        //
-        // Plan:
-        // 1. Use individual macros to create rows of a table-like test that
-        //    covers the concerns.
-        //
-        // Testing:
-        //   INTEGERS
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\nINTEGERS"
-                          "\n========");
-
-        // Simple printing of integral values
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (signed char)42);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (signed char)42);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   (short)42);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (short)42);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (short)42);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (short)42);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42l);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42l);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42l);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42l);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42ll);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ll);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ll);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ll);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42u);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42u);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42u);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42u);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (unsigned char)42);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", (unsigned short)42);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42ul);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ul);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ul);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{}",   "42",   42ull);
-        u_VERIFY_FORMAT_BOTH(" {}",  " 42",  42ull);
-        u_VERIFY_FORMAT_BOTH("{} ",  "42 ",  42ull);
-        u_VERIFY_FORMAT_BOTH(" {} ", " 42 ", 42ull);
-
-        // Sign format specifications
-
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  (short)42);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42l);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ll);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42u);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ul);
-        u_VERIFY_FORMAT_BOTH("{: }", " 42",  42ull);
-
-        u_VERIFY_FORMAT_BOTH("{: }", "-42", -42);
-        u_VERIFY_FORMAT_BOTH("{: }", "-42", (signed char)-42);
-        u_VERIFY_FORMAT_BOTH("{: }", "-42", (short)-42);
-        u_VERIFY_FORMAT_BOTH("{: }", "-42", -42l);
-        u_VERIFY_FORMAT_BOTH("{: }", "-42", -42ll);
-
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42l);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42u);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:-}", "42",   42ull);
-
-        u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "-42", (signed char)-42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "-42", (short)-42);
-        u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42l);
-        u_VERIFY_FORMAT_BOTH("{:-}", "-42", -42ll);
-
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (short)42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42l);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ll);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42u);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ul);
-        u_VERIFY_FORMAT_BOTH("{:+}", "+42",  42ull);
-
-        u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "-42", (signed char)-42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "-42", (short)-42);
-        u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42l);
-        u_VERIFY_FORMAT_BOTH("{:+}", "-42", -42ll);
-
-        // Aligned by constant in format string
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (signed char)42);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (short)42);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (short)42);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (short)42);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (short)42);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (short)42);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42l);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42l);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42l);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42l);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42l);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42l);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42l);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42l);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42l);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42l);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42l);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ll);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ll);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ll);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42ll);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42ll);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42u);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42u);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42u);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42u);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42u);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42u);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42u);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42u);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42u);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42u);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42u);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned char)42);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   (unsigned short)42);
-
-        u_VERIFY_FORMAT_BOTH("{:1}",   "42",     42ul);
-        u_VERIFY_FORMAT_BOTH("{:2}",   "42",     42ul);
-        u_VERIFY_FORMAT_BOTH("{:3}",   " 42",    42ul);
-        u_VERIFY_FORMAT_BOTH("{:4}",   "  42",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:04}",  "0042",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:<4}",  "42  ",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:^4}",  " 42 ",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:>4}",  "  42",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:<04}", "42  ",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:^04}", " 42 ",   42ul);
-        u_VERIFY_FORMAT_BOTH("{:>04}", "  42",   42ul);
-
-        // Aligned by additional argument
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042", 42, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ", 42, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ", 42, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42", 42, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042", (signed char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ", (signed char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ", (signed char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42", (signed char)42, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (short)42, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42l, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42l, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42l, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42l, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42ll, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42ll, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42ll, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42ll, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42u, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42u, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42u, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42u, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (unsigned char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (unsigned char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (unsigned char)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (unsigned char)42, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   (unsigned short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   (unsigned short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   (unsigned short)42, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   (unsigned short)42, 4);
-
-        u_VERIFY_FORMAT_BOTH("{:0{}}",  "0042",   42ul, 4);
-        u_VERIFY_FORMAT_BOTH("{:<{}}",  "42  ",   42ul, 4);
-        u_VERIFY_FORMAT_BOTH("{:^{}}",  " 42 ",   42ul, 4);
-        u_VERIFY_FORMAT_BOTH("{:>{}}",  "  42",   42ul, 4);
-
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (short)42);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42l);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42ll);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42u);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{1:^{0}}",  " 42 ", 4, 42ul);
-
-        // Explicitly specified presentations
-
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", 42);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", 42l);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", 42u);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:d}", "42", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", 42);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", 42l);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", 42u);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:c}", "*", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42l);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42u);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:b}", "101010", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42l);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42u);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:B}", "101010", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", 42);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", 42l);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", 42u);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:o}", "52", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42l);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42u);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:x}", "2a", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42l);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42u);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:X}", "2A", 42ul);
-
-        // Alternate form with prefix
-
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42l);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42u);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:#b}", "0b101010", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42l);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42u);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:#B}", "0B101010", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42l);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42u);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "052", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", (signed char)0);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", (short)0);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0l);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0ll);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0u);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", (unsigned char)0);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", (unsigned short)0);
-        u_VERIFY_FORMAT_BOTH("{:#o}", "0", 0ul);
-
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42l);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42u);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:#x}", "0x2a", 42ul);
-
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (signed char)42);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (short)42);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42l);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42ll);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42u);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (unsigned char)42);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", (unsigned short)42);
-        u_VERIFY_FORMAT_BOTH("{:#X}", "0X2A", 42ul);
+        testCase2();
       } break;
       case 1: {
         // --------------------------------------------------------------------

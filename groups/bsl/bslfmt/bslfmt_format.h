@@ -35,18 +35,18 @@ BSLS_IDENT("$Id: $")
 // wrappers around the `std::format`, `std::format_to`, `std::format_to_n`,
 // `std::vformat`, and `std::vformat_to` functions of which the `format` and
 // `vformat` wrappers are allocator-aware.  Where a conforming implementation
-// is not available, such as on older compilers, or when compiling C++17 and
+// or when compiling C++17 and earlier, BDE implementation is provided.
 // earlier, a BSL implementation is provided.
 //
 // Where a BSL implementation is provided, functionality is limited to that
 // provided by C++20 and excludes the following features:
 //
-// - Support for locales other than the default ("C") locale.
-// - Support for wide strings
-// - Alternative date/time representations
-// - Date/time directives not supported by the standard `strftime` function
-// - Character escaping
-// - Compile-time format string checking
+// * Support for locales other than the default ("C") locale.
+// * Support for wide strings
+// * Alternative date/time representations
+// * Date/time directives not supported by the standard `strftime` function
+// * Character escaping
+// * Compile-time format string checking
 //
 // This header is not intended to be included directly.  Please include
 // `<bsl_format.h>` to be able to use `bsl::format` functionality.
