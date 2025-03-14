@@ -374,8 +374,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // ```
 // const double END_QUOTE = -1;
 //
-// bslma::ManagedPtr<double>
-// getFirstQuoteLargerThan(double threshold, bslma::Allocator *allocator)
+// bslma::ManagedPtr<double> getFirstQuoteLargerThan(
+//     double threshold,
+//     bslma::Allocator *allocator)
 // {
 //     assert(END_QUOTE < 0 && 0 <= threshold);
 // ```
@@ -1695,6 +1696,14 @@ struct ManagedPtrUtil {
     /// Deleter function that does nothing.
     static void noOpDeleter(void *, void *);
 
+    /// Make use of `AllocatorUtil::deleteObject` to destroy and deallocate
+    /// the specified `object` using the specified allocator.  The behavior is
+    /// undefined unless `allocator` is an instance of `bslma::Allocator`
+    /// that was used to supply memory for `object` and `object` points to an
+    /// instance of `ELEMENT_TYPE` that is within its lifetime.
+    template <class ELEMENT_TYPE>
+    static void allocatorDeleter(void *object, void *allocator);
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
     /// Create an object of the (template parameter) `ELEMENT_TYPE` from the
@@ -1786,7 +1795,6 @@ struct ManagedPtr_DefaultDeleter {
     /// `MANAGED_TYPE *`, and then call `delete` with the cast pointer.
     static void deleter(void *ptr, void *);
 };
-
 
 // ============================================================================
 //                          INLINE DEFINITIONS
@@ -2498,8 +2506,19 @@ void swap(ManagedPtr<TARGET_TYPE>& a, ManagedPtr<TARGET_TYPE>& b)
 }
 
                       // --------------------
-                      // class ManagedPtrUtil
+                      // struct ManagedPtrUtil
                       // --------------------
+
+template <class ELEMENT_TYPE>
+inline
+void ManagedPtrUtil::allocatorDeleter(void *object, void *allocator)
+{
+    BSLS_ASSERT(0 != object);
+    BSLS_ASSERT(0 != allocator);
+
+    AllocatorUtil::deleteObject(static_cast<Allocator *>(allocator),
+                                static_cast<ELEMENT_TYPE *>(object));
+}
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
@@ -2535,7 +2554,9 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(ARGS&&... args)
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 
-    return ManagedPtr<ELEMENT_TYPE>(objPtr, defaultAllocator);
+    return ManagedPtr<ELEMENT_TYPE>(objPtr,
+                                    defaultAllocator,
+                                    &allocatorDeleter<UnqualElem>);
 }
 
 template <class ELEMENT_TYPE, class... ARGS>
@@ -2551,7 +2572,9 @@ ManagedPtrUtil::allocateManaged(bslma::Allocator *allocator, ARGS&&... args)
                                  allocator,
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
 
-    return ManagedPtr<ELEMENT_TYPE>(objPtr, allocator);
+    return ManagedPtr<ELEMENT_TYPE>(objPtr,
+                                    allocator,
+                                    &allocatorDeleter<UnqualElem>);
 }
 
 #endif

@@ -87,7 +87,7 @@ void Allocator::do_deallocate(void *p, std::size_t bytes, std::size_t align)
         // Special pointer indicates zero-byte `memory_resource` allocation.
         BSLS_ASSERT(0 == bytes);
 
-        // Convert singular poiinter to null pointer before forwarding to
+        // Convert singular pointer to null pointer before forwarding to
         // 'Allocator::deallocate'.
         p = 0;
     }
