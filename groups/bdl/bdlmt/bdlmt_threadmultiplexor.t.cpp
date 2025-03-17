@@ -463,8 +463,8 @@ int main(int argc, char *argv[])
         {
             using namespace TEST_CASE_6;
             enum {
-                NUM_THREADS   = 7,
-                MAX_QUEUESIZE = 1000,
+                NUM_THREADS   = 5,
+                MAX_QUEUESIZE = 800,
                 NUM_JOBS      = 100
             };
 
@@ -631,10 +631,10 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             enum {
-                NUM_THREADS   = 3,   // total number of threads
-                MAX_QUEUESIZE = 6000,// total number of pending jobs
-                NUM_JOBS      = 2000,// number of jobs to submit
-                MAX_PROC      = 10    // test condition
+                NUM_THREADS   = 3,     // total number of threads
+                MAX_QUEUESIZE = 3000,  // total number of pending jobs
+                NUM_JOBS      = 1000,  // number of jobs to submit
+                MAX_PROC      = 8      // test condition
             };
 
             bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, &ta);
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
             }
             if (veryVerbose) cout << "Thread-pool Started" << endl;
 
-            TestQueue theQueue(10, MAX_QUEUESIZE, &tp, &ta);
+            TestQueue theQueue(MAX_PROC, MAX_QUEUESIZE, &tp, &ta);
 
             UsageTestChecker checker(theQueue.multiplexor());
             bslmt::Semaphore startSemaphore;

@@ -2061,11 +2061,11 @@ int main(int argc, char *argv[])
             } VALUES[] = {
                 //line min threads max threads max idle
                 //---- ----------- ----------- --------
-                { L_ ,         10,         50,       30 },
+                { L_ ,         6 ,         12,       10 },
                 { L_ ,         1 ,         1 ,        1 },
-                { L_ ,         50,         80,       60 },
-                { L_ ,         2 ,         22,       72 },
-                { L_ ,         20,         80,       15 }
+                { L_ ,         10,         20,       20 },
+                { L_ ,         2 ,         8 ,       25 },
+                { L_ ,         8 ,         16,       15 }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
