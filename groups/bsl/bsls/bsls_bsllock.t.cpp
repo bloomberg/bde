@@ -55,6 +55,7 @@ static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        fflush(stdout);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }

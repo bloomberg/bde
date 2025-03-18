@@ -57,6 +57,7 @@ void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        fflush(stdout);
 
         int oldValue = testStatus.loadRelaxed();
         int currentValue;

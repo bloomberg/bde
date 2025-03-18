@@ -117,6 +117,7 @@ void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+        fflush(stdout);
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
@@ -587,7 +588,7 @@ inline int FunctionsV2::myFunc(int x, int y)
 // The log messages you should look for are those produced by `bsls::Review`s
 // default review failure handler and will be similar to:
 // ```
-// ERROR myfunction.h:17 BSLS_REVIEW failure (myfunction.h:17 level:R-DBG): 
+// ERROR myfunction.h:17 BSLS_REVIEW failure (myfunction.h:17 level:R-DBG):
 //                                'x > 0' Please run "/bb/bin/showfunc.tsk ...
 // ```
 // `showfunc.tsk` is a Bloomberg application that can be used (along with the

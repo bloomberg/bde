@@ -25,6 +25,7 @@ namespace {
     {
         if (condition) {
             printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+            fflush(stdout);
 
             if (0 <= testStatus && testStatus <= 100) {
                 ++testStatus;

@@ -114,6 +114,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     if (b) {
 //         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+//         fflush(stdout);
 //         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
 //     }
 // }
