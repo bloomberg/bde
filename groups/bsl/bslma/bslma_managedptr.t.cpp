@@ -627,8 +627,9 @@ namespace USAGE_EXAMPLES {
 // ```
     const double END_QUOTE = -1;
 
-    bslma::ManagedPtr<double>
-    getFirstQuoteLargerThan(double threshold, bslma::Allocator *allocator)
+    bslma::ManagedPtr<double> getFirstQuoteLargerThan(
+        double threshold,
+                                bslma::Allocator *allocator)
     {
         ASSERT( END_QUOTE < 0 && 0 <= threshold );
 // ```
@@ -1409,6 +1410,24 @@ class CompositeInt3 : public BaseInt1, public BaseInt2 {
     int data1() const BSLS_KEYWORD_OVERRIDE { return d_data * d_data; }
     int data2() const BSLS_KEYWORD_OVERRIDE { return d_data + d_data; }
 };
+
+// This type is used to be sure that we handle type alignment properly
+
+class OverAlignedInt {
+  public:
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+    alignas(64)
+#endif
+    int d_data;  // overaligned data member when possible.
+
+    OverAlignedInt(int i)
+    : d_data(i)
+    {
+    }
+
+    int data() const { return d_data; }
+};
+
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8500,6 +8519,9 @@ struct Harness {
     /// accept only allocator pointers.
     static void testCase18_AllocOnlyTest();
 
+    /// Verify the behavior of `makeManaged` for the type that is overaligned.
+    static void testCase18_OverAlignedTest();
+
     /// Return the specified `t` moved.
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type);
@@ -10212,6 +10234,150 @@ void Harness::testCase18_AllocOnlyTest()
     }
 }
 
+/// This concrete `Allocator` type tracks the last alignment value that was
+/// passed to to the `allocate` function and asserts that this alignment
+/// is passed to the next call to `deallocate`.  Use of the older
+/// `bslma::Allocator` API is also not allowed.
+class AlignmentCheckingAllocator : public bslma::Allocator {
+
+    bslma::Allocator *d_allocator_p;  // upstream allocator
+
+    int         d_numAllocate;            // calls to `allocate`
+    int         d_numDeallocate;          // calls to `deallocate`
+    int         d_numDoAllocate;          // calls to `do_allocate`
+    std::size_t d_lastDoAllocateBytes;    // last bytes to `do_allocate`
+    std::size_t d_lastDoAllocateAlign;    // last alignment to `do_allocate`
+    int         d_numDoDeallocate;        // calls to `do_deallocate`
+    std::size_t d_lastDoDeallocateBytes;  // last bytes to `do_deallocate`
+    std::size_t d_lastDoDeallocateAlign;  // last alignment to `do_deallocate`
+
+public:
+    AlignmentCheckingAllocator(bslma::Allocator *basicAllocator)
+    : d_allocator_p(basicAllocator)
+    {}
+
+    void *allocate(std::size_t size) BSLS_KEYWORD_OVERRIDE
+    {
+        ++d_numAllocate;
+
+        return d_allocator_p->allocate(size);
+    }
+
+    void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
+    {
+        ++d_numDeallocate;
+
+        d_allocator_p->deallocate(address);
+    }
+
+    void* do_allocate(std::size_t bytes,
+                      std::size_t alignment) BSLS_KEYWORD_OVERRIDE
+    {
+        ++d_numDoAllocate;
+        d_lastDoAllocateBytes = bytes;
+        d_lastDoAllocateAlign = alignment;
+
+        return static_cast<bsl::memory_resource*>(d_allocator_p)
+            ->allocate(bytes, alignment);
+    }
+
+
+    void do_deallocate(void        *p,
+                       std::size_t  bytes,
+                       std::size_t  alignment) BSLS_KEYWORD_OVERRIDE
+    {
+        ++d_numDoDeallocate;
+        d_lastDoDeallocateBytes = bytes;
+        d_lastDoDeallocateAlign = alignment;
+
+        static_cast<bsl::memory_resource*>(d_allocator_p)
+            ->deallocate(p, bytes, alignment);
+    }
+
+    int numAllocate() const
+    { return d_numAllocate; }
+
+    int numDeallocate() const
+    { return d_numDeallocate; }
+
+    int numDoAllocate() const
+    { return d_numDoAllocate; }
+
+    std::size_t lastDoAllocateBytes() const
+    { return d_lastDoAllocateBytes; }
+
+    std::size_t lastDoAllocateAlign() const
+    { return d_lastDoAllocateAlign; }
+
+    int numDoDeallocate() const
+    { return d_numDoDeallocate; }
+
+    std::size_t d_lastDoDeallocateBytes() const
+    { return d_lastDoDeallocateBytes; }
+
+    std::size_t d_lastDoDeallocateAlign() const
+    { return d_lastDoDeallocateAlign; }
+};
+
+void Harness::testCase18_OverAlignedTest()
+{
+    bslma::TestAllocator *da =
+        dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
+    BSLS_ASSERT_OPT(da);
+
+    const std::size_t k_overalignSize = sizeof(OverAlignedInt);
+    const std::size_t k_overalignAlignment =
+        BloombergLP::bsls::AlignmentFromType<OverAlignedInt>::VALUE;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+    ASSERT(overalignAlignment >= 64);
+#endif
+
+
+    // Testing `makeManaged`
+    {
+        AlignmentCheckingAllocator aa(da);
+        bslma::DefaultAllocatorGuard dag(&aa);
+
+        bslma::ManagedPtr<OverAlignedInt> i =
+            Util::makeManaged<OverAlignedInt>(17);
+        ASSERT( 17 == i->data() );
+
+        ASSERT(0 == aa.numAllocate());
+        ASSERT(1 == aa.numDoAllocate());
+        ASSERT(overalignSize = aa.lastAllocateBytes());
+        ASSERT(overalignAlignment == aa.lastAllocateAlignment());
+
+        i.reset();
+
+        ASSERT(0 == aa.numDeallocate());
+        ASSERT(1 == aa.numDoDeallocate());
+        ASSERT(overalignSize = aa.lastDeallocateBytes());
+        ASSERT(overalignAlignment == aa.lastDeallocateAlignment());
+    }
+
+    // Testing `allocateManaged`
+    {
+        AlignmentCheckingAllocator aa(da);
+
+        bslma::ManagedPtr<OverAlignedInt> i =
+            Util::allocateManaged<OverAlignedInt>(&aa, 17);
+        ASSERT( 17 == i->data() );
+
+        ASSERT(0 == aa.numAllocate());
+        ASSERT(1 == aa.numDoAllocate());
+        ASSERT(overalignSize = aa.lastAllocateBytes());
+        ASSERT(overalignAlignment == aa.lastAllocateAlignment());
+
+        i.reset();
+
+        ASSERT(0 == aa.numDeallocate());
+        ASSERT(1 == aa.numDoDeallocate());
+        ASSERT(overalignSize = aa.lastDeallocateBytes());
+        ASSERT(overalignAlignment == aa.lastDeallocateAlignment());
+    }
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -10669,6 +10835,10 @@ int main(int argc, char *argv[])
         // Check the behavior for the class that takes only allocators.
 
         Harness::testCase18_AllocOnlyTest();
+
+        // Check the behavior for a class that is overaligned
+
+        Harness::testCase18_OverAlignedTest();
 
       } break;
       case 17: {
