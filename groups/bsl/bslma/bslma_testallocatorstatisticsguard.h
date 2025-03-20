@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // local values (maximum etc) may be measured in thw scope of the guard.  Upon
 // its destruction the guard restores the statistics values of the guarded test
 // allocator to the state what it would have if the guard hasn't been there (as
-// if not stashing and resetting had taken place), but combining the stashed
+// if no stashing and resetting had taken place), but combining the stashed
 // values with the current statistics values of the test allocator.
 //
 ///Statistics
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // allocator, and later (at the end of our measured local scope) restore them
 // as if we had never reset them.
 //
-// First, we define our `TestAllocator` that will is used throughout:
+// First, we define our `TestAllocator` that we will use throughout:
 //
 //```
 // bslma::TestAllocator testAllocator, *ta = &testAllocator;
@@ -113,21 +113,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-
 namespace bslma {
 
                     // ==================================
                     // class TestAllocatorStatisticsGuard
                     // ==================================
 
-/// This mechanism provides the mean to get localized `TestAllocator`
+/// This mechanism provides the means to get localized `TestAllocator`
 /// statistics in a scope since the construction of the guard, and also
 /// reinstates the statistics upon its destruction as if the local reset has
-/// not happened.  See the [](#Statistics) section for the statics managed.
+/// not happened.  See the [](#Statistics) section for the statistics managed.
 class TestAllocatorStatisticsGuard {
 
     // DATA
-    TestAllocatorStashedStatistics d_stashed;  // The stashed statistics
+    TestAllocatorStashedStatistics d_stashed;  // the stashed statistics
 
   private:
     // NOT IMPLEMENTED
