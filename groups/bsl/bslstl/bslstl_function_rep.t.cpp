@@ -40,6 +40,7 @@
 #endif
 
 using std::printf;
+using std::fflush;
 using namespace BloombergLP;
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC

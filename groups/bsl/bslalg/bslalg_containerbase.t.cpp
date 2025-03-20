@@ -34,6 +34,7 @@
 
 using namespace BloombergLP;
 using std::printf;
+using std::fflush;
 
 //=============================================================================
 //                             TEST PLAN

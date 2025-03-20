@@ -64,6 +64,7 @@
 using namespace BloombergLP;
 using std::printf;
 using std::fprintf;
+using std::fflush;
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS

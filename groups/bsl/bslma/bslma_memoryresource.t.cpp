@@ -27,6 +27,7 @@
 #endif
 
 using std::printf;
+using std::fflush;
 using namespace BloombergLP;
 
 // ============================================================================

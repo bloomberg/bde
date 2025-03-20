@@ -25,6 +25,7 @@
 
 using std::printf;
 using std::fprintf;
+using std::fflush;
 using namespace BloombergLP;
 
 // ============================================================================
