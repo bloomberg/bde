@@ -136,7 +136,7 @@ using bsl::flush;
 // [ 2] BALL_LOG_CATEGORY
 // [ 2] BALL_LOG_THRESHOLD
 // [ 3] PRINTF-STYLE MACROS
-// [ 4] OSTREAM AND FMT MACROS (WITHOUT CALLBACK)
+// [ 4] OSTREAM MACROS (WITHOUT CALLBACK)
 // [ 5] TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
 // [ 6] TESTING THE C++ MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION
 // [ 7] TESTING THE DEFAULT LOG ORDER (LIFO)
@@ -9046,7 +9046,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING OSTREAM AND FMT MACROS
+        // TESTING OSTREAM MACROS
         //
         // Concerns:
         // TBD doc
@@ -9055,11 +9055,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TBD doc
         //
         // Testing:
-        //   OSTREAM AND FMT MACROS (WITHOUT CALLBACK)
+        //   OSTREAM MACROS (WITHOUT CALLBACK)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING OSTREAM AND FMT MACROS"
-                               << "\n==============================\n";
+        if (verbose) bsl::cout << "\nTESTING OSTREAM MACROS"
+                               << "\n======================\n";
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';
@@ -9117,20 +9117,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_TRACE << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-   BALL_LOG_FMT_TRACE("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_TRACE_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
         }
 
@@ -9152,20 +9142,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_DEBUG << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-   BALL_LOG_FMT_DEBUG("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_DEBUG_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
         }
 
@@ -9187,20 +9167,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_INFO << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-    BALL_LOG_FMT_INFO("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_INFO_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MESSAGE));
         }
 
@@ -9222,31 +9192,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_WARN << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, WARN, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-    BALL_LOG_FMT_WARN("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, WARN, FILE, LINE, MESSAGE));
-
-    LINE = L_ + 1;
-    BALL_LOG_DEBUG_BLOCK
-    {
-        BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",
-                     SEP,
-                     ARGS[0],
-                     ARGS[1],
-                     ARGS[2]);
-    }
-    ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_WARN_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, WARN, FILE, LINE, MESSAGE));
         }
 
@@ -9268,20 +9217,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_ERROR << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, ERROR, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-   BALL_LOG_FMT_ERROR("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, ERROR, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_ERROR_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, ERROR, FILE, LINE, MESSAGE));
         }
 
@@ -9303,20 +9242,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
-            int LINE = L_ + 1;
+            const int LINE = L_ + 1;
             BALL_LOG_FATAL << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(u::isRecordOkay(observer, CAT, FATAL, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-   BALL_LOG_FMT_FATAL("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            ASSERT(u::isRecordOkay(observer, CAT, FATAL, FILE, LINE, MESSAGE));
-
-            LINE = L_ + 1;
-            BALL_LOG_FATAL_BLOCK {
-         BALL_LOG_FMT("message{0}{1}{0}{2}{0}{3}",SEP,ARGS[0],ARGS[1],ARGS[2]);
-            }
             ASSERT(u::isRecordOkay(observer, CAT, FATAL, FILE, LINE, MESSAGE));
         }
 

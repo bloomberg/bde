@@ -19,13 +19,6 @@ BSLS_IDENT("$Id: $")
 //  BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(C): set a run-time category
 //  BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(C): set a class category
 //  BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(C): set a namespace category
-//  BALL_LOG_FMT: bsl::format a log record within a _BLOCK
-//  BALL_LOG_FMT_TRACE: bsl::format a log record with the `e_TRACE` level
-//  BALL_LOG_FMT_DEBUG: bsl::format a log record with the `e_DEBUG` level
-//  BALL_LOG_FMT_INFO: bsl::format a log record with the `e_INFO` level
-//  BALL_LOG_FMT_WARN: bsl::format a log record with the `e_WARN` level
-//  BALL_LOG_FMT_ERROR: bsl::format a log record with the `e_ERROR` level
-//  BALL_LOG_FMT_FATAL: bsl::format a log record with the `e_FATAL` level
 //  BALL_LOG_TRACE: produce a log record with the `e_TRACE` severity level
 //  BALL_LOG_DEBUG: produce a log record with the `e_DEBUG` severity level
 //  BALL_LOG_INFO: produce a log record with the `e_INFO` severity level
@@ -271,26 +264,6 @@ BSLS_IDENT("$Id: $")
 //     logged with the severity indicated by the name of the macro
 //     (e.g., `BALL_LOG_TRACE` logs with severity `ball::Severity::e_TRACE`).
 // ```
-//
-// A set of macros based on `bsl::format`, `BALL_LOG_FMT_TRACE`,
-// `BALL_LOG_FMT_DEBUG`, `BALL_LOG_FMT_INFO`, `BALL_LOG_FMT_WARN`,
-// `BALL_LOG_FMT_ERROR`, and `BALL_LOG_FMT_FATAL` may also be used for logging.
-// Since `bsl::format` may be implemented in terms of a C++20 (or later)
-// `std::format` these macros may verify their format string compile time and
-// stop compilation with an error if the string is invalid or does not match
-// the arguments.  They have the following usage pattern:
-// ```
-// BALL_LOG_FMT_TRACE("{} {}", X, Y);
-// BALL_LOG_FMT_DEBUG("{} {}", X, Y);
-// BALL_LOG_FMT_INFO ("{} {}", X, Y);
-// BALL_LOG_FMT_WARN ("{} {}", X, Y);
-// BALL_LOG_FMT_ERROR("{} {}", X, Y);
-// BALL_LOG_FMT_FATAL("{} {}", X, Y);
-//     where X, Y, ... represents any sequence of values for which formatting
-//     is defined.  The resulting formatted message string is logged with the
-//     severity indicated by the name of the macro (e.g., `BALL_LOG_TRACE` logs
-//     with severity `ball::Severity::e_TRACE`).
-// ```
 // A closely-related macro also based on C++ streams, `BALL_LOG_STREAM`,
 // requires that the severity be explicitly supplied as an argument:
 // ```
@@ -400,9 +373,6 @@ BSLS_IDENT("$Id: $")
 // ```
 //  Within the logging code block a special macro, `BALL_LOG_OUTPUT_STREAM`,
 //  provides access to the log stream.
-//
-//  Within the logging code block a special macro, `BALL_LOG_FMT` provides
-//  `bsl::format` logging into the log record being built.
 //
 ///Utility Macros
 /// - - - - - - -
@@ -973,8 +943,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #include <bsl_ostream.h>
-#include <bsl_format.h>
-#include <bsl_iterator.h>
 
 #include <bslmt_mutex.h>
 
@@ -1221,37 +1189,6 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)
 
 #define BALL_LOG_END ""
-
-#define BALL_LOG_FMT(formatString, ...)                                       \
-    bsl::format_to(                                                           \
-        bsl::ostreambuf_iterator<char>(                                       \
-            &BALL_LOG_RECORD->fixedFields().messageStreamBuf()),              \
-        formatString,                                                         \
-        __VA_ARGS__)
-
-#define BALL_LOG_FMT_TRACE(formatString, ...)                                 \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE)           \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
-
-#define BALL_LOG_FMT_DEBUG(formatString, ...)                                 \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG)           \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
-
-#define BALL_LOG_FMT_INFO(formatString, ...)                                  \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO)            \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
-
-#define BALL_LOG_FMT_WARN(formatString, ...)                                  \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN)            \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
-
-#define BALL_LOG_FMT_ERROR(formatString, ...)                                 \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR)           \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
-
-#define BALL_LOG_FMT_FATAL(formatString, ...)                                 \
-    BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)           \
-    BALL_LOG_FMT(formatString, __VA_ARGS__);
 
                     // ====================================
                     // Implementation Details: Do *NOT* Use
