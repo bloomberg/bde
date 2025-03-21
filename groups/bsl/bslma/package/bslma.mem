@@ -55,4 +55,5 @@ bslma_stdtestallocator
 bslma_testallocator
 bslma_testallocatorexception
 bslma_testallocatormonitor
+bslma_testallocatorstatisticsguard
 bslma_usesbslmaallocator
