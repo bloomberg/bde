@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 // allocator, and later (at the end of our measured local scope) restore them
 // as if we had never reset them.
 //
-// First, we define our `TestAllocator` that will is used throughout:
+// First, we define our `TestAllocator` that we will use throughout:
 //
 //```
    bslma::TestAllocator testAllocator, *ta = &testAllocator;
@@ -212,7 +212,6 @@ int main(int argc, char *argv[])
       bslma::TestAllocatorStatisticsGuard tasg(ta);
       ASSERT(ta->numBlocksInUse() == tasg.originalNumBlocksInUse());
 //```
-//
 // Now, we run the measured operation and verify that it has not allocated more
 // than 4 blocks (in addition to what was already allocated before):
 //```

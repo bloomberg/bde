@@ -92,7 +92,6 @@ BSLS_IDENT("$Id: $")
 //     bslma::TestAllocatorStatisticsGuard tasg(ta);
 //     assert(ta->numBlocksInUse() == tasg.originalNumBlocksInUse());
 //```
-//
 // Now, we run the measured operation and verify that it has not allocated more
 // than 4 blocks (in addition to what was already allocated before):
 //```
