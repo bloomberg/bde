@@ -165,6 +165,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        ASSERT(true);  // avoid usued function warning
+
         bsls::AssertTestHandlerGuard g;
 
         ASSERT_FAIL(bsls::FuzzTest_TestUtil::triggerAssert());

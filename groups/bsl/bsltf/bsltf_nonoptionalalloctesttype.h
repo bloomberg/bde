@@ -74,6 +74,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_usesbslmaallocator.h>
 
 namespace BloombergLP {
@@ -100,7 +102,8 @@ class NonOptionalAllocTestType {
     bslma::Allocator         *d_allocator_p; // allocator used to supply memory
                                              // (held, not owned)
 
-    NonOptionalAllocTestType *d_self_p;      // pointer to self (to verify this
+    BSLA_MAYBE_UNUSED NonOptionalAllocTestType *d_self_p;
+                                             // pointer to self (to verify this
                                              // object is not bit-wise moved)
 
   public:

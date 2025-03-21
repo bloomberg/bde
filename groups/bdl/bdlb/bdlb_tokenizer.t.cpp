@@ -3,6 +3,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -670,7 +672,10 @@ int main(int argc, char **argv)
             bsls::AssertTestHandlerGuard hG;
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
-            ASSERT_SAFE_FAIL("foo" == *itw);
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+            ASSERT_SAFE_FAIL("foo" == *itw);  // can cause ignored return value
+                                              // warning in newer compilers
+#endif
             ASSERT_SAFE_FAIL(false == (*itw).empty());
         }
 

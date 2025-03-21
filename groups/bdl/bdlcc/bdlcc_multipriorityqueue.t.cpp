@@ -2474,9 +2474,9 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&ta);
 
         for (int construct = 0; true; ++construct) {
-            Obj *pX;
-            int priorityCount;
-            bool exitLoop = false;
+            Obj  *pX            = 0;
+            int   priorityCount = 0;
+            bool  exitLoop      = false;
 
             switch (construct) {
               case 0: {

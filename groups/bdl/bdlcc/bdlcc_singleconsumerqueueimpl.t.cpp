@@ -2360,7 +2360,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(EXP[i]) P(value) }
 
-                    Obj::value_type expValue;
+                    Obj::value_type expValue = 0;
                     getValue(&expValue, EXP[i], 0);
 
                     LOOP_ASSERT(LINE, expValue == value);

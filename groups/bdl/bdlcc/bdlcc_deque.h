@@ -1223,12 +1223,11 @@ template <class TYPE>
 inline
 Deque<TYPE>::Proctor::Proctor(Deque<TYPE> *container)
 : d_container_p(0)
+, d_startLength(0)
 {
     if (container) {
         this->load(container);
     }
-
-    // If '0 == container', leave 'd_startLength' uninitialized.
 }
 
 template <class TYPE>
@@ -1328,12 +1327,11 @@ template <class TYPE>
 inline
 Deque<TYPE>::ConstProctor::ConstProctor(const Deque<TYPE> *container)
 : d_container_p(0)
+, d_startLength(0)
 {
     if (container) {
         this->load(container);
     }
-
-    // If '0 == container', leave 'd_startLength' uninitialized.
 }
 
 template <class TYPE>

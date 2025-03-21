@@ -81,6 +81,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsltf_movestate.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
 
@@ -106,9 +108,12 @@ class MovableTestType {
     // DATA
     int                d_data;         // data value
 
-    MovableTestType   *d_self_p;       // pointer to self (to verify this
-                                       // object is not bit-wise moved
+    BSLA_MAYBE_UNUSED MovableTestType *d_self_p;
+                                       // pointer to self (to verify this
+                                       // object is not bit-wise moved)
+
     MoveState::Enum    d_movedFrom;    // moved-from state
+
     MoveState::Enum    d_movedInto;    // moved-into state
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT

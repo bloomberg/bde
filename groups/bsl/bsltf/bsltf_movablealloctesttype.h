@@ -75,6 +75,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isnothrowmoveconstructible.h>
@@ -110,11 +112,14 @@ class MovableAllocTestType {
 
     // DATA
     int                    *d_data_p;       // pointer to the data value
+
     bslma::Allocator       *d_allocator_p;  // allocator used to supply memory
                                             // (held, not owned)
 
-    MovableAllocTestType   *d_self_p;       // pointer to self (to verify this
-                                            // object is not bit-wise moved
+    BSLA_MAYBE_UNUSED MovableAllocTestType *d_self_p;
+                                            // pointer to self (to verify this
+                                            // object is not bit-wise  moved)
+
     CopyMoveTracker         d_tracker;      // Track copy & move state
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT

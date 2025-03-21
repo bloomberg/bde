@@ -2,14 +2,7 @@
 
 #include <bdlcc_deque.h>
 
-#include <bslmt_barrier.h>
-#include <bslmt_configuration.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_semaphore.h>
-#include <bslmt_testutil.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_threadgroup.h>
-#include <bsls_systemtime.h>
+#include <bsla_maybeunused.h>
 
 #include <bslalg_typetraitbitwisecopyable.h>
 #include <bslalg_typetraitbitwisemoveable.h>
@@ -22,10 +15,19 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_newdeleteallocator.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
+
+#include <bslmt_barrier.h>
+#include <bslmt_configuration.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_testutil.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
@@ -34,6 +36,7 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -408,12 +411,16 @@ class MoveCopyAllocTestType {
 
     // DATA
     int                    *d_data_p;       // pointer to the data value
+
     bslma::Allocator       *d_allocator_p;  // allocator used to supply memory
                                             // (held, not owned)
 
-    MoveCopyAllocTestType  *d_self_p;       // pointer to self (to verify this
-                                            // object is not bit-wise moved
+    BSLA_MAYBE_UNUSED MoveCopyAllocTestType  *d_self_p;
+                                            // pointer to self (to verify this
+                                            // object is not bit-wise moved)
+
     MoveState::Enum         d_movedFrom;    // moved-from state
+
     MoveState::Enum         d_movedInto;    // moved-from state
 
   public:

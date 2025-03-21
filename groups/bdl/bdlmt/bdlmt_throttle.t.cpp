@@ -1736,8 +1736,8 @@ int main(int argc, char *argv[])
         // outside the loop so that they can be re-used to re-initialize
         // objects in the `e_CMD_NEXT_PERMIT == cmd` case.
 
-        int          maxSimultaneousActions;
-        double       secondsPerAction = 0.0;
+        int          maxSimultaneousActions = 0;
+        double       secondsPerAction       = 0.0;
         TimeInterval initTimeInterval;
 
         bool         allowAll = false;  // `e_CMD_NEXT_PERMIT == cmd` needs to

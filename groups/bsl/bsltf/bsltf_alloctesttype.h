@@ -82,6 +82,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_bslallocator.h>
 
@@ -105,8 +107,10 @@ class AllocTestType {
     // DATA
     bsl::allocator<int> d_allocator;  // allocator used to supply memory
     int                *d_data_p;     // pointer to the data value
-    AllocTestType       *d_self_p;    // pointer to self (to verify this object
-                                      // is not bit-wise moved)
+
+    BSLA_MAYBE_UNUSED AllocTestType *d_self_p;  // pointer to self (to verify
+                                                // this object is not bit-wise
+                                                // moved)
 
   public:
     // TYPES
