@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 // ```
    bsl::vector<int> myVector(4, 328);
    BALL_LOG_TRACE_BLOCK {
-       BALL_FMT("myVector = [ ");
+       BALL_FMT("{}", "myVector = [ ");
        unsigned int position = 0;
        for (bsl::vector<int>::const_iterator it  = myVector.begin(),
                                              end = myVector.end();
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
            ++it, ++position) {
            BALL_FMT("{}:{} ", position, *it);
        }
-       BALL_FMT("]");
+       BALL_FMT("{}", ']');
    }
 // ```
 // Note that the code block will be conditionally executed depending on the
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_TRACE("message");
+                BALL_FMT_TRACE("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_DEBUG("message");
+                BALL_FMT_DEBUG("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noINFO")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_INFO("message");
+                BALL_FMT_INFO("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noWARN")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_WARN("message");
+                BALL_FMT_WARN("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noERROR")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_ERROR("message");
+                BALL_FMT_ERROR("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
@@ -526,7 +526,7 @@ int main(int argc, char *argv[])
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 const int numPublishedRecords = observer->numPublishedRecords();
 
-                BALL_FMT_FATAL("message");
+                BALL_FMT_FATAL("{}", "message");
                 ASSERT(numPublishedRecords == observer->numPublishedRecords());
             }
 
