@@ -172,8 +172,19 @@ void SpookyHashAlgorithmImp::hash128(
                                                        k_BLOCK_SIZE-remainder);
 
     BSLS_ASSERT(remainder <= 255);
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+    // suppress incorrect
+    //   Warning: Likely out-of-bound write
+#pragma error_messages (off, SEC_ARR_OUTSIDE_BOUND_WRITE)
+#endif // BSLS_PLATFORM_CMP_SUN
+
     (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] =
                                                  static_cast<Uint8>(remainder);
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+#pragma error_messages (on, SEC_ARR_OUTSIDE_BOUND_WRITE)
+#endif // BSLS_PLATFORM_CMP_SUN
 
     // do some final mixing
     end(buf, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
