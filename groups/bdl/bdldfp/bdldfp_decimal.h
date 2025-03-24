@@ -6888,7 +6888,7 @@ Decimal_FormatterSpecification<t_CHAR>::parse(t_PARSE_CONTEXT *context)
                 Parser::e_SECTIONS_WIDTH |
                 Parser::e_SECTIONS_PRECISION |
                 Parser::e_SECTIONS_LOCALE_FLAG |
-                Parser::e_SECTIONS_FINAL_SPECIFICATION);
+                Parser::e_SECTIONS_REMAINING_SPEC);
 
     d_parser.parse(context, sect);
 

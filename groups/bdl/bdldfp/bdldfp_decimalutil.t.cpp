@@ -3118,8 +3118,7 @@ int main(int argc, char* argv[])
             const int           EXPONENT    = DATA[ti].d_exponent;
 
             if (veryVerbose) {
-                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P_(EXPONENT);
-                P(DECIMAL32);
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P(EXPONENT);
             }
 
             // Test with Decimal32.
@@ -3237,8 +3236,7 @@ int main(int argc, char* argv[])
             const int                EXPONENT     = DATA[ti].d_exponent;
 
             if (veryVerbose) {
-                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P_(EXPONENT);
-                P(DECIMAL64);
+                P_(LINE); P_(CLASS); P_(SIGN); P_(SIGNIFICAND); P(EXPONENT);
             }
 
             // Test with Decimal64.
@@ -3381,7 +3379,7 @@ int main(int argc, char* argv[])
             if (veryVerbose) {
                 P_(LINE); P_(CLASS); P_(SIGN);
                 P_(SIGNIFICAND_H); P_(SIGNIFICAND_L);
-                P_(EXPONENT); P(DECIMAL128);
+                P(EXPONENT);
             }
 
             // Test with Decimal64.
