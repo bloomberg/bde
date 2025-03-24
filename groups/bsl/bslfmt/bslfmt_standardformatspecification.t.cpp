@@ -158,8 +158,8 @@ void checkStandard(int                                line,
     spec.postprocess(mfc);
 
     ASSERTV(line, filler                 == bsl::string_view(
-                                                     spec.filler(),
-                                                     spec.fillerCharacters()));
+                                                  spec.filler(),
+                                                  spec.numFillerCharacters()));
     ASSERTV(line, alignment              == spec.alignment());
     ASSERTV(line, sign                   == spec.sign());
     ASSERTV(line, alternativeFlag        == spec.alternativeFlag());
@@ -187,8 +187,8 @@ void checkStandard(int                                line,
     spec.postprocess(mfc);
 
     ASSERTV(line, filler                 == bsl::wstring_view(
-                                                     spec.filler(),
-                                                     spec.fillerCharacters()));
+                                                  spec.filler(),
+                                                  spec.numFillerCharacters()));
     ASSERTV(line, alignment              == spec.alignment());
     ASSERTV(line, sign                   == spec.sign());
     ASSERTV(line, alternativeFlag        == spec.alternativeFlag());

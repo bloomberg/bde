@@ -213,11 +213,10 @@ FormatterSpecificationNumericValue::FormatterSpecificationNumericValue(
 
 // MANIPULATORS
 template <class t_ITER>
-BSLS_KEYWORD_CONSTEXPR_CPP20
-void FormatterSpecificationNumericValue::parse(
-                           t_ITER                             *start,
-                           t_ITER                              end,
-                           bool                                needInitialDot)
+BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatterSpecificationNumericValue::parse(
+                                                        t_ITER *start,
+                                                        t_ITER  end,
+                                                        bool    needInitialDot)
 {
     // Handle empty string or empty specification.
     if (*start == end || **start == '}') {

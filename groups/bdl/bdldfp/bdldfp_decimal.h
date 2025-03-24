@@ -4336,12 +4336,12 @@ struct Decimal_FormatterSpecification {
     typedef bslfmt::FormatSpecificationParser<t_CHAR> Parser;
 
     // DATA
-    typename Parser::ParsingStatus d_parsingStatus;   // the state of parsing
+    typename Parser::ProcessingState d_parsingStatus;  // the state of parsing
 
-    Parser                         d_parser;          // specification parser
+    Parser                           d_parser;         // specification parser
 
-    FormatType                     d_formatType;      // what type was
-                                                      // requested
+    FormatType                       d_formatType;     // what type was
+                                                       // requested
 
     // PRIVATE MANIPULATORS
 
@@ -4359,9 +4359,9 @@ struct Decimal_FormatterSpecification {
     /// least `e_PARSED` or higher (later in the process) do nothing.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void ensureParsingComplete() const;
 
-    /// If `d_parsingStatus` is not `e_PARSING_POSTPROCESSED` (the final
+    /// If `d_parsingStatus` is not `e_STATE_POSTPROCESSED` (the final
     /// state) throw a `bsl::format_error` exception, otherwise if
-    /// `d_parsingStatus` is `e_PARSING_POSTPROCESSED` do nothing.
+    /// `d_parsingStatus` is `e_STATE_POSTPROCESSED` do nothing.
     BSLS_KEYWORD_CONSTEXPR_CPP20 void ensurePostprocessingComplete() const;
 
   public:
@@ -4384,7 +4384,7 @@ struct Decimal_FormatterSpecification {
     /// Postprocess this object using the argument values provided by the
     /// specified `context` to fill in the values of nested width or precision
     /// parameters if such deferred parameters exist and set the status to
-    /// `e_PARSING_POSTPROCESSED`.  By nested format parameters we mean
+    /// `e_STATE_POSTPROCESSED`.  By nested format parameters we mean
     /// parameters whose value comes from an argument to the formatter
     /// function, and not an literal integer value within the format string.
     /// In case of an error throw a `bsl::format_error` exception.
@@ -4395,14 +4395,14 @@ struct Decimal_FormatterSpecification {
 
     /// Return a pointer to the character array that stored the parsed filler
     /// character that may be a multibyte code point or just a single character
-    /// unless the status is not `e_PARSING_POSTPROCESSED` in which case throw
+    /// unless the status is not `e_STATE_POSTPROCESSED` in which case throw
     /// a `bsl::format_error` exception indicating that error.  See also
-    /// `fillerCharacters()` that provides the number of characters in the
+    /// `numFillerCharacters()` that provides the number of characters in the
     /// array returned by this function (at least one).
     BSLS_KEYWORD_CONSTEXPR_CPP20 const t_CHAR *filler() const;
 
     /// Return the number of filler characters in the array returned by
-    /// `filler()`unless the status is not `e_PARSING_POSTPROCESSED` in which
+    /// `filler()`unless the status is not `e_STATE_POSTPROCESSED` in which
     /// case throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCharacters() const;
 
@@ -4411,27 +4411,27 @@ struct Decimal_FormatterSpecification {
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
 
     /// Return the enumerator representing the requested alignment unless the
-    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// status is not at least `e_STATE_PARSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename Parser::Alignment alignment() const;
 
     /// Return the enumerator representing the requested sign-treatment option
-    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// unless the status is not at least `e_STATE_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename Parser::Sign sign() const;
 
     /// Return a boolean indicating if alternative formatting was requested
-    /// unless the status is not at least `e_PARSING_PARSED` in which case
+    /// unless the status is not at least `e_STATE_PARSED` in which case
     /// throw a `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool alternativeFlag() const;
 
     /// Return a boolean indicating if zero padding was requested unless the
-    /// status is not at least `e_PARSING_PARSED` in which case throw a
+    /// status is not at least `e_STATE_PARSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool zeroPaddingFlag() const;
 
     /// Return an optional value representing the requested width unless the
-    /// status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// status is not `e_STATE_POSTPROCESSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.  Note that the
     /// returned type is capable of representing more than just an optional
     /// integer, but after preprocessing it will have only two possible states:
@@ -4441,7 +4441,7 @@ struct Decimal_FormatterSpecification {
     postprocessedWidth() const;
 
     /// Return an optional value representing the requested precision unless
-    /// the status is not `e_PARSING_POSTPROCESSED` in which case throw a
+    /// the status is not `e_STATE_POSTPROCESSED` in which case throw a
     /// `bsl::format_error` exception indicating that error.  Note that the
     /// returned type is capable of representing more than just an optional
     /// integer, but after preprocessing it will have only two possible states:
@@ -4452,14 +4452,14 @@ struct Decimal_FormatterSpecification {
 
     /// Return a boolean indicating if the locale specific flag was present in
     /// the format specification unless the status is not at least
-    /// `e_PARSING_PARSED` in which case throw a `bsl::format_error` exception
+    /// `e_STATE_PARSED` in which case throw a `bsl::format_error` exception
     /// indicating that error.  Note that the locale specific flag is not yet
     /// supported hence the attempt to format with a specification that has
     /// this flags set will result in an exception indicating that.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
 
     /// Return the format-type requested unless the status is not at least
-    /// `e_PARSING_PARSED` in which case throw a `bsl::format_error` exception
+    /// `e_STATE_PARSED` in which case throw a `bsl::format_error` exception
     /// indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
 };
@@ -4496,7 +4496,7 @@ struct Decimal_BslFmtFormatterImpl {
     // PRIVATE MANIPULATORS
 
     /// Copy the specified `numberBuffer` of size `numberLength` aligned with
-    /// fills according to the specified `finalSpec` to the output iterator of
+    /// fills according to the specified `remainingSpec` to the output iterator of
     /// the `formatContext` and return an iterator one-past the last written.
     /// The behavior is undefined unless `t_FORMAT_CONTEXT` is either
     /// `std::format_context` if that is supported, or otherwise
@@ -6746,7 +6746,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 void Decimal_FormatterSpecification<t_CHAR>::ensureParsingComplete() const
 {
-    if (d_parsingStatus == Parser::e_PARSING_UNINITIALIZED) {
+    if (d_parsingStatus == Parser::e_STATE_UNPARSED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
                     "Decimal format specification '.parse()' was not called"));
     }
@@ -6756,7 +6756,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 void
 Decimal_FormatterSpecification<t_CHAR>::ensurePostprocessingComplete() const
 {
-    if (d_parsingStatus != Parser::e_PARSING_POSTPROCESSED) {
+    if (d_parsingStatus != Parser::e_STATE_POSTPROCESSED) {
         BSLS_THROW(bsl::format_error(                                  // THROW
               "Decimal format specification '.postprocess()' was not called"));
     }
@@ -6766,7 +6766,7 @@ Decimal_FormatterSpecification<t_CHAR>::ensurePostprocessingComplete() const
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 Decimal_FormatterSpecification<t_CHAR>::Decimal_FormatterSpecification()
-: d_parsingStatus(Parser::e_PARSING_UNINITIALIZED)
+: d_parsingStatus(Parser::e_STATE_UNPARSED)
 , d_parser()
 , d_formatType(e_TYPE_UNASSIGNED)
 {
@@ -6786,7 +6786,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20
 int Decimal_FormatterSpecification<t_CHAR>::fillerCharacters() const
 {
     ensurePostprocessingComplete();
-    return d_parser.fillerCharacters();
+    return d_parser.numFillerCharacters();
 }
 
 template <class t_CHAR>
@@ -6877,7 +6877,7 @@ Decimal_FormatterSpecification<t_CHAR>::parse(t_PARSE_CONTEXT *context)
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    d_parsingStatus = Parser::e_PARSING_PARSED;
+    d_parsingStatus = Parser::e_STATE_PARSED;
 
     const typename Parser::Sections sect =
             static_cast<typename Parser::Sections>(
@@ -6892,7 +6892,7 @@ Decimal_FormatterSpecification<t_CHAR>::parse(t_PARSE_CONTEXT *context)
 
     d_parser.parse(context, sect);
 
-    parseType(d_parser.finalSpec());
+    parseType(d_parser.remainingSpec());
 
     if (context->begin() == context->end() || *context->begin() == '}') {
         return;                                                       // RETURN
@@ -6939,7 +6939,7 @@ void Decimal_FormatterSpecification<t_CHAR>::postprocess(
       }
     }
 
-    d_parsingStatus = Parser::e_PARSING_POSTPROCESSED;
+    d_parsingStatus = Parser::e_STATE_POSTPROCESSED;
 }
 
               // -------------------------------------------

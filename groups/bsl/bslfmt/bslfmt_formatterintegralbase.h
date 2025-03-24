@@ -574,7 +574,7 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
     // left padding
     for (int i = 0; i < leftPadFillerCopiesNum; ++i) {
         outIterator = bsl::copy(spec.filler(),
-                                spec.filler() + spec.fillerCharacters(),
+                                spec.filler() + spec.numFillerCharacters(),
                                 outIterator);
     }
 
@@ -601,7 +601,7 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
     // right padding
     for (int i = 0; i < rightPadFillerCopiesNum; ++i) {
         outIterator = bsl::copy(spec.filler(),
-                                spec.filler() + spec.fillerCharacters(),
+                                spec.filler() + spec.numFillerCharacters(),
                                 outIterator);
     }
 

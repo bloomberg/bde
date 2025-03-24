@@ -67,10 +67,10 @@ namespace bslfmt {
 struct FormatSpecificationParserEnums {
   public:
     // TYPES
-    enum ParsingStatus {
-        e_PARSING_UNINITIALIZED,
-        e_PARSING_PARSED,
-        e_PARSING_POSTPROCESSED
+    enum ProcessingState {
+        e_STATE_UNPARSED,
+        e_STATE_PARSED,
+        e_STATE_POSTPROCESSED
     };
 
     enum Alignment {
@@ -96,9 +96,8 @@ struct FormatSpecificationParserEnums {
         e_SECTIONS_WIDTH               = 16,
         e_SECTIONS_PRECISION           = 32,
         e_SECTIONS_LOCALE_FLAG         = 64,
-        e_SECTIONS_NO_BRACKETS_FLAG    = 128,
-        e_SECTIONS_FINAL_SPECIFICATION = 256,
-        e_SECTIONS_ALL                 = 512 - 1
+        e_SECTIONS_REMAINING_SPEC      = 128,
+        e_SECTIONS_ALL                 = 256 - 1
     };
 };
 
@@ -123,7 +122,7 @@ class FormatSpecificationParser
     Sections                           d_sections;
                                            // list of sections extracted
 
-    ParsingStatus                      d_processingState;
+    ProcessingState                    d_processingState;
                                            // current processing state
 
     t_CHAR                             d_filler[s_fillerBufferSize];
@@ -278,8 +277,8 @@ class FormatSpecificationParser
     /// object with the result.  In the event of an error throw a
     /// `format_error` exception.
     template <class t_ITER>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 void rawParse(t_ITER   *start,     // output
-                                               t_ITER    end,       // input
+    BSLS_KEYWORD_CONSTEXPR_CPP20 void rawParse(t_ITER   *start,      // output
+                                               t_ITER    end,        // input
                                                Sections  sections);  // param
 
   public:
@@ -315,9 +314,9 @@ class FormatSpecificationParser
 
     /// Return the size of the stored filler string.  If `parse` has not
     /// previously been called throw a `format_error` exception.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCharacters() const;
+    BSLS_KEYWORD_CONSTEXPR_CPP20 int numFillerCharacters() const;
 
-    /// Return the width of the filler code point.  If `parse` has not
+    /// Return the width of the filler code point.  If `postprocess` has not
     /// previously been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 int fillerCodePointDisplayWidth() const;
 
@@ -370,8 +369,16 @@ class FormatSpecificationParser
     /// to `parse`.  Note that this may be a truncated version of the string
     /// held by the parse context.  If `parse` has not previously been called
     /// throw a `format_error` exception.
+
+    /// Return the current processing state of this parser.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 ProcessingState processingState() const;
+
+    /// Return that section of the specification string that remains unparsed
+    /// after the call to `parse`.  Note that this may be a truncated version
+    /// of the string held by the parse context.  If `parse` has not previously
+    /// been called throw a `format_error` exception.
     BSLS_KEYWORD_CONSTEXPR_CPP20 const bsl::basic_string_view<t_CHAR>
-    finalSpec() const;
+    remainingSpec() const;
 };
 
 // ============================================================================
@@ -590,7 +597,8 @@ FormatSpecificationParser<t_CHAR>::postprocessFiller()
 
     if (static_cast<size_t>(cp.numSourceBytes()) != d_numFillerCharacters *
                                                         sizeof(t_CHAR)) {
-        BSLS_THROW(bsl::format_error("Invalid unicode code point"));   // THROW
+        BSLS_THROW(
+               bsl::format_error("Invalid unicode code point size"));  // THROW
     }
 
     // `{` and `}` are invalid fill characters per the C++ spec
@@ -694,7 +702,7 @@ FormatSpecificationParser<t_CHAR>::parseRawWidth(t_ITER *start, t_ITER end)
     d_rawWidth.parse(start, end, false);
     // Non-relative widths must be strictly positive.
     if (d_rawWidth == NumericValue(NumericValue::e_VALUE, 0)) {
-        BSLS_THROW(bsl::format_error("Field widths must be > 0."));    // THROW
+        BSLS_THROW(bsl::format_error("Field widths must be > 0"));     // THROW
     }
 }
 
@@ -818,23 +826,28 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::rawParse(
         }
     }
 
-    if (0 != (sections & e_SECTIONS_FINAL_SPECIFICATION)) {
-        bsl::basic_string_view<t_CHAR> temp(*start, end);
+    if (0 != (sections & e_SECTIONS_REMAINING_SPEC)) {
+        bsl::basic_string_view<t_CHAR>                          temp(*start,
+                                                                     end);
+        size_t counter = 0;
 
-        const BSLS_KEYWORD_CONSTEXPR t_CHAR braces[3] = {'{', '}', '\0'};
+        // Take anything left up to but not including last closing brace.
+        int level = 1;
+        while (temp.size() > counter) {
+            if ('{' == temp[counter]) {
+                ++level;
+            }
+            else if ('}' == temp[counter]) {
+                --level;
+            }
+            if (0 == level) {
+                break;                                                 // BREAK
+            }
+            ++counter;
+        }
 
-        // Take anything left up to but not including any brace.
-        size_t brace_pos = temp.find_first_of(braces);
-        if (brace_pos != bsl::basic_string_view<t_CHAR>::npos) {
-            // Brace found
-            d_spec = temp.substr(0, brace_pos);
-            *start += brace_pos;
-        }
-        else {
-            // No brace found
-            d_spec = temp;
-            *start = end;
-        }
+        d_spec = temp.substr(0, counter);
+        *start += counter;
     }
 
     // We cannot mix specified and unspecified relative argument ids.
@@ -843,16 +856,16 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::rawParse(
             FormatterSpecificationNumericValue::e_NEXT_ARG &&
         d_rawPrecision.category() ==
             FormatterSpecificationNumericValue::e_ARG_ID) {
-        BSLS_THROW(bsl::format_error(
-                       "Cannot mix manual and automatic indexing"));   // THROW
+        BSLS_THROW(bsl::format_error("Cannot mix automatic (width) and manual "
+                                     "(precision) indexing"));         // THROW
     }
 
     if (d_rawWidth.category() ==
             FormatterSpecificationNumericValue::e_ARG_ID &&
         d_rawPrecision.category() ==
             FormatterSpecificationNumericValue::e_NEXT_ARG) {
-        BSLS_THROW(bsl::format_error(
-                       "Cannot mix manual and automatic indexing"));   // THROW
+        BSLS_THROW(bsl::format_error("Cannot mix manual (width) and automatic "
+                                     "(precision) indexing"));         // THROW
     }
 
     if (*start == end || **start == '}') {
@@ -868,7 +881,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 FormatSpecificationParser<t_CHAR>::FormatSpecificationParser()
 : d_sections(e_SECTIONS_NONE)
-, d_processingState(e_PARSING_UNINITIALIZED)
+, d_processingState(e_STATE_UNPARSED)
 , d_filler()
 , d_numFillerCharacters(1)
 , d_fillerDisplayWidth(1)
@@ -891,7 +904,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::parse(
                          typename t_PARSE_CONTEXT::const_iterator>::value_type,
                      t_CHAR>::value));
 
-    d_processingState = e_PARSING_PARSED;
+    d_processingState = e_STATE_PARSED;
 
     typename t_PARSE_CONTEXT::const_iterator current = parseContext->begin();
     typename t_PARSE_CONTEXT::const_iterator end     = parseContext->end();
@@ -924,13 +937,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::parse(
         }
     }
 
-    if (current == end || *current == '}') {
-        parseContext->advance_to(current);
-        return;                                                       // RETURN
-    }
-
-    BSLS_THROW(bsl::format_error("Standard specification parse failure "
-                                 "(invalid character)"));              // THROW
+    parseContext->advance_to(current);
 }
 
 template <class t_CHAR>
@@ -952,7 +959,7 @@ void FormatSpecificationParser<t_CHAR>::postprocess(
         d_postprocessedPrecision.postprocess(context);
     }
 
-    d_processingState = e_PARSING_POSTPROCESSED;
+    d_processingState = e_STATE_POSTPROCESSED;
 }
 
 // ACCESSORS
@@ -961,7 +968,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 const t_CHAR *FormatSpecificationParser<t_CHAR>::filler() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error(
             "Format specification '.parse' not called (`filler`)"));   // THROW
     }
@@ -971,12 +978,12 @@ const t_CHAR *FormatSpecificationParser<t_CHAR>::filler() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int FormatSpecificationParser<t_CHAR>::fillerCharacters() const
+int FormatSpecificationParser<t_CHAR>::numFillerCharacters() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(
                   bsl::format_error("Format specification '.parse' not called "
-                                    "(`fillerCharacters`)"));          // THROW
+                                    "(`numFillerCharacters`)"));       // THROW
     }
 
     return d_numFillerCharacters;
@@ -986,7 +993,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 int FormatSpecificationParser<t_CHAR>::fillerCodePointDisplayWidth() const
 {
-    if (e_PARSING_POSTPROCESSED != d_processingState) {
+    if (e_STATE_POSTPROCESSED != d_processingState) {
         BSLS_THROW(
             bsl::format_error("Format specification '.postprocess' not called "
                               "(`fillerCodePointDisplayWidth`)"));     // THROW
@@ -1001,7 +1008,7 @@ typename
 FormatSpecificationParser<t_CHAR>::Alignment
 FormatSpecificationParser<t_CHAR>::alignment() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
                                      "called (`alignment`)"));         // THROW
     }
@@ -1015,7 +1022,7 @@ typename
 FormatSpecificationParser<t_CHAR>::Sign
 FormatSpecificationParser<t_CHAR>::sign() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error(
               "Format specification '.parse' not called (`sign`)"));   // THROW
     }
@@ -1027,7 +1034,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatSpecificationParser<t_CHAR>::alternativeFlag() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
                                      "called (`alternativeFlag`)"));   // THROW
     }
@@ -1039,7 +1046,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatSpecificationParser<t_CHAR>::zeroPaddingFlag() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
                                      "called (`zeroPaddingFlag`)"));   // THROW
     }
@@ -1051,7 +1058,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
 FormatSpecificationParser<t_CHAR>::postprocessedWidth() const
 {
-    if (e_PARSING_POSTPROCESSED != d_processingState) {
+    if (e_STATE_POSTPROCESSED != d_processingState) {
         BSLS_THROW(
             bsl::format_error("Format specification '.postprocess' not called "
                               "(`postprocessedWidth`)"));              // THROW
@@ -1064,7 +1071,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
 FormatSpecificationParser<t_CHAR>::postprocessedPrecision() const
 {
-    if (e_PARSING_POSTPROCESSED != d_processingState) {
+    if (e_STATE_POSTPROCESSED != d_processingState) {
         BSLS_THROW(
             bsl::format_error("Format specification '.postprocess' not called "
                               "(`postprocessedPrecision`)"));          // THROW
@@ -1077,7 +1084,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
 FormatSpecificationParser<t_CHAR>::rawWidth() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
                                      "called (`rawWidth`)"));          // THROW
     }
@@ -1089,7 +1096,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20 const FormatterSpecificationNumericValue
 FormatSpecificationParser<t_CHAR>::rawPrecision() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
         "called (`rawPrecision`)"));                                   // THROW
     }
@@ -1101,7 +1108,7 @@ template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
 bool FormatSpecificationParser<t_CHAR>::localeSpecificFlag() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(
                   bsl::format_error("Format specification '.parse' not called "
                                     "(`localeSpecificFlag`)"));        // THROW
@@ -1112,12 +1119,20 @@ bool FormatSpecificationParser<t_CHAR>::localeSpecificFlag() const
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-const bsl::basic_string_view<t_CHAR>
-FormatSpecificationParser<t_CHAR>::finalSpec() const
+FormatSpecificationParserEnums::ProcessingState
+FormatSpecificationParser<t_CHAR>::processingState() const
 {
-    if (e_PARSING_UNINITIALIZED == d_processingState) {
+    return d_processingState;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+const bsl::basic_string_view<t_CHAR>
+FormatSpecificationParser<t_CHAR>::remainingSpec() const
+{
+    if (e_STATE_UNPARSED == d_processingState) {
         BSLS_THROW(bsl::format_error("Format specification '.parse' not "
-                                     "called (`finalSpec`)"));         // THROW
+                                     "called (`remainingSpec`)"));     // THROW
     }
 
     return d_spec;

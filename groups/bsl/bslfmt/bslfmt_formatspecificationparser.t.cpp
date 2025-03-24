@@ -6,12 +6,22 @@
 #include <bslfmt_mockformatcontext.h>
 #include <bslfmt_mockparsecontext.h>
 
+#include <bslalg_numericformatterutil.h>  // `toChar` `ToCharsMaxLength`
+
+#include <bslma_managedptr.h>  // `TestSpecificationGenerator` implementation
+
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bslstl_string.h>
+#include <bslstl_vector.h>  // `TestSpecificationGenerator` implementation
 
 #include <stdio.h>
 #include <string.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#include <format>  // TestSpecificationGenerator` oracle tests
+#endif
 
 using namespace BloombergLP;
 using namespace bslfmt;
@@ -80,6 +90,18 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                      ADDITIONAL TEST MACROS
+// ----------------------------------------------------------------------------
+
+#define VERIFY_EXCEPTION_IS_THROWN(action)                                    \
+try {                                                                         \
+    action                                                                    \
+    ASSERTV("Exception hasn't been thrown", false);                           \
+}                                                                             \
+catch (const bsl::format_error&) {                                            \
+}
+
+// ============================================================================
 //                  ASSISTANCE TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
@@ -98,26 +120,27 @@ void aSsErT(bool condition, const char *message, int line)
 // have to use non-template versions instead.
 #define BSLFMT_FORMAT_STRING_PARAMETER bslfmt::format_string
 #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#endif
 
 namespace {
 
 typedef FormatSpecificationParser<char>    CharParser;
 typedef FormatSpecificationParser<wchar_t> WcharParser;
 typedef FormatterSpecificationNumericValue NumericValue;
+typedef FormatSpecificationParserEnums     Enums;
 
 BSLFMT_FORMATTER_TEST_CONSTEVAL CharParser parseStandard(
                              BSLFMT_FORMAT_STRING_PARAMETER inputSpecification)
 {
-    const CharParser::Sections sect = static_cast<CharParser::Sections>(
-                                   CharParser::e_SECTIONS_FILL_ALIGN |
-                                   CharParser::e_SECTIONS_SIGN_FLAG |
-                                   CharParser::e_SECTIONS_ALTERNATE_FLAG |
-                                   CharParser::e_SECTIONS_ZERO_PAD_FLAG |
-                                   CharParser::e_SECTIONS_WIDTH |
-                                   CharParser::e_SECTIONS_PRECISION |
-                                   CharParser::e_SECTIONS_LOCALE_FLAG |
-                                   CharParser::e_SECTIONS_FINAL_SPECIFICATION);
+    const Enums::Sections sect = static_cast<Enums::Sections>(
+                                   Enums::e_SECTIONS_FILL_ALIGN |
+                                   Enums::e_SECTIONS_SIGN_FLAG |
+                                   Enums::e_SECTIONS_ALTERNATE_FLAG |
+                                   Enums::e_SECTIONS_ZERO_PAD_FLAG |
+                                   Enums::e_SECTIONS_WIDTH |
+                                   Enums::e_SECTIONS_PRECISION |
+                                   Enums::e_SECTIONS_LOCALE_FLAG |
+                                   Enums::e_SECTIONS_REMAINING_SPEC);
 
     CharParser                     parser;
     bsl::basic_string_view<char>   input(inputSpecification.get());
@@ -132,14 +155,14 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL WcharParser parseStandard(
                             BSLFMT_FORMAT_WSTRING_PARAMETER inputSpecification)
 {
     const WcharParser::Sections sect = static_cast<WcharParser::Sections>(
-                                  WcharParser::e_SECTIONS_FILL_ALIGN |
-                                  WcharParser::e_SECTIONS_SIGN_FLAG |
-                                  WcharParser::e_SECTIONS_ALTERNATE_FLAG |
-                                  WcharParser::e_SECTIONS_ZERO_PAD_FLAG |
-                                  WcharParser::e_SECTIONS_WIDTH |
-                                  WcharParser::e_SECTIONS_PRECISION |
-                                  WcharParser::e_SECTIONS_LOCALE_FLAG |
-                                  WcharParser::e_SECTIONS_FINAL_SPECIFICATION);
+                                       WcharParser::e_SECTIONS_FILL_ALIGN |
+                                       WcharParser::e_SECTIONS_SIGN_FLAG |
+                                       WcharParser::e_SECTIONS_ALTERNATE_FLAG |
+                                       WcharParser::e_SECTIONS_ZERO_PAD_FLAG |
+                                       WcharParser::e_SECTIONS_WIDTH |
+                                       WcharParser::e_SECTIONS_PRECISION |
+                                       WcharParser::e_SECTIONS_LOCALE_FLAG |
+                                       WcharParser::e_SECTIONS_REMAINING_SPEC);
 
     WcharParser                       parser;
     bsl::basic_string_view<wchar_t>   input(inputSpecification.get());
@@ -150,7 +173,8 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL WcharParser parseStandard(
     return parser;
 }
 
-void checkStandard(const CharParser&     originalParser,
+void checkStandard(int                   line,
+                   const CharParser&     originalParser,
                    bsl::string_view      filler,
                    CharParser::Alignment alignment,
                    CharParser::Sign      sign,
@@ -161,29 +185,31 @@ void checkStandard(const CharParser&     originalParser,
                    NumericValue          rawPrecision,
                    NumericValue          postprocessedPrecision,
                    bool                  localeSpecificFlag,
-                   bsl::string_view      finalSpec)
+                   bsl::string_view      remainingSpec)
 {
     CharParser parser = originalParser;
 
     bslfmt::MockFormatContext<char> context(99, 98, 97);
     parser.postprocess(context);
 
-    ASSERT(filler                 == bsl::string_view(
-                                                   parser.filler(),
-                                                   parser.fillerCharacters()));
-    ASSERT(alignment              == parser.alignment());
-    ASSERT(sign                   == parser.sign());
-    ASSERT(alternativeFlag        == parser.alternativeFlag());
-    ASSERT(zeroPaddingFlag        == parser.zeroPaddingFlag());
-    ASSERT(rawWidth               == parser.rawWidth());
-    ASSERT(rawPrecision           == parser.rawPrecision());
-    ASSERT(postprocessedWidth     == parser.postprocessedWidth());
-    ASSERT(postprocessedPrecision == parser.postprocessedPrecision());
-    ASSERT(localeSpecificFlag     == parser.localeSpecificFlag());
-    ASSERT(finalSpec              == parser.finalSpec());
+    ASSERTV(line, parser.filler(), parser.numFillerCharacters(),
+                  filler                 == bsl::string_view(
+                                                parser.filler(),
+                                                parser.numFillerCharacters()));
+    ASSERTV(line, alignment              == parser.alignment());
+    ASSERTV(line, sign                   == parser.sign());
+    ASSERTV(line, alternativeFlag        == parser.alternativeFlag());
+    ASSERTV(line, zeroPaddingFlag        == parser.zeroPaddingFlag());
+    ASSERTV(line, rawWidth               == parser.rawWidth());
+    ASSERTV(line, rawPrecision           == parser.rawPrecision());
+    ASSERTV(line, postprocessedWidth     == parser.postprocessedWidth());
+    ASSERTV(line, postprocessedPrecision == parser.postprocessedPrecision());
+    ASSERTV(line, localeSpecificFlag     == parser.localeSpecificFlag());
+    ASSERTV(line, remainingSpec          == parser.remainingSpec());
 }
 
-void checkStandard(const WcharParser&     originalParser,
+void checkStandard(int                    line,
+                   const WcharParser&     originalParser,
                    bsl::wstring_view      filler,
                    WcharParser::Alignment alignment,
                    WcharParser::Sign      sign,
@@ -194,28 +220,1708 @@ void checkStandard(const WcharParser&     originalParser,
                    NumericValue           rawPrecision,
                    NumericValue           postprocessedPrecision,
                    bool                   localeSpecificFlag,
-                   bsl::wstring_view      finalSpec)
+                   bsl::wstring_view      remainingSpec)
 {
     WcharParser parser = originalParser;
 
     bslfmt::MockFormatContext<wchar_t> context(99, 98, 97);
     parser.postprocess(context);
 
-    ASSERT(filler                 == bsl::wstring_view(
-                                                   parser.filler(),
-                                                   parser.fillerCharacters()));
-    ASSERT(alignment              == parser.alignment());
-    ASSERT(sign                   == parser.sign());
-    ASSERT(alternativeFlag        == parser.alternativeFlag());
-    ASSERT(zeroPaddingFlag        == parser.zeroPaddingFlag());
-    ASSERT(rawWidth               == parser.rawWidth());
-    ASSERT(rawPrecision           == parser.rawPrecision());
-    ASSERT(postprocessedWidth     == parser.postprocessedWidth());
-    ASSERT(postprocessedPrecision == parser.postprocessedPrecision());
-    ASSERT(localeSpecificFlag     == parser.localeSpecificFlag());
-    ASSERT(finalSpec              == parser.finalSpec());
+    ASSERTV(line, parser.filler(), parser.numFillerCharacters(),
+                  filler                 == bsl::wstring_view(
+                                                parser.filler(),
+                                                parser.numFillerCharacters()));
+    ASSERTV(line, alignment              == parser.alignment());
+    ASSERTV(line, sign                   == parser.sign());
+    ASSERTV(line, alternativeFlag        == parser.alternativeFlag());
+    ASSERTV(line, zeroPaddingFlag        == parser.zeroPaddingFlag());
+    ASSERTV(line, rawWidth               == parser.rawWidth());
+    ASSERTV(line, rawPrecision           == parser.rawPrecision());
+    ASSERTV(line, postprocessedWidth     == parser.postprocessedWidth());
+    ASSERTV(line, postprocessedPrecision == parser.postprocessedPrecision());
+    ASSERTV(line, localeSpecificFlag     == parser.localeSpecificFlag());
+    ASSERTV(line, remainingSpec          == parser.remainingSpec());
 }
 
+}
+
+                 // =======================================
+                 // class TestSpecificationGenerator_Option
+                 // =======================================
+class TestSpecificationGenerator_Option {
+    // DATA
+    bslma::ManagedPtr<TestSpecificationGenerator_Option> d_nextOption;
+
+  public:
+    // CREATORS
+    TestSpecificationGenerator_Option()
+    : d_nextOption(0)
+    {}
+
+    virtual ~TestSpecificationGenerator_Option()
+    {}
+
+    // MANIPULATORS
+    virtual bool nextState() = 0;
+
+    void setNextOption(TestSpecificationGenerator_Option *nextOption,
+                       bslma::Allocator                  *allocator)
+    {
+        if (d_nextOption) {
+            d_nextOption->setNextOption(nextOption, allocator);
+        }
+        else {
+            d_nextOption.load(nextOption, allocator);
+        }
+    }
+
+    TestSpecificationGenerator_Option *lastOption()
+    {
+        if (d_nextOption) {
+            return d_nextOption->lastOption();                        // RETURN
+        }
+        else {
+            return this;
+        }
+    }
+
+    // ACCESSORS
+    TestSpecificationGenerator_Option *nextOption() const
+    {
+        return d_nextOption.get();
+    }
+};
+
+             // ===========================================
+             // class TestSpecificationGenerator_BoolOption
+             // ===========================================
+
+class TestSpecificationGenerator_BoolOption
+: public TestSpecificationGenerator_Option {
+    // DATA
+    bool *d_isPresent_p;
+
+  public:
+    // CREATORS
+    TestSpecificationGenerator_BoolOption(bool *value)
+    : d_isPresent_p(value)
+    {}
+
+    ~TestSpecificationGenerator_BoolOption()
+    {}
+
+    // MANIPULATORS
+    bool nextState()
+    {
+        if (!nextOption() || !nextOption()->nextState()) {
+            *d_isPresent_p = !(*d_isPresent_p);
+            return *d_isPresent_p;
+        }
+        return true;
+    }
+};
+
+               // ============================================
+               // class TestSpecificationGenerator_TypedOption
+               // ============================================
+
+template <class t_TYPE>
+class TestSpecificationGenerator_TypedOption
+: public TestSpecificationGenerator_Option {
+    // DATA
+    bool                *d_isPresent_p;
+    t_TYPE              *d_value_p;
+    size_t               d_index;
+    bsl::vector<t_TYPE>  d_values;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TestSpecificationGenerator_TypedOption,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    TestSpecificationGenerator_TypedOption(
+                                bool                       *isPresentVariable,
+                                t_TYPE                     *valueVariable,
+                                const bsl::vector<t_TYPE>&  values,
+                                bslma::Allocator           *basicAllocator = 0)
+    : d_isPresent_p(isPresentVariable)
+    , d_value_p(valueVariable)
+    , d_index(0)
+    , d_values(values, bslma::Default::allocator(basicAllocator))
+    {
+        ASSERTV(!d_values.empty());
+        *d_value_p = d_values[d_index];
+    }
+
+    ~TestSpecificationGenerator_TypedOption()
+    {}
+
+    // MANIPULATORS
+    bool nextState()
+    {
+        if (!nextOption() || !nextOption()->nextState()) {
+            // There is no subsequent node, or all subsequent nodes finished
+            // their cycles.  This node needs to change state.
+
+            if (*d_isPresent_p && d_values.size() - 1 == d_index) {
+                // Current state is the latest in the cycle.  Resetting to
+                // unrepresented state.
+                *d_isPresent_p = false;
+                d_index = 0;
+                *d_value_p = d_values[d_index];
+                return false;                                         // RETURN
+            }
+            else if (!*d_isPresent_p) {
+                // Node is in unrepresented state.  Just switch to the
+                // represented state.
+                *d_isPresent_p = true;
+            }
+            else {
+                // Node is present and there are values to iterate through in
+                // this cycle.
+                ++d_index;
+                *d_value_p = d_values[d_index];
+            }
+        }
+
+        // Some of the subsequent nodes changed its state, so this one doesn't
+        // need to yet.  Just notify generator.
+        return true;
+    }
+};
+
+                   // ================================
+                   // class TestSpecificationGenerator
+                   // ================================
+template <class t_CHAR>
+class TestSpecificationGenerator {
+  public:
+    // PUBLIC TYPES
+
+    enum Alignment {
+        e_ALIGN_DEFAULT,
+        e_ALIGN_LEFT,
+        e_ALIGN_MIDDLE,
+        e_ALIGN_RIGHT
+    };
+
+    enum Sign {
+        e_SIGN_DEFAULT,
+        e_SIGN_POSITIVE,
+        e_SIGN_NEGATIVE,
+        e_SIGN_SPACE
+    };
+
+    enum NestedVariant {
+        e_NESTED_DEFAULT,
+        e_NESTED_ARG_1,
+        e_NESTED_ARG_2
+    };
+
+    enum FormatType {
+        e_TYPE_STRING,         // 's'
+        e_TYPE_BINARY,         // `b`
+        e_TYPE_BINARY_UC,      // `B`
+        e_TYPE_CHARACTER,      // `c`
+        e_TYPE_DECIMAL,        // `d`
+        e_TYPE_OCTAL,          // `o`
+        e_TYPE_INT_HEX,        // `x`
+        e_TYPE_INT_HEX_UC,     // `X`
+        e_TYPE_FLOAT_HEX,      // `a`
+        e_TYPE_FLOAT_HEX_UC,   // `A`
+        e_TYPE_SCIENTIFIC,     // `e`
+        e_TYPE_SCIENTIFIC_UC,  // `E`
+        e_TYPE_FIXED,          // `f`
+        e_TYPE_FIXED_UC,       // `F`
+        e_TYPE_GENERAL,        // `g`
+        e_TYPE_GENERAL_UC,     // `G`
+        e_TYPE_POINTER         // 'p'
+    };
+
+  private:
+    // TYPES
+    typedef TestSpecificationGenerator_Option Option;
+
+    // DATA
+    bslma::ManagedPtr<Option>  d_firstOption;
+                                   // first node in the option list (if any)
+
+    bool                       d_valueIdOptionIsPresent;
+                                   // flag indicating that
+    bool                       d_fillCharacterIsPresent;
+    char                       d_fillCharacter;
+    bool                       d_alignOptionIsPresent;
+    Alignment                  d_alignment;
+    bool                       d_signOptionIsPresent;
+    Sign                       d_sign;
+    bool                       d_hashOptionIsPresent;
+    bool                       d_zeroOptionIsPresent;
+    bool                       d_widthOptionIsPresent;
+    int                        d_width;
+    bool                       d_nestedWidthIsPresent;
+    NestedVariant              d_nestedWidthVariant;
+    bool                       d_precisionOptionIsPresent;
+    int                        d_precision;
+    bool                       d_nestedPrecisionIsPresent;
+    NestedVariant              d_nestedPrecisionVariant;
+    bool                       d_localeOptionIsPresent;
+    bool                       d_typeOptionIsPresent;
+    FormatType                 d_type;
+
+    bsl::basic_string<t_CHAR>  d_spec;
+    bsl::basic_string<t_CHAR>  d_formatSpec;
+    bsl::vector<char>          d_fillCharacters;
+    bsl::vector<int>           d_widths;
+    bsl::vector<int>           d_precisions;
+    bslma::Allocator          *d_allocator_p;   // allocator used to supply memory;
+                                                // held but not own
+  public:
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TestSpecificationGenerator,
+                                   bslma::UsesBslmaAllocator);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void addOption(Option *newOption);
+
+    void generateSpecification();
+
+    // PRIVATE ACCESSORS
+
+    bool isAutoIndexingMode() const;
+
+    bool isManualIndexingMode() const;
+
+  public:
+    // CREATORS
+    TestSpecificationGenerator(bslma::Allocator *basicAllocator = 0);
+
+    // MANIPULATORS
+    void addFillCharacter(char character);
+
+    void addWidth(int width);
+
+    void addPrecision(int precision);
+
+    bool next();
+
+    bool nextValidForParse();
+
+    bool nextValidForFormat();
+
+    void setup(const char *spec = 0);
+
+    // ACCESSORS
+    const bsl::basic_string<t_CHAR>& spec() const;
+
+    const bsl::basic_string<t_CHAR>& formatSpec() const;
+
+    bool isStateValidForParse() const;
+
+    bool isStateValidForFormat() const;
+
+    bool isValueIdOptionPresent() const;
+
+    bool isFillCharacterPresent() const;
+
+    char fillCharacter() const;
+
+    bool isAlignOptionPresent() const;
+
+    Alignment alignment() const;
+
+    bool isSignOptionPresent() const;
+
+    Sign sign() const;
+
+    bool isHashOptionPresent() const;
+
+    bool isZeroOptionPresent() const;
+
+    bool isWidthOptionPresent() const;
+
+    int width() const;
+
+    bool isNestedWidthPresent() const;
+
+    NestedVariant nestedWidthVariant() const;
+
+    bool isPrecisionOptionPresent() const;
+
+    int precision() const;
+
+    bool isNestedPrecisionPresent() const;
+
+    NestedVariant nestedPrecisionVariant() const;
+
+    bool isLocaleOptionPresent() const;
+
+    bool isTypeOptionPresent() const;
+
+    FormatType type() const;
+};
+
+                   // --------------------------------
+                   // class TestSpecificationGenerator
+                   // --------------------------------
+
+// PRIVATE MANIPULATORS
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::addOption(Option *newOption)
+{
+    if (d_firstOption) {
+        d_firstOption->setNextOption(newOption, d_allocator_p);
+    }
+    else {
+        d_firstOption.load(newOption, d_allocator_p);
+    }
+}
+
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::generateSpecification()
+{
+    typedef bslalg::NumericFormatterUtil NFUtil;
+    const int maxIntValueLength = NFUtil::ToCharsMaxLength<int, 10>::k_VALUE;
+
+    d_spec.clear();
+    d_formatSpec.clear();
+
+    if (d_fillCharacterIsPresent) {
+        d_spec.push_back(d_fillCharacter);
+    }
+    if (d_alignOptionIsPresent) {
+        switch (d_alignment) {
+          case e_ALIGN_LEFT: {
+            d_spec.push_back('<');
+          } break;
+          case e_ALIGN_MIDDLE: {
+            d_spec.push_back('^');
+          } break;
+          case e_ALIGN_RIGHT: {
+            d_spec.push_back('>');
+          } break;
+          default: {
+            ASSERTV("Unexpected alignment option", false);
+          }
+        }
+    }
+
+    if (d_signOptionIsPresent) {
+        switch (d_sign) {
+          case e_SIGN_POSITIVE: {
+            d_spec.push_back('+');
+          } break;
+          case e_SIGN_NEGATIVE: {
+            d_spec.push_back('-');
+          } break;
+          case e_SIGN_SPACE: {
+            d_spec.push_back(' ');
+          } break;
+          default: {
+            ASSERTV("Unexpected sign option", false);
+          }
+        }
+    }
+    if (d_hashOptionIsPresent) {
+        d_spec.push_back('#');
+    }
+
+    if (d_zeroOptionIsPresent) {
+        d_spec.push_back('0');
+    }
+
+    if (d_widthOptionIsPresent && !d_nestedWidthIsPresent) {
+        char  valueBuf[maxIntValueLength];
+        char *valueEnd = NFUtil::toChars(valueBuf,
+                                         valueBuf + maxIntValueLength,
+                                         d_width);
+        d_spec.insert(d_spec.end(), valueBuf, valueEnd);
+    }
+    else if (d_nestedWidthIsPresent) {
+        switch (d_nestedWidthVariant) {
+          case e_NESTED_DEFAULT: {
+            d_spec.push_back('{');
+            d_spec.push_back('}');
+          } break;
+          case e_NESTED_ARG_1: {
+            d_spec.push_back('{');
+            d_spec.push_back('1');
+            d_spec.push_back('}');
+          } break;
+          case e_NESTED_ARG_2: {
+            d_spec.push_back('{');
+            d_spec.push_back('2');
+            d_spec.push_back('}');
+          } break;
+        }
+    }
+
+    if (d_precisionOptionIsPresent && !d_nestedPrecisionIsPresent) {
+        d_spec.push_back('.');
+        char  valueBuf[maxIntValueLength];
+        char *valueEnd = NFUtil::toChars(valueBuf,
+                                         valueBuf + maxIntValueLength,
+                                         d_precision);
+        d_spec.insert(d_spec.end(), valueBuf, valueEnd);
+    }
+    else if (d_nestedPrecisionIsPresent) {
+        d_spec.push_back('.');
+        switch (d_nestedPrecisionVariant) {
+          case e_NESTED_DEFAULT: {
+            d_spec.push_back('{');
+            d_spec.push_back('}');
+          } break;
+          case e_NESTED_ARG_1: {
+            d_spec.push_back('{');
+            d_spec.push_back('1');
+            d_spec.push_back('}');
+          } break;
+          case e_NESTED_ARG_2: {
+            d_spec.push_back('{');
+            d_spec.push_back('2');
+            d_spec.push_back('}');
+          } break;
+        }
+    }
+
+    if (d_localeOptionIsPresent) {
+        d_spec.push_back('L');
+    }
+    if (d_typeOptionIsPresent) {
+        switch (d_type) {
+          case e_TYPE_STRING: {
+            d_spec.push_back('s');
+          } break;
+          case e_TYPE_BINARY: {
+            d_spec.push_back('b');
+          } break;
+          case e_TYPE_BINARY_UC: {
+            d_spec.push_back('B');
+          } break;
+          case e_TYPE_CHARACTER: {
+            d_spec.push_back('c');
+          } break;
+          case e_TYPE_DECIMAL: {
+            d_spec.push_back('d');
+          } break;
+          case e_TYPE_OCTAL: {
+            d_spec.push_back('o');
+          } break;
+          case e_TYPE_INT_HEX: {
+            d_spec.push_back('x');
+          } break;
+          case e_TYPE_INT_HEX_UC: {
+            d_spec.push_back('X');
+          } break;
+          case e_TYPE_FLOAT_HEX: {
+            d_spec.push_back('a');
+          } break;
+          case e_TYPE_FLOAT_HEX_UC: {
+            d_spec.push_back('A');
+          } break;
+          case e_TYPE_SCIENTIFIC: {
+            d_spec.push_back('e');
+          } break;
+          case e_TYPE_SCIENTIFIC_UC: {
+            d_spec.push_back('E');
+          } break;
+          case e_TYPE_FIXED: {
+            d_spec.push_back('f');
+          } break;
+          case e_TYPE_FIXED_UC: {
+            d_spec.push_back('F');
+          } break;
+          case e_TYPE_GENERAL: {
+            d_spec.push_back('g');
+          } break;
+          case e_TYPE_GENERAL_UC: {
+            d_spec.push_back('G');
+          } break;
+          case e_TYPE_POINTER: {
+            d_spec.push_back('p');
+          } break;
+          default: {
+            ASSERTV("Unexpected type option", false);
+          }
+        }
+    }
+
+    // Assembling format specification
+    if (d_valueIdOptionIsPresent) {
+        d_formatSpec.push_back('{');
+        d_formatSpec.push_back('0');
+        d_formatSpec.push_back(':');
+    }
+    else {
+        d_formatSpec.push_back('{');
+        d_formatSpec.push_back(':');
+    }
+    d_formatSpec.append(d_spec);
+    d_formatSpec.push_back('}');
+}
+
+// PRIVATE ACCESSORS
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isAutoIndexingMode() const
+{
+    bool result = true;
+    if (d_nestedWidthIsPresent && e_NESTED_DEFAULT != d_nestedWidthVariant) {
+        result = false;
+    }
+    else if (d_nestedPrecisionIsPresent && e_NESTED_DEFAULT !=
+                                               d_nestedPrecisionVariant) {
+        result = false;
+    }
+
+    return result;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isManualIndexingMode() const
+{
+    bool result = false;
+    if (d_nestedWidthIsPresent) {
+        if (e_NESTED_DEFAULT != d_nestedWidthVariant) {
+            if (d_nestedPrecisionIsPresent) {
+                if (e_NESTED_DEFAULT != d_nestedPrecisionVariant) {
+                    result = true;
+                }
+            }
+            else {
+                result = true;
+            }
+        }
+    }
+    else if (d_nestedPrecisionIsPresent && e_NESTED_DEFAULT !=
+                                               d_nestedPrecisionVariant) {
+        result = true;
+    }
+    return result;
+}
+
+// CREATORS
+template <class t_CHAR>
+TestSpecificationGenerator<t_CHAR>::TestSpecificationGenerator(
+                                              bslma::Allocator *basicAllocator)
+: d_valueIdOptionIsPresent(false)
+, d_fillCharacterIsPresent(false)
+, d_alignOptionIsPresent(false)
+, d_signOptionIsPresent(false)
+, d_hashOptionIsPresent(false)
+, d_zeroOptionIsPresent(false)
+, d_widthOptionIsPresent(false)
+, d_nestedWidthIsPresent(false)
+, d_precisionOptionIsPresent(false)
+, d_nestedPrecisionIsPresent(false)
+, d_localeOptionIsPresent(false)
+, d_typeOptionIsPresent(false)
+, d_spec(basicAllocator)
+, d_formatSpec(basicAllocator)
+, d_fillCharacters(basicAllocator)
+, d_widths(basicAllocator)
+, d_precisions(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    // Setup default sets of values.
+    const char   defaultFillCharacters[] = { '*', '=' };
+    const size_t numFillCharacters = sizeof(defaultFillCharacters);
+    const int    defaultWidths[]         = { 1, 5, 6, 10 };
+    const size_t numWidths               =
+                          sizeof(defaultWidths) / sizeof(defaultWidths[0]);
+    const int    defaultPrecisions[]     = { 0, 5, 6, 10 };
+    const size_t numPrecisions           =
+                  sizeof(defaultPrecisions) / sizeof(defaultPrecisions[0]);
+    d_fillCharacters.insert(d_fillCharacters.begin(),
+                            defaultFillCharacters,
+                            defaultFillCharacters + numFillCharacters);
+    d_widths.insert(d_widths.begin(),
+                    defaultWidths,
+                    defaultWidths + numWidths);
+    d_precisions.insert(d_precisions.begin(),
+                        defaultPrecisions,
+                        defaultPrecisions + numPrecisions);
+}
+
+// MANIPULATORS
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::addFillCharacter(char character)
+{
+    d_fillCharacters.push_back(character);
+}
+
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::addWidth(int width)
+{
+    ASSERTV(width, 0 < width);
+    d_widths.push_back(width);
+}
+
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::addPrecision(int precision)
+{
+    ASSERTV(precision, 0 <= precision);
+    d_precisions.push_back(precision);
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::next()
+{
+    if (d_firstOption)
+    {
+        if (d_firstOption->nextState()) {
+           generateSpecification();
+           return true;                                               // RETURN
+        }
+    }
+    generateSpecification();
+    return false;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::nextValidForParse()
+{
+    if (d_firstOption)
+    {
+        bool rv = d_firstOption->nextState();
+        while (  rv && !isStateValidForParse()) {
+            // Skip invalid specifications
+            rv = d_firstOption->nextState();
+        }
+        generateSpecification();
+        return rv;                                                    // RETURN
+    }
+
+    generateSpecification();
+    return false;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::nextValidForFormat()
+{
+    if (d_firstOption)
+    {
+        bool rv = d_firstOption->nextState();
+        while (  rv && !isStateValidForFormat()) {
+            // Skip invalid specifications
+            rv = d_firstOption->nextState();
+        }
+        generateSpecification();
+        return rv;                                                    // RETURN
+    }
+
+    generateSpecification();
+    return false;
+}
+
+template <class t_CHAR>
+void TestSpecificationGenerator<t_CHAR>::setup(const char *spec)
+{
+    const char  *defaultSpec      = "F^+#0WP{}L";
+    bsl::string  specStr          = spec ? spec : defaultSpec;
+    bool         typeIsSpecified  = false;
+    bool         widthIsAdded     = false;
+    bool         precisionIsAdded = false;
+
+    for (bsl::string::const_iterator it = specStr.begin();
+         it != specStr.end();
+         ++it) {
+        switch (*it) {
+          case 'V': {
+            addOption(
+                    new (*d_allocator_p) TestSpecificationGenerator_BoolOption(
+                        &d_valueIdOptionIsPresent));
+          } break;
+          case 'F': {
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<char>(
+                                                     &d_fillCharacterIsPresent,
+                                                     &d_fillCharacter,
+                                                     d_fillCharacters));
+
+          } break;
+          case '^': {
+            bsl::vector<Alignment> alignVector;
+            alignVector.push_back(e_ALIGN_LEFT);
+            alignVector.push_back(e_ALIGN_MIDDLE);
+            alignVector.push_back(e_ALIGN_RIGHT);
+
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<Alignment>(
+                                                       &d_alignOptionIsPresent,
+                                                       &d_alignment,
+                                                       alignVector));
+          } break;
+          case '+': {
+            bsl::vector<Sign> signVector;
+            signVector.push_back(e_SIGN_POSITIVE);
+            signVector.push_back(e_SIGN_NEGATIVE);
+            signVector.push_back(e_SIGN_SPACE);
+
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<Sign>(
+                                                        &d_signOptionIsPresent,
+                                                        &d_sign,
+                                                        signVector));
+          } break;
+          case '#': {
+            addOption(
+                    new (*d_allocator_p) TestSpecificationGenerator_BoolOption(
+                        &d_hashOptionIsPresent));
+          } break;
+          case '0': {
+            addOption(
+                    new (*d_allocator_p) TestSpecificationGenerator_BoolOption(
+                        &d_zeroOptionIsPresent));
+          } break;
+          case 'W': {
+            if (!widthIsAdded) {
+                addOption(new (*d_allocator_p)
+                              TestSpecificationGenerator_TypedOption<int>(
+                                                       &d_widthOptionIsPresent,
+                                                       &d_width,
+                                                       d_widths));
+                widthIsAdded = true;
+            }
+          } break;
+          case 'P': {
+            if (!precisionIsAdded) {
+                addOption(new (*d_allocator_p)
+                              TestSpecificationGenerator_TypedOption<int>(
+                                                   &d_precisionOptionIsPresent,
+                                                   &d_precision,
+                                                   d_precisions));
+                precisionIsAdded = true;
+            }
+          } break;
+          case '{': {
+            if (!widthIsAdded) {
+                addOption(new (*d_allocator_p)
+                              TestSpecificationGenerator_TypedOption<int>(
+                                                       &d_widthOptionIsPresent,
+                                                       &d_width,
+                                                       d_widths));
+                widthIsAdded = true;
+            }
+
+            bsl::vector<NestedVariant> nestedVector;
+            nestedVector.push_back(e_NESTED_DEFAULT);
+            nestedVector.push_back(e_NESTED_ARG_1);
+            nestedVector.push_back(e_NESTED_ARG_2);
+
+            addOption(
+                     new (*d_allocator_p)
+                         TestSpecificationGenerator_TypedOption<NestedVariant>(
+                             &d_nestedWidthIsPresent,
+                             &d_nestedWidthVariant,
+                             nestedVector));
+          } break;
+          case '}': {
+            if (!precisionIsAdded) {
+                addOption(new (*d_allocator_p)
+                              TestSpecificationGenerator_TypedOption<int>(
+                                                   &d_precisionOptionIsPresent,
+                                                   &d_precision,
+                                                   d_precisions));
+                precisionIsAdded = true;
+            }
+
+            bsl::vector<NestedVariant> nestedVector;
+            nestedVector.push_back(e_NESTED_DEFAULT);
+            nestedVector.push_back(e_NESTED_ARG_1);
+            nestedVector.push_back(e_NESTED_ARG_2);
+
+            addOption(
+                     new (*d_allocator_p)
+                         TestSpecificationGenerator_TypedOption<NestedVariant>(
+                             &d_nestedPrecisionIsPresent,
+                             &d_nestedPrecisionVariant,
+                             nestedVector));
+          } break;
+          case 'L': {
+            addOption(
+                    new (*d_allocator_p) TestSpecificationGenerator_BoolOption(
+                        &d_localeOptionIsPresent));
+          } break;
+          case 's': {
+            // string presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector(1, e_TYPE_STRING);
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          case 'i':
+          case 'c': {
+            // integral and character presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector;
+            typeVector.push_back(e_TYPE_BINARY);      // b
+            typeVector.push_back(e_TYPE_BINARY_UC);   // B
+            typeVector.push_back(e_TYPE_CHARACTER);   // c
+            typeVector.push_back(e_TYPE_DECIMAL);     // d
+            typeVector.push_back(e_TYPE_OCTAL);       // o
+            typeVector.push_back(e_TYPE_INT_HEX);     // x
+            typeVector.push_back(e_TYPE_INT_HEX_UC);  // X
+
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          case 'b': {
+            // bool presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector;
+            typeVector.push_back(e_TYPE_STRING);      // s
+            typeVector.push_back(e_TYPE_BINARY);      // b
+            typeVector.push_back(e_TYPE_BINARY_UC);   // B
+            typeVector.push_back(e_TYPE_DECIMAL);     // d
+            typeVector.push_back(e_TYPE_OCTAL);       // o
+            typeVector.push_back(e_TYPE_INT_HEX);     // x
+            typeVector.push_back(e_TYPE_INT_HEX_UC);  // X
+
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          case 'f': {
+            // floating-point presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector;
+           typeVector.push_back(e_TYPE_FLOAT_HEX);      // a
+           typeVector.push_back(e_TYPE_FLOAT_HEX_UC);   // A
+           typeVector.push_back(e_TYPE_SCIENTIFIC);     // e
+           typeVector.push_back(e_TYPE_SCIENTIFIC_UC);  // E
+           typeVector.push_back(e_TYPE_FIXED);          // f
+           typeVector.push_back(e_TYPE_FIXED_UC);       // F
+           typeVector.push_back(e_TYPE_GENERAL);        // g
+           typeVector.push_back(e_TYPE_GENERAL_UC);     // G
+
+           addOption(new (*d_allocator_p)
+                         TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          case 'p': {
+            // pointer presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector(1, e_TYPE_POINTER);
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          case 'a': {
+            // all presentation types
+            ASSERTV("Multiple types request", !typeIsSpecified);
+            typeIsSpecified = true;
+
+            bsl::vector<FormatType> typeVector;
+            typeVector.push_back(e_TYPE_STRING);         // 's'
+            typeVector.push_back(e_TYPE_BINARY);         // `b`
+            typeVector.push_back(e_TYPE_BINARY_UC);      // `B`
+            typeVector.push_back(e_TYPE_CHARACTER);      // `c`
+            typeVector.push_back(e_TYPE_DECIMAL);        // `d`
+            typeVector.push_back(e_TYPE_OCTAL);          // `o`
+            typeVector.push_back(e_TYPE_INT_HEX);        // `x`
+            typeVector.push_back(e_TYPE_INT_HEX_UC);     // `X`
+            typeVector.push_back(e_TYPE_FLOAT_HEX);      // `a`
+            typeVector.push_back(e_TYPE_FLOAT_HEX_UC);   // `A`
+            typeVector.push_back(e_TYPE_SCIENTIFIC);     // `e`
+            typeVector.push_back(e_TYPE_SCIENTIFIC_UC);  // `E`
+            typeVector.push_back(e_TYPE_FIXED);          // `f`
+            typeVector.push_back(e_TYPE_FIXED_UC);       // `F`
+            typeVector.push_back(e_TYPE_GENERAL);        // `g`
+            typeVector.push_back(e_TYPE_GENERAL_UC);     // `G`
+            typeVector.push_back(e_TYPE_POINTER);        // 'p'
+
+            addOption(new (*d_allocator_p)
+                          TestSpecificationGenerator_TypedOption<FormatType>(
+                                                        &d_typeOptionIsPresent,
+                                                        &d_type,
+                                                        typeVector));
+          } break;
+          default: {
+            ASSERTV(*it, "Unexpected specification option", false);
+          }
+        }
+    }
+
+    generateSpecification();
+}
+
+// ACCESSORS
+template <class t_CHAR>
+const bsl::basic_string<t_CHAR>&
+TestSpecificationGenerator<t_CHAR>::spec() const
+{
+    return d_spec;
+}
+
+template <class t_CHAR>
+const bsl::basic_string<t_CHAR>&
+TestSpecificationGenerator<t_CHAR>::formatSpec() const
+{
+    return d_formatSpec;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isStateValidForParse() const
+{
+    // Rule: The sign, # and 0 options are only valid when an integer or
+    // floating-point presentation type is used.
+    bool invalidSignHashOrZero = d_typeOptionIsPresent &&
+                                 (d_signOptionIsPresent ||
+                                  d_hashOptionIsPresent ||
+                                  d_zeroOptionIsPresent) &&
+                                 (e_TYPE_STRING    == d_type ||
+                                  e_TYPE_CHARACTER == d_type ||
+                                  e_TYPE_POINTER   == d_type);
+
+    // Rule: Precision can be used with floating-point and string types
+    // only.
+    bool invalidTypeForPrecision =
+              (d_precisionOptionIsPresent || d_nestedPrecisionIsPresent) &&
+              (e_TYPE_BINARY     == d_type ||
+               e_TYPE_BINARY_UC  == d_type ||
+               e_TYPE_CHARACTER  == d_type ||
+               e_TYPE_DECIMAL    == d_type ||
+               e_TYPE_OCTAL      == d_type ||
+               e_TYPE_INT_HEX    == d_type ||
+               e_TYPE_INT_HEX_UC == d_type ||
+               e_TYPE_POINTER    == d_type);
+
+    // Rule: An align option must follow a fill character.
+    bool missedAlignOption = d_fillCharacterIsPresent &&
+                             !d_alignOptionIsPresent;
+
+    // Rule: All parameter indexes in specification must be defined either
+    // automatically or manually.
+    bool conflictingIndexingStyle = !isAutoIndexingMode() &&
+                                    !isManualIndexingMode();
+
+    return !(invalidSignHashOrZero ||
+             invalidTypeForPrecision ||
+             missedAlignOption ||
+             conflictingIndexingStyle);
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isStateValidForFormat() const
+{
+    // Value's index is defined differently than width's or precision's index.
+    bool conflictingIndexingStyle =
+                     (d_nestedWidthIsPresent || d_nestedPrecisionIsPresent) &&
+                      ((d_valueIdOptionIsPresent && isAutoIndexingMode()) ||
+                       (!d_valueIdOptionIsPresent && isManualIndexingMode()));
+
+    return isStateValidForParse() && !conflictingIndexingStyle;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isValueIdOptionPresent() const
+{
+    return d_valueIdOptionIsPresent;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isFillCharacterPresent() const
+{
+    return d_fillCharacterIsPresent;
+}
+
+template <class t_CHAR>
+char TestSpecificationGenerator<t_CHAR>::fillCharacter() const
+{
+    ASSERT(isFillCharacterPresent());
+    return d_fillCharacter;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isAlignOptionPresent() const
+{
+    return d_alignOptionIsPresent;
+}
+
+template <class t_CHAR>
+typename TestSpecificationGenerator<t_CHAR>::Alignment
+TestSpecificationGenerator<t_CHAR>::alignment() const
+{
+    ASSERT(isAlignOptionPresent());
+    return d_alignment;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isSignOptionPresent() const
+{
+    return d_signOptionIsPresent;
+}
+
+template <class t_CHAR>
+typename TestSpecificationGenerator<t_CHAR>::Sign
+TestSpecificationGenerator<t_CHAR>::sign() const
+{
+    ASSERT(d_signOptionIsPresent);
+    return d_sign;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isHashOptionPresent() const
+{
+    return d_hashOptionIsPresent;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isZeroOptionPresent() const
+{
+    return d_zeroOptionIsPresent;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isWidthOptionPresent() const
+{
+    return d_widthOptionIsPresent;
+}
+
+template <class t_CHAR>
+int TestSpecificationGenerator<t_CHAR>::width() const
+{
+    return d_width;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isNestedWidthPresent() const
+{
+    return d_nestedWidthIsPresent;
+}
+
+template <class t_CHAR>
+typename TestSpecificationGenerator<t_CHAR>::NestedVariant
+TestSpecificationGenerator<t_CHAR>::nestedWidthVariant() const
+{
+    return d_nestedWidthVariant;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isPrecisionOptionPresent() const
+{
+    return d_precisionOptionIsPresent;
+}
+
+template <class t_CHAR>
+int TestSpecificationGenerator<t_CHAR>::precision() const
+{
+    return d_precision;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isNestedPrecisionPresent() const
+{
+    return d_nestedPrecisionIsPresent;
+}
+
+template <class t_CHAR>
+typename TestSpecificationGenerator<t_CHAR>::NestedVariant
+TestSpecificationGenerator<t_CHAR>::nestedPrecisionVariant() const
+{
+    return d_nestedPrecisionVariant;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isLocaleOptionPresent() const
+{
+    return d_localeOptionIsPresent;
+}
+
+template <class t_CHAR>
+bool TestSpecificationGenerator<t_CHAR>::isTypeOptionPresent() const
+{
+    return d_typeOptionIsPresent;
+}
+
+template <class t_CHAR>
+typename TestSpecificationGenerator<t_CHAR>::FormatType
+TestSpecificationGenerator<t_CHAR>::type() const
+{
+    return d_type;
+}
+
+template <class t_CHAR>
+void verifyParsedState(const FormatSpecificationParser<t_CHAR>&  parser,
+                       const TestSpecificationGenerator<t_CHAR>& generator,
+                       const Enums::Sections                     sections)
+{
+    const char * const SPEC = generator.spec().c_str();
+    ASSERTV(SPEC, Enums::e_STATE_PARSED == parser.processingState());
+
+    // Fill and align
+    if (0 != (sections & Enums::e_SECTIONS_FILL_ALIGN)) {
+        if (generator.isFillCharacterPresent()) {
+            ASSERTV(SPEC, generator.fillCharacter(), *parser.filler(),
+                    generator.fillCharacter() == *parser.filler());
+        }
+        else {
+            ASSERTV(SPEC, *parser.filler(), ' ' == *parser.filler());
+        }
+        ASSERTV(SPEC, parser.numFillerCharacters(),
+                1 == parser.numFillerCharacters());
+
+        if(generator.isAlignOptionPresent()) {
+            ASSERTV(SPEC, generator.alignment(), parser.alignment(),
+                    static_cast<int>(generator.alignment()) ==
+                        static_cast<int>(parser.alignment()));
+        }
+        else {
+            ASSERTV(SPEC, parser.alignment(),
+                    Enums::e_ALIGN_DEFAULT ==
+                        parser.alignment());
+        }
+    }
+    else {  // e_SECTIONS_FILL_ALIGN
+        ASSERTV(SPEC, *parser.filler(), ' ' == *parser.filler());
+        ASSERTV(SPEC, parser.numFillerCharacters(),
+                1 == parser.numFillerCharacters());
+        ASSERTV(SPEC, parser.alignment(),
+                Enums::e_ALIGN_DEFAULT ==
+                    parser.alignment());
+    }
+
+    // Sign
+    if (0 != (sections & Enums::e_SECTIONS_SIGN_FLAG)) {
+        if (generator.isSignOptionPresent()) {
+            ASSERTV(SPEC, generator.sign(), parser.sign(),
+                    static_cast<int>(generator.sign()) ==
+                        static_cast<int>(parser.sign()));
+         }
+         else {
+             ASSERTV(SPEC, parser.sign(),
+                     Enums::e_SIGN_DEFAULT == parser.sign());
+         }
+    }
+    else {  // e_SECTIONS_SIGN_FLAG
+       ASSERTV(SPEC, parser.sign(), Enums::e_SIGN_DEFAULT == parser.sign());
+    }
+
+    // Hash
+    if (0 != (sections & Enums::e_SECTIONS_ALTERNATE_FLAG)) {
+         ASSERTV(SPEC,
+                 generator.isHashOptionPresent() == parser.alternativeFlag());
+    }
+    else {
+        ASSERTV(SPEC, false  == parser.alternativeFlag());
+    }
+
+    // Zero
+    if (0 != (sections & Enums::e_SECTIONS_ZERO_PAD_FLAG)) {
+         ASSERTV(SPEC,
+                 generator.isZeroOptionPresent() == parser.zeroPaddingFlag());
+    }
+    else {
+        ASSERTV(SPEC, false  == parser.zeroPaddingFlag());
+    }
+
+    // Width
+    if (0 != (sections & Enums::e_SECTIONS_WIDTH)) {
+        if (generator.isWidthOptionPresent()) {
+             if (!generator.isNestedWidthPresent()) {
+                 ASSERTV(
+                        SPEC, parser.rawWidth().category(),
+                        NumericValue::e_VALUE == parser.rawWidth().category());
+                 ASSERTV(SPEC, generator.width(),  parser.rawWidth().value(),
+                         generator.width() == parser.rawWidth().value());
+             }
+             else {
+                 switch (generator.nestedWidthVariant()) {
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_DEFAULT: {
+                    ASSERTV(SPEC, parser.rawWidth().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawWidth().category());
+                    ASSERTV(SPEC,  parser.rawWidth().value(),
+                            0 == parser.rawWidth().value());
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_1: {
+                    ASSERTV(SPEC, parser.rawWidth().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawWidth().category());
+                    ASSERTV(SPEC, parser.rawWidth().value(),
+                            1 == parser.rawWidth().value());
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_2: {
+                    ASSERTV(SPEC, parser.rawWidth().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawWidth().category());
+                    ASSERTV(SPEC,
+                            parser.rawWidth().value(),
+                            2 == parser.rawWidth().value());
+                   } break;
+                   default: {
+                    ASSERTV("Unexpected value",
+                            generator.nestedWidthVariant(),
+                            false);
+                   }
+                 }
+             }
+        }
+        else if (!generator.isNestedWidthPresent()) {
+            ASSERTV(SPEC, parser.rawWidth().category(),
+                    NumericValue::e_DEFAULT == parser.rawWidth().category());
+        }
+    }
+    else {  // e_SECTIONS_WIDTH
+            ASSERTV(SPEC, parser.rawWidth().category(),
+                    NumericValue::e_DEFAULT == parser.rawWidth().category());
+    }
+
+    // Precision
+    if (0 != (sections & Enums::e_SECTIONS_PRECISION)) {
+        if (generator.isPrecisionOptionPresent()) {
+             if (!generator.isNestedPrecisionPresent()) {
+                 ASSERTV(
+                    SPEC, parser.rawPrecision().category(),
+                    NumericValue::e_VALUE == parser.rawPrecision().category());
+                 ASSERTV(
+                   SPEC, generator.precision(),  parser.rawPrecision().value(),
+                   generator.precision() == parser.rawPrecision().value());
+             }
+             else {
+                 switch (generator.nestedPrecisionVariant()) {
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_DEFAULT: {
+                    ASSERTV(SPEC, parser.rawPrecision().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawPrecision().category());
+                    if (generator.isNestedWidthPresent()) {
+                        // Nested width present, so zero index is occupied
+                        ASSERTV(SPEC, parser.rawPrecision().value(),
+                                1 == parser.rawPrecision().value());
+                    }
+                    else {
+                        ASSERTV(SPEC, parser.rawPrecision().value(),
+                                0 == parser.rawPrecision().value());
+                    }
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_1: {
+                    ASSERTV(SPEC, parser.rawPrecision().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawPrecision().category());
+                    ASSERTV(SPEC, parser.rawPrecision().value(),
+                            1 == parser.rawPrecision().value());
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_2: {
+                    ASSERTV(SPEC, parser.rawPrecision().category(),
+                            NumericValue::e_ARG_ID ==
+                                parser.rawPrecision().category());
+                    ASSERTV(SPEC,
+                            parser.rawPrecision().value(),
+                            2 == parser.rawPrecision().value());
+                   } break;
+                   default: {
+                    ASSERTV("Unexpected value",
+                            generator.nestedPrecisionVariant(),
+                            false);
+                   }
+                 }
+             }
+        }
+        else if (!generator.isNestedPrecisionPresent()) {
+            ASSERTV(
+                  SPEC, parser.rawPrecision().category(),
+                  NumericValue::e_DEFAULT == parser.rawPrecision().category());
+        }
+    }
+    else {  // e_SECTIONS_PRECISION
+            ASSERTV(
+                  SPEC, parser.rawPrecision().category(),
+                  NumericValue::e_DEFAULT == parser.rawPrecision().category());
+    }
+
+
+    if (0 != (sections & Enums::e_SECTIONS_LOCALE_FLAG)) {
+        ASSERTV(
+             SPEC,
+             generator.isLocaleOptionPresent() == parser.localeSpecificFlag());
+    }
+    else {
+        ASSERTV(SPEC, false  == parser.localeSpecificFlag());
+    }
+
+    if (0 != (sections & Enums::e_SECTIONS_REMAINING_SPEC)) {
+        // Unfortunately, due to the nature of the specification parsing
+        // process, it is very difficult to create a single condition for all
+        // combinations of different sets of sections and specification
+        // strings.  Therefore, here we will check only the basic things.
+
+        if (Enums::e_SECTIONS_REMAINING_SPEC == sections) {
+            ASSERTV(SPEC, parser.remainingSpec().data(),
+                     SPEC == parser.remainingSpec());
+        }
+        if (Enums::e_SECTIONS_ALL == sections) {
+            if (generator.isTypeOptionPresent()) {
+                 bsl::basic_string<t_CHAR> expectedSpec;
+                 switch (generator.type()) {
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_STRING: {
+                    expectedSpec.push_back('s');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_BINARY: {
+                    expectedSpec.push_back('b');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_BINARY_UC: {
+                    expectedSpec.push_back('B');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_CHARACTER: {
+                    expectedSpec.push_back('c');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_DECIMAL: {
+                    expectedSpec.push_back('d');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_OCTAL: {
+                    expectedSpec.push_back('o');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_INT_HEX: {
+                    expectedSpec.push_back('x');
+                   } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_INT_HEX_UC: {
+                    expectedSpec.push_back('X');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_FLOAT_HEX: {
+                    expectedSpec.push_back('a');
+                   } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_FLOAT_HEX_UC: {
+                    expectedSpec.push_back('A');
+                   } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_SCIENTIFIC: {
+                    expectedSpec.push_back('e');
+                   } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_SCIENTIFIC_UC: {
+                    expectedSpec.push_back('E');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_FIXED: {
+                    expectedSpec.push_back('f');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_FIXED_UC: {
+                    expectedSpec.push_back('F');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_GENERAL: {
+                    expectedSpec.push_back('g');
+                   } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_GENERAL_UC: {
+                    expectedSpec.push_back('G');
+                   } break;
+                   case TestSpecificationGenerator<t_CHAR>::e_TYPE_POINTER: {
+                    expectedSpec.push_back('p');
+                   } break;
+                   default: {
+                    ASSERTV("Unexpected type option", false);
+                   }
+                 }
+                 ASSERTV(SPEC,
+                         expectedSpec.c_str(),
+                         parser.remainingSpec().data(),
+                         expectedSpec == parser.remainingSpec());
+            }
+            else {
+                 ASSERTV(SPEC, parser.remainingSpec().data(),
+                         bsl::basic_string_view<t_CHAR>() ==
+                             parser.remainingSpec());
+            }
+        }
+    }
+}
+
+template <class t_CHAR>
+void verifyPostprocessedState(
+                           const FormatSpecificationParser<t_CHAR>&  parser,
+                           const TestSpecificationGenerator<t_CHAR>& generator,
+                           int                                       arg0,
+                           int                                       arg1,
+                           int                                       arg2)
+{
+    const t_CHAR * const SPEC = generator.spec().c_str();
+    ASSERTV(SPEC, Enums::e_STATE_POSTPROCESSED == parser.processingState());
+
+    // As generator does not support multibyte unicode symbols, we
+    // expect that the filler takes only one byte.
+
+    ASSERTV(SPEC, parser.fillerCodePointDisplayWidth(),
+            1 == parser.fillerCodePointDisplayWidth());
+
+    // Testing postprocessed width
+
+    NumericValue postprocessedWidth = parser.postprocessedWidth();
+
+    if (!generator.isWidthOptionPresent()) {
+        if (!generator.isNestedWidthPresent()) {
+            // We expect default values
+            ASSERTV(
+            SPEC, postprocessedWidth.category(),
+            NumericValue::e_DEFAULT == postprocessedWidth.category());
+        }
+    }
+    else if (!generator.isNestedWidthPresent()) {
+        // Width specified by digit
+        ASSERTV(
+            SPEC, postprocessedWidth.category(),
+            NumericValue::e_VALUE == postprocessedWidth.category());
+        ASSERTV(
+            SPEC, generator.width(), postprocessedWidth.value(),
+            generator.width() == postprocessedWidth.value());
+    }
+    else {
+        // Nested width
+        ASSERTV(
+            SPEC, postprocessedWidth.category(),
+            NumericValue::e_VALUE == postprocessedWidth.category());
+        switch (generator.nestedWidthVariant()) {
+          case TestSpecificationGenerator<t_CHAR>::e_NESTED_DEFAULT: {
+            ASSERTV( SPEC, arg0, postprocessedWidth.value(),
+                     arg0 == postprocessedWidth.value());
+          } break;
+          case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_1: {
+            ASSERTV( SPEC, arg1, postprocessedWidth.value(),
+                     arg1 == postprocessedWidth.value());
+          } break;
+          case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_2: {
+            ASSERTV( SPEC, arg2, postprocessedWidth.value(),
+                     arg2 == postprocessedWidth.value());
+          } break;
+          default: {
+              ASSERTV("Unexpected value", generator.nestedWidthVariant(),
+                      false);
+          }
+        }
+    }
+
+    NumericValue postprocessedPrecision = parser.postprocessedPrecision();
+
+    if (!generator.isPrecisionOptionPresent()) {
+        if (!generator.isNestedPrecisionPresent()) {
+            // We expect default values
+            ASSERTV(
+            SPEC, postprocessedPrecision.category(),
+            NumericValue::e_DEFAULT == postprocessedPrecision.category());
+        }
+    }
+    else if (!generator.isNestedPrecisionPresent()) {
+        // Precision specified by digit
+        ASSERTV(
+            SPEC, postprocessedPrecision.category(),
+            NumericValue::e_VALUE == postprocessedPrecision.category());
+        ASSERTV(
+            SPEC, generator.precision(), postprocessedPrecision.value(),
+            generator.precision() == postprocessedPrecision.value());
+    }
+    else {
+        // Nested precision
+        ASSERTV(
+            SPEC, postprocessedPrecision.category(),
+            NumericValue::e_VALUE == postprocessedPrecision.category());
+        switch (generator.nestedPrecisionVariant()) {
+          case TestSpecificationGenerator<t_CHAR>::e_NESTED_DEFAULT: {
+              if (generator.isNestedWidthPresent()) {
+                  ASSERTV(SPEC, arg1, postprocessedPrecision.value(),
+                          arg1 == postprocessedPrecision.value());
+              }
+              else {
+                  ASSERTV(SPEC, arg0, postprocessedPrecision.value(),
+                          arg0 == postprocessedPrecision.value());
+              }
+          } break;
+          case  TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_1: {
+            ASSERTV( SPEC, arg1, postprocessedPrecision.value(),
+                     arg1 == postprocessedPrecision.value());
+          } break;
+          case TestSpecificationGenerator<t_CHAR>::e_NESTED_ARG_2: {
+            ASSERTV( SPEC, arg2, postprocessedPrecision.value(),
+                     arg2 == postprocessedPrecision.value());
+          } break;
+          default: {
+              ASSERTV("Unexpected value", generator.nestedPrecisionVariant(),
+                      false);
+          }
+        }
+    }
+}
+
+
+template <class t_CHAR>
+struct TestDriver {
+
+    // CLASS METHODS
+    /// Test `postprocess`.
+    static void testCase6(bool verbose, bool veryVerbose);
+
+    /// Test `parse`.
+    static void testCase5(bool verbose, bool veryVerbose);
+};
+
+                                // ----------
+                                // TEST CASES
+                                // ----------
+template <class t_CHAR>
+void TestDriver<t_CHAR>::testCase6(bool verbose, bool veryVerbose)
+{
+    if (verbose)
+        printf("\tTest postprocessed values using specification generator\n");
+    {
+        TestSpecificationGenerator<t_CHAR> generator;
+        generator.setup("F^{}");
+        const bsl::basic_string<t_CHAR>& spec    = generator.spec();
+        int                              counter = 0;
+        do {
+              const int                    arg0 = 90;
+              const int                    arg1 = 91;
+              const int                    arg2 = 92;
+              FormatSpecificationParser<t_CHAR> parser;
+              bsl::basic_string_view<t_CHAR>    input(spec.c_str(),
+                                                      spec.length());
+              bslfmt::MockParseContext<t_CHAR>  parseContext(input, 3);
+              bslfmt::MockFormatContext<t_CHAR> formatContext(arg0, arg1, arg2);
+
+              parser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+              try {
+                  parser.postprocess(formatContext);
+              }
+              catch (const bsl::format_error& err) {
+                  ASSERTV(spec.c_str(), err.what(), false);
+              }
+              ASSERT(Enums::e_STATE_POSTPROCESSED == parser.processingState());
+
+              verifyPostprocessedState(parser, generator, arg0, arg1, arg2);
+              ++counter;
+        } while (generator.nextValidForParse());
+
+        if (veryVerbose) { T_ T_ P(counter); }
+    }
+}
+
+template <class t_CHAR>
+void TestDriver<t_CHAR>::testCase5(bool verbose, bool veryVerbose)
+{
+    if (verbose)
+        printf("\tTesting separate sections using specification generator\n");
+    {
+        static const struct {
+            int                    d_line;          // line of source code
+            const Enums::Sections  d_section;       // parser section
+            const char            *d_instruction_p; // generator instr
+        } DATA[] = {
+            //LINE SECTION                            INSTRUCTION
+            //---- --------------------------------   -----------
+            { L_,  Enums::e_SECTIONS_FILL_ALIGN,      "F^"        },
+            { L_,  Enums::e_SECTIONS_SIGN_FLAG,       "+"         },
+            { L_,  Enums::e_SECTIONS_ALTERNATE_FLAG,  "#"         },
+            { L_,  Enums::e_SECTIONS_ZERO_PAD_FLAG,   "0"         },
+            { L_,  Enums::e_SECTIONS_WIDTH,           "{"         },
+            { L_,  Enums::e_SECTIONS_PRECISION,       "}"         },
+            { L_,  Enums::e_SECTIONS_LOCALE_FLAG,     "L"         },
+        };
+        const size_t NUM__DATA = sizeof DATA / sizeof *DATA;
+
+        int counter = 0;
+        for (size_t i = 1; i < NUM__DATA; ++i) {
+            const int             SECT_LINE = DATA[i].d_line;
+            const Enums::Sections SECTION   = DATA[i].d_section;
+
+            for (size_t j = 1; j < NUM__DATA; ++j) {
+              const int   INST_LINE   = DATA[i].d_line;
+              const char *INSTRUCTION = DATA[j].d_instruction_p;
+
+              TestSpecificationGenerator<char> generator;
+              generator.setup(INSTRUCTION);
+              const bsl::string& spec = generator.spec();
+              do {
+                CharParser                     parser;
+                bsl::basic_string_view<char>   input(spec.c_str(),
+                                                     spec.length());
+                bslfmt::MockParseContext<char> context(input, 3);
+
+                const bool matches = (i == j) || input.empty();
+                try {
+                    parser.parse(&context, SECTION);
+
+                    if (!matches) {
+                        // We expect parser to throw an exception for
+                        // inappropriate  specifications.
+                        ASSERTV(SECT_LINE,
+                                INST_LINE,
+                                spec.c_str(),
+                                "Exception has not been thrown",
+                                false);
+                    }
+                    verifyParsedState(parser, generator, SECTION);
+                }
+                catch (const bsl::format_error& err) {
+                    if (matches) {
+                        // We expect parser to handle appropriate
+                        // specifications successfully.
+                        ASSERTV(SECT_LINE,
+                                INST_LINE,
+                                spec.c_str(),
+                                err.what(),
+                                false);
+                    }
+                }
+                ++counter;
+              } while (generator.nextValidForParse());
+            }
+        }
+
+        if (veryVerbose) { T_ T_ P(counter); }
+    }
+
+    if (verbose)
+        printf("\tTesting a wide range of specifications parsing all "
+               "sections");
+    {
+        const char            *INSTRUCTION = "VF^+#0{}a";
+        const Enums::Sections  SECTION     = Enums::e_SECTIONS_ALL;
+
+        TestSpecificationGenerator<char> generator;
+        generator.setup(INSTRUCTION);
+        const bsl::string& spec    = generator.spec();
+        int                counter = 0;
+        do {
+            CharParser                     parser;
+            bsl::basic_string_view<char>   input(spec.c_str(),
+                                                 spec.length());
+            bslfmt::MockParseContext<char> context(input, 3);
+
+            try {
+                parser.parse(&context, SECTION);
+            }
+            catch (const bsl::format_error& err) {
+                ASSERTV(spec.c_str(), err.what(), false);
+            }
+            verifyParsedState(parser, generator, SECTION);
+            ++counter;
+        } while (generator.nextValidForParse());
+
+        if (veryVerbose) { T_ T_ P(counter); }
+    }
 }
 
 //=============================================================================
@@ -223,12 +1929,1247 @@ void checkStandard(const WcharParser&     originalParser,
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
-    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
+    const int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose     = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING `postprocess`
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING `postprocess`"
+                            "\n=====================\n");
+            {
+            static const struct {
+                int         d_line;
+                const char *d_utf8String;
+                const int   d_width8;
+                const char *d_utf16String;
+                const int   d_width16;
+                const char *d_utf32String;
+                const int   d_width32;
+            } DATA[] = {
+        //------^
+        //LINE UTF_8               W_8  UTF_16      W_16 UTF_32          W_32
+        //---- ------------------  ---  ----------  ---- --------------- ----
+        { L_,  "\x01",             1,   "\x01",     1,   "\x01",         1   },
+        { L_,  "\x48",             1,   "\x48",     1,   "\x48",         1   },
+        { L_,  "\x7f",             1,   "\x7f",     1,   "\x7f",         1   },
+        { L_,  "\xc2\x80",         1,   "\x80",     1,   "\x80",         1   },
+        { L_,  "\xcb\xb1",         1,   "\xf1\x02", 2,   "\xf1\x02",     1   },
+        { L_,  "\xdf\xbf",         1,   "\xff\x07", 2,   "\xff\x07",     1   },
+        { L_,  "\xe0\xa0\x80",     1,   "\x08",     1,   "\x08",         1   },
+        { L_,  "\xe2\x9c\x90",     1,   "\x10\x27", 2,   "\x10\x27",     1   },
+        { L_,  "\xef\xbf\xbf",     1,   "\xff\xff", 2,   "\xff\xff",     1   },
+        { L_,  "\xf0\x90\x80\x80", 1,   "\xd8",     1,   "\x01",         1   },
+        { L_,  "\xf0\x98\x9a\xa0", 2,   "\xdc",     1,   "\xa0\x86\x01", 2   },
+        { L_,  "\xf4\x8f\xbf\xbf", 1,   "\x21\xd8", 2,   "\xff\xff\x10", 1   },
+        //------v
+            };
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            // `char`
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE         = DATA[i].d_line;
+                const char   *FILL_SYMBOL = DATA[i].d_utf8String;
+                const int     WIDTH        = DATA[i].d_width8;
+
+                const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
+
+                bsl::string spec = FILL_SYMBOL;
+                spec.push_back('^');
+
+                CharParser                      parser;
+                bslfmt::MockParseContext<char>  parseContext(spec, 0);
+                bslfmt::MockFormatContext<char> formatContext(90, 91, 92);
+
+                parser.parse(&parseContext, SECTION);
+
+                try {
+                    parser.postprocess(formatContext);
+                }
+                catch (const bsl::format_error& err) {
+                    ASSERTV(LINE, spec.c_str(), err.what(), false);
+                }
+
+                ASSERTV(LINE, WIDTH, parser.fillerCodePointDisplayWidth(),
+                        WIDTH == parser.fillerCodePointDisplayWidth());
+            }
+
+            ASSERTV(sizeof(wchar_t),
+                    4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int   LINE        = DATA[i].d_line;
+                const char *FILL_SYMBOL = (4 == sizeof(wchar_t))
+                                        ? DATA[i].d_utf32String
+                                        : DATA[i].d_utf16String;
+                const int   WIDTH       = (4 == sizeof(wchar_t))
+                                        ? DATA[i].d_width32
+                                        : DATA[i].d_width16;
+
+                const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
+
+                size_t length = bsl::string_view(FILL_SYMBOL).length();
+
+                wchar_t buffer[4];
+                memset(buffer, 0, sizeof(buffer));
+                wchar_t *wbegin = buffer;
+                char    *begin  = reinterpret_cast<char *>(buffer);
+
+                strncpy(begin, FILL_SYMBOL, length);
+                const size_t  wlength = length % sizeof(wchar_t) > 0
+                                      ? length / sizeof(wchar_t) + 1
+                                      : length / sizeof(wchar_t);
+                wchar_t *wend = wbegin + wlength;
+                *wend = '^';
+                ++wend;
+
+                bsl::wstring_view wspec(wbegin, wend);
+
+                WcharParser                       parser;
+                bslfmt::MockParseContext<wchar_t> parseContext(wspec, 0);
+                bslfmt::MockFormatContext<char>   formatContext(90, 91, 92);
+
+                parser.parse(&parseContext, SECTION);
+
+                try {
+                    parser.postprocess(formatContext);
+                }
+                catch (const bsl::format_error& err) {
+                    ASSERTV(LINE, FILL_SYMBOL, err.what(), false);
+                }
+
+                ASSERTV(LINE, WIDTH, parser.fillerCodePointDisplayWidth(),
+                        WIDTH == parser.fillerCodePointDisplayWidth());
+            }
+        }
+
+        if (verbose) printf("\tTesting postprocessed width and precision\n");
+        {
+            typedef NumericValue::Category Category;
+
+            // Table abbreviations
+            const Category DEFAULT = NumericValue::e_DEFAULT;
+            const Category VALUE   = NumericValue::e_VALUE;
+            const int      NA      = -1;
+
+            static const struct {
+                  int                     d_line;
+                                              // line of code
+
+                  const char             *d_spec_p;
+                                              // specification
+
+                  NumericValue::Category  d_widthCategory;
+                                              // expected width object's
+                                              //category
+
+                  int                     d_widthIndex;
+                                              // index of format context
+                                              // argument, storing the width
+                                              // value
+
+                  NumericValue::Category  d_precisionCategory;
+                                              // expected precision object's
+                                              // category
+
+                  int                     d_precisionIndex;
+                                              // index of format context
+                                              // argument,  storing the
+                                              // precision value
+            } DATA[] = {
+               //LINE SPEC       W_CAT      W_IND   P_CAT     P_IND
+               //---- ---------  -------    -----   -------   -----
+               { L_,  "",        DEFAULT,   NA,     DEFAULT,  NA    },
+               { L_,  "{}",      VALUE,     0,      DEFAULT,  NA    },
+               { L_,    ".{}",   DEFAULT,   NA,     VALUE,    0     },
+               { L_,  "{}.{}",   VALUE,     0,      VALUE,    1     },
+               { L_,  "{1}",     VALUE,     1,      DEFAULT,  NA    },
+               { L_,  "{2}",     VALUE,     2,      DEFAULT,  NA    },
+               { L_,     ".{1}", DEFAULT,   NA,     VALUE,    1     },
+               { L_,     ".{2}", DEFAULT,   NA,     VALUE,    2     },
+               { L_,  "{1}.{2}", VALUE,     1,      VALUE,    2     },
+               { L_,  "{2}.{1}", VALUE,     2,      VALUE,    1     },
+            };
+            const size_t NUM__DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM__DATA; ++i) {
+                const int       LINE  = DATA[i].d_line;
+                const char     *SPEC  = DATA[i].d_spec_p;
+                const Category  W_CAT = DATA[i].d_widthCategory;
+                const int       W_IND = DATA[i].d_widthIndex;
+                const Category  P_CAT = DATA[i].d_precisionCategory;
+                const int       P_IND = DATA[i].d_precisionIndex;
+
+                for (int j = 1; j <= 10; ++j) {
+                    const int                       ARGS[] = { 0 + j,
+                                                               1 + j,
+                                                               2 + j };
+                    FormatSpecificationParser<char> parser;
+                    bslfmt::MockParseContext<char>  parseContext(SPEC, 3);
+                    bslfmt::MockFormatContext<char> formatContext(ARGS[0],
+                                                                  ARGS[1],
+                                                                  ARGS[2]);
+
+                    parser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+                    try {
+                        parser.postprocess(formatContext);
+                    }
+                    catch (const bsl::format_error& err) {
+                        ASSERTV(LINE, SPEC, err.what(), false);
+                    }
+
+                    NumericValue width     = parser.postprocessedWidth();
+                    NumericValue precision = parser.postprocessedPrecision();
+
+                    ASSERTV(LINE, W_CAT, width.category(),
+                            W_CAT == width.category());
+                    if (DEFAULT != W_CAT) {
+                         ASSERTV(LINE, ARGS[W_IND], width.value(),
+                                 ARGS[W_IND] == width.value());
+                    }
+                    ASSERTV(LINE, P_CAT, precision.category(),
+                            P_CAT == precision.category());
+
+                    if (DEFAULT != P_CAT) {
+                         ASSERTV(LINE, ARGS[P_IND], precision.value(),
+                                 ARGS[P_IND] == precision.value());
+                    }
+                }
+            }
+        }
+
+        TestDriver<char   >::testCase6(verbose, veryVerbose);
+        TestDriver<wchar_t>::testCase6(verbose, veryVerbose);
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING `parse`
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose)
+             printf("\nTESTING `parse`"
+                    "\n===============\n");
+
+        TestDriver<char   >::testCase5(verbose, veryVerbose);
+        TestDriver<wchar_t>::testCase5(verbose, veryVerbose);
+
+        if (verbose) printf("\tTesting 'remainingSpec'\n");
+        {
+            // Table abbreviations
+            const Enums::Sections NONE       = Enums::e_SECTIONS_NONE;
+            const Enums::Sections FILL_ALIGN = Enums::e_SECTIONS_FILL_ALIGN;
+            const Enums::Sections SIGN_FLAG  = Enums::e_SECTIONS_SIGN_FLAG;
+            const Enums::Sections ALTERNATE_FLAG =
+                                              Enums::e_SECTIONS_ALTERNATE_FLAG;
+            const Enums::Sections ZERO_PAD_FLAG =
+                                               Enums::e_SECTIONS_ZERO_PAD_FLAG;
+            const Enums::Sections WIDTH       = Enums::e_SECTIONS_WIDTH;
+            const Enums::Sections PRECISION   = Enums::e_SECTIONS_PRECISION;
+            const Enums::Sections LOCALE_FLAG = Enums::e_SECTIONS_LOCALE_FLAG;
+            const Enums::Sections REMAINING_SPEC =
+                                              Enums::e_SECTIONS_REMAINING_SPEC;
+            const Enums::Sections ALL = Enums::e_SECTIONS_ALL;
+
+            static const struct {
+                int              d_line;        // line of source code
+                const char      *d_spec_p;      // parse specification
+                Enums::Sections  d_section;     // section required
+                const char      *d_expected_p;  // expected error message
+            } DATA[] = {
+                //LINE  SPEC              SECTION          REMAINING SPEC
+                //----  --------------    ---------------  --------------
+                { L_,   "=<+#010.{}Lg",   NONE,            "=<+#010.{}Lg" },
+                { L_,   "=<+#010.{}Lg",   FILL_ALIGN,      "+#010.{}Lg"   },
+                { L_,   "+#010.{}Lg",     SIGN_FLAG,       "#010.{}Lg"    },
+                { L_,   "#010.{}Lg",      ALTERNATE_FLAG,  "010.{}Lg"     },
+                { L_,   "010.{}Lg",       ZERO_PAD_FLAG,   "10.{}Lg"      },
+                { L_,   "10.{}Lg",        WIDTH,           ".{}Lg"        },
+                { L_,   ".{}Lg",          PRECISION,       "Lg"           },
+                { L_,   "Lg",             LOCALE_FLAG,     "g"            },
+                { L_,   "=<+#010.{}Lg",   REMAINING_SPEC,  "=<+#010.{}Lg" },
+                { L_,   "=<+#010.{}Lg",   ALL,             "g"            },
+            };
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int              LINE     = DATA[i].d_line;
+                const bsl::string_view SPEC     = DATA[i].d_spec_p;
+                const Enums::Sections  SECTION  = DATA[i].d_section;
+                const bsl::string_view EXPECTED = DATA[i].d_expected_p;
+                const Enums::Sections PARSE_SECTION =
+                           static_cast<Enums::Sections>(
+                                 SECTION | Enums::e_SECTIONS_REMAINING_SPEC);
+
+                CharParser                     parser;
+                bslfmt::MockParseContext<char> context(SPEC, 1);
+                try {
+                    parser.parse(&context, PARSE_SECTION);
+                }
+                catch (bsl::format_error& err) {
+                    ASSERTV(LINE, err.what(), false);
+                }
+
+                ASSERTV(LINE, SPEC.data(), SECTION, EXPECTED.data(),
+                        parser.remainingSpec().data(),
+                        EXPECTED == parser.remainingSpec());
+            }
+        }
+
+        if (verbose) printf("\tNegative Testing\n");
+        {
+            // Table abbreviations
+             const char *INVALID =
+                             "Specification parse failure (invalid character)";
+             const char *BRACKET = "Invalid fill character ('{' or '}')";
+             const char *NON_POSITIVE_WIDTH = "Field widths must be > 0";
+             const char *MIX_INDEXING_M_A = "Cannot mix manual (width) and "
+                                            "automatic (precision) indexing";
+             const char *MIX_INDEXING_A_M = "Cannot mix automatic (width) and "
+                                            "manual (precision) indexing";
+
+             const Enums::Sections ALIGN = Enums::e_SECTIONS_FILL_ALIGN;
+             const Enums::Sections WIDTH = Enums::e_SECTIONS_WIDTH;
+             const Enums::Sections ALL   = Enums::e_SECTIONS_ALL;
+
+             static const struct {
+                int              d_line;        // line of source code
+                const char      *d_spec_p;      // parse specification
+                const wchar_t   *d_wspec_p;     // parse specification
+                Enums::Sections  d_section;     // section required
+                const char      *d_expected_p;  // expected error message
+            } DATA[] = {
+                //LINE  CHAR_SPEC   WCHAR_SPEC   SECTION  MESSAGE
+                //----  ---------   ----------   -------  ------------------
+                {L_,    "+^^",      L"+^^",      ALIGN,   INVALID            },
+                {L_,    "{^",       L"{^",       ALIGN,   BRACKET            },
+                {L_,    "0",        L"0",        WIDTH,   NON_POSITIVE_WIDTH },
+                {L_,    "#{}.{1}.", L"#{}.{1}.", ALL,     MIX_INDEXING_A_M   },
+                {L_,    "#{1}.{}.", L"#{1}.{}.", ALL,     MIX_INDEXING_M_A   },
+            };
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int              LINE     = DATA[i].d_line;
+                const bsl::string_view SPEC     = DATA[i].d_spec_p;
+                const bsl::wstring_view WSPEC   = DATA[i].d_wspec_p;
+                const Enums::Sections  SECTION  = DATA[i].d_section;
+                const bsl::string_view EXPECTED = DATA[i].d_expected_p;
+
+                CharParser                     parser;
+                bslfmt::MockParseContext<char> context(SPEC, 0);
+                try {
+                    parser.parse(&context, SECTION);
+                    ASSERTV(LINE, SPEC.data(), "Exception has not been thrown",
+                            false);
+                }
+                catch (bsl::format_error& err) {
+                    ASSERTV(LINE, err.what(),
+                            EXPECTED == bsl::string_view(err.what()));
+                }
+
+                WcharParser                       wparser;
+                bslfmt::MockParseContext<wchar_t> wcontext(WSPEC, 0);
+                try {
+                    wparser.parse(&wcontext, SECTION);
+                    ASSERTV(LINE, SPEC.data(), "Exception has not been thrown",
+                            false);
+                }
+                catch (bsl::format_error& err) {
+                    ASSERTV(LINE, err.what(),
+                            EXPECTED == bsl::string_view(err.what()));
+                }
+            }
+        }
+
+        {
+            static const struct {
+                int           d_line;
+                const char   *d_utf8String;
+                const size_t  d_length;
+            } DATA[] = {
+                { L_, "\x01",              1 },  // 1 byte min
+                { L_, "\x48",              1 },  // 1 byte
+                { L_, "\x7f",              1 },  // 1 byte max
+                { L_, "\xc2\x80",          2 },  // 2 byte min
+                { L_, "\xcb\xb1",          2 },  // 2 byte
+                { L_, "\xdf\xbf",          2 },  // 2 byte max
+                { L_, "\xe0\xa0\x80",      3 },  // 3 byte min
+                { L_, "\xe2\x9c\x90",      3 },  // 3 byte
+                { L_, "\xef\xbf\xbf",      3 },  // 3 byte max
+                { L_, "\xf0\x90\x80\x80",  4 },  // 4 byte min
+                { L_, "\xf0\x98\x9a\xa0",  4 },  // 4 byte
+                { L_, "\xf4\x8f\xbf\xbf",  4 },  // 4 byte max
+            };
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            // `char`
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                const int     LINE        = DATA[i].d_line;
+                const char   *FILL_SYMBOL = DATA[i].d_utf8String;
+                const size_t  LENGTH      = DATA[i].d_length;
+
+                const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
+
+                bsl::string spec = FILL_SYMBOL;
+                ASSERTV(LINE, LENGTH, spec.length(), LENGTH == spec.length());
+                spec.push_back('^');
+
+                CharParser                     parser;
+                bslfmt::MockParseContext<char> context(spec, 0);
+
+                try {
+                    parser.parse(&context, SECTION);
+                }
+                catch (bsl::format_error& err) {
+                    ASSERTV(LINE, err.what(), false);
+                }
+
+                ASSERTV(LINE, parser.filler());
+                ASSERTV(LINE, spec[0] == *parser.filler());
+                ASSERTV(LINE, LENGTH, parser.numFillerCharacters(),
+                        LENGTH ==
+                            static_cast<size_t>(parser.numFillerCharacters()));
+            }
+
+            // `wchar_t`
+            static const struct {
+                int           d_line;
+                const char   *d_utf32String;
+                const size_t  d_length32;
+                const char   *d_utf16String;
+                const size_t  d_length16;
+            } WDATA[] = {
+                //LINE UTF_32           LENGTH_32 UTF_16       LENGTH_16
+                //---- ---------------  --------- ----------   ---------
+                { L_,  "\x01",          1,        "\x01",      1         },
+                { L_,  "\x48",          1,        "\x48",      1         },
+                { L_,  "\x7f",          1,        "\x7f",      1         },
+                { L_,  "\x80",          1,        "\x80",      1         },
+                { L_,  "\xf1\x02",      2,        "\xf1\x02",  2         },
+                { L_,  "\xff\x07",      2,        "\xff\x07",  2         },
+                { L_,  "\x08",          1,        "\x08",      1         },
+                { L_,  "\x10\x27",      2,        "\x10\x27",  2         },
+                { L_,  "\xff\xff",      2,        "\xff\xff",  2         },
+                { L_,  "\x01",          1,        "\xd8",      1         },
+                { L_,  "\xa0\x86\x01",  3,        "\xdc",      1         },
+                { L_,  "\xff\xff\xff",  3,        "\x21\xd8",  2         },
+            };
+            const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
+
+            ASSERTV(sizeof(wchar_t),
+                    4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
+
+            for (size_t i = 0; i < NUM_WDATA; ++i) {
+                const int     LINE        = WDATA[i].d_line;
+                const char   *FILL_SYMBOL = (4 == sizeof(wchar_t))
+                                          ? WDATA[i].d_utf32String
+                                          : WDATA[i].d_utf16String;
+                const size_t  LENGTH      = (4 == sizeof(wchar_t))
+                                          ? WDATA[i].d_length32
+                                          : WDATA[i].d_length16;
+
+                const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
+
+                bsl::string spec = FILL_SYMBOL;
+                ASSERTV(LINE, LENGTH, spec.length(), LENGTH == spec.length());
+
+                wchar_t buffer[4];
+                memset(buffer, 0, sizeof(buffer));
+                wchar_t *wbegin = buffer;
+                char    *begin  = reinterpret_cast<char *>(buffer);
+
+                strncpy(begin, FILL_SYMBOL, LENGTH);
+                const size_t  wlength = LENGTH % sizeof(wchar_t) > 0
+                                      ? LENGTH / sizeof(wchar_t) + 1
+                                      : LENGTH / sizeof(wchar_t);
+                wchar_t *wend = wbegin + wlength;
+                *wend = '^';
+                ++wend;
+
+                bsl::wstring_view wspec(wbegin, wend);
+
+                WcharParser                       parser;
+                bslfmt::MockParseContext<wchar_t> context(wspec, 0);
+
+                try {
+                    parser.parse(&context, SECTION);
+                }
+                catch (bsl::format_error& err) {
+                    ASSERTV(LINE, err.what(), false);
+                }
+
+                ASSERTV(LINE, parser.filler());
+                ASSERTV(LINE, wspec[0] == *parser.filler());
+                ASSERTV(LINE, wlength, parser.numFillerCharacters(),
+                        wlength ==
+                            static_cast<size_t>(parser.numFillerCharacters()));
+            }
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //   According to the practice accepted in the BDE, in this test case
+        //   we should test a set of functions sufficient to bring the object
+        //   to any possible state.  In this case, we would be forced to test
+        //   the constructor and all manipulators in one place.  For
+        //   readability, we will test each function in a separate test case.
+        //
+        //   The second problem is that almost all accessors except one throw
+        //   exceptions if we call them for a newly created object.  We will
+        //   test them and this behavior in the next test.  And here we will
+        //   check the state of the object, using the (yet untested)
+        //   `processingState` accessor only.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBASIC ACCESSORS"
+                            "\n===============\n");
+
+        {
+            CharParser charParser;
+            ASSERTV(charParser.processingState(),
+                    Enums::e_STATE_UNPARSED == charParser.processingState());
+
+            VERIFY_EXCEPTION_IS_THROWN(charParser.filler();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.numFillerCharacters();)
+            VERIFY_EXCEPTION_IS_THROWN(
+                                     charParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.alignment();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.sign();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.alternativeFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.zeroPaddingFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.rawWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.rawPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.localeSpecificFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.remainingSpec();)
+
+            bslfmt::MockParseContext<char> parseContext("", 1);
+            charParser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+            ASSERTV(*charParser.filler(), ' ' == *charParser.filler());
+            ASSERTV(charParser.numFillerCharacters(),
+                    1 == charParser.numFillerCharacters());
+            ASSERTV(charParser.alignment(),
+                    Enums::e_ALIGN_DEFAULT == charParser.alignment());
+            ASSERTV(charParser.sign(),
+                    Enums::e_SIGN_DEFAULT == charParser.sign());
+            ASSERTV(false == charParser.alternativeFlag());
+            ASSERTV(false == charParser.zeroPaddingFlag());
+            ASSERTV(
+                  charParser.rawWidth().category(),
+                  NumericValue::e_DEFAULT == charParser.rawWidth().category());
+            ASSERTV(charParser.rawPrecision().category(),
+                    NumericValue::e_DEFAULT ==
+                        charParser.rawPrecision().category());
+            ASSERTV(false == charParser.localeSpecificFlag());
+            ASSERTV(charParser.remainingSpec().data(),
+                    charParser.remainingSpec().empty());
+
+            VERIFY_EXCEPTION_IS_THROWN(
+                                     charParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedPrecision();)
+
+            MockFormatContext<char> formatContext(0);
+            charParser.postprocess(formatContext);
+
+            ASSERTV(charParser.fillerCodePointDisplayWidth(),
+                    1 == charParser.fillerCodePointDisplayWidth());
+            ASSERTV(charParser.postprocessedWidth().category(),
+                    NumericValue::e_DEFAULT ==
+                        charParser.postprocessedWidth().category());
+            ASSERTV(charParser.postprocessedPrecision().category(),
+                    NumericValue::e_DEFAULT ==
+                        charParser.postprocessedPrecision().category());
+        }
+
+        {
+            CharParser charParser;
+            ASSERTV(charParser.processingState(),
+                    Enums::e_STATE_UNPARSED == charParser.processingState());
+
+            VERIFY_EXCEPTION_IS_THROWN(charParser.filler();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.numFillerCharacters();)
+            VERIFY_EXCEPTION_IS_THROWN(
+                                     charParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.alignment();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.sign();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.alternativeFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.zeroPaddingFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.rawWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.rawPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.localeSpecificFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.remainingSpec();)
+
+            bslfmt::MockParseContext<char> parseContext("*<+#06.5Lg", 1);
+            charParser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+            ASSERTV(*charParser.filler(), '*' == *charParser.filler());
+            ASSERTV(charParser.numFillerCharacters(),
+                    1 == charParser.numFillerCharacters());
+            ASSERTV(charParser.alignment(),
+                    Enums::e_ALIGN_LEFT == charParser.alignment());
+            ASSERTV(charParser.sign(),
+                    Enums::e_SIGN_POSITIVE == charParser.sign());
+            ASSERTV(true == charParser.alternativeFlag());
+            ASSERTV(true == charParser.zeroPaddingFlag());
+            ASSERTV(charParser.rawWidth().category(),
+                    NumericValue::e_VALUE == charParser.rawWidth().category());
+            ASSERTV(charParser.rawWidth().value(),
+                    6 == charParser.rawWidth().value());
+            ASSERTV(
+                charParser.rawPrecision().category(),
+                NumericValue::e_VALUE == charParser.rawPrecision().category());
+            ASSERTV(charParser.rawPrecision().value(),
+                    5 == charParser.rawPrecision().value());
+            ASSERTV(true == charParser.localeSpecificFlag());
+            ASSERTV(charParser.remainingSpec().data(),
+                    "g" == charParser.remainingSpec());
+
+            VERIFY_EXCEPTION_IS_THROWN(
+                                     charParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(charParser.postprocessedPrecision();)
+
+            MockFormatContext<char> formatContext(0);
+            charParser.postprocess(formatContext);
+
+            ASSERTV(charParser.fillerCodePointDisplayWidth(),
+                    1 == charParser.fillerCodePointDisplayWidth());
+            ASSERTV(charParser.postprocessedWidth().category(),
+                    NumericValue::e_VALUE ==
+                        charParser.postprocessedWidth().category());
+            ASSERTV(charParser.postprocessedWidth().value(),
+                    6 == charParser.postprocessedWidth().value());
+            ASSERTV(charParser.postprocessedPrecision().category(),
+                    NumericValue::e_VALUE ==
+                        charParser.postprocessedPrecision().category());
+            ASSERTV(charParser.postprocessedPrecision().value(),
+                    5 == charParser.postprocessedPrecision().value());
+        }
+
+        {
+            WcharParser wcharParser;
+            ASSERTV(wcharParser.processingState(),
+                    Enums::e_STATE_UNPARSED == wcharParser.processingState());
+
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.filler();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.numFillerCharacters();)
+            VERIFY_EXCEPTION_IS_THROWN(
+                                    wcharParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.alignment();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.sign();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.alternativeFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.zeroPaddingFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.rawWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.rawPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.localeSpecificFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.remainingSpec();)
+
+            bslfmt::MockParseContext<wchar_t> parseContext(L"", 1);
+            wcharParser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+            ASSERTV(*wcharParser.filler(), ' ' == *wcharParser.filler());
+            ASSERTV(wcharParser.numFillerCharacters(),
+                    1 == wcharParser.numFillerCharacters());
+            ASSERTV(wcharParser.alignment(),
+                    Enums::e_ALIGN_DEFAULT == wcharParser.alignment());
+            ASSERTV(wcharParser.sign(),
+                    Enums::e_SIGN_DEFAULT == wcharParser.sign());
+            ASSERTV(false == wcharParser.alternativeFlag());
+            ASSERTV(false == wcharParser.zeroPaddingFlag());
+            ASSERTV(
+                 wcharParser.rawWidth().category(),
+                 NumericValue::e_DEFAULT == wcharParser.rawWidth().category());
+            ASSERTV(wcharParser.rawPrecision().category(),
+                    NumericValue::e_DEFAULT ==
+                        wcharParser.rawPrecision().category());
+            ASSERTV(false == wcharParser.localeSpecificFlag());
+            ASSERTV(wcharParser.remainingSpec().data(),
+                    wcharParser.remainingSpec().empty());
+
+            VERIFY_EXCEPTION_IS_THROWN(
+                                    wcharParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedPrecision();)
+
+            MockFormatContext<wchar_t> formatContext(0);
+            wcharParser.postprocess(formatContext);
+
+            ASSERTV(wcharParser.fillerCodePointDisplayWidth(),
+                    1 == wcharParser.fillerCodePointDisplayWidth());
+            ASSERTV(wcharParser.postprocessedWidth().category(),
+                    NumericValue::e_DEFAULT ==
+                        wcharParser.postprocessedWidth().category());
+            ASSERTV(wcharParser.postprocessedPrecision().category(),
+                    NumericValue::e_DEFAULT ==
+                        wcharParser.postprocessedPrecision().category());
+        }
+
+        {
+            WcharParser wcharParser;
+            ASSERTV(wcharParser.processingState(),
+                    Enums::e_STATE_UNPARSED == wcharParser.processingState());
+
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.filler();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.numFillerCharacters();)
+            VERIFY_EXCEPTION_IS_THROWN(
+                                    wcharParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.alignment();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.sign();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.alternativeFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.zeroPaddingFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.rawWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.rawPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.localeSpecificFlag();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.remainingSpec();)
+
+            bslfmt::MockParseContext<wchar_t> parseContext(L"*<+#06.5Lg", 1);
+            wcharParser.parse(&parseContext, Enums::e_SECTIONS_ALL);
+
+            ASSERTV(*wcharParser.filler(), '*' == *wcharParser.filler());
+            ASSERTV(wcharParser.numFillerCharacters(),
+                    1 == wcharParser.numFillerCharacters());
+            ASSERTV(wcharParser.alignment(),
+                    Enums::e_ALIGN_LEFT == wcharParser.alignment());
+            ASSERTV(wcharParser.sign(),
+                    Enums::e_SIGN_POSITIVE == wcharParser.sign());
+            ASSERTV(true == wcharParser.alternativeFlag());
+            ASSERTV(true == wcharParser.zeroPaddingFlag());
+            ASSERTV(
+                   wcharParser.rawWidth().category(),
+                   NumericValue::e_VALUE == wcharParser.rawWidth().category());
+            ASSERTV(wcharParser.rawWidth().value(),
+                    6 == wcharParser.rawWidth().value());
+            ASSERTV(wcharParser.rawPrecision().category(),
+                    NumericValue::e_VALUE ==
+                        wcharParser.rawPrecision().category());
+            ASSERTV(wcharParser.rawPrecision().value(),
+                    5 == wcharParser.rawPrecision().value());
+            ASSERTV(true == wcharParser.localeSpecificFlag());
+            ASSERTV(wcharParser.remainingSpec().data(),
+                    L"g" == wcharParser.remainingSpec());
+
+            VERIFY_EXCEPTION_IS_THROWN(
+                                    wcharParser.fillerCodePointDisplayWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedWidth();)
+            VERIFY_EXCEPTION_IS_THROWN(wcharParser.postprocessedPrecision();)
+
+            MockFormatContext<wchar_t> formatContext(0);
+            wcharParser.postprocess(formatContext);
+
+            ASSERTV(wcharParser.fillerCodePointDisplayWidth(),
+                    1 == wcharParser.fillerCodePointDisplayWidth());
+            ASSERTV(wcharParser.postprocessedWidth().category(),
+                    NumericValue::e_VALUE ==
+                        wcharParser.postprocessedWidth().category());
+            ASSERTV(wcharParser.postprocessedWidth().value(),
+                    6 == wcharParser.postprocessedWidth().value());
+            ASSERTV(wcharParser.postprocessedPrecision().category(),
+                    NumericValue::e_VALUE ==
+                        wcharParser.postprocessedPrecision().category());
+            ASSERTV(wcharParser.postprocessedPrecision().value(),
+                    5 == wcharParser.postprocessedPrecision().value());
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING APPARATUS
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Invoke public methods of class being tested and verify the
+        //:   results.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING APPARATUS"
+                            "\n=================\n");
+
+        typedef TestSpecificationGenerator<char> Generator;
+        typedef Generator::Alignment             Alignment;
+
+        const char       charNA = 0;
+        const Alignment alignNA = Generator::e_ALIGN_LEFT;
+
+        static const struct {
+            int         d_line;
+            bool        d_fillCharacterPresence;  // month of datetime
+            char        d_fillCharacter;          // day of month of datetime
+            bool        d_alignmentPresence;      // hour of datetime
+            Alignment   d_alignment;              // minute of datetime
+            const char *d_spec_p;                 // year of datetime
+
+        } DATA[] = {
+            //    YEAR  MO  DAY  HOUR  MIN  SEC  MSEC   OFFSET
+            //    ----  --  ---  ----  ---  ---  ----  -------
+            { L_, false, charNA, false, alignNA,                   ""   },
+            { L_, false, charNA, true,  Generator::e_ALIGN_LEFT,   "<"  },
+            { L_, false, charNA, true,  Generator::e_ALIGN_MIDDLE, "^"  },
+            { L_, false, charNA, true,  Generator::e_ALIGN_RIGHT,  ">"  },
+        //  { L_, true,  '*',    false, alignNA,                   "*"  },
+            { L_, true , '*',    true,  Generator::e_ALIGN_LEFT,   "*<" },
+            { L_, true,  '*',    true,  Generator::e_ALIGN_MIDDLE, "*^" },
+            { L_, true,  '*',    true,  Generator::e_ALIGN_RIGHT,  "*>" },
+        //  { L_, true,  '=',    false, alignNA,                   "="  },
+            { L_, true , '=',    true,  Generator::e_ALIGN_LEFT,   "=<" },
+            { L_, true,  '=',    true,  Generator::e_ALIGN_MIDDLE, "=^" },
+            { L_, true,  '=',    true,  Generator::e_ALIGN_RIGHT,  "=>" },
+        };
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) printf("\tTesting align and fill option\n");
+        {
+            TestSpecificationGenerator<char> generator;
+            generator.setup("F^");
+            const bsl::string& spec = generator.spec();
+
+            size_t i = 0;
+            do {
+                int               LINE           = DATA[i].d_line;
+                bool              FILL_PRESENCE  =
+                                               DATA[i].d_fillCharacterPresence;
+                char              FILL_CHARACTER = DATA[i].d_fillCharacter;
+                bool              ALIGN_PRESENCE = DATA[i].d_alignmentPresence;
+                Alignment         ALIGNMENT      = DATA[i].d_alignment;
+                const bsl::string EXP_SPEC       = DATA[i].d_spec_p;
+
+                ASSERTV(LINE,
+                        FILL_PRESENCE == generator.isFillCharacterPresent());
+                if (FILL_PRESENCE) {
+                    ASSERTV(LINE,
+                            FILL_CHARACTER,
+                            generator.fillCharacter(),
+                            FILL_CHARACTER == generator.fillCharacter());
+                  }
+                  ASSERTV(LINE,
+                          ALIGN_PRESENCE == generator.isAlignOptionPresent());
+                  if (ALIGN_PRESENCE) {
+                      ASSERTV(LINE,
+                              ALIGNMENT,
+                              generator.alignment(),
+                              ALIGNMENT == generator.alignment());
+                  }
+                  ASSERTV(LINE,
+                          EXP_SPEC.c_str(),
+                          spec.c_str(),
+                          EXP_SPEC == spec);
+
+                  ++i;
+            } while (generator.nextValidForParse());
+            ASSERTV(NUM_DATA, i, NUM_DATA == i);
+        }
+
+
+        if (verbose) printf("\tTesting consecutive generator cycles.\n");
+        {
+            const char *generatorInstruction = "V{}";
+            TestSpecificationGenerator<char> origin;
+            origin.setup(generatorInstruction);
+            const bsl::string& originSpec       = origin.spec();
+            const bsl::string& originFormatSpec = origin.formatSpec();
+            int originCounter = 0;
+
+            // Run the full cycle once.
+
+            do {
+               ++originCounter;
+            } while(origin.next());
+
+            if (veryVerbose) printf("\t\tTotal: %d\n", originCounter);
+
+            TestSpecificationGenerator<char> checker;
+            checker.setup(generatorInstruction);
+            const bsl::string& checkerSpec       = checker.spec();
+            const bsl::string& checkerFormatSpec = checker.formatSpec();
+
+            ASSERTV(checkerSpec.c_str(), originSpec.c_str(),
+                    checkerSpec == originSpec);
+            ASSERTV(checkerFormatSpec.c_str(), originFormatSpec.c_str(),
+                    checkerFormatSpec == originFormatSpec);
+
+            // Now run two generators simultaneously and compare the results.
+
+            while (checker.next()) {
+               ASSERT(origin.next());
+
+               ASSERTV(checkerSpec.c_str(), originSpec.c_str(),
+                       checkerSpec == originSpec);
+               ASSERTV(checkerFormatSpec.c_str(), originFormatSpec.c_str(),
+                       checkerFormatSpec == originFormatSpec);
+               --originCounter;
+            }
+            ASSERT(!origin.next());
+            --originCounter;
+
+            ASSERTV(checkerSpec.c_str(), originSpec.c_str(),
+                    checkerSpec == originSpec);
+            ASSERTV(checkerFormatSpec.c_str(), originFormatSpec.c_str(),
+                    checkerFormatSpec == originFormatSpec);
+            ASSERTV(originCounter, 0 == originCounter);
+        }
+
+        if (verbose)
+            printf("\tTesting the iteration of the generator states\n");
+        {
+            typedef Generator::NestedVariant NestedVar;
+
+            // Table abbreviations
+            const bool      F   = false;
+            const bool      T   = true;
+            const NestedVar DFT = Generator::e_NESTED_DEFAULT;
+            const NestedVar A_1 = Generator::e_NESTED_ARG_1;
+            const NestedVar A_2 = Generator::e_NESTED_ARG_2;
+
+            static const struct {
+                int              d_line;                    // line of source code
+                const char      *d_spec_p;                  // generator instr
+                const char      *d_format_p;                // generator instr
+                const bool       d_widthPresence;
+                const int        d_widthValue;
+                const bool       d_nestedWidthPresence;
+                const NestedVar  d_nestedWidthValue;
+                const bool       d_precisionPresence;
+                const int        d_precisionValue;
+                const bool       d_nestedPrecisionPresence;
+                const NestedVar  d_nestedPrecisionValue;
+                const bool       d_isValidForParse;
+                const bool       d_isValidForFormat;
+            } DATA[] = {
+  //------------^
+  //L   PARSE      FORMAT        WP  WV  NWP NWV   PP  PV  NPP NPV   PVD  FVD
+  //--- ---------- ------------  --- --- --- ---   --- --- --- ---   ---  ---
+  { L_, "",        "{:}",        F,  1,  F,  DFT,  F,  0,  F,  DFT,  T,   T },
+  { L_, ".{}",     "{:.{}}",     F,  1,  F,  DFT,  F,  0,  T,  DFT,  T,   T },
+  { L_, ".{1}",    "{:.{1}}",    F,  1,  F,  DFT,  F,  0,  T,  A_1,  T,   F },
+  { L_, ".{2}",    "{:.{2}}",    F,  1,  F,  DFT,  F,  0,  T,  A_2,  T,   F },
+  { L_, ".0",      "{:.0}",      F,  1,  F,  DFT,  T,  0,  F,  DFT,  T,   T },
+  { L_, ".{}",     "{:.{}}",     F,  1,  F,  DFT,  T,  0,  T,  DFT,  T,   T },
+  { L_, ".{1}",    "{:.{1}}",    F,  1,  F,  DFT,  T,  0,  T,  A_1,  T,   F },
+  { L_, ".{2}",    "{:.{2}}",    F,  1,  F,  DFT,  T,  0,  T,  A_2,  T,   F },
+  { L_, ".5",      "{:.5}",      F,  1,  F,  DFT,  T,  5,  F,  DFT,  T,   T },
+  { L_, ".{}",     "{:.{}}",     F,  1,  F,  DFT,  T,  5,  T,  DFT,  T,   T },
+  { L_, ".{1}",    "{:.{1}}",    F,  1,  F,  DFT,  T,  5,  T,  A_1,  T,   F },
+  { L_, ".{2}",    "{:.{2}}",    F,  1,  F,  DFT,  T,  5,  T,  A_2,  T,   F },
+  { L_, ".6",      "{:.6}",      F,  1,  F,  DFT,  T,  6,  F,  DFT,  T,   T },
+  { L_, ".{}",     "{:.{}}",     F,  1,  F,  DFT,  T,  6,  T,  DFT,  T,   T },
+  { L_, ".{1}",    "{:.{1}}",    F,  1,  F,  DFT,  T,  6,  T,  A_1,  T,   F },
+  { L_, ".{2}",    "{:.{2}}",    F,  1,  F,  DFT,  T,  6,  T,  A_2,  T,   F },
+  { L_, ".10",     "{:.10}",     F,  1,  F,  DFT,  T,  10, F,  DFT,  T,   T },
+  { L_, ".{}",     "{:.{}}",     F,  1,  F,  DFT,  T,  10, T,  DFT,  T,   T },
+  { L_, ".{1}",    "{:.{1}}",    F,  1,  F,  DFT,  T,  10, T,  A_1,  T,   F },
+  { L_, ".{2}",    "{:.{2}}",    F,  1,  F,  DFT,  T,  10, T,  A_2,  T,   F },
+  { L_, "{}",      "{:{}}",      F,  1,  T,  DFT,  F,  0,  F,  DFT,  T,   T },
+  { L_, "{}.{}",   "{:{}.{}}",   F,  1,  T,  DFT,  F,  0,  T,  DFT,  T,   T },
+  { L_, "{}.{1}",  "{:{}.{1}}",  F,  1,  T,  DFT,  F,  0,  T,  A_1,  F,   F },
+  { L_, "{}.{2}",  "{:{}.{2}}",  F,  1,  T,  DFT,  F,  0,  T,  A_2,  F,   F },
+  { L_, "{}.0",    "{:{}.0}",    F,  1,  T,  DFT,  T,  0,  F,  DFT,  T,   T },
+  { L_, "{}.{}",   "{:{}.{}}",   F,  1,  T,  DFT,  T,  0,  T,  DFT,  T,   T },
+  { L_, "{}.{1}",  "{:{}.{1}}",  F,  1,  T,  DFT,  T,  0,  T,  A_1,  F,   F },
+  { L_, "{}.{2}",  "{:{}.{2}}",  F,  1,  T,  DFT,  T,  0,  T,  A_2,  F,   F },
+  { L_, "{}.5",    "{:{}.5}",    F,  1,  T,  DFT,  T,  5,  F,  DFT,  T,   T },
+  { L_, "{}.{}",   "{:{}.{}}",   F,  1,  T,  DFT,  T,  5,  T,  DFT,  T,   T },
+  { L_, "{}.{1}",  "{:{}.{1}}",  F,  1,  T,  DFT,  T,  5,  T,  A_1,  F,   F },
+  { L_, "{}.{2}",  "{:{}.{2}}",  F,  1,  T,  DFT,  T,  5,  T,  A_2,  F,   F },
+  { L_, "{}.6",    "{:{}.6}",    F,  1,  T,  DFT,  T,  6,  F,  DFT,  T,   T },
+  { L_, "{}.{}",   "{:{}.{}}",   F,  1,  T,  DFT,  T,  6,  T,  DFT,  T,   T },
+  { L_, "{}.{1}",  "{:{}.{1}}",  F,  1,  T,  DFT,  T,  6,  T,  A_1,  F,   F },
+  { L_, "{}.{2}",  "{:{}.{2}}",  F,  1,  T,  DFT,  T,  6,  T,  A_2,  F,   F },
+  { L_, "{}.10",   "{:{}.10}",   F,  1,  T,  DFT,  T,  10, F,  DFT,  T,   T },
+  { L_, "{}.{}",   "{:{}.{}}",   F,  1,  T,  DFT,  T,  10, T,  DFT,  T,   T },
+  { L_, "{}.{1}",  "{:{}.{1}}",  F,  1,  T,  DFT,  T,  10, T,  A_1,  F,   F },
+  { L_, "{}.{2}",  "{:{}.{2}}",  F,  1,  T,  DFT,  T,  10, T,  A_2,  F,   F },
+  { L_, "{1}",     "{:{1}}",     F,  1,  T,  A_1,  F,  0,  F,  DFT,  T,   F },
+  { L_, "{1}.{}",  "{:{1}.{}}",  F,  1,  T,  A_1,  F,  0,  T,  DFT,  F,   F },
+  { L_, "{1}.{1}", "{:{1}.{1}}", F,  1,  T,  A_1,  F,  0,  T,  A_1,  T,   F },
+  { L_, "{1}.{2}", "{:{1}.{2}}", F,  1,  T,  A_1,  F,  0,  T,  A_2,  T,   F },
+  { L_, "{1}.0",   "{:{1}.0}",   F,  1,  T,  A_1,  T,  0,  F,  DFT,  T,   F },
+  { L_, "{1}.{}",  "{:{1}.{}}",  F,  1,  T,  A_1,  T,  0,  T,  DFT,  F,   F },
+  { L_, "{1}.{1}", "{:{1}.{1}}", F,  1,  T,  A_1,  T,  0,  T,  A_1,  T,   F },
+  { L_, "{1}.{2}", "{:{1}.{2}}", F,  1,  T,  A_1,  T,  0,  T,  A_2,  T,   F },
+  { L_, "{1}.5",   "{:{1}.5}",   F,  1,  T,  A_1,  T,  5,  F,  DFT,  T,   F },
+  { L_, "{1}.{}",  "{:{1}.{}}",  F,  1,  T,  A_1,  T,  5,  T,  DFT,  F,   F },
+  //------------v
+            };
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            Generator generator;
+            generator.setup("{}");
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                int              LINE        = DATA[i].d_line;
+                const char      *SPEC        = DATA[i].d_spec_p;
+                const char      *FMT_SPEC    = DATA[i].d_format_p;
+                const bool       W_PRESENCE  = DATA[i].d_widthPresence;
+                const int        W_VALUE     = DATA[i].d_widthValue;
+                const bool       NW_PRESENCE = DATA[i].d_nestedWidthPresence;
+                const NestedVar  NW_VALUE    = DATA[i].d_nestedWidthValue;
+                const bool       P_PRESENCE  = DATA[i].d_precisionPresence;
+                const int        P_VALUE     = DATA[i].d_precisionValue;
+                const bool       NP_PRESENCE =
+                                             DATA[i].d_nestedPrecisionPresence;
+                const NestedVar  NP_VALUE    = DATA[i].d_nestedPrecisionValue;
+                const bool       PRS_VALID   = DATA[i].d_isValidForParse;
+                const bool       FMT_VALID   = DATA[i].d_isValidForFormat;
+
+                ASSERTV(LINE, SPEC, generator.spec().c_str(),
+                        SPEC == generator.spec());
+                ASSERTV(LINE, FMT_SPEC, generator.formatSpec().c_str(),
+                        FMT_SPEC == generator.formatSpec());
+                ASSERTV(LINE, generator.isWidthOptionPresent(),
+                        W_PRESENCE == generator.isWidthOptionPresent());
+                ASSERTV(LINE, W_VALUE, generator.width(),
+                        W_VALUE == generator.width());
+                ASSERTV(LINE, generator.isNestedWidthPresent(),
+                        NW_PRESENCE == generator.isNestedWidthPresent());
+                ASSERTV(LINE, NW_VALUE, generator.nestedWidthVariant(),
+                        NW_VALUE == generator.nestedWidthVariant());
+                ASSERTV(LINE, generator.isPrecisionOptionPresent(),
+                        P_PRESENCE == generator.isPrecisionOptionPresent());
+                ASSERTV(LINE, P_VALUE,generator.precision(),
+                        P_VALUE == generator.precision());
+                ASSERTV(LINE, generator.isNestedPrecisionPresent(),
+                        NP_PRESENCE == generator.isNestedPrecisionPresent());
+                ASSERTV(LINE, NP_VALUE, generator.nestedPrecisionVariant(),
+                        NP_VALUE == generator.nestedPrecisionVariant());
+                ASSERTV(LINE, generator.isStateValidForParse(),
+                        PRS_VALID == generator.isStateValidForParse());
+                ASSERTV(LINE, generator.isStateValidForFormat(),
+                        FMT_VALID == generator.isStateValidForFormat());
+
+                ASSERTV(LINE, generator.next());
+            }
+        }
+
+        // Testing generator using standard library implementation
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+        if (verbose)
+            printf("\tTesting generator with oracle.\n");
+        {
+            TestSpecificationGenerator<char> generator;
+            generator.setup("VF^+#0{}Lf");
+
+            const bsl::string& spec    = generator.formatSpec();
+            int                counter = 0;
+            float              arg0    = 1;
+            int                arg1    = 2;
+            int                arg2    = 3;
+            do {
+                try {
+                    if (generator.isNestedWidthPresent()) {
+                        if (generator.isNestedPrecisionPresent()) {
+                            (void)std::vformat(
+                                      spec.c_str(),
+                                      std::make_format_args(arg0, arg1, arg2));
+                        }
+                        else {
+                            (void)std::vformat(
+                                      spec.c_str(),
+                                      std::make_format_args(arg0, arg1, arg2));
+                        }
+                    }
+                    else if (generator.isNestedPrecisionPresent()) {
+                        (void)std::vformat(
+                                      spec.c_str(),
+                                      std::make_format_args(arg0, arg1, arg2));
+                    }
+                    else {
+                        (void)std::vformat(
+                                      spec.c_str(),
+                                      std::make_format_args(arg0, arg1, arg2));
+                    }
+
+                    // Verify that we do not miss states that are considered
+                    // valid by the standard implementation.
+
+                    ASSERTV(counter,
+                            spec.c_str(),
+                            generator.isStateValidForParse(),
+                            generator.isStateValidForFormat(),
+                            generator.isStateValidForParse() &&
+                                generator.isStateValidForFormat());
+                }
+                catch (std::format_error& err) {
+
+                    // Verify that if the standard implementation considers
+                    // the specification invalid then the generator considers
+                    // it invalid too.
+                    ASSERTV(counter,
+                            spec.c_str(),
+                            err.what(),
+                            generator.isStateValidForParse(),
+                            generator.isStateValidForFormat(),
+                            !generator.isStateValidForParse() ||
+                                !generator.isStateValidForFormat());
+                }
+                ++counter;
+            } while (generator.next());
+
+            if (veryVerbose) {
+                T_ T_ P(counter);
+            }
+        }
+
+        // wchar_t
+        {
+            TestSpecificationGenerator<wchar_t> generator;
+            generator.setup("VF^+#0{}Lf");
+
+            const bsl::wstring& spec    = generator.formatSpec();
+            int                 counter = 0;
+            float               arg0    = 1;
+            int                 arg1    = 2;
+            int                 arg2    = 3;
+            do {
+                try {
+                    if (generator.isNestedWidthPresent()) {
+                        if (generator.isNestedPrecisionPresent()) {
+                            (void)std::vformat(
+                                     spec.c_str(),
+                                     std::make_wformat_args(arg0, arg1, arg2));
+                        }
+                        else {
+                            (void)std::vformat(
+                                     spec.c_str(),
+                                     std::make_wformat_args(arg0, arg1, arg2));
+                        }
+                    }
+                    else if (generator.isNestedPrecisionPresent()) {
+                        (void)std::vformat(
+                                     spec.c_str(),
+                                     std::make_wformat_args(arg0, arg1, arg2));
+                    }
+                    else {
+                        (void)std::vformat(
+                                     spec.c_str(),
+                                     std::make_wformat_args(arg0, arg1, arg2));
+                    }
+
+                     // Verify that we do not miss states that are considered
+                     // valid by the standard implementation.
+
+                     ASSERTV(counter,
+                             spec.c_str(),
+                             generator.isStateValidForParse(),
+                             generator.isStateValidForFormat(),
+                             generator.isStateValidForParse() &&
+                                 generator.isStateValidForFormat());
+                }
+                catch (std::format_error& err) {
+                    // Verify that if the standard implementation considers
+                    // the specification invalid then the generator considers
+                    // it invalid too.
+
+                    ASSERTV(counter,
+                            spec.c_str(),
+                            err.what(),
+                            generator.isStateValidForParse(),
+                            generator.isStateValidForFormat(),
+                            !generator.isStateValidForParse() ||
+                                !generator.isStateValidForFormat());
+                }
+                ++counter;
+            } while (generator.next());
+
+            if (veryVerbose) {
+                T_ T_ P(counter);
+            }
+        }
+#endif
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS
+        //   According to the practice accepted in the BDE, in this test case
+        //   we should test a set of functions sufficient to bring the object
+        //   to any possible state.  In this case, we would be forced to test
+        //   the constructor and all manipulators in one place.  For
+        //   readability, we will test each function in a separate test case.
+        //
+        //   The second problem is that almost all accessors except one throw
+        //   exceptions if we call them for a newly created object.  We will
+        //   test them and this behavior in the next test.  And here we will
+        //   check the state of the object, using the (yet untested)
+        //   `processingState` accessor only.
+        //
+        // Concerns:
+        //: 1 The newly created object has unparsed state.
+        //
+        // Plan:
+        //: 1 Create an object and verify its state using `processingState`
+        //:   accessor.  (C-1)
+        //
+        // Testing:
+        //   FormatSpecificationParser();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nPRIMARY MANIPULATORS"
+                            "\n====================\n");
+
+        CharParser  charParser;
+        ASSERTV(charParser.processingState(),
+                Enums::e_STATE_UNPARSED == charParser.processingState());
+
+        WcharParser wcharParser;
+        ASSERTV(wcharParser.processingState(),
+                Enums::e_STATE_UNPARSED == wcharParser.processingState());
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -249,7 +3190,8 @@ int main(int argc, char **argv)
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        checkStandard(parseStandard(""),
+        checkStandard(L_,
+                      parseStandard(""),
                       " ",
                       CharParser::e_ALIGN_DEFAULT,
                       CharParser::e_SIGN_DEFAULT,
@@ -262,7 +3204,8 @@ int main(int argc, char **argv)
                       false,
                       "");
 
-        checkStandard(parseStandard("*<06.3XYZ"),
+        checkStandard(L_,
+                      parseStandard("*<06.3XYZ"),
                       "*",
                       CharParser::e_ALIGN_LEFT,
                       CharParser::e_SIGN_DEFAULT,
@@ -275,7 +3218,8 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard(parseStandard("*<{}.{}XYZ"),
+        checkStandard(L_,
+                      parseStandard("*<{}.{}XYZ"),
                       "*",
                       CharParser::e_ALIGN_LEFT,
                       CharParser::e_SIGN_DEFAULT,
@@ -288,7 +3232,8 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard(parseStandard("*<{1}.{2}XYZ"),
+        checkStandard(L_,
+                      parseStandard("*<{1}.{2}XYZ"),
                       "*",
                       CharParser::e_ALIGN_LEFT,
                       CharParser::e_SIGN_DEFAULT,
@@ -301,7 +3246,8 @@ int main(int argc, char **argv)
                       false,
                       "XYZ");
 
-        checkStandard(parseStandard(L""),
+        checkStandard(L_,
+                      parseStandard(L""),
                       L" ",
                       WcharParser::e_ALIGN_DEFAULT,
                       WcharParser::e_SIGN_DEFAULT,
@@ -314,7 +3260,8 @@ int main(int argc, char **argv)
                       false,
                       L"");
 
-        checkStandard(parseStandard(L"*<06.3XYZ"),
+        checkStandard(L_,
+                      parseStandard(L"*<06.3XYZ"),
                       L"*",
                       WcharParser::e_ALIGN_LEFT,
                       WcharParser::e_SIGN_DEFAULT,
@@ -327,7 +3274,8 @@ int main(int argc, char **argv)
                       false,
                       L"XYZ");
 
-        checkStandard(parseStandard(L"*<{}.{}XYZ"),
+        checkStandard(L_,
+                      parseStandard(L"*<{}.{}XYZ"),
                       L"*",
                       WcharParser::e_ALIGN_LEFT,
                       WcharParser::e_SIGN_DEFAULT,
@@ -340,7 +3288,8 @@ int main(int argc, char **argv)
                       false,
                       L"XYZ");
 
-        checkStandard(parseStandard(L"*<{1}.{2}XYZ"),
+        checkStandard(L_,
+                      parseStandard(L"*<{1}.{2}XYZ"),
                       L"*",
                       WcharParser::e_ALIGN_LEFT,
                       WcharParser::e_SIGN_DEFAULT,
