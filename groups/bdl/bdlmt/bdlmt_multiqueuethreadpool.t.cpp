@@ -2369,11 +2369,12 @@ int main(int argc, char *argv[]) {
             bslmt::ThreadUtil::Handle pauseHandle;
             bslmt::Barrier            pauseBarrier(2);
 
-            bslmt::ThreadUtil::create(&pauseHandle,
-                                      bdlf::BindUtil::bind(&waitPauseWait,
-                                                           &pauseBarrier,
-                                                           &mX,
-                                                           queueId));
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                           &pauseHandle,
+                                           bdlf::BindUtil::bind(&waitPauseWait,
+                                                                &pauseBarrier,
+                                                                &mX,
+                                                                queueId)));
 
             bslmt::Barrier deleteBarrier(2);
 
@@ -2443,11 +2444,12 @@ int main(int argc, char *argv[]) {
             bslmt::ThreadUtil::Handle pauseHandle;
             bslmt::Barrier            pauseBarrier(2);
 
-            bslmt::ThreadUtil::create(&pauseHandle,
-                                      bdlf::BindUtil::bind(&waitPauseWait,
-                                                           &pauseBarrier,
-                                                           &mX,
-                                                           queueId));
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                           &pauseHandle,
+                                           bdlf::BindUtil::bind(&waitPauseWait,
+                                                                &pauseBarrier,
+                                                                &mX,
+                                                                queueId)));
 
             bslmt::Barrier createBarrier(2);
 
@@ -2624,12 +2626,12 @@ int main(int argc, char *argv[]) {
             bslmt::ThreadUtil::Handle pauseHandle;
             bslmt::Barrier            pauseBarrier(2);
 
-            bslmt::ThreadUtil::create(
-                                   &pauseHandle,
-                                   bdlf::BindUtil::bind(&waitPauseWait,
-                                                        &pauseBarrier,
-                                                        &mX,
-                                                        queueId));
+            ASSERT(0 == bslmt::ThreadUtil::create(
+                                           &pauseHandle,
+                                           bdlf::BindUtil::bind(&waitPauseWait,
+                                                                &pauseBarrier,
+                                                                &mX,
+                                                                queueId)));
 
             ASSERT(0 == mX.enqueueJob(queueId, job));
 
@@ -3351,7 +3353,7 @@ int main(int argc, char *argv[]) {
 
                 bsls::AtomicInt pauseCount(0);
                 bslmt::Barrier pauseBarrier(2);
-                bslmt::ThreadUtil::createWithAllocator(
+                ASSERT(0 == bslmt::ThreadUtil::createWithAllocator(
                                    &handle,
                                    detached,
                                    bdlf::BindUtil::bind(&waitPauseAndIncrement,
@@ -3359,7 +3361,7 @@ int main(int argc, char *argv[]) {
                                                         &mX,
                                                         id1,
                                                         &pauseCount),
-                                   &ta);
+                                   &ta));
                 pauseBarrier.wait();
                 // Now the thread will invoke pauseQueue.  Wait a little bit
                 // and ensure it hasn't finished (because the threadpool job is
