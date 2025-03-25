@@ -1971,10 +1971,10 @@ int main(int argc, char **argv)
         { L_,  "\x48",             1,   "\x48",     1,   "\x48",         1   },
         { L_,  "\x7f",             1,   "\x7f",     1,   "\x7f",         1   },
         { L_,  "\xc2\x80",         1,   "\x80",     1,   "\x80",         1   },
-        { L_,  "\xcb\xb1",         1,   "\xf1\x02", 2,   "\xf1\x02",     1   },
-        { L_,  "\xdf\xbf",         1,   "\xff\x07", 2,   "\xff\x07",     1   },
+        { L_,  "\xcb\xb1",         1,   "\xf1\x02", 1,   "\xf1\x02",     1   },
+        { L_,  "\xdf\xbf",         1,   "\xff\x07", 1,   "\xff\x07",     1   },
         { L_,  "\xe0\xa0\x80",     1,   "\x08",     1,   "\x08",         1   },
-        { L_,  "\xe2\x9c\x90",     1,   "\x10\x27", 2,   "\x10\x27",     1   },
+        { L_,  "\xe2\x9c\x90",     1,   "\x10\x27", 1,   "\x10\x27",     1   },
         { L_,  "\xef\xbf\xbf",     1,   "\xff\xff", 2,   "\xff\xff",     1   },
         { L_,  "\xf0\x90\x80\x80", 1,   "\xd8",     1,   "\x01",         1   },
         { L_,  "\xf0\x98\x9a\xa0", 2,   "\xdc",     1,   "\xa0\x86\x01", 2   },
@@ -2015,13 +2015,14 @@ int main(int argc, char **argv)
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
             for (size_t i = 0; i < NUM_DATA; ++i) {
-                const int   LINE        = DATA[i].d_line;
-                const char *FILL_SYMBOL = (4 == sizeof(wchar_t))
-                                        ? DATA[i].d_utf32String
-                                        : DATA[i].d_utf16String;
-                const int   WIDTH       = (4 == sizeof(wchar_t))
-                                        ? DATA[i].d_width32
-                                        : DATA[i].d_width16;
+                const int   LINE            = DATA[i].d_line;
+                const bool  SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
+                const char *FILL_SYMBOL     = SIZEOF_WCHAR_32
+                                            ? DATA[i].d_utf32String
+                                            : DATA[i].d_utf16String;
+                const int   WIDTH           = SIZEOF_WCHAR_32
+                                            ? DATA[i].d_width32
+                                            : DATA[i].d_width16;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
@@ -2052,7 +2053,8 @@ int main(int argc, char **argv)
                     parser.postprocess(formatContext);
                 }
                 catch (const bsl::format_error& err) {
-                    ASSERTV(LINE, FILL_SYMBOL, err.what(), false);
+                    ASSERTV(LINE, FILL_SYMBOL, SIZEOF_WCHAR_32, err.what(),
+                            false);
                 }
 
                 ASSERTV(LINE, WIDTH, parser.fillerCodePointDisplayWidth(),
@@ -2382,7 +2384,7 @@ int main(int argc, char **argv)
                 { L_,  "\xff\xff",      2,        "\xff\xff",  2         },
                 { L_,  "\x01",          1,        "\xd8",      1         },
                 { L_,  "\xa0\x86\x01",  3,        "\xdc",      1         },
-                { L_,  "\xff\xff\xff",  3,        "\x21\xd8",  2         },
+                { L_,  "\xff\xff\xff",  3,        "\x21\xe0",  2         },
             };
             const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
@@ -2390,13 +2392,14 @@ int main(int argc, char **argv)
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
             for (size_t i = 0; i < NUM_WDATA; ++i) {
-                const int     LINE        = WDATA[i].d_line;
-                const char   *FILL_SYMBOL = (4 == sizeof(wchar_t))
-                                          ? WDATA[i].d_utf32String
-                                          : WDATA[i].d_utf16String;
-                const size_t  LENGTH      = (4 == sizeof(wchar_t))
-                                          ? WDATA[i].d_length32
-                                          : WDATA[i].d_length16;
+                const int     LINE            = WDATA[i].d_line;
+                const bool    SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
+                const char   *FILL_SYMBOL     = SIZEOF_WCHAR_32
+                                              ? WDATA[i].d_utf32String
+                                              : WDATA[i].d_utf16String;
+                const size_t  LENGTH          = SIZEOF_WCHAR_32
+                                              ? WDATA[i].d_length32
+                                              : WDATA[i].d_length16;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
@@ -2425,7 +2428,7 @@ int main(int argc, char **argv)
                     parser.parse(&context, SECTION);
                 }
                 catch (bsl::format_error& err) {
-                    ASSERTV(LINE, err.what(), false);
+                    ASSERTV(LINE, SIZEOF_WCHAR_32, err.what(), false);
                 }
 
                 ASSERTV(LINE, parser.filler());

@@ -505,7 +505,8 @@ FormatSpecificationParser<t_CHAR>::parseFillAndAlignment(t_ITER *start,
     const int cpBytes = codepointBytesIfValid(**start);
 
     if (cpBytes < 0) {
-        BSLS_THROW(bsl::format_error("Invalid unicode code point"));   // THROW
+        BSLS_THROW(
+           bsl::format_error("Invalid unicode code point (`parse`"));  // THROW
     }
 
     const int cpChars = cpBytes / sizeof(t_CHAR);
@@ -592,7 +593,8 @@ FormatSpecificationParser<t_CHAR>::postprocessFiller()
     }
 
     if (!cp.isValid()) {
-        BSLS_THROW(bsl::format_error("Invalid unicode code point"));   // THROW
+        BSLS_THROW(bsl::format_error(
+                      "Invalid unicode code point (`postprocess`)"));  // THROW
     }
 
     if (static_cast<size_t>(cp.numSourceBytes()) != d_numFillerCharacters *
