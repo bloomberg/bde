@@ -226,7 +226,8 @@ int StringUtil::readUnquotedString(std::pmr::string        *value,
 #endif
 
 int StringUtil::writeString(bsl::ostream&           stream,
-                            const bsl::string_view& string)
+                            const bsl::string_view& string,
+                            int                     flags)
 {
     if (!bdlde::Utf8Util::isValid(string.data(),
                                   static_cast<int>(string.length()))) {
@@ -241,9 +242,13 @@ int StringUtil::writeString(bsl::ostream&           stream,
     for (const char *iter = string.data(); iter < end; ++iter) {
         switch (*iter) {
           case '"':  BSLS_ANNOTATION_FALLTHROUGH;
-          case '\\': BSLS_ANNOTATION_FALLTHROUGH;
-          case '/': {
+          case '\\':  {
             u::writeEscapedChar(stream, &currentStart, iter, *iter);
+          } break;
+          case '/': {
+            if (0 == (flags & e_NO_ESCAPING_FORWARD_SLASH)) {
+                u::writeEscapedChar(stream, &currentStart, iter, *iter);
+            }
           } break;
           case '\b': {
             u::writeEscapedChar(stream, &currentStart, iter, 'b');

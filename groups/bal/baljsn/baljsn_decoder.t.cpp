@@ -81,14 +81,15 @@
 
 #include <bsls_libraryfeatures.h>
 
-#include <bsl_string.h>
-#include <bsl_vector.h>
-#include <bsl_sstream.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_limits.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
+#include <bsl_limits.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -3341,7 +3342,7 @@ void roundTripTestNonNumericValues()
         { L_,    INF_P },
         { L_,    INF_N },
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int  LINE  = DATA[ti].d_line;
@@ -3788,7 +3789,7 @@ int main(int argc, char *argv[])
         , { L_,  UNESCAPED_CONTROL_CHARACTER, MSG_UNESCAPED_CONTROL_CHARACTER }
         };
 
-        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
 
@@ -3905,7 +3906,7 @@ int main(int argc, char *argv[])
           , { L_,  " \t\n\rD", true,   true     }
         };
 
-        const bsl::size_t NUM_DATA2 = sizeof DATA2 / sizeof *DATA2;
+        const bsl::size_t NUM_DATA2 = sizeof DATA2 / sizeof DATA2[0];
 
         for (bsl::size_t ti = 0; ti < NUM_DATA2; ++ti) {
 
@@ -3986,7 +3987,7 @@ int main(int argc, char *argv[])
           , { L_,  "X\tY\nZ\r",  false,   false    }
         };
 
-        const bsl::size_t NUM_DATA3 = sizeof DATA3 / sizeof *DATA3;
+        const bsl::size_t NUM_DATA3 = sizeof DATA3 / sizeof DATA3[0];
 
         for (bsl::size_t ti = 0; ti < NUM_DATA3; ++ti) {
 
@@ -4422,7 +4423,7 @@ int main(int argc, char *argv[])
             , { L_, INPUT_NG2, false, LOG_NG2 }
             };
 
-            bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -4582,7 +4583,7 @@ int main(int argc, char *argv[])
             { "\"UNKNOWN\"", Enum::UNKNOWN },
             { "\"VALUE3\"",  Enum::UNKNOWN },
         };
-        static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
+        static const int DATA_LEN = sizeof DATA / sizeof DATA[0];
 
         bsl::string input = "[";
         bsl::vector<Enum::Value> expected;
@@ -4852,7 +4853,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min() },
                 { L_, -Limits::max()        },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE  = DATA[ti].d_line;
@@ -5064,7 +5065,7 @@ int main(int argc, char *argv[])
                 { L_,     1.23456789e-20f, 1,           1e-20f          },
                 { L_,     1.23456789e-20f, 9,           1.23456787e-20f },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE      = DATA[ti].d_line;
@@ -5171,7 +5172,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min() },
                 { L_, -Limits::max()        },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE  = DATA[ti].d_line;
@@ -5394,7 +5395,7 @@ int main(int argc, char *argv[])
                 {L_,   -1.2345678901234567e-20,  16,  -1.234567890123457e-20 },
                 {L_,   -1.2345678901234567e-20,  17,             ROUND_TRIPS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE      = DATA[ti].d_line;
@@ -5578,7 +5579,7 @@ int main(int argc, char *argv[])
             { L_, "[[0,0],[[]],[]]" ,  NO, 0, {            } },
         };
 
-        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i != NUM_DATA; ++i) {
             const int         LINE             = DATA[i].d_line;
@@ -5820,7 +5821,7 @@ int main(int argc, char *argv[])
             { L_, Util::k_VALUE_LARGER_THAN_0X10FFFF,    "\xf4\xa0\x80\x80" },
             { L_, Util::k_SURROGATE,                     "\xed\xb0\x85"     }
         };
-        enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA / sizeof *UTF8_DATA };
+        enum { k_NUM_UTF8_DATA = sizeof UTF8_DATA /sizeof UTF8_DATA[0] };
 
         static const struct FindData {
             int         d_line;
@@ -5852,7 +5853,7 @@ int main(int argc, char *argv[])
             { L_, ","   , "reading token after value for attribute 'state'"},
             { L_, "2"   , "reading value for attribute 'age'"},
             { L_, "}"   , "reading token after value for attribute 'age'" } };
-        enum { k_NUM_FIND_DATA = sizeof FIND_DATA / sizeof *FIND_DATA };
+        enum { k_NUM_FIND_DATA = sizeof FIND_DATA /sizeof FIND_DATA[0] };
 
         bool done = false;
         const char *pf = pattern;
@@ -6205,12 +6206,14 @@ int main(int argc, char *argv[])
             // line  text   output
             // ----  ----   ----
             {   L_,   S1,   "{ \"color\" : \"RED\\/GREEN\" }"    },
+                            // validate decoding unescaped solidus
+            {   L_,   S1,   "{ \"color\" : \"RED/GREEN\" }"      },
             {   L_,   S2,   "{ \"color\" : \"GREY\\\\BLUE\" }"   },
             {   L_,   S3,   "{ \"color\" : \"WHITE\'BLACK\" }"   },
             {   L_,   S4,   "{ \"color\" : \"BLUE\\\"YELLOW\" }" },
             {   L_,   S5,   "{ \"color\" : \"RED\b\r\t\f\n\" }"  }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
             const int          tj     = ti / 2;
@@ -6241,6 +6244,8 @@ int main(int argc, char *argv[])
             const bsl::string& ALL_OUTPUT   =
                 "{ \"colors\" : [\n"
                                    "\"RED\\/GREEN\",    \n"
+                                   // validate decoding unescaped solidus
+                                   "\"RED/GREEN\",      \n"
                                    "\"GREY\\\\BLUE\",   \n"
                                    "\"WHITE\'BLACK\",   \n"
                                    "\"BLUE\\\"YELLOW\", \n"
@@ -6259,12 +6264,13 @@ int main(int argc, char *argv[])
             ASSERTV(rc, 0 == rc);
             const bsl::vector<test::Colors::Value>& V = obj.colors();
 
-            ASSERTV(5  == V.size());
+            ASSERTV(6  == V.size());
             ASSERTV(string(S1) == string(test::Colors::toString(V[0])));
-            ASSERTV(string(S2) == string(test::Colors::toString(V[1])));
-            ASSERTV(string(S3) == string(test::Colors::toString(V[2])));
-            ASSERTV(string(S4) == string(test::Colors::toString(V[3])));
-            ASSERTV(string(S5) == string(test::Colors::toString(V[4])));
+            ASSERTV(string(S1) == string(test::Colors::toString(V[1])));
+            ASSERTV(string(S2) == string(test::Colors::toString(V[2])));
+            ASSERTV(string(S3) == string(test::Colors::toString(V[3])));
+            ASSERTV(string(S4) == string(test::Colors::toString(V[4])));
+            ASSERTV(string(S5) == string(test::Colors::toString(V[5])));
 
             if (veryVerbose) {
                 P(decoder.loggedMessages());
@@ -6335,7 +6341,7 @@ int main(int argc, char *argv[])
           {  L_,     "\"QVE\"",        "",                   0, false },
           {  L_,     "\"QVE==\"",      "",                   0, false },
             };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
             const int   tj          = ti / 2;
@@ -6505,7 +6511,7 @@ int main(int argc, char *argv[])
                 {   L_,   "A   {}"    },
                 {   L_,   "{\"elem\":[\\}}}}\n" },  // `{DRQS 162368278}`
             };
-            const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
                 const int           tj    = ti / 2;
@@ -7445,7 +7451,7 @@ int main(int argc, char *argv[])
             "}"
         },
         };
-        const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         // Testing sequences
         {
@@ -7614,7 +7620,7 @@ int main(int argc, char *argv[])
                     "["
                 },
             };
-            const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
                 const int          tj    = ti / 2;
@@ -8234,7 +8240,7 @@ int main(int argc, char *argv[])
                 "}"
             },
         };
-        const int NUM_DATA = sizeof DATA/ sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
             const int          tj       = ti / 2;
@@ -8326,8 +8332,8 @@ int main(int argc, char *argv[])
                 "}"
             },
         };
-        const int NUM_MALFORMED_DATA =
-                                 sizeof MALFORMED_DATA/ sizeof *MALFORMED_DATA;
+        const int NUM_MALFORMED_DATA = sizeof MALFORMED_DATA /
+                                       sizeof MALFORMED_DATA[0];
 
         for (int ti = 0; ti < 2 * NUM_MALFORMED_DATA; ++ti) {
             const int          tj       = ti / 2;

@@ -49,7 +49,7 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [ 2] static int readString        (bsl::string *, bsl::string_view);
 // [ 2] static int readUnquotedString(bsl::string *, bsl::string_view);
-// [ 1] static int writeString(bsl::ostream& s, const bsl::string_view&);
+// [ 1] static int writeString(bsl::ostream&, const bsl::string_view&, flags);
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -728,9 +728,10 @@ int main(int argc, char *argv[])
         // ENCODING STRINGS
         //
         // Concerns:
-        // 1. Character are encoded as a single character string.
+        // 1. Characters are encoded as a single character string.
         //
-        // 2. All escape characters are encoded corrected.
+        // 2. All escape characters are encoded corrected (including `/` with
+        //    or without `e_NO_ESCAPING_FORWARD_SLASH`).
         //
         // 3. Control characters are encoded as hex.
         //
@@ -749,10 +750,14 @@ int main(int argc, char *argv[])
         //
         //   2. Encode the value and verify the results.
         //
+        //   3. Repeat the same checks for inputs containing `/` characters and
+        //      passing `e_NO_ESCAPING_FORWARD_SLASH` to `writeString`.
+        //
         // 2. Repeat for strings and Customized type.
         //
         // Testing:
-        //  static int writeString(bsl::ostream& s, const bsl::string_view&);
+        //  static int writeString(bsl::ostream&, const bsl::string_view&,
+        //                         int flags);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -761,7 +766,7 @@ int main(int argc, char *argv[])
                       << "================" << bsl::endl;
         }
 
-        if (verbose) cout << "Encode string" << endl;
+        if (verbose) cout << "Encode string (escaping `/`)" << endl;
         {
             const struct {
                 int         d_line;
@@ -780,14 +785,18 @@ int main(int argc, char *argv[])
                                "\"A quick brown fox jump over a lazy dog!\"" },
 
                 // Escape sequences
-                { L_,    "\"",   "\"\\\"\"" },
-                { L_,    "\\",   "\"\\\\\"" },
-                { L_,    "/",    "\"\\/\""  },
-                { L_,    "\b",   "\"\\b\""  },
-                { L_,    "\f",   "\"\\f\""  },
-                { L_,    "\n",   "\"\\n\""  },
-                { L_,    "\r",   "\"\\r\""  },
-                { L_,    "\t",   "\"\\t\""  },
+                { L_,    "\"",         "\"\\\"\""          },
+                { L_,    "\\",         "\"\\\\\""          },
+                { L_,    "\"/",        "\"\\\"\\/\""       },
+                { L_,    "\\/",        "\"\\\\\\/\""       },
+                { L_,    "\"\\/",      "\"\\\"\\\\\\/\""   },
+                { L_,    "/",          "\"\\/\""           },
+                { L_,    "\b",         "\"\\b\""           },
+                { L_,    "\f",         "\"\\f\""           },
+                { L_,    "\n",         "\"\\n\""           },
+                { L_,    "\r",         "\"\\r\""           },
+                { L_,    "\t",         "\"\\t\""           },
+                { L_,    "a/b",        "\"a\\/b\""         },
                 { L_,    "\\/\b\f\n\r\t", "\"\\\\\\/\\b\\f\\n\\r\\t\"" },
 
                 { L_,    "\\u0007",          "\"\\\\u0007\"" },
@@ -852,6 +861,58 @@ int main(int argc, char *argv[])
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::writeString(oss,
                                                          bsl::string(VALUE)));
+
+                    const bsl::string result(oss.str());
+                    ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+                }
+            }
+        }
+
+        if (verbose) cout << "Encode string (not escaping `/`)" << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_value_p;
+                const char *d_result_p;
+            } DATA[] = {
+                //LINE   VAL     RESULT
+                //----   ---     ------
+                // Escape sequences
+                { L_,    "/",             "\"/\""                    },
+                { L_,    "a/b",           "\"a/b\""                  },
+                { L_,    "\"/",           "\"\\\"/\""                },
+                { L_,    "\\/",           "\"\\\\/\""                },
+                { L_,    "\"\\/",         "\"\\\"\\\\/\""            },
+                { L_,    "\\/\b\f\n\r\t", "\"\\\\/\\b\\f\\n\\r\\t\"" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE     = DATA[ti].d_line;
+                const char *const VALUE    = DATA[ti].d_value_p;
+                const char *const EXPECTED = DATA[ti].d_result_p;
+
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(LINE,
+                            0 == Util::writeString(
+                                           oss,
+                                           VALUE,
+                                           Util::e_NO_ESCAPING_FORWARD_SLASH));
+
+                    const bsl::string result(oss.str());
+                    ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
+                }
+
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
+                {
+                    bsl::ostringstream oss;
+                    ASSERTV(LINE,
+                            0 == Util::writeString(
+                                           oss,
+                                           bsl::string(VALUE),
+                                           Util::e_NO_ESCAPING_FORWARD_SLASH));
 
                     const bsl::string result(oss.str());
                     ASSERTV(LINE, result, EXPECTED, result == EXPECTED);

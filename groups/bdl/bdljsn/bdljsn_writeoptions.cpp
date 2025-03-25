@@ -16,6 +16,7 @@ namespace bdljsn {
 // CONSTANTS
 const int  WriteOptions::s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL = 0;
 const bool WriteOptions::s_DEFAULT_INITIALIZER_SORT_MEMBERS         = false;
+const bool WriteOptions::s_DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH = true;
 const int  WriteOptions::s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL     = 4;
 const bdljsn::WriteStyle::Enum
            WriteOptions::s_DEFAULT_INITIALIZER_STYLE =
@@ -25,6 +26,7 @@ const bdljsn::WriteStyle::Enum
 WriteOptions::WriteOptions()
 : d_initialIndentLevel(s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL)
 , d_sortMembers       (s_DEFAULT_INITIALIZER_SORT_MEMBERS)
+, d_escapeForwardSlash(s_DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH)
 , d_spacesPerLevel    (s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL)
 , d_style             (s_DEFAULT_INITIALIZER_STYLE)
 {
@@ -35,6 +37,7 @@ WriteOptions& WriteOptions::reset()
 {
     d_initialIndentLevel = s_DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
     d_sortMembers        = s_DEFAULT_INITIALIZER_SORT_MEMBERS;
+    d_escapeForwardSlash = s_DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
     d_spacesPerLevel     = s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
     d_style              = s_DEFAULT_INITIALIZER_STYLE;
     return *this;
@@ -52,6 +55,7 @@ bsl::ostream& WriteOptions::print(bsl::ostream& stream,
     printer.start();
     printer.printAttribute("initialIndentLevel", d_initialIndentLevel);
     printer.printAttribute("sortMembers", d_sortMembers);
+    printer.printAttribute("escapeForwardSlash", d_escapeForwardSlash);
     printer.printAttribute("spacesPerLevel", d_spacesPerLevel);
     printer.printAttribute("style", d_style);
     printer.end();

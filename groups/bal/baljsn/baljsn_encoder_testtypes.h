@@ -3,7 +3,7 @@
 #define INCLUDED_BALJSN_ENCODER_TESTTYPES
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(baljsn_encoder_testtypes_h,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baljsn_encoder_testtypes_h, "$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
@@ -39,10 +39,9 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 
-#include <bslma_allocator.h>
-
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
 
 namespace baljsn { class EncoderTestAddress; }
 namespace baljsn { class EncoderTestChoiceWithAllCategoriesChoice; }
@@ -101,6 +100,10 @@ class EncoderTestAddress {
     bsl::string  d_city;
     bsl::string  d_state;
 
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
   public:
     // TYPES
     enum {
@@ -126,194 +129,202 @@ class EncoderTestAddress {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestAddress` having the default
-    /// value.  Use the optionally specified `basicAllocator` to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.
     explicit EncoderTestAddress(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestAddress' having the default
+        // value.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
-    /// Create an object of type `EncoderTestAddress` having the value of
-    /// the specified `original` object.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
     EncoderTestAddress(const EncoderTestAddress& original,
                        bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestAddress' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestAddress` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
     EncoderTestAddress(EncoderTestAddress&& original) noexcept;
+        // Create an object of type 'EncoderTestAddress' having the value of
+        // the specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
 
-    /// Create an object of type `EncoderTestAddress` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    /// Use the optionally specified `basicAllocator` to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
     EncoderTestAddress(EncoderTestAddress&& original,
                        bslma::Allocator *basicAllocator);
+        // Create an object of type 'EncoderTestAddress' having the value of
+        // the specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestAddress();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestAddress& operator=(const EncoderTestAddress& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestAddress& operator=(EncoderTestAddress&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Street" attribute of this
-    /// object.
     bsl::string& street();
+        // Return a reference to the modifiable "Street" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "City" attribute of this
-    /// object.
     bsl::string& city();
+        // Return a reference to the modifiable "City" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "State" attribute of this
-    /// object.
     bsl::string& state();
+        // Return a reference to the modifiable "State" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Street" attribute of this
-    /// object.
     const bsl::string& street() const;
+        // Return a reference offering non-modifiable access to the "Street"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "City" attribute of this
-    /// object.
     const bsl::string& city() const;
+        // Return a reference offering non-modifiable access to the "City"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "State" attribute of this
-    /// object.
     const bsl::string& state() const;
+        // Return a reference offering non-modifiable access to the "State"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestAddress& lhs,
+                           const EncoderTestAddress& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.street() == rhs.street() &&
+               lhs.city() == rhs.city() &&
+               lhs.state() == rhs.state();
+    }
+
+    friend bool operator!=(const EncoderTestAddress& lhs,
+                           const EncoderTestAddress& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(bsl::ostream&             stream,
+                                    const EncoderTestAddress& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&         hashAlg,
+                           const EncoderTestAddress& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestAddress'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestAddress& lhs, const EncoderTestAddress& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestAddress& lhs, const EncoderTestAddress& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestAddress& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestAddress`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestAddress& object);
 
 }  // close package namespace
 
@@ -335,6 +346,12 @@ class EncoderTestChoiceWithAllCategoriesChoice {
     };
 
     int                           d_selectionId;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const EncoderTestChoiceWithAllCategoriesChoice& rhs) const;
 
   public:
     // TYPES
@@ -358,156 +375,169 @@ class EncoderTestChoiceWithAllCategoriesChoice {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return selection information for the selection indicated by the
-    /// specified `id` if the selection exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
 
-    /// Return selection information for the selection indicated by the
-    /// specified `name` of the specified `nameLength` if the selection
-    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestChoiceWithAllCategoriesChoice`
-    /// having the default value.
     EncoderTestChoiceWithAllCategoriesChoice();
+        // Create an object of type 'EncoderTestChoiceWithAllCategoriesChoice'
+        // having the default value.
 
-    /// Create an object of type `EncoderTestChoiceWithAllCategoriesChoice`
-    /// having the value of the specified `original` object.
     EncoderTestChoiceWithAllCategoriesChoice(const EncoderTestChoiceWithAllCategoriesChoice& original);
+        // Create an object of type 'EncoderTestChoiceWithAllCategoriesChoice'
+        // having the value of the specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestChoiceWithAllCategoriesChoice`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestChoiceWithAllCategoriesChoice(EncoderTestChoiceWithAllCategoriesChoice&& original) noexcept;
+        // Create an object of type 'EncoderTestChoiceWithAllCategoriesChoice'
+        // having the value of the specified 'original' object.  After
+        // performing this action, the 'original' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestChoiceWithAllCategoriesChoice();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestChoiceWithAllCategoriesChoice& operator=(const EncoderTestChoiceWithAllCategoriesChoice& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestChoiceWithAllCategoriesChoice& operator=(EncoderTestChoiceWithAllCategoriesChoice&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon default
-    /// construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `selectionId`.  Return 0 on success, and
-    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `name` of the specified `nameLength`.
-    /// Return 0 on success, and non-zero value otherwise (i.e., the
-    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
 
-    /// Set the value of this object to be a "Selection0" value.  Optionally
-    /// specify the `value` of the "Selection0".  If `value` is not
-    /// specified, the default "Selection0" value is used.
     int& makeSelection0();
     int& makeSelection0(int value);
+        // Set the value of this object to be a "Selection0" value.  Optionally
+        // specify the 'value' of the "Selection0".  If 'value' is not
+        // specified, the default "Selection0" value is used.
 
-    /// Invoke the specified `manipulator` on the address of the modifiable
-    /// selection, supplying `manipulator` with the corresponding selection
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if this object has a defined selection,
-    /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
 
-    /// Return a reference to the modifiable "Selection0" selection of this
-    /// object if "Selection0" is the current selection.  The behavior is
-    /// undefined unless "Selection0" is the selection of this object.
     int& selection0();
+        // Return a reference to the modifiable "Selection0" selection of this
+        // object if "Selection0" is the current selection.  The behavior is
+        // undefined unless "Selection0" is the selection of this object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Return the id of the current selection if the selection is defined,
-    /// and -1 otherwise.
     int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the non-modifiable selection,
-    /// supplying `accessor` with the corresponding selection information
-    /// structure.  Return the value returned from the invocation of
-    /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Selection0" selection of
-    /// this object if "Selection0" is the current selection.  The behavior
-    /// is undefined unless "Selection0" is the selection of this object.
     const int& selection0() const;
+        // Return a reference to the non-modifiable "Selection0" selection of
+        // this object if "Selection0" is the current selection.  The behavior
+        // is undefined unless "Selection0" is the selection of this object.
 
-    /// Return `true` if the value of this object is a "Selection0" value,
-    /// and return `false` otherwise.
     bool isSelection0Value() const;
+        // Return 'true' if the value of this object is a "Selection0" value,
+        // and return 'false' otherwise.
 
-    /// Return `true` if the value of this object is undefined, and `false`
-    /// otherwise.
     bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
 
-    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestChoiceWithAllCategoriesChoice& lhs,
+                           const EncoderTestChoiceWithAllCategoriesChoice& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and 'false' otherwise.  Two
+        // 'EncoderTestChoiceWithAllCategoriesChoice' objects have the same
+        // value if either the selections in both objects have the same ids and
+        // the same values, or both selections are undefined.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(const EncoderTestChoiceWithAllCategoriesChoice& lhs,
+                           const EncoderTestChoiceWithAllCategoriesChoice& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+        // the same values, as determined by 'operator==', and 'false'
+        // otherwise.
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestChoiceWithAllCategoriesChoice& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+                       t_HASH_ALGORITHM&                               hashAlg,
+                       const EncoderTestChoiceWithAllCategoriesChoice& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestChoiceWithAllCategoriesChoice'.
+    {
+        return object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `EncoderTestChoiceWithAllCategoriesChoice` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const EncoderTestChoiceWithAllCategoriesChoice& lhs, const EncoderTestChoiceWithAllCategoriesChoice& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const EncoderTestChoiceWithAllCategoriesChoice& lhs, const EncoderTestChoiceWithAllCategoriesChoice& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestChoiceWithAllCategoriesChoice& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestChoiceWithAllCategoriesChoice`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesChoice& object);
 
 }  // close package namespace
 
@@ -526,10 +556,6 @@ class EncoderTestChoiceWithAllCategoriesCustomizedType {
     // INSTANCE DATA
     bsl::string d_value;
 
-    // FRIENDS
-    friend bool operator==(const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs, const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
-    friend bool operator!=(const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs, const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
-
   public:
     // TYPES
     typedef bsl::string BaseType;
@@ -538,127 +564,144 @@ class EncoderTestChoiceWithAllCategoriesCustomizedType {
     static const char CLASS_NAME[];
 
     // CREATORS
-
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesCustomizedType` having the
-    /// default value.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     explicit EncoderTestChoiceWithAllCategoriesCustomizedType(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type
+        // 'EncoderTestChoiceWithAllCategoriesCustomizedType' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
-    /// Create an object of type `EncoderTestChoiceWithAllCategoriesCustomizedType` having the value
-    /// of the specified `original` object.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
     EncoderTestChoiceWithAllCategoriesCustomizedType(const EncoderTestChoiceWithAllCategoriesCustomizedType& original,
                                                     bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestChoiceWithAllCategoriesCustomizedType' having the value
+        // of the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesCustomizedType` having the value
-    /// of the specified `original` object.  After performing this action,
-    /// the `original` object will be left in a valid, but unspecified
-    /// state.
     EncoderTestChoiceWithAllCategoriesCustomizedType(EncoderTestChoiceWithAllCategoriesCustomizedType&& original) = default;
+        // Create an object of type
+        // 'EncoderTestChoiceWithAllCategoriesCustomizedType' having the value
+        // of the specified 'original' object.  After performing this action,
+        // the 'original' object will be left in a valid, but unspecified
+        // state.
 
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesCustomizedType` having the value
-    /// of the specified `original` object.  After performing this action,
-    /// the `original` object will be left in a valid, but unspecified
-    /// state.  Use the optionally specified `basicAllocator` to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.
     EncoderTestChoiceWithAllCategoriesCustomizedType(EncoderTestChoiceWithAllCategoriesCustomizedType&& original,
                                                     bslma::Allocator *basicAllocator);
+        // Create an object of type
+        // 'EncoderTestChoiceWithAllCategoriesCustomizedType' having the value
+        // of the specified 'original' object.  After performing this action,
+        // the 'original' object will be left in a valid, but unspecified
+        // state.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 #endif
 
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesCustomizedType` having the
-    /// specified `value`.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     explicit EncoderTestChoiceWithAllCategoriesCustomizedType(const bsl::string& value,
                                                              bslma::Allocator *basicAllocator = 0);
+        // Create an object of type
+        // 'EncoderTestChoiceWithAllCategoriesCustomizedType' having the
+        // specified 'value'.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
-    /// Destroy this object.
     ~EncoderTestChoiceWithAllCategoriesCustomizedType();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestChoiceWithAllCategoriesCustomizedType& operator=(const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestChoiceWithAllCategoriesCustomizedType& operator=(EncoderTestChoiceWithAllCategoriesCustomizedType&& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Convert from the specified `value` to this type.  Return 0 if
-    /// successful and non-zero otherwise.
     int fromString(const bsl::string& value);
-
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.  Note that, if 'value' is an
+        // invalid UTF-8 string and
+        // "EncoderTestChoiceWithAllCategoriesCustomizedType" has length
+        // restrictions, this function will fail and keep the underlying string
+        // unchanged.
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Convert this value to `bsl::string`.
     const bsl::string& toString() const;
+        // Convert this value to 'bsl::string'.
 
     // PUBLIC CLASS METHODS
-
-    /// Check if the specified `value` satisfies the restrictions of this
-    /// class (i.e., "EncoderTestChoiceWithAllCategoriesCustomizedType").
-    /// Return 0 if successful (i.e., the restrictions are satisfied) and
-    /// non-zero otherwise.
     static int checkRestrictions(const bsl::string& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class (i.e., "EncoderTestChoiceWithAllCategoriesCustomizedType").
+        // Return 0 if successful (i.e., the restrictions are satisfied) and
+        // non-zero otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(
+                   const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs,
+                   const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.d_value == rhs.d_value;
+    }
+
+    friend bool operator!=(
+                   const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs,
+                   const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do
+        // not have the same value, and 'false' otherwise.  Two attribute
+        // objects do not have the same value if one or more respective
+        // attributes differ in values.
+    {
+        return lhs.d_value != rhs.d_value;
+    }
+
+    friend bsl::ostream& operator<<(
+                bsl::ostream&                                           stream,
+                const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+               t_HASH_ALGORITHM&                                       hashAlg,
+               const EncoderTestChoiceWithAllCategoriesCustomizedType& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestChoiceWithAllCategoriesCustomizedType'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.toString());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs, const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestChoiceWithAllCategoriesCustomizedType& lhs, const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestChoiceWithAllCategoriesCustomizedType& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestChoiceWithAllCategoriesCustomizedType`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& object);
 
 }  // close package namespace
 
@@ -691,44 +734,44 @@ struct EncoderTestChoiceWithAllCategoriesEnumeration {
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return the string representation exactly matching the enumerator
-    /// name corresponding to the specified enumeration `value`.
     static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string` of the specified `stringLength`.  Return 0 on
-    /// success, and a non-zero value with no effect on `result` otherwise
-    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `string` does not match any
-    /// enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `number`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `number` does not match any
-    /// enumerator).
     static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
 
-    /// Write to the specified `stream` the string representation of
-    /// the specified enumeration `value`.  Return a reference to
-    /// the modifiable `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    // HIDDEN FRIENDS
+    friend bsl::ostream& operator<<(bsl::ostream& stream, Value rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return EncoderTestChoiceWithAllCategoriesEnumeration::print(stream, rhs);
+    }
 };
-
-// FREE OPERATORS
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, EncoderTestChoiceWithAllCategoriesEnumeration::Value rhs);
 
 }  // close package namespace
 
@@ -769,167 +812,150 @@ class EncoderTestChoiceWithAllCategoriesSequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesSequence` having the default
-    /// value.
     EncoderTestChoiceWithAllCategoriesSequence();
+        // Create an object of type
+        // 'EncoderTestChoiceWithAllCategoriesSequence' having the default
+        // value.
 
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesSequence` having the value of the
-    /// specified `original` object.
-    EncoderTestChoiceWithAllCategoriesSequence(const EncoderTestChoiceWithAllCategoriesSequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestChoiceWithAllCategoriesSequence` having the value of the
-    /// specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    EncoderTestChoiceWithAllCategoriesSequence(EncoderTestChoiceWithAllCategoriesSequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestChoiceWithAllCategoriesSequence();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestChoiceWithAllCategoriesSequence& operator=(const EncoderTestChoiceWithAllCategoriesSequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestChoiceWithAllCategoriesSequence& operator=(EncoderTestChoiceWithAllCategoriesSequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute" attribute of this
-    /// object.
     int& attribute();
+        // Return a reference to the modifiable "Attribute" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute" attribute of
-    /// this object.
     int attribute() const;
+        // Return the value of the "Attribute" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(
+                         const EncoderTestChoiceWithAllCategoriesSequence& lhs,
+                         const EncoderTestChoiceWithAllCategoriesSequence& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute() == rhs.attribute();
+    }
+
+    friend bool operator!=(
+                         const EncoderTestChoiceWithAllCategoriesSequence& lhs,
+                         const EncoderTestChoiceWithAllCategoriesSequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                      bsl::ostream&                                     stream,
+                      const EncoderTestChoiceWithAllCategoriesSequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+                     t_HASH_ALGORITHM&                                 hashAlg,
+                     const EncoderTestChoiceWithAllCategoriesSequence& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestChoiceWithAllCategoriesSequence'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.attribute());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestChoiceWithAllCategoriesSequence& lhs, const EncoderTestChoiceWithAllCategoriesSequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestChoiceWithAllCategoriesSequence& lhs, const EncoderTestChoiceWithAllCategoriesSequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestChoiceWithAllCategoriesSequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestChoiceWithAllCategoriesSequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesSequence& object);
 
 }  // close package namespace
 
@@ -959,157 +985,132 @@ class EncoderTestDegenerateChoice1Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestDegenerateChoice1Sequence`
-    /// having the default value.
-    EncoderTestDegenerateChoice1Sequence();
-
-    /// Create an object of type `EncoderTestDegenerateChoice1Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestDegenerateChoice1Sequence(const EncoderTestDegenerateChoice1Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestDegenerateChoice1Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestDegenerateChoice1Sequence(EncoderTestDegenerateChoice1Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestDegenerateChoice1Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestDegenerateChoice1Sequence& operator=(const EncoderTestDegenerateChoice1Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestDegenerateChoice1Sequence& operator=(EncoderTestDegenerateChoice1Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestDegenerateChoice1Sequence&,
+                           const EncoderTestDegenerateChoice1Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestDegenerateChoice1Sequence& lhs,
+                           const EncoderTestDegenerateChoice1Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                            bsl::ostream&                               stream,
+                            const EncoderTestDegenerateChoice1Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                          ,
+                           const EncoderTestDegenerateChoice1Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestDegenerateChoice1Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestDegenerateChoice1Sequence& lhs, const EncoderTestDegenerateChoice1Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestDegenerateChoice1Sequence& lhs, const EncoderTestDegenerateChoice1Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestDegenerateChoice1Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestDegenerateChoice1Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestDegenerateChoice1Sequence& object);
 
 }  // close package namespace
 
@@ -1131,6 +1132,12 @@ class EncoderTestSequenceWithAllCategoriesChoice {
     };
 
     int                           d_selectionId;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const EncoderTestSequenceWithAllCategoriesChoice& rhs) const;
 
   public:
     // TYPES
@@ -1154,158 +1161,173 @@ class EncoderTestSequenceWithAllCategoriesChoice {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return selection information for the selection indicated by the
-    /// specified `id` if the selection exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
 
-    /// Return selection information for the selection indicated by the
-    /// specified `name` of the specified `nameLength` if the selection
-    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesChoice` having the default
-    /// value.
     EncoderTestSequenceWithAllCategoriesChoice();
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesChoice' having the default
+        // value.
 
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesChoice` having the value of the
-    /// specified `original` object.
     EncoderTestSequenceWithAllCategoriesChoice(const EncoderTestSequenceWithAllCategoriesChoice& original);
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesChoice' having the value of the
+        // specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesChoice` having the value of the
-    /// specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
     EncoderTestSequenceWithAllCategoriesChoice(EncoderTestSequenceWithAllCategoriesChoice&& original) noexcept;
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesChoice' having the value of the
+        // specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestSequenceWithAllCategoriesChoice();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestSequenceWithAllCategoriesChoice& operator=(const EncoderTestSequenceWithAllCategoriesChoice& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestSequenceWithAllCategoriesChoice& operator=(EncoderTestSequenceWithAllCategoriesChoice&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon default
-    /// construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `selectionId`.  Return 0 on success, and
-    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `name` of the specified `nameLength`.
-    /// Return 0 on success, and non-zero value otherwise (i.e., the
-    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
 
-    /// Set the value of this object to be a "Selection0" value.  Optionally
-    /// specify the `value` of the "Selection0".  If `value` is not
-    /// specified, the default "Selection0" value is used.
     int& makeSelection0();
     int& makeSelection0(int value);
+        // Set the value of this object to be a "Selection0" value.  Optionally
+        // specify the 'value' of the "Selection0".  If 'value' is not
+        // specified, the default "Selection0" value is used.
 
-    /// Invoke the specified `manipulator` on the address of the modifiable
-    /// selection, supplying `manipulator` with the corresponding selection
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if this object has a defined selection,
-    /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
 
-    /// Return a reference to the modifiable "Selection0" selection of this
-    /// object if "Selection0" is the current selection.  The behavior is
-    /// undefined unless "Selection0" is the selection of this object.
     int& selection0();
+        // Return a reference to the modifiable "Selection0" selection of this
+        // object if "Selection0" is the current selection.  The behavior is
+        // undefined unless "Selection0" is the selection of this object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Return the id of the current selection if the selection is defined,
-    /// and -1 otherwise.
     int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the non-modifiable selection,
-    /// supplying `accessor` with the corresponding selection information
-    /// structure.  Return the value returned from the invocation of
-    /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Selection0" selection of
-    /// this object if "Selection0" is the current selection.  The behavior
-    /// is undefined unless "Selection0" is the selection of this object.
     const int& selection0() const;
+        // Return a reference to the non-modifiable "Selection0" selection of
+        // this object if "Selection0" is the current selection.  The behavior
+        // is undefined unless "Selection0" is the selection of this object.
 
-    /// Return `true` if the value of this object is a "Selection0" value,
-    /// and return `false` otherwise.
     bool isSelection0Value() const;
+        // Return 'true' if the value of this object is a "Selection0" value,
+        // and return 'false' otherwise.
 
-    /// Return `true` if the value of this object is undefined, and `false`
-    /// otherwise.
     bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
 
-    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(
+                         const EncoderTestSequenceWithAllCategoriesChoice& lhs,
+                         const EncoderTestSequenceWithAllCategoriesChoice& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and 'false' otherwise.  Two
+        // 'EncoderTestSequenceWithAllCategoriesChoice' objects have the same
+        // value if either the selections in both objects have the same ids and
+        // the same values, or both selections are undefined.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(
+                         const EncoderTestSequenceWithAllCategoriesChoice& lhs,
+                         const EncoderTestSequenceWithAllCategoriesChoice& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+        // the same values, as determined by 'operator==', and 'false'
+        // otherwise.
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                      bsl::ostream&                                     stream,
+                      const EncoderTestSequenceWithAllCategoriesChoice& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+                     t_HASH_ALGORITHM&                                 hashAlg,
+                     const EncoderTestSequenceWithAllCategoriesChoice& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithAllCategoriesChoice'.
+    {
+        return object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `EncoderTestSequenceWithAllCategoriesChoice` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const EncoderTestSequenceWithAllCategoriesChoice& lhs, const EncoderTestSequenceWithAllCategoriesChoice& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const EncoderTestSequenceWithAllCategoriesChoice& lhs, const EncoderTestSequenceWithAllCategoriesChoice& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithAllCategoriesChoice& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithAllCategoriesChoice`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesChoice& object);
 
 }  // close package namespace
 
@@ -1324,10 +1346,6 @@ class EncoderTestSequenceWithAllCategoriesCustomizedType {
     // INSTANCE DATA
     bsl::string d_value;
 
-    // FRIENDS
-    friend bool operator==(const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs, const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
-    friend bool operator!=(const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs, const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
-
   public:
     // TYPES
     typedef bsl::string BaseType;
@@ -1336,127 +1354,144 @@ class EncoderTestSequenceWithAllCategoriesCustomizedType {
     static const char CLASS_NAME[];
 
     // CREATORS
-
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesCustomizedType` having the
-    /// default value.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     explicit EncoderTestSequenceWithAllCategoriesCustomizedType(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesCustomizedType' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
-    /// Create an object of type `EncoderTestSequenceWithAllCategoriesCustomizedType` having the value
-    /// of the specified `original` object.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
     EncoderTestSequenceWithAllCategoriesCustomizedType(const EncoderTestSequenceWithAllCategoriesCustomizedType& original,
                                                       bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestSequenceWithAllCategoriesCustomizedType' having the value
+        // of the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesCustomizedType` having the
-    /// value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
     EncoderTestSequenceWithAllCategoriesCustomizedType(EncoderTestSequenceWithAllCategoriesCustomizedType&& original) = default;
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesCustomizedType' having the
+        // value of the specified 'original' object.  After performing this
+        // action, the 'original' object will be left in a valid, but
+        // unspecified state.
 
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesCustomizedType` having the
-    /// value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     EncoderTestSequenceWithAllCategoriesCustomizedType(EncoderTestSequenceWithAllCategoriesCustomizedType&& original,
                                                       bslma::Allocator *basicAllocator);
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesCustomizedType' having the
+        // value of the specified 'original' object.  After performing this
+        // action, the 'original' object will be left in a valid, but
+        // unspecified state.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 #endif
 
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesCustomizedType` having the
-    /// specified `value`.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     explicit EncoderTestSequenceWithAllCategoriesCustomizedType(const bsl::string& value,
                                                                bslma::Allocator *basicAllocator = 0);
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesCustomizedType' having the
+        // specified 'value'.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
-    /// Destroy this object.
     ~EncoderTestSequenceWithAllCategoriesCustomizedType();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestSequenceWithAllCategoriesCustomizedType& operator=(const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestSequenceWithAllCategoriesCustomizedType& operator=(EncoderTestSequenceWithAllCategoriesCustomizedType&& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Convert from the specified `value` to this type.  Return 0 if
-    /// successful and non-zero otherwise.
     int fromString(const bsl::string& value);
-
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.  Note that, if 'value' is an
+        // invalid UTF-8 string and
+        // "EncoderTestSequenceWithAllCategoriesCustomizedType" has length
+        // restrictions, this function will fail and keep the underlying string
+        // unchanged.
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Convert this value to `bsl::string`.
     const bsl::string& toString() const;
+        // Convert this value to 'bsl::string'.
 
     // PUBLIC CLASS METHODS
-
-    /// Check if the specified `value` satisfies the restrictions of this
-    /// class (i.e., "EncoderTestSequenceWithAllCategoriesCustomizedType").
-    /// Return 0 if successful (i.e., the restrictions are satisfied) and
-    /// non-zero otherwise.
     static int checkRestrictions(const bsl::string& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class (i.e., "EncoderTestSequenceWithAllCategoriesCustomizedType").
+        // Return 0 if successful (i.e., the restrictions are satisfied) and
+        // non-zero otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(
+                 const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs,
+                 const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.d_value == rhs.d_value;
+    }
+
+    friend bool operator!=(
+                 const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs,
+                 const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do
+        // not have the same value, and 'false' otherwise.  Two attribute
+        // objects do not have the same value if one or more respective
+        // attributes differ in values.
+    {
+        return lhs.d_value != rhs.d_value;
+    }
+
+    friend bsl::ostream& operator<<(
+              bsl::ostream&                                             stream,
+              const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+             t_HASH_ALGORITHM&                                         hashAlg,
+             const EncoderTestSequenceWithAllCategoriesCustomizedType& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithAllCategoriesCustomizedType'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.toString());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs, const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithAllCategoriesCustomizedType& lhs, const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithAllCategoriesCustomizedType& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithAllCategoriesCustomizedType`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& object);
 
 }  // close package namespace
 
@@ -1489,44 +1524,44 @@ struct EncoderTestSequenceWithAllCategoriesEnumeration {
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return the string representation exactly matching the enumerator
-    /// name corresponding to the specified enumeration `value`.
     static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string` of the specified `stringLength`.  Return 0 on
-    /// success, and a non-zero value with no effect on `result` otherwise
-    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `string` does not match any
-    /// enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `number`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `number` does not match any
-    /// enumerator).
     static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
 
-    /// Write to the specified `stream` the string representation of
-    /// the specified enumeration `value`.  Return a reference to
-    /// the modifiable `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    // HIDDEN FRIENDS
+    friend bsl::ostream& operator<<(bsl::ostream& stream, Value rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return EncoderTestSequenceWithAllCategoriesEnumeration::print(stream, rhs);
+    }
 };
-
-// FREE OPERATORS
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, EncoderTestSequenceWithAllCategoriesEnumeration::Value rhs);
 
 }  // close package namespace
 
@@ -1567,167 +1602,150 @@ class EncoderTestSequenceWithAllCategoriesSequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesSequence` having the default
-    /// value.
     EncoderTestSequenceWithAllCategoriesSequence();
+        // Create an object of type
+        // 'EncoderTestSequenceWithAllCategoriesSequence' having the default
+        // value.
 
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesSequence` having the value of
-    /// the specified `original` object.
-    EncoderTestSequenceWithAllCategoriesSequence(const EncoderTestSequenceWithAllCategoriesSequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestSequenceWithAllCategoriesSequence` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    EncoderTestSequenceWithAllCategoriesSequence(EncoderTestSequenceWithAllCategoriesSequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithAllCategoriesSequence();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithAllCategoriesSequence& operator=(const EncoderTestSequenceWithAllCategoriesSequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithAllCategoriesSequence& operator=(EncoderTestSequenceWithAllCategoriesSequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute" attribute of this
-    /// object.
     int& attribute();
+        // Return a reference to the modifiable "Attribute" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute" attribute of
-    /// this object.
     int attribute() const;
+        // Return the value of the "Attribute" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(
+                       const EncoderTestSequenceWithAllCategoriesSequence& lhs,
+                       const EncoderTestSequenceWithAllCategoriesSequence& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute() == rhs.attribute();
+    }
+
+    friend bool operator!=(
+                       const EncoderTestSequenceWithAllCategoriesSequence& lhs,
+                       const EncoderTestSequenceWithAllCategoriesSequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                    bsl::ostream&                                       stream,
+                    const EncoderTestSequenceWithAllCategoriesSequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(
+                   t_HASH_ALGORITHM&                                   hashAlg,
+                   const EncoderTestSequenceWithAllCategoriesSequence& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithAllCategoriesSequence'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.attribute());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithAllCategoriesSequence& lhs, const EncoderTestSequenceWithAllCategoriesSequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithAllCategoriesSequence& lhs, const EncoderTestSequenceWithAllCategoriesSequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithAllCategoriesSequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithAllCategoriesSequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesSequence& object);
 
 }  // close package namespace
 
@@ -1757,157 +1775,132 @@ class EncoderTestSequenceWithUntagged0 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged0` having
-    /// the default value.
-    EncoderTestSequenceWithUntagged0();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged0` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged0(const EncoderTestSequenceWithUntagged0& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged0` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged0(EncoderTestSequenceWithUntagged0&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged0();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged0& operator=(const EncoderTestSequenceWithUntagged0& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged0& operator=(EncoderTestSequenceWithUntagged0&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged0&,
+                           const EncoderTestSequenceWithUntagged0&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged0& lhs,
+                           const EncoderTestSequenceWithUntagged0& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged0& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                      ,
+                           const EncoderTestSequenceWithUntagged0&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged0'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged0& lhs, const EncoderTestSequenceWithUntagged0& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged0& lhs, const EncoderTestSequenceWithUntagged0& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged0& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged0`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged0& object);
 
 }  // close package namespace
 
@@ -1937,157 +1930,133 @@ class EncoderTestSequenceWithUntagged10Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged10Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged10Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged10Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged10Sequence(const EncoderTestSequenceWithUntagged10Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged10Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged10Sequence(EncoderTestSequenceWithUntagged10Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged10Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged10Sequence& operator=(const EncoderTestSequenceWithUntagged10Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged10Sequence& operator=(EncoderTestSequenceWithUntagged10Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged10Sequence&,
+                           const EncoderTestSequenceWithUntagged10Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged10Sequence& lhs,
+                          const EncoderTestSequenceWithUntagged10Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged10Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged10Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged10Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged10Sequence& lhs, const EncoderTestSequenceWithUntagged10Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged10Sequence& lhs, const EncoderTestSequenceWithUntagged10Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged10Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged10Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged10Sequence& object);
 
 }  // close package namespace
 
@@ -2117,157 +2086,133 @@ class EncoderTestSequenceWithUntagged11Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged11Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged11Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged11Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged11Sequence(const EncoderTestSequenceWithUntagged11Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged11Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged11Sequence(EncoderTestSequenceWithUntagged11Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged11Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged11Sequence& operator=(const EncoderTestSequenceWithUntagged11Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged11Sequence& operator=(EncoderTestSequenceWithUntagged11Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged11Sequence&,
+                           const EncoderTestSequenceWithUntagged11Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged11Sequence& lhs,
+                          const EncoderTestSequenceWithUntagged11Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged11Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged11Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged11Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged11Sequence& lhs, const EncoderTestSequenceWithUntagged11Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged11Sequence& lhs, const EncoderTestSequenceWithUntagged11Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged11Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged11Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11Sequence& object);
 
 }  // close package namespace
 
@@ -2297,159 +2242,133 @@ class EncoderTestSequenceWithUntagged11Sequence1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type
-    /// `EncoderTestSequenceWithUntagged11Sequence1` having the default
-    /// value.
-    EncoderTestSequenceWithUntagged11Sequence1();
-
-    /// Create an object of type
-    /// `EncoderTestSequenceWithUntagged11Sequence1` having the value of the
-    /// specified `original` object.
-    EncoderTestSequenceWithUntagged11Sequence1(const EncoderTestSequenceWithUntagged11Sequence1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `EncoderTestSequenceWithUntagged11Sequence1` having the value of the
-    /// specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    EncoderTestSequenceWithUntagged11Sequence1(EncoderTestSequenceWithUntagged11Sequence1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged11Sequence1();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged11Sequence1& operator=(const EncoderTestSequenceWithUntagged11Sequence1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged11Sequence1& operator=(EncoderTestSequenceWithUntagged11Sequence1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged11Sequence1&,
+                           const EncoderTestSequenceWithUntagged11Sequence1&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                         const EncoderTestSequenceWithUntagged11Sequence1& lhs,
+                         const EncoderTestSequenceWithUntagged11Sequence1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                      bsl::ostream&                                     stream,
+                      const EncoderTestSequenceWithUntagged11Sequence1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                                ,
+                           const EncoderTestSequenceWithUntagged11Sequence1&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged11Sequence1'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged11Sequence1& lhs, const EncoderTestSequenceWithUntagged11Sequence1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged11Sequence1& lhs, const EncoderTestSequenceWithUntagged11Sequence1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged11Sequence1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged11Sequence1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11Sequence1& object);
 
 }  // close package namespace
 
@@ -2479,157 +2398,133 @@ class EncoderTestSequenceWithUntagged12Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged12Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged12Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged12Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged12Sequence(const EncoderTestSequenceWithUntagged12Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged12Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged12Sequence(EncoderTestSequenceWithUntagged12Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged12Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged12Sequence& operator=(const EncoderTestSequenceWithUntagged12Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged12Sequence& operator=(EncoderTestSequenceWithUntagged12Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged12Sequence&,
+                           const EncoderTestSequenceWithUntagged12Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged12Sequence& lhs,
+                          const EncoderTestSequenceWithUntagged12Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged12Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged12Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged12Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged12Sequence& lhs, const EncoderTestSequenceWithUntagged12Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged12Sequence& lhs, const EncoderTestSequenceWithUntagged12Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged12Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged12Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged12Sequence& object);
 
 }  // close package namespace
 
@@ -2659,157 +2554,133 @@ class EncoderTestSequenceWithUntagged13Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged13Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged13Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged13Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged13Sequence(const EncoderTestSequenceWithUntagged13Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged13Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged13Sequence(EncoderTestSequenceWithUntagged13Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged13Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged13Sequence& operator=(const EncoderTestSequenceWithUntagged13Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged13Sequence& operator=(EncoderTestSequenceWithUntagged13Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged13Sequence&,
+                           const EncoderTestSequenceWithUntagged13Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged13Sequence& lhs,
+                          const EncoderTestSequenceWithUntagged13Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged13Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged13Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged13Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged13Sequence& lhs, const EncoderTestSequenceWithUntagged13Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged13Sequence& lhs, const EncoderTestSequenceWithUntagged13Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged13Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged13Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged13Sequence& object);
 
 }  // close package namespace
 
@@ -2829,6 +2700,10 @@ class EncoderTestSequenceWithUntagged14 {
     int  d_attribute0;
     int  d_attribute1;
     int  d_attribute2;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -2855,181 +2730,161 @@ class EncoderTestSequenceWithUntagged14 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged14` having
-    /// the default value.
     EncoderTestSequenceWithUntagged14();
+        // Create an object of type 'EncoderTestSequenceWithUntagged14' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged14` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged14(const EncoderTestSequenceWithUntagged14& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged14` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged14(EncoderTestSequenceWithUntagged14&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged14();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged14& operator=(const EncoderTestSequenceWithUntagged14& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged14& operator=(EncoderTestSequenceWithUntagged14&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute1" attribute of this
-    /// object.
     int& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute2" attribute of this
-    /// object.
     int& attribute2();
+        // Return a reference to the modifiable "Attribute2" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute1" attribute of
-    /// this object.
     int attribute1() const;
+        // Return the value of the "Attribute1" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute2" attribute of
-    /// this object.
     int attribute2() const;
+        // Return the value of the "Attribute2" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged14& lhs,
+                           const EncoderTestSequenceWithUntagged14& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.attribute1() == rhs.attribute1() &&
+               lhs.attribute2() == rhs.attribute2();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged14& lhs,
+                           const EncoderTestSequenceWithUntagged14& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const EncoderTestSequenceWithUntagged14& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                        hashAlg,
+                           const EncoderTestSequenceWithUntagged14& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged14'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged14& lhs, const EncoderTestSequenceWithUntagged14& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged14& lhs, const EncoderTestSequenceWithUntagged14& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged14& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged14`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged14& object);
 
 }  // close package namespace
 
@@ -3059,157 +2914,132 @@ class EncoderTestSequenceWithUntagged1Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged1Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged1Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged1Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged1Sequence(const EncoderTestSequenceWithUntagged1Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged1Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged1Sequence(EncoderTestSequenceWithUntagged1Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged1Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged1Sequence& operator=(const EncoderTestSequenceWithUntagged1Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged1Sequence& operator=(EncoderTestSequenceWithUntagged1Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged1Sequence&,
+                           const EncoderTestSequenceWithUntagged1Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged1Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged1Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged1Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged1Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged1Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged1Sequence& lhs, const EncoderTestSequenceWithUntagged1Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged1Sequence& lhs, const EncoderTestSequenceWithUntagged1Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged1Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged1Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged1Sequence& object);
 
 }  // close package namespace
 
@@ -3249,165 +3079,146 @@ class EncoderTestSequenceWithUntagged2 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged2` having
-    /// the default value.
     EncoderTestSequenceWithUntagged2();
+        // Create an object of type 'EncoderTestSequenceWithUntagged2' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged2` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged2(const EncoderTestSequenceWithUntagged2& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged2` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged2(EncoderTestSequenceWithUntagged2&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged2();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged2& operator=(const EncoderTestSequenceWithUntagged2& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged2& operator=(EncoderTestSequenceWithUntagged2&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged2& lhs,
+                           const EncoderTestSequenceWithUntagged2& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged2& lhs,
+                           const EncoderTestSequenceWithUntagged2& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged2& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged2& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged2'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.attribute0());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged2& lhs, const EncoderTestSequenceWithUntagged2& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged2& lhs, const EncoderTestSequenceWithUntagged2& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged2& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged2`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged2& object);
 
 }  // close package namespace
 
@@ -3437,157 +3248,132 @@ class EncoderTestSequenceWithUntagged3Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged3Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged3Sequence(const EncoderTestSequenceWithUntagged3Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged3Sequence(EncoderTestSequenceWithUntagged3Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged3Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged3Sequence& operator=(const EncoderTestSequenceWithUntagged3Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged3Sequence& operator=(EncoderTestSequenceWithUntagged3Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged3Sequence&,
+                           const EncoderTestSequenceWithUntagged3Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged3Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged3Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged3Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged3Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged3Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged3Sequence& lhs, const EncoderTestSequenceWithUntagged3Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged3Sequence& lhs, const EncoderTestSequenceWithUntagged3Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged3Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged3Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3Sequence& object);
 
 }  // close package namespace
 
@@ -3617,157 +3403,133 @@ class EncoderTestSequenceWithUntagged3Sequence1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence1`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged3Sequence1();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence1`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged3Sequence1(const EncoderTestSequenceWithUntagged3Sequence1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged3Sequence1`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged3Sequence1(EncoderTestSequenceWithUntagged3Sequence1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged3Sequence1();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged3Sequence1& operator=(const EncoderTestSequenceWithUntagged3Sequence1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged3Sequence1& operator=(EncoderTestSequenceWithUntagged3Sequence1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged3Sequence1&,
+                           const EncoderTestSequenceWithUntagged3Sequence1&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged3Sequence1& lhs,
+                          const EncoderTestSequenceWithUntagged3Sequence1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged3Sequence1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged3Sequence1&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged3Sequence1'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged3Sequence1& lhs, const EncoderTestSequenceWithUntagged3Sequence1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged3Sequence1& lhs, const EncoderTestSequenceWithUntagged3Sequence1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged3Sequence1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged3Sequence1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3Sequence1& object);
 
 }  // close package namespace
 
@@ -3797,157 +3559,132 @@ class EncoderTestSequenceWithUntagged4Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged4Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged4Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged4Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged4Sequence(const EncoderTestSequenceWithUntagged4Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged4Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged4Sequence(EncoderTestSequenceWithUntagged4Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged4Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged4Sequence& operator=(const EncoderTestSequenceWithUntagged4Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged4Sequence& operator=(EncoderTestSequenceWithUntagged4Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged4Sequence&,
+                           const EncoderTestSequenceWithUntagged4Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged4Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged4Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged4Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged4Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged4Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged4Sequence& lhs, const EncoderTestSequenceWithUntagged4Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged4Sequence& lhs, const EncoderTestSequenceWithUntagged4Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged4Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged4Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged4Sequence& object);
 
 }  // close package namespace
 
@@ -3977,157 +3714,132 @@ class EncoderTestSequenceWithUntagged5Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged5Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged5Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged5Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged5Sequence(const EncoderTestSequenceWithUntagged5Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged5Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged5Sequence(EncoderTestSequenceWithUntagged5Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged5Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged5Sequence& operator=(const EncoderTestSequenceWithUntagged5Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged5Sequence& operator=(EncoderTestSequenceWithUntagged5Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged5Sequence&,
+                           const EncoderTestSequenceWithUntagged5Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged5Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged5Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged5Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged5Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged5Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged5Sequence& lhs, const EncoderTestSequenceWithUntagged5Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged5Sequence& lhs, const EncoderTestSequenceWithUntagged5Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged5Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged5Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged5Sequence& object);
 
 }  // close package namespace
 
@@ -4170,173 +3882,155 @@ class EncoderTestSequenceWithUntagged6 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged6` having
-    /// the default value.
     EncoderTestSequenceWithUntagged6();
+        // Create an object of type 'EncoderTestSequenceWithUntagged6' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged6` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged6(const EncoderTestSequenceWithUntagged6& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged6` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged6(EncoderTestSequenceWithUntagged6&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged6();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged6& operator=(const EncoderTestSequenceWithUntagged6& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged6& operator=(EncoderTestSequenceWithUntagged6&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute1" attribute of this
-    /// object.
     int& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute1" attribute of
-    /// this object.
     int attribute1() const;
+        // Return the value of the "Attribute1" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged6& lhs,
+                           const EncoderTestSequenceWithUntagged6& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.attribute1() == rhs.attribute1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged6& lhs,
+                           const EncoderTestSequenceWithUntagged6& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged6& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged6& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged6'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.attribute0());
+        hashAppend(hashAlg, object.attribute1());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged6& lhs, const EncoderTestSequenceWithUntagged6& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged6& lhs, const EncoderTestSequenceWithUntagged6& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged6& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged6`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged6& object);
 
 }  // close package namespace
 
@@ -4366,157 +4060,132 @@ class EncoderTestSequenceWithUntagged7Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged7Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged7Sequence(const EncoderTestSequenceWithUntagged7Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence(EncoderTestSequenceWithUntagged7Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged7Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged7Sequence& operator=(const EncoderTestSequenceWithUntagged7Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence& operator=(EncoderTestSequenceWithUntagged7Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged7Sequence&,
+                           const EncoderTestSequenceWithUntagged7Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged7Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged7Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged7Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged7Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged7Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged7Sequence& lhs, const EncoderTestSequenceWithUntagged7Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged7Sequence& lhs, const EncoderTestSequenceWithUntagged7Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged7Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged7Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence& object);
 
 }  // close package namespace
 
@@ -4546,157 +4215,133 @@ class EncoderTestSequenceWithUntagged7Sequence1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence1`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged7Sequence1();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence1`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged7Sequence1(const EncoderTestSequenceWithUntagged7Sequence1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence1`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence1(EncoderTestSequenceWithUntagged7Sequence1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged7Sequence1();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged7Sequence1& operator=(const EncoderTestSequenceWithUntagged7Sequence1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence1& operator=(EncoderTestSequenceWithUntagged7Sequence1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged7Sequence1&,
+                           const EncoderTestSequenceWithUntagged7Sequence1&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged7Sequence1& lhs,
+                          const EncoderTestSequenceWithUntagged7Sequence1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged7Sequence1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged7Sequence1&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged7Sequence1'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged7Sequence1& lhs, const EncoderTestSequenceWithUntagged7Sequence1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged7Sequence1& lhs, const EncoderTestSequenceWithUntagged7Sequence1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged7Sequence1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged7Sequence1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence1& object);
 
 }  // close package namespace
 
@@ -4726,157 +4371,133 @@ class EncoderTestSequenceWithUntagged7Sequence2 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence2`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged7Sequence2();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence2`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged7Sequence2(const EncoderTestSequenceWithUntagged7Sequence2& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged7Sequence2`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence2(EncoderTestSequenceWithUntagged7Sequence2&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged7Sequence2();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged7Sequence2& operator=(const EncoderTestSequenceWithUntagged7Sequence2& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7Sequence2& operator=(EncoderTestSequenceWithUntagged7Sequence2&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged7Sequence2&,
+                           const EncoderTestSequenceWithUntagged7Sequence2&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged7Sequence2& lhs,
+                          const EncoderTestSequenceWithUntagged7Sequence2& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged7Sequence2& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged7Sequence2&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged7Sequence2'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged7Sequence2& lhs, const EncoderTestSequenceWithUntagged7Sequence2& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged7Sequence2& lhs, const EncoderTestSequenceWithUntagged7Sequence2& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged7Sequence2& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged7Sequence2`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence2& object);
 
 }  // close package namespace
 
@@ -4906,157 +4527,132 @@ class EncoderTestSequenceWithUntagged8Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged8Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged8Sequence(const EncoderTestSequenceWithUntagged8Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged8Sequence(EncoderTestSequenceWithUntagged8Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged8Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged8Sequence& operator=(const EncoderTestSequenceWithUntagged8Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged8Sequence& operator=(EncoderTestSequenceWithUntagged8Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged8Sequence&,
+                           const EncoderTestSequenceWithUntagged8Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged8Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged8Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged8Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged8Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged8Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged8Sequence& lhs, const EncoderTestSequenceWithUntagged8Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged8Sequence& lhs, const EncoderTestSequenceWithUntagged8Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged8Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged8Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8Sequence& object);
 
 }  // close package namespace
 
@@ -5086,157 +4682,133 @@ class EncoderTestSequenceWithUntagged8Sequence1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence1`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged8Sequence1();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence1`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged8Sequence1(const EncoderTestSequenceWithUntagged8Sequence1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged8Sequence1`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged8Sequence1(EncoderTestSequenceWithUntagged8Sequence1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged8Sequence1();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged8Sequence1& operator=(const EncoderTestSequenceWithUntagged8Sequence1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged8Sequence1& operator=(EncoderTestSequenceWithUntagged8Sequence1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged8Sequence1&,
+                           const EncoderTestSequenceWithUntagged8Sequence1&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged8Sequence1& lhs,
+                          const EncoderTestSequenceWithUntagged8Sequence1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged8Sequence1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged8Sequence1&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged8Sequence1'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged8Sequence1& lhs, const EncoderTestSequenceWithUntagged8Sequence1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged8Sequence1& lhs, const EncoderTestSequenceWithUntagged8Sequence1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged8Sequence1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged8Sequence1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8Sequence1& object);
 
 }  // close package namespace
 
@@ -5266,157 +4838,132 @@ class EncoderTestSequenceWithUntagged9Sequence {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged9Sequence();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged9Sequence(const EncoderTestSequenceWithUntagged9Sequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged9Sequence(EncoderTestSequenceWithUntagged9Sequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged9Sequence();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged9Sequence& operator=(const EncoderTestSequenceWithUntagged9Sequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged9Sequence& operator=(EncoderTestSequenceWithUntagged9Sequence&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged9Sequence&,
+                           const EncoderTestSequenceWithUntagged9Sequence&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged9Sequence& lhs,
+                           const EncoderTestSequenceWithUntagged9Sequence& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                        bsl::ostream&                                   stream,
+                        const EncoderTestSequenceWithUntagged9Sequence& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                              ,
+                           const EncoderTestSequenceWithUntagged9Sequence&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged9Sequence'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged9Sequence& lhs, const EncoderTestSequenceWithUntagged9Sequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged9Sequence& lhs, const EncoderTestSequenceWithUntagged9Sequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged9Sequence& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged9Sequence`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9Sequence& object);
 
 }  // close package namespace
 
@@ -5446,157 +4993,133 @@ class EncoderTestSequenceWithUntagged9Sequence1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence1`
-    /// having the default value.
-    EncoderTestSequenceWithUntagged9Sequence1();
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence1`
-    /// having the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged9Sequence1(const EncoderTestSequenceWithUntagged9Sequence1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged9Sequence1`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged9Sequence1(EncoderTestSequenceWithUntagged9Sequence1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged9Sequence1();
-
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged9Sequence1& operator=(const EncoderTestSequenceWithUntagged9Sequence1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged9Sequence1& operator=(EncoderTestSequenceWithUntagged9Sequence1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged9Sequence1&,
+                           const EncoderTestSequenceWithUntagged9Sequence1&)
+        // Returns 'true' as this type has no attributes and so all objects of
+        // this type are considered equal.
+    {
+        return true;
+    }
+
+    friend bool operator!=(
+                          const EncoderTestSequenceWithUntagged9Sequence1& lhs,
+                          const EncoderTestSequenceWithUntagged9Sequence1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const EncoderTestSequenceWithUntagged9Sequence1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                               ,
+                           const EncoderTestSequenceWithUntagged9Sequence1&)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged9Sequence1'.
+    {
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged9Sequence1& lhs, const EncoderTestSequenceWithUntagged9Sequence1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged9Sequence1& lhs, const EncoderTestSequenceWithUntagged9Sequence1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged9Sequence1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged9Sequence1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9Sequence1& object);
 
 }  // close package namespace
 
@@ -5624,6 +5147,12 @@ class EncoderTestChoiceWithAllCategories {
 
     int                                                                            d_selectionId;
     bslma::Allocator                                                              *d_allocator_p;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const EncoderTestChoiceWithAllCategories& rhs) const;
 
   public:
     // TYPES
@@ -5657,81 +5186,78 @@ class EncoderTestChoiceWithAllCategories {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return selection information for the selection indicated by the
-    /// specified `id` if the selection exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
 
-    /// Return selection information for the selection indicated by the
-    /// specified `name` of the specified `nameLength` if the selection
-    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestChoiceWithAllCategories` having
-    /// the default value.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     explicit EncoderTestChoiceWithAllCategories(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestChoiceWithAllCategories' having
+        // the default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
-    /// Create an object of type `EncoderTestChoiceWithAllCategories` having
-    /// the value of the specified `original` object.  Use the optionally
-    /// specified `basicAllocator` to supply memory.  If `basicAllocator` is
-    /// 0, the currently installed default allocator is used.
     EncoderTestChoiceWithAllCategories(const EncoderTestChoiceWithAllCategories& original,
                                       bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestChoiceWithAllCategories' having
+        // the value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestChoiceWithAllCategories` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
     EncoderTestChoiceWithAllCategories(EncoderTestChoiceWithAllCategories&& original) noexcept;
+        // Create an object of type 'EncoderTestChoiceWithAllCategories' having
+        // the value of the specified 'original' object.  After performing this
+        // action, the 'original' object will be left in a valid, but
+        // unspecified state.
 
-    /// Create an object of type `EncoderTestChoiceWithAllCategories` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.  Use the optionally specified `basicAllocator` to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
     EncoderTestChoiceWithAllCategories(EncoderTestChoiceWithAllCategories&& original,
                                       bslma::Allocator *basicAllocator);
+        // Create an object of type 'EncoderTestChoiceWithAllCategories' having
+        // the value of the specified 'original' object.  After performing this
+        // action, the 'original' object will be left in a valid, but
+        // unspecified state.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestChoiceWithAllCategories();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestChoiceWithAllCategories& operator=(const EncoderTestChoiceWithAllCategories& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestChoiceWithAllCategories& operator=(EncoderTestChoiceWithAllCategories&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon default
-    /// construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `selectionId`.  Return 0 on success, and
-    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `name` of the specified `nameLength`.
-    /// Return 0 on success, and non-zero value otherwise (i.e., the
-    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
 
     bsl::vector<char>& makeCharArray();
     bsl::vector<char>& makeCharArray(const bsl::vector<char>& value);
@@ -5763,11 +5289,11 @@ class EncoderTestChoiceWithAllCategories {
         // Optionally specify the 'value' of the "CustomizedType".  If 'value'
         // is not specified, the default "CustomizedType" value is used.
 
-    /// Set the value of this object to be a "Enumeration" value.
-    /// Optionally specify the `value` of the "Enumeration".  If `value` is
-    /// not specified, the default "Enumeration" value is used.
     EncoderTestChoiceWithAllCategoriesEnumeration::Value& makeEnumeration();
     EncoderTestChoiceWithAllCategoriesEnumeration::Value& makeEnumeration(EncoderTestChoiceWithAllCategoriesEnumeration::Value value);
+        // Set the value of this object to be a "Enumeration" value.
+        // Optionally specify the 'value' of the "Enumeration".  If 'value' is
+        // not specified, the default "Enumeration" value is used.
 
     EncoderTestChoiceWithAllCategoriesSequence& makeSequence();
     EncoderTestChoiceWithAllCategoriesSequence& makeSequence(const EncoderTestChoiceWithAllCategoriesSequence& value);
@@ -5779,166 +5305,181 @@ class EncoderTestChoiceWithAllCategories {
         // specify the 'value' of the "Sequence".  If 'value' is not specified,
         // the default "Sequence" value is used.
 
-    /// Set the value of this object to be a "Simple" value.  Optionally
-    /// specify the `value` of the "Simple".  If `value` is not specified,
-    /// the default "Simple" value is used.
     int& makeSimple();
     int& makeSimple(int value);
+        // Set the value of this object to be a "Simple" value.  Optionally
+        // specify the 'value' of the "Simple".  If 'value' is not specified,
+        // the default "Simple" value is used.
 
-    /// Invoke the specified `manipulator` on the address of the modifiable
-    /// selection, supplying `manipulator` with the corresponding selection
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if this object has a defined selection,
-    /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
 
-    /// Return a reference to the modifiable "CharArray" selection of this
-    /// object if "CharArray" is the current selection.  The behavior is
-    /// undefined unless "CharArray" is the selection of this object.
     bsl::vector<char>& charArray();
+        // Return a reference to the modifiable "CharArray" selection of this
+        // object if "CharArray" is the current selection.  The behavior is
+        // undefined unless "CharArray" is the selection of this object.
 
-    /// Return a reference to the modifiable "Choice" selection of this
-    /// object if "Choice" is the current selection.  The behavior is
-    /// undefined unless "Choice" is the selection of this object.
     EncoderTestChoiceWithAllCategoriesChoice& choice();
+        // Return a reference to the modifiable "Choice" selection of this
+        // object if "Choice" is the current selection.  The behavior is
+        // undefined unless "Choice" is the selection of this object.
 
-    /// Return a reference to the modifiable "CustomizedType" selection of
-    /// this object if "CustomizedType" is the current selection.  The
-    /// behavior is undefined unless "CustomizedType" is the selection of
-    /// this object.
     EncoderTestChoiceWithAllCategoriesCustomizedType& customizedType();
+        // Return a reference to the modifiable "CustomizedType" selection of
+        // this object if "CustomizedType" is the current selection.  The
+        // behavior is undefined unless "CustomizedType" is the selection of
+        // this object.
 
-    /// Return a reference to the modifiable "Enumeration" selection of this
-    /// object if "Enumeration" is the current selection.  The behavior is
-    /// undefined unless "Enumeration" is the selection of this object.
     EncoderTestChoiceWithAllCategoriesEnumeration::Value& enumeration();
+        // Return a reference to the modifiable "Enumeration" selection of this
+        // object if "Enumeration" is the current selection.  The behavior is
+        // undefined unless "Enumeration" is the selection of this object.
 
-    /// Return a reference to the modifiable "Sequence" selection of this
-    /// object if "Sequence" is the current selection.  The behavior is
-    /// undefined unless "Sequence" is the selection of this object.
     EncoderTestChoiceWithAllCategoriesSequence& sequence();
+        // Return a reference to the modifiable "Sequence" selection of this
+        // object if "Sequence" is the current selection.  The behavior is
+        // undefined unless "Sequence" is the selection of this object.
 
-    /// Return a reference to the modifiable "Simple" selection of this
-    /// object if "Simple" is the current selection.  The behavior is
-    /// undefined unless "Simple" is the selection of this object.
     int& simple();
+        // Return a reference to the modifiable "Simple" selection of this
+        // object if "Simple" is the current selection.  The behavior is
+        // undefined unless "Simple" is the selection of this object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Return the id of the current selection if the selection is defined,
-    /// and -1 otherwise.
     int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the non-modifiable selection,
-    /// supplying `accessor` with the corresponding selection information
-    /// structure.  Return the value returned from the invocation of
-    /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "CharArray" selection of
-    /// this object if "CharArray" is the current selection.  The behavior
-    /// is undefined unless "CharArray" is the selection of this object.
     const bsl::vector<char>& charArray() const;
+        // Return a reference to the non-modifiable "CharArray" selection of
+        // this object if "CharArray" is the current selection.  The behavior
+        // is undefined unless "CharArray" is the selection of this object.
 
-    /// Return a reference to the non-modifiable "Choice" selection of this
-    /// object if "Choice" is the current selection.  The behavior is
-    /// undefined unless "Choice" is the selection of this object.
     const EncoderTestChoiceWithAllCategoriesChoice& choice() const;
+        // Return a reference to the non-modifiable "Choice" selection of this
+        // object if "Choice" is the current selection.  The behavior is
+        // undefined unless "Choice" is the selection of this object.
 
-    /// Return a reference to the non-modifiable "CustomizedType" selection
-    /// of this object if "CustomizedType" is the current selection.  The
-    /// behavior is undefined unless "CustomizedType" is the selection of
-    /// this object.
     const EncoderTestChoiceWithAllCategoriesCustomizedType& customizedType() const;
+        // Return a reference to the non-modifiable "CustomizedType" selection
+        // of this object if "CustomizedType" is the current selection.  The
+        // behavior is undefined unless "CustomizedType" is the selection of
+        // this object.
 
-    /// Return a reference to the non-modifiable "Enumeration" selection of
-    /// this object if "Enumeration" is the current selection.  The behavior
-    /// is undefined unless "Enumeration" is the selection of this object.
     const EncoderTestChoiceWithAllCategoriesEnumeration::Value& enumeration() const;
+        // Return a reference to the non-modifiable "Enumeration" selection of
+        // this object if "Enumeration" is the current selection.  The behavior
+        // is undefined unless "Enumeration" is the selection of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" selection of
-    /// this object if "Sequence" is the current selection.  The behavior is
-    /// undefined unless "Sequence" is the selection of this object.
     const EncoderTestChoiceWithAllCategoriesSequence& sequence() const;
+        // Return a reference to the non-modifiable "Sequence" selection of
+        // this object if "Sequence" is the current selection.  The behavior is
+        // undefined unless "Sequence" is the selection of this object.
 
-    /// Return a reference to the non-modifiable "Simple" selection of this
-    /// object if "Simple" is the current selection.  The behavior is
-    /// undefined unless "Simple" is the selection of this object.
     const int& simple() const;
+        // Return a reference to the non-modifiable "Simple" selection of this
+        // object if "Simple" is the current selection.  The behavior is
+        // undefined unless "Simple" is the selection of this object.
 
-    /// Return `true` if the value of this object is a "CharArray" value,
-    /// and return `false` otherwise.
     bool isCharArrayValue() const;
+        // Return 'true' if the value of this object is a "CharArray" value,
+        // and return 'false' otherwise.
 
-    /// Return `true` if the value of this object is a "Choice" value, and
-    /// return `false` otherwise.
     bool isChoiceValue() const;
+        // Return 'true' if the value of this object is a "Choice" value, and
+        // return 'false' otherwise.
 
-    /// Return `true` if the value of this object is a "CustomizedType"
-    /// value, and return `false` otherwise.
     bool isCustomizedTypeValue() const;
+        // Return 'true' if the value of this object is a "CustomizedType"
+        // value, and return 'false' otherwise.
 
-    /// Return `true` if the value of this object is a "Enumeration" value,
-    /// and return `false` otherwise.
     bool isEnumerationValue() const;
+        // Return 'true' if the value of this object is a "Enumeration" value,
+        // and return 'false' otherwise.
 
-    /// Return `true` if the value of this object is a "Sequence" value, and
-    /// return `false` otherwise.
     bool isSequenceValue() const;
+        // Return 'true' if the value of this object is a "Sequence" value, and
+        // return 'false' otherwise.
 
-    /// Return `true` if the value of this object is a "Simple" value, and
-    /// return `false` otherwise.
     bool isSimpleValue() const;
+        // Return 'true' if the value of this object is a "Simple" value, and
+        // return 'false' otherwise.
 
-    /// Return `true` if the value of this object is undefined, and `false`
-    /// otherwise.
     bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
 
-    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestChoiceWithAllCategories& lhs,
+                           const EncoderTestChoiceWithAllCategories& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and 'false' otherwise.  Two
+        // 'EncoderTestChoiceWithAllCategories' objects have the same value if
+        // either the selections in both objects have the same ids and the same
+        // values, or both selections are undefined.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(const EncoderTestChoiceWithAllCategories& lhs,
+                           const EncoderTestChoiceWithAllCategories& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+        // the same values, as determined by 'operator==', and 'false'
+        // otherwise.
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                              bsl::ostream&                             stream,
+                              const EncoderTestChoiceWithAllCategories& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                         hashAlg,
+                           const EncoderTestChoiceWithAllCategories& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestChoiceWithAllCategories'.
+    {
+        return object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `EncoderTestChoiceWithAllCategories` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const EncoderTestChoiceWithAllCategories& lhs, const EncoderTestChoiceWithAllCategories& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const EncoderTestChoiceWithAllCategories& lhs, const EncoderTestChoiceWithAllCategories& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestChoiceWithAllCategories& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestChoiceWithAllCategories`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategories& object);
 
 }  // close package namespace
 
@@ -5960,6 +5501,12 @@ class EncoderTestDegenerateChoice1 {
     };
 
     int                                                            d_selectionId;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const EncoderTestDegenerateChoice1& rhs) const;
 
   public:
     // TYPES
@@ -5983,67 +5530,64 @@ class EncoderTestDegenerateChoice1 {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-
-    /// Return selection information for the selection indicated by the
-    /// specified `id` if the selection exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
 
-    /// Return selection information for the selection indicated by the
-    /// specified `name` of the specified `nameLength` if the selection
-    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestDegenerateChoice1` having the
-    /// default value.
     EncoderTestDegenerateChoice1();
+        // Create an object of type 'EncoderTestDegenerateChoice1' having the
+        // default value.
 
-    /// Create an object of type `EncoderTestDegenerateChoice1` having the
-    /// value of the specified `original` object.
     EncoderTestDegenerateChoice1(const EncoderTestDegenerateChoice1& original);
+        // Create an object of type 'EncoderTestDegenerateChoice1' having the
+        // value of the specified 'original' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestDegenerateChoice1` having the
-    /// value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
     EncoderTestDegenerateChoice1(EncoderTestDegenerateChoice1&& original) noexcept;
+        // Create an object of type 'EncoderTestDegenerateChoice1' having the
+        // value of the specified 'original' object.  After performing this
+        // action, the 'original' object will be left in a valid, but
+        // unspecified state.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestDegenerateChoice1();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestDegenerateChoice1& operator=(const EncoderTestDegenerateChoice1& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestDegenerateChoice1& operator=(EncoderTestDegenerateChoice1&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon default
-    /// construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `selectionId`.  Return 0 on success, and
-    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
 
-    /// Set the value of this object to be the default for the selection
-    /// indicated by the specified `name` of the specified `nameLength`.
-    /// Return 0 on success, and non-zero value otherwise (i.e., the
-    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
 
     EncoderTestDegenerateChoice1Sequence& makeSequence();
     EncoderTestDegenerateChoice1Sequence& makeSequence(const EncoderTestDegenerateChoice1Sequence& value);
@@ -6055,88 +5599,102 @@ class EncoderTestDegenerateChoice1 {
         // specify the 'value' of the "Sequence".  If 'value' is not specified,
         // the default "Sequence" value is used.
 
-    /// Invoke the specified `manipulator` on the address of the modifiable
-    /// selection, supplying `manipulator` with the corresponding selection
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if this object has a defined selection,
-    /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" selection of this
-    /// object if "Sequence" is the current selection.  The behavior is
-    /// undefined unless "Sequence" is the selection of this object.
     EncoderTestDegenerateChoice1Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" selection of this
+        // object if "Sequence" is the current selection.  The behavior is
+        // undefined unless "Sequence" is the selection of this object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Return the id of the current selection if the selection is defined,
-    /// and -1 otherwise.
     int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the non-modifiable selection,
-    /// supplying `accessor` with the corresponding selection information
-    /// structure.  Return the value returned from the invocation of
-    /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" selection of
-    /// this object if "Sequence" is the current selection.  The behavior is
-    /// undefined unless "Sequence" is the selection of this object.
     const EncoderTestDegenerateChoice1Sequence& sequence() const;
+        // Return a reference to the non-modifiable "Sequence" selection of
+        // this object if "Sequence" is the current selection.  The behavior is
+        // undefined unless "Sequence" is the selection of this object.
 
-    /// Return `true` if the value of this object is a "Sequence" value, and
-    /// return `false` otherwise.
     bool isSequenceValue() const;
+        // Return 'true' if the value of this object is a "Sequence" value, and
+        // return 'false' otherwise.
 
-    /// Return `true` if the value of this object is undefined, and `false`
-    /// otherwise.
     bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
 
-    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestDegenerateChoice1& lhs,
+                           const EncoderTestDegenerateChoice1& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+        // value, and 'false' otherwise.  Two 'EncoderTestDegenerateChoice1'
+        // objects have the same value if either the selections in both objects
+        // have the same ids and the same values, or both selections are
+        // undefined.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(const EncoderTestDegenerateChoice1& lhs,
+                           const EncoderTestDegenerateChoice1& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
+        // the same values, as determined by 'operator==', and 'false'
+        // otherwise.
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(bsl::ostream&                       stream,
+                                    const EncoderTestDegenerateChoice1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                   hashAlg,
+                           const EncoderTestDegenerateChoice1& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestDegenerateChoice1'.
+    {
+        return object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `EncoderTestDegenerateChoice1` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const EncoderTestDegenerateChoice1& lhs, const EncoderTestDegenerateChoice1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const EncoderTestDegenerateChoice1& lhs, const EncoderTestDegenerateChoice1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestDegenerateChoice1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestDegenerateChoice1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestDegenerateChoice1& object);
 
 }  // close package namespace
 
@@ -6156,6 +5714,10 @@ class EncoderTestEmployee {
     bsl::string         d_name;
     EncoderTestAddress  d_homeAddress;
     int                 d_age;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -6182,193 +5744,200 @@ class EncoderTestEmployee {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestEmployee` having the default
-    /// value.  Use the optionally specified `basicAllocator` to supply
-    /// memory.  If `basicAllocator` is 0, the currently installed default
-    /// allocator is used.
     explicit EncoderTestEmployee(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestEmployee' having the default
+        // value.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
-    /// Create an object of type `EncoderTestEmployee` having the value of
-    /// the specified `original` object.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
     EncoderTestEmployee(const EncoderTestEmployee& original,
                         bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestEmployee' having the value of
+        // the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestEmployee` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
     EncoderTestEmployee(EncoderTestEmployee&& original) noexcept;
+        // Create an object of type 'EncoderTestEmployee' having the value of
+        // the specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
 
-    /// Create an object of type `EncoderTestEmployee` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    /// Use the optionally specified `basicAllocator` to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
     EncoderTestEmployee(EncoderTestEmployee&& original,
                         bslma::Allocator *basicAllocator);
+        // Create an object of type 'EncoderTestEmployee' having the value of
+        // the specified 'original' object.  After performing this action, the
+        // 'original' object will be left in a valid, but unspecified state.
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestEmployee();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestEmployee& operator=(const EncoderTestEmployee& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestEmployee& operator=(EncoderTestEmployee&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Name" attribute of this
-    /// object.
     bsl::string& name();
+        // Return a reference to the modifiable "Name" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "HomeAddress" attribute of this
-    /// object.
     EncoderTestAddress& homeAddress();
+        // Return a reference to the modifiable "HomeAddress" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Age" attribute of this object.
     int& age();
+        // Return a reference to the modifiable "Age" attribute of this object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Name" attribute of this
-    /// object.
     const bsl::string& name() const;
+        // Return a reference offering non-modifiable access to the "Name"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "HomeAddress" attribute of
-    /// this object.
     const EncoderTestAddress& homeAddress() const;
+        // Return a reference offering non-modifiable access to the
+        // "HomeAddress" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Age" attribute of this
-    /// object.
     int age() const;
+        // Return the value of the "Age" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestEmployee& lhs,
+                           const EncoderTestEmployee& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.name() == rhs.name() &&
+               lhs.homeAddress() == rhs.homeAddress() &&
+               lhs.age() == rhs.age();
+    }
+
+    friend bool operator!=(const EncoderTestEmployee& lhs,
+                           const EncoderTestEmployee& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(bsl::ostream&              stream,
+                                    const EncoderTestEmployee& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&          hashAlg,
+                           const EncoderTestEmployee& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestEmployee'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestEmployee& lhs, const EncoderTestEmployee& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestEmployee& lhs, const EncoderTestEmployee& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestEmployee& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestEmployee`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestEmployee& object);
 
 }  // close package namespace
 
@@ -6387,6 +5956,7 @@ class EncoderTestSequenceWithAllCategories {
     // INSTANCE DATA
     bsl::vector<int>                                        d_array;
     bsl::vector<char>                                       d_charArray;
+    bsl::string                                             d_aString;
     EncoderTestSequenceWithAllCategoriesSequence            d_sequence;
     EncoderTestSequenceWithAllCategoriesCustomizedType      d_customizedType;
     EncoderTestSequenceWithAllCategoriesChoice              d_choice;
@@ -6394,271 +5964,294 @@ class EncoderTestSequenceWithAllCategories {
     bdlb::NullableValue<int>                                d_nullableValue;
     EncoderTestSequenceWithAllCategoriesEnumeration::Value  d_enumeration;
 
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
+
+    bool isEqualTo(const EncoderTestSequenceWithAllCategories& rhs) const;
+
   public:
     // TYPES
     enum {
         ATTRIBUTE_ID_CHAR_ARRAY      = 0
-      , ATTRIBUTE_ID_ARRAY           = 1
-      , ATTRIBUTE_ID_CHOICE          = 2
-      , ATTRIBUTE_ID_CUSTOMIZED_TYPE = 3
-      , ATTRIBUTE_ID_ENUMERATION     = 4
-      , ATTRIBUTE_ID_NULLABLE_VALUE  = 5
-      , ATTRIBUTE_ID_SEQUENCE        = 6
-      , ATTRIBUTE_ID_SIMPLE          = 7
+      , ATTRIBUTE_ID_A_STRING        = 1
+      , ATTRIBUTE_ID_ARRAY           = 2
+      , ATTRIBUTE_ID_CHOICE          = 3
+      , ATTRIBUTE_ID_CUSTOMIZED_TYPE = 4
+      , ATTRIBUTE_ID_ENUMERATION     = 5
+      , ATTRIBUTE_ID_NULLABLE_VALUE  = 6
+      , ATTRIBUTE_ID_SEQUENCE        = 7
+      , ATTRIBUTE_ID_SIMPLE          = 8
     };
 
     enum {
-        NUM_ATTRIBUTES = 8
+        NUM_ATTRIBUTES = 9
     };
 
     enum {
         ATTRIBUTE_INDEX_CHAR_ARRAY      = 0
-      , ATTRIBUTE_INDEX_ARRAY           = 1
-      , ATTRIBUTE_INDEX_CHOICE          = 2
-      , ATTRIBUTE_INDEX_CUSTOMIZED_TYPE = 3
-      , ATTRIBUTE_INDEX_ENUMERATION     = 4
-      , ATTRIBUTE_INDEX_NULLABLE_VALUE  = 5
-      , ATTRIBUTE_INDEX_SEQUENCE        = 6
-      , ATTRIBUTE_INDEX_SIMPLE          = 7
+      , ATTRIBUTE_INDEX_A_STRING        = 1
+      , ATTRIBUTE_INDEX_ARRAY           = 2
+      , ATTRIBUTE_INDEX_CHOICE          = 3
+      , ATTRIBUTE_INDEX_CUSTOMIZED_TYPE = 4
+      , ATTRIBUTE_INDEX_ENUMERATION     = 5
+      , ATTRIBUTE_INDEX_NULLABLE_VALUE  = 6
+      , ATTRIBUTE_INDEX_SEQUENCE        = 7
+      , ATTRIBUTE_INDEX_SIMPLE          = 8
     };
 
     // CONSTANTS
     static const char CLASS_NAME[];
 
+    static const char DEFAULT_INITIALIZER_A_STRING[];
+
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithAllCategories`
-    /// having the default value.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
     explicit EncoderTestSequenceWithAllCategories(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestSequenceWithAllCategories'
+        // having the default value.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
-    /// Create an object of type `EncoderTestSequenceWithAllCategories`
-    /// having the value of the specified `original` object.  Use the
-    /// optionally specified `basicAllocator` to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
     EncoderTestSequenceWithAllCategories(const EncoderTestSequenceWithAllCategories& original,
                                          bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'EncoderTestSequenceWithAllCategories'
+        // having the value of the specified 'original' object.  Use the
+        // optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithAllCategories`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestSequenceWithAllCategories(EncoderTestSequenceWithAllCategories&& original) noexcept;
+        // Create an object of type 'EncoderTestSequenceWithAllCategories'
+        // having the value of the specified 'original' object.  After
+        // performing this action, the 'original' object will be left in a
+        // valid, but unspecified state.
 
-    /// Create an object of type `EncoderTestSequenceWithAllCategories`
-    /// having the value of the specified `original` object.  After
-    /// performing this action, the `original` object will be left in a
-    /// valid, but unspecified state.  Use the optionally specified
-    /// `basicAllocator` to supply memory.  If `basicAllocator` is 0, the
-    /// currently installed default allocator is used.
     EncoderTestSequenceWithAllCategories(EncoderTestSequenceWithAllCategories&& original,
                                          bslma::Allocator *basicAllocator);
+        // Create an object of type 'EncoderTestSequenceWithAllCategories'
+        // having the value of the specified 'original' object.  After
+        // performing this action, the 'original' object will be left in a
+        // valid, but unspecified state.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 #endif
 
-    /// Destroy this object.
     ~EncoderTestSequenceWithAllCategories();
+        // Destroy this object.
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
     EncoderTestSequenceWithAllCategories& operator=(const EncoderTestSequenceWithAllCategories& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
     EncoderTestSequenceWithAllCategories& operator=(EncoderTestSequenceWithAllCategories&& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+        // After performing this action, the 'rhs' object will be left in a
+        // valid, but unspecified state.
 #endif
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "CharArray" attribute of this
-    /// object.
     bsl::vector<char>& charArray();
+        // Return a reference to the modifiable "CharArray" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Array" attribute of this
-    /// object.
+    bsl::string& aString();
+        // Return a reference to the modifiable "AString" attribute of this
+        // object.
+
     bsl::vector<int>& array();
+        // Return a reference to the modifiable "Array" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Choice" attribute of this
-    /// object.
     EncoderTestSequenceWithAllCategoriesChoice& choice();
+        // Return a reference to the modifiable "Choice" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "CustomizedType" attribute of
-    /// this object.
     EncoderTestSequenceWithAllCategoriesCustomizedType& customizedType();
+        // Return a reference to the modifiable "CustomizedType" attribute of
+        // this object.
 
-    /// Return a reference to the modifiable "Enumeration" attribute of this
-    /// object.
     EncoderTestSequenceWithAllCategoriesEnumeration::Value& enumeration();
+        // Return a reference to the modifiable "Enumeration" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "NullableValue" attribute of
-    /// this object.
     bdlb::NullableValue<int>& nullableValue();
+        // Return a reference to the modifiable "NullableValue" attribute of
+        // this object.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithAllCategoriesSequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Simple" attribute of this
-    /// object.
     int& simple();
+        // Return a reference to the modifiable "Simple" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "CharArray" attribute of
-    /// this object.
     const bsl::vector<char>& charArray() const;
+        // Return a reference offering non-modifiable access to the "CharArray"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Array" attribute of this
-    /// object.
+    const bsl::string& aString() const;
+        // Return a reference offering non-modifiable access to the "AString"
+        // attribute of this object.
+
     const bsl::vector<int>& array() const;
+        // Return a reference offering non-modifiable access to the "Array"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Choice" attribute of this
-    /// object.
     const EncoderTestSequenceWithAllCategoriesChoice& choice() const;
+        // Return a reference offering non-modifiable access to the "Choice"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "CustomizedType" attribute
-    /// of this object.
     const EncoderTestSequenceWithAllCategoriesCustomizedType& customizedType() const;
+        // Return a reference offering non-modifiable access to the
+        // "CustomizedType" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Enumeration" attribute of
-    /// this object.
     EncoderTestSequenceWithAllCategoriesEnumeration::Value enumeration() const;
+        // Return the value of the "Enumeration" attribute of this object.
 
-    /// Return a reference to the non-modifiable "NullableValue" attribute
-    /// of this object.
     const bdlb::NullableValue<int>& nullableValue() const;
+        // Return a reference offering non-modifiable access to the
+        // "NullableValue" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithAllCategoriesSequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Simple" attribute of this
-    /// object.
     int simple() const;
+        // Return the value of the "Simple" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithAllCategories& lhs,
+                           const EncoderTestSequenceWithAllCategories& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithAllCategories& lhs,
+                           const EncoderTestSequenceWithAllCategories& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                            bsl::ostream&                               stream,
+                            const EncoderTestSequenceWithAllCategories& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                           hashAlg,
+                           const EncoderTestSequenceWithAllCategories& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithAllCategories'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithAllCategories& lhs, const EncoderTestSequenceWithAllCategories& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithAllCategories& lhs, const EncoderTestSequenceWithAllCategories& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithAllCategories& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithAllCategories`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategories& object);
 
 }  // close package namespace
 
@@ -6698,165 +6291,147 @@ class EncoderTestSequenceWithUntagged1 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged1` having
-    /// the default value.
     EncoderTestSequenceWithUntagged1();
+        // Create an object of type 'EncoderTestSequenceWithUntagged1' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged1` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged1(const EncoderTestSequenceWithUntagged1& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged1` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged1(EncoderTestSequenceWithUntagged1&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged1();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged1& operator=(const EncoderTestSequenceWithUntagged1& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged1& operator=(EncoderTestSequenceWithUntagged1&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged1Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged1Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged1& lhs,
+                           const EncoderTestSequenceWithUntagged1& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged1& lhs,
+                           const EncoderTestSequenceWithUntagged1& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged1& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged1& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged1'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.sequence());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged1& lhs, const EncoderTestSequenceWithUntagged1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged1& lhs, const EncoderTestSequenceWithUntagged1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged1& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged1`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged1& object);
 
 }  // close package namespace
 
@@ -6876,6 +6451,10 @@ class EncoderTestSequenceWithUntagged10 {
     EncoderTestSequenceWithUntagged10Sequence  d_sequence;
     int                                        d_attribute0;
     int                                        d_attribute1;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -6902,181 +6481,162 @@ class EncoderTestSequenceWithUntagged10 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged10` having
-    /// the default value.
     EncoderTestSequenceWithUntagged10();
+        // Create an object of type 'EncoderTestSequenceWithUntagged10' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged10` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged10(const EncoderTestSequenceWithUntagged10& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged10` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged10(EncoderTestSequenceWithUntagged10&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged10();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged10& operator=(const EncoderTestSequenceWithUntagged10& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged10& operator=(EncoderTestSequenceWithUntagged10&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged10Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute1" attribute of this
-    /// object.
     int& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged10Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute1" attribute of
-    /// this object.
     int attribute1() const;
+        // Return the value of the "Attribute1" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged10& lhs,
+                           const EncoderTestSequenceWithUntagged10& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.attribute0() == rhs.attribute0() &&
+               lhs.attribute1() == rhs.attribute1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged10& lhs,
+                           const EncoderTestSequenceWithUntagged10& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const EncoderTestSequenceWithUntagged10& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                        hashAlg,
+                           const EncoderTestSequenceWithUntagged10& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged10'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged10& lhs, const EncoderTestSequenceWithUntagged10& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged10& lhs, const EncoderTestSequenceWithUntagged10& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged10& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged10`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged10& object);
 
 }  // close package namespace
 
@@ -7096,6 +6656,10 @@ class EncoderTestSequenceWithUntagged11 {
     EncoderTestSequenceWithUntagged11Sequence1  d_sequence1;
     EncoderTestSequenceWithUntagged11Sequence   d_sequence;
     int                                         d_attribute0;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -7122,181 +6686,163 @@ class EncoderTestSequenceWithUntagged11 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged11` having
-    /// the default value.
     EncoderTestSequenceWithUntagged11();
+        // Create an object of type 'EncoderTestSequenceWithUntagged11' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged11` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged11(const EncoderTestSequenceWithUntagged11& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged11` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged11(EncoderTestSequenceWithUntagged11&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged11();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged11& operator=(const EncoderTestSequenceWithUntagged11& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged11& operator=(EncoderTestSequenceWithUntagged11&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged11Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence1" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged11Sequence1& sequence1();
+        // Return a reference to the modifiable "Sequence1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged11Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence1" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged11Sequence1& sequence1() const;
+        // Return a reference offering non-modifiable access to the "Sequence1"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged11& lhs,
+                           const EncoderTestSequenceWithUntagged11& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.sequence() == rhs.sequence() &&
+               lhs.sequence1() == rhs.sequence1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged11& lhs,
+                           const EncoderTestSequenceWithUntagged11& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const EncoderTestSequenceWithUntagged11& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                        hashAlg,
+                           const EncoderTestSequenceWithUntagged11& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged11'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged11& lhs, const EncoderTestSequenceWithUntagged11& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged11& lhs, const EncoderTestSequenceWithUntagged11& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged11& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged11`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11& object);
 
 }  // close package namespace
 
@@ -7316,6 +6862,10 @@ class EncoderTestSequenceWithUntagged12 {
     EncoderTestSequenceWithUntagged12Sequence  d_sequence;
     int                                        d_attribute0;
     int                                        d_attribute1;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -7342,181 +6892,162 @@ class EncoderTestSequenceWithUntagged12 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged12` having
-    /// the default value.
     EncoderTestSequenceWithUntagged12();
+        // Create an object of type 'EncoderTestSequenceWithUntagged12' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged12` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged12(const EncoderTestSequenceWithUntagged12& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged12` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged12(EncoderTestSequenceWithUntagged12&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged12();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged12& operator=(const EncoderTestSequenceWithUntagged12& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged12& operator=(EncoderTestSequenceWithUntagged12&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged12Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute1" attribute of this
-    /// object.
     int& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged12Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute1" attribute of
-    /// this object.
     int attribute1() const;
+        // Return the value of the "Attribute1" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged12& lhs,
+                           const EncoderTestSequenceWithUntagged12& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.sequence() == rhs.sequence() &&
+               lhs.attribute1() == rhs.attribute1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged12& lhs,
+                           const EncoderTestSequenceWithUntagged12& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const EncoderTestSequenceWithUntagged12& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                        hashAlg,
+                           const EncoderTestSequenceWithUntagged12& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged12'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged12& lhs, const EncoderTestSequenceWithUntagged12& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged12& lhs, const EncoderTestSequenceWithUntagged12& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged12& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged12`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged12& object);
 
 }  // close package namespace
 
@@ -7536,6 +7067,10 @@ class EncoderTestSequenceWithUntagged13 {
     EncoderTestSequenceWithUntagged13Sequence  d_sequence;
     int                                        d_attribute0;
     int                                        d_attribute1;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -7562,181 +7097,162 @@ class EncoderTestSequenceWithUntagged13 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged13` having
-    /// the default value.
     EncoderTestSequenceWithUntagged13();
+        // Create an object of type 'EncoderTestSequenceWithUntagged13' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged13` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged13(const EncoderTestSequenceWithUntagged13& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged13` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged13(EncoderTestSequenceWithUntagged13&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged13();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged13& operator=(const EncoderTestSequenceWithUntagged13& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged13& operator=(EncoderTestSequenceWithUntagged13&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute1" attribute of this
-    /// object.
     int& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged13Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute1" attribute of
-    /// this object.
     int attribute1() const;
+        // Return the value of the "Attribute1" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged13Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged13& lhs,
+                           const EncoderTestSequenceWithUntagged13& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.attribute1() == rhs.attribute1() &&
+               lhs.sequence() == rhs.sequence();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged13& lhs,
+                           const EncoderTestSequenceWithUntagged13& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const EncoderTestSequenceWithUntagged13& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                        hashAlg,
+                           const EncoderTestSequenceWithUntagged13& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged13'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged13& lhs, const EncoderTestSequenceWithUntagged13& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged13& lhs, const EncoderTestSequenceWithUntagged13& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged13& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged13`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged13& object);
 
 }  // close package namespace
 
@@ -7779,173 +7295,157 @@ class EncoderTestSequenceWithUntagged3 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged3` having
-    /// the default value.
     EncoderTestSequenceWithUntagged3();
+        // Create an object of type 'EncoderTestSequenceWithUntagged3' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged3` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged3(const EncoderTestSequenceWithUntagged3& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged3` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged3(EncoderTestSequenceWithUntagged3&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged3();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged3& operator=(const EncoderTestSequenceWithUntagged3& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged3& operator=(EncoderTestSequenceWithUntagged3&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged3Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence1" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged3Sequence1& sequence1();
+        // Return a reference to the modifiable "Sequence1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged3Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence1" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged3Sequence1& sequence1() const;
+        // Return a reference offering non-modifiable access to the "Sequence1"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged3& lhs,
+                           const EncoderTestSequenceWithUntagged3& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.sequence1() == rhs.sequence1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged3& lhs,
+                           const EncoderTestSequenceWithUntagged3& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged3& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged3& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged3'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.sequence());
+        hashAppend(hashAlg, object.sequence1());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged3& lhs, const EncoderTestSequenceWithUntagged3& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged3& lhs, const EncoderTestSequenceWithUntagged3& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged3& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged3`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3& object);
 
 }  // close package namespace
 
@@ -7988,173 +7488,156 @@ class EncoderTestSequenceWithUntagged4 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged4` having
-    /// the default value.
     EncoderTestSequenceWithUntagged4();
+        // Create an object of type 'EncoderTestSequenceWithUntagged4' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged4` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged4(const EncoderTestSequenceWithUntagged4& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged4` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged4(EncoderTestSequenceWithUntagged4&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged4();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged4& operator=(const EncoderTestSequenceWithUntagged4& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged4& operator=(EncoderTestSequenceWithUntagged4&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged4Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged4Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged4& lhs,
+                           const EncoderTestSequenceWithUntagged4& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.attribute0() == rhs.attribute0();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged4& lhs,
+                           const EncoderTestSequenceWithUntagged4& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged4& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged4& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged4'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.sequence());
+        hashAppend(hashAlg, object.attribute0());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged4& lhs, const EncoderTestSequenceWithUntagged4& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged4& lhs, const EncoderTestSequenceWithUntagged4& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged4& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged4`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged4& object);
 
 }  // close package namespace
 
@@ -8197,173 +7680,156 @@ class EncoderTestSequenceWithUntagged5 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged5` having
-    /// the default value.
     EncoderTestSequenceWithUntagged5();
+        // Create an object of type 'EncoderTestSequenceWithUntagged5' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged5` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged5(const EncoderTestSequenceWithUntagged5& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged5` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged5(EncoderTestSequenceWithUntagged5&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged5();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged5& operator=(const EncoderTestSequenceWithUntagged5& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged5& operator=(EncoderTestSequenceWithUntagged5&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged5Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged5Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged5& lhs,
+                           const EncoderTestSequenceWithUntagged5& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.attribute0() == rhs.attribute0() &&
+               lhs.sequence() == rhs.sequence();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged5& lhs,
+                           const EncoderTestSequenceWithUntagged5& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged5& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged5& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged5'.
+    {
+        using bslh::hashAppend;
+        hashAppend(hashAlg, object.attribute0());
+        hashAppend(hashAlg, object.sequence());
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged5& lhs, const EncoderTestSequenceWithUntagged5& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged5& lhs, const EncoderTestSequenceWithUntagged5& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged5& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged5`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged5& object);
 
 }  // close package namespace
 
@@ -8383,6 +7849,10 @@ class EncoderTestSequenceWithUntagged7 {
     EncoderTestSequenceWithUntagged7Sequence2  d_sequence2;
     EncoderTestSequenceWithUntagged7Sequence1  d_sequence1;
     EncoderTestSequenceWithUntagged7Sequence   d_sequence;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -8409,181 +7879,164 @@ class EncoderTestSequenceWithUntagged7 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged7` having
-    /// the default value.
     EncoderTestSequenceWithUntagged7();
+        // Create an object of type 'EncoderTestSequenceWithUntagged7' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged7` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged7(const EncoderTestSequenceWithUntagged7& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged7` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged7(EncoderTestSequenceWithUntagged7&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged7();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged7& operator=(const EncoderTestSequenceWithUntagged7& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged7& operator=(EncoderTestSequenceWithUntagged7&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged7Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence1" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged7Sequence1& sequence1();
+        // Return a reference to the modifiable "Sequence1" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence2" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged7Sequence2& sequence2();
+        // Return a reference to the modifiable "Sequence2" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged7Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence1" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged7Sequence1& sequence1() const;
+        // Return a reference offering non-modifiable access to the "Sequence1"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence2" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged7Sequence2& sequence2() const;
+        // Return a reference offering non-modifiable access to the "Sequence2"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged7& lhs,
+                           const EncoderTestSequenceWithUntagged7& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.sequence1() == rhs.sequence1() &&
+               lhs.sequence2() == rhs.sequence2();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged7& lhs,
+                           const EncoderTestSequenceWithUntagged7& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged7& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged7& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged7'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged7& lhs, const EncoderTestSequenceWithUntagged7& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged7& lhs, const EncoderTestSequenceWithUntagged7& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged7& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged7`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7& object);
 
 }  // close package namespace
 
@@ -8603,6 +8056,10 @@ class EncoderTestSequenceWithUntagged8 {
     EncoderTestSequenceWithUntagged8Sequence1  d_sequence1;
     EncoderTestSequenceWithUntagged8Sequence   d_sequence;
     int                                        d_attribute0;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -8629,181 +8086,163 @@ class EncoderTestSequenceWithUntagged8 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged8` having
-    /// the default value.
     EncoderTestSequenceWithUntagged8();
+        // Create an object of type 'EncoderTestSequenceWithUntagged8' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged8` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged8(const EncoderTestSequenceWithUntagged8& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged8` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged8(EncoderTestSequenceWithUntagged8&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged8();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged8& operator=(const EncoderTestSequenceWithUntagged8& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged8& operator=(EncoderTestSequenceWithUntagged8&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged8Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence1" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged8Sequence1& sequence1();
+        // Return a reference to the modifiable "Sequence1" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged8Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence1" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged8Sequence1& sequence1() const;
+        // Return a reference offering non-modifiable access to the "Sequence1"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged8& lhs,
+                           const EncoderTestSequenceWithUntagged8& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.sequence1() == rhs.sequence1() &&
+               lhs.attribute0() == rhs.attribute0();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged8& lhs,
+                           const EncoderTestSequenceWithUntagged8& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged8& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged8& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged8'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged8& lhs, const EncoderTestSequenceWithUntagged8& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged8& lhs, const EncoderTestSequenceWithUntagged8& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged8& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged8`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8& object);
 
 }  // close package namespace
 
@@ -8823,6 +8262,10 @@ class EncoderTestSequenceWithUntagged9 {
     EncoderTestSequenceWithUntagged9Sequence1  d_sequence1;
     EncoderTestSequenceWithUntagged9Sequence   d_sequence;
     int                                        d_attribute0;
+
+    // PRIVATE ACCESSORS
+    template <typename t_HASH_ALGORITHM>
+    void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
 
   public:
     // TYPES
@@ -8849,181 +8292,163 @@ class EncoderTestSequenceWithUntagged9 {
 
   public:
     // CLASS METHODS
-
-    /// Return attribute information for the attribute indicated by the
-    /// specified `id` if the attribute exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
 
-    /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
 
     // CREATORS
-
-    /// Create an object of type `EncoderTestSequenceWithUntagged9` having
-    /// the default value.
     EncoderTestSequenceWithUntagged9();
+        // Create an object of type 'EncoderTestSequenceWithUntagged9' having
+        // the default value.
 
-    /// Create an object of type `EncoderTestSequenceWithUntagged9` having
-    /// the value of the specified `original` object.
-    EncoderTestSequenceWithUntagged9(const EncoderTestSequenceWithUntagged9& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `EncoderTestSequenceWithUntagged9` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    EncoderTestSequenceWithUntagged9(EncoderTestSequenceWithUntagged9&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~EncoderTestSequenceWithUntagged9();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    EncoderTestSequenceWithUntagged9& operator=(const EncoderTestSequenceWithUntagged9& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    EncoderTestSequenceWithUntagged9& operator=(EncoderTestSequenceWithUntagged9&& rhs);
-#endif
-
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
     void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Return a reference to the modifiable "Sequence" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged9Sequence& sequence();
+        // Return a reference to the modifiable "Sequence" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Attribute0" attribute of this
-    /// object.
     int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
 
-    /// Return a reference to the modifiable "Sequence1" attribute of this
-    /// object.
     EncoderTestSequenceWithUntagged9Sequence1& sequence1();
+        // Return a reference to the modifiable "Sequence1" attribute of this
+        // object.
 
     // ACCESSORS
-
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
-    /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
 
-    /// Return a reference to the non-modifiable "Sequence" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged9Sequence& sequence() const;
+        // Return a reference offering non-modifiable access to the "Sequence"
+        // attribute of this object.
 
-    /// Return a reference to the non-modifiable "Attribute0" attribute of
-    /// this object.
     int attribute0() const;
+        // Return the value of the "Attribute0" attribute of this object.
 
-    /// Return a reference to the non-modifiable "Sequence1" attribute of
-    /// this object.
     const EncoderTestSequenceWithUntagged9Sequence1& sequence1() const;
+        // Return a reference offering non-modifiable access to the "Sequence1"
+        // attribute of this object.
+
+    // HIDDEN FRIENDS
+    friend bool operator==(const EncoderTestSequenceWithUntagged9& lhs,
+                           const EncoderTestSequenceWithUntagged9& rhs)
+        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
+        // have the same value, and 'false' otherwise.  Two attribute objects
+        // have the same value if each respective attribute has the same value.
+    {
+        return lhs.sequence() == rhs.sequence() &&
+               lhs.attribute0() == rhs.attribute0() &&
+               lhs.sequence1() == rhs.sequence1();
+    }
+
+    friend bool operator!=(const EncoderTestSequenceWithUntagged9& lhs,
+                           const EncoderTestSequenceWithUntagged9& rhs)
+        // Returns '!(lhs == rhs)'
+    {
+        return !(lhs == rhs);
+    }
+
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const EncoderTestSequenceWithUntagged9& rhs)
+        // Format the specified 'rhs' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.
+    {
+        return rhs.print(stream, 0, -1);
+    }
+
+    template <typename t_HASH_ALGORITHM>
+    friend void hashAppend(t_HASH_ALGORITHM&                       hashAlg,
+                           const EncoderTestSequenceWithUntagged9& object)
+        // Pass the specified 'object' to the specified 'hashAlg'.  This
+        // function integrates with the 'bslh' modular hashing system and
+        // effectively provides a 'bsl::hash' specialization for
+        // 'EncoderTestSequenceWithUntagged9'.
+    {
+        object.hashAppendImpl(hashAlg);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const EncoderTestSequenceWithUntagged9& lhs, const EncoderTestSequenceWithUntagged9& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const EncoderTestSequenceWithUntagged9& lhs, const EncoderTestSequenceWithUntagged9& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const EncoderTestSequenceWithUntagged9& rhs);
-
-/// Pass the specified `object` to the specified `hashAlg`.  This function
-/// integrates with the `bslh` modular hashing system and effectively
-/// provides a `bsl::hash` specialization for `EncoderTestSequenceWithUntagged9`.
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9& object);
 
 }  // close package namespace
 
@@ -9032,7 +8457,7 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(baljsn::EncoderTestSequenceWithUntagged9)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace baljsn {
@@ -9041,10 +8466,20 @@ namespace baljsn {
                           // class EncoderTestAddress
                           // ------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestAddress::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->street());
+    hashAppend(hashAlgorithm, this->city());
+    hashAppend(hashAlgorithm, this->state());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestAddress::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestAddress::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -9063,11 +8498,11 @@ int EncoderTestAddress::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestAddress::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestAddress::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9086,11 +8521,11 @@ int EncoderTestAddress::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestAddress::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9122,8 +8557,8 @@ bsl::string& EncoderTestAddress::state()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestAddress::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestAddress::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -9142,11 +8577,11 @@ int EncoderTestAddress::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestAddress::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestAddress::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9165,11 +8600,11 @@ int EncoderTestAddress::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestAddress::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9200,17 +8635,6 @@ const bsl::string& EncoderTestAddress::state() const
     return d_state;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestAddress& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.street());
-    hashAppend(hashAlg, object.city());
-    hashAppend(hashAlg, object.state());
-}
-
 
 
                // ----------------------------------------------
@@ -9218,6 +8642,40 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestAddress& objec
                // ----------------------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestChoiceWithAllCategoriesChoice::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    typedef EncoderTestChoiceWithAllCategoriesChoice Class;
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->selectionId());
+    switch (this->selectionId()) {
+      case Class::SELECTION_ID_SELECTION0:
+        hashAppend(hashAlgorithm, this->selection0());
+        break;
+      default:
+        BSLS_ASSERT(this->selectionId() == Class::SELECTION_ID_UNDEFINED);
+    }
+}
+
+inline
+bool EncoderTestChoiceWithAllCategoriesChoice::isEqualTo(const EncoderTestChoiceWithAllCategoriesChoice& rhs) const
+{
+    typedef EncoderTestChoiceWithAllCategoriesChoice Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION0:
+            return this->selection0() == rhs.selection0();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 EncoderTestChoiceWithAllCategoriesChoice::EncoderTestChoiceWithAllCategoriesChoice()
@@ -9232,8 +8690,8 @@ EncoderTestChoiceWithAllCategoriesChoice::~EncoderTestChoiceWithAllCategoriesCho
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestChoiceWithAllCategoriesChoice::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestChoiceWithAllCategoriesChoice::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case EncoderTestChoiceWithAllCategoriesChoice::SELECTION_ID_SELECTION0:
@@ -9259,8 +8717,8 @@ int EncoderTestChoiceWithAllCategoriesChoice::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int EncoderTestChoiceWithAllCategoriesChoice::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestChoiceWithAllCategoriesChoice::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION0:
@@ -9289,21 +8747,6 @@ inline
 bool EncoderTestChoiceWithAllCategoriesChoice::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesChoice& object)
-{
-    typedef baljsn::EncoderTestChoiceWithAllCategoriesChoice Class;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.selectionId());
-    switch (object.selectionId()) {
-      case Class::SELECTION_ID_SELECTION0:
-        hashAppend(hashAlg, object.selection0());
-        break;
-      default:
-        BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == object.selectionId());
-    }
 }
 
 
@@ -9385,13 +8828,6 @@ const bsl::string& EncoderTestChoiceWithAllCategoriesCustomizedType::toString() 
     return d_value;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& object)
-{
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.toString());
-}
-
 
 
             // ---------------------------------------------------
@@ -9420,8 +8856,8 @@ bsl::ostream& EncoderTestChoiceWithAllCategoriesEnumeration::print(bsl::ostream&
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -9430,11 +8866,11 @@ int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttributes(MANIPULATOR
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9447,11 +8883,11 @@ int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttribute(MANIPULATOR&
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestChoiceWithAllCategoriesSequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9471,8 +8907,8 @@ int& EncoderTestChoiceWithAllCategoriesSequence::attribute()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestChoiceWithAllCategoriesSequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestChoiceWithAllCategoriesSequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -9481,11 +8917,11 @@ int EncoderTestChoiceWithAllCategoriesSequence::accessAttributes(ACCESSOR& acces
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestChoiceWithAllCategoriesSequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestChoiceWithAllCategoriesSequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9498,11 +8934,11 @@ int EncoderTestChoiceWithAllCategoriesSequence::accessAttribute(ACCESSOR& access
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestChoiceWithAllCategoriesSequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9521,15 +8957,6 @@ int EncoderTestChoiceWithAllCategoriesSequence::attribute() const
     return d_attribute;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategoriesSequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute());
-}
-
 
 
                  // ------------------------------------------
@@ -9538,17 +8965,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllC
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestDegenerateChoice1Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestDegenerateChoice1Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestDegenerateChoice1Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestDegenerateChoice1Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -9559,11 +8984,11 @@ int EncoderTestDegenerateChoice1Sequence::manipulateAttribute(MANIPULATOR& manip
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestDegenerateChoice1Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9577,17 +9002,15 @@ int EncoderTestDegenerateChoice1Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestDegenerateChoice1Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestDegenerateChoice1Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestDegenerateChoice1Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestDegenerateChoice1Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -9598,11 +9021,11 @@ int EncoderTestDegenerateChoice1Sequence::accessAttribute(ACCESSOR& accessor, in
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestDegenerateChoice1Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9615,14 +9038,6 @@ int EncoderTestDegenerateChoice1Sequence::accessAttribute(
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestDegenerateChoice1Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-}
-
 
 
               // ------------------------------------------------
@@ -9630,6 +9045,40 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestDegenerateChoi
               // ------------------------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithAllCategoriesChoice::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    typedef EncoderTestSequenceWithAllCategoriesChoice Class;
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->selectionId());
+    switch (this->selectionId()) {
+      case Class::SELECTION_ID_SELECTION0:
+        hashAppend(hashAlgorithm, this->selection0());
+        break;
+      default:
+        BSLS_ASSERT(this->selectionId() == Class::SELECTION_ID_UNDEFINED);
+    }
+}
+
+inline
+bool EncoderTestSequenceWithAllCategoriesChoice::isEqualTo(const EncoderTestSequenceWithAllCategoriesChoice& rhs) const
+{
+    typedef EncoderTestSequenceWithAllCategoriesChoice Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION0:
+            return this->selection0() == rhs.selection0();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 EncoderTestSequenceWithAllCategoriesChoice::EncoderTestSequenceWithAllCategoriesChoice()
@@ -9644,8 +9093,8 @@ EncoderTestSequenceWithAllCategoriesChoice::~EncoderTestSequenceWithAllCategorie
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithAllCategoriesChoice::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithAllCategoriesChoice::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case EncoderTestSequenceWithAllCategoriesChoice::SELECTION_ID_SELECTION0:
@@ -9671,8 +9120,8 @@ int EncoderTestSequenceWithAllCategoriesChoice::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithAllCategoriesChoice::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithAllCategoriesChoice::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION0:
@@ -9701,21 +9150,6 @@ inline
 bool EncoderTestSequenceWithAllCategoriesChoice::isUndefinedValue() const
 {
     return SELECTION_ID_UNDEFINED == d_selectionId;
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesChoice& object)
-{
-    typedef baljsn::EncoderTestSequenceWithAllCategoriesChoice Class;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.selectionId());
-    switch (object.selectionId()) {
-      case Class::SELECTION_ID_SELECTION0:
-        hashAppend(hashAlg, object.selection0());
-        break;
-      default:
-        BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == object.selectionId());
-    }
 }
 
 
@@ -9797,13 +9231,6 @@ const bsl::string& EncoderTestSequenceWithAllCategoriesCustomizedType::toString(
     return d_value;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& object)
-{
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.toString());
-}
-
 
 
            // -----------------------------------------------------
@@ -9832,8 +9259,8 @@ bsl::ostream& EncoderTestSequenceWithAllCategoriesEnumeration::print(bsl::ostrea
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -9842,11 +9269,11 @@ int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttributes(MANIPULAT
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9859,11 +9286,11 @@ int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttribute(MANIPULATO
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithAllCategoriesSequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9883,8 +9310,8 @@ int& EncoderTestSequenceWithAllCategoriesSequence::attribute()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithAllCategoriesSequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithAllCategoriesSequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -9893,11 +9320,11 @@ int EncoderTestSequenceWithAllCategoriesSequence::accessAttributes(ACCESSOR& acc
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithAllCategoriesSequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithAllCategoriesSequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9910,11 +9337,11 @@ int EncoderTestSequenceWithAllCategoriesSequence::accessAttribute(ACCESSOR& acce
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithAllCategoriesSequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -9933,15 +9360,6 @@ int EncoderTestSequenceWithAllCategoriesSequence::attribute() const
     return d_attribute;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategoriesSequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute());
-}
-
 
 
                    // --------------------------------------
@@ -9950,17 +9368,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAl
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged0::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged0::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged0::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged0::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -9971,11 +9387,11 @@ int EncoderTestSequenceWithUntagged0::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged0::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -9989,17 +9405,15 @@ int EncoderTestSequenceWithUntagged0::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged0::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged0::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged0::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged0::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10010,11 +9424,11 @@ int EncoderTestSequenceWithUntagged0::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged0::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10025,14 +9439,6 @@ int EncoderTestSequenceWithUntagged0::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged0& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10043,17 +9449,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged10Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged10Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged10Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged10Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10064,11 +9468,11 @@ int EncoderTestSequenceWithUntagged10Sequence::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged10Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10082,17 +9486,15 @@ int EncoderTestSequenceWithUntagged10Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged10Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged10Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged10Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged10Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10103,11 +9505,11 @@ int EncoderTestSequenceWithUntagged10Sequence::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged10Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10118,14 +9520,6 @@ int EncoderTestSequenceWithUntagged10Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged10Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10136,17 +9530,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10157,11 +9549,11 @@ int EncoderTestSequenceWithUntagged11Sequence::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged11Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10175,17 +9567,15 @@ int EncoderTestSequenceWithUntagged11Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10196,11 +9586,11 @@ int EncoderTestSequenceWithUntagged11Sequence::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged11Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10211,14 +9601,6 @@ int EncoderTestSequenceWithUntagged11Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10229,17 +9611,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10250,11 +9630,11 @@ int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttribute(MANIPULATOR&
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10268,17 +9648,15 @@ int EncoderTestSequenceWithUntagged11Sequence1::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11Sequence1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11Sequence1::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11Sequence1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10289,11 +9667,11 @@ int EncoderTestSequenceWithUntagged11Sequence1::accessAttribute(ACCESSOR& access
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged11Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10304,14 +9682,6 @@ int EncoderTestSequenceWithUntagged11Sequence1::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11Sequence1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10322,17 +9692,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged12Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged12Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged12Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged12Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10343,11 +9711,11 @@ int EncoderTestSequenceWithUntagged12Sequence::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged12Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10361,17 +9729,15 @@ int EncoderTestSequenceWithUntagged12Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged12Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged12Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged12Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged12Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10382,11 +9748,11 @@ int EncoderTestSequenceWithUntagged12Sequence::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged12Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10397,14 +9763,6 @@ int EncoderTestSequenceWithUntagged12Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged12Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10415,17 +9773,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged13Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged13Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged13Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged13Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10436,11 +9792,11 @@ int EncoderTestSequenceWithUntagged13Sequence::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged13Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10454,17 +9810,15 @@ int EncoderTestSequenceWithUntagged13Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged13Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged13Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged13Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged13Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10475,11 +9829,11 @@ int EncoderTestSequenceWithUntagged13Sequence::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged13Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10492,24 +9846,26 @@ int EncoderTestSequenceWithUntagged13Sequence::accessAttribute(
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged13Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-}
-
 
 
                   // ---------------------------------------
                   // class EncoderTestSequenceWithUntagged14
                   // ---------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged14::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->attribute1());
+    hashAppend(hashAlgorithm, this->attribute2());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged14::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged14::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -10528,11 +9884,11 @@ int EncoderTestSequenceWithUntagged14::manipulateAttributes(MANIPULATOR& manipul
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged14::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged14::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10551,11 +9907,11 @@ int EncoderTestSequenceWithUntagged14::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged14::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10587,8 +9943,8 @@ int& EncoderTestSequenceWithUntagged14::attribute2()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged14::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged14::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -10607,11 +9963,11 @@ int EncoderTestSequenceWithUntagged14::accessAttributes(ACCESSOR& accessor) cons
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged14::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged14::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10630,11 +9986,11 @@ int EncoderTestSequenceWithUntagged14::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged14::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10665,17 +10021,6 @@ int EncoderTestSequenceWithUntagged14::attribute2() const
     return d_attribute2;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged14& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.attribute1());
-    hashAppend(hashAlg, object.attribute2());
-}
-
 
 
                // ----------------------------------------------
@@ -10684,17 +10029,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged1Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged1Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged1Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged1Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10705,11 +10048,11 @@ int EncoderTestSequenceWithUntagged1Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged1Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10723,17 +10066,15 @@ int EncoderTestSequenceWithUntagged1Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged1Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged1Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged1Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged1Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10744,11 +10085,11 @@ int EncoderTestSequenceWithUntagged1Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged1Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10761,14 +10102,6 @@ int EncoderTestSequenceWithUntagged1Sequence::accessAttribute(
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged1Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-}
-
 
 
                    // --------------------------------------
@@ -10777,8 +10110,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged2::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged2::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -10787,11 +10120,11 @@ int EncoderTestSequenceWithUntagged2::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged2::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged2::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10804,11 +10137,11 @@ int EncoderTestSequenceWithUntagged2::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged2::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10828,8 +10161,8 @@ int& EncoderTestSequenceWithUntagged2::attribute0()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged2::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged2::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -10838,11 +10171,11 @@ int EncoderTestSequenceWithUntagged2::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged2::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged2::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10855,11 +10188,11 @@ int EncoderTestSequenceWithUntagged2::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged2::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10878,15 +10211,6 @@ int EncoderTestSequenceWithUntagged2::attribute0() const
     return d_attribute0;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged2& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-}
-
 
 
                // ----------------------------------------------
@@ -10895,17 +10219,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -10916,11 +10238,11 @@ int EncoderTestSequenceWithUntagged3Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged3Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -10934,17 +10256,15 @@ int EncoderTestSequenceWithUntagged3Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -10955,11 +10275,11 @@ int EncoderTestSequenceWithUntagged3Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged3Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -10970,14 +10290,6 @@ int EncoderTestSequenceWithUntagged3Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -10988,17 +10300,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11009,11 +10319,11 @@ int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11027,17 +10337,15 @@ int EncoderTestSequenceWithUntagged3Sequence1::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3Sequence1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3Sequence1::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3Sequence1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11048,11 +10356,11 @@ int EncoderTestSequenceWithUntagged3Sequence1::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged3Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11063,14 +10371,6 @@ int EncoderTestSequenceWithUntagged3Sequence1::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3Sequence1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11081,17 +10381,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged4Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged4Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged4Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged4Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11102,11 +10400,11 @@ int EncoderTestSequenceWithUntagged4Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged4Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11120,17 +10418,15 @@ int EncoderTestSequenceWithUntagged4Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged4Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged4Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged4Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged4Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11141,11 +10437,11 @@ int EncoderTestSequenceWithUntagged4Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged4Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11156,14 +10452,6 @@ int EncoderTestSequenceWithUntagged4Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged4Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11174,17 +10462,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged5Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged5Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged5Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged5Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11195,11 +10481,11 @@ int EncoderTestSequenceWithUntagged5Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged5Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11213,17 +10499,15 @@ int EncoderTestSequenceWithUntagged5Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged5Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged5Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged5Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged5Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11234,11 +10518,11 @@ int EncoderTestSequenceWithUntagged5Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged5Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11251,14 +10535,6 @@ int EncoderTestSequenceWithUntagged5Sequence::accessAttribute(
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged5Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-}
-
 
 
                    // --------------------------------------
@@ -11267,8 +10543,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged6::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged6::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -11282,11 +10558,11 @@ int EncoderTestSequenceWithUntagged6::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged6::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged6::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11302,11 +10578,11 @@ int EncoderTestSequenceWithUntagged6::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged6::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11332,8 +10608,8 @@ int& EncoderTestSequenceWithUntagged6::attribute1()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged6::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged6::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -11347,11 +10623,11 @@ int EncoderTestSequenceWithUntagged6::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged6::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged6::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11367,11 +10643,11 @@ int EncoderTestSequenceWithUntagged6::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged6::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11396,16 +10672,6 @@ int EncoderTestSequenceWithUntagged6::attribute1() const
     return d_attribute1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged6& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.attribute1());
-}
-
 
 
                // ----------------------------------------------
@@ -11414,17 +10680,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11435,11 +10699,11 @@ int EncoderTestSequenceWithUntagged7Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged7Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11453,17 +10717,15 @@ int EncoderTestSequenceWithUntagged7Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11474,11 +10736,11 @@ int EncoderTestSequenceWithUntagged7Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged7Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11489,14 +10751,6 @@ int EncoderTestSequenceWithUntagged7Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11507,17 +10761,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11528,11 +10780,11 @@ int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11546,17 +10798,15 @@ int EncoderTestSequenceWithUntagged7Sequence1::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence1::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11567,11 +10817,11 @@ int EncoderTestSequenceWithUntagged7Sequence1::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged7Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11582,14 +10832,6 @@ int EncoderTestSequenceWithUntagged7Sequence1::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11600,17 +10842,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11621,11 +10861,11 @@ int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11639,17 +10879,15 @@ int EncoderTestSequenceWithUntagged7Sequence2::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence2::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence2::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7Sequence2::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11660,11 +10898,11 @@ int EncoderTestSequenceWithUntagged7Sequence2::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged7Sequence2::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11675,14 +10913,6 @@ int EncoderTestSequenceWithUntagged7Sequence2::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7Sequence2& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11693,17 +10923,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11714,11 +10942,11 @@ int EncoderTestSequenceWithUntagged8Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged8Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11732,17 +10960,15 @@ int EncoderTestSequenceWithUntagged8Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11753,11 +10979,11 @@ int EncoderTestSequenceWithUntagged8Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged8Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11768,14 +10994,6 @@ int EncoderTestSequenceWithUntagged8Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11786,17 +11004,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11807,11 +11023,11 @@ int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11825,17 +11041,15 @@ int EncoderTestSequenceWithUntagged8Sequence1::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8Sequence1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8Sequence1::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8Sequence1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11846,11 +11060,11 @@ int EncoderTestSequenceWithUntagged8Sequence1::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged8Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11861,14 +11075,6 @@ int EncoderTestSequenceWithUntagged8Sequence1::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8Sequence1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11879,17 +11085,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9Sequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9Sequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9Sequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9Sequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11900,11 +11104,11 @@ int EncoderTestSequenceWithUntagged9Sequence::manipulateAttribute(MANIPULATOR& m
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged9Sequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -11918,17 +11122,15 @@ int EncoderTestSequenceWithUntagged9Sequence::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9Sequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9Sequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9Sequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9Sequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -11939,11 +11141,11 @@ int EncoderTestSequenceWithUntagged9Sequence::accessAttribute(ACCESSOR& accessor
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged9Sequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -11954,14 +11156,6 @@ int EncoderTestSequenceWithUntagged9Sequence::accessAttribute(
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
-}
-
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9Sequence& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
 }
 
 
@@ -11972,17 +11166,15 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     (void)manipulator;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     (void)manipulator;
     enum { NOT_FOUND = -1 };
@@ -11993,11 +11185,11 @@ int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12011,17 +11203,15 @@ int EncoderTestSequenceWithUntagged9Sequence1::manipulateAttribute(
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9Sequence1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9Sequence1::accessAttributes(t_ACCESSOR& accessor) const
 {
     (void)accessor;
-    int ret = 0;
-
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9Sequence1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     (void)accessor;
     enum { NOT_FOUND = -1 };
@@ -12032,11 +11222,11 @@ int EncoderTestSequenceWithUntagged9Sequence1::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged9Sequence1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12049,14 +11239,6 @@ int EncoderTestSequenceWithUntagged9Sequence1::accessAttribute(
     return accessAttribute(accessor, attributeInfo->d_id);
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9Sequence1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-}
-
 
 
                   // ----------------------------------------
@@ -12064,6 +11246,65 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
                   // ----------------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestChoiceWithAllCategories::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    typedef EncoderTestChoiceWithAllCategories Class;
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->selectionId());
+    switch (this->selectionId()) {
+      case Class::SELECTION_ID_CHAR_ARRAY:
+        hashAppend(hashAlgorithm, this->charArray());
+        break;
+      case Class::SELECTION_ID_CHOICE:
+        hashAppend(hashAlgorithm, this->choice());
+        break;
+      case Class::SELECTION_ID_CUSTOMIZED_TYPE:
+        hashAppend(hashAlgorithm, this->customizedType());
+        break;
+      case Class::SELECTION_ID_ENUMERATION:
+        hashAppend(hashAlgorithm, this->enumeration());
+        break;
+      case Class::SELECTION_ID_SEQUENCE:
+        hashAppend(hashAlgorithm, this->sequence());
+        break;
+      case Class::SELECTION_ID_SIMPLE:
+        hashAppend(hashAlgorithm, this->simple());
+        break;
+      default:
+        BSLS_ASSERT(this->selectionId() == Class::SELECTION_ID_UNDEFINED);
+    }
+}
+
+inline
+bool EncoderTestChoiceWithAllCategories::isEqualTo(const EncoderTestChoiceWithAllCategories& rhs) const
+{
+    typedef EncoderTestChoiceWithAllCategories Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_CHAR_ARRAY:
+            return this->charArray() == rhs.charArray();
+          case Class::SELECTION_ID_CHOICE:
+            return this->choice() == rhs.choice();
+          case Class::SELECTION_ID_CUSTOMIZED_TYPE:
+            return this->customizedType() == rhs.customizedType();
+          case Class::SELECTION_ID_ENUMERATION:
+            return this->enumeration() == rhs.enumeration();
+          case Class::SELECTION_ID_SEQUENCE:
+            return this->sequence() == rhs.sequence();
+          case Class::SELECTION_ID_SIMPLE:
+            return this->simple() == rhs.simple();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 EncoderTestChoiceWithAllCategories::EncoderTestChoiceWithAllCategories(bslma::Allocator *basicAllocator)
@@ -12079,8 +11320,8 @@ EncoderTestChoiceWithAllCategories::~EncoderTestChoiceWithAllCategories()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestChoiceWithAllCategories::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestChoiceWithAllCategories::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case EncoderTestChoiceWithAllCategories::SELECTION_ID_CHAR_ARRAY:
@@ -12156,8 +11397,8 @@ int EncoderTestChoiceWithAllCategories::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int EncoderTestChoiceWithAllCategories::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestChoiceWithAllCategories::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_CHAR_ARRAY:
@@ -12268,42 +11509,46 @@ bool EncoderTestChoiceWithAllCategories::isUndefinedValue() const
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestChoiceWithAllCategories& object)
-{
-    typedef baljsn::EncoderTestChoiceWithAllCategories Class;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.selectionId());
-    switch (object.selectionId()) {
-      case Class::SELECTION_ID_CHAR_ARRAY:
-        hashAppend(hashAlg, object.charArray());
-        break;
-      case Class::SELECTION_ID_CHOICE:
-        hashAppend(hashAlg, object.choice());
-        break;
-      case Class::SELECTION_ID_CUSTOMIZED_TYPE:
-        hashAppend(hashAlg, object.customizedType());
-        break;
-      case Class::SELECTION_ID_ENUMERATION:
-        hashAppend(hashAlg, object.enumeration());
-        break;
-      case Class::SELECTION_ID_SEQUENCE:
-        hashAppend(hashAlg, object.sequence());
-        break;
-      case Class::SELECTION_ID_SIMPLE:
-        hashAppend(hashAlg, object.simple());
-        break;
-      default:
-        BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == object.selectionId());
-    }
-}
-
 
                      // ----------------------------------
                      // class EncoderTestDegenerateChoice1
                      // ----------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestDegenerateChoice1::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    typedef EncoderTestDegenerateChoice1 Class;
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->selectionId());
+    switch (this->selectionId()) {
+      case Class::SELECTION_ID_SEQUENCE:
+        hashAppend(hashAlgorithm, this->sequence());
+        break;
+      default:
+        BSLS_ASSERT(this->selectionId() == Class::SELECTION_ID_UNDEFINED);
+    }
+}
+
+inline
+bool EncoderTestDegenerateChoice1::isEqualTo(const EncoderTestDegenerateChoice1& rhs) const
+{
+    typedef EncoderTestDegenerateChoice1 Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SEQUENCE:
+            return this->sequence() == rhs.sequence();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 EncoderTestDegenerateChoice1::EncoderTestDegenerateChoice1()
@@ -12318,8 +11563,8 @@ EncoderTestDegenerateChoice1::~EncoderTestDegenerateChoice1()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestDegenerateChoice1::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestDegenerateChoice1::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case EncoderTestDegenerateChoice1::SELECTION_ID_SEQUENCE:
@@ -12345,8 +11590,8 @@ int EncoderTestDegenerateChoice1::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int EncoderTestDegenerateChoice1::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestDegenerateChoice1::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SEQUENCE:
@@ -12377,30 +11622,25 @@ bool EncoderTestDegenerateChoice1::isUndefinedValue() const
     return SELECTION_ID_UNDEFINED == d_selectionId;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestDegenerateChoice1& object)
-{
-    typedef baljsn::EncoderTestDegenerateChoice1 Class;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.selectionId());
-    switch (object.selectionId()) {
-      case Class::SELECTION_ID_SEQUENCE:
-        hashAppend(hashAlg, object.sequence());
-        break;
-      default:
-        BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == object.selectionId());
-    }
-}
-
 
                          // -------------------------
                          // class EncoderTestEmployee
                          // -------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestEmployee::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->name());
+    hashAppend(hashAlgorithm, this->homeAddress());
+    hashAppend(hashAlgorithm, this->age());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestEmployee::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestEmployee::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -12419,11 +11659,11 @@ int EncoderTestEmployee::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestEmployee::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestEmployee::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12442,11 +11682,11 @@ int EncoderTestEmployee::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestEmployee::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12478,8 +11718,8 @@ int& EncoderTestEmployee::age()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestEmployee::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestEmployee::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -12498,11 +11738,11 @@ int EncoderTestEmployee::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestEmployee::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestEmployee::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12521,11 +11761,11 @@ int EncoderTestEmployee::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestEmployee::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12556,31 +11796,55 @@ int EncoderTestEmployee::age() const
     return d_age;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestEmployee& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.name());
-    hashAppend(hashAlg, object.homeAddress());
-    hashAppend(hashAlg, object.age());
-}
-
 
 
                  // ------------------------------------------
                  // class EncoderTestSequenceWithAllCategories
                  // ------------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithAllCategories::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->charArray());
+    hashAppend(hashAlgorithm, this->aString());
+    hashAppend(hashAlgorithm, this->array());
+    hashAppend(hashAlgorithm, this->choice());
+    hashAppend(hashAlgorithm, this->customizedType());
+    hashAppend(hashAlgorithm, this->enumeration());
+    hashAppend(hashAlgorithm, this->nullableValue());
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->simple());
+}
+
+inline
+bool EncoderTestSequenceWithAllCategories::isEqualTo(const EncoderTestSequenceWithAllCategories& rhs) const
+{
+    return this->charArray() == rhs.charArray() &&
+           this->aString() == rhs.aString() &&
+           this->array() == rhs.array() &&
+           this->choice() == rhs.choice() &&
+           this->customizedType() == rhs.customizedType() &&
+           this->enumeration() == rhs.enumeration() &&
+           this->nullableValue() == rhs.nullableValue() &&
+           this->sequence() == rhs.sequence() &&
+           this->simple() == rhs.simple();
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithAllCategories::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithAllCategories::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
     ret = manipulator(&d_charArray, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHAR_ARRAY]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_aString, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_A_STRING]);
     if (ret) {
         return ret;
     }
@@ -12620,17 +11884,20 @@ int EncoderTestSequenceWithAllCategories::manipulateAttributes(MANIPULATOR& mani
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithAllCategories::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithAllCategories::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_CHAR_ARRAY: {
         return manipulator(&d_charArray, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHAR_ARRAY]);
+      }
+      case ATTRIBUTE_ID_A_STRING: {
+        return manipulator(&d_aString, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_A_STRING]);
       }
       case ATTRIBUTE_ID_ARRAY: {
         return manipulator(&d_array, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY]);
@@ -12658,11 +11925,11 @@ int EncoderTestSequenceWithAllCategories::manipulateAttribute(MANIPULATOR& manip
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithAllCategories::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12679,6 +11946,12 @@ inline
 bsl::vector<char>& EncoderTestSequenceWithAllCategories::charArray()
 {
     return d_charArray;
+}
+
+inline
+bsl::string& EncoderTestSequenceWithAllCategories::aString()
+{
+    return d_aString;
 }
 
 inline
@@ -12724,12 +11997,17 @@ int& EncoderTestSequenceWithAllCategories::simple()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithAllCategories::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithAllCategories::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
     ret = accessor(d_charArray, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHAR_ARRAY]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_aString, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_A_STRING]);
     if (ret) {
         return ret;
     }
@@ -12769,17 +12047,20 @@ int EncoderTestSequenceWithAllCategories::accessAttributes(ACCESSOR& accessor) c
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithAllCategories::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithAllCategories::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_CHAR_ARRAY: {
         return accessor(d_charArray, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHAR_ARRAY]);
+      }
+      case ATTRIBUTE_ID_A_STRING: {
+        return accessor(d_aString, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_A_STRING]);
       }
       case ATTRIBUTE_ID_ARRAY: {
         return accessor(d_array, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY]);
@@ -12807,11 +12088,11 @@ int EncoderTestSequenceWithAllCategories::accessAttribute(ACCESSOR& accessor, in
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithAllCategories::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12828,6 +12109,12 @@ inline
 const bsl::vector<char>& EncoderTestSequenceWithAllCategories::charArray() const
 {
     return d_charArray;
+}
+
+inline
+const bsl::string& EncoderTestSequenceWithAllCategories::aString() const
+{
+    return d_aString;
 }
 
 inline
@@ -12872,22 +12159,6 @@ int EncoderTestSequenceWithAllCategories::simple() const
     return d_simple;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAllCategories& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.charArray());
-    hashAppend(hashAlg, object.array());
-    hashAppend(hashAlg, object.choice());
-    hashAppend(hashAlg, object.customizedType());
-    hashAppend(hashAlg, object.enumeration());
-    hashAppend(hashAlg, object.nullableValue());
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.simple());
-}
-
 
 
                    // --------------------------------------
@@ -12896,8 +12167,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithAl
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged1::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged1::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -12906,11 +12177,11 @@ int EncoderTestSequenceWithUntagged1::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged1::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12923,11 +12194,11 @@ int EncoderTestSequenceWithUntagged1::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged1::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -12947,8 +12218,8 @@ EncoderTestSequenceWithUntagged1Sequence& EncoderTestSequenceWithUntagged1::sequ
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged1::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged1::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -12957,11 +12228,11 @@ int EncoderTestSequenceWithUntagged1::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged1::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged1::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12974,11 +12245,11 @@ int EncoderTestSequenceWithUntagged1::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged1::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -12997,25 +12268,26 @@ const EncoderTestSequenceWithUntagged1Sequence& EncoderTestSequenceWithUntagged1
     return d_sequence;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged1& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-}
-
 
 
                   // ---------------------------------------
                   // class EncoderTestSequenceWithUntagged10
                   // ---------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged10::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->attribute1());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged10::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged10::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13034,11 +12306,11 @@ int EncoderTestSequenceWithUntagged10::manipulateAttributes(MANIPULATOR& manipul
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged10::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged10::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13057,11 +12329,11 @@ int EncoderTestSequenceWithUntagged10::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged10::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13093,8 +12365,8 @@ int& EncoderTestSequenceWithUntagged10::attribute1()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged10::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged10::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13113,11 +12385,11 @@ int EncoderTestSequenceWithUntagged10::accessAttributes(ACCESSOR& accessor) cons
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged10::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged10::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13136,11 +12408,11 @@ int EncoderTestSequenceWithUntagged10::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged10::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13171,27 +12443,26 @@ int EncoderTestSequenceWithUntagged10::attribute1() const
     return d_attribute1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged10& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.attribute1());
-}
-
 
 
                   // ---------------------------------------
                   // class EncoderTestSequenceWithUntagged11
                   // ---------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged11::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->sequence1());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13210,11 +12481,11 @@ int EncoderTestSequenceWithUntagged11::manipulateAttributes(MANIPULATOR& manipul
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged11::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged11::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13233,11 +12504,11 @@ int EncoderTestSequenceWithUntagged11::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged11::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13269,8 +12540,8 @@ EncoderTestSequenceWithUntagged11Sequence1& EncoderTestSequenceWithUntagged11::s
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13289,11 +12560,11 @@ int EncoderTestSequenceWithUntagged11::accessAttributes(ACCESSOR& accessor) cons
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged11::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged11::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13312,11 +12583,11 @@ int EncoderTestSequenceWithUntagged11::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged11::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13347,27 +12618,26 @@ const EncoderTestSequenceWithUntagged11Sequence1& EncoderTestSequenceWithUntagge
     return d_sequence1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged11& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.sequence1());
-}
-
 
 
                   // ---------------------------------------
                   // class EncoderTestSequenceWithUntagged12
                   // ---------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged12::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->attribute1());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged12::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged12::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13386,11 +12656,11 @@ int EncoderTestSequenceWithUntagged12::manipulateAttributes(MANIPULATOR& manipul
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged12::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged12::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13409,11 +12679,11 @@ int EncoderTestSequenceWithUntagged12::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged12::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13445,8 +12715,8 @@ int& EncoderTestSequenceWithUntagged12::attribute1()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged12::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged12::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13465,11 +12735,11 @@ int EncoderTestSequenceWithUntagged12::accessAttributes(ACCESSOR& accessor) cons
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged12::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged12::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13488,11 +12758,11 @@ int EncoderTestSequenceWithUntagged12::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged12::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13523,27 +12793,26 @@ int EncoderTestSequenceWithUntagged12::attribute1() const
     return d_attribute1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged12& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.attribute1());
-}
-
 
 
                   // ---------------------------------------
                   // class EncoderTestSequenceWithUntagged13
                   // ---------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged13::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->attribute1());
+    hashAppend(hashAlgorithm, this->sequence());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged13::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged13::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13562,11 +12831,11 @@ int EncoderTestSequenceWithUntagged13::manipulateAttributes(MANIPULATOR& manipul
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged13::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged13::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13585,11 +12854,11 @@ int EncoderTestSequenceWithUntagged13::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged13::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13621,8 +12890,8 @@ EncoderTestSequenceWithUntagged13Sequence& EncoderTestSequenceWithUntagged13::se
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged13::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged13::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13641,11 +12910,11 @@ int EncoderTestSequenceWithUntagged13::accessAttributes(ACCESSOR& accessor) cons
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged13::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged13::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13664,11 +12933,11 @@ int EncoderTestSequenceWithUntagged13::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged13::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13699,17 +12968,6 @@ const EncoderTestSequenceWithUntagged13Sequence& EncoderTestSequenceWithUntagged
     return d_sequence;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged13& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.attribute1());
-    hashAppend(hashAlg, object.sequence());
-}
-
 
 
                    // --------------------------------------
@@ -13718,8 +12976,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13733,11 +12991,11 @@ int EncoderTestSequenceWithUntagged3::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged3::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged3::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13753,11 +13011,11 @@ int EncoderTestSequenceWithUntagged3::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged3::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13783,8 +13041,8 @@ EncoderTestSequenceWithUntagged3Sequence1& EncoderTestSequenceWithUntagged3::seq
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13798,11 +13056,11 @@ int EncoderTestSequenceWithUntagged3::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged3::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged3::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13818,11 +13076,11 @@ int EncoderTestSequenceWithUntagged3::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged3::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13847,16 +13105,6 @@ const EncoderTestSequenceWithUntagged3Sequence1& EncoderTestSequenceWithUntagged
     return d_sequence1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged3& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.sequence1());
-}
-
 
 
                    // --------------------------------------
@@ -13865,8 +13113,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged4::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged4::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -13880,11 +13128,11 @@ int EncoderTestSequenceWithUntagged4::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged4::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged4::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13900,11 +13148,11 @@ int EncoderTestSequenceWithUntagged4::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged4::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -13930,8 +13178,8 @@ int& EncoderTestSequenceWithUntagged4::attribute0()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged4::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged4::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -13945,11 +13193,11 @@ int EncoderTestSequenceWithUntagged4::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged4::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged4::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13965,11 +13213,11 @@ int EncoderTestSequenceWithUntagged4::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged4::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -13994,16 +13242,6 @@ int EncoderTestSequenceWithUntagged4::attribute0() const
     return d_attribute0;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged4& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.attribute0());
-}
-
 
 
                    // --------------------------------------
@@ -14012,8 +13250,8 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUn
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged5::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged5::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -14027,11 +13265,11 @@ int EncoderTestSequenceWithUntagged5::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged5::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged5::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14047,11 +13285,11 @@ int EncoderTestSequenceWithUntagged5::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged5::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14077,8 +13315,8 @@ EncoderTestSequenceWithUntagged5Sequence& EncoderTestSequenceWithUntagged5::sequ
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged5::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged5::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -14092,11 +13330,11 @@ int EncoderTestSequenceWithUntagged5::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged5::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged5::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14112,11 +13350,11 @@ int EncoderTestSequenceWithUntagged5::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged5::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14141,26 +13379,26 @@ const EncoderTestSequenceWithUntagged5Sequence& EncoderTestSequenceWithUntagged5
     return d_sequence;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged5& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.sequence());
-}
-
 
 
                    // --------------------------------------
                    // class EncoderTestSequenceWithUntagged7
                    // --------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged7::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->sequence1());
+    hashAppend(hashAlgorithm, this->sequence2());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -14179,11 +13417,11 @@ int EncoderTestSequenceWithUntagged7::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged7::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged7::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14202,11 +13440,11 @@ int EncoderTestSequenceWithUntagged7::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged7::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14238,8 +13476,8 @@ EncoderTestSequenceWithUntagged7Sequence2& EncoderTestSequenceWithUntagged7::seq
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -14258,11 +13496,11 @@ int EncoderTestSequenceWithUntagged7::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged7::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged7::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14281,11 +13519,11 @@ int EncoderTestSequenceWithUntagged7::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged7::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14316,27 +13554,26 @@ const EncoderTestSequenceWithUntagged7Sequence2& EncoderTestSequenceWithUntagged
     return d_sequence2;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged7& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.sequence1());
-    hashAppend(hashAlg, object.sequence2());
-}
-
 
 
                    // --------------------------------------
                    // class EncoderTestSequenceWithUntagged8
                    // --------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged8::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->sequence1());
+    hashAppend(hashAlgorithm, this->attribute0());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -14355,11 +13592,11 @@ int EncoderTestSequenceWithUntagged8::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged8::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged8::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14378,11 +13615,11 @@ int EncoderTestSequenceWithUntagged8::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged8::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14414,8 +13651,8 @@ int& EncoderTestSequenceWithUntagged8::attribute0()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -14434,11 +13671,11 @@ int EncoderTestSequenceWithUntagged8::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged8::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged8::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14457,11 +13694,11 @@ int EncoderTestSequenceWithUntagged8::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged8::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14492,27 +13729,26 @@ int EncoderTestSequenceWithUntagged8::attribute0() const
     return d_attribute0;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged8& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.sequence1());
-    hashAppend(hashAlg, object.attribute0());
-}
-
 
 
                    // --------------------------------------
                    // class EncoderTestSequenceWithUntagged9
                    // --------------------------------------
 
+// PRIVATE ACCESSORS
+template <typename t_HASH_ALGORITHM>
+void EncoderTestSequenceWithUntagged9::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
+{
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, this->sequence());
+    hashAppend(hashAlgorithm, this->attribute0());
+    hashAppend(hashAlgorithm, this->sequence1());
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -14531,11 +13767,11 @@ int EncoderTestSequenceWithUntagged9::manipulateAttributes(MANIPULATOR& manipula
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class MANIPULATOR>
-int EncoderTestSequenceWithUntagged9::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int EncoderTestSequenceWithUntagged9::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14554,11 +13790,11 @@ int EncoderTestSequenceWithUntagged9::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int EncoderTestSequenceWithUntagged9::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -14590,8 +13826,8 @@ EncoderTestSequenceWithUntagged9Sequence1& EncoderTestSequenceWithUntagged9::seq
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -14610,11 +13846,11 @@ int EncoderTestSequenceWithUntagged9::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    return ret;
+    return 0;
 }
 
-template <class ACCESSOR>
-int EncoderTestSequenceWithUntagged9::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int EncoderTestSequenceWithUntagged9::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14633,11 +13869,11 @@ int EncoderTestSequenceWithUntagged9::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int EncoderTestSequenceWithUntagged9::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -14668,1235 +13904,18 @@ const EncoderTestSequenceWithUntagged9Sequence1& EncoderTestSequenceWithUntagged
     return d_sequence1;
 }
 
-template <typename HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const baljsn::EncoderTestSequenceWithUntagged9& object)
-{
-    (void)hashAlg;
-    (void)object;
-    using bslh::hashAppend;
-    hashAppend(hashAlg, object.sequence());
-    hashAppend(hashAlg, object.attribute0());
-    hashAppend(hashAlg, object.sequence1());
-}
-
 }  // close package namespace
 
 // FREE FUNCTIONS
 
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestAddress& lhs,
-        const baljsn::EncoderTestAddress& rhs)
-{
-    return  lhs.street() == rhs.street()
-         && lhs.city() == rhs.city()
-         && lhs.state() == rhs.state();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestAddress& lhs,
-        const baljsn::EncoderTestAddress& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestAddress& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestChoiceWithAllCategoriesChoice& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesChoice& rhs)
-{
-    typedef baljsn::EncoderTestChoiceWithAllCategoriesChoice Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION0:
-            return lhs.selection0() == rhs.selection0();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestChoiceWithAllCategoriesChoice& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesChoice& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestChoiceWithAllCategoriesChoice& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestChoiceWithAllCategoriesCustomizedType& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        baljsn::EncoderTestChoiceWithAllCategoriesEnumeration::Value rhs)
-{
-    return baljsn::EncoderTestChoiceWithAllCategoriesEnumeration::print(stream, rhs);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestChoiceWithAllCategoriesSequence& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesSequence& rhs)
-{
-    return  lhs.attribute() == rhs.attribute();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestChoiceWithAllCategoriesSequence& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategoriesSequence& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestChoiceWithAllCategoriesSequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestDegenerateChoice1Sequence&,
-        const baljsn::EncoderTestDegenerateChoice1Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestDegenerateChoice1Sequence&,
-        const baljsn::EncoderTestDegenerateChoice1Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestDegenerateChoice1Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithAllCategoriesChoice& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesChoice& rhs)
-{
-    typedef baljsn::EncoderTestSequenceWithAllCategoriesChoice Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION0:
-            return lhs.selection0() == rhs.selection0();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithAllCategoriesChoice& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesChoice& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithAllCategoriesChoice& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithAllCategoriesCustomizedType& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        baljsn::EncoderTestSequenceWithAllCategoriesEnumeration::Value rhs)
-{
-    return baljsn::EncoderTestSequenceWithAllCategoriesEnumeration::print(stream, rhs);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithAllCategoriesSequence& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesSequence& rhs)
-{
-    return  lhs.attribute() == rhs.attribute();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithAllCategoriesSequence& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategoriesSequence& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithAllCategoriesSequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged0&,
-        const baljsn::EncoderTestSequenceWithUntagged0&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged0&,
-        const baljsn::EncoderTestSequenceWithUntagged0&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged0& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged10Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged10Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged10Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged10Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged10Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence1&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence1&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged11Sequence1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged12Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged12Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged12Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged12Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged12Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged13Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged13Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged13Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged13Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged13Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged14& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged14& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.attribute1() == rhs.attribute1()
-         && lhs.attribute2() == rhs.attribute2();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged14& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged14& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged14& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged1Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged1Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged1Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged1Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged1Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged2& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged2& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged2& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged2& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged2& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence1&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence1&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged3Sequence1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged4Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged4Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged4Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged4Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged4Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged5Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged5Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged5Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged5Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged5Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged6& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged6& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged6& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged6& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged6& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence1&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence1&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence2&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence2&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence2&,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence2&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged7Sequence2& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence1&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence1&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged8Sequence1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence&,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence1&)
-{
-    return true;
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence1&,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence1&)
-{
-    return false;
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged9Sequence1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestChoiceWithAllCategories& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategories& rhs)
-{
-    typedef baljsn::EncoderTestChoiceWithAllCategories Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_CHAR_ARRAY:
-            return lhs.charArray() == rhs.charArray();
-          case Class::SELECTION_ID_CHOICE:
-            return lhs.choice() == rhs.choice();
-          case Class::SELECTION_ID_CUSTOMIZED_TYPE:
-            return lhs.customizedType() == rhs.customizedType();
-          case Class::SELECTION_ID_ENUMERATION:
-            return lhs.enumeration() == rhs.enumeration();
-          case Class::SELECTION_ID_SEQUENCE:
-            return lhs.sequence() == rhs.sequence();
-          case Class::SELECTION_ID_SIMPLE:
-            return lhs.simple() == rhs.simple();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestChoiceWithAllCategories& lhs,
-        const baljsn::EncoderTestChoiceWithAllCategories& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestChoiceWithAllCategories& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestDegenerateChoice1& lhs,
-        const baljsn::EncoderTestDegenerateChoice1& rhs)
-{
-    typedef baljsn::EncoderTestDegenerateChoice1 Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SEQUENCE:
-            return lhs.sequence() == rhs.sequence();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestDegenerateChoice1& lhs,
-        const baljsn::EncoderTestDegenerateChoice1& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestDegenerateChoice1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestEmployee& lhs,
-        const baljsn::EncoderTestEmployee& rhs)
-{
-    return  lhs.name() == rhs.name()
-         && lhs.homeAddress() == rhs.homeAddress()
-         && lhs.age() == rhs.age();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestEmployee& lhs,
-        const baljsn::EncoderTestEmployee& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestEmployee& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithAllCategories& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategories& rhs)
-{
-    return  lhs.charArray() == rhs.charArray()
-         && lhs.array() == rhs.array()
-         && lhs.choice() == rhs.choice()
-         && lhs.customizedType() == rhs.customizedType()
-         && lhs.enumeration() == rhs.enumeration()
-         && lhs.nullableValue() == rhs.nullableValue()
-         && lhs.sequence() == rhs.sequence()
-         && lhs.simple() == rhs.simple();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithAllCategories& lhs,
-        const baljsn::EncoderTestSequenceWithAllCategories& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithAllCategories& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged1& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged1& rhs)
-{
-    return  lhs.sequence() == rhs.sequence();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged1& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged1& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged10& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged10& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.attribute0() == rhs.attribute0()
-         && lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged10& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged10& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged10& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged11& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged11& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.sequence() == rhs.sequence()
-         && lhs.sequence1() == rhs.sequence1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged11& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged11& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged11& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged12& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged12& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.sequence() == rhs.sequence()
-         && lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged12& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged12& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged12& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged13& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged13& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.attribute1() == rhs.attribute1()
-         && lhs.sequence() == rhs.sequence();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged13& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged13& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged13& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged3& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged3& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.sequence1() == rhs.sequence1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged3& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged3& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged3& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged4& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged4& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.attribute0() == rhs.attribute0();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged4& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged4& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged4& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged5& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged5& rhs)
-{
-    return  lhs.attribute0() == rhs.attribute0()
-         && lhs.sequence() == rhs.sequence();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged5& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged5& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged5& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged7& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged7& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.sequence1() == rhs.sequence1()
-         && lhs.sequence2() == rhs.sequence2();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged7& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged7& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged7& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged8& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged8& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.sequence1() == rhs.sequence1()
-         && lhs.attribute0() == rhs.attribute0();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged8& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged8& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged8& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool baljsn::operator==(
-        const baljsn::EncoderTestSequenceWithUntagged9& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged9& rhs)
-{
-    return  lhs.sequence() == rhs.sequence()
-         && lhs.attribute0() == rhs.attribute0()
-         && lhs.sequence1() == rhs.sequence1();
-}
-
-inline
-bool baljsn::operator!=(
-        const baljsn::EncoderTestSequenceWithUntagged9& lhs,
-        const baljsn::EncoderTestSequenceWithUntagged9& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& baljsn::operator<<(
-        bsl::ostream& stream,
-        const baljsn::EncoderTestSequenceWithUntagged9& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_VERSION
+// GENERATED BY BLP_BAS_CODEGEN_2025.02.27.1
 // USING bas_codegen.pl --mode msg --noAggregateConversion --noExternalization --msgComponent=encoder_testtypes --package=baljsn baljsn_encoder_testtypes.xsd
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

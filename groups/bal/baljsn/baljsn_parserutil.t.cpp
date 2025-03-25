@@ -18,6 +18,7 @@
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 
 #include <bsl_string.h>
 #include <bsl_cstring.h>
@@ -244,7 +245,7 @@ void roundTripTestNonNumericValues()
         { L_,    INF_P },
         { L_,    INF_N },
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int  LINE  = DATA[ti].d_line;
@@ -324,7 +325,7 @@ void testIntegerTypeRoundTrip()
         { L_,   LLONG_MIN },
         { L_,   LLONG_MAX }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int   LINE  = DATA[ti].d_line;
@@ -557,7 +558,7 @@ int main(int argc, char *argv[])
             { L_, "\"a\"\"b\"", "a\"\"b", true  },
             { L_, "a\"\"b",     "a\"\"b", false }
         };
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1094,7 +1095,7 @@ int main(int argc, char *argv[])
 { L_, "\"0000-01-01T00:00:00.000-00:00\"",
                          1,  1,  1, 24,  0,  0,  0,   0,     0, false, false },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE          = DATA[i].d_line;
@@ -1378,7 +1379,7 @@ int main(int argc, char *argv[])
   {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                        1,     1,    1,     0, false,  false },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -1734,7 +1735,7 @@ int main(int argc, char *argv[])
   {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                24,   0,    0,    0,   0,     0, false, false },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -1895,7 +1896,7 @@ int main(int argc, char *argv[])
             { L_,  1999,  10,  12,   23,   0,   1,   999,  789,    720 },
             { L_,  1999,  12,  31,   23,  59,  59,   999,  999,    720 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int LINE        = DATA[ti].d_line;
@@ -2077,7 +2078,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min() },
                 { L_, -Limits::max()        },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE  = DATA[ti].d_line;
@@ -2169,7 +2170,7 @@ int main(int argc, char *argv[])
                 { L_,     1.23456789e-20f, 1,           1e-20f          },
                 { L_,     1.23456789e-20f, 9,           1.23456787e-20f },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE      = DATA[ti].d_line;
@@ -2267,7 +2268,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min() },
                 { L_, -Limits::max()        },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE  = DATA[ti].d_line;
@@ -2372,7 +2373,7 @@ int main(int argc, char *argv[])
                 {L_,   -1.2345678901234567e-20,  16,  -1.234567890123457e-20 },
                 {L_,   -1.2345678901234567e-20,  17,             ROUND_TRIPS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE     = DATA[ti].d_line;
@@ -2435,7 +2436,7 @@ int main(int argc, char *argv[])
                 { L_,   -Limits::denorm_min() },
                 { L_,   -Limits::max()        },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int               LINE  = DATA[ti].d_line;
@@ -2599,7 +2600,7 @@ int main(int argc, char *argv[])
             { L_,    "\x1F" },
             { L_,    "\x20" }   // Space
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE  = DATA[ti].d_line;
@@ -2613,6 +2614,12 @@ int main(int argc, char *argv[])
             ASSERTV(0 == Util::getValue(&decoded, result));
             ASSERTV(result, decoded, VALUE == decoded);
         }
+
+        // Make sure that "\"\\/\"" (`"\/"`) decodes to "/".
+        bsl::string decoded;
+        int rc = Util::getValue(&decoded, "\"\\/\"");
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(decoded, "/" == decoded);
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -2825,7 +2832,7 @@ int main(int argc, char *argv[])
      {  L_,     "\"X\"",                  ERROR_VALUE,                 false },
      {  L_,  "\" NaN\"",                  ERROR_VALUE,                 false },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -2926,7 +2933,7 @@ int main(int argc, char *argv[])
           {  L_,  "\"QVE\"",         "",                   0, false },
           {  L_,  "\"QVE==\"",       "",                   0, false },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -3349,7 +3356,7 @@ int main(int argc, char *argv[])
     {   L_, "\"01-01-01T23:59:59.9999999\"",
               1,     1,    1,    24,     0,    0,    0,   0,      0,  false  },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -3957,7 +3964,7 @@ int main(int argc, char *argv[])
                    1,     1,    1,    24,     0,    0,    0,   0,   false  },
 
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -4218,7 +4225,7 @@ int main(int argc, char *argv[])
     {   L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                         1,     1,    1,       0,  false  },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -4387,7 +4394,7 @@ int main(int argc, char *argv[])
   {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                        1,     1,    1,   false  },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -4528,7 +4535,7 @@ int main(int argc, char *argv[])
   {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                       24,     0,    0,    0,      0,  false  },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -4717,7 +4724,7 @@ int main(int argc, char *argv[])
   {  L_, "\"0001-01-01T00:00:00.000+00:00\"",
                                       24,     0,    0,    0,   0,  false  },
         };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -4964,7 +4971,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"\\ud83d\\ude4`\"", -1, ERROR_VALUE,         -1, 0  },
                 {  L_, "\"\\ud83d\\ude4g\"", -1, ERROR_VALUE,         -1, 0  },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA; ++ti) {
                 const int          di       = ti % NUM_DATA;
@@ -5051,7 +5058,7 @@ int main(int argc, char *argv[])
                 {  L_,   "ab",   -1,    "ab",      2,    true   },
             };
 
-            const int NUM_DATA2 = sizeof(DATA2) / sizeof(*DATA2);
+            const int NUM_DATA2 = sizeof DATA2 / sizeof DATA2[0];
 
             for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA2; ++ti) {
                 const int          di       = ti % NUM_DATA2;
@@ -5319,7 +5326,7 @@ int main(int argc, char *argv[])
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -5550,7 +5557,7 @@ int main(int argc, char *argv[])
                 {  L_,    "DEADBEEF", ERROR_VALUE,   false   },
                 {  L_,    "JUNK",     ERROR_VALUE,   false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -5834,7 +5841,7 @@ int main(int argc, char *argv[])
     {  L_,   "1E9999999999",        ERROR_VALUE,      false   },
     {  L_,   "1E-9999999999",       ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -6197,7 +6204,7 @@ int main(int argc, char *argv[])
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -6443,7 +6450,7 @@ int main(int argc, char *argv[])
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -6739,7 +6746,7 @@ int main(int argc, char *argv[])
                 TLN(         "DEADBEEF",         ERROR_VALUE,     false),
 #undef TLN
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE     = DATA[i].d_line;
@@ -6983,7 +6990,7 @@ int main(int argc, char *argv[])
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -7269,7 +7276,7 @@ int main(int argc, char *argv[])
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -7488,7 +7495,7 @@ int main(int argc, char *argv[])
     {  L_,         "JUNK",          ERROR_VALUE,      false   },
     {  L_,         "DEADBEEF",      ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -7710,7 +7717,7 @@ int main(int argc, char *argv[])
     {  L_,       "\"\"",            ERROR_VALUE,      false   },
     {  L_,       "\"AB\"",          ERROR_VALUE,      false   },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -7818,7 +7825,7 @@ int main(int argc, char *argv[])
                 {   L_,    "truefalse", EV,      false    },
                 {   L_,    "falsetrue", EV,      false    },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int            LINE     = DATA[i].d_line;
@@ -7895,7 +7902,7 @@ int main(int argc, char *argv[])
             { L_,           "1.",  false,         0.0 },
             { L_,        "1e+-1",  false,         0.0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < NUM_DATA; ++ ti) {
             const int         LINE   = DATA[ti].d_line;

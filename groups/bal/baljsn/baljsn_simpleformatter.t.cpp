@@ -50,6 +50,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
@@ -197,6 +198,39 @@ Obj g(bsl::ostream& os, int style, int indent, int spl)
 
     return Obj(os, encoderOptions);
 
+}
+
+void testSlashEscapes(bool escapeForwardSlash, const bsl::string_view &EXP)
+{
+    bsl::ostringstream os;
+    Options            encoderOptions;
+
+    encoderOptions.setEscapeForwardSlash(escapeForwardSlash);
+    encoderOptions.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
+    encoderOptions.setInitialIndentLevel(0);
+    encoderOptions.setSpacesPerLevel(4);
+
+    {
+        Obj formatter(os, encoderOptions);
+
+        formatter.openArray();
+            formatter.addValue("/");
+
+            formatter.openObject();
+                formatter.addValue("1/", "/");
+
+                formatter.openArray("2/");
+                formatter.closeArray();
+
+                formatter.openObject("3/");
+                formatter.closeObject();
+
+                formatter.addNullValue("4/");
+            formatter.closeObject();
+        formatter.closeArray();
+    }
+
+    ASSERTV(os.str(), EXP, EXP == os.str());
 }
 
 template <class TYPE>
@@ -365,7 +399,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -535,6 +569,56 @@ int main(int argc, char *argv[])
 }
 // ```
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // HANDLING `/`
+        //
+        // Concerns:
+        // 1. `/` characters are encoded according to the `escapeForwardSlash`
+        //    encoding option.
+        //
+        // Plan:
+        // 1. Test rendering `/` via all the methods with `string_view`
+        //    parameters, with both settings for `escapeForwardSlash`. (C-1)
+        //
+        // Testing:
+        //   HANDLING `/`
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nHANDLING `/`"
+                          << "\n============" << endl;
+
+#define NL "\n"
+        const bsl::string EXPECTED_ESCAPED_SLASH =
+            "["                                                              NL
+            "    \"\\/\","                                                   NL
+            "    {"                                                          NL
+            "        \"1\\/\" : \"\\/\","                                    NL
+            "        \"2\\/\" : ["                                           NL
+            "        ],"                                                     NL
+            "        \"3\\/\" : {"                                           NL
+            "        },"                                                     NL
+            "        \"4\\/\" : null"                                        NL
+            "    }"                                                          NL
+            "]";
+
+        const bsl::string EXPECTED_NO_ESCAPED_SLASH =
+            "["                                                              NL
+            "    \"/\","                                                     NL
+            "    {"                                                          NL
+            "        \"1/\" : \"/\","                                        NL
+            "        \"2/\" : ["                                             NL
+            "        ],"                                                     NL
+            "        \"3/\" : {"                                             NL
+            "        },"                                                     NL
+            "        \"4/\" : null"                                          NL
+            "    }"                                                          NL
+            "]";
+#undef NL
+
+        testSlashEscapes(true, EXPECTED_ESCAPED_SLASH);
+        testSlashEscapes(false, EXPECTED_NO_ESCAPED_SLASH);
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING `allocator` METHOD
@@ -686,7 +770,7 @@ int main(int argc, char *argv[])
                                                        "    ]"           NL
                                                        "  }"                 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -835,7 +919,7 @@ int main(int argc, char *argv[])
             {   L_,     1,      2,    4  },
             {   L_,     1,      3,    5  },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE = DATA[i].d_line;
@@ -1066,7 +1150,7 @@ int main(int argc, char *argv[])
         {   L_,     1,      1,    2,  EMPTY,   3,        "  [  [  [  []]]]"
                                                                         },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int                       LINE   = DATA[i].d_line;
@@ -1210,7 +1294,7 @@ int main(int argc, char *argv[])
                                                                         },
         {   L_,     1,      1,    2,  EMPTY,    3,  "  [  [  [  ["      },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int                       LINE   = DATA[i].d_line;
@@ -1313,7 +1397,7 @@ int main(int argc, char *argv[])
                                                                 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1436,7 +1520,7 @@ int main(int argc, char *argv[])
                                               "      \"a\" : {"       NL
                                               "        \"a\" : {"     NL     },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1584,7 +1668,7 @@ int main(int argc, char *argv[])
                                        "                    ]"           NL
                                        "               }"                    },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1724,7 +1808,7 @@ int main(int argc, char *argv[])
             { "Pretty",     true,  2 }
         };
 
-        int NUM_DATA=sizeof(DATA)/sizeof(*DATA);
+        const int NUM_DATA=sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const bsl::string DESC   = DATA[i].d_description;

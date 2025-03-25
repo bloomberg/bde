@@ -241,16 +241,17 @@ int read(Json *result, Error *error, Tokenizer *tokenizer, int maxNestedDepth)
 // 'WriteVisitor':
 
 template <class VISITOR>
-void write(bsl::ostream&  stream,
-           const Json&    value,
-           int            level,
-           const VISITOR& visitor);
+void write(bsl::ostream&     stream,
+           const Json&       value,
+           int               level,
+           StringUtil::Flags stringWriteMode,
+           const VISITOR&    visitor);
     // Write the specified 'value' to the specified 'stream' at the specified
-    // 'level' using the specified 'visitor' to write 'JsonObject' and
-    // 'JsonArray' types.  Note that this class implements a recursive visit
-    // for a 'Json' object with the supplied 'visitor' (this free function is
-    // needed because 'Json' itself does not have a 'visit' function at this
-    // time).
+    // 'level' with the specified 'stringWriteMode' setting, using the
+    // specified 'visitor' to write 'JsonObject' and 'JsonArray' types.  Note
+    // that this class implements a recursive visit for a 'Json' object with
+    // the supplied 'visitor' (this free function is needed because 'Json'
+    // itself does not have a 'visit' function at this time).
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 template <typename T>
@@ -522,9 +523,11 @@ class WriteVisitor {
 
     void operator()(bsl::ostream&     stream,
                     const JsonObject& value,
-                    int               level) const
+                    int               level,
+                    StringUtil::Flags stringWriteMode) const
         // Output to the specified 'stream' the specified 'value' at the
-        // specified 'level' of indentation.
+        // specified 'level' of indentation with the specified
+        // 'stringWriteMode'.
     {
         stream.put('{');
 
@@ -542,9 +545,15 @@ class WriteVisitor {
                 d_whitespaceWriter.separator(stream, level + 1);
             }
 
-            StringUtil::writeString(stream, it.member().first);
+            StringUtil::writeString(stream,
+                                    it.member().first,
+                                    stringWriteMode);
             d_whitespaceWriter.memberNameSeparator(stream);
-            write(stream, it.member().second, level + 1, *this);
+            write(stream,
+                  it.member().second,
+                  level + 1,
+                  stringWriteMode,
+                  *this);
             it.next();
         }
 
@@ -555,11 +564,13 @@ class WriteVisitor {
         stream.put('}');
     }
 
-    void operator()(bsl::ostream&    stream,
-                    const JsonArray& value,
-                    int              level) const
+    void operator()(bsl::ostream&     stream,
+                    const JsonArray&  value,
+                    int               level,
+                    StringUtil::Flags stringWriteMode) const
         // Output to the specified 'stream' the specified 'value' at the
-        // specified 'level' of indentation.
+        // specified 'level' of indentation with the specified
+        // 'stringWriteMode'.
     {
         stream.put('[');
         JsonArray::ConstIterator it = value.begin();
@@ -575,7 +586,7 @@ class WriteVisitor {
                 stream.put(',');
                 d_whitespaceWriter.separator(stream, level + 1);
             }
-            write(stream, *it, level + 1, *this);
+            write(stream, *it, level + 1, stringWriteMode, *this);
         }
 
         // Always represent empty arrays as '[]'.
@@ -588,26 +599,27 @@ class WriteVisitor {
 };
 
 template <class VISITOR>
-void write(bsl::ostream&  stream,
-           const Json&    value,
-           int            level,
-           const VISITOR& visitor)
+void write(bsl::ostream&     stream,
+           const Json&       value,
+           int               level,
+           StringUtil::Flags stringWriteMode,
+           const VISITOR&    visitor)
     // Output to the specified 'stream' the specified 'value' at the specified
     // 'level' of indentation, using the specified 'visitor' for formatting.
 {
     switch (value.type()) {
       case JsonType::e_ARRAY: {
-        visitor(stream, value.theArray(), level);
+        visitor(stream, value.theArray(), level, stringWriteMode);
       } break;
       case JsonType::e_OBJECT: {
-        visitor(stream, value.theObject(), level);
+        visitor(stream, value.theObject(), level, stringWriteMode);
       } break;
       case JsonType::e_BOOLEAN: {
         stream << (value.theBoolean() ? bsl::string_view("true", 4)
                                       : bsl::string_view("false", 5));
       } break;
       case JsonType::e_STRING: {
-        StringUtil::writeString(stream, value.theString());
+        StringUtil::writeString(stream, value.theString(), stringWriteMode);
       } break;
       case JsonType::e_NUMBER: {
         stream << value.theNumber();
@@ -628,12 +640,24 @@ void writeDispatchFormatting(bsl::ostream&       output,
     // specified 'options', passing 'write' the specified 'output' and
     // specified 'json'.
 {
+    int  initialIndentLevel = options.initialIndentLevel();
+
+    StringUtil::Flags stringWriteMode = StringUtil::e_NONE;
+
+    if (!options.escapeForwardSlash()) {
+        stringWriteMode = StringUtil::e_NO_ESCAPING_FORWARD_SLASH;
+    }
+
     if (WriteStyle::e_COMPACT == options.style()) {
         u::CompactWhitespaceWriter writer;
 
         u::WriteVisitor<u::CompactWhitespaceWriter,
                         OBJECT_MEMBER_ITERATOR> visitor(writer);
-        u::write(output, json, options.initialIndentLevel(), visitor);
+        u::write(output,
+                 json,
+                 initialIndentLevel,
+                 stringWriteMode,
+                 visitor);
     }
     else if (WriteStyle::e_ONELINE == options.style()) {
         u::OnelineWhitespaceWriter writer;
@@ -642,7 +666,11 @@ void writeDispatchFormatting(bsl::ostream&       output,
             output, options.initialIndentLevel(), options.spacesPerLevel());
         u::WriteVisitor<u::OnelineWhitespaceWriter,
                         OBJECT_MEMBER_ITERATOR> visitor(writer);
-        u::write(output, json, options.initialIndentLevel(), visitor);
+        u::write(output,
+                 json,
+                 initialIndentLevel,
+                 stringWriteMode,
+                 visitor);
     }
     else {
         u::PrettyWhitespaceWriter writer(options.spacesPerLevel());
@@ -651,7 +679,11 @@ void writeDispatchFormatting(bsl::ostream&       output,
             output, options.initialIndentLevel(), options.spacesPerLevel());
         u::WriteVisitor<u::PrettyWhitespaceWriter,
                         OBJECT_MEMBER_ITERATOR> visitor(writer);
-        u::write(output, json, options.initialIndentLevel(), visitor);
+        u::write(output,
+                 json,
+                 initialIndentLevel,
+                 stringWriteMode,
+                 visitor);
     }
 }
 

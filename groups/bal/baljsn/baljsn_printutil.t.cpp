@@ -18,6 +18,7 @@
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
@@ -199,7 +200,7 @@ void testIntTypeValues()
         { L_,   LLONG_MIN, "-9223372036854775808" },
         { L_,   LLONG_MAX,  "9223372036854775807" }
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int          LINE     = DATA[ti].d_line;
@@ -273,7 +274,7 @@ void testInfAndNaNAsStrings()
  { L_, bsl::numeric_limits<TYPE>::signaling_NaN(), true, true, 0, POS_NAN_STR},
  { L_,-bsl::numeric_limits<TYPE>::signaling_NaN(), true, true, 0, NEG_NAN_STR},
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE     = DATA[ti].d_line;
@@ -470,7 +471,7 @@ int main(int argc, char *argv[])
             { L_,   0,  0,  0,  0,   0,   0, "\"+0_00:00:00.000000\"" },
             { L_,   1, 23, 59, 58, 765, 432, "\"+1_23:59:58.765432\"" },
         };
-        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -579,7 +580,7 @@ int main(int argc, char *argv[])
             { L_,  1999,  10,  12,   23,   0,   1,   999,  789,    720 },
             { L_,  1999,  12,  31,   23,  59,  59,   999,  999,    720 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         const char *expectedDate[] = {
             "\"0001-01-01\"",
@@ -912,7 +913,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min(), "-1e-45"         },
                 { L_, -Limits::max(),        "-3.4028235e+38" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -1021,7 +1022,7 @@ int main(int argc, char *argv[])
                 { L_,    1.23456789e-20f,  1,         "1e-20"          },
                 { L_,    1.23456789e-20f,  9,         "1.23456787e-20" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -1103,7 +1104,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min(), "-5e-324"                  },
                 { L_, -Limits::max(),        "-1.7976931348623157e+308" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -1196,7 +1197,7 @@ int main(int argc, char *argv[])
       { L_,  -1.2345678901234567e-20, 17, "-1.2345678901234567e-20"  },
 #endif
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -1281,7 +1282,7 @@ int main(int argc, char *argv[])
                 { L_,   -Limits::denorm_min(), "-1e-398"                 },
                 { L_,   -Limits::max(),        "-9.999999999999999e+384" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int               LINE     = DATA[ti].d_line;
@@ -1355,7 +1356,7 @@ int main(int argc, char *argv[])
                 { L_,    INF_P,    false,    "",           -1  },
                 { L_,    INF_N,    false,    "",           -1  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE      = DATA[ti].d_line;
@@ -1397,11 +1398,14 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. Character are encoded as a single character string.
         //
-        // 2. All escape characters are encoded corrected.
+        // 2. All escape characters are encoded correctly.
         //
-        // 3. Control characters are encoded as hex.
+        // 3. `/` characters are encoded based on the `escapeForwardSlash`
+        //    encoder option.
         //
-        // 4. Invalid UTF-8 strings are rejected.
+        // 4. Control characters are encoded as hex.
+        //
+        // 5. Invalid UTF-8 strings are rejected.
         //
         // Plan:
         // 1. Using the table-driven technique:
@@ -1415,8 +1419,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //  static int printString(bsl::ostream&, const bsl::string_view&);
-        //  static int printValue(bsl::ostream& s, const char             *v);
-        //  static int printValue(bsl::ostream& s, const bsl::string&      v);
+        //  static int printValue(bsl::ostream&, const char *);
+        //  static int printValue(bsl::ostream&, const bsl::string&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nENCODING STRINGS"
@@ -1490,7 +1494,7 @@ int main(int argc, char *argv[])
                 { L_,  "\x1E", "\"\\u001e\"" },
                 { L_,  "\x1F", "\"\\u001f\"" }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE     = DATA[ti].d_line;
@@ -1545,7 +1549,7 @@ int main(int argc, char *argv[])
                 { L_,   "\xf0\x8f\xbf\xbf" },
                 { L_,   "\xf4\x9f\xbf\xbf" }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE  = DATA[ti].d_line;
@@ -1570,6 +1574,81 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, 0 != Util::printString(oss,
                                                         bsl::string(VALUE)));
                 }
+            }
+        }
+
+        if (verbose) cout << "Encode string containing `/`" << endl;
+        {
+            const char *const FWD_SLASH        = "/";
+            const char *const DEFAULT_RESULT   = "\"\\/\"";
+            const char *const NO_ESCAPE_RESULT = "\"/\"";
+
+            P_(FWD_SLASH) P_(DEFAULT_RESULT) P(NO_ESCAPE_RESULT);
+
+            baljsn::EncoderOptions noEscapeForwardSlashOpt;
+            noEscapeForwardSlashOpt.setEscapeForwardSlash(false);
+
+            if (veryVeryVerbose)
+                cout << "Test `char *`" << endl;
+            {
+                const char *VALUE = FWD_SLASH;
+
+                bsl::ostringstream oss;
+                ASSERTV(0 == Util::printValue(oss, VALUE));
+                ASSERTV(DEFAULT_RESULT,
+                        oss.str(),
+                        DEFAULT_RESULT == oss.str());
+
+                oss.str("");
+
+                ASSERTV(0 == Util::printValue(oss,
+                                              VALUE,
+                                              &noEscapeForwardSlashOpt));
+                ASSERTV(NO_ESCAPE_RESULT,
+                        oss.str(),
+                        NO_ESCAPE_RESULT == oss.str());
+            }
+
+            if (veryVeryVerbose)
+                cout << "Test `string`" << endl;
+            {
+                bsl::string VALUE = FWD_SLASH;
+
+                bsl::ostringstream oss;
+                ASSERTV(0 == Util::printValue(oss, VALUE));
+                ASSERTV(DEFAULT_RESULT,
+                        oss.str(),
+                        DEFAULT_RESULT == oss.str());
+
+                oss.str("");
+
+                ASSERTV(0 == Util::printValue(oss,
+                                              VALUE,
+                                              &noEscapeForwardSlashOpt));
+                ASSERTV(NO_ESCAPE_RESULT,
+                        oss.str(),
+                        NO_ESCAPE_RESULT == oss.str());
+            }
+
+            if (veryVeryVerbose)
+                cout << "Test `printString`" << endl;
+            {
+                bsl::string_view VALUE = FWD_SLASH;
+
+                bsl::ostringstream oss;
+                ASSERTV(0 == Util::printString(oss, VALUE));
+                ASSERTV(DEFAULT_RESULT,
+                        oss.str(),
+                        DEFAULT_RESULT == oss.str());
+
+                oss.str("");
+
+                ASSERTV(0 == Util::printString(oss,
+                                               VALUE,
+                                               &noEscapeForwardSlashOpt));
+                ASSERTV(NO_ESCAPE_RESULT,
+                        oss.str(),
+                        NO_ESCAPE_RESULT == oss.str());
             }
         }
       } break;

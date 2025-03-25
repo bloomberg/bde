@@ -610,7 +610,9 @@ void SimpleFormatter::printName(const bsl::string_view& name)
         indent();
     }
 
-    const int rc = PrintUtil::printValue(d_outputStream, name);
+    const int rc = PrintUtil::printValue(d_outputStream,
+                                         name,
+                                         &d_encoderOptions);
     if (rc) {
         return;                                                       // RETURN
     }

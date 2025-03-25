@@ -1422,7 +1422,8 @@ int Encoder_EncodeImplUtil::encode(bsl::ostream          *logStream,
                    *jsonStream,
                    baljsn::EncoderOptions::e_PRETTY == options.encodingStyle(),
                    options.initialIndentLevel(),
-                   options.spacesPerLevel());
+                   options.spacesPerLevel(),
+                   options.escapeForwardSlash());
 
     bool isValueEmpty = false;
 

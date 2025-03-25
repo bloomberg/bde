@@ -162,7 +162,8 @@ struct PrintUtil {
     /// Encode the specified string `value` into JSON format and output the
     /// result to the specified `stream`.
     static int printString(bsl::ostream&           stream,
-                           const bsl::string_view& value);
+                           const bsl::string_view& value,
+                           const EncoderOptions   *options = 0);
 
     /// Encode the specified `value` into JSON format and output the result
     /// to the specified `stream` using the optionally specified `options`.
@@ -361,14 +362,21 @@ int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
 
 inline
 int PrintUtil::printString(bsl::ostream&           stream,
-                           const bsl::string_view& value)
+                           const bsl::string_view& value,
+                           const EncoderOptions   *options)
 {
-    return bdljsn::StringUtil::writeString(stream, value);
+    bdljsn::StringUtil::Flags stringWriteMode = bdljsn::StringUtil::e_NONE;
+
+    if (options && !options->escapeForwardSlash()) {
+        stringWriteMode = bdljsn::StringUtil::e_NO_ESCAPING_FORWARD_SLASH;
+    }
+
+    return bdljsn::StringUtil::writeString(stream, value, stringWriteMode);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          bool          value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          bool                  value,
                           const EncoderOptions *)
 {
     stream << (value ? "true" : "false");
@@ -376,8 +384,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          short         value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          short                 value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -385,8 +393,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          int           value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          int                   value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -394,8 +402,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&      stream,
-                          bsls::Types::Int64 value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          bsls::Types::Int64    value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -403,8 +411,8 @@ int PrintUtil::printValue(bsl::ostream&      stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          unsigned char value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          unsigned char         value,
                           const EncoderOptions *)
 {
     stream << static_cast<int>(value);
@@ -412,8 +420,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&  stream,
-                          unsigned short value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          unsigned short        value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -421,8 +429,8 @@ int PrintUtil::printValue(bsl::ostream&  stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          unsigned int  value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          unsigned int          value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -430,8 +438,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&       stream,
-                          bsls::Types::Uint64 value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          bsls::Types::Uint64   value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -455,16 +463,16 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream&  stream,
-                          const char    *value,
-                          const EncoderOptions *)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const char           *value,
+                          const EncoderOptions *options)
 {
-    return bdljsn::StringUtil::writeString(stream, value);
+    return printString(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          char          value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          char                  value,
                           const EncoderOptions *)
 {
     signed char tmp(value);  // Note that 'char' is unsigned on IBM.
@@ -474,8 +482,8 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream,
-                          signed char   value,
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          signed char           value,
                           const EncoderOptions *)
 {
     stream << static_cast<int>(value);
@@ -485,9 +493,9 @@ int PrintUtil::printValue(bsl::ostream& stream,
 inline
 int PrintUtil::printValue(bsl::ostream&            stream,
                           const bsl::string_view&  value,
-                          const EncoderOptions    *)
+                          const EncoderOptions    *options)
 {
-    return bdljsn::StringUtil::writeString(stream, value);
+    return printString(stream, value, options);
 }
 
 inline

@@ -16,6 +16,7 @@
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
+#include <bsl_iterator.h> // `bsl::size`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -44,6 +45,7 @@ using namespace bsl;
 //  - `setDatetimeFractionalSecondPrecision`
 //  - `setMaxFloatPrecision`
 //  - `setMaxDoublePrecision`
+//  - `setEscapeForwardSlash`
 //
 // Basic Accessors:
 //  - `initialIndentLevel`
@@ -56,6 +58,7 @@ using namespace bsl;
 //  - `datetimeFractionalSecondPrecision`
 //  - `maxFloatPrecision`
 //  - `maxDoublePrecision`
+//  - `escapeForwardSlash`
 //
 // Certain standard value-semantic-type test cases are omitted:
 //  - [ 8] -- `swap` is not implemented for this class.
@@ -90,6 +93,7 @@ using namespace bsl;
 // [ 3] setDatetimeFractionalSecondPrecision(int value);
 // [ 3] setMaxFloatPrecision(int value);
 // [ 3] setMaxDoublePrecision(int value);
+// [ 3] setEscapeForwardSlash(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -103,6 +107,7 @@ using namespace bsl;
 // [ 4] int datetimeFractionalSecondPrecision() const;
 // [ 4] maxFloatPrecision() const;
 // [ 4] maxDoublePrecision() const;
+// [ 4] bool escapeForwardSlash() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -112,7 +117,7 @@ using namespace bsl;
 // [ 5] operator<<(ostream& s, const baljsn::EncoderOptions& d);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -280,6 +285,95 @@ class EncodeQuotedDecimal64Manipulator
     }
 };
 
+                     //====================================
+                     // class EscapeForwardSlashAccessor
+                     //====================================
+
+/// This class implements accessor interface that attains the
+/// `d_encodeQoutedDecimal64` data member of the `baljsn::EncoderOptions`
+/// class.
+class EscapeForwardSlashAccessor
+{
+    // DATA
+    bool d_value;  // copy of `d_encodeQoutedDecimal64` value
+
+  public:
+    // CREATORS
+    EscapeForwardSlashAccessor()
+        : d_value(false)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// Always return 0.  Dummy implementation of the access operator.
+    template <class T>
+    int operator()(T, const bdlat_AttributeInfo&)
+    {
+        return 0;
+    }
+
+    /// Return the attribute's id and store the specified `value` if the
+    /// specified `info` indicates `d_encodeQoutedDecimal64` data member.
+    /// Return 0 otherwise.
+    int operator()(bool value, const bdlat_AttributeInfo& info)
+    {
+        if (Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH == info.id()) {
+            d_value = value;
+            return Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+        }
+        return 0;
+    }
+
+    // ACCESSORS
+    bool value() const
+    {
+        return d_value;
+    }
+};
+
+                   //=======================================
+                   // class EscapeForwardSlashManipulator
+                   //=======================================
+
+/// This class implements manipulator interface that updates the
+/// `d_encodeQoutedDecimal64` data member of the `baljsn::EncoderOptions`
+/// class.
+class EscapeForwardSlashManipulator
+{
+    // DATA
+    bool d_value;
+
+  public:
+    // CREATORS
+    explicit EscapeForwardSlashManipulator(bool value)
+        : d_value(value)
+    {
+    }
+
+    // ACCESSORS
+
+    /// Always return 0.  Dummy implementation of the manipulator operator.
+    template <class T>
+    int operator()(T *, const bdlat_AttributeInfo&) const
+    {
+        return 0;
+    }
+
+    /// Return the attribute id and update the specified `value` with the
+    /// attribute's value initialized in this class constructor if the
+    /// specified `info` indicates `d_encodeQoutedDecimal64` data member.
+    /// Return 0 otherwise.
+    int operator()(bool *value, const bdlat_AttributeInfo& info) const
+    {
+        if (Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH == info.id()) {
+            *value = d_value;
+            return Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+        }
+        return 0;
+    }
+};
+
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
@@ -298,62 +392,70 @@ struct DefaultDataRow {
     int          d_maxFloatPrecision;
     int          d_maxDoublePrecision;
     bool         d_encodeQuotedDecimal64;
+    bool         d_escapeForwardSlash;
 };
 
 #define COMPACT Obj::e_COMPACT
 #define PRETTY  Obj::e_PRETTY
 
+const bool T = true;
+const bool F = false;
+
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
 
-//LINE  INDENT     SPL     STYLE     EEA    ENE    EINAS DTP FP DP  EQD
-//----  ------     ---     -----     ---    ---    ----- --- -- --  ---
+//LINE  INDENT     SPL     STYLE     EEA ENE EINAS DTP FP DP  EQD ES/
+//----  ------     ---     -----     --- --- ----- --- -- --  --- ---
 
 // default (must be first)
-{ L_,       0,       0,    COMPACT,  false, false, false, 3, 0,  0, true  },
+{ L_,       0,       0,    COMPACT,  F,  F,  F,     3, 0,  0, T,  T },
 
 // `initialIndentLevel`
-{ L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, true  },
-{ L_, INT_MAX,       0,    COMPACT,  false, false, false, 3, 9, 17, true  },
+{ L_,       1,       0,    PRETTY,   F,  F,  F,     3, 9, 17, T,  T },
+{ L_, INT_MAX,       0,    COMPACT,  F,  F,  F,     3, 9, 17, T,  T },
 
 // `spacesPerLevel`
-{ L_,       0,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
-{ L_,       0, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
+{ L_,       0,       1,    PRETTY,   F,  F,  F,     3, 9, 17, T,  T },
+{ L_,       0, INT_MAX,    COMPACT,  F,  F,  F,     3, 9, 17, T,  T },
 
 // `encodingStyle`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  F,     3, 9, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  F,     3, 9, 17, T,  T },
 
 // `encodeEmptyArrays`
-{ L_, INT_MAX,       1,    PRETTY,   true,  false, false, 3, 9, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  true,  false, false, 3, 9, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   T,  F,  F,     3, 9, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  T,  F,  F,     3, 9, 17, T,  T },
 
 // `encodeNullElements`
-{ L_, INT_MAX,       1,    PRETTY,   false, true,  false, 3, 9, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, true,  false, 3, 9, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  T,  F,     3, 9, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  T,  F,     3, 9, 17, T,  T },
 
 // `encodeInfAndNaNAsStrings`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  T,     3, 9, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  T,     3, 9, 17, T,  T },
 
 // `datetimeFractionalSecondPrecision`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  4, 9, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  6, 9, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  T,     4, 9, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  T,     6, 9, 17, T,  T },
 
 // `maxFloatPrecision`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 3, 17, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 6, 17, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  T,     3, 3, 17, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  T,     3, 6, 17, T,  T },
 
 // `maxDoublePrecision`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9,  9, true  },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 15, true  },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  T,     3, 9,  9, T,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  T,     3, 9, 15, T,  T },
 
 // `encodeQuotedDecimal64`
-{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
-{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  F,     3, 9, 17, F,  T },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  F,     3, 9, 17, F,  T },
+
+// `escapeForwardSlash`
+{ L_, INT_MAX,       1,    PRETTY,   F,  F,  F,     3, 9, 17, F,  F },
+{ L_,       1, INT_MAX,    COMPACT,  F,  F,  F,     3, 9, 17, F,  F },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof DEFAULT_DATA[0];
 
 #undef COMPACT
 #undef PRETTY
@@ -382,7 +484,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -424,6 +526,7 @@ int main(int argc, char *argv[])
     const int  FLOAT_PRECISION           = 3;
     const int  DOUBLE_PRECISION          = 9;
     const bool ENCODE_QUOTED_DECIMAL64   = false;
+    const bool ESCAPE_FORWARD_SLASH      = false;
 
     baljsn::EncoderOptions options;
     ASSERT(0     == options.initialIndentLevel());
@@ -436,6 +539,7 @@ int main(int argc, char *argv[])
     ASSERT(0     == options.maxFloatPrecision());
     ASSERT(0     == options.maxDoublePrecision());
     ASSERT(true  == options.encodeQuotedDecimal64());
+    ASSERT(true  == options.escapeForwardSlash());
 // ```
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -469,7 +573,174 @@ int main(int argc, char *argv[])
 
     options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
     ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
-// ```
+
+    options.setEscapeForwardSlash(ESCAPE_FORWARD_SLASH);
+    ASSERT(ESCAPE_FORWARD_SLASH == options.escapeForwardSlash());
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING ESCAPE FORWARD SLASH
+        //   The `d_escapeForwardSlash` attribute was added to the
+        //  `baljsn::EncoderOptions` class by hand unlike the other attributes
+        //  generated by `bas_codegen.pl` tool.  Therefore we need to ensure
+        //  that the  `d_escapeForwardSlash` attribute can be accessed and
+        //  updated using the class' accessors and manipulators.
+        //
+        // Concerns:
+        // 1. That the `d_escapeForwardSlash` attribute information is
+        //    provided by the class' lookup attribute methods.
+        //
+        // 2. That the `d_escapeForwardSlash` attribute is attended by the
+        //    class' access attribute methods;
+        //
+        // 3. That the `d_escapeForwardSlash` attribute is manipulated by
+        //    the class' manipulate attribute methods.
+        //
+        // 4. That the `d_escapeForwardSlash` attribute is reset by
+        //    `reset()` methods.
+        //
+        // Plan:
+        // 1. Ensure that `lookupAttributeInfo()` method returns
+        //    `bdlat_AttributeInfo` describing the `d_escapeForwardSlash`
+        //    attribute. (C-1)
+        //
+        // 2. Create a default `baljsn::EncoderOptions` object and using the
+        //    `accessAttribute()` method ensure that `d_escapeForwardSlash`
+        //    has default-constructed value.  Using the `manipulateAttribute()`
+        //    method set a new value that differs from the default-constructed.
+        //    Using `accessAttribute()` method verify that the
+        //    `d_escapeForwardSlash` member has expected value.  Invoke
+        //    `reset()` and verify that `d_escapeForwardSlash` is reset to
+        //    default. (C-2..4)
+        //
+        // Testing:
+        //   const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        //   const bdlat_AttributeInfo *lookupAttributeInfo(const char *, int);
+        //   int manipulateAttributes(MANIPULATOR&);
+        //   int manipulateAttribute(MANIPULATOR&, int);
+        //   int manipulateAttribute(MANIPULATOR&, const char *, int);
+        //   void reset();
+        //   int accessAttributes(ACCESSOR&);
+        //   int accessAttributes(ACCESSOR&, int);
+        //   int accessAttributes(ACCESSOR&, const char *, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ESCAPE FORWARD SLASH"
+                          << "\n============================" << endl;
+        // TESTING lookupAttributeInfo (P-1);
+        {
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+            const bdlat_AttributeInfo EXPECTED =
+                {
+                    ATTRIBUTE_ID,
+                    "EscapeForwardSlash",
+                    sizeof("EscapeForwardSlash") - 1,
+                    "",
+                    bdlat_FormattingMode::e_TEXT
+                };
+
+            const bdlat_AttributeInfo *RESULT = Obj::lookupAttributeInfo(
+                                                                 ATTRIBUTE_ID);
+            ASSERTV(L_, RESULT && (EXPECTED == *RESULT));
+        }
+        {
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+            const bdlat_AttributeInfo EXPECTED =
+                {
+                    ATTRIBUTE_ID,
+                    "EscapeForwardSlash",
+                    sizeof("EscapeForwardSlash") - 1,
+                    "",
+                    bdlat_FormattingMode::e_TEXT
+                };
+
+            const bdlat_AttributeInfo *RESULT = Obj::lookupAttributeInfo(
+                                          "EscapeForwardSlash",
+                                          sizeof("EscapeForwardSlash") - 1);
+            ASSERTV(L_, RESULT, RESULT && (EXPECTED == *RESULT));
+        }
+        // TESTING accessors and manipulators (P-2)
+        {
+            const bool DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
+            const bool VALUE = !DEFAULT;
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+
+            Obj                           mX;
+            EscapeForwardSlashAccessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EscapeForwardSlashManipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttributes(m));
+
+            EscapeForwardSlashAccessor a1;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a1));
+            ASSERTV(L_, VALUE == a1.value());
+
+            mX.reset();
+            EscapeForwardSlashAccessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a2));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
+        {
+            const bool DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
+            const bool VALUE = !DEFAULT;
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+
+            Obj                           mX;
+            EscapeForwardSlashAccessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a, ATTRIBUTE_ID));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EscapeForwardSlashManipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttribute(m,
+                                                               ATTRIBUTE_ID));
+
+            EscapeForwardSlashAccessor a1;
+            ASSERTV(L_,
+                    ATTRIBUTE_ID,
+                    mX.accessAttribute(a1, ATTRIBUTE_ID),
+                    ATTRIBUTE_ID == mX.accessAttribute(a1, ATTRIBUTE_ID));
+            ASSERTV(L_, VALUE, a1.value(), VALUE == a1.value());
+
+            mX.reset();
+            EscapeForwardSlashAccessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a2, ATTRIBUTE_ID));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
+        {
+            const bool  DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
+            const bool  VALUE = !DEFAULT;
+            const char *NAME = "EscapeForwardSlash";
+            const int   LENGTH = sizeof("EscapeForwardSlash") - 1;
+            const int   ATTRIBUTE_ID =
+                                     Obj::ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH;
+
+            Obj                           mX;
+            EscapeForwardSlashAccessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a, NAME, LENGTH));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EscapeForwardSlashManipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttribute(m,
+                                                               NAME,
+                                                               LENGTH));
+
+            EscapeForwardSlashAccessor a1;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a1, NAME, LENGTH));
+            ASSERTV(L_, VALUE, a1.value(), VALUE == a1.value());
+
+            mX.reset();
+            EscapeForwardSlashAccessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a2, NAME, LENGTH));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -864,6 +1135,7 @@ int main(int argc, char *argv[])
             const int   MFP1     = DATA[ti].d_maxFloatPrecision;
             const int   MDP1     = DATA[ti].d_maxDoublePrecision;
             const bool  EQD1     = DATA[ti].d_encodeQuotedDecimal64;
+            const bool  ESC1     = DATA[ti].d_escapeForwardSlash;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT1);
@@ -876,6 +1148,7 @@ int main(int argc, char *argv[])
             mZ.setMaxFloatPrecision(MFP1);
             mZ.setMaxDoublePrecision(MDP1);
             mZ.setEncodeQuotedDecimal64(EQD1);
+            mZ.setEscapeForwardSlash(ESC1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT1);
@@ -888,6 +1161,7 @@ int main(int argc, char *argv[])
             mZZ.setMaxFloatPrecision(MFP1);
             mZZ.setMaxDoublePrecision(MDP1);
             mZZ.setEncodeQuotedDecimal64(EQD1);
+            mZZ.setEscapeForwardSlash(ESC1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -912,6 +1186,7 @@ int main(int argc, char *argv[])
                 const int   MFP2     = DATA[tj].d_maxFloatPrecision;
                 const int   MDP2     = DATA[tj].d_maxDoublePrecision;
                 const bool  EQD2     = DATA[tj].d_encodeQuotedDecimal64;
+                const bool  ESC2     = DATA[tj].d_escapeForwardSlash;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setInitialIndentLevel(INDENT2);
@@ -924,6 +1199,7 @@ int main(int argc, char *argv[])
                 mX.setMaxFloatPrecision(MFP2);
                 mX.setMaxDoublePrecision(MDP2);
                 mX.setEncodeQuotedDecimal64(EQD2);
+                mX.setEscapeForwardSlash(ESC2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -950,6 +1226,7 @@ int main(int argc, char *argv[])
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
                 mX.setEncodeQuotedDecimal64(EQD1);
+                mX.setEscapeForwardSlash(ESC1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setInitialIndentLevel(INDENT1);
@@ -962,6 +1239,7 @@ int main(int argc, char *argv[])
                 mZZ.setMaxFloatPrecision(MFP1);
                 mZZ.setMaxDoublePrecision(MDP1);
                 mZZ.setEncodeQuotedDecimal64(EQD1);
+                mZZ.setEscapeForwardSlash(ESC1);
 
                 const Obj& Z = mX;
 
@@ -1057,6 +1335,7 @@ int main(int argc, char *argv[])
             const int   MFP     = DATA[ti].d_maxFloatPrecision;
             const int   MDP     = DATA[ti].d_maxDoublePrecision;
             const bool  EQD     = DATA[ti].d_encodeQuotedDecimal64;
+            const bool  ESC     = DATA[ti].d_escapeForwardSlash;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT);
@@ -1069,6 +1348,7 @@ int main(int argc, char *argv[])
             mZ.setMaxFloatPrecision(MFP);
             mZ.setMaxDoublePrecision(MDP);
             mZ.setEncodeQuotedDecimal64(EQD);
+            mZ.setEscapeForwardSlash(ESC);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT);
@@ -1081,6 +1361,7 @@ int main(int argc, char *argv[])
             mZZ.setMaxFloatPrecision(MFP);
             mZZ.setMaxDoublePrecision(MDP);
             mZZ.setEncodeQuotedDecimal64(EQD);
+            mZZ.setEscapeForwardSlash(ESC);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -1212,6 +1493,7 @@ int main(int argc, char *argv[])
         typedef int   T8;        // `maxFloatPrecision`
         typedef int   T9;        // `maxDoublePrecision`
         typedef bool  T10;       // `encodeQuotedDecimal64`
+        typedef bool  T11;       // `escapeForwardSlash`
 
                  // ----------------------------------------
                  // Attribute 1 Values: `initialIndentLevel`
@@ -1276,12 +1558,19 @@ int main(int argc, char *argv[])
         const T9 A9 = 15;           // baseline
         const T9 B9 = 9;
 
-        // -------------------------------------------
-        // Attribute 9 Values: `encodeQuotedDecimal64`
-        // -------------------------------------------
+        // --------------------------------------------
+        // Attribute 10 Values: `encodeQuotedDecimal64`
+        // --------------------------------------------
 
         const T10 A10 = true;          // baseline
         const T10 B10 = false;
+
+        // -----------------------------------------
+        // Attribute 11 Values: `escapeForwardSlash`
+        // -----------------------------------------
+
+        const T11 A11 = true;          // baseline
+        const T11 B11 = false;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -1298,6 +1587,7 @@ int main(int argc, char *argv[])
             int   d_maxFloatPrecision;
             int   d_maxDoublePrecision;
             bool  d_encodeQuotedDecimal64;
+            bool  d_escapeForwardSlash;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -1305,24 +1595,25 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-       //LINE INDENT  SPL  STYLE   EEA  ENE  EINAS  DTP MFP  MDP EQD
-       //---- ------  ---  -----   ---  ---  -----  --- ---  --- ---
+           //LINE INDENT  SPL STY  EEA  ENE  EINAS  DTP MFP  MDP  EQD  ESC
+           //---- ------  --- ---  ---  ---  -----  --- ---  ---  ---  ---
 
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 }, // base
-                                                                        // line
-        { L_,    B1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
-        { L_,    A1,   B2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
-        { L_,    A1,   A2,   B3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  B4,   A5,    A6,  A7, A8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   B5,    A6,  A7, A8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    B6,  A7, A8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  B7, A8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, B8,  A9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  B9, A10 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, B10 },
+            // baseline
+            { L_,    A1,   A2, A3,  A4,  A5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    B1,   A2, A3,  A4,  A5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   B2, A3,  A4,  A5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, B3,  A4,  A5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  B4,  A5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  B5,    A6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    B6,  A7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    A6,  B7, A8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    A6,  A7, B8,  A9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    A6,  A7, A8,  B9, A10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    A6,  A7, A8,  A9, B10, A11 }
+          , { L_,    A1,   A2, A3,  A4,  A5,    A6,  A7, A8,  A9, A10, B11 }
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1338,6 +1629,7 @@ int main(int argc, char *argv[])
             const int   MFP1     = DATA[ti].d_maxFloatPrecision;
             const int   MDP1     = DATA[ti].d_maxDoublePrecision;
             const bool  EQD1     = DATA[ti].d_encodeQuotedDecimal64;
+            const bool  ESC1     = DATA[ti].d_escapeForwardSlash;
 
             if (veryVerbose) { T_ P_(LINE1) P_(INDENT1)
                               P_(SPL1)  P_(STYLE1) P_(EEA1) P_(ENE1) P_(EQD1) }
@@ -1356,6 +1648,7 @@ int main(int argc, char *argv[])
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
                 mX.setEncodeQuotedDecimal64(EQD1);
+                mX.setEscapeForwardSlash(ESC1);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -1373,6 +1666,7 @@ int main(int argc, char *argv[])
                 const int   MFP2     = DATA[tj].d_maxFloatPrecision;
                 const int   MDP2     = DATA[tj].d_maxDoublePrecision;
                 const bool  EQD2     = DATA[tj].d_encodeQuotedDecimal64;
+                const bool  ESC2     = DATA[tj].d_escapeForwardSlash;
 
                 if (veryVerbose) { T_ P_(LINE1) P_(INDENT2)
                                P_(SPL2) P_(STYLE2) P_(EEA2) P_(ENE2) P_(EQD2) }
@@ -1392,6 +1686,7 @@ int main(int argc, char *argv[])
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
                 mX.setEncodeQuotedDecimal64(EQD1);
+                mX.setEscapeForwardSlash(ESC1);
 
                 mY.setInitialIndentLevel(INDENT2);
                 mY.setSpacesPerLevel(SPL2);
@@ -1403,6 +1698,7 @@ int main(int argc, char *argv[])
                 mY.setMaxFloatPrecision(MFP2);
                 mY.setMaxDoublePrecision(MDP2);
                 mY.setEncodeQuotedDecimal64(EQD2);
+                mY.setEscapeForwardSlash(ESC2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -1518,6 +1814,7 @@ int main(int argc, char *argv[])
             bool        d_encodeNullElements;
             bool        d_encodeInfAndNaNAsStrings;
             bool        d_encodeQuotedDecimal64;
+            bool        d_escapeForwardSlash;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -1529,10 +1826,10 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL S EEA ENE EINAS EQD EXP
-//----  -  ---  ---  --- - --- --- ----- --- ---
+//LINE  L  SPL  IND  SPL S EEA ENE EINAS EQD ESC EXP
+//----  -  ---  ---  --- - --- --- ----- --- --- ---
 
-{ L_,  0,  0,  89,  10, C, T,  T,  T, T, "["                                 NL
+{ L_,  0,  0,   89,  10, C,  T,  T,    T,  T, T, "["                         NL
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
@@ -1544,10 +1841,11 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     NL
                                  "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
+                                 "escapeForwardSlash = true"                 NL
                                         "]"                                  NL
                                                                              },
 
-{ L_,  0,  1,  89,  10, P, T,  T,  T,  T, "["                                NL
+{ L_,  0,  1,   89,  10, P,  T,  T,    T,   T, T, "["                        NL
 
                                  " initialIndentLevel = 89"                  NL
                                  " spacesPerLevel = 10"                      NL
@@ -1559,10 +1857,11 @@ int main(int argc, char *argv[])
                                  " maxFloatPrecision = 0"                    NL
                                  " maxDoublePrecision = 0"                   NL
                                  " encodeQuotedDecimal64 = true"             NL
+                                 " escapeForwardSlash = true"                NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  0, -1,  89,  10, C, T,  F,  T, T, "["                                 SP
+{ L_,  0, -1 ,  89,  10, C , T,  F,    T,   T, T, "["                         SP
 
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
@@ -1574,6 +1873,7 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     SP
                                  "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
+                                 "escapeForwardSlash = true"                 SP
                                        "]"
                                                                              },
 
@@ -1584,7 +1884,7 @@ int main(int argc, char *argv[])
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EQD EXP
 //----  -  ---  ---  --- ----- --- --- ----- --- ---
 
-{ L_,  3,  0,  89,  10, C, T,  T,  T,  T, "["                                 NL
+{ L_,  3,  0,   89,  10, C,  T,  T,    T,   T, T, "["                        NL
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
@@ -1596,10 +1896,11 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     NL
                                  "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
+                                 "escapeForwardSlash = true"                 NL
                                        "]"                                   NL
                                                                              },
 
-{ L_,  3,  2,  89,  10, P, F,  F,  T,  T,
+{ L_,  3,  2,   89,  10, P,  F,  F,    T,   T, T,
                                "      ["                                     NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
@@ -1611,11 +1912,11 @@ int main(int argc, char *argv[])
                          "        maxFloatPrecision = 0"                     NL
                          "        maxDoublePrecision = 0"                    NL
                          "        encodeQuotedDecimal64 = true"              NL
+                         "        escapeForwardSlash = true"                 NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_,  3, -2,  89,  10, C, T,  F,  T,  T,  "      ["                         SP
-
+{ L_,  3, -2,   89,  10, C,  T,  F,    T,   T, T, "      ["                  SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
@@ -1626,11 +1927,11 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     SP
                                  "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
+                                 "escapeForwardSlash = true"                 SP
                                        "]"
                                                                              },
 
-{ L_, -3,  0,  89,  10, P, F,  T,  T,  T,  "["                               NL
-
+{ L_, -3,  0,   89,  10, P,  F,  T,    T,   T, T, "["                        NL
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
                                  "encodingStyle = e_PRETTY"                  NL
@@ -1641,11 +1942,11 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     NL
                                  "maxDoublePrecision = 0"                    NL
                                  "encodeQuotedDecimal64 = true"              NL
+                                 "escapeForwardSlash = true"                 NL
                                        "]"                                   NL
                                                                              },
 
-{ L_, -3,  2,  89,  10, P, T,  F,  T,  T,  "["                               NL
-
+{ L_, -3,  2,   89,  10, P,  T,  F,    T,   T, T, "["                        NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
                          "        encodingStyle = e_PRETTY"                  NL
@@ -1656,10 +1957,11 @@ int main(int argc, char *argv[])
                          "        maxFloatPrecision = 0"                     NL
                          "        maxDoublePrecision = 0"                    NL
                          "        encodeQuotedDecimal64 = true"              NL
+                         "        escapeForwardSlash = true"                 NL
                                "      ]"                                     NL
                                                                              },
 
-{ L_, -3, -2,  89,  10, C, T,  T,  T,  F,  "["                               SP
+{ L_, -3, -2,   89,  10, C,  T,  T,    T,   F, F, "["                        SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
@@ -1670,6 +1972,22 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     SP
                                  "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = false"             SP
+                                 "escapeForwardSlash = false"                SP
+                                       "]"
+                                                                             },
+
+{ L_, -3, -2,   89,  10, C,  T,  T,    T,   F, T, "["                        SP
+                                 "initialIndentLevel = 89"                   SP
+                                 "spacesPerLevel = 10"                       SP
+                                 "encodingStyle = e_COMPACT"                 SP
+                                 "encodeEmptyArrays = true"                  SP
+                                 "encodeNullElements = true"                 SP
+                                 "encodeInfAndNaNAsStrings = true"           SP
+                                 "datetimeFractionalSecondPrecision = 3"     SP
+                                 "maxFloatPrecision = 0"                     SP
+                                 "maxDoublePrecision = 0"                    SP
+                                 "encodeQuotedDecimal64 = false"             SP
+                                 "escapeForwardSlash = true"                 SP
                                        "]"
                                                                              },
 
@@ -1677,10 +1995,10 @@ int main(int argc, char *argv[])
    // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
    // -----------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EQD EXP
-//----  -  ---  ---  --- ----- --- --- ----- --- ---
+//LINE  L  SPL  IND  SPL S EEA ENE EINAS EQD ESC EXP
+//----  -  ---  ---  --- - --- --- ----- --- --- ---
 
-{ L_,  2,  3,  89,  10, P, T,  T,  T,  T,
+{ L_,  2,  3,   89,  10, P,  T,  T,    T,   T, T,
                          "      ["                                           NL
                          "         initialIndentLevel = 89"                  NL
                          "         spacesPerLevel = 10"                      NL
@@ -1692,6 +2010,7 @@ int main(int argc, char *argv[])
                          "         maxFloatPrecision = 0"                    NL
                          "         maxDoublePrecision = 0"                   NL
                          "         encodeQuotedDecimal64 = true"             NL
+                         "         escapeForwardSlash = true"                NL
                                "      ]"                                     NL
                                                                              },
 
@@ -1699,10 +2018,10 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL STYLE EEA  ENE EINAS EQD EXP
-//----  -  ---  ---  --- ----- ---  --- ----- --- ---
+//LINE  L  SPL  IND  SPL S EEA ENE EINAS EQD ESC EXP
+//----  -  ---  ---  --- - --- --- ----- --- --- ---
 
-{ L_, -9, -9,  89,  10,    C,  F,   T,  T,  T,
+{ L_, -9, -9,   89,  10, C,  F,  T,    T,   T, T,
                                  "["                                         SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
@@ -1714,9 +2033,10 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     SP
                                  "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
+                                 "escapeForwardSlash = true"                 SP
                                  "]" },
 
-{ L_, -9, -9,   7,   5,    P,  F,   F,  T,  T,
+{ L_, -9, -9,    7,   5, P,  F,  F,    T,   T, T,
                                  "["                                         SP
                                  "initialIndentLevel = 7"                    SP
                                  "spacesPerLevel = 5"                        SP
@@ -1728,13 +2048,14 @@ int main(int argc, char *argv[])
                                  "maxFloatPrecision = 0"                     SP
                                  "maxDoublePrecision = 0"                    SP
                                  "encodeQuotedDecimal64 = true"              SP
+                                 "escapeForwardSlash = true"                 SP
                                  "]" },
 
 #undef NL
 #undef SP
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -1751,6 +2072,7 @@ int main(int argc, char *argv[])
                 const bool        ENE    = DATA[ti].d_encodeNullElements;
                 const bool        EINAS  = DATA[ti].d_encodeInfAndNaNAsStrings;
                 const bool        EQD    = DATA[ti].d_encodeQuotedDecimal64;
+                const bool        ESC    = DATA[ti].d_escapeForwardSlash;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
@@ -1767,6 +2089,7 @@ int main(int argc, char *argv[])
                 mX.setEncodeNullElements(ENE);
                 mX.setEncodeInfAndNaNAsStrings(EINAS);
                 mX.setEncodeQuotedDecimal64(EQD);
+                mX.setEscapeForwardSlash(ESC);
 
                 ostringstream os;
 
@@ -1834,6 +2157,7 @@ int main(int argc, char *argv[])
         //   int   datetimeFractionalSecondPrecision() const;
         //   int   maxFloatPrecision() const;
         //   int   maxDoublePrecision() const;
+        //   bool  escapeForwardSlash() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING ACCESSORS"
@@ -1851,6 +2175,7 @@ int main(int argc, char *argv[])
         typedef int   T8;        // `maxFloatPrecision`
         typedef int   T9;        // `maxDoublePrecision`
         typedef bool  T10;       // `encodeQuotedDecimal64`
+        typedef bool  T11;       // `escapeForwardSlash`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1868,6 +2193,7 @@ int main(int argc, char *argv[])
         const T8  D8  = 0;                    // `maxFloatPrecision`
         const T9  D9  = 0;                    // `maxDoublePrecision`
         const T10 D10 = true;                 // `encodeQuotedDecimal64`
+        const T11 D11 = true;                 // `escapeForwardSlash`
 
                        // ----------------------------
                        // `A` values: Boundary values.
@@ -1883,6 +2209,7 @@ int main(int argc, char *argv[])
         const int   A8   = 6;                    // `maxFloatPrecision`
         const int   A9   = 15;                   // `maxDoublePrecision`
         const bool  A10  = false;                // `encodeQuotedDecimal64`
+        const bool  A11  = false;                // `escapeForwardSlash`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1922,6 +2249,10 @@ int main(int argc, char *argv[])
             const T10& encodeQuotedDecimal64 = X.encodeQuotedDecimal64();
             LOOP2_ASSERT(D10, encodeQuotedDecimal64,
                          D10 == encodeQuotedDecimal64);
+
+            const T11& escapeForwardSlash = X.escapeForwardSlash();
+            LOOP2_ASSERT(D11, escapeForwardSlash,
+                         D11 == escapeForwardSlash);
         }
 
         if (verbose) cout <<
@@ -2008,6 +2339,15 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(A10, encodeQuotedDecimal64,
                          A10 == encodeQuotedDecimal64);
         }
+
+        if (veryVerbose) { T_ Q(escapeForwardSlash) }
+        {
+            mX.setEscapeForwardSlash(A11);
+
+            const T11& escapeForwardSlash = X.escapeForwardSlash();
+            LOOP2_ASSERT(A11, escapeForwardSlash,
+                         A11 == escapeForwardSlash);
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2060,6 +2400,7 @@ int main(int argc, char *argv[])
         //   setDatetimeFractionalSecondPrecision(int value);
         //   setMaxFloatPrecision(int value);
         //   setMaxDoublePrecision(int value);
+        //   setEscapeForwardSlash(int value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING MANIPULATORS"
@@ -2079,6 +2420,7 @@ int main(int argc, char *argv[])
         const int   D8   = 0;                    // `maxFloatPrecision`
         const int   D9   = 0;                    // `maxDoublePrecision`
         const bool  D10  = true;                 // `encodeQuotedDecimal64`
+        const bool  D11  = true;                 // `escapeForwardSlash`
         // `A` values.
 
         const int   A1   = 1;                    // `initialIndentLevel`
@@ -2091,6 +2433,7 @@ int main(int argc, char *argv[])
         const int   A8   = 6;                    // `maxFloatPrecision`
         const int   A9   = 15;                   // `maxDoublePrecision`
         const bool  A10  = false;                // `encodeQuotedDecimal64`
+        const bool  A11  = false;                // `escapeForwardSlash`
 
         // `B` values.
 
@@ -2104,6 +2447,7 @@ int main(int argc, char *argv[])
         const int   B8   = 3;                    // `maxFloatPrecision`
         const int   B9   = 9;                    // `maxDoublePrecision`
         const bool  B10  = false;                // `encodeQuotedDecimal64`
+        const bool  B11  = false;                // `escapeForwardSlash`
 
         Obj mX;  const Obj& X = mX;
 
@@ -2125,6 +2469,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setInitialIndentLevel(B1);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2137,6 +2482,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setInitialIndentLevel(D1);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2149,6 +2495,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // ----------------
@@ -2166,6 +2513,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setSpacesPerLevel(B2);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2178,6 +2526,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setSpacesPerLevel(D2);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2190,6 +2539,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // ---------------
@@ -2207,6 +2557,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodingStyle(B3);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2219,6 +2570,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodingStyle(D3);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2231,6 +2583,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // -------------------
@@ -2248,6 +2601,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeEmptyArrays(B4);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2260,6 +2614,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeEmptyArrays(D4);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2272,6 +2627,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // --------------------
@@ -2289,6 +2645,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeNullElements(B5);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2301,6 +2658,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeNullElements(D5);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2313,6 +2671,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // --------------------------
@@ -2330,6 +2689,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeInfAndNaNAsStrings(B6);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2342,6 +2702,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeInfAndNaNAsStrings(D6);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2354,6 +2715,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // -----------------------------------
@@ -2371,6 +2733,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setDatetimeFractionalSecondPrecision(B7);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2383,6 +2746,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setDatetimeFractionalSecondPrecision(D7);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2395,6 +2759,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // -------------------
@@ -2412,6 +2777,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setMaxFloatPrecision(B8);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2424,6 +2790,7 @@ int main(int argc, char *argv[])
             ASSERT(B8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setMaxFloatPrecision(D8);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2436,6 +2803,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // -------------------
@@ -2453,6 +2821,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setMaxDoublePrecision(B9);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2465,6 +2834,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(B9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setMaxDoublePrecision(D9);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2477,6 +2847,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
         // --------------------
@@ -2494,6 +2865,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeQuotedDecimal64(B10);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2506,6 +2878,7 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(B10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
 
             mX.setEncodeQuotedDecimal64(D10);
             ASSERT(D1  == X.initialIndentLevel());
@@ -2518,8 +2891,52 @@ int main(int argc, char *argv[])
             ASSERT(D8  == X.maxFloatPrecision());
             ASSERT(D9  == X.maxDoublePrecision());
             ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
         }
 
+        // --------------------
+        // `escapeForwardSlash`
+        // --------------------
+        {
+            mX.setEscapeForwardSlash(A11);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
+
+            mX.setEscapeForwardSlash(B11);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(B11 == X.escapeForwardSlash());
+
+            mX.setEscapeForwardSlash(D11);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
+            ASSERT(D11 == X.escapeForwardSlash());
+        }
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
@@ -2536,6 +2953,7 @@ int main(int argc, char *argv[])
             mX.setMaxFloatPrecision(A8);
             mX.setMaxDoublePrecision(A9);
             mX.setEncodeQuotedDecimal64(A10);
+            mX.setEscapeForwardSlash(A11);
 
             ASSERT(A1  == X.initialIndentLevel());
             ASSERT(A2  == X.spacesPerLevel());
@@ -2547,6 +2965,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
                  // ---------------------------------------
                  // Set all attributes to their `B` values.
@@ -2564,6 +2983,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setSpacesPerLevel(B2);
 
@@ -2577,6 +2997,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setEncodingStyle(B3);
 
@@ -2590,6 +3011,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setEncodeEmptyArrays(B4);
 
@@ -2603,6 +3025,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setEncodeNullElements(B5);
 
@@ -2616,6 +3039,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setEncodeInfAndNaNAsStrings(B6);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2628,6 +3052,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setDatetimeFractionalSecondPrecision(B7);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2640,6 +3065,7 @@ int main(int argc, char *argv[])
             ASSERT(A8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setMaxFloatPrecision(B8);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2652,6 +3078,7 @@ int main(int argc, char *argv[])
             ASSERT(B8  == X.maxFloatPrecision());
             ASSERT(A9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setMaxDoublePrecision(B9);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2664,6 +3091,7 @@ int main(int argc, char *argv[])
             ASSERT(B8  == X.maxFloatPrecision());
             ASSERT(B9  == X.maxDoublePrecision());
             ASSERT(A10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
 
             mX.setEncodeQuotedDecimal64(B10);
             ASSERT(B1  == X.initialIndentLevel());
@@ -2676,6 +3104,20 @@ int main(int argc, char *argv[])
             ASSERT(B8  == X.maxFloatPrecision());
             ASSERT(B9  == X.maxDoublePrecision());
             ASSERT(B10 == X.encodeQuotedDecimal64());
+            ASSERT(A11 == X.escapeForwardSlash());
+
+            mX.setEscapeForwardSlash(B11);
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(B8  == X.maxFloatPrecision());
+            ASSERT(B9  == X.maxDoublePrecision());
+            ASSERT(B10 == X.encodeQuotedDecimal64());
+            ASSERT(B11 == X.escapeForwardSlash());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2733,6 +3175,7 @@ int main(int argc, char *argv[])
         const int   D8   = 0;                    // `maxFloatPrecision`
         const int   D9   = 0;                    // `maxDoublePrecision`
         const bool  D10  = true;                 // `encodeQuotedDecimal64`
+        const bool  D11  = true;                 // `escapeForwardSlash`
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -2758,6 +3201,8 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D9, X.maxDoublePrecision(), D9 == X.maxDoublePrecision());
         LOOP2_ASSERT(D10, X.maxDoublePrecision(),
                           D10 == X.encodeQuotedDecimal64());
+        LOOP2_ASSERT(D11, X.escapeForwardSlash(),
+                          D10 == X.escapeForwardSlash());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2798,6 +3243,7 @@ int main(int argc, char *argv[])
         typedef int   T8;        // `maxFloatPrecision`
         typedef int   T9;        // `maxDoublePrecision`
         typedef bool  T10;       // `encodeQuotedDecimal64`
+        typedef bool  T11;       // `escapeForwardSlash`
 
         // Attribute 1 Values: `initialIndentLevel`
 
@@ -2848,6 +3294,11 @@ int main(int argc, char *argv[])
 
         const T10 D10 = true;     // default value
         const T10 A10 = false;
+
+        // Attribute 11 Values: `escapeForwardSlash`
+
+        const T11 D11 = true;     // default value
+        const T11 A11 = false;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
@@ -2868,6 +3319,7 @@ int main(int argc, char *argv[])
         ASSERT(D8  == W.maxFloatPrecision());
         ASSERT(D9  == W.maxDoublePrecision());
         ASSERT(D10 == W.encodeQuotedDecimal64());
+        ASSERT(D11 == W.escapeForwardSlash());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: `w` <op> `w`." << endl;
@@ -2894,6 +3346,7 @@ int main(int argc, char *argv[])
         ASSERT(D8  == X.maxFloatPrecision());
         ASSERT(D9  == X.maxDoublePrecision());
         ASSERT(D10 == X.encodeQuotedDecimal64());
+        ASSERT(D11 == X.escapeForwardSlash());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
@@ -2916,6 +3369,7 @@ int main(int argc, char *argv[])
         mX.setMaxFloatPrecision(A8);
         mX.setMaxDoublePrecision(A9);
         mX.setEncodeQuotedDecimal64(A10);
+        mX.setEscapeForwardSlash(A11);
 
         if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -2930,6 +3384,7 @@ int main(int argc, char *argv[])
         ASSERT(A8  == X.maxFloatPrecision());
         ASSERT(A9  == X.maxDoublePrecision());
         ASSERT(A10 == X.encodeQuotedDecimal64());
+        ASSERT(A11 == X.escapeForwardSlash());
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
@@ -2952,6 +3407,7 @@ int main(int argc, char *argv[])
         mY.setMaxFloatPrecision(A8);
         mY.setMaxDoublePrecision(A9);
         mY.setEncodeQuotedDecimal64(A10);
+        mY.setEscapeForwardSlash(A11);
 
         if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -2966,6 +3422,7 @@ int main(int argc, char *argv[])
         ASSERT(A8  == Y.maxFloatPrecision());
         ASSERT(A9  == Y.maxDoublePrecision());
         ASSERT(A10 == Y.encodeQuotedDecimal64());
+        ASSERT(A11 == Y.escapeForwardSlash());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
@@ -2994,6 +3451,7 @@ int main(int argc, char *argv[])
         ASSERT(A8  == Z.maxFloatPrecision());
         ASSERT(A9  == Z.maxDoublePrecision());
         ASSERT(A10 == Z.encodeQuotedDecimal64());
+        ASSERT(A11 == Z.escapeForwardSlash());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -3018,6 +3476,7 @@ int main(int argc, char *argv[])
         mZ.setMaxFloatPrecision(D8);
         mZ.setMaxDoublePrecision(D9);
         mZ.setEncodeQuotedDecimal64(D10);
+        mZ.setEscapeForwardSlash(D11);
 
         if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -3032,6 +3491,7 @@ int main(int argc, char *argv[])
         ASSERT(D8  == Z.maxFloatPrecision());
         ASSERT(D9  == Z.maxDoublePrecision());
         ASSERT(D10 == Z.encodeQuotedDecimal64());
+        ASSERT(D11 == Z.escapeForwardSlash());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -3060,6 +3520,7 @@ int main(int argc, char *argv[])
         ASSERT(A8  == W.maxFloatPrecision());
         ASSERT(A9  == W.maxDoublePrecision());
         ASSERT(A10 == W.encodeQuotedDecimal64());
+        ASSERT(A11 == W.escapeForwardSlash());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
@@ -3088,6 +3549,7 @@ int main(int argc, char *argv[])
         ASSERT(D8  == W.maxFloatPrecision());
         ASSERT(D9  == W.maxDoublePrecision());
         ASSERT(D10 == W.encodeQuotedDecimal64());
+        ASSERT(D11 == W.escapeForwardSlash());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
@@ -3116,6 +3578,7 @@ int main(int argc, char *argv[])
         ASSERT(A8  == X.maxFloatPrecision());
         ASSERT(A9  == X.maxDoublePrecision());
         ASSERT(A10 == X.encodeQuotedDecimal64());
+        ASSERT(A11 == X.escapeForwardSlash());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;

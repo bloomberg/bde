@@ -182,6 +182,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <baljsn_encoderoptions.h>
 #include <baljsn_printutil.h>
 
 #include <bdlb_print.h>
@@ -199,8 +200,6 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-class EncoderOptions;
-
                           // ===============
                           // class Formatter
                           // ===============
@@ -216,6 +215,8 @@ class Formatter {
 
     bool              d_usePrettyStyle;      // encoding style
 
+    bool              d_escapeForwardSlash;  // whether to escape `/` or not
+
     int               d_indentLevel;         // current indentation level
 
     int               d_spacesPerLevel;      // spaces per indentation level
@@ -226,6 +227,9 @@ class Formatter {
                                              // called.  An 'openObject' call
                                              // is represented by 'false' and
                                              // an 'openArray' call by 'true'.
+
+    EncoderOptions    d_encoderOptions;      // cached `EncoderOptions` as an
+                                             // optimization
 
     // PRIVATE MANIPULATORS
 
@@ -256,13 +260,22 @@ class Formatter {
     /// formatted.  If `initialIndentLevel` or `spacesPerLevel` is not
     /// specified then an initial value of `0` is used for both parameters.  If
     /// `usePrettyStyle` is `false` then `initialIndentLevel` and
-    /// `spacesPerLevel` are both ignored.  Optionally specify a
+    /// `spacesPerLevel` are both ignored.  Optionally specify
+    /// `escapeForwardSlash`.  If `escapeForwardSlash` is specified as `false`,
+    /// `/` characters will be formatted as-is, otherwise, they will be
+    /// rendered with a leading backslash, as "\\/".  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
     /// currently installed default allocator is used.
     Formatter(bsl::ostream&     stream,
               bool              usePrettyStyle     = false,
               int               initialIndentLevel = 0,
               int               spacesPerLevel     = 0,
+              bslma::Allocator *basicAllocator     = 0);
+    Formatter(bsl::ostream&     stream,
+              bool              usePrettyStyle,
+              int               initialIndentLevel,
+              int               spacesPerLevel,
+              bool              escapeForwardSlash,
               bslma::Allocator *basicAllocator     = 0);
 
     /// Destroy this object.

@@ -43,6 +43,7 @@
 #include <bsl_cstring.h>  // `bsl::strlen`, `bsl::strcmp`
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string_view.h>
@@ -1069,7 +1070,7 @@ int main(int argc, char *argv[])
             { 21, "E", "Error (offset 21): E"},
         };
 
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
         if (verbose)
             cout << "Table based test" << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -1438,6 +1439,7 @@ int main(int argc, char *argv[])
               , {L_, "false",            "false",       "false",      "false" }
               , {L_, "1.0e+1",          "1.0e+1",      "1.0e+1",     "1.0e+1" }
               , {L_, "\"ab\"",          "\"ab\"",      "\"ab\"",     "\"ab\"" }
+              , {L_, "\"a/b\"",      "\"a\\/b\"",   "\"a\\/b\"",  "\"a\\/b\"" }
               , {L_, "{\"a\":1, \"b\":2}",
                              "{\"a\":1,\"b\":2}",
                                          "{\"a\": 1, \"b\": 2}",
@@ -1458,7 +1460,7 @@ int main(int argc, char *argv[])
                                                                  "]"}
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE       = DATA[i].d_line;
@@ -1513,6 +1515,68 @@ int main(int argc, char *argv[])
                         pretty.str(),
                         EXPPRETTY,
                         EXPPRETTY == pretty.str());
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest write w/o `/` escapes" << bsl::endl;
+        {
+            struct WriteTests {
+                int            d_line;
+                const char    *d_json_p;
+                const char    *d_expectedEscapeSlash_p;
+                const char    *d_expectedNoEscapeSlash_p;
+            } DATA[] = {
+                // L  JSON                ESCAPE        NOESCAPE
+                {L_, "\"a/b\"",           "\"a\\/b\"",  "\"a/b\""             }
+              , {L_, "{\"/\":1, \"b\":\"/\"}",
+                                          "{\"\\/\":1,\"b\":\"\\/\"}",
+                                                      "{\"/\":1,\"b\":\"/\"}" }
+              , {L_, "[\"/\"]",           "[\"\\/\"]",  "[\"/\"]"             }
+              , {L_, "[\"/\",\"/\"]",     "[\"\\/\",\"\\/\"]",
+                                                        "[\"/\",\"/\"]"       }
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE          = DATA[i].d_line;
+                const char *JSON          = DATA[i].d_json_p;
+                const char *EXPSLASHESC   = DATA[i].d_expectedEscapeSlash_p;
+                const char *EXPNOSLASHESC = DATA[i].d_expectedNoEscapeSlash_p;
+
+                bslma::TestAllocator       ta;
+                bdlsb::FixedMemInStreamBuf input(JSON, bsl::strlen(JSON));
+                Error                      error(&ta);
+
+                bdljsn::Json json;
+
+                int rc = Util::read(&json, &error, &input, ReadOptions());
+                ASSERTV(LINE, JSON, json, rc, error, 0 == rc);
+
+                WriteOptions options;
+                options.setSortMembers(true);
+
+                bsl::ostringstream escSlash(&ta);
+                options.setStyle(C);
+                options.setSortMembers(true);
+                // escapeSlash is the default
+                rc = Util::write(escSlash, json, options);
+                ASSERTV(LINE, json, rc, 0 == rc);
+                ASSERTV(LINE,
+                        json,
+                        escSlash.str(),
+                        EXPSLASHESC,
+                        EXPSLASHESC == escSlash.str());
+
+                bsl::ostringstream noEscSlash(&ta);
+                options.setEscapeForwardSlash(false);
+                rc = Util::write(noEscSlash, json, options);
+                ASSERTV(LINE, json, rc, 0 == rc);
+                ASSERTV(LINE,
+                        json,
+                        noEscSlash.str(),
+                        EXPNOSLASHESC,
+                        EXPNOSLASHESC == noEscSlash.str());
             }
         }
 
@@ -1584,7 +1648,7 @@ int main(int argc, char *argv[])
                                                             "    ]"           }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE       = DATA[i].d_line;
@@ -2223,7 +2287,7 @@ int main(int argc, char *argv[])
             , { L_, "\"text\",",     ',' }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE      = DATA[ti].d_line;
@@ -2345,7 +2409,7 @@ int main(int argc, char *argv[])
             , { L_,                                     "nul       ",   false }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE     = DATA[ti].d_line;
@@ -2421,7 +2485,7 @@ int main(int argc, char *argv[])
              , { L_,                          "no        ",   false,    false }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE     = DATA[ti].d_line;
@@ -2557,7 +2621,7 @@ int main(int argc, char *argv[])
              , { L_,          "1000.5e-1",       JN("1000.5e-1"),     true }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE     = DATA[ti].d_line;
@@ -2709,7 +2773,7 @@ int main(int argc, char *argv[])
              , { L_,  "\"\\ud83d\\ude4g\"",           ERROR_VALUE,    false }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int               LINE     = DATA[ti].d_line;
@@ -3662,7 +3726,7 @@ int main(int argc, char *argv[])
             , { L_, "\"text\"\"", true,    false }
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE        = DATA[ti].d_line;
@@ -3853,7 +3917,7 @@ int main(int argc, char *argv[])
               { L_, "3.14159265358979,",         -1,                16 },
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int            LINE           = DATA[i].d_line;
@@ -3907,7 +3971,7 @@ int main(int argc, char *argv[])
                                                                  "]"},
             };
 
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE       = DATA[i].d_line;
@@ -3972,7 +4036,7 @@ int main(int argc, char *argv[])
                 const char *MIX        = "[{\"a\":[{\"a\":[]}]}]";
 
                 const char *DATA[]   = {ARRAYS, OBJECTS, MIX};
-                const int   NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+                const int   NUM_DATA = sizeof DATA / sizeof DATA[0];
 
                 for (int i = 0; i < NUM_DATA; ++i) {
 
@@ -4022,7 +4086,7 @@ int main(int argc, char *argv[])
                     "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}";
 
                 const char *DATA[]   = {ARRAYS_NEST_64, OBJECTS_NEST_64};
-                const int   NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+                const int   NUM_DATA = sizeof DATA / sizeof DATA[0];
 
                 for (int i = 0; i < NUM_DATA; ++i) {
 
@@ -4157,7 +4221,7 @@ int main(int argc, char *argv[])
                     {L_, FMT_INPUT, P, 1, 1, FMT_RESULT_P11},
                     {L_, FMT_INPUT, P, 2, 3, FMT_RESULT_P23}};
 
-        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    LINE     = DATA[i].d_line;
@@ -4215,7 +4279,7 @@ int main(int argc, char *argv[])
             {L_, "{\"foo\", 1234\"1231\"}", 6},
             {L_, "[] 1", 3},
         };
-        const int NUM_ERROR_DATA = sizeof(ERROR_DATA)/sizeof(*ERROR_DATA);
+        const int NUM_ERROR_DATA = sizeof ERROR_DATA / sizeof ERROR_DATA[0];
         for (int i = 0; i < NUM_ERROR_DATA; ++i) {
             const int          LINE     = ERROR_DATA[i].d_line;
             const char        *JSON     = ERROR_DATA[i].d_json_p;

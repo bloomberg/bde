@@ -22,14 +22,50 @@ Formatter::Formatter(bsl::ostream&     stream,
                      bslma::Allocator *basicAllocator)
 : d_outputStream(stream)
 , d_usePrettyStyle(usePrettyStyle)
+, d_escapeForwardSlash(true)
 , d_indentLevel(initialIndentLevel)
 , d_spacesPerLevel(spacesPerLevel)
 , d_callSequence(basicAllocator)
+, d_encoderOptions()
 {
     // Add a dummy value so we don't have to check whether 'd_callSequence' is
     // empty in 'openObject' when we access its last element.
 
     d_callSequence.append(false);
+
+    if (d_usePrettyStyle) {
+        d_encoderOptions.setEncodingStyle(EncodingStyle::e_PRETTY);
+    }
+    d_encoderOptions.setEscapeForwardSlash(d_escapeForwardSlash);
+    d_encoderOptions.setInitialIndentLevel(d_indentLevel);
+    d_encoderOptions.setSpacesPerLevel(d_spacesPerLevel);
+}
+
+Formatter::Formatter(bsl::ostream&     stream,
+                     bool              usePrettyStyle,
+                     int               initialIndentLevel,
+                     int               spacesPerLevel,
+                     bool              escapeForwardSlash,
+                     bslma::Allocator *basicAllocator)
+: d_outputStream(stream)
+, d_usePrettyStyle(usePrettyStyle)
+, d_escapeForwardSlash(escapeForwardSlash)
+, d_indentLevel(initialIndentLevel)
+, d_spacesPerLevel(spacesPerLevel)
+, d_callSequence(basicAllocator)
+, d_encoderOptions()
+{
+    // Add a dummy value so we don't have to check whether 'd_callSequence' is
+    // empty in 'openObject' when we access its last element.
+
+    d_callSequence.append(false);
+
+    if (d_usePrettyStyle) {
+        d_encoderOptions.setEncodingStyle(EncodingStyle::e_PRETTY);
+    }
+    d_encoderOptions.setEscapeForwardSlash(d_escapeForwardSlash);
+    d_encoderOptions.setInitialIndentLevel(d_indentLevel);
+    d_encoderOptions.setSpacesPerLevel(d_spacesPerLevel);
 }
 
 // MANIPULATORS
@@ -98,7 +134,9 @@ int Formatter::openMember(const bsl::string_view& name)
         indent();
     }
 
-    const int rc = PrintUtil::printValue(d_outputStream, name);
+    const int rc = PrintUtil::printValue(d_outputStream,
+                                         name,
+                                         &d_encoderOptions);
     if (rc) {
         return rc;                                                    // RETURN
     }

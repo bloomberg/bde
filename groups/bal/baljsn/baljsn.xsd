@@ -42,7 +42,9 @@
         of milliseconds printed with date time values.  By default a precision
         of '3' decimal places is used.  The 'MaxFloatPrecision' and
         'MaxDoublePrecision' attributes allow specifying the maximum precision
-        for 'float' and 'double' values.
+        for 'float' and 'double' values.  If 'EscapeForwardSlash' is 'true',
+        then '/' characters will be output unchanged, otherwise, they will be
+        preceded by a '\' character.  By default, '/' characters are escaped.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -166,6 +168,17 @@
             option to 'false' (though it may be useful when
             communicating with endpoints that are known to correctly
             handle high precision JSON numbers).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='EscapeForwardSlash' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying if '/' characters should be preceded by a '\'
+            or not
           </xs:documentation>
         </xs:annotation>
       </xs:element>

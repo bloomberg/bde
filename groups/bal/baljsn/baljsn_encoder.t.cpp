@@ -19,6 +19,8 @@
 
 #include <bdlde_utf8util.h>
 
+#include <bdlpcre_regex.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlsb_memoutstreambuf.h>
@@ -57,6 +59,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
@@ -350,7 +353,7 @@ void testNumber()
         { L_, ULLONG_MAX, "18446744073709551615" }
     };
 
-    const int NUM_DATA_1 = sizeof DATA_1 / sizeof *DATA_1;
+    const int NUM_DATA_1 = sizeof DATA_1 / sizeof DATA_1[0];
 
     for (int ti = 0; ti < NUM_DATA_1; ++ti) {
         const int         LINE  = DATA_1[ti].d_line;
@@ -395,7 +398,7 @@ void testNumber()
         { L_,  LLONG_MIN, "-9223372036854775808" }
     };
 
-    const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
+    const int NUM_DATA_2 = sizeof DATA_2 / sizeof DATA_2[0];
 
     for (int ti = 0; ti < NUM_DATA_2; ++ti) {
         const int         LINE  = DATA_2[ti].d_line;
@@ -463,8 +466,6 @@ struct TestUtil {
                              const VALUE_TYPE&            VALUE,
                              const bsl::string_view&      EXPECTED_JSON_STRING)
     {
-        bdlsb::MemOutStreamBuf outStreamBuf;
-        bsl::ostream           outStream(&outStreamBuf);
 
         baljsn::EncoderOptions options;
         options.setEncodingStyle(ENCODING_STYLE);
@@ -476,15 +477,62 @@ struct TestUtil {
         options.setSpacesPerLevel(4);
 
         baljsn::Encoder encoder;
-        int             rc = encoder.encode(&outStreamBuf, VALUE, &options);
-        LOOP1_ASSERT_EQ(LINE, 0, rc);
-        if (0 != rc) {
-            P_(encoder.loggedMessages());
+
+        // `escapeForwardSlash` == `true`
+        {
+            bdlsb::MemOutStreamBuf outStreamBuf;
+            options.setEscapeForwardSlash(true);
+
+            int rc = encoder.encode(&outStreamBuf, VALUE, &options);
+            LOOP1_ASSERT_EQ(LINE, 0, rc);
+            if (0 != rc) {
+                P_(encoder.loggedMessages());
+            }
+
+            const bsl::string_view jsonStringRef(outStreamBuf.data(),
+                                                 outStreamBuf.length());
+            LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
         }
 
-        const bsl::string_view jsonStringRef(outStreamBuf.data(),
-                                             outStreamBuf.length());
-        LOOP1_ASSERT_EQ(LINE, EXPECTED_JSON_STRING, jsonStringRef);
+        // `escapeForwardSlash` == `false`
+        {
+            // Compute expected string where all "\\/" are replaced by "/".
+            bdlpcre::RegEx regex;
+
+            int rc = regex.prepare(0, 0, "\\\\/");
+            ASSERTV(rc, 0 == rc);
+
+            bsl::string expectedJsonStringNoEscapedFwdSlash;
+            int errorOffset = 0;
+
+            rc = regex.replace(&expectedJsonStringNoEscapedFwdSlash,
+                          &errorOffset,
+                          EXPECTED_JSON_STRING,
+                          "/",
+                          bdlpcre::RegEx::k_REPLACE_GLOBAL);
+
+            ASSERTV(rc,
+                    errorOffset,
+                    expectedJsonStringNoEscapedFwdSlash,
+                    EXPECTED_JSON_STRING,
+                    0 <= rc);
+
+            bdlsb::MemOutStreamBuf outStreamBuf;
+            options.setEscapeForwardSlash(false);
+
+            rc = encoder.encode(&outStreamBuf, VALUE, &options);
+            LOOP1_ASSERT_EQ(LINE, 0, rc);
+            if (0 != rc) {
+                P_(encoder.loggedMessages());
+            }
+
+            const bsl::string_view jsonStringRef(outStreamBuf.data(),
+                                                 outStreamBuf.length());
+
+            LOOP1_ASSERT_EQ(LINE,
+                            expectedJsonStringNoEscapedFwdSlash,
+                            jsonStringRef);
+        }
     }
 };
 
@@ -1769,6 +1817,7 @@ int main(int argc, char *argv[])
         // ---- ----- --- ------ --------------------------------------
         t( L_  , C   , F , obj , "{"
                                      "\"charArray\":\"\","
+                                     "\"a\\/string\":\"\\/\","
                                      "\"choice\":{\"selection0\":0},"
                                      "\"customizedType\":\"\","
                                      "\"enumeration\":\"A\","
@@ -1778,6 +1827,7 @@ int main(int argc, char *argv[])
 
         t( L_  , C   , T , obj , "{"
                                      "\"charArray\":\"\","
+                                     "\"a\\/string\":\"\\/\","
                                      "\"choice\":{\"selection0\":0},"
                                      "\"customizedType\":\"\","
                                      "\"enumeration\":\"A\","
@@ -1788,6 +1838,7 @@ int main(int argc, char *argv[])
 
         t( L_  , P   , F , obj , "{\n"
                                  "    \"charArray\" : \"\",\n"
+                                 "    \"a\\/string\" : \"\\/\",\n"
                                  "    \"choice\" : {\n"
                                  "        \"selection0\" : 0\n"
                                  "    },\n"
@@ -1801,6 +1852,7 @@ int main(int argc, char *argv[])
 
         t( L_  , P   , T , obj , "{\n"
                                  "    \"charArray\" : \"\",\n"
+                                 "    \"a\\/string\" : \"\\/\",\n"
                                  "    \"choice\" : {\n"
                                  "        \"selection0\" : 0\n"
                                  "    },\n"
@@ -2762,7 +2814,7 @@ int main(int argc, char *argv[])
                 "\"element6\":[null,null]}"
             }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -3155,7 +3207,7 @@ int main(int argc, char *argv[])
                 { L_,   "XyZ",  false,  "{\"selection1\":[\"XyZ\"]}"         },
                 { L_,   "XyZ",  true,   "{\"selection1\":[\"XyZ\"]}"         },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE  = DATA[ti].d_line;
@@ -3199,7 +3251,7 @@ int main(int argc, char *argv[])
                 { L_,   "XyZ",  true,
                                "{\"selection1\":{\"selection1\":[\"XyZ\"]}}" },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE  = DATA[ti].d_line;
@@ -3285,7 +3337,7 @@ int main(int argc, char *argv[])
                                                            "\"AAAAAAAAAAAA\"" }
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
@@ -3404,7 +3456,7 @@ int main(int argc, char *argv[])
 
             };
 #undef NL
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
@@ -3819,7 +3871,7 @@ int main(int argc, char *argv[])
                     "}\n"
                 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
@@ -4023,7 +4075,7 @@ int main(int argc, char *argv[])
             { L_,  1999,  10,  12,   23,   0,   1,   999,      720 },
             { L_,  1999,  12,  31,   23,  59,  59,   999,      720 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         const char *expectedDate[] = {
             "\"0001-01-01\"",
@@ -4387,7 +4439,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min(), "-5e-324"                  },
                 { L_, -Limits::max(),        "-1.7976931348623157e+308" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE      = DATA[ti].d_line;
@@ -4478,7 +4530,7 @@ int main(int argc, char *argv[])
                 { L_, -Limits::denorm_min(), "-1e-45"         },
                 { L_, -Limits::max(),        "-3.4028235e+38" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE     = DATA[ti].d_line;
@@ -4525,7 +4577,7 @@ int main(int argc, char *argv[])
                 { L_,   -Limits::denorm_min(), "\"-1e-398\""                 },
                 { L_,   -Limits::max(),        "\"-9.999999999999999e+384\"" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE     = DATA[ti].d_line;
@@ -4611,7 +4663,7 @@ int main(int argc, char *argv[])
                 { L_,  '\x80',   "-128"     },
                 { L_,  '\xff',     "-1"     },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE  = DATA[ti].d_line;
@@ -4653,7 +4705,7 @@ int main(int argc, char *argv[])
                 { L_,  "\x1f", "\"\\u001f\"" },
                 { L_,  "\\/\b\f\n\r\t",   "\"\\\\\\/\\b\\f\\n\\r\\t\"" },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE  = DATA[ti].d_line;

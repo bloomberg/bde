@@ -46,6 +46,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
@@ -74,6 +75,7 @@ namespace test = BloombergLP::s_baltst;
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] baljsn::Formatter(bsl::ostream& stream, style, indent, spl);
+// [ 2] baljsn::Formatter(bsl::ostream& stream, style, indent, escFwd, spl);
 // [ 2] ~baljsn::Formatter();
 //
 // MANIPULATORS
@@ -141,12 +143,17 @@ void aSsErT(bool condition, const char *message, int line)
 typedef baljsn::Formatter      Obj;
 typedef baljsn::EncoderOptions Options;
 
-Obj g(bsl::ostream& os, int style, int indent, int spl)
+Obj g(bsl::ostream& os, int style, int indent, int spl, int esc = -1)
 {
     if (-1 != style) {
         if (-1 != indent) {
             if (-1 != spl) {
-                return Obj(os, style, indent, spl);                   // RETURN
+                if (-1 != esc) {
+                    return Obj(os, style, indent, spl, esc);          // RETURN
+                }
+                else {
+                    return Obj(os, style, indent, spl);               // RETURN
+                }
             }
             else {
                 return Obj(os, style, indent);                        // RETURN
@@ -166,6 +173,7 @@ void testPutValue(int            line,
                   int            style,
                   int            indent,
                   int            spl,
+                  int            esc,
                   const TYPE&    value,
                   const Options *options,
                   bool           isValid)
@@ -177,7 +185,7 @@ void testPutValue(int            line,
         bsl::ostringstream os;
         bsl::ostringstream exp;
 
-        Obj mX = g(os, style, indent, spl);
+        Obj mX = g(os, style, indent, spl, esc);
 
         if (0 == i) {
             mX.openObject();
@@ -469,7 +477,7 @@ int main(int argc, char *argv[])
                                                ","        NL
                                                                },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -602,7 +610,7 @@ int main(int argc, char *argv[])
                                                        "    ]"       NL
                                                        "  }"             },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -700,7 +708,7 @@ int main(int argc, char *argv[])
                                                ","        NL
                                                                },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -762,7 +770,7 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
 
         const bool                A = true;
-        const char                B = 'A';
+        const char                B = '/';
         const signed char         C = '\"';
         const unsigned char       D =
                                      bsl::numeric_limits<unsigned char>::max();
@@ -776,8 +784,8 @@ int main(int argc, char *argv[])
                                bsl::numeric_limits<bsls::Types::Uint64>::max();
         const float               K = -1.5;
         const double              L = 10.5;
-        const char               *M = "one";
-        const bsl::string         N = "one";
+        const char               *M = "one/two";
+        const bsl::string         N = "three/four";
         const bdldfp::Decimal64   O = BDLDFP_DECIMAL_DD(1.13);
         const bdlt::Date          PA(2000,  1, 1);
         const bdlt::Time          QA(0, 1, 2, 3);
@@ -803,71 +811,76 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
+            int         d_escapeForwardSlash;
         } DATA[] = {
 
-            // LINE  STYLE  INDENT   SPL
-            // ----  -----  ------   ---
+            // LINE  STYLE  INDENT   SPL ESC
+            // ----  -----  ------   --- ---
 
-            {   L_,    -1,     -1,   -1  },
-            {   L_,    -1,     -1,    2  },
-            {   L_,    -1,      3,    2  },
+            {   L_,    -1,     -1,   -1,  -1  },
+            {   L_,    -1,     -1,    2,  -1  },
+            {   L_,    -1,      3,    2,  -1  },
 
-            {   L_,     0,     -1,   -1  },
-            {   L_,     0,     -1,    2  },
-            {   L_,     0,      3,    2  },
+            {   L_,     0,     -1,   -1,  -1  },
+            {   L_,     0,     -1,    2,  -1  },
+            {   L_,     0,      3,    2,  -1  },
 
-            {   L_,     1,      1,    2  },
-            {   L_,     1,      2,    4  },
-            {   L_,     1,      3,    5  },
+            {   L_,     1,      1,    2,  -1  },
+            {   L_,     1,      2,    4,  -1  },
+            {   L_,     1,      3,    5,  -1  },
+
+            {   L_,     1,      3,    5,   0  },
+            {   L_,     1,      3,    5,   1  },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE = DATA[i].d_line;
             const int         ES   = DATA[i].d_encodingStyle;
             const int         IIL  = DATA[i].d_initialIndentLevel;
             const int         SPL  = DATA[i].d_spacesPerLevel;
+            const int         ESC  = DATA[i].d_escapeForwardSlash;
 
-            testPutValue(LINE, ES, IIL, SPL, A,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, B,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, C,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, D,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, E,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, F,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, G,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, H,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, I,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, J,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, K,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, L,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, M,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, N,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, O,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, PA,   DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, QA,   DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, R,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, S,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, T,    DP,   true);
-            testPutValue(LINE, ES, IIL, SPL, U,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, A,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, B,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, C,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, D,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, E,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, F,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, G,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, H,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, I,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, J,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, K,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, L,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, M,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, N,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, O,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, PA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, QA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, R,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, S,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, T,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, U,    DP,   true);
 
-            testPutValue(LINE, ES, IIL, SPL, INV1, DP,   false);
-            testPutValue(LINE, ES, IIL, SPL, INV2, DP,   false);
-            testPutValue(LINE, ES, IIL, SPL, INV3, DP,   false);
-            testPutValue(LINE, ES, IIL, SPL, INV4, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV1, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV2, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV3, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV4, DP,   false);
 
             Options opts;  const Options *OPTS = &opts;
             opts.setEncodeInfAndNaNAsStrings(true);
 
-            testPutValue(LINE, ES, IIL, SPL, INV1, OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, INV2, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV1, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, INV2, OPTS, true);
 
             opts.setDatetimeFractionalSecondPrecision(6);
-            testPutValue(LINE, ES, IIL, SPL, PA,   OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, QA,   OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, R,    OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, S,    OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, T,    OPTS, true);
-            testPutValue(LINE, ES, IIL, SPL, U,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, PA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, QA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, R,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, S,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, T,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, ESC, U,    OPTS, true);
 
             // testPutNullValue
             {
@@ -878,7 +891,7 @@ int main(int argc, char *argv[])
                     bsl::ostringstream os;
                     bsl::ostringstream exp;
 
-                    Obj mX = g(os, ES, IIL, SPL);
+                    Obj mX = g(os, ES, IIL, SPL, ESC);
 
                     if (0 == j) {
                         mX.openObject();
@@ -957,56 +970,69 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
+            int         d_escapeForwardSlash;
             bsl::string d_elementName;
             int         d_expRetCode;
             bsl::string d_expected;
         } DATA[] = {
-     // LINE  STYLE  INDENT   SPL   NAME    EXP_RC   EXPECTED
-     // ----  -----  ------   ---   ----    ------   -------
+     // LINE  STYLE  INDENT   SPL   ESC NAME    EXP_RC   EXPECTED
+     // ----  -----  ------   ---   --- ----    ------   -------
 
-     {   L_,    -1,     -1,   -1,   "",         0,   "\"\":"              },
-     {   L_,    -1,     -1,   -1,   "name",     0,   "\"name\":"          },
+     {   L_,    -1,     -1,   -1,   -1, "",         0,   "\"\":"             },
+     {   L_,    -1,     -1,   -1,   -1, "name",     0,   "\"name\":"         },
 
-     {   L_,     0,     -1,   -1,   "",         0,   "\"\":"              },
-     {   L_,     0,     -1,   -1,   "",         0,   "\"\":"              },
+     {   L_,     0,     -1,   -1,   -1, "",         0,   "\"\":"             },
+     {   L_,     0,     -1,   -1,   -1, "",         0,   "\"\":"             },
 
-     {   L_,     1,     -1,   -1,   "",         0,   "\"\" : "            },
-     {   L_,     1,     -1,   -1,   "",         0,   "\"\" : "            },
+     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\" : "           },
+     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\" : "           },
 
-     {   L_,     1,      1,    2,   "",         0,   "  \"\" : "          },
-     {   L_,     1,      2,    3,   "",         0,   "      \"\" : "      },
+     {   L_,     1,      1,    2,   -1, "",         0,   "  \"\" : "         },
+     {   L_,     1,      2,    3,   -1, "",         0,   "      \"\" : "     },
 
-     {   L_,     0,     -1,   -1,   "name",     0,   "\"name\":"          },
-     {   L_,     0,     -1,   -1,   "name",     0,   "\"name\":"          },
+     {   L_,     0,     -1,   -1,   -1, "name",     0,   "\"name\":"         },
+     {   L_,     0,     -1,   -1,   -1, "name",     0,   "\"name\":"         },
 
-     {   L_,     1,     -1,   -1,   "name",     0,   "\"name\" : "        },
-     {   L_,     1,     -1,   -1,   "name",     0,   "\"name\" : "        },
+     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\" : "       },
+     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\" : "       },
 
-     {   L_,     1,      1,    2,   "name",     0,   "  \"name\" : "      },
-     {   L_,     1,      2,    3,   "name",     0,   "      \"name\" : "  },
+     {   L_,     1,      1,    2,   -1, "name",     0,   "  \"name\" : "     },
+     {   L_,     1,      2,    3,   -1, "name",     0,   "      \"name\" : " },
 
+     // Test `escapeForwardSlash`
+     {   L_,     0,      0,    0,   -1, "/",        0,   "\"\\/\":"          },
+     {   L_,     0,      0,    0,    1, "/",        0,   "\"\\/\":"          },
+     {   L_,     0,      0,    0,    0, "/",        0,   "\"/\":"            },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
+            const int         ESC    = DATA[i].d_escapeForwardSlash;
             const bsl::string NAME   = DATA[i].d_elementName;
             const int         EXP_RC = DATA[i].d_expRetCode;
             const bsl::string EXP    = DATA[i].d_expected;
 
             bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);
+            Obj mX = g(os, STYLE, INDENT, SPL, ESC);
 
             const int rc = mX.openMember(NAME);
 
             os << bsl::flush;
 
             ASSERTV(LINE, EXP_RC, rc, EXP_RC == rc);
-            ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+            ASSERTV(LINE,
+                    STYLE,
+                    INDENT,
+                    SPL,
+                    ESC,
+                    EXP,
+                    os.str(),
+                    EXP == os.str());
         }
 #undef NL
       } break;
@@ -1087,7 +1113,7 @@ int main(int argc, char *argv[])
         {   L_,     1,      1,    2,  true,    3,        "  [  [  [  []]]]"
                                                                         },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1187,7 +1213,7 @@ int main(int argc, char *argv[])
         // nonsense, as expected.
         {   L_,     1,      1,    2,  true,     3,  "  [  [  [  ["      },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1283,7 +1309,7 @@ int main(int argc, char *argv[])
                                           NL   "  }"
                                                                 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1374,7 +1400,7 @@ int main(int argc, char *argv[])
                                               "{"             NL
             },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
@@ -1434,57 +1460,104 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
+            int         d_escapeForwardSlash;
             bsl::string d_expected;
         } DATA[] = {
 
-        // LINE  STYLE  INDENT   SPL   EXPECTED
-        // ----  -----  ------   ---   --------
+        // LINE  STYLE  INDENT   SPL   ESC  EXPECTED
+        // ----  -----  ------   ---   ---  --------
 
         // No options specified
-        {   L_,    -1,     -1,   -1,   "{\"A\":1,\"B\":[2]}"                 },
+        {   L_,    -1,     -1,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
 
         // Specify only encoding style
-        {   L_,     0,     -1,   -1,   "{\"A\":1,\"B\":[2]}"                 },
-        {   L_,     1,     -1,   -1,   "{"                               NL
-                                       "\"A\" : 1,"                      NL
-                                       "\"B\" : ["                       NL
-                                       "2"                               NL
-                                       "]"                               NL
-                                       "}"                                   },
+        {   L_,     0,     -1,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     1,     -1,   -1,   -1, "{"                              NL
+                                           "\"A\\/Name\" : 1,"              NL
+                                           "\"B\\/Value\" : ["              NL
+                                           "2"                              NL
+                                           "]"                              NL
+                                           "}"                               },
 
         // Specify encoding style and initialIndentLevel
-        {   L_,     0,      1,   -1,   "{\"A\":1,\"B\":[2]}"                 },
-        {   L_,     0,      5,   -1,   "{\"A\":1,\"B\":[2]}"                 },
-        {   L_,     1,      1,   -1,   "{"                               NL
-                                       "\"A\" : 1,"                      NL
-                                       "\"B\" : ["                       NL
-                                       "2"                               NL
-                                       "]"                               NL
-                                       "}"                                   },
+        {   L_,     0,      1,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     0,      5,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     1,      1,   -1,   -1, "{"                              NL
+                                           "\"A\\/Name\" : 1,"              NL
+                                           "\"B\\/Value\" : ["              NL
+                                           "2"                              NL
+                                           "]"                              NL
+                                           "}"                               },
 
-        // Specify all options
-        {   L_,     0,      1,    2,   "{\"A\":1,\"B\":[2]}"                 },
-        {   L_,     0,      5,   10,   "{\"A\":1,\"B\":[2]}"                 },
-        {   L_,     1,      1,    2,   "{"                               NL
-                                       "    \"A\" : 1,"                  NL
-                                       "    \"B\" : ["                   NL
-                                       "      2"                         NL
-                                       "    ]"                           NL
-                                       "  }"                                 },
-        {   L_,     1,      3,    5,   "{"                               NL
-                                       "                    \"A\" : 1,"  NL
-                                       "                    \"B\" : ["   NL
-                                       "                         2"      NL
-                                       "                    ]"           NL
-                                       "               }"                    },
+        // Specify encoding style, initialIndentLevel, spacesPerLevel
+        {   L_,     0,      1,    2,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     0,      5,   10,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     1,      1,    2,   -1, "{"                              NL
+                                           "    \"A\\/Name\" : 1,"          NL
+                                           "    \"B\\/Value\" : ["          NL
+                                           "      2"                        NL
+                                           "    ]"                          NL
+                                           "  }"                             },
+        {   L_,     1,      3,    5,   -1, 
+                                   "{"                                      NL
+                                   "                    \"A\\/Name\" : 1,"  NL
+                                   "                    \"B\\/Value\" : ["  NL
+                                   "                         2"             NL
+                                   "                    ]"                  NL
+                                   "               }"                        },
+
+        // Specify all options (escapeForwardSlash true)
+        {   L_,     0,      1,    2,    1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     0,      5,   10,    1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
+                                                                             },
+        {   L_,     1,      1,    2,    1, "{"                              NL
+                                           "    \"A\\/Name\" : 1,"          NL
+                                           "    \"B\\/Value\" : ["          NL
+                                           "      2"                        NL
+                                           "    ]"                          NL
+                                           "  }"                             },
+        {   L_,     1,      3,    5,    1, 
+                                   "{"                                      NL
+                                   "                    \"A\\/Name\" : 1,"  NL
+                                   "                    \"B\\/Value\" : ["  NL
+                                   "                         2"             NL
+                                   "                    ]"                  NL
+                                   "               }"                        },
+
+        // Specify all options (escapeForwardSlash false)
+        {   L_,     0,      1,    2,    0, "{\"A/Name\":1,\"B/Value\":[2]}"
+                                                                             },
+        {   L_,     0,      5,   10,    0, "{\"A/Name\":1,\"B/Value\":[2]}"
+                                                                             },
+        {   L_,     1,      1,    2,    0, "{"                              NL
+                                           "    \"A/Name\" : 1,"            NL
+                                           "    \"B/Value\" : ["            NL
+                                           "      2"                        NL
+                                           "    ]"                          NL
+                                           "  }"                             },
+        {   L_,     1,      3,    5,    0,
+                                   "{"                                      NL
+                                   "                    \"A/Name\" : 1,"    NL
+                                   "                    \"B/Value\" : ["    NL
+                                   "                         2"             NL
+                                   "                    ]"                  NL
+                                   "               }"                        },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int         LINE   = DATA[i].d_line;
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
+            const int         ESC    = DATA[i].d_escapeForwardSlash;
             const bsl::string EXP    = DATA[i].d_expected;
 
             bsl::ostringstream     os1;
@@ -1492,18 +1565,18 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf mosb;
             bsl::ostream           os2(&mosb);
 
-            Obj mX = g(os1, STYLE, INDENT, SPL);
-            Obj mY = g(os2, STYLE, INDENT, SPL);
+            Obj mX = g(os1, STYLE, INDENT, SPL, ESC);
+            Obj mY = g(os2, STYLE, INDENT, SPL, ESC);
 
             mX.openObject();
-            mX.openMember("A"); mX.putValue(1); mX.closeMember();
-            mX.openMember("B");
+            mX.openMember("A/Name"); mX.putValue(1); mX.closeMember();
+            mX.openMember("B/Value");
             mX.openArray(); mX.putValue(2); mX.closeArray();
             mX.closeObject();
 
             mY.openObject();
-            mY.openMember("A"); mY.putValue(1); mY.closeMember();
-            mY.openMember("B");
+            mY.openMember("A/Name"); mY.putValue(1); mY.closeMember();
+            mY.openMember("B/Value");
             mY.openArray(); mY.putValue(2); mY.closeArray();
             mY.closeObject();
 
@@ -1594,7 +1667,7 @@ int main(int argc, char *argv[])
             { "Pretty",     true,  2 }
         };
 
-        int NUM_DATA=sizeof(DATA)/sizeof(*DATA);
+        const int NUM_DATA=sizeof DATA / sizeof DATA[0];
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const bsl::string DESC   = DATA[i].d_description;

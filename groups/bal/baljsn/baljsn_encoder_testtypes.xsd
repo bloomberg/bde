@@ -214,6 +214,11 @@
       <xs:element name='charArray'
                   type='xs:hexBinary'/>
 
+      <!-- String -->
+      <xs:element name='a/string'
+                  type='xs:string'
+                  default='/'/>
+
       <!-- Array -->
       <xs:element name='array'
                   type='xs:int'

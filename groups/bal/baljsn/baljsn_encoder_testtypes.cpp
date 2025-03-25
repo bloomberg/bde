@@ -1,7 +1,7 @@
 // baljsn_encoder_testtypes.cpp       *DO NOT EDIT*        @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(baljsn_encoder_testtypes_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baljsn_encoder_testtypes_cpp, "$Id$ $CSID$")
 
 #include <baljsn_encoder_testtypes.h>
 
@@ -18,9 +18,11 @@ BSLS_IDENT_RCSID(baljsn_encoder_testtypes_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -168,16 +170,15 @@ void EncoderTestAddress::reset()
 
 // ACCESSORS
 
-bsl::ostream& EncoderTestAddress::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+bsl::ostream& EncoderTestAddress::print(bsl::ostream& stream,
+                                        int           level,
+                                        int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("street", d_street);
-    printer.printAttribute("city", d_city);
-    printer.printAttribute("state", d_state);
+    printer.printAttribute("street", this->street());
+    printer.printAttribute("city", this->city());
+    printer.printAttribute("state", this->state());
     printer.end();
     return stream;
 }
@@ -411,8 +412,20 @@ const char *EncoderTestChoiceWithAllCategoriesChoice::selectionName() const
 
 int EncoderTestChoiceWithAllCategoriesCustomizedType::checkRestrictions(const bsl::string& value)
 {
-    if (10 < bdlde::Utf8Util::numCharacters(value.c_str(), value.length())) {
-        return -1;
+    const char                *invalid = 0;
+    const bsls::Types::IntPtr  valueLength =
+        bdlde::Utf8Util::numCodePointsIfValid(
+            &invalid, value.data(), value.length());
+
+    // Check whether 'value' is a valid UTF-8 string.
+    // bdlde::Utf8Util::numCodePointsIfValid will return
+    // a negative value on invalid UTF-8.
+    if (0 > valueLength) {
+        return -1;                                                    // RETURN
+    }
+
+    if (10 < valueLength) {
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -492,7 +505,7 @@ const char *EncoderTestChoiceWithAllCategoriesEnumeration::toString(EncoderTestC
       }
     }
 
-    BSLS_ASSERT(0 == "invalid enumerator");
+    BSLS_ASSERT(!"invalid enumerator");
     return 0;
 }
 
@@ -552,39 +565,7 @@ EncoderTestChoiceWithAllCategoriesSequence::EncoderTestChoiceWithAllCategoriesSe
 {
 }
 
-EncoderTestChoiceWithAllCategoriesSequence::EncoderTestChoiceWithAllCategoriesSequence(const EncoderTestChoiceWithAllCategoriesSequence& original)
-: d_attribute(original.d_attribute)
-{
-}
-
-EncoderTestChoiceWithAllCategoriesSequence::~EncoderTestChoiceWithAllCategoriesSequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestChoiceWithAllCategoriesSequence&
-EncoderTestChoiceWithAllCategoriesSequence::operator=(const EncoderTestChoiceWithAllCategoriesSequence& rhs)
-{
-    if (this != &rhs) {
-        d_attribute = rhs.d_attribute;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestChoiceWithAllCategoriesSequence&
-EncoderTestChoiceWithAllCategoriesSequence::operator=(EncoderTestChoiceWithAllCategoriesSequence&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute = bsl::move(rhs.d_attribute);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestChoiceWithAllCategoriesSequence::reset()
 {
@@ -594,13 +575,13 @@ void EncoderTestChoiceWithAllCategoriesSequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestChoiceWithAllCategoriesSequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute", d_attribute);
+    printer.printAttribute("attribute", this->attribute());
     printer.end();
     return stream;
 }
@@ -637,37 +618,7 @@ const bdlat_AttributeInfo *EncoderTestDegenerateChoice1Sequence::lookupAttribute
 
 // CREATORS
 
-EncoderTestDegenerateChoice1Sequence::EncoderTestDegenerateChoice1Sequence()
-{
-}
-
-EncoderTestDegenerateChoice1Sequence::EncoderTestDegenerateChoice1Sequence(const EncoderTestDegenerateChoice1Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestDegenerateChoice1Sequence::~EncoderTestDegenerateChoice1Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestDegenerateChoice1Sequence&
-EncoderTestDegenerateChoice1Sequence::operator=(const EncoderTestDegenerateChoice1Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestDegenerateChoice1Sequence&
-EncoderTestDegenerateChoice1Sequence::operator=(EncoderTestDegenerateChoice1Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestDegenerateChoice1Sequence::reset()
 {
@@ -676,12 +627,10 @@ void EncoderTestDegenerateChoice1Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestDegenerateChoice1Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -914,8 +863,20 @@ const char *EncoderTestSequenceWithAllCategoriesChoice::selectionName() const
 
 int EncoderTestSequenceWithAllCategoriesCustomizedType::checkRestrictions(const bsl::string& value)
 {
-    if (10 < bdlde::Utf8Util::numCharacters(value.c_str(), value.length())) {
-        return -1;
+    const char                *invalid = 0;
+    const bsls::Types::IntPtr  valueLength =
+        bdlde::Utf8Util::numCodePointsIfValid(
+            &invalid, value.data(), value.length());
+
+    // Check whether 'value' is a valid UTF-8 string.
+    // bdlde::Utf8Util::numCodePointsIfValid will return
+    // a negative value on invalid UTF-8.
+    if (0 > valueLength) {
+        return -1;                                                    // RETURN
+    }
+
+    if (10 < valueLength) {
+        return -1;                                                    // RETURN
     }
 
     return 0;
@@ -995,7 +956,7 @@ const char *EncoderTestSequenceWithAllCategoriesEnumeration::toString(EncoderTes
       }
     }
 
-    BSLS_ASSERT(0 == "invalid enumerator");
+    BSLS_ASSERT(!"invalid enumerator");
     return 0;
 }
 
@@ -1055,39 +1016,7 @@ EncoderTestSequenceWithAllCategoriesSequence::EncoderTestSequenceWithAllCategori
 {
 }
 
-EncoderTestSequenceWithAllCategoriesSequence::EncoderTestSequenceWithAllCategoriesSequence(const EncoderTestSequenceWithAllCategoriesSequence& original)
-: d_attribute(original.d_attribute)
-{
-}
-
-EncoderTestSequenceWithAllCategoriesSequence::~EncoderTestSequenceWithAllCategoriesSequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithAllCategoriesSequence&
-EncoderTestSequenceWithAllCategoriesSequence::operator=(const EncoderTestSequenceWithAllCategoriesSequence& rhs)
-{
-    if (this != &rhs) {
-        d_attribute = rhs.d_attribute;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithAllCategoriesSequence&
-EncoderTestSequenceWithAllCategoriesSequence::operator=(EncoderTestSequenceWithAllCategoriesSequence&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute = bsl::move(rhs.d_attribute);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithAllCategoriesSequence::reset()
 {
@@ -1097,13 +1026,13 @@ void EncoderTestSequenceWithAllCategoriesSequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithAllCategoriesSequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute", d_attribute);
+    printer.printAttribute("attribute", this->attribute());
     printer.end();
     return stream;
 }
@@ -1140,37 +1069,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged0::lookupAttributeInfo
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged0::EncoderTestSequenceWithUntagged0()
-{
-}
-
-EncoderTestSequenceWithUntagged0::EncoderTestSequenceWithUntagged0(const EncoderTestSequenceWithUntagged0& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged0::~EncoderTestSequenceWithUntagged0()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged0&
-EncoderTestSequenceWithUntagged0::operator=(const EncoderTestSequenceWithUntagged0& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged0&
-EncoderTestSequenceWithUntagged0::operator=(EncoderTestSequenceWithUntagged0&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged0::reset()
 {
@@ -1179,12 +1078,10 @@ void EncoderTestSequenceWithUntagged0::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged0::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1220,37 +1117,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged10Sequence::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged10Sequence::EncoderTestSequenceWithUntagged10Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged10Sequence::EncoderTestSequenceWithUntagged10Sequence(const EncoderTestSequenceWithUntagged10Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged10Sequence::~EncoderTestSequenceWithUntagged10Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged10Sequence&
-EncoderTestSequenceWithUntagged10Sequence::operator=(const EncoderTestSequenceWithUntagged10Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged10Sequence&
-EncoderTestSequenceWithUntagged10Sequence::operator=(EncoderTestSequenceWithUntagged10Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged10Sequence::reset()
 {
@@ -1259,12 +1126,10 @@ void EncoderTestSequenceWithUntagged10Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged10Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1300,37 +1165,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged11Sequence::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged11Sequence::EncoderTestSequenceWithUntagged11Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged11Sequence::EncoderTestSequenceWithUntagged11Sequence(const EncoderTestSequenceWithUntagged11Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged11Sequence::~EncoderTestSequenceWithUntagged11Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged11Sequence&
-EncoderTestSequenceWithUntagged11Sequence::operator=(const EncoderTestSequenceWithUntagged11Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged11Sequence&
-EncoderTestSequenceWithUntagged11Sequence::operator=(EncoderTestSequenceWithUntagged11Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged11Sequence::reset()
 {
@@ -1339,12 +1174,10 @@ void EncoderTestSequenceWithUntagged11Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged11Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1380,37 +1213,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged11Sequence1::lookupAtt
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged11Sequence1::EncoderTestSequenceWithUntagged11Sequence1()
-{
-}
-
-EncoderTestSequenceWithUntagged11Sequence1::EncoderTestSequenceWithUntagged11Sequence1(const EncoderTestSequenceWithUntagged11Sequence1& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged11Sequence1::~EncoderTestSequenceWithUntagged11Sequence1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged11Sequence1&
-EncoderTestSequenceWithUntagged11Sequence1::operator=(const EncoderTestSequenceWithUntagged11Sequence1& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged11Sequence1&
-EncoderTestSequenceWithUntagged11Sequence1::operator=(EncoderTestSequenceWithUntagged11Sequence1&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged11Sequence1::reset()
 {
@@ -1419,12 +1222,10 @@ void EncoderTestSequenceWithUntagged11Sequence1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged11Sequence1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1460,37 +1261,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged12Sequence::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged12Sequence::EncoderTestSequenceWithUntagged12Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged12Sequence::EncoderTestSequenceWithUntagged12Sequence(const EncoderTestSequenceWithUntagged12Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged12Sequence::~EncoderTestSequenceWithUntagged12Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged12Sequence&
-EncoderTestSequenceWithUntagged12Sequence::operator=(const EncoderTestSequenceWithUntagged12Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged12Sequence&
-EncoderTestSequenceWithUntagged12Sequence::operator=(EncoderTestSequenceWithUntagged12Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged12Sequence::reset()
 {
@@ -1499,12 +1270,10 @@ void EncoderTestSequenceWithUntagged12Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged12Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1540,37 +1309,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged13Sequence::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged13Sequence::EncoderTestSequenceWithUntagged13Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged13Sequence::EncoderTestSequenceWithUntagged13Sequence(const EncoderTestSequenceWithUntagged13Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged13Sequence::~EncoderTestSequenceWithUntagged13Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged13Sequence&
-EncoderTestSequenceWithUntagged13Sequence::operator=(const EncoderTestSequenceWithUntagged13Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged13Sequence&
-EncoderTestSequenceWithUntagged13Sequence::operator=(EncoderTestSequenceWithUntagged13Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged13Sequence::reset()
 {
@@ -1579,12 +1318,10 @@ void EncoderTestSequenceWithUntagged13Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged13Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1665,45 +1402,7 @@ EncoderTestSequenceWithUntagged14::EncoderTestSequenceWithUntagged14()
 {
 }
 
-EncoderTestSequenceWithUntagged14::EncoderTestSequenceWithUntagged14(const EncoderTestSequenceWithUntagged14& original)
-: d_attribute0(original.d_attribute0)
-, d_attribute1(original.d_attribute1)
-, d_attribute2(original.d_attribute2)
-{
-}
-
-EncoderTestSequenceWithUntagged14::~EncoderTestSequenceWithUntagged14()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged14&
-EncoderTestSequenceWithUntagged14::operator=(const EncoderTestSequenceWithUntagged14& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_attribute1 = rhs.d_attribute1;
-        d_attribute2 = rhs.d_attribute2;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged14&
-EncoderTestSequenceWithUntagged14::operator=(EncoderTestSequenceWithUntagged14&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-        d_attribute2 = bsl::move(rhs.d_attribute2);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged14::reset()
 {
@@ -1715,15 +1414,15 @@ void EncoderTestSequenceWithUntagged14::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged14::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("attribute1", d_attribute1);
-    printer.printAttribute("attribute2", d_attribute2);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("attribute1", this->attribute1());
+    printer.printAttribute("attribute2", this->attribute2());
     printer.end();
     return stream;
 }
@@ -1760,37 +1459,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged1Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged1Sequence::EncoderTestSequenceWithUntagged1Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged1Sequence::EncoderTestSequenceWithUntagged1Sequence(const EncoderTestSequenceWithUntagged1Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged1Sequence::~EncoderTestSequenceWithUntagged1Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged1Sequence&
-EncoderTestSequenceWithUntagged1Sequence::operator=(const EncoderTestSequenceWithUntagged1Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged1Sequence&
-EncoderTestSequenceWithUntagged1Sequence::operator=(EncoderTestSequenceWithUntagged1Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged1Sequence::reset()
 {
@@ -1799,12 +1468,10 @@ void EncoderTestSequenceWithUntagged1Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged1Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -1865,39 +1532,7 @@ EncoderTestSequenceWithUntagged2::EncoderTestSequenceWithUntagged2()
 {
 }
 
-EncoderTestSequenceWithUntagged2::EncoderTestSequenceWithUntagged2(const EncoderTestSequenceWithUntagged2& original)
-: d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged2::~EncoderTestSequenceWithUntagged2()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged2&
-EncoderTestSequenceWithUntagged2::operator=(const EncoderTestSequenceWithUntagged2& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged2&
-EncoderTestSequenceWithUntagged2::operator=(EncoderTestSequenceWithUntagged2&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged2::reset()
 {
@@ -1907,13 +1542,13 @@ void EncoderTestSequenceWithUntagged2::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged2::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
+    printer.printAttribute("attribute0", this->attribute0());
     printer.end();
     return stream;
 }
@@ -1950,37 +1585,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged3Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged3Sequence::EncoderTestSequenceWithUntagged3Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged3Sequence::EncoderTestSequenceWithUntagged3Sequence(const EncoderTestSequenceWithUntagged3Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged3Sequence::~EncoderTestSequenceWithUntagged3Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged3Sequence&
-EncoderTestSequenceWithUntagged3Sequence::operator=(const EncoderTestSequenceWithUntagged3Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged3Sequence&
-EncoderTestSequenceWithUntagged3Sequence::operator=(EncoderTestSequenceWithUntagged3Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged3Sequence::reset()
 {
@@ -1989,12 +1594,10 @@ void EncoderTestSequenceWithUntagged3Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged3Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2030,37 +1633,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged3Sequence1::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged3Sequence1::EncoderTestSequenceWithUntagged3Sequence1()
-{
-}
-
-EncoderTestSequenceWithUntagged3Sequence1::EncoderTestSequenceWithUntagged3Sequence1(const EncoderTestSequenceWithUntagged3Sequence1& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged3Sequence1::~EncoderTestSequenceWithUntagged3Sequence1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged3Sequence1&
-EncoderTestSequenceWithUntagged3Sequence1::operator=(const EncoderTestSequenceWithUntagged3Sequence1& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged3Sequence1&
-EncoderTestSequenceWithUntagged3Sequence1::operator=(EncoderTestSequenceWithUntagged3Sequence1&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged3Sequence1::reset()
 {
@@ -2069,12 +1642,10 @@ void EncoderTestSequenceWithUntagged3Sequence1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged3Sequence1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2110,37 +1681,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged4Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged4Sequence::EncoderTestSequenceWithUntagged4Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged4Sequence::EncoderTestSequenceWithUntagged4Sequence(const EncoderTestSequenceWithUntagged4Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged4Sequence::~EncoderTestSequenceWithUntagged4Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged4Sequence&
-EncoderTestSequenceWithUntagged4Sequence::operator=(const EncoderTestSequenceWithUntagged4Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged4Sequence&
-EncoderTestSequenceWithUntagged4Sequence::operator=(EncoderTestSequenceWithUntagged4Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged4Sequence::reset()
 {
@@ -2149,12 +1690,10 @@ void EncoderTestSequenceWithUntagged4Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged4Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2190,37 +1729,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged5Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged5Sequence::EncoderTestSequenceWithUntagged5Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged5Sequence::EncoderTestSequenceWithUntagged5Sequence(const EncoderTestSequenceWithUntagged5Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged5Sequence::~EncoderTestSequenceWithUntagged5Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged5Sequence&
-EncoderTestSequenceWithUntagged5Sequence::operator=(const EncoderTestSequenceWithUntagged5Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged5Sequence&
-EncoderTestSequenceWithUntagged5Sequence::operator=(EncoderTestSequenceWithUntagged5Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged5Sequence::reset()
 {
@@ -2229,12 +1738,10 @@ void EncoderTestSequenceWithUntagged5Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged5Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2305,42 +1812,7 @@ EncoderTestSequenceWithUntagged6::EncoderTestSequenceWithUntagged6()
 {
 }
 
-EncoderTestSequenceWithUntagged6::EncoderTestSequenceWithUntagged6(const EncoderTestSequenceWithUntagged6& original)
-: d_attribute0(original.d_attribute0)
-, d_attribute1(original.d_attribute1)
-{
-}
-
-EncoderTestSequenceWithUntagged6::~EncoderTestSequenceWithUntagged6()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged6&
-EncoderTestSequenceWithUntagged6::operator=(const EncoderTestSequenceWithUntagged6& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_attribute1 = rhs.d_attribute1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged6&
-EncoderTestSequenceWithUntagged6::operator=(EncoderTestSequenceWithUntagged6&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged6::reset()
 {
@@ -2351,14 +1823,14 @@ void EncoderTestSequenceWithUntagged6::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged6::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("attribute1", d_attribute1);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("attribute1", this->attribute1());
     printer.end();
     return stream;
 }
@@ -2395,37 +1867,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged7Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged7Sequence::EncoderTestSequenceWithUntagged7Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged7Sequence::EncoderTestSequenceWithUntagged7Sequence(const EncoderTestSequenceWithUntagged7Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged7Sequence::~EncoderTestSequenceWithUntagged7Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged7Sequence&
-EncoderTestSequenceWithUntagged7Sequence::operator=(const EncoderTestSequenceWithUntagged7Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged7Sequence&
-EncoderTestSequenceWithUntagged7Sequence::operator=(EncoderTestSequenceWithUntagged7Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged7Sequence::reset()
 {
@@ -2434,12 +1876,10 @@ void EncoderTestSequenceWithUntagged7Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged7Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2475,37 +1915,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged7Sequence1::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged7Sequence1::EncoderTestSequenceWithUntagged7Sequence1()
-{
-}
-
-EncoderTestSequenceWithUntagged7Sequence1::EncoderTestSequenceWithUntagged7Sequence1(const EncoderTestSequenceWithUntagged7Sequence1& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged7Sequence1::~EncoderTestSequenceWithUntagged7Sequence1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged7Sequence1&
-EncoderTestSequenceWithUntagged7Sequence1::operator=(const EncoderTestSequenceWithUntagged7Sequence1& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged7Sequence1&
-EncoderTestSequenceWithUntagged7Sequence1::operator=(EncoderTestSequenceWithUntagged7Sequence1&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged7Sequence1::reset()
 {
@@ -2514,12 +1924,10 @@ void EncoderTestSequenceWithUntagged7Sequence1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged7Sequence1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2555,37 +1963,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged7Sequence2::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged7Sequence2::EncoderTestSequenceWithUntagged7Sequence2()
-{
-}
-
-EncoderTestSequenceWithUntagged7Sequence2::EncoderTestSequenceWithUntagged7Sequence2(const EncoderTestSequenceWithUntagged7Sequence2& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged7Sequence2::~EncoderTestSequenceWithUntagged7Sequence2()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged7Sequence2&
-EncoderTestSequenceWithUntagged7Sequence2::operator=(const EncoderTestSequenceWithUntagged7Sequence2& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged7Sequence2&
-EncoderTestSequenceWithUntagged7Sequence2::operator=(EncoderTestSequenceWithUntagged7Sequence2&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged7Sequence2::reset()
 {
@@ -2594,12 +1972,10 @@ void EncoderTestSequenceWithUntagged7Sequence2::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged7Sequence2::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2635,37 +2011,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged8Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged8Sequence::EncoderTestSequenceWithUntagged8Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged8Sequence::EncoderTestSequenceWithUntagged8Sequence(const EncoderTestSequenceWithUntagged8Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged8Sequence::~EncoderTestSequenceWithUntagged8Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged8Sequence&
-EncoderTestSequenceWithUntagged8Sequence::operator=(const EncoderTestSequenceWithUntagged8Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged8Sequence&
-EncoderTestSequenceWithUntagged8Sequence::operator=(EncoderTestSequenceWithUntagged8Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged8Sequence::reset()
 {
@@ -2674,12 +2020,10 @@ void EncoderTestSequenceWithUntagged8Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged8Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2715,37 +2059,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged8Sequence1::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged8Sequence1::EncoderTestSequenceWithUntagged8Sequence1()
-{
-}
-
-EncoderTestSequenceWithUntagged8Sequence1::EncoderTestSequenceWithUntagged8Sequence1(const EncoderTestSequenceWithUntagged8Sequence1& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged8Sequence1::~EncoderTestSequenceWithUntagged8Sequence1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged8Sequence1&
-EncoderTestSequenceWithUntagged8Sequence1::operator=(const EncoderTestSequenceWithUntagged8Sequence1& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged8Sequence1&
-EncoderTestSequenceWithUntagged8Sequence1::operator=(EncoderTestSequenceWithUntagged8Sequence1&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged8Sequence1::reset()
 {
@@ -2754,12 +2068,10 @@ void EncoderTestSequenceWithUntagged8Sequence1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged8Sequence1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2795,37 +2107,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged9Sequence::lookupAttri
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged9Sequence::EncoderTestSequenceWithUntagged9Sequence()
-{
-}
-
-EncoderTestSequenceWithUntagged9Sequence::EncoderTestSequenceWithUntagged9Sequence(const EncoderTestSequenceWithUntagged9Sequence& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged9Sequence::~EncoderTestSequenceWithUntagged9Sequence()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged9Sequence&
-EncoderTestSequenceWithUntagged9Sequence::operator=(const EncoderTestSequenceWithUntagged9Sequence& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged9Sequence&
-EncoderTestSequenceWithUntagged9Sequence::operator=(EncoderTestSequenceWithUntagged9Sequence&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged9Sequence::reset()
 {
@@ -2834,12 +2116,10 @@ void EncoderTestSequenceWithUntagged9Sequence::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged9Sequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -2875,37 +2155,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithUntagged9Sequence1::lookupAttr
 
 // CREATORS
 
-EncoderTestSequenceWithUntagged9Sequence1::EncoderTestSequenceWithUntagged9Sequence1()
-{
-}
-
-EncoderTestSequenceWithUntagged9Sequence1::EncoderTestSequenceWithUntagged9Sequence1(const EncoderTestSequenceWithUntagged9Sequence1& original)
-{
-    (void)original;
-}
-
-EncoderTestSequenceWithUntagged9Sequence1::~EncoderTestSequenceWithUntagged9Sequence1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged9Sequence1&
-EncoderTestSequenceWithUntagged9Sequence1::operator=(const EncoderTestSequenceWithUntagged9Sequence1& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged9Sequence1&
-EncoderTestSequenceWithUntagged9Sequence1::operator=(EncoderTestSequenceWithUntagged9Sequence1&& rhs)
-{
-    (void)rhs;
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged9Sequence1::reset()
 {
@@ -2914,12 +2164,10 @@ void EncoderTestSequenceWithUntagged9Sequence1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged9Sequence1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                                    bsl::ostream& stream,
+                                                    int          ,
+                                                    int          ) const
 {
-    (void)level;
-    (void)spacesPerLevel;
     return stream;
 }
 
@@ -3538,7 +2786,7 @@ bsl::ostream& EncoderTestChoiceWithAllCategories::print(
     printer.start();
     switch (d_selectionId) {
       case SELECTION_ID_CHAR_ARRAY: {
-        bool multilineFlag = (0 <= level);
+        bool multilineFlag = (0 <= spacesPerLevel);
         bdlb::Print::indent(stream, level + 1, spacesPerLevel);
         stream << (multilineFlag ? "" : " ");
         stream << "charArray = [ ";
@@ -3971,16 +3219,15 @@ void EncoderTestEmployee::reset()
 
 // ACCESSORS
 
-bsl::ostream& EncoderTestEmployee::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+bsl::ostream& EncoderTestEmployee::print(bsl::ostream& stream,
+                                         int           level,
+                                         int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("name", d_name);
-    printer.printAttribute("homeAddress", d_homeAddress);
-    printer.printAttribute("age", d_age);
+    printer.printAttribute("name", this->name());
+    printer.printAttribute("homeAddress", this->homeAddress());
+    printer.printAttribute("age", this->age());
     printer.end();
     return stream;
 }
@@ -3995,6 +3242,8 @@ bsl::ostream& EncoderTestEmployee::print(
 
 const char EncoderTestSequenceWithAllCategories::CLASS_NAME[] = "EncoderTestSequenceWithAllCategories";
 
+const char EncoderTestSequenceWithAllCategories::DEFAULT_INITIALIZER_A_STRING[] = "/";
+
 const bdlat_AttributeInfo EncoderTestSequenceWithAllCategories::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_CHAR_ARRAY,
@@ -4002,6 +3251,13 @@ const bdlat_AttributeInfo EncoderTestSequenceWithAllCategories::ATTRIBUTE_INFO_A
         sizeof("charArray") - 1,
         "",
         bdlat_FormattingMode::e_HEX
+    },
+    {
+        ATTRIBUTE_ID_A_STRING,
+        "a/string",
+        sizeof("a/string") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
     },
     {
         ATTRIBUTE_ID_ARRAY,
@@ -4060,7 +3316,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithAllCategories::lookupAttribute
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 9; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
                     EncoderTestSequenceWithAllCategories::ATTRIBUTE_INFO_ARRAY[i];
 
@@ -4079,6 +3335,8 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithAllCategories::lookupAttribute
     switch (id) {
       case ATTRIBUTE_ID_CHAR_ARRAY:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CHAR_ARRAY];
+      case ATTRIBUTE_ID_A_STRING:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_A_STRING];
       case ATTRIBUTE_ID_ARRAY:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ARRAY];
       case ATTRIBUTE_ID_CHOICE:
@@ -4103,6 +3361,7 @@ const bdlat_AttributeInfo *EncoderTestSequenceWithAllCategories::lookupAttribute
 EncoderTestSequenceWithAllCategories::EncoderTestSequenceWithAllCategories(bslma::Allocator *basicAllocator)
 : d_array(basicAllocator)
 , d_charArray(basicAllocator)
+, d_aString(DEFAULT_INITIALIZER_A_STRING, basicAllocator)
 , d_sequence()
 , d_customizedType(basicAllocator)
 , d_choice()
@@ -4116,6 +3375,7 @@ EncoderTestSequenceWithAllCategories::EncoderTestSequenceWithAllCategories(const
                                                                            bslma::Allocator *basicAllocator)
 : d_array(original.d_array, basicAllocator)
 , d_charArray(original.d_charArray, basicAllocator)
+, d_aString(original.d_aString, basicAllocator)
 , d_sequence(original.d_sequence)
 , d_customizedType(original.d_customizedType, basicAllocator)
 , d_choice(original.d_choice)
@@ -4130,6 +3390,7 @@ EncoderTestSequenceWithAllCategories::EncoderTestSequenceWithAllCategories(const
 EncoderTestSequenceWithAllCategories::EncoderTestSequenceWithAllCategories(EncoderTestSequenceWithAllCategories&& original) noexcept
 : d_array(bsl::move(original.d_array))
 , d_charArray(bsl::move(original.d_charArray))
+, d_aString(bsl::move(original.d_aString))
 , d_sequence(bsl::move(original.d_sequence))
 , d_customizedType(bsl::move(original.d_customizedType))
 , d_choice(bsl::move(original.d_choice))
@@ -4143,6 +3404,7 @@ EncoderTestSequenceWithAllCategories::EncoderTestSequenceWithAllCategories(Encod
                                                                            bslma::Allocator *basicAllocator)
 : d_array(bsl::move(original.d_array), basicAllocator)
 , d_charArray(bsl::move(original.d_charArray), basicAllocator)
+, d_aString(bsl::move(original.d_aString), basicAllocator)
 , d_sequence(bsl::move(original.d_sequence))
 , d_customizedType(bsl::move(original.d_customizedType), basicAllocator)
 , d_choice(bsl::move(original.d_choice))
@@ -4164,6 +3426,7 @@ EncoderTestSequenceWithAllCategories::operator=(const EncoderTestSequenceWithAll
 {
     if (this != &rhs) {
         d_charArray = rhs.d_charArray;
+        d_aString = rhs.d_aString;
         d_array = rhs.d_array;
         d_choice = rhs.d_choice;
         d_customizedType = rhs.d_customizedType;
@@ -4183,6 +3446,7 @@ EncoderTestSequenceWithAllCategories::operator=(EncoderTestSequenceWithAllCatego
 {
     if (this != &rhs) {
         d_charArray = bsl::move(rhs.d_charArray);
+        d_aString = bsl::move(rhs.d_aString);
         d_array = bsl::move(rhs.d_array);
         d_choice = bsl::move(rhs.d_choice);
         d_customizedType = bsl::move(rhs.d_customizedType);
@@ -4199,6 +3463,7 @@ EncoderTestSequenceWithAllCategories::operator=(EncoderTestSequenceWithAllCatego
 void EncoderTestSequenceWithAllCategories::reset()
 {
     bdlat_ValueTypeFunctions::reset(&d_charArray);
+    d_aString = DEFAULT_INITIALIZER_A_STRING;
     bdlat_ValueTypeFunctions::reset(&d_array);
     bdlat_ValueTypeFunctions::reset(&d_choice);
     bdlat_ValueTypeFunctions::reset(&d_customizedType);
@@ -4211,28 +3476,29 @@ void EncoderTestSequenceWithAllCategories::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithAllCategories::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     {
-        bool multilineFlag = (0 <= level);
+        bool multilineFlag = (0 <= spacesPerLevel);
         bdlb::Print::indent(stream, level + 1, spacesPerLevel);
         stream << (multilineFlag ? "" : " ");
         stream << "charArray = [ ";
         bdlb::Print::singleLineHexDump(
-            stream, d_charArray.begin(), d_charArray.end());
+            stream, this->charArray().begin(), this->charArray().end());
         stream << " ]" << (multilineFlag ? "\n" : "");
     }
-    printer.printAttribute("array", d_array);
-    printer.printAttribute("choice", d_choice);
-    printer.printAttribute("customizedType", d_customizedType);
-    printer.printAttribute("enumeration", d_enumeration);
-    printer.printAttribute("nullableValue", d_nullableValue);
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("simple", d_simple);
+    printer.printAttribute("aString", this->aString());
+    printer.printAttribute("array", this->array());
+    printer.printAttribute("choice", this->choice());
+    printer.printAttribute("customizedType", this->customizedType());
+    printer.printAttribute("enumeration", this->enumeration());
+    printer.printAttribute("nullableValue", this->nullableValue());
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("simple", this->simple());
     printer.end();
     return stream;
 }
@@ -4295,39 +3561,7 @@ EncoderTestSequenceWithUntagged1::EncoderTestSequenceWithUntagged1()
 {
 }
 
-EncoderTestSequenceWithUntagged1::EncoderTestSequenceWithUntagged1(const EncoderTestSequenceWithUntagged1& original)
-: d_sequence(original.d_sequence)
-{
-}
-
-EncoderTestSequenceWithUntagged1::~EncoderTestSequenceWithUntagged1()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged1&
-EncoderTestSequenceWithUntagged1::operator=(const EncoderTestSequenceWithUntagged1& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged1&
-EncoderTestSequenceWithUntagged1::operator=(EncoderTestSequenceWithUntagged1&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged1::reset()
 {
@@ -4337,13 +3571,13 @@ void EncoderTestSequenceWithUntagged1::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged1::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
+    printer.printAttribute("sequence", this->sequence());
     printer.end();
     return stream;
 }
@@ -4426,45 +3660,7 @@ EncoderTestSequenceWithUntagged10::EncoderTestSequenceWithUntagged10()
 {
 }
 
-EncoderTestSequenceWithUntagged10::EncoderTestSequenceWithUntagged10(const EncoderTestSequenceWithUntagged10& original)
-: d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-, d_attribute1(original.d_attribute1)
-{
-}
-
-EncoderTestSequenceWithUntagged10::~EncoderTestSequenceWithUntagged10()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged10&
-EncoderTestSequenceWithUntagged10::operator=(const EncoderTestSequenceWithUntagged10& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_attribute0 = rhs.d_attribute0;
-        d_attribute1 = rhs.d_attribute1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged10&
-EncoderTestSequenceWithUntagged10::operator=(EncoderTestSequenceWithUntagged10&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged10::reset()
 {
@@ -4476,15 +3672,15 @@ void EncoderTestSequenceWithUntagged10::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged10::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("attribute1", d_attribute1);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("attribute1", this->attribute1());
     printer.end();
     return stream;
 }
@@ -4568,45 +3764,7 @@ EncoderTestSequenceWithUntagged11::EncoderTestSequenceWithUntagged11()
 {
 }
 
-EncoderTestSequenceWithUntagged11::EncoderTestSequenceWithUntagged11(const EncoderTestSequenceWithUntagged11& original)
-: d_sequence1(original.d_sequence1)
-, d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged11::~EncoderTestSequenceWithUntagged11()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged11&
-EncoderTestSequenceWithUntagged11::operator=(const EncoderTestSequenceWithUntagged11& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_sequence = rhs.d_sequence;
-        d_sequence1 = rhs.d_sequence1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged11&
-EncoderTestSequenceWithUntagged11::operator=(EncoderTestSequenceWithUntagged11&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_sequence1 = bsl::move(rhs.d_sequence1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged11::reset()
 {
@@ -4618,15 +3776,15 @@ void EncoderTestSequenceWithUntagged11::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged11::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("sequence1", d_sequence1);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("sequence1", this->sequence1());
     printer.end();
     return stream;
 }
@@ -4709,45 +3867,7 @@ EncoderTestSequenceWithUntagged12::EncoderTestSequenceWithUntagged12()
 {
 }
 
-EncoderTestSequenceWithUntagged12::EncoderTestSequenceWithUntagged12(const EncoderTestSequenceWithUntagged12& original)
-: d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-, d_attribute1(original.d_attribute1)
-{
-}
-
-EncoderTestSequenceWithUntagged12::~EncoderTestSequenceWithUntagged12()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged12&
-EncoderTestSequenceWithUntagged12::operator=(const EncoderTestSequenceWithUntagged12& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_sequence = rhs.d_sequence;
-        d_attribute1 = rhs.d_attribute1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged12&
-EncoderTestSequenceWithUntagged12::operator=(EncoderTestSequenceWithUntagged12&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged12::reset()
 {
@@ -4759,15 +3879,15 @@ void EncoderTestSequenceWithUntagged12::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged12::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("attribute1", d_attribute1);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("attribute1", this->attribute1());
     printer.end();
     return stream;
 }
@@ -4850,45 +3970,7 @@ EncoderTestSequenceWithUntagged13::EncoderTestSequenceWithUntagged13()
 {
 }
 
-EncoderTestSequenceWithUntagged13::EncoderTestSequenceWithUntagged13(const EncoderTestSequenceWithUntagged13& original)
-: d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-, d_attribute1(original.d_attribute1)
-{
-}
-
-EncoderTestSequenceWithUntagged13::~EncoderTestSequenceWithUntagged13()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged13&
-EncoderTestSequenceWithUntagged13::operator=(const EncoderTestSequenceWithUntagged13& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_attribute1 = rhs.d_attribute1;
-        d_sequence = rhs.d_sequence;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged13&
-EncoderTestSequenceWithUntagged13::operator=(EncoderTestSequenceWithUntagged13&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-        d_sequence = bsl::move(rhs.d_sequence);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged13::reset()
 {
@@ -4900,15 +3982,15 @@ void EncoderTestSequenceWithUntagged13::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged13::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("attribute1", d_attribute1);
-    printer.printAttribute("sequence", d_sequence);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("attribute1", this->attribute1());
+    printer.printAttribute("sequence", this->sequence());
     printer.end();
     return stream;
 }
@@ -4982,42 +4064,7 @@ EncoderTestSequenceWithUntagged3::EncoderTestSequenceWithUntagged3()
 {
 }
 
-EncoderTestSequenceWithUntagged3::EncoderTestSequenceWithUntagged3(const EncoderTestSequenceWithUntagged3& original)
-: d_sequence1(original.d_sequence1)
-, d_sequence(original.d_sequence)
-{
-}
-
-EncoderTestSequenceWithUntagged3::~EncoderTestSequenceWithUntagged3()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged3&
-EncoderTestSequenceWithUntagged3::operator=(const EncoderTestSequenceWithUntagged3& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_sequence1 = rhs.d_sequence1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged3&
-EncoderTestSequenceWithUntagged3::operator=(EncoderTestSequenceWithUntagged3&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_sequence1 = bsl::move(rhs.d_sequence1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged3::reset()
 {
@@ -5028,14 +4075,14 @@ void EncoderTestSequenceWithUntagged3::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged3::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("sequence1", d_sequence1);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("sequence1", this->sequence1());
     printer.end();
     return stream;
 }
@@ -5108,42 +4155,7 @@ EncoderTestSequenceWithUntagged4::EncoderTestSequenceWithUntagged4()
 {
 }
 
-EncoderTestSequenceWithUntagged4::EncoderTestSequenceWithUntagged4(const EncoderTestSequenceWithUntagged4& original)
-: d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged4::~EncoderTestSequenceWithUntagged4()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged4&
-EncoderTestSequenceWithUntagged4::operator=(const EncoderTestSequenceWithUntagged4& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_attribute0 = rhs.d_attribute0;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged4&
-EncoderTestSequenceWithUntagged4::operator=(EncoderTestSequenceWithUntagged4&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged4::reset()
 {
@@ -5154,14 +4166,14 @@ void EncoderTestSequenceWithUntagged4::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged4::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("attribute0", d_attribute0);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("attribute0", this->attribute0());
     printer.end();
     return stream;
 }
@@ -5234,42 +4246,7 @@ EncoderTestSequenceWithUntagged5::EncoderTestSequenceWithUntagged5()
 {
 }
 
-EncoderTestSequenceWithUntagged5::EncoderTestSequenceWithUntagged5(const EncoderTestSequenceWithUntagged5& original)
-: d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged5::~EncoderTestSequenceWithUntagged5()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged5&
-EncoderTestSequenceWithUntagged5::operator=(const EncoderTestSequenceWithUntagged5& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = rhs.d_attribute0;
-        d_sequence = rhs.d_sequence;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged5&
-EncoderTestSequenceWithUntagged5::operator=(EncoderTestSequenceWithUntagged5&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_sequence = bsl::move(rhs.d_sequence);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged5::reset()
 {
@@ -5280,14 +4257,14 @@ void EncoderTestSequenceWithUntagged5::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged5::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("sequence", d_sequence);
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("sequence", this->sequence());
     printer.end();
     return stream;
 }
@@ -5372,45 +4349,7 @@ EncoderTestSequenceWithUntagged7::EncoderTestSequenceWithUntagged7()
 {
 }
 
-EncoderTestSequenceWithUntagged7::EncoderTestSequenceWithUntagged7(const EncoderTestSequenceWithUntagged7& original)
-: d_sequence2(original.d_sequence2)
-, d_sequence1(original.d_sequence1)
-, d_sequence(original.d_sequence)
-{
-}
-
-EncoderTestSequenceWithUntagged7::~EncoderTestSequenceWithUntagged7()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged7&
-EncoderTestSequenceWithUntagged7::operator=(const EncoderTestSequenceWithUntagged7& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_sequence1 = rhs.d_sequence1;
-        d_sequence2 = rhs.d_sequence2;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged7&
-EncoderTestSequenceWithUntagged7::operator=(EncoderTestSequenceWithUntagged7&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_sequence1 = bsl::move(rhs.d_sequence1);
-        d_sequence2 = bsl::move(rhs.d_sequence2);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged7::reset()
 {
@@ -5422,15 +4361,15 @@ void EncoderTestSequenceWithUntagged7::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged7::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("sequence1", d_sequence1);
-    printer.printAttribute("sequence2", d_sequence2);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("sequence1", this->sequence1());
+    printer.printAttribute("sequence2", this->sequence2());
     printer.end();
     return stream;
 }
@@ -5514,45 +4453,7 @@ EncoderTestSequenceWithUntagged8::EncoderTestSequenceWithUntagged8()
 {
 }
 
-EncoderTestSequenceWithUntagged8::EncoderTestSequenceWithUntagged8(const EncoderTestSequenceWithUntagged8& original)
-: d_sequence1(original.d_sequence1)
-, d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged8::~EncoderTestSequenceWithUntagged8()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged8&
-EncoderTestSequenceWithUntagged8::operator=(const EncoderTestSequenceWithUntagged8& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_sequence1 = rhs.d_sequence1;
-        d_attribute0 = rhs.d_attribute0;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged8&
-EncoderTestSequenceWithUntagged8::operator=(EncoderTestSequenceWithUntagged8&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_sequence1 = bsl::move(rhs.d_sequence1);
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged8::reset()
 {
@@ -5564,15 +4465,15 @@ void EncoderTestSequenceWithUntagged8::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged8::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("sequence1", d_sequence1);
-    printer.printAttribute("attribute0", d_attribute0);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("sequence1", this->sequence1());
+    printer.printAttribute("attribute0", this->attribute0());
     printer.end();
     return stream;
 }
@@ -5656,45 +4557,7 @@ EncoderTestSequenceWithUntagged9::EncoderTestSequenceWithUntagged9()
 {
 }
 
-EncoderTestSequenceWithUntagged9::EncoderTestSequenceWithUntagged9(const EncoderTestSequenceWithUntagged9& original)
-: d_sequence1(original.d_sequence1)
-, d_sequence(original.d_sequence)
-, d_attribute0(original.d_attribute0)
-{
-}
-
-EncoderTestSequenceWithUntagged9::~EncoderTestSequenceWithUntagged9()
-{
-}
-
 // MANIPULATORS
-
-EncoderTestSequenceWithUntagged9&
-EncoderTestSequenceWithUntagged9::operator=(const EncoderTestSequenceWithUntagged9& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = rhs.d_sequence;
-        d_attribute0 = rhs.d_attribute0;
-        d_sequence1 = rhs.d_sequence1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-EncoderTestSequenceWithUntagged9&
-EncoderTestSequenceWithUntagged9::operator=(EncoderTestSequenceWithUntagged9&& rhs)
-{
-    if (this != &rhs) {
-        d_sequence = bsl::move(rhs.d_sequence);
-        d_attribute0 = bsl::move(rhs.d_attribute0);
-        d_sequence1 = bsl::move(rhs.d_sequence1);
-    }
-
-    return *this;
-}
-#endif
 
 void EncoderTestSequenceWithUntagged9::reset()
 {
@@ -5706,15 +4569,15 @@ void EncoderTestSequenceWithUntagged9::reset()
 // ACCESSORS
 
 bsl::ostream& EncoderTestSequenceWithUntagged9::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.printAttribute("sequence", d_sequence);
-    printer.printAttribute("attribute0", d_attribute0);
-    printer.printAttribute("sequence1", d_sequence1);
+    printer.printAttribute("sequence", this->sequence());
+    printer.printAttribute("attribute0", this->attribute0());
+    printer.printAttribute("sequence1", this->sequence1());
     printer.end();
     return stream;
 }
@@ -5723,11 +4586,11 @@ bsl::ostream& EncoderTestSequenceWithUntagged9::print(
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_VERSION
+// GENERATED BY BLP_BAS_CODEGEN_2025.02.27.1
 // USING bas_codegen.pl --mode msg --noAggregateConversion --noExternalization --msgComponent=encoder_testtypes --package=baljsn baljsn_encoder_testtypes.xsd
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2020 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

@@ -21,11 +21,14 @@ BSLS_IDENT("$Id: $")
 // ```
 // Name                Type          Default         Simple Constraints
 // ------------------  -----------   -------         ------------------
+// escapeForwardSlash  bool          true            none
 // initialIndentLevel  int           0               >= 0
 // sortMembers         bool          false           none
 // spacesPerLevel      int           4               >= 0
 // style               WriteStyle    e_COMPACT       none
 // ```
+// * `escapeForwardSlash`: determines whether any `/` characters are output
+//   escaped (as `\/`) or not (as `/`) in names or strings.
 // * `initialIndentLevel`: initial indent level for the top-most element.  If
 //   `style` is `e_COMPACT`, or `spacesPerLevel` is 0, this option is ignored.
 // * `sortMembers`: indicates whether the members of a object will be sorted
@@ -51,6 +54,7 @@ BSLS_IDENT("$Id: $")
 // const int  SPACES_PER_LEVEL         = 4;
 //
 // bdljsn::WriteOptions options;
+// assert(true  == options.escapeForwardSlash());
 // assert(0     == options.initialIndentLevel());
 // assert(4     == options.spacesPerLevel());
 // assert(false == options.sortMembers());
@@ -96,6 +100,9 @@ class WriteOptions {
     // whether to sort members of an object by member name
     bool                     d_sortMembers;
 
+    // whether `/` characters should be escaped in output
+    bool                     d_escapeForwardSlash;
+
     // spaces per additional level of indentation
     int                      d_spacesPerLevel;
 
@@ -108,6 +115,8 @@ class WriteOptions {
 
     static const bool        s_DEFAULT_INITIALIZER_SORT_MEMBERS;
 
+    static const bool        s_DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
+
     static const int         s_DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
 
     static const bdljsn::WriteStyle::Enum
@@ -119,6 +128,7 @@ class WriteOptions {
     /// Create an object of type `WriteOptions` having the (default)
     /// attribute values:
     /// ```
+    /// escapeForwardSlash()  == false
     /// initialIndentLevel()  == 0
     /// sortMembers()         == false
     /// spacesPerLevel()      == 4
@@ -143,6 +153,10 @@ class WriteOptions {
     /// construction) and return a non-`const` reference to this object.
     WriteOptions& reset();
 
+    /// Set the `escapeForwardSlash` attribute of this object to the specified
+    /// `value` and return a non-`const` reference to this object.
+    WriteOptions& setEscapeForwardSlash(bool value);
+
     /// Set the `initialIndentLevel` attribute of this object to the specified
     /// `value` and return a non-`const` reference to this object.  The
     /// behavior is undefined unless `0 <= value`.
@@ -162,6 +176,9 @@ class WriteOptions {
     WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
 
     // ACCESSORS
+
+    /// Return the `escapeForwardSlash` attribute of this object.
+    bool escapeForwardSlash() const;
 
     /// Return the `initialIndentLevel` attribute of this object.
     int initialIndentLevel() const;
@@ -226,6 +243,7 @@ inline
 WriteOptions::WriteOptions(const WriteOptions& original)
 : d_initialIndentLevel(original.d_initialIndentLevel)
 , d_sortMembers       (original.d_sortMembers)
+, d_escapeForwardSlash(original.d_escapeForwardSlash)
 , d_spacesPerLevel    (original.d_spacesPerLevel)
 , d_style             (original.d_style)
 {
@@ -244,9 +262,17 @@ WriteOptions& WriteOptions::operator=(const WriteOptions& rhs)
 {
     d_initialIndentLevel = rhs.d_initialIndentLevel;
     d_sortMembers        = rhs.d_sortMembers;
+    d_escapeForwardSlash = rhs.d_escapeForwardSlash;
     d_spacesPerLevel     = rhs.d_spacesPerLevel;
     d_style              = rhs.d_style;
 
+    return *this;
+}
+
+inline
+WriteOptions& WriteOptions::setEscapeForwardSlash(bool value)
+{
+    d_escapeForwardSlash = value;
     return *this;
 }
 
@@ -284,6 +310,12 @@ WriteOptions& WriteOptions::setStyle(bdljsn::WriteStyle::Enum value)
 
 // ACCESSORS
 inline
+bool WriteOptions::escapeForwardSlash() const
+{
+    return d_escapeForwardSlash;
+}
+
+inline
 int WriteOptions::initialIndentLevel() const
 {
     return d_initialIndentLevel;
@@ -316,6 +348,7 @@ bool bdljsn::operator==(const bdljsn::WriteOptions& lhs,
 {
     return  lhs.initialIndentLevel() == rhs.initialIndentLevel()
          && lhs.sortMembers()        == rhs.sortMembers()
+         && lhs.escapeForwardSlash() == rhs.escapeForwardSlash()
          && lhs.spacesPerLevel()     == rhs.spacesPerLevel()
          && lhs.style()              == rhs.style();
 }
@@ -326,6 +359,7 @@ bool bdljsn::operator!=(const bdljsn::WriteOptions& lhs,
 {
     return  lhs.initialIndentLevel() != rhs.initialIndentLevel()
          || lhs.sortMembers()        != rhs.sortMembers()
+         || lhs.escapeForwardSlash() != rhs.escapeForwardSlash()
          || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
          || lhs.style()              != rhs.style();
 }

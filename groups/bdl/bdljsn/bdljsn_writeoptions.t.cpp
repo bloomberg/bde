@@ -33,12 +33,14 @@ using namespace bsl;
 // conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
+//  - `setEscapeForwardSlash`
 //  - `setInitialIndentLevel`
 //  - `setSortMembers`
 //  - `setSpacesPerLevel`
 //  - `setStyle`
 //
 // Basic Accessors:
+//  - `escapeForwardSlash`
 //  - `initialIndentLevel`
 //  - `sortMembers`
 //  - `spacesPerLevel`
@@ -67,12 +69,14 @@ using namespace bsl;
 // MANIPULATORS
 // [ 9] operator=(const bdljsn::WriteOptions& rhs);
 // [ 3] WriteOptions& reset();
+// [ 3] WriteOptions& setEscapeForwardSlash(bool value);
 // [ 3] WriteOptions& setInitialIndentLevel(int value);
 // [ 3] WriteOptions& setSortMembers(bool value);
 // [ 3] WriteOptions& setSpacesPerLevel(int value);
 // [ 3] WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
 //
 // ACCESSORS
+// [ 4] bool escapeForwardSlash() const;
 // [ 4] int initialIndentLevel() const;
 // [ 4] bool sortMembers() const;
 // [ 4] int spacesPerLevel() const;
@@ -171,6 +175,7 @@ struct DefaultDataRow {
     int          d_line;                // source line number
     int          d_initialIndentLevel;
     bool         d_sortMembers;
+    bool         d_escapeForwardSlash;
     int          d_spacesPerLevel;
     Style        d_writeStyle;
 };
@@ -183,26 +188,45 @@ static
 const DefaultDataRow DEFAULT_DATA[] =
 {
 
-//LINE  INDENT     SORT       SPL     STYLE
-//----  ------    ------      ---     -----
+//LINE  INDENT     SORT    ESC/       SPL     STYLE
+//----  ------    ------   -----      ---     -----
 
 // default (must be first)
-{ L_,        0,    false,       4,    COMPACT    },
+{ L_,        0,    false,   true,       4,    COMPACT    },
+
+// ESC/ == true
 
 //    `initialIndentLevel`
-{ L_,        1,    false,       4,    COMPACT    },
-{ L_,  INT_MAX,    false,       4,    COMPACT    },
+{ L_,        1,    false,   true,       4,    COMPACT    },
+{ L_,  INT_MAX,    false,   true,       4,    COMPACT    },
 
 //    `sortMembers`
-{ L_,        0,     true,       4,    COMPACT    },
+{ L_,        0,     true,   true,       4,    COMPACT    },
 
 //    `spacesPerLevel`
-{ L_,        0,    false,       1,    COMPACT    },
-{ L_,        0,    false, INT_MAX,    COMPACT    },
+{ L_,        0,    false,   true,       1,    COMPACT    },
+{ L_,        0,    false,   true, INT_MAX,    COMPACT    },
 
 //    `encodingStyle`
-{ L_,        0,    false,       4,    PRETTY     },
-{ L_,        0,    false,       4,    ONELINE    },
+{ L_,        0,    false,   true,       4,    PRETTY     },
+{ L_,        0,    false,   true,       4,    ONELINE    },
+
+// ESC/ == false
+
+//    `initialIndentLevel`
+{ L_,        1,    false,  false,       4,    COMPACT    },
+{ L_,  INT_MAX,    false,  false,       4,    COMPACT    },
+
+//    `sortMembers`
+{ L_,        0,     true,  false,       4,    COMPACT    },
+
+//    `spacesPerLevel`
+{ L_,        0,    false,  false,       1,    COMPACT    },
+{ L_,        0,    false,  false, INT_MAX,    COMPACT    },
+
+//    `encodingStyle`
+{ L_,        0,    false,  false,       4,    PRETTY     },
+{ L_,        0,    false,  false,       4,    ONELINE    },
 
 };
 
@@ -272,6 +296,7 @@ int main(int argc, char *argv[])
     const int  SPACES_PER_LEVEL         = 4;
 
     bdljsn::WriteOptions options;
+    ASSERT(true  == options.escapeForwardSlash());
     ASSERT(0     == options.initialIndentLevel());
     ASSERT(4     == options.spacesPerLevel());
     ASSERT(false == options.sortMembers());
@@ -397,18 +422,21 @@ int main(int argc, char *argv[])
             const int   LINE1    = DATA[ti].d_line;
             const int   INDENT1  = DATA[ti].d_initialIndentLevel;
             const bool  SORT1    = DATA[ti].d_sortMembers;
+            const bool  ESC1     = DATA[ti].d_escapeForwardSlash;
             const int   SPL1     = DATA[ti].d_spacesPerLevel;
             const Style STYLE1   = DATA[ti].d_writeStyle;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT1);
             mZ.setSortMembers(SORT1);
+            mZ.setEscapeForwardSlash(ESC1);
             mZ.setSpacesPerLevel(SPL1);
             mZ.setStyle(STYLE1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT1);
             mZZ.setSortMembers(SORT1);
+            mZZ.setEscapeForwardSlash(ESC1);
             mZZ.setSpacesPerLevel(SPL1);
             mZZ.setStyle(STYLE1);
 
@@ -427,12 +455,14 @@ int main(int argc, char *argv[])
                 const int   LINE2   = DATA[tj].d_line;
                 const int   INDENT2 = DATA[tj].d_initialIndentLevel;
                 const bool  SORT2   = DATA[tj].d_sortMembers;
+                const bool  ESC2    = DATA[tj].d_escapeForwardSlash;
                 const int   SPL2    = DATA[tj].d_spacesPerLevel;
                 const Style STYLE2  = DATA[tj].d_writeStyle;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setInitialIndentLevel(INDENT2);
                 mX.setSortMembers(SORT2);
+                mX.setEscapeForwardSlash(ESC2);
                 mX.setSpacesPerLevel(SPL2);
                 mX.setStyle(STYLE2);
 
@@ -453,12 +483,14 @@ int main(int argc, char *argv[])
                 Obj mX;
                 mX.setInitialIndentLevel(INDENT1);
                 mX.setSortMembers(SORT1);
+                mX.setEscapeForwardSlash(ESC1);
                 mX.setSpacesPerLevel(SPL1);
                 mX.setStyle(STYLE1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setInitialIndentLevel(INDENT1);
                 mZZ.setSortMembers(SORT1);
+                mZZ.setEscapeForwardSlash(ESC1);
                 mZZ.setSpacesPerLevel(SPL1);
                 mZZ.setStyle(STYLE1);
 
@@ -549,18 +581,21 @@ int main(int argc, char *argv[])
             const int   LINE    = DATA[ti].d_line;
             const int   INDENT  = DATA[ti].d_initialIndentLevel;
             const bool  SORT    = DATA[ti].d_sortMembers;
+            const bool  ESC     = DATA[ti].d_escapeForwardSlash;
             const int   SPL     = DATA[ti].d_spacesPerLevel;
             const Style STYLE   = DATA[ti].d_writeStyle;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT);
             mZ.setSortMembers(SORT);
+            mZ.setEscapeForwardSlash(ESC);
             mZ.setSpacesPerLevel(SPL);
             mZ.setStyle(STYLE);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT);
             mZZ.setSortMembers(SORT);
+            mZZ.setEscapeForwardSlash(ESC);
             mZZ.setSpacesPerLevel(SPL);
             mZZ.setStyle(STYLE);
 
@@ -688,8 +723,9 @@ int main(int argc, char *argv[])
 
         typedef int   T1;        // `initialIndentLevel`
         typedef bool  T2;        // `sortMembers`
-        typedef int   T3;        // `spacesPerLevel`
-        typedef Style T4;        // `writeStyle`
+        typedef bool  T3;        // `escapeForwardSlash`
+        typedef int   T4;        // `spacesPerLevel`
+        typedef Style T5;        // `writeStyle`
 
                  // ----------------------------------------
                  // Attribute 1 Values: `initialIndentLevel`
@@ -705,19 +741,26 @@ int main(int argc, char *argv[])
         const T2 A2 = false;            // baseline
         const T2 B2 = true;
 
+                 // ----------------------------------------
+                 // Attribute 3 Values: `escapeForwardSlash`
+                 // ----------------------------------------
+
+        const T3 A3 = false;            // baseline
+        const T3 B3 = true;
+
                  // ------------------------------------
-                 // Attribute 3 Values: `spacesPerLevel`
+                 // Attribute 4 Values: `spacesPerLevel`
                  // ------------------------------------
 
-        const T3 A3 = INT_MAX;         // baseline
-        const T3 B3 = 10;
+        const T4 A4 = INT_MAX;         // baseline
+        const T4 B4 = 10;
 
                  // -----------------------------------
-                 // Attribute 4 Values: `writeStyle`
+                 // Attribute 5 Values: `writeStyle`
                  // -----------------------------------
 
-        const T4 B4 = bdljsn::WriteStyle::e_PRETTY;         // baseline
-        const T4 A4 = bdljsn::WriteStyle::e_COMPACT;
+        const T5 B5 = bdljsn::WriteStyle::e_PRETTY;         // baseline
+        const T5 A5 = bdljsn::WriteStyle::e_COMPACT;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -726,6 +769,7 @@ int main(int argc, char *argv[])
             int   d_line;        // source line number
             int   d_initialIndentLevel;
             bool  d_sortMembers;
+            bool  d_escapeForwardSlash;
             int   d_spacesPerLevel;
             Style d_writeStyle;
         } DATA[] = {
@@ -735,14 +779,15 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-        //L_ INDENT  SORT SPL STYLE
-        //-- ------  ---- --- -----
+        //L_ INDENT  SORT ESC SPL STYLE
+        //-- ------  ---- --- --- -----
 
-        { L_,   A1,    A2, A3,   A4 }, // baseline
-        { L_,   B1,    A2, A3,   A4 },
-        { L_,   A1,    B2, A3,   B4 },
-        { L_,   A1,    A2, B3,   A4 },
-        { L_,   A1,    A2, A3,   B4 },
+        { L_,   A1,    A2, A3, A4,   A5 }, // baseline
+        { L_,   B1,    A2, A3, A4,   A5 },
+        { L_,   A1,    B2, A3, A4,   A5 },
+        { L_,   A1,    A2, B3, A4,   A5 },
+        { L_,   A1,    A2, A3, B4,   A5 },
+        { L_,   A1,    A2, A3, A4,   B5 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -753,6 +798,7 @@ int main(int argc, char *argv[])
             const int   LINE1    = DATA[ti].d_line;
             const int   INDENT1  = DATA[ti].d_initialIndentLevel;
             const bool  SORT1    = DATA[ti].d_sortMembers;
+            const bool  ESC1     = DATA[ti].d_escapeForwardSlash;
             const int   SPL1     = DATA[ti].d_spacesPerLevel;
             const Style STYLE1   = DATA[ti].d_writeStyle;
 
@@ -766,6 +812,7 @@ int main(int argc, char *argv[])
 
                 mX.setInitialIndentLevel(INDENT1);
                 mX.setSortMembers(SORT1);
+                mX.setEscapeForwardSlash(ESC1);
                 mX.setSpacesPerLevel(SPL1);
                 mX.setStyle(STYLE1);
 
@@ -777,6 +824,7 @@ int main(int argc, char *argv[])
                 const int   LINE2   = DATA[tj].d_line;
                 const int   INDENT2 = DATA[tj].d_initialIndentLevel;
                 const bool  SORT2   = DATA[tj].d_sortMembers;
+                const bool  ESC2    = DATA[tj].d_escapeForwardSlash;
                 const int   SPL2    = DATA[tj].d_spacesPerLevel;
                 const Style STYLE2  = DATA[tj].d_writeStyle;
 
@@ -791,11 +839,13 @@ int main(int argc, char *argv[])
 
                 mX.setInitialIndentLevel(INDENT1);
                 mX.setSortMembers(SORT1);
+                mX.setEscapeForwardSlash(ESC1);
                 mX.setSpacesPerLevel(SPL1);
                 mX.setStyle(STYLE1);
 
                 mY.setInitialIndentLevel(INDENT2);
                 mY.setSortMembers(SORT2);
+                mY.setEscapeForwardSlash(ESC2);
                 mY.setSpacesPerLevel(SPL2);
                 mY.setStyle(STYLE2);
 
@@ -905,6 +955,7 @@ int main(int argc, char *argv[])
             int         d_spl;
 
             bool        d_sortMembers;
+            bool        d_escapeForwardSlash;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
             Style       d_writeStyle;
@@ -915,32 +966,38 @@ int main(int argc, char *argv[])
 #define NL "\n"
 #define SP " "
 
+#define T true
+#define F false
+
     // ------------------------------------------------------------------
     // P-2.1.1: { A }   x { 0 }     x { 0, 1, -1 } --> 3 expected outputs
     // ----------------------------------------------------------------
 
-    //LINE  L  SPL   SORT    IND  SPL  S  EXP
-    //----  -  ---   ----    ---  ---  -  ---
+    //LINE  L  SPL   SRT ESC IND  SPL  S  EXP
+    //----  -  ---   --- --- ---  ---  -  ---
 
-    { L_,   0,   0,  false,   89,  10, C, "["                                NL
+    { L_,   0,   0,   F,  T, 89,  10, C,  "["                                NL
                                           "initialIndentLevel = 89"          NL
                                           "sortMembers = false"              NL
+                                          "escapeForwardSlash = true"        NL
                                           "spacesPerLevel = 10"              NL
                                           "style = COMPACT"                  NL
                                           "]"                                NL
                                                                              },
 
-    { L_,   0,   1,  false,   89,  10, P, "["                                NL
+    { L_,   0,   1,   F,  T, 89,  10, P,  "["                                NL
                                           " initialIndentLevel = 89"         NL
                                           " sortMembers = false"             NL
+                                          " escapeForwardSlash = true"       NL
                                           " spacesPerLevel = 10"             NL
                                           " style = PRETTY"                  NL
                                           "]"                                NL
                                                                              },
 
-    { L_,   0,  -1,  false,   89,  10, C, "["                                SP
+    { L_,   0,  -1,   F,  T, 89,  10, C,  "["                                SP
                                           "initialIndentLevel = 89"          SP
                                           "sortMembers = false"              SP
+                                          "escapeForwardSlash = true"        SP
                                           "spacesPerLevel = 10"              SP
                                           "style = COMPACT"                  SP
                                           "]"
@@ -950,52 +1007,60 @@ int main(int argc, char *argv[])
     // P-2.1.2: { A }   x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
     // ------------------------------------------------------------------
 
-    //LINE  L  SPL   SORT    IND  SPL  S  EXP
-    //----  -  ---   ----    ---  ---  -  ---
+    //LINE  L  SPL   SRT ESC IND  SPL  S  EXP
+    //----  -  ---   --- --- ---  ---  -  ---
 
-    { L_,   3,   0,  false,   89,  10, C, "["                                NL
+    { L_,   3,   0,   F,  T, 89,  10, C,  "["                                NL
                                           "initialIndentLevel = 89"          NL
                                           "sortMembers = false"              NL
+                                          "escapeForwardSlash = true"        NL
                                           "spacesPerLevel = 10"              NL
                                           "style = COMPACT"                  NL
                                           "]"                                NL
                                                                              },
 
-    { L_,   3,   2,  false,   89,  10, P, "      ["                          NL
+    { L_,   3,   2,   F,  F, 89,  10, P,  "      ["                          NL
                                           "        initialIndentLevel = 89"  NL
                                           "        sortMembers = false"      NL
+                                          "        escapeForwardSlash = false"
+                                                                             NL
                                           "        spacesPerLevel = 10"      NL
                                           "        style = PRETTY"           NL
                                           "      ]"                          NL
                                                                              },
 
-    { L_,   3,  -2,  false,   89,  10, C, "      ["                          SP
+    { L_,   3,  -2,   F,  T, 89,  10, C,  "      ["                          SP
                                           "initialIndentLevel = 89"          SP
                                           "sortMembers = false"              SP
+                                          "escapeForwardSlash = true"        SP
                                           "spacesPerLevel = 10"              SP
                                           "style = COMPACT"                  SP
                                           "]"
                                                                              },
 
-    { L_,  -3,   0,   true,   89,  10, P, "["                                NL
+    { L_,  -3,   0,   T,  T, 89,  10, P,  "["                                NL
                                           "initialIndentLevel = 89"          NL
                                           "sortMembers = true"               NL
+                                          "escapeForwardSlash = true"        NL
                                           "spacesPerLevel = 10"              NL
                                           "style = PRETTY"                   NL
                                           "]"                                NL
                                                                              },
 
-    { L_,  -3,   2,   true,   89,  10, P, "["                                NL
+    { L_,  -3,   2,   F,  T, 89,  10, P,  "["                                NL
                                           "        initialIndentLevel = 89"  NL
-                                          "        sortMembers = true"       NL
+                                          "        sortMembers = false"      NL
+                                          "        escapeForwardSlash = true"
+                                                                             NL
                                           "        spacesPerLevel = 10"      NL
                                           "        style = PRETTY"           NL
                                           "      ]"                          NL
                                                                              },
 
-    { L_,  -3,  -2,  false,   89,  10, C, "["                                SP
+    { L_,  -3,  -2,   F,  T, 89,  10, C,  "["                                SP
                                           "initialIndentLevel = 89"          SP
                                           "sortMembers = false"              SP
+                                          "escapeForwardSlash = true"        SP
                                           "spacesPerLevel = 10"              SP
                                           "style = COMPACT"                  SP
                                           "]"
@@ -1005,12 +1070,14 @@ int main(int argc, char *argv[])
     // P-2.1.3: { B }   x { 2 }     x { 3 }        --> 1 expected output
     // -----------------------------------------------------------------
 
-    //LINE  L  SPL   SORT    IND  SPL  S  EXP
-    //----  -  ---   ----    ---  ---  -  ---
+    //LINE  L  SPL   SRT ESC IND  SPL  S  EXP
+    //----  -  ---   --- --- ---  ---  -  ---
 
-    { L_,   2,   3,  false,   89,  10, P, "      ["                          NL
+    { L_,   2,   3,   F,  F, 89,  10, P,  "      ["                          NL
                                           "         initialIndentLevel = 89" NL
                                           "         sortMembers = false"     NL
+                                          "         escapeForwardSlash = false"
+                                                                             NL
                                           "         spacesPerLevel = 10"     NL
                                           "         style = PRETTY"          NL
                                           "      ]"                          NL
@@ -1020,20 +1087,22 @@ int main(int argc, char *argv[])
     // P-2.1.4: { A B } x { -9 }    x { -9 }       --> 2 expected outputs
     // ------------------------------------------------------------------
 
-    //LINE  L  SPL   SORT    IND  SPL  S  EXP
-    //----  -  ---   ----    ---  ---  -  ---
+    //LINE  L  SPL   SRT ESC IND  SPL  S  EXP
+    //----  -  ---   --- --- ---  ---  -  ---
 
-    { L_,  -9,  -9,  false,   89,  10, C, "["                                SP
+    { L_,  -9,  -9,   F,  T, 89,  10, C,  "["                                SP
                                           "initialIndentLevel = 89"          SP
                                           "sortMembers = false"              SP
+                                          "escapeForwardSlash = true"        SP
                                           "spacesPerLevel = 10"              SP
                                           "style = COMPACT"                  SP
                                           "]"
                                                                              },
 
-    { L_,  -9,  -9,   true,    7,   5, P, "["                                SP
+    { L_,  -9,  -9,   F,  T, 7,   5, P,  "["                                 SP
                                           "initialIndentLevel = 7"           SP
-                                          "sortMembers = true"               SP
+                                          "sortMembers = false"              SP
+                                          "escapeForwardSlash = true"        SP
                                           "spacesPerLevel = 5"               SP
                                           "style = PRETTY"                   SP
                                           "]"
@@ -1055,6 +1124,7 @@ int main(int argc, char *argv[])
 
                 const int   INDENT   = DATA[ti].d_initialIndentLevel;
                 const bool  SORT     = DATA[ti].d_sortMembers;
+                const bool  ESC      = DATA[ti].d_escapeForwardSlash;
                 const int   SPL      = DATA[ti].d_spacesPerLevel;
                 const Style STYLE    = DATA[ti].d_writeStyle;
 
@@ -1062,11 +1132,12 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(L) P_(INDENT) P_(SPL) P(STYLE) }
 
-                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+                if (veryVeryVerbose) { T_ T_ Q(EXP) cout << EXP; }
 
                 Obj mX;  const Obj& X = mX;
                 mX.setInitialIndentLevel(INDENT);
                 mX.setSortMembers(SORT);
+                mX.setEscapeForwardSlash(ESC);
                 mX.setSpacesPerLevel(SPL);
                 mX.setStyle(STYLE);
 
@@ -1125,6 +1196,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int initialIndentLevel() const;
         //   bool sortMembers() const;
+        //   bool escapeForwardSlash() const;
         //   int spacesPerLevel() const;
         //   bdljsn::WriteStyle::Enum style() const;
         // --------------------------------------------------------------------
@@ -1137,8 +1209,9 @@ int main(int argc, char *argv[])
 
         typedef int   T1;        // `initialIndentLevel`
         typedef bool  T2;        // `sortMembers`
-        typedef int   T3;        // `spacesPerLevel`
-        typedef Style T4;        // `style`
+        typedef bool  T3;        // `escapeForwardSlash`
+        typedef int   T4;        // `spacesPerLevel`
+        typedef Style T5;        // `style`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1148,8 +1221,9 @@ int main(int argc, char *argv[])
 
         const int   D1 = 0;                             // `initialIndentLevel`
         const bool  D2 = false;                         // `sortMembers`
-        const int   D3 = 4;                             // `spacesPerLevel`
-        const Style D4 = bdljsn::WriteStyle::e_COMPACT; // `style`
+        const bool  D3 = true;                          // `escapeForwardSlash`
+        const int   D4 = 4;                             // `spacesPerLevel`
+        const Style D5 = bdljsn::WriteStyle::e_COMPACT; // `style`
 
                         // ----------------------------
                         // `A` values: Boundary values.
@@ -1157,8 +1231,9 @@ int main(int argc, char *argv[])
 
         const int   A1 = INT_MAX;                       // `initialIndentLevel`
         const bool  A2 = true;                          // `sortMembers`
-        const int   A3 = 4;                             // `spacesPerLevel`
-        const Style A4 = bdljsn::WriteStyle::e_PRETTY;  // `style`
+        const bool  A3 = false;                         // `escapeForwardSlash`
+        const int   A4 = 4;                             // `spacesPerLevel`
+        const Style A5 = bdljsn::WriteStyle::e_PRETTY;  // `style`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1173,11 +1248,14 @@ int main(int argc, char *argv[])
             const T2& sortMembers = X.sortMembers();
             LOOP2_ASSERT(D2, sortMembers, D2 == sortMembers);
 
-            const T3& spacesPerLevel = X.spacesPerLevel();
-            LOOP2_ASSERT(D3, spacesPerLevel, D3 == spacesPerLevel);
+            const T3& escapeForwardSlash = X.escapeForwardSlash();
+            LOOP2_ASSERT(D3, sortMembers, D3 == escapeForwardSlash);
 
-            const T4& encodingStyle = X.style();
-            LOOP2_ASSERT(D4, encodingStyle, D4 == encodingStyle);
+            const T4& spacesPerLevel = X.spacesPerLevel();
+            LOOP2_ASSERT(D4, spacesPerLevel, D4 == spacesPerLevel);
+
+            const T5& encodingStyle = X.style();
+            LOOP2_ASSERT(D5, encodingStyle, D5 == encodingStyle);
         }
 
         if (verbose) cout <<
@@ -1199,20 +1277,28 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(A2, sortMembers, A2 == sortMembers);
         }
 
+        if (veryVerbose) { T_ Q(escapeForwardSlash) }
+        {
+            mX.setEscapeForwardSlash(A3);
+
+            const T2& escapeForwardSlash = X.escapeForwardSlash();
+            LOOP2_ASSERT(A3, escapeForwardSlash, A3 == escapeForwardSlash);
+        }
+
         if (veryVerbose) { T_ Q(spacesPerLevel) }
         {
-            mX.setSpacesPerLevel(A3);
+            mX.setSpacesPerLevel(A4);
 
-            const T3& spacesPerLevel = X.spacesPerLevel();
-            LOOP2_ASSERT(A3, spacesPerLevel, A3 == spacesPerLevel);
+            const T4& spacesPerLevel = X.spacesPerLevel();
+            LOOP2_ASSERT(A4, spacesPerLevel, A4 == spacesPerLevel);
         }
 
         if (veryVerbose) { T_ Q(encodingStyle) }
         {
-            mX.setStyle(A4);
+            mX.setStyle(A5);
 
-            const T4& writeStyle = X.style();
-            LOOP2_ASSERT(A4, writeStyle, A4 == writeStyle);
+            const T5& writeStyle = X.style();
+            LOOP2_ASSERT(A5, writeStyle, A5 == writeStyle);
         }
       } break;
       case 3: {
@@ -1271,6 +1357,7 @@ int main(int argc, char *argv[])
         //   WriteOptions& reset();
         //   WriteOptions& setInitialIndentLevel(int value);
         //   WriteOptions& setSortMembers(bool value);
+        //   WriteOptions& setEscapeForwardSlash(bool value);
         //   WriteOptions& setSpacesPerLevel(int value);
         //   WriteOptions& setStyle(bdljsn::WriteStyle::Enum value);
         // --------------------------------------------------------------------
@@ -1285,22 +1372,25 @@ int main(int argc, char *argv[])
 
         const int   D1 = 0;      // `initialIndentLevel`
         const bool  D2 = false;  // `sortMembers`
-        const int   D3 = 4;      // `spacesPerLevel`
-        const Style D4 = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
+        const bool  D3 = true;   // `escapeForwardSlash`
+        const int   D4 = 4;      // `spacesPerLevel`
+        const Style D5 = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
 
         // `A` values.
 
         const int   A1 = 1;                             // `initialIndentLevel`
         const bool  A2 = true;                          // `sortMembers`
-        const int   A3 = 4;                             // `spacesPerLevel`
-        const Style A4 = bdljsn::WriteStyle::e_PRETTY;  // `encodingStyle`
+        const bool  A3 = false;                         // `escapeForwardSlash`
+        const int   A4 = 4;                             // `spacesPerLevel`
+        const Style A5 = bdljsn::WriteStyle::e_PRETTY;  // `encodingStyle`
 
         // `B` values.
 
         const int   B1 = INT_MAX;  // `initialIndentLevel`
         const bool  B2 = true;     // `sortMembers`
-        const int   B3 = INT_MAX;  // `spacesPerLevel`
-        const Style B4 = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
+        const bool  B3 = true;     // `escapeForwardSlash`
+        const int   B4 = INT_MAX;  // `spacesPerLevel`
+        const Style B5 = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
 
         Obj        mX;
         const Obj& X = mX;
@@ -1317,20 +1407,23 @@ int main(int argc, char *argv[])
             mX.setInitialIndentLevel(A1);
             ASSERT(A1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.setInitialIndentLevel(B1);
             ASSERT(B1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.setInitialIndentLevel(D1);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1343,20 +1436,52 @@ int main(int argc, char *argv[])
             mX.setSortMembers(A2);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(A2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.setSortMembers(B2);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(B2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.setSortMembers(D2);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
+
+            mX.reset();
+            ASSERT(X   == defaultObj);
+        }
+
+        // --------------------
+        // `escapeForwardSlash`
+        // --------------------
+        {
+            mX.setEscapeForwardSlash(A3);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.sortMembers());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
+
+            mX.setEscapeForwardSlash(B3);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.sortMembers());
+            ASSERT(B3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
+
+            mX.setEscapeForwardSlash(D3);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.sortMembers());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1366,23 +1491,26 @@ int main(int argc, char *argv[])
         // `spacesPerLevel`
         // ----------------
         {
-            mX.setSpacesPerLevel(A3);
+            mX.setSpacesPerLevel(A4);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(A3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(A4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
-            mX.setSpacesPerLevel(B3);
+            mX.setSpacesPerLevel(B4);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(B3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(B4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
-            mX.setSpacesPerLevel(D3);
+            mX.setSpacesPerLevel(D4);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1392,23 +1520,26 @@ int main(int argc, char *argv[])
         // `style`
         // ---------------
         {
-            mX.setStyle(A4);
+            mX.setStyle(A5);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(A4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(A5  == X.style());
 
-            mX.setStyle(B4);
+            mX.setStyle(B5);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(B4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(B5  == X.style());
 
-            mX.setStyle(D4);
+            mX.setStyle(D5);
             ASSERT(D1  == X.initialIndentLevel());
             ASSERT(D2  == X.sortMembers());
-            ASSERT(D3  == X.spacesPerLevel());
-            ASSERT(D4  == X.style());
+            ASSERT(D3  == X.escapeForwardSlash());
+            ASSERT(D4  == X.spacesPerLevel());
+            ASSERT(D5  == X.style());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1422,13 +1553,15 @@ int main(int argc, char *argv[])
 
             mX.setInitialIndentLevel(A1);
             mX.setSortMembers(A2);
-            mX.setSpacesPerLevel(A3);
-            mX.setStyle(A4);
+            mX.setEscapeForwardSlash(A3);
+            mX.setSpacesPerLevel(A4);
+            mX.setStyle(A5);
 
             ASSERT(A1  == X.initialIndentLevel());
             ASSERT(A2  == X.sortMembers());
-            ASSERT(A3  == X.spacesPerLevel());
-            ASSERT(A4  == X.style());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(A4  == X.spacesPerLevel());
+            ASSERT(A5  == X.style());
 
                  // ---------------------------------------
                  // Set all attributes to their `B` values.
@@ -1438,29 +1571,41 @@ int main(int argc, char *argv[])
 
             ASSERT(B1  == X.initialIndentLevel());
             ASSERT(A2  == X.sortMembers());
-            ASSERT(A3  == X.spacesPerLevel());
-            ASSERT(A4  == X.style());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(A4  == X.spacesPerLevel());
+            ASSERT(A5  == X.style());
 
-            mX.setSpacesPerLevel(B3);
-
-            ASSERT(B1  == X.initialIndentLevel());
-            ASSERT(A2  == X.sortMembers());
-            ASSERT(B3  == X.spacesPerLevel());
-            ASSERT(A4  == X.style());
-
-            mX.setStyle(B4);
+            mX.setSpacesPerLevel(B4);
 
             ASSERT(B1  == X.initialIndentLevel());
             ASSERT(A2  == X.sortMembers());
-            ASSERT(B3  == X.spacesPerLevel());
-            ASSERT(B4  == X.style());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(B4  == X.spacesPerLevel());
+            ASSERT(A5  == X.style());
+
+            mX.setStyle(B5);
+
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(A2  == X.sortMembers());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(B4  == X.spacesPerLevel());
+            ASSERT(B5  == X.style());
 
             mX.setSortMembers(B2);
 
             ASSERT(B1  == X.initialIndentLevel());
             ASSERT(B2  == X.sortMembers());
-            ASSERT(B3  == X.spacesPerLevel());
-            ASSERT(B4  == X.style());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(B4  == X.spacesPerLevel());
+            ASSERT(B5  == X.style());
+
+            mX.setEscapeForwardSlash(B3);
+
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.sortMembers());
+            ASSERT(B3  == X.escapeForwardSlash());
+            ASSERT(B4  == X.spacesPerLevel());
+            ASSERT(B5  == X.style());
 
             mX.reset();
             ASSERT(X   == defaultObj);
@@ -1478,14 +1623,17 @@ int main(int argc, char *argv[])
                 Obj &a1 = mX.setInitialIndentLevel(A1);
                 ASSERTV(&a1, &mX, &a1 == &mX);
 
-                Obj &a4 = mX.setSortMembers(A2);
-                ASSERTV(&a4, &mX, &a4 == &mX);
-
-                Obj &a2 = mX.setSpacesPerLevel(A3);
+                Obj &a2 = mX.setSortMembers(A2);
                 ASSERTV(&a2, &mX, &a2 == &mX);
 
-                Obj &a3 = mX.setInitialIndentLevel(A4);
+                Obj &a3 = mX.setEscapeForwardSlash(A3);
                 ASSERTV(&a3, &mX, &a3 == &mX);
+
+                Obj &a4 = mX.setSpacesPerLevel(A4);
+                ASSERTV(&a4, &mX, &a4 == &mX);
+
+                Obj &a5 = mX.setInitialIndentLevel(A5);
+                ASSERTV(&a5, &mX, &a5 == &mX);
 
                 Obj &r  = mX.reset();
                 ASSERTV(&r , &mX, &r  == &mX);
@@ -1497,16 +1645,18 @@ int main(int argc, char *argv[])
 
             mX.setInitialIndentLevel(A1)
                 .setSortMembers(A2)
-                .setSpacesPerLevel(A3)
-                .setStyle(A4)
+                .setEscapeForwardSlash(A3)
+                .setSpacesPerLevel(A4)
+                .setStyle(A5)
                 .setInitialIndentLevel(A1); // The final call is not redundant
-                                            // - it checks the `setSortMembers`
+                                            // - it checks the `setStyle`
                                             // return value.
 
             ASSERT(A1  == X.initialIndentLevel());
             ASSERT(A2  == X.sortMembers());
-            ASSERT(A3  == X.spacesPerLevel());
-            ASSERT(A4  == X.style());
+            ASSERT(A3  == X.escapeForwardSlash());
+            ASSERT(A4  == X.spacesPerLevel());
+            ASSERT(A5  == X.style());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1560,8 +1710,9 @@ int main(int argc, char *argv[])
 
         const int   D1   = 0;                    // `initialIndentLevel`
         const bool  D2   = false;                // `sortMembers`
-        const int   D3   = 4;                    // `spacesPerLevel`
-        const Style D4   = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
+        const bool  D3   = true;                 // `escapeForwardSlash`
+        const int   D4   = 4;                    // `spacesPerLevel`
+        const Style D5   = bdljsn::WriteStyle::e_COMPACT;  // `encodingStyle`
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1576,8 +1727,9 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(D1, X.initialIndentLevel(), D1 == X.initialIndentLevel());
         LOOP2_ASSERT(D2, X.sortMembers(),        D2 == X.sortMembers());
-        LOOP2_ASSERT(D3, X.spacesPerLevel(),     D3 == X.spacesPerLevel());
-        LOOP2_ASSERT(D4, X.style(),              D4 == X.style());
+        LOOP2_ASSERT(D3, X.escapeForwardSlash(), D3 == X.escapeForwardSlash());
+        LOOP2_ASSERT(D4, X.spacesPerLevel(),     D4 == X.spacesPerLevel());
+        LOOP2_ASSERT(D5, X.style(),              D5 == X.style());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1611,8 +1763,9 @@ int main(int argc, char *argv[])
 
         typedef int   T1;        // `initialIndentLevel`
         typedef bool  T2;        // `sortMembers`
-        typedef int   T3;        // `spacesPerLevel`
-        typedef Style T4;        // `encodingStyle`
+        typedef bool  T3;        // `escapeForwardSlash`
+        typedef int   T4;        // `spacesPerLevel`
+        typedef Style T5;        // `encodingStyle`
 
         // Attribute 1 Values: `initialIndentLevel`
 
@@ -1624,15 +1777,20 @@ int main(int argc, char *argv[])
         const T2 D2 = false;    // default value
         const T2 A2 = true;
 
-        // Attribute 3 Values: `spacesPerLevel`
+        // Attribute 3 Values: `escapeForwardSlash`
 
-        const T3 D3 = 4;        // default value
-        const T3 A3 = 10;
+        const T3 D3 = true;     // default value
+        const T3 A3 = false;
 
-        // Attribute 4 Values: `encodingStyle`
+        // Attribute 4 Values: `spacesPerLevel`
 
-        const T4 D4 = bdljsn::WriteStyle::e_COMPACT;    // default value
-        const T4 A4 = bdljsn::WriteStyle::e_PRETTY;
+        const T4 D4 = 4;        // default value
+        const T4 A4 = 10;
+
+        // Attribute 5 Values: `encodingStyle`
+
+        const T5 D5 = bdljsn::WriteStyle::e_COMPACT;    // default value
+        const T5 A5 = bdljsn::WriteStyle::e_PRETTY;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1646,8 +1804,9 @@ int main(int argc, char *argv[])
 
         ASSERT(D1  == W.initialIndentLevel());
         ASSERT(D2  == W.sortMembers());
-        ASSERT(D3  == W.spacesPerLevel());
-        ASSERT(D4  == W.style());
+        ASSERT(D3  == W.escapeForwardSlash());
+        ASSERT(D4  == W.spacesPerLevel());
+        ASSERT(D5  == W.style());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: `w` <op> `w`." << endl;
@@ -1666,8 +1825,9 @@ int main(int argc, char *argv[])
 
         ASSERT(D1  == X.initialIndentLevel());
         ASSERT(D2  == X.sortMembers());
-        ASSERT(D3  == X.spacesPerLevel());
-        ASSERT(D4  == X.style());
+        ASSERT(D3  == X.escapeForwardSlash());
+        ASSERT(D4  == X.spacesPerLevel());
+        ASSERT(D5  == X.style());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
@@ -1682,16 +1842,18 @@ int main(int argc, char *argv[])
 
         mX.setInitialIndentLevel(A1);
         mX.setSortMembers(A2);
-        mX.setSpacesPerLevel(A3);
-        mX.setStyle(A4);
+        mX.setEscapeForwardSlash(A3);
+        mX.setSpacesPerLevel(A4);
+        mX.setStyle(A5);
 
         if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1  == X.initialIndentLevel());
         ASSERT(A2  == X.sortMembers());
-        ASSERT(A3  == X.spacesPerLevel());
-        ASSERT(A4  == X.style());
+        ASSERT(A3  == X.escapeForwardSlash());
+        ASSERT(A4  == X.spacesPerLevel());
+        ASSERT(A5  == X.style());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
@@ -1707,16 +1869,18 @@ int main(int argc, char *argv[])
         Obj mY;  const Obj& Y = mY;
         mY.setInitialIndentLevel(A1);
         mY.setSortMembers(A2);
-        mY.setSpacesPerLevel(A3);
-        mY.setStyle(A4);
+        mY.setEscapeForwardSlash(A3);
+        mY.setSpacesPerLevel(A4);
+        mY.setStyle(A5);
 
         if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1  == Y.initialIndentLevel());
         ASSERT(A2  == Y.sortMembers());
-        ASSERT(A3  == Y.spacesPerLevel());
-        ASSERT(A4  == Y.style());
+        ASSERT(A3  == Y.escapeForwardSlash());
+        ASSERT(A4  == Y.spacesPerLevel());
+        ASSERT(A5  == Y.style());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
@@ -1737,8 +1901,9 @@ int main(int argc, char *argv[])
 
         ASSERT(A1  == Z.initialIndentLevel());
         ASSERT(A2  == Z.sortMembers());
-        ASSERT(A3  == Z.spacesPerLevel());
-        ASSERT(A4  == Z.style());
+        ASSERT(A3  == Z.escapeForwardSlash());
+        ASSERT(A4  == Z.spacesPerLevel());
+        ASSERT(A5  == Z.style());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -1755,16 +1920,18 @@ int main(int argc, char *argv[])
 
         mZ.setInitialIndentLevel(D1);
         mZ.setSortMembers(D2);
-        mZ.setSpacesPerLevel(D3);
-        mZ.setStyle(D4);
+        mZ.setEscapeForwardSlash(D3);
+        mZ.setSpacesPerLevel(D4);
+        mZ.setStyle(D5);
 
         if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1  == Z.initialIndentLevel());
         ASSERT(D2  == Z.sortMembers());
-        ASSERT(D3  == Z.spacesPerLevel());
-        ASSERT(D4  == Z.style());
+        ASSERT(D3  == Z.escapeForwardSlash());
+        ASSERT(D4  == Z.spacesPerLevel());
+        ASSERT(D5  == Z.style());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -1785,8 +1952,9 @@ int main(int argc, char *argv[])
 
         ASSERT(A1  == W.initialIndentLevel());
         ASSERT(A2  == W.sortMembers());
-        ASSERT(A3  == W.spacesPerLevel());
-        ASSERT(A4  == W.style());
+        ASSERT(A3  == W.escapeForwardSlash());
+        ASSERT(A4  == W.spacesPerLevel());
+        ASSERT(A5  == W.style());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
@@ -1807,8 +1975,9 @@ int main(int argc, char *argv[])
 
         ASSERT(D1  == W.initialIndentLevel());
         ASSERT(D2  == W.sortMembers());
-        ASSERT(D3  == W.spacesPerLevel());
-        ASSERT(D4  == W.style());
+        ASSERT(D3  == W.escapeForwardSlash());
+        ASSERT(D4  == W.spacesPerLevel());
+        ASSERT(D5  == W.style());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
@@ -1829,8 +1998,9 @@ int main(int argc, char *argv[])
 
         ASSERT(A1  == X.initialIndentLevel());
         ASSERT(A2  == X.sortMembers());
-        ASSERT(A3  == X.spacesPerLevel());
-        ASSERT(A4  == X.style());
+        ASSERT(A3  == X.escapeForwardSlash());
+        ASSERT(A4  == X.spacesPerLevel());
+        ASSERT(A5  == X.style());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;

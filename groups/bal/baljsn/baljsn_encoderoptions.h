@@ -34,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //                     int            3               >= 0 and <= 6
 // maxFloatPrecision   int            0               >= 1 and <= 9  or 0
 // maxDoublePrecision  int            0               >= 1 and <= 17 or 0
+// escapeForwardSlash  bool           true            none
 // ```
 // * `encodingStyle`: encoding style used to encode the JSON data.
 // * `initialIndentLevel`: Initial indent level for the topmost element.
@@ -90,6 +91,8 @@ BSLS_IDENT("$Id: $")
 //                         to the current default behavior (of choosing the
 //                         shortest presentation that can be restored to the
 //                         original value) being available.
+// * `escapeForwardSlash`: option specifying whether `/` characters in names or
+//                         strings are output with a preceding `\` or not.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -118,6 +121,7 @@ BSLS_IDENT("$Id: $")
 // const int  FLOAT_PRECISION           = 3;
 // const int  DOUBLE_PRECISION          = 9;
 // const bool ENCODE_QUOTED_DECIMAL64   = false;
+// const bool ESCAPE_FORWARD_SLASH      = false;
 //
 // baljsn::EncoderOptions options;
 // assert(0     == options.initialIndentLevel());
@@ -130,6 +134,7 @@ BSLS_IDENT("$Id: $")
 // assert(0     == options.maxFloatPrecision());
 // assert(0     == options.maxDoublePrecision());
 // assert(true  == options.encodeQuotedDecimal64());
+// assert(true  == options.escapeForwardSlash());
 // ```
 // Next, we populate that object to encode in a prett format using a
 // pre-defined initial indent level and spaces per level:
@@ -162,7 +167,10 @@ BSLS_IDENT("$Id: $")
 // assert(DOUBLE_PRECISION == options.maxDoublePrecision());
 //
 // options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
-// ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
+// assert(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
+//
+// options.setEscapeForwardSlash(ESCAPE_FORWARD_SLASH);
+// assert(ESCAPE_FORWARD_SLASH == options.escapeForwardSlash());
 // ```
 
 #include <balscm_version.h>
@@ -259,6 +267,11 @@ class EncoderOptions {
     // value is `true` then the `Decimal64` value is encoded quoted
     // { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
     bool                   d_encodeQuotedDecimal64;
+
+    // option specifying if `/` characters should be preceded by a `\` character
+    // or not (e.g., rendered as `\/` or `/`).
+    bool                   d_escapeForwardSlash;
+
   public:
     // TYPES
 
@@ -275,16 +288,17 @@ class EncoderOptions {
     };
 
     enum {
-        ATTRIBUTE_ID_INITIAL_INDENT_LEVEL                 = 0
-      , ATTRIBUTE_ID_SPACES_PER_LEVEL                     = 1
-      , ATTRIBUTE_ID_ENCODING_STYLE                       = 2
-      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 3
-      , ATTRIBUTE_ID_ENCODE_NULL_ELEMENTS                 = 4
-      , ATTRIBUTE_ID_ENCODE_INF_AND_NA_N_AS_STRINGS       = 5
-      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 6
-      , ATTRIBUTE_ID_MAX_FLOAT_PRECISION                  = 7
-      , ATTRIBUTE_ID_MAX_DOUBLE_PRECISION                 = 8
-      , ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64              = 9
+        ATTRIBUTE_ID_INITIAL_INDENT_LEVEL                 =  0
+      , ATTRIBUTE_ID_SPACES_PER_LEVEL                     =  1
+      , ATTRIBUTE_ID_ENCODING_STYLE                       =  2
+      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  =  3
+      , ATTRIBUTE_ID_ENCODE_NULL_ELEMENTS                 =  4
+      , ATTRIBUTE_ID_ENCODE_INF_AND_NA_N_AS_STRINGS       =  5
+      , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION =  6
+      , ATTRIBUTE_ID_MAX_FLOAT_PRECISION                  =  7
+      , ATTRIBUTE_ID_MAX_DOUBLE_PRECISION                 =  8
+      , ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64              =  9
+      , ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH                 = 10
     };
 
     enum {
@@ -292,16 +306,17 @@ class EncoderOptions {
     };
 
     enum {
-        ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL                 = 0
-      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL                     = 1
-      , ATTRIBUTE_INDEX_ENCODING_STYLE                       = 2
-      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 3
-      , ATTRIBUTE_INDEX_ENCODE_NULL_ELEMENTS                 = 4
-      , ATTRIBUTE_INDEX_ENCODE_INF_AND_NA_N_AS_STRINGS       = 5
-      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 6
-      , ATTRIBUTE_INDEX_MAX_FLOAT_PRECISION                  = 7
-      , ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION                 = 8
-      , ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64              = 9
+        ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL                 =  0
+      , ATTRIBUTE_INDEX_SPACES_PER_LEVEL                     =  1
+      , ATTRIBUTE_INDEX_ENCODING_STYLE                       =  2
+      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  =  3
+      , ATTRIBUTE_INDEX_ENCODE_NULL_ELEMENTS                 =  4
+      , ATTRIBUTE_INDEX_ENCODE_INF_AND_NA_N_AS_STRINGS       =  5
+      , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION =  6
+      , ATTRIBUTE_INDEX_MAX_FLOAT_PRECISION                  =  7
+      , ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION                 =  8
+      , ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64              =  9
+      , ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH                 = 10
     };
 
     // CONSTANTS
@@ -326,6 +341,8 @@ class EncoderOptions {
     static const int DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION;
 
     static const bool DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
+
+    static const bool DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -434,6 +451,10 @@ class EncoderOptions {
     /// specified `value`.
     void setEncodeQuotedDecimal64(bool value);
 
+    /// Set the "EscapeForwardSlash" attribute of this object to the
+    /// specified `value`.
+    void setEscapeForwardSlash(bool value);
+
     // ACCESSORS
 
     /// Format this object to the specified output `stream` at the
@@ -520,6 +541,9 @@ class EncoderOptions {
     /// Return the value of the "EncodeQuotedDecimal64" attribute of this
     /// object.
     bool encodeQuotedDecimal64() const;
+
+    /// Return the value of the "EscapeForwardSlash" attribute of this object.
+    bool escapeForwardSlash() const;
 };
 
 // FREE OPERATORS
@@ -615,6 +639,11 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -653,6 +682,9 @@ int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64: {
         return manipulator(&d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
+      } break;
+      case ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH: {
+        return manipulator(&d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
       } break;
       default:
         return NOT_FOUND;
@@ -750,6 +782,12 @@ void EncoderOptions::setEncodeQuotedDecimal64(bool value)
     d_encodeQuotedDecimal64 = value;
 }
 
+inline
+void EncoderOptions::setEscapeForwardSlash(bool value)
+{
+    d_escapeForwardSlash = value;
+}
+
 // ACCESSORS
 template <class ACCESSOR>
 int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
@@ -806,6 +844,11 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -844,6 +887,9 @@ int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       } break;
       case ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64: {
         return accessor(d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
+      } break;
+      case ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH: {
+        return accessor(d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
       } break;
       default:
         return NOT_FOUND;
@@ -927,6 +973,12 @@ bool EncoderOptions::encodeQuotedDecimal64() const
     return d_encodeQuotedDecimal64;
 }
 
+inline
+bool EncoderOptions::escapeForwardSlash() const
+{
+    return d_escapeForwardSlash;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -945,7 +997,8 @@ bool baljsn::operator==(
          && lhs.datetimeFractionalSecondPrecision() == rhs.datetimeFractionalSecondPrecision()
          && lhs.maxFloatPrecision() == rhs.maxFloatPrecision()
          && lhs.maxDoublePrecision() == rhs.maxDoublePrecision()
-         && lhs.encodeQuotedDecimal64() == rhs.encodeQuotedDecimal64();
+         && lhs.encodeQuotedDecimal64() == rhs.encodeQuotedDecimal64()
+         && lhs.escapeForwardSlash() == rhs.escapeForwardSlash();
 }
 
 inline
@@ -962,7 +1015,8 @@ bool baljsn::operator!=(
          || lhs.datetimeFractionalSecondPrecision() != rhs.datetimeFractionalSecondPrecision()
          || lhs.maxFloatPrecision() != rhs.maxFloatPrecision()
          || lhs.maxDoublePrecision() != rhs.maxDoublePrecision()
-         || lhs.encodeQuotedDecimal64() != rhs.encodeQuotedDecimal64();
+         || lhs.encodeQuotedDecimal64() != rhs.encodeQuotedDecimal64()
+         || lhs.escapeForwardSlash() != rhs.escapeForwardSlash();
 }
 
 inline

@@ -21,6 +21,8 @@ BSLS_IDENT("$Id: $")
 ///-----------------------------
 // There are a number of options to configure the output format produced by
 // `write`:
+// * `escapeForwardSlash`: determines whether any `/` characters are output
+//   escaped (as `\/`) or not (as `/`) in names or strings.
 // * `sortMembers`: sort the members of any Object elements in the output JSON
 //   (default: `false`)
 // * `style`: the style of the resulting output
