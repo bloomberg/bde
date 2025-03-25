@@ -779,12 +779,13 @@ static void printFormattedIntGlobals()
     P(g_numCtorInvocations);
     P(g_numParseInvocations);
     P(g_numFormatInvocations);
-    printf("g_values[%z]: { ", g_values.size());
+    printf("g_values[%d]: { ", static_cast<int>(g_values.size()));
     for (size_t i = 0; i < g_values.size(); ++i) {
         printf("%d ", g_values[i]);
     }
     puts("}");
-    printf("g_parseContextContents[%z]: { ", g_parseContextContents.size());
+    printf("g_parseContextContents[%d]: { ",
+           static_cast<int>(g_parseContextContents.size()));
     for (size_t i = 0; i < g_parseContextContents.size(); ++i) {
         printf("\"%s\" ", g_parseContextContents[i].c_str());
     }
@@ -1853,7 +1854,7 @@ void testCase2()
     // ------------------------------------------------------------------------
 
     if (verbose) puts("\nINTEGERS"
-                        "\n========");
+                      "\n========");
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
