@@ -1119,16 +1119,16 @@ int main(int argc, char *argv[])
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
-        ASSERT(bsl::chrono::days::period::num == 86'400);
+        ASSERT(bsl::chrono::days::period::num == 86400);
         ASSERT(bsl::chrono::days::period::den == 1);
 
-        ASSERT(bsl::chrono::weeks::period::num == 604'800);
+        ASSERT(bsl::chrono::weeks::period::num == 604800);
         ASSERT(bsl::chrono::weeks::period::den == 1);
 
-        ASSERT(bsl::chrono::months::period::num == 2'629'746);
+        ASSERT(bsl::chrono::months::period::num == 2629746);
         ASSERT(bsl::chrono::months::period::den == 1);
 
-        ASSERT(bsl::chrono::years::period::num == 31'556'952);
+        ASSERT(bsl::chrono::years::period::num == 31556952);
         ASSERT(bsl::chrono::years::period::den == 1);
 
         {
