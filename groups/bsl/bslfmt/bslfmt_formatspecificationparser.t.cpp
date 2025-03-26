@@ -243,62 +243,43 @@ void checkStandard(int                    line,
     ASSERTV(line, remainingSpec          == parser.remainingSpec());
 }
 
-/// Return `true` if the current system is big-endian, and `false` otherwise.
-bool isBigEndian()
-{
-    wchar_t              value        = 1;
-    const unsigned char *firstBytePtr =
-                                     reinterpret_cast<unsigned char *>(&value);
-    if (1 == *firstBytePtr) {
-        return true;                                                  // RETURN
-    }
-
-    return false;
-}
-
-/// Fill the specified `obj` with the specified content.  The behavior is
-/// undefined unless the length of the `content` is less or equal to the size
-/// of the `obj`.
-void populateWchar(wchar_t *obj, const char *content)
-{
-    size_t contentLength = bsl::string_view(content).length();
-    ASSERTV(contentLength, sizeof(wchar_t) >= contentLength);
-
-    char *objPtr = reinterpret_cast<char *>(obj);
-
-    if (isBigEndian()) {
-        strncpy(objPtr, content, contentLength);
-    }
-    else {
-        objPtr += sizeof(wchar_t) - 1;
-        for (size_t i = 0; i < contentLength; ++i, --objPtr) {
-            *objPtr = content[i];
-        }
-    }
-}
-
 }  // close unnamed namespace
 
                  // =======================================
                  // class TestSpecificationGenerator_Option
                  // =======================================
 /// This class is a base class for `TestSpecificationGenerator` option nodes,
+/// which, when compiled into a list, represent the state of the generator.
+/// The payload and the process of changing this state are programmed into
+/// specific implementations of this interface.  This class contains the basic
+/// functions of adding a new link to the options chain and finding the last
+/// link in the chain.
 class TestSpecificationGenerator_Option {
     // DATA
     bslma::ManagedPtr<TestSpecificationGenerator_Option> d_nextOption;
+                                                             // pointer to the
+                                                             // next option in
+                                                             // the list
 
   public:
     // CREATORS
+
+    /// Create an object, having no successor in the list of generator options.
     TestSpecificationGenerator_Option()
     : d_nextOption(0)
     {}
 
+    /// Destroy this object.
     virtual ~TestSpecificationGenerator_Option()
     {}
 
     // MANIPULATORS
+
+    /// Switch the state of this object to the next one.
     virtual bool nextState() = 0;
 
+    /// Set the specified `nextOption` as a successor in the list of generator
+    /// options.  Use the specified `allocator` to supply memory.
     void setNextOption(TestSpecificationGenerator_Option *nextOption,
                        bslma::Allocator                  *allocator)
     {
@@ -310,6 +291,8 @@ class TestSpecificationGenerator_Option {
         }
     }
 
+    /// Return the pointer to the last item in the list of generator options
+    /// (this object can also be one).
     TestSpecificationGenerator_Option *lastOption()
     {
         if (d_nextOption) {
@@ -321,6 +304,9 @@ class TestSpecificationGenerator_Option {
     }
 
     // ACCESSORS
+
+    /// Return the pointer to the next item in the list of generator options
+    /// if such an object exists and null otherwise..
     TestSpecificationGenerator_Option *nextOption() const
     {
         return d_nextOption.get();
@@ -330,7 +316,8 @@ class TestSpecificationGenerator_Option {
              // ===========================================
              // class TestSpecificationGenerator_BoolOption
              // ===========================================
-
+/// This class is an implementation of the `TestSpecificationGenerator_Option`
+/// for options that have only two states: they are either present or not.
 class TestSpecificationGenerator_BoolOption
 : public TestSpecificationGenerator_Option {
     // DATA
@@ -338,14 +325,20 @@ class TestSpecificationGenerator_BoolOption
 
   public:
     // CREATORS
+
+    /// Create an object that will display its state through the specified
+    /// `value`.
     TestSpecificationGenerator_BoolOption(bool *value)
     : d_isPresent_p(value)
     {}
 
+    /// Destroy this object.
     ~TestSpecificationGenerator_BoolOption()
     {}
 
     // MANIPULATORS
+
+    /// Switch the state of this object to the next one.
     bool nextState()
     {
         if (!nextOption() || !nextOption()->nextState()) {
@@ -1989,32 +1982,28 @@ int main(int argc, char **argv)
 
         if (verbose) printf("\nTESTING `postprocess`"
                             "\n=====================\n");
-            {
+
+        if (verbose) printf("\tTesting fill character postprocessing.\n");
+        {
             static const struct {
-                int         d_line;
-                const char *d_utf8String;
-                const int   d_width8;
-                const char *d_utf16String;
-                const int   d_width16;
-                const char *d_utf32String;
-                const int   d_width32;
+                int         d_line;        // code source line
+                const char *d_utf8String;  // UTF-8 filling character
+                const int   d_width;       // expected width of UTF-8 character
             } DATA[] = {
-        //------^
-        //LINE UTF_8               W_8  UTF_16      W_16 UTF_32          W_32
-        //---- ------------------  ---  ----------  ---- --------------- ----
-        { L_,  "\x01",             1,   "\x01",     1,   "\x01",         1   },
-        { L_,  "\x48",             1,   "\x48",     1,   "\x48",         1   },
-        { L_,  "\x7f",             1,   "\x7f",     1,   "\x7f",         1   },
-        { L_,  "\xc2\x80",         1,   "\x80",     1,   "\x80",         1   },
-        { L_,  "\xcb\xb1",         1,   "\xf1\x02", 1,   "\xf1\x02",     1   },
-        { L_,  "\xdf\xbf",         1,   "\xff\x07", 1,   "\xff\x07",     1   },
-        { L_,  "\xe0\xa0\x80",     1,   "\x08",     1,   "\x08",         1   },
-        { L_,  "\xe2\x9c\x90",     1,   "\x10\x27", 1,   "\x10\x27",     1   },
-        { L_,  "\xef\xbf\xbf",     1,   "\xff\xff", 2,   "\xff\xff",     1   },
-        { L_,  "\xf0\x90\x80\x80", 1,   "\xd8",     1,   "\x01",         1   },
-        { L_,  "\xf0\x98\x9a\xa0", 2,   "\xdc",     1,   "\xa0\x86\x01", 2   },
-        { L_,  "\xf4\x8f\xbf\xbf", 1,   "\x21\xd8", 2,   "\xff\xff\x10", 1   },
-        //------v
+                 //LINE UTF_8               W8
+                 //---- ------------------  --
+                 { L_,  "\x01",             1  },
+                 { L_,  "\x48",             1  },
+                 { L_,  "\x7f",             1  },
+                 { L_,  "\xc2\x80",         1  },
+                 { L_,  "\xcb\xb1",         1  },
+                 { L_,  "\xdf\xbf",         1  },
+                 { L_,  "\xe0\xa0\x80",     1  },
+                 { L_,  "\xe2\x9c\x90",     1  },
+                 { L_,  "\xef\xbf\xbf",     1  },
+                 { L_,  "\xf0\x90\x80\x80", 1  },
+                 { L_,  "\xf0\x98\x9a\xa0", 2  },
+                 { L_,  "\xf4\x8f\xbf\xbf", 1  },
             };
             const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2022,7 +2011,7 @@ int main(int argc, char **argv)
             for (size_t i = 0; i < NUM_DATA; ++i) {
                 const int     LINE        = DATA[i].d_line;
                 const char   *FILL_SYMBOL = DATA[i].d_utf8String;
-                const int     WIDTH       = DATA[i].d_width8;
+                const int     WIDTH       = DATA[i].d_width;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
@@ -2046,37 +2035,56 @@ int main(int argc, char **argv)
                         WIDTH == parser.fillerCodePointDisplayWidth());
             }
 
+            static const struct {
+                int     d_line;          // code source line
+                wchar_t d_spec16[2];     // UTF-16 filling character
+                size_t  d_specLength16;  // length of UTF-16 filling character
+                size_t  d_width16;       // expected width of UTF-16 character
+                wchar_t d_spec32[1];     // UTF-32 filling character
+                size_t  d_specLength32;  // length of UTF-32 filling character
+                int     d_width32;       // expected width of UTF-32 character
+            } WDATA[] = {
+                //LINE  UTF_16               L16  N16  UTF_32         L32  N32
+                //----  ------------------   ---  ---  ------------   ---  ---
+                { L_,   { 0x1            },  1,   1,   { 0x01     },  1,   1 },
+                { L_,   { 0x48           },  1,   2,   { 0x48     },  1,   1 },
+                { L_,   { 0x7f           },  1,   2,   { 0x7f     },  1,   1 },
+                { L_,   { 0x80           },  1,   2,   { 0x80     },  1,   1 },
+                { L_,   { 0xf102         },  1,   1,   { 0xf102   },  1,   1 },
+                { L_,   { 0xff07         },  1,   2,   { 0xff07   },  1,   2 },
+                { L_,   { 0x08           },  1,   1,   { 0x08     },  1,   1 },
+                { L_,   { 0x1027         },  1,   1,   { 0x1027   },  1,   1 },
+                { L_,   { 0xffff         },  1,   1,   { 0xffff   },  1,   1 },
+                { L_,   { 0xd828, 0xdc00 },  2,   1,   { 0xd8     },  1,   1 },
+                { L_,   { 0xd834, 0xdd1e },  2,   1,   { 0x108601 },  1,   1 },
+                { L_,   { 0xd83c, 0xdc31 },  2,   1,   { 0x10ffff },  1,   1 },
+            };
+            const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
+
             // `wchar_t`
             ASSERTV(sizeof(wchar_t),
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
             for (size_t i = 0; i < NUM_DATA; ++i) {
-                const int   LINE            = DATA[i].d_line;
-                const bool  SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
-                const char *FILL_SYMBOL     = SIZEOF_WCHAR_32
-                                            ? DATA[i].d_utf32String
-                                            : DATA[i].d_utf16String;
-                const int   WIDTH           = SIZEOF_WCHAR_32
-                                            ? DATA[i].d_width32
-                                            : DATA[i].d_width16;
+                const int      LINE            = WDATA[i].d_line;
+                const bool     SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
+                const wchar_t *SPEC            =  SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_spec32
+                                               : WDATA[i].d_spec16;
+                const size_t   LENGTH          = SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_specLength32
+                                               : WDATA[i].d_specLength16;
+                const int      WIDTH           = SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_width32
+                                               : WDATA[i].d_width16;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
-                size_t length = bsl::string_view(FILL_SYMBOL).length();
-                const size_t  wLength = length % sizeof(wchar_t) > 0
-                                      ? length / sizeof(wchar_t) + 1
-                                      : length / sizeof(wchar_t);
-                ASSERTV(wLength, 1 == wLength);
-                wchar_t buffer[2];
-                memset(buffer, 0, sizeof(buffer));
-
-                populateWchar(buffer, FILL_SYMBOL);
-                buffer[1] = '^';
-
-                bsl::wstring_view wSpec(buffer, 2);
+                bsl::wstring spec(SPEC, LENGTH);
+                spec.push_back('^');
 
                 WcharParser                       parser;
-                bslfmt::MockParseContext<wchar_t> parseContext(wSpec, 0);
+                bslfmt::MockParseContext<wchar_t> parseContext(spec, 0);
                 bslfmt::MockFormatContext<char>   formatContext(90, 91, 92);
 
                 parser.parse(&parseContext, SECTION);
@@ -2085,17 +2093,15 @@ int main(int argc, char **argv)
                     parser.postprocess(formatContext);
                 }
                 catch (const bsl::format_error& err) {
-                    ASSERTV(LINE, FILL_SYMBOL, SIZEOF_WCHAR_32, isBigEndian(),
-                            err.what(),
-                            false);
+                    ASSERTV(LINE, err.what(), false);
                 }
 
-                ASSERTV(LINE, WIDTH, isBigEndian(), parser.fillerCodePointDisplayWidth(),
+                ASSERTV(LINE, WIDTH, parser.fillerCodePointDisplayWidth(),
                         WIDTH == parser.fillerCodePointDisplayWidth());
             }
         }
 
-        if (verbose) printf("\tTesting postprocessed width and precision\n");
+        if (verbose) printf("\tTesting width and precision postprocessing.\n");
         {
             typedef NumericValue::Category Category;
 
@@ -2348,9 +2354,9 @@ int main(int argc, char **argv)
 
         {
             static const struct {
-                int           d_line;
-                const char   *d_utf8String;
-                const size_t  d_length;
+                int           d_line;        // code source line
+                const char   *d_utf8String;  // UTF-8 filling character
+                const size_t  d_length;      // length of UTF-8 character
             } DATA[] = {
                 { L_, "\x01",              1 },  // 1 byte min
                 { L_, "\x48",              1 },  // 1 byte
@@ -2396,77 +2402,67 @@ int main(int argc, char **argv)
                             static_cast<size_t>(parser.numFillerCharacters()));
             }
 
-            // `wchar_t`
-            static const struct {
-                int           d_line;
-                const char   *d_utf32String;
-                const size_t  d_length32;
-                const char   *d_utf16String;
-                const size_t  d_length16;
-            } WDATA[] = {
-                //LINE UTF_32           LENGTH_32 UTF_16       LENGTH_16
-                //---- ---------------  --------- ----------   ---------
-                { L_,  "\x01",          1,        "\x01",      1         },
-                { L_,  "\x48",          1,        "\x48",      1         },
-                { L_,  "\x7f",          1,        "\x7f",      1         },
-                { L_,  "\x80",          1,        "\x80",      1         },
-                { L_,  "\xf1\x02",      2,        "\xf1\x02",  2         },
-                { L_,  "\xff\x07",      2,        "\xff\x07",  2         },
-                { L_,  "\x08",          1,        "\x08",      1         },
-                { L_,  "\x10\x27",      2,        "\x10\x27",  2         },
-                { L_,  "\xff\xff",      2,        "\xff\xff",  2         },
-                { L_,  "\xd8",          1,        "\xd8",      1         },
-                { L_,  "\xa0\x86\x01",  3,        "\xdc",      1         },
-                { L_,  "\xff\xff\xff",  3,        "\x21\xe0",  2         },
-            };
-            const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
-
             ASSERTV(sizeof(wchar_t),
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
+            static const struct {
+                int     d_line;          // code source line
+                wchar_t d_spec16[2];     // UTF-16 filling character
+                size_t  d_specLength16;  // length of UTF-16 filling character
+                int     d_numChars16;    // number of bytes in UTF-16 character
+                wchar_t d_spec32[1];     // UTF-32 filling character
+                size_t  d_specLength32;  // length of UTF-32 filling character
+                int     d_numChars32;    // number of bytes in UTF-32 character
+            } WDATA[] = {
+                //LINE  UTF_16               L16  N16  UTF_32         L32  N32
+                //----  ------------------   ---  ---  ------------   ---  ---
+                { L_,   { 0x01           },  1,   1,   { 0x01     },  1,   1 },
+                { L_,   { 0x48           },  1,   1,   { 0x48     },  1,   1 },
+                { L_,   { 0x7f           },  1,   1,   { 0x7f     },  1,   1 },
+                { L_,   { 0x80           },  1,   1,   { 0x80     },  1,   1 },
+                { L_,   { 0xf102         },  1,   1,   { 0xf102   },  1,   1 },
+                { L_,   { 0xff07         },  1,   1,   { 0xff07   },  1,   1 },
+                { L_,   { 0x08           },  1,   1,   { 0x08     },  1,   1 },
+                { L_,   { 0x1027         },  1,   1,   { 0x1027   },  1,   1 },
+                { L_,   { 0xffff         },  1,   1,   { 0xffff   },  1,   1 },
+                { L_,   { 0xd828, 0xdc00 },  2,   2,   { 0xd8     },  1,   1 },
+                { L_,   { 0xd834, 0xdd1e },  2,   2,   { 0x108601 },  1,   1 },
+                { L_,   { 0xd83c, 0xdc31 },  2,   2,   { 0x10ffff },  1,   1 },
+            };
+            const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
+
             for (size_t i = 0; i < NUM_WDATA; ++i) {
-                const int     LINE            = WDATA[i].d_line;
-                const bool    SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
-                const char   *FILL_SYMBOL     = SIZEOF_WCHAR_32
-                                              ? WDATA[i].d_utf32String
-                                              : WDATA[i].d_utf16String;
-                const size_t  LENGTH          = SIZEOF_WCHAR_32
-                                              ? WDATA[i].d_length32
-                                              : WDATA[i].d_length16;
+                const int      LINE            = WDATA[i].d_line;
+                const bool     SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
+                const wchar_t *SPEC            = SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_spec32
+                                               : WDATA[i].d_spec16;
+                const size_t   LENGTH          = SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_specLength32
+                                               : WDATA[i].d_specLength16;
+                const int      NUM_CHARS       = SIZEOF_WCHAR_32
+                                               ? WDATA[i].d_numChars32
+                                               : WDATA[i].d_numChars16;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
-                bsl::string spec = FILL_SYMBOL;
-                ASSERTV(LINE, LENGTH, spec.length(), LENGTH == spec.length());
-
-                const size_t  wLength = LENGTH % sizeof(wchar_t) > 0
-                                      ? LENGTH / sizeof(wchar_t) + 1
-                                      : LENGTH / sizeof(wchar_t);
-                ASSERTV(wLength, 1 == wLength);
-                wchar_t buffer[2];
-                memset(buffer, 0, sizeof(buffer));
-
-                populateWchar(buffer, FILL_SYMBOL);
-                buffer[1] = '^';
-
-                bsl::wstring_view wSpec(buffer, 2);
+                bsl::wstring spec(SPEC, LENGTH);
+                spec.push_back('^');
 
                 WcharParser                       parser;
-                bslfmt::MockParseContext<wchar_t> context(wSpec, 0);
+                bslfmt::MockParseContext<wchar_t> context(spec, 0);
 
                 try {
                     parser.parse(&context, SECTION);
                 }
                 catch (bsl::format_error& err) {
-                    ASSERTV(LINE,  SIZEOF_WCHAR_32, isBigEndian(), err.what(),
-                            false);
+                    ASSERTV(LINE,  err.what(), false);
                 }
 
                 ASSERTV(LINE, parser.filler());
-                ASSERTV(LINE, wSpec[0] == *parser.filler());
-                ASSERTV(LINE, wLength, parser.numFillerCharacters(),
-                        wLength ==
-                            static_cast<size_t>(parser.numFillerCharacters()));
+                ASSERTV(LINE, spec[0] == *parser.filler());
+                ASSERTV(LINE, NUM_CHARS, parser.numFillerCharacters(),
+                        NUM_CHARS == parser.numFillerCharacters());
             }
         }
       } break;

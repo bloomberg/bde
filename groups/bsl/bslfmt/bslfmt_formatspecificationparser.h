@@ -456,12 +456,18 @@ FormatSpecificationParser<t_CHAR>::codepointBytesIfValid(
 {
     switch (sizeof(wchar_t)) {
       case 2: {  // UTF-16
+        // Single 16-bit code units
         if (static_cast<unsigned int>(firstChar) <
-            static_cast<unsigned int>(0xd800)) {
+                static_cast<unsigned int>(0xd800) ||
+            static_cast<unsigned int>(firstChar) >=
+                static_cast<unsigned int>(0xe000)) {
             return 2;
         }
-        else if (static_cast<unsigned int>(firstChar) <
-                 static_cast<unsigned int>(0xdc00)) {
+        // Surrogate pair
+        else if (static_cast<unsigned int>(firstChar) >=
+                     static_cast<unsigned int>(0xd800) &&
+                 static_cast<unsigned int>(firstChar) <
+                     static_cast<unsigned int>(0xe000)) {
             return 4;
         }
         else {
@@ -469,8 +475,8 @@ FormatSpecificationParser<t_CHAR>::codepointBytesIfValid(
         }
       } break;
       case 4: {  // UTF-32
-        if (static_cast<unsigned long>(firstChar) <
-            static_cast<unsigned long>(0x80000000U)) {
+        if (static_cast<unsigned long>(firstChar) <=
+            static_cast<unsigned long>(0x10ffff)) {
             return 4;
         }
         else {
