@@ -248,6 +248,7 @@ void checkStandard(int                    line,
                  // =======================================
                  // class TestSpecificationGenerator_Option
                  // =======================================
+
 /// This class is a base class for `TestSpecificationGenerator` option nodes,
 /// which, when compiled into a list, represent the state of the generator.
 /// The payload and the process of changing this state are programmed into
@@ -316,18 +317,18 @@ class TestSpecificationGenerator_Option {
              // ===========================================
              // class TestSpecificationGenerator_BoolOption
              // ===========================================
+
 /// This class is an implementation of the `TestSpecificationGenerator_Option`
 /// for options that have only two states: they are either present or not.
 class TestSpecificationGenerator_BoolOption
 : public TestSpecificationGenerator_Option {
     // DATA
-    bool *d_isPresent_p;
+    bool *d_isPresent_p;  // current state (held, not owned)
 
   public:
     // CREATORS
 
-    /// Create an object that will display its state through the specified
-    /// `value`.
+    /// Create an object that displays its state through the specified `value`.
     TestSpecificationGenerator_BoolOption(bool *value)
     : d_isPresent_p(value)
     {}
@@ -353,14 +354,25 @@ class TestSpecificationGenerator_BoolOption
                // class TestSpecificationGenerator_TypedOption
                // ============================================
 
+/// This class is an implementation of the `TestSpecificationGenerator_Option`
+/// for options that iterate through the states specified by the set of
+/// `t_TYPE` (template parameter) values.  The state is determined by the
+/// interaction of two class fields: a flag indicating the presence of the
+/// option and a specific value for the option.  If the flag indicates that the
+/// option is not present, the value of the second field is ignored.
 template <class t_TYPE>
 class TestSpecificationGenerator_TypedOption
 : public TestSpecificationGenerator_Option {
     // DATA
-    bool                *d_isPresent_p;
-    t_TYPE              *d_value_p;
-    size_t               d_index;
-    bsl::vector<t_TYPE>  d_values;
+    bool                *d_isPresent_p;  // flag indicating if this option is
+                                         // present in the current state of the
+                                         // generator (held, not owned)
+
+    t_TYPE              *d_value_p;      // current state (held, not owned)
+
+    size_t               d_index;        // index of the current state
+
+    bsl::vector<t_TYPE>  d_values;       // set of available states
 
   public:
     // TRAITS
@@ -368,6 +380,11 @@ class TestSpecificationGenerator_TypedOption
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an object that iterates through the specified set of possible
+    /// `values` and displays its state through the specified
+    /// `isPresentVariable` and `valueVariable` accordingly.  Optionally
+    /// specified `basicAllocator` is used to supply memory.
     TestSpecificationGenerator_TypedOption(
                                 bool                       *isPresentVariable,
                                 t_TYPE                     *valueVariable,
@@ -382,10 +399,13 @@ class TestSpecificationGenerator_TypedOption
         *d_value_p = d_values[d_index];
     }
 
+    /// Destroy this object.
     ~TestSpecificationGenerator_TypedOption()
     {}
 
     // MANIPULATORS
+
+    /// Switch the state of this object to the next one.
     bool nextState()
     {
         if (!nextOption() || !nextOption()->nextState()) {
@@ -2047,9 +2067,9 @@ int main(int argc, char **argv)
                 //LINE  UTF_16               L16  N16  UTF_32         L32  N32
                 //----  ------------------   ---  ---  ------------   ---  ---
                 { L_,   { 0x1            },  1,   1,   { 0x01     },  1,   1 },
-                { L_,   { 0x48           },  1,   2,   { 0x48     },  1,   1 },
-                { L_,   { 0x7f           },  1,   2,   { 0x7f     },  1,   1 },
-                { L_,   { 0x80           },  1,   2,   { 0x80     },  1,   1 },
+                { L_,   { 0x48           },  1,   1,   { 0x48     },  1,   1 },
+                { L_,   { 0x7f           },  1,   1,   { 0x7f     },  1,   1 },
+                { L_,   { 0x80           },  1,   1,   { 0x80     },  1,   1 },
                 { L_,   { 0xf102         },  1,   1,   { 0xf102   },  1,   1 },
                 { L_,   { 0xff07         },  1,   2,   { 0xff07   },  1,   2 },
                 { L_,   { 0x08           },  1,   1,   { 0x08     },  1,   1 },
