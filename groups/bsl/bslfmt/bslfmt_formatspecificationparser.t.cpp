@@ -243,11 +243,46 @@ void checkStandard(int                    line,
     ASSERTV(line, remainingSpec          == parser.remainingSpec());
 }
 
+/// Return `true` if the current system is big-endian, and `false` otherwise.
+bool isBigEndian()
+{
+    wchar_t              value        = 1;
+    const unsigned char *firstBytePtr =
+                                     reinterpret_cast<unsigned char *>(&value);
+    if (1 == *firstBytePtr) {
+        return true;                                                  // RETURN
+    }
+
+    return false;
 }
+
+/// Fill the specified `obj` with the specified content.  The behavior is
+/// undefined unless the length of the `content` is less or equal to the size
+/// of the `obj`.
+void populateWchar(wchar_t *obj, const char *content)
+{
+    size_t contentLength = bsl::string_view(content).length();
+    ASSERTV(contentLength, sizeof(wchar_t) >= contentLength);
+
+    char *objPtr = reinterpret_cast<char *>(obj);
+
+    if (isBigEndian()) {
+        strncpy(objPtr, content, contentLength);
+    }
+    else {
+        objPtr += sizeof(wchar_t) - 1;
+        for (size_t i = 0; i < contentLength; ++i, --objPtr) {
+            *objPtr = content[i];
+        }
+    }
+}
+
+}  // close unnamed namespace
 
                  // =======================================
                  // class TestSpecificationGenerator_Option
                  // =======================================
+/// This class is a base class for `TestSpecificationGenerator` option nodes,
 class TestSpecificationGenerator_Option {
     // DATA
     bslma::ManagedPtr<TestSpecificationGenerator_Option> d_nextOption;
@@ -1985,9 +2020,9 @@ int main(int argc, char **argv)
 
             // `char`
             for (size_t i = 0; i < NUM_DATA; ++i) {
-                const int     LINE         = DATA[i].d_line;
+                const int     LINE        = DATA[i].d_line;
                 const char   *FILL_SYMBOL = DATA[i].d_utf8String;
-                const int     WIDTH        = DATA[i].d_width8;
+                const int     WIDTH       = DATA[i].d_width8;
 
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
@@ -2011,6 +2046,7 @@ int main(int argc, char **argv)
                         WIDTH == parser.fillerCodePointDisplayWidth());
             }
 
+            // `wchar_t`
             ASSERTV(sizeof(wchar_t),
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
@@ -2027,24 +2063,20 @@ int main(int argc, char **argv)
                 const Enums::Sections SECTION = Enums::e_SECTIONS_FILL_ALIGN;
 
                 size_t length = bsl::string_view(FILL_SYMBOL).length();
-
-                wchar_t buffer[4];
-                memset(buffer, 0, sizeof(buffer));
-                wchar_t *wbegin = buffer;
-                char    *begin  = reinterpret_cast<char *>(buffer);
-
-                strncpy(begin, FILL_SYMBOL, length);
-                const size_t  wlength = length % sizeof(wchar_t) > 0
+                const size_t  wLength = length % sizeof(wchar_t) > 0
                                       ? length / sizeof(wchar_t) + 1
                                       : length / sizeof(wchar_t);
-                wchar_t *wend = wbegin + wlength;
-                *wend = '^';
-                ++wend;
+                ASSERTV(wLength, 1 == wLength);
+                wchar_t buffer[2];
+                memset(buffer, 0, sizeof(buffer));
 
-                bsl::wstring_view wspec(wbegin, wend);
+                populateWchar(buffer, FILL_SYMBOL);
+                buffer[1] = '^';
+
+                bsl::wstring_view wSpec(buffer, 2);
 
                 WcharParser                       parser;
-                bslfmt::MockParseContext<wchar_t> parseContext(wspec, 0);
+                bslfmt::MockParseContext<wchar_t> parseContext(wSpec, 0);
                 bslfmt::MockFormatContext<char>   formatContext(90, 91, 92);
 
                 parser.parse(&parseContext, SECTION);
@@ -2053,11 +2085,12 @@ int main(int argc, char **argv)
                     parser.postprocess(formatContext);
                 }
                 catch (const bsl::format_error& err) {
-                    ASSERTV(LINE, FILL_SYMBOL, SIZEOF_WCHAR_32, err.what(),
+                    ASSERTV(LINE, FILL_SYMBOL, SIZEOF_WCHAR_32, isBigEndian(),
+                            err.what(),
                             false);
                 }
 
-                ASSERTV(LINE, WIDTH, parser.fillerCodePointDisplayWidth(),
+                ASSERTV(LINE, WIDTH, isBigEndian(), parser.fillerCodePointDisplayWidth(),
                         WIDTH == parser.fillerCodePointDisplayWidth());
             }
         }
@@ -2266,7 +2299,7 @@ int main(int argc, char **argv)
              static const struct {
                 int              d_line;        // line of source code
                 const char      *d_spec_p;      // parse specification
-                const wchar_t   *d_wspec_p;     // parse specification
+                const wchar_t   *d_wSpec_p;     // parse specification
                 Enums::Sections  d_section;     // section required
                 const char      *d_expected_p;  // expected error message
             } DATA[] = {
@@ -2283,7 +2316,7 @@ int main(int argc, char **argv)
             for (size_t i = 0; i < NUM_DATA; ++i) {
                 const int              LINE     = DATA[i].d_line;
                 const bsl::string_view SPEC     = DATA[i].d_spec_p;
-                const bsl::wstring_view WSPEC   = DATA[i].d_wspec_p;
+                const bsl::wstring_view WSPEC   = DATA[i].d_wSpec_p;
                 const Enums::Sections  SECTION  = DATA[i].d_section;
                 const bsl::string_view EXPECTED = DATA[i].d_expected_p;
 
@@ -2382,7 +2415,7 @@ int main(int argc, char **argv)
                 { L_,  "\x08",          1,        "\x08",      1         },
                 { L_,  "\x10\x27",      2,        "\x10\x27",  2         },
                 { L_,  "\xff\xff",      2,        "\xff\xff",  2         },
-                { L_,  "\x01",          1,        "\xd8",      1         },
+                { L_,  "\xd8",          1,        "\xd8",      1         },
                 { L_,  "\xa0\x86\x01",  3,        "\xdc",      1         },
                 { L_,  "\xff\xff\xff",  3,        "\x21\xe0",  2         },
             };
@@ -2406,35 +2439,33 @@ int main(int argc, char **argv)
                 bsl::string spec = FILL_SYMBOL;
                 ASSERTV(LINE, LENGTH, spec.length(), LENGTH == spec.length());
 
-                wchar_t buffer[4];
-                memset(buffer, 0, sizeof(buffer));
-                wchar_t *wbegin = buffer;
-                char    *begin  = reinterpret_cast<char *>(buffer);
-
-                strncpy(begin, FILL_SYMBOL, LENGTH);
-                const size_t  wlength = LENGTH % sizeof(wchar_t) > 0
+                const size_t  wLength = LENGTH % sizeof(wchar_t) > 0
                                       ? LENGTH / sizeof(wchar_t) + 1
                                       : LENGTH / sizeof(wchar_t);
-                wchar_t *wend = wbegin + wlength;
-                *wend = '^';
-                ++wend;
+                ASSERTV(wLength, 1 == wLength);
+                wchar_t buffer[2];
+                memset(buffer, 0, sizeof(buffer));
 
-                bsl::wstring_view wspec(wbegin, wend);
+                populateWchar(buffer, FILL_SYMBOL);
+                buffer[1] = '^';
+
+                bsl::wstring_view wSpec(buffer, 2);
 
                 WcharParser                       parser;
-                bslfmt::MockParseContext<wchar_t> context(wspec, 0);
+                bslfmt::MockParseContext<wchar_t> context(wSpec, 0);
 
                 try {
                     parser.parse(&context, SECTION);
                 }
                 catch (bsl::format_error& err) {
-                    ASSERTV(LINE, SIZEOF_WCHAR_32, err.what(), false);
+                    ASSERTV(LINE,  SIZEOF_WCHAR_32, isBigEndian(), err.what(),
+                            false);
                 }
 
                 ASSERTV(LINE, parser.filler());
-                ASSERTV(LINE, wspec[0] == *parser.filler());
-                ASSERTV(LINE, wlength, parser.numFillerCharacters(),
-                        wlength ==
+                ASSERTV(LINE, wSpec[0] == *parser.filler());
+                ASSERTV(LINE, wLength, parser.numFillerCharacters(),
+                        wLength ==
                             static_cast<size_t>(parser.numFillerCharacters()));
             }
         }

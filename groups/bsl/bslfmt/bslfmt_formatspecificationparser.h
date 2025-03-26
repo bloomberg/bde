@@ -506,7 +506,7 @@ FormatSpecificationParser<t_CHAR>::parseFillAndAlignment(t_ITER *start,
 
     if (cpBytes < 0) {
         BSLS_THROW(
-           bsl::format_error("Invalid unicode code point (`parse`"));  // THROW
+          bsl::format_error("Invalid unicode code point (`parse`)"));  // THROW
     }
 
     const int cpChars = cpBytes / sizeof(t_CHAR);
