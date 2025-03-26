@@ -54,8 +54,8 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
         if (rc) {
             d_logStream << "Error reading attribute value for "
                         << elementName << "'\n";
+            return rc;                                                // RETURN
         }
-        return rc;                                                    // RETURN
     }
     else if (Tokenizer::e_START_OBJECT == d_tokenizer.tokenType()) {
         // 'elementName' is a sequence or choice.  Descend into the element and
@@ -169,6 +169,7 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
         d_tokenizer.setAllowHeterogenousArrays(false);
     }
 
+    d_numUnknownElementsSkipped++;
     return 0;
 }
 }  // close package namespace

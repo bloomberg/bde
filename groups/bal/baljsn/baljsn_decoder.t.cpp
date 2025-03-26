@@ -125,6 +125,7 @@ namespace test = BloombergLP::s_baltst;
 //
 // ACCESSORS
 // [ 4] bsl::string loggedMessages() const;
+// [ 3] int numUnknownElementsSkipped() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING SKIPPING UNKNOWN ELEMENTS
@@ -7660,6 +7661,9 @@ int main(int argc, char *argv[])
         //    element regardless of the `skipUnknownElement` decoder option
         //    value.
         //
+        // 4. The decoder correctly counts the skipped elements if the
+        //    `skipUnknownElement` decoder option is specified.
+        //
         // Plan:
         // 1. Using the table-driven technique, specify a table with JSON text.
         //
@@ -7678,7 +7682,10 @@ int main(int argc, char *argv[])
         //
         //   6. Verify that the return code from `decode` is 0.  (C-1)
         //
-        //   7. Repeat steps 1 - 6 with the `skipUnknownElements` option set
+        //   7. Verify that `numUnknownElementsSkipped` has the value specified
+        //      in the table.  (C-4)
+        //
+        //   8. Repeat steps 1 - 7 with the `skipUnknownElements` option set
         //      to `false`.  Verify that an error code is returned by `decode`.
         //      (C-2)
         //
@@ -7705,6 +7712,7 @@ int main(int argc, char *argv[])
         //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
         //   int decode(bsl::istream& stream, TYPE *v, options);
         //   bsl::string loggedMessages() const;
+        //   int numUnknownElementsSkipped() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING SKIPPING UNKNOWN ELEMENTS"
@@ -7713,8 +7721,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing valid JSON strings" << endl;
 
         static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_text_p;   // json text
+            int         d_lineNum;             // source line number
+            const char *d_text_p;              // json text
+            int         d_numUnknownElements;  // number of unknown elements
         } DATA[] = {
             {
                 L_,
@@ -7727,7 +7736,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"age\" : 21,\n"
                 "       \"id\"  : 21\n"                 // <--- unknown element
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7740,7 +7750,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"id\"  : 21,\n"                // <--- unknown element
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7753,7 +7764,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"age\" : 21,\n"
                 "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7766,7 +7778,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7780,7 +7793,8 @@ int main(int argc, char *argv[])
                 "       \"age\" : 21,\n"
                 "       \"id\"  : 21,\n"                // <--- unknown element
                 "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
-                "}"
+                "}",
+                2
             },
             {
                 L_,
@@ -7794,7 +7808,8 @@ int main(int argc, char *argv[])
                 "       \"id\"  : 21,\n"                // <--- unknown element
                 "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                2
             },
             {
                 L_,
@@ -7807,7 +7822,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"age\" : 21,\n"
                 "       \"ids\" : [ 1, 2 ]\n"           // <--- unknown element
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7820,7 +7836,8 @@ int main(int argc, char *argv[])
                 "       },\n"
                 "       \"ids\" : [ 1, 2 ],\n"          // <--- unknown element
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7834,7 +7851,8 @@ int main(int argc, char *argv[])
                 "       \"age\" : 21,\n"
                 "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"   // <--- unknown
                                                                 //      element
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7848,7 +7866,8 @@ int main(int argc, char *argv[])
                 "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n"  // <--- unknown
                                                                 //      element
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7865,7 +7884,8 @@ int main(int argc, char *argv[])
                 "           \"city\" : \"Some City\",\n"
                 "           \"state\" : \"Some State\"\n"
                 "       }\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7882,7 +7902,8 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\"\n"
                 "       },\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7900,7 +7921,8 @@ int main(int argc, char *argv[])
                 "           \"state\" : \"Some State\",\n"
                 "           \"ids\" : [ 1, 2, 3]\n"
                 "       }\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7918,7 +7940,8 @@ int main(int argc, char *argv[])
                 "           \"ids\" : [ 1, 2, 3]\n"
                 "       },\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7939,7 +7962,8 @@ int main(int argc, char *argv[])
                 "           }\n"
                 "       },\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7960,7 +7984,8 @@ int main(int argc, char *argv[])
                 "               \"timezone\" : \"EST\"\n"
                 "           }\n"
                 "       }\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -7986,7 +8011,8 @@ int main(int argc, char *argv[])
                 "           }\n"
                 "       ],\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8012,7 +8038,8 @@ int main(int argc, char *argv[])
                 "               }\n"
                 "           }\n"
                 "       ]\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8038,7 +8065,8 @@ int main(int argc, char *argv[])
                 "           }\n"
                 "       ],\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8076,7 +8104,8 @@ int main(int argc, char *argv[])
                 "               }\n"
                 "           }\n"
                 "       ]\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8114,7 +8143,8 @@ int main(int argc, char *argv[])
                 "           }\n"
                 "       ],\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8161,7 +8191,8 @@ int main(int argc, char *argv[])
                 "               }\n"
                 "           ]\n"
                 "       }\n"
-                "}"
+                "}",
+                1
             },
             {
                 L_,
@@ -8208,7 +8239,8 @@ int main(int argc, char *argv[])
                 "           ]\n"
                 "       },\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
             // `baljsn::Decoder` fails to decode heterogeneous arrays, but
             // since we skip an unknown element it is allowed to contain such
@@ -8237,7 +8269,8 @@ int main(int argc, char *argv[])
                 "           \"liba-iaabass-dev\"\n"
                 "       ],\n"
                 "       \"age\" : 21\n"
-                "}"
+                "}",
+                1
             },
         };
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
@@ -8247,6 +8280,8 @@ int main(int argc, char *argv[])
             const bool         UTF8     = ti & 1;
             const int          LINE     = DATA[tj].d_lineNum;
             const bsl::string& jsonText = DATA[tj].d_text_p;
+            const int          NUM_UNKNOWN_ELEMENTS
+                                        = DATA[tj].d_numUnknownElements;
 
             // Without skipping option
             baljsn::Decoder        decoder;
@@ -8261,11 +8296,13 @@ int main(int argc, char *argv[])
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
                 ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
+                ASSERTV(LINE, 0 == decoder.numUnknownElementsSkipped());
             }
             {
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
                 ASSERTV(LINE, 0 != decoder.decode(iss, &bob, &mO));
+                ASSERTV(LINE, 0 == decoder.numUnknownElementsSkipped());
             }
 
             // With skipping option
@@ -8279,6 +8316,8 @@ int main(int argc, char *argv[])
                 ASSERT("Some City"   == bob.homeAddress().city());
                 ASSERT("Some State"  == bob.homeAddress().state());
                 ASSERTV(LINE, 21     == bob.age());
+                ASSERTV(LINE, NUM_UNKNOWN_ELEMENTS ==
+                                          decoder.numUnknownElementsSkipped());
             }
             {
                 test::Employee     bob;
@@ -8289,6 +8328,8 @@ int main(int argc, char *argv[])
                 ASSERT("Some City"   == bob.homeAddress().city());
                 ASSERT("Some State"  == bob.homeAddress().state());
                 ASSERTV(LINE, 21     == bob.age());
+                ASSERTV(LINE, NUM_UNKNOWN_ELEMENTS ==
+                                          decoder.numUnknownElementsSkipped());
             }
         }
 

@@ -214,6 +214,8 @@ class Decoder {
     int                 d_currentDepth;         // current decoding depth
     int                 d_maxDepth;             // max decoding depth
     bool                d_skipUnknownElements;  // skip unknown elements flag
+    int                 d_numUnknownElementsSkipped;  // number of unknown
+                                                      // elements skipped
 
     // FRIENDS
     friend struct Decoder_DecodeImpProxy;
@@ -339,6 +341,11 @@ class Decoder {
     /// were logged during the last call to the `decode` method.  The log is
     /// reset each time `decode` is called.
     bsl::string loggedMessages() const;
+
+    /// Return the number of unknown elements that were skipped during the
+    /// previous decoding operation.  Note that unknown elements are skipped
+    /// only if `options.skipUnknownElements() == true`.
+    int numUnknownElementsSkipped() const;
 };
 
                        // =============================
@@ -946,6 +953,7 @@ Decoder::Decoder(bslma::Allocator *basicAllocator)
 , d_currentDepth(0)
 , d_maxDepth(0)
 , d_skipUnknownElements(false)
+, d_numUnknownElementsSkipped(0)
 {
 }
 
@@ -960,6 +968,10 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
 
     d_logStream.clear();
     d_logStream.str("");
+
+    d_maxDepth                  = options.maxDepth();
+    d_skipUnknownElements       = options.skipUnknownElements();
+    d_numUnknownElementsSkipped = 0;
 
     bdlat_TypeCategory::Value category =
                                 bdlat_TypeCategoryFunctions::select(*value);
@@ -993,9 +1005,6 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     }
 
     bdlat_ValueTypeFunctions::reset(value);
-
-    d_maxDepth            = options.maxDepth();
-    d_skipUnknownElements = options.skipUnknownElements();
 
     rc = decodeImp(value, 0, TypeCategory());
 
@@ -1064,6 +1073,12 @@ inline
 bsl::string Decoder::loggedMessages() const
 {
     return d_logStream.str();
+}
+
+inline
+int Decoder::numUnknownElementsSkipped() const
+{
+    return d_numUnknownElementsSkipped;
 }
 
                        // -----------------------------
