@@ -121,7 +121,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bbldc::DayCountConvention Obj;
 typedef Obj::Enum                 Enum;
 
-enum { k_ABOVE_ENUM_RANGE = Obj::e_ACTUAL_365_25 + 1 };
+enum { k_ABOVE_ENUM_RANGE = Obj::e_ISDA_1_1 + 1 };
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -599,12 +599,12 @@ int main(int argc, char *argv[])
 
                     // Verify the objects are in a valid state.
 
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T1
-                                   && Obj::e_ACTUAL_365_25 >= T1);
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T2
-                                   && Obj::e_ACTUAL_365_25 >= T2);
-                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360    <= T3
-                                   && Obj::e_ACTUAL_365_25 >= T3);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T1
+                                   && Obj::e_ISDA_1_1   >= T1);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T2
+                                   && Obj::e_ISDA_1_1   >= T2);
+                    LOOP_ASSERT(i,    Obj::e_ACTUAL_360 <= T3
+                                   && Obj::e_ISDA_1_1   >= T3);
 
                 } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
@@ -768,8 +768,8 @@ int main(int argc, char *argv[])
                 { L_,   Obj::e_ACTUAL_360,               1,   1,  "\x00" },
                 { L_,   Obj::e_ACTUAL_365_FIXED,         1,   1,  "\x01" },
                 { L_,   Obj::e_ACTUAL_365_25,            1,   1,  "\x0D" },
-                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,       1,   1,  "\x03" },
                 { L_,   Obj::e_ISMA_30_360,              1,   1,  "\x05" },
+                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,       1,   1,  "\x03" },
                 { L_,   Obj::e_PSA_30_360_EOM,           1,   1,  "\x06" },
                 { L_,   Obj::e_SIA_30_360_EOM,           1,   1,  "\x07" },
                 { L_,   Obj::e_SIA_30_360_NEOM,          1,   1,  "\x08" },
@@ -778,6 +778,7 @@ int main(int argc, char *argv[])
                 { L_,   Obj::e_CALENDAR_BUS_252,         1,   1,  "\x0A" },
                 { L_,   Obj::e_ISDA_30_360_EOM,          1,   1,  "\x0B" },
                 { L_,   Obj::e_NL_365,                   1,   1,  "\x0C" },
+                { L_,   Obj::e_ISDA_1_1,                 1,   1,  "\x0E" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -945,6 +946,7 @@ int main(int argc, char *argv[])
             { L_,     Obj::e_CALENDAR_BUS_252,    "CALENDAR_BUS_252"   },
             { L_,     Obj::e_ISDA_30_360_EOM,     "ISDA_30_360_EOM"    },
             { L_,     Obj::e_NL_365,              "NL_365"             },
+            { L_,     Obj::e_ISDA_1_1,            "ISDA_1_1"           },
 
 #ifndef BDE_BUILD_TARGET_UBSAN
             { L_,     k_ABOVE_ENUM_RANGE,         UNKNOWN_FORMAT       },
@@ -1073,6 +1075,7 @@ int main(int argc, char *argv[])
             { L_,  0,  4, Obj::e_CALENDAR_BUS_252,   "CALENDAR_BUS_252" NL   },
             { L_,  0,  4, Obj::e_ISDA_30_360_EOM,    "ISDA_30_360_EOM" NL    },
             { L_,  0,  4, Obj::e_NL_365,             "NL_365" NL             },
+            { L_,  0,  4, Obj::e_ISDA_1_1,           "ISDA_1_1" NL           },
 
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE) && !defined(BDE_BUILD_TARGET_UBSAN)
             { L_,  0,  4, k_ABOVE_ENUM_RANGE,        UNKNOWN_FORMAT NL       },
@@ -1238,6 +1241,7 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_ISDA_30_360_EOM,             1, "ISDA_30_360_EOM"  },
             {  L_, Obj::e_NL_365,                      1, "NL_365"           },
             {  L_, Obj::e_ACTUAL_365_25,               1, "ACTUAL_365_25"    },
+            {  L_, Obj::e_ISDA_1_1,                    1, "ISDA_1_1"         },
 #ifndef BDE_BUILD_TARGET_UBSAN
             {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },

@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 // e_CALENDAR_BUS_252           Convention is calendar-based BUS-252.
 // e_ISDA_30_360_EOM            Convention is ISDA 30/360 end-of-month.
 // e_NL_365                     Convention is NL/365.
+// e_ISDA_1_1                   Convention is ISDA 1/1.
 // ```
 //
 ///Usage
@@ -102,7 +103,8 @@ struct DayCountConvention {
         e_CALENDAR_BUS_252          = 10,
         e_ISDA_30_360_EOM           = 11,
         e_NL_365                    = 12,
-        e_ACTUAL_365_25             = 13
+        e_ACTUAL_365_25             = 13,
+        e_ISDA_1_1                  = 14
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BBEDC_ACTUAL_360         = e_ACTUAL_360,
@@ -186,9 +188,8 @@ struct DayCountConvention {
     /// negative, format the entire output on one line, suppressing all but
     /// the initial indentation (as governed by `level`).  The behavior is
     /// undefined unless `value` is in the range
-    /// `[e_ACTUAL_360 .. e_ACTUAL_365_35]`.  See `toAscii` for what
-    /// constitutes the string representation of a
-    /// `bbldc::DayCountConvention::Enum` value.
+    /// `[e_ACTUAL_360 .. e_ISDA_1_1]`.  See `toAscii` for what constitutes the
+    /// string representation of a `bbldc::DayCountConvention::Enum` value.
     static bsl::ostream& print(bsl::ostream&            stream,
                                DayCountConvention::Enum value,
                                int                      level          = 0,
@@ -301,8 +302,8 @@ STREAM& DayCountConvention::bdexStreamIn(STREAM&                   stream,
             char newValue;
             stream.getInt8(newValue);
             if (   stream
-                && e_ACTUAL_360    <= newValue
-                && e_ACTUAL_365_25 >= newValue) {
+                && e_ACTUAL_360 <= newValue
+                && e_ISDA_1_1    >= newValue) {
                 variable = static_cast<DayCountConvention::Enum>(newValue);
             }
             else {
@@ -392,7 +393,7 @@ int bbldc::maxSupportedBdexVersion(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

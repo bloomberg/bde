@@ -38,6 +38,7 @@ const char *DayCountConvention::toAscii(Enum convention)
       CASE(ACTUAL_360);                                               // RETURN
       CASE(ACTUAL_365_25);                                            // RETURN
       CASE(ACTUAL_365_FIXED);                                         // RETURN
+      CASE(ISDA_1_1);                                                 // RETURN
       CASE(ISDA_30_360_EOM);                                          // RETURN
       CASE(ISDA_ACTUAL_ACTUAL);                                       // RETURN
       CASE(ISMA_30_360);                                              // RETURN
@@ -59,7 +60,7 @@ const char *DayCountConvention::toAscii(Enum convention)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(bbldc_basicdaycountutil_cpp,"$Id$ $CSID$")
 #include <bbldc_basicactual360.h>
 #include <bbldc_basicactual36525.h>
 #include <bbldc_basicactual365fixed.h>
+#include <bbldc_basicisda11.h>
 #include <bbldc_basicisdaactualactual.h>
 #include <bbldc_basicisma30360.h>
 #include <bbldc_basicnl365.h>
@@ -42,6 +43,9 @@ int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
       } break;
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numDays = bbldc::BasicActual365Fixed::daysDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_ISDA_1_1: {
+        numDays = bbldc::BasicIsda11::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISDA_30_360_EOM: {
         numDays = bbldc::TerminatedIsda30360Eom::daysDiff(beginDate, endDate);
@@ -81,6 +85,7 @@ bool BasicDayCountUtil::isSupported(DayCountConvention::Enum convention)
       case DayCountConvention::e_ACTUAL_360:
       case DayCountConvention::e_ACTUAL_365_25:
       case DayCountConvention::e_ACTUAL_365_FIXED:
+      case DayCountConvention::e_ISDA_1_1:
       case DayCountConvention::e_ISDA_30_360_EOM:
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL:
       case DayCountConvention::e_ISMA_30_360:
@@ -112,6 +117,9 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
       } break;
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numYears = bbldc::BasicActual365Fixed::yearsDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_ISDA_1_1: {
+        numYears = bbldc::BasicIsda11::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISDA_30_360_EOM: {
         numYears = bbldc::TerminatedIsda30360Eom::yearsDiff(beginDate,
@@ -148,7 +156,7 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

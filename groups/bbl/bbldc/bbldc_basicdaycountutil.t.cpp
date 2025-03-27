@@ -98,7 +98,8 @@ const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
 const Enum ACTUAL_365_25      = bbldc::DayCountConvention::e_ACTUAL_365_25;
 const Enum ACTUAL_365_FIXED   = bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
 const Enum INVALID_CONVENTION = static_cast<Enum>(2);
-const Enum ISDA_30_360_EOM     = bbldc::DayCountConvention::e_ISDA_30_360_EOM;
+const Enum ISDA_1_1           = bbldc::DayCountConvention::e_ISDA_1_1;
+const Enum ISDA_30_360_EOM    = bbldc::DayCountConvention::e_ISDA_30_360_EOM;
 const Enum ISDA_ACTUAL_ACTUAL =
                                bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
 const Enum ISMA_30_360        = bbldc::DayCountConvention::e_ISMA_30_360;
@@ -230,6 +231,9 @@ int main(int argc, char *argv[])
     { L_,   ACTUAL_365_FIXED,   1993,   12,  15, 1993,   12,  31, 0.0438356 },
     { L_,   ACTUAL_365_FIXED,   2003,    2,  28, 2004,    2,  29, 1.00274   },
     { L_,   ACTUAL_365_FIXED,   2004,    2,  28, 2004,    3,   1, 0.00548   },
+
+    { L_,   ISDA_1_1,           1993,   12,  15, 1993,   12,  31, 1.0       },
+    { L_,   ISDA_1_1,           2003,    2,  28, 2004,    2,  29, 1.0       },
 
     { L_,   ISDA_30_360_EOM,    1993,   12,  15, 1993,   12,  31, 0.0416667 },
     { L_,   ISDA_30_360_EOM,    2003,    2,  28, 2004,    2,  29, 1.0000    },
@@ -397,6 +401,9 @@ int main(int argc, char *argv[])
     { L_,   ACTUAL_365_FIXED,   1993,    12,  15, 1993,    12,  31,      16 },
     { L_,   ACTUAL_365_FIXED,   2003,     2,  28, 2004,     2,  29,     366 },
 
+    { L_,   ISDA_1_1,           1993,    12,  15, 1993,    12,  31,       1 },
+    { L_,   ISDA_1_1,           2003,     2,  28, 2004,     2,  29,       1 },
+
     { L_,   ISDA_30_360_EOM,    1993,    12,  15, 1993,    12,  31,      15 },
     { L_,   ISDA_30_360_EOM,    2003,     2,  28, 2004,     2,  29,     360 },
 
@@ -542,6 +549,7 @@ int main(int argc, char *argv[])
             ASSERT((   ACTUAL_360         == convention
                     || ACTUAL_365_25      == convention
                     || ACTUAL_365_FIXED   == convention
+                    || ISDA_1_1           == convention
                     || ISDA_30_360_EOM    == convention
                     || ISDA_ACTUAL_ACTUAL == convention
                     || ISMA_30_360        == convention
@@ -565,7 +573,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
