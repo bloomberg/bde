@@ -8,21 +8,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide macros to facilitate `bsl::format` logging.
 //
 //@MACROS:
-//  BALL_FMT: bsl::format a log record within a _BLOCK
-//  BALL_FMT_TRACE: bsl::format a log record with the `e_TRACE` level
-//  BALL_FMT_DEBUG: bsl::format a log record with the `e_DEBUG` level
-//  BALL_FMT_INFO: bsl::format a log record with the `e_INFO` level
-//  BALL_FMT_WARN: bsl::format a log record with the `e_WARN` level
-//  BALL_FMT_ERROR: bsl::format a log record with the `e_ERROR` level
-//  BALL_FMT_FATAL: bsl::format a log record with the `e_FATAL` level
+//  BALL_FMT: format a log record within a _BLOCK
+//  BALL_FMT_TRACE: format a log record with the `e_TRACE` level
+//  BALL_FMT_DEBUG: format a log record with the `e_DEBUG` level
+//  BALL_FMT_INFO: format a log record with the `e_INFO` level
+//  BALL_FMT_WARN: format a log record with the `e_WARN` level
+//  BALL_FMT_ERROR: format a log record with the `e_ERROR` level
+//  BALL_FMT_FATAL: format a log record with the `e_FATAL` level
 //
-//@SEE_ALSO: ball_log
+//@SEE_ALSO: ball_log, bslfmt_format
 //
 //@DESCRIPTION: This component provides preprocessor macros that facilitate
-// logging using `bsl::format` format strings.  Please first read the
-// documentation of the `ball_log` component as these macros are pure
-// extensions of the system there, and this documentation will use terminology
-// established by `ball_log`.
+// logging using standard `format` format strings.  This component provides
+// additional macros that build of those defined in `ball_log`, and this
+// documentation assumes readers will be familiar with the terminology
+// established by that component, such as log category, log record, log level,
+// etc.
 //
 ///Thread Safety
 ///-------------
@@ -40,12 +41,12 @@ BSLS_IDENT("$Id: $")
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
 // The macros defined in this subsection are the ones that are actually used to
-// produce log records.  A use of any one of the logging macros requires that a
-// logging category (as established by the macros defined above) be in scope at
-// the point where the macro is used.  Note that the formatted string that is
-// generated for the message attribute of each log record includes the category
-// that is in scope and the filename as established by the standard `__FILE__`
-// macro.
+// produce log records.  A use of any of the logging macros require a logging
+// category be established in scope -- e.g., using `BALL_LOG_SET_CATEGORY`.
+// For more information of setting the log category for a particular scope,
+// see `ball_log`.  Note that the formatted string that is generated for the
+// message attribute of each log record includes the category that is in scope
+// and the filename as established by the standard `__FILE__` macro.
 //
 // The code within any logging statement/code block must not produce any side
 // effects because it may or may not be executed based on run-time
@@ -53,18 +54,16 @@ BSLS_IDENT("$Id: $")
 // ```
 // BALL_FMT_INFO << ++i;    // (!) May or may not be incremented
 //
-// A set of macros based on C++ streams, `BALL_FMT_TRACE`, `BALL_FMT_DEBUG`,
-// `BALLFMT_INFO`, `BALL_FMT_WARN`, `BALL_FMT_ERROR`, and `BALL_FMT_FATAL`,
-// are the ones most commonly used for `bsl::format` stykle logging.  They have
-// the following usage pattern:
+// The following `BALL_FMT_*` macros, are the simplest mechanisms to format
+// (using a standard `format` specification) a single message to a log:
 // ```
-// BALL_FMT_TRACE( format-string-literal, X, Y);
-// BALL_FMT_DEBUG( format-string-literal, X, Y);
-// BALL_FMT_INFO(  format-string-literal, X, Y);
-// BALL_FMT_WARN(  format-string-literal, X, Y);
-// BALL_FMT_ERROR( format-string-literal, X, Y);
-// BALL_FMT_FATAL( format-string-literal, X, Y);
-//     where X, Y, ... represents any sequence of values for which a
+// BALL_FMT_TRACE(format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_DEBUG(format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_INFO( format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_WARN( format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_ERROR(format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_FATAL(format-string-literal, ARG1, ARG2, ...);
+//     where ARG1, ARG2, ... represents any sequence of values for which a
 //     `bsl::format` formatter is defined.  The resulting formatted message
 //     string is logged with the severity indicated by the name of the macro
 //     (e.g., `BALL_FMT_TRACE` logs with severity `ball::Severity::e_TRACE`).
@@ -86,7 +85,7 @@ BSLS_IDENT("$Id: $")
 // Please see `ball_log` for the other such block macros.
 //
 // Within logging code blocks the special macro, `BALL_FMT` provides
-// `bsl::format` logging into the log record being built there.
+// standard `format`-style logging into the log record being built there.
 //```
 // BALL_FMT(format-string-literal, X, Y, ...)
 //```
@@ -122,7 +121,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // bsl::vector<int> myVector(4, 328);
 // BALL_LOG_TRACE_BLOCK {
-//     BALL_FMT("{}", "myVector = [ ");
+//     BALL_FMT("myVector = [ ");
 //     unsigned int position = 0;
 //     for (bsl::vector<int>::const_iterator it  = myVector.begin(),
 //                                           end = myVector.end();
@@ -130,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //         ++it, ++position) {
 //         BALL_FMT("{}:{} ", position, *it);
 //     }
-//     BALL_FMT("{}", ']');
+//     BALL_FMT("]");
 // }
 // ```
 // Note that the code block will be conditionally executed depending on the
