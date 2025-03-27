@@ -763,15 +763,29 @@ static int                      g_numCtorInvocations;
 static int                      g_numParseInvocations;
 static int                      g_numFormatInvocations;
 static bsl::vector<int>         g_values;
-static bsl::vector<bsl::string> g_parseContextContents;
+template <class t_CHAR>
+struct ParseContextContents;
+template <>
+struct ParseContextContents<char>{
+    typedef bsl::string             value_type;
+    static bsl::vector<bsl::string> s_vector;
+};
+bsl::vector<bsl::string> ParseContextContents<char>::s_vector;
+template <>
+struct ParseContextContents<wchar_t> {
+    typedef bsl::wstring             value_type;
+    static bsl::vector<bsl::wstring> s_vector;
+};
+bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector;
 
-static void resetFormattedIntGlobals()
+    static void resetFormattedIntGlobals()
 {
     g_numCtorInvocations = 0;
     g_numParseInvocations = 0;
     g_numFormatInvocations = 0;
     g_values.clear();
-    g_parseContextContents.clear();
+    ParseContextContents<char>::s_vector.clear();
+    ParseContextContents<wchar_t>::s_vector.clear();
 }
 
 static void printFormattedIntGlobals()
@@ -784,10 +798,18 @@ static void printFormattedIntGlobals()
         printf("%d ", g_values[i]);
     }
     puts("}");
-    printf("g_parseContextContents[%d]: { ",
-           static_cast<int>(g_parseContextContents.size()));
-    for (size_t i = 0; i < g_parseContextContents.size(); ++i) {
-        printf("\"%s\" ", g_parseContextContents[i].c_str());
+    printf("ParseContextContents<char>[%d]: { ",
+           static_cast<int>(ParseContextContents<char>::s_vector.size()));
+    for (size_t i = 0; i < ParseContextContents<char>::s_vector.size(); ++i) {
+        printf("\"%s\" ",
+               ParseContextContents<char>::s_vector[i].c_str());
+    }
+    puts("}");
+    printf("ParseContextContents<wchar_t>[%d]: { ",
+           static_cast<int>(ParseContextContents<wchar_t>::s_vector.size()));
+    for (size_t i = 0; i < ParseContextContents<wchar_t>::s_vector.size(); ++i) {
+        wprintf(L"\"%s\" ",
+                ParseContextContents<wchar_t>::s_vector[i].c_str());
     }
     puts("}");
 }
@@ -838,9 +860,10 @@ struct IntFormatter {
         typename t_PARSE_CONTEXT::const_iterator temp    = context.begin();
 
         u_IF_NOT_CONSTEXPR {
-            g_parseContextContents.push_back("");
+            ParseContextContents<t_CHAR>::s_vector.push_back(
+                                   ParseContextContents<t_CHAR>::value_type());
             while (temp != end) {
-                g_parseContextContents.back().push_back(*temp);
+                ParseContextContents<t_CHAR>::s_vector.back().push_back(*temp);
                 ++temp;
             }
         }
@@ -1115,15 +1138,28 @@ void testCase9()
                 g_numFormatInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
         ASSERTV(g_numParseInvocations, u_VERIFY_VFORMAT_BOTH_NUMCALLS,
                 g_numParseInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        ASSERTV(g_parseContextContents.size(),
-                u_VERIFY_VFORMAT_BOTH_NUMCALLS,
-               g_parseContextContents.size() == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
+        ASSERTV(ParseContextContents<char>::s_vector.size(),
+                u_VERIFY_VFORMAT_NUMCALLS,
+                ParseContextContents<char>::s_vector.size() ==
+                    u_VERIFY_VFORMAT_NUMCALLS);
+        ASSERTV(ParseContextContents<wchar_t>::s_vector.size(),
+                u_VERIFY_WVFORMAT_NUMCALLS,
+                ParseContextContents<wchar_t>::s_vector.size() ==
+                    u_VERIFY_WVFORMAT_NUMCALLS);
         ASSERTV(g_values.size(),
                 u_VERIFY_VFORMAT_BOTH_NUMCALLS,
                g_values.size() == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        for (size_t i = 0; i < g_parseContextContents.size(); ++i) {
-            ASSERTV(i, g_parseContextContents[i].c_str(),
-                    g_parseContextContents[i] == "}");
+        for (size_t i = 0; i < ParseContextContents<char>::s_vector.size();
+             ++i) {
+            ASSERTV(i,
+                    ParseContextContents<char>::s_vector[i].c_str(),
+                    ParseContextContents<char>::s_vector[i] == "}");
+        }
+        for (size_t i = 0; i < ParseContextContents<wchar_t>::s_vector.size();
+             ++i) {
+            ASSERTV(i,
+                    ParseContextContents<wchar_t>::s_vector[i].c_str(),
+                    ParseContextContents<wchar_t>::s_vector[i] == L"}");
         }
         for (size_t i = 0; i < g_values.size(); ++i) {
             ASSERTV(i, g_values[i], g_values[i] == 42);
