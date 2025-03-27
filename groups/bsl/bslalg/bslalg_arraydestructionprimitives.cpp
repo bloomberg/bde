@@ -29,7 +29,9 @@ bslalg::ArrayDestructionPrimitives::scribbleOverMemory(void   *ptr,
         *p = 0xa5;
     }
 #else
-    memset(ptr, 0xa5, numBytes);
+    if (numBytes) {
+        memset(ptr, 0xa5, numBytes);
+    }
 #endif
 }
 

@@ -576,7 +576,9 @@ struct ElementType<your::YourFloatArray> {
        int *newData = static_cast<int *>(bsl::malloc(sizeof(int)
                                                    * newSize));
        if (d_size < newSize) {
-           bsl::memcpy(newData, d_data_p, d_size * sizeof(int));
+           if (d_data_p) {
+               bsl::memcpy(newData, d_data_p, d_size * sizeof(int));
+           }
            std::memset(newData + d_size,
                        0,
                        (newSize - d_size) * sizeof(int));
