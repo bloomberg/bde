@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 // ```
    bsl::vector<int> myVector(4, 328);
    BALL_LOG_TRACE_BLOCK {
-       BALL_FMT("{}", "myVector = [ ");
+       BALL_FMT("myVector = [ ");
        unsigned int position = 0;
        for (bsl::vector<int>::const_iterator it  = myVector.begin(),
                                              end = myVector.end();
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
            ++it, ++position) {
            BALL_FMT("{}:{} ", position, *it);
        }
-       BALL_FMT("{}", ']');
+       BALL_FMT("]");
    }
 // ```
 // Note that the code block will be conditionally executed depending on the

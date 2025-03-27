@@ -150,36 +150,35 @@ BSLS_IDENT("$Id: $")
                          // Logging Macro Definitions
                          // =========================
 
-#define BALL_FMT(formatString, ...)                                           \
+#define BALL_FMT(...)                                                         \
     bsl::format_to(                                                           \
         bsl::ostreambuf_iterator<char>(                                       \
             &BALL_LOG_RECORD->fixedFields().messageStreamBuf()),              \
-        formatString,                                                         \
         __VA_ARGS__)
 
-#define BALL_FMT_TRACE(formatString, ...)                                     \
+#define BALL_FMT_TRACE(...)                                                   \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE)           \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
-#define BALL_FMT_DEBUG(formatString, ...)                                     \
+#define BALL_FMT_DEBUG(...)                                                   \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG)           \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
-#define BALL_FMT_INFO(formatString, ...)                                      \
+#define BALL_FMT_INFO(...)                                                    \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_INFO)            \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
-#define BALL_FMT_WARN(formatString, ...)                                      \
+#define BALL_FMT_WARN(...)                                                    \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_WARN)            \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
-#define BALL_FMT_ERROR(formatString, ...)                                     \
+#define BALL_FMT_ERROR(...)                                                   \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_ERROR)           \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
-#define BALL_FMT_FATAL(formatString, ...)                                     \
+#define BALL_FMT_FATAL(...)                                                   \
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)           \
-    BALL_FMT(formatString, __VA_ARGS__);
+    BALL_FMT(__VA_ARGS__)
 
 #endif
 
