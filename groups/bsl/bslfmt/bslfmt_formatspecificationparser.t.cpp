@@ -27,6 +27,49 @@ using namespace BloombergLP;
 using namespace bslfmt;
 
 // ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// The component under test implements a single value-semantic attribute class.
+// According to the practice accepted in the BDE, in the second test case
+// (Primary Manipulators) we should test a set of functions sufficient to bring
+// the object to any possible state.  In this case, we would be forced to test
+// the constructor and all manipulators in one place.  But for readability,
+// each function is tested in a separate test case.
+// The second problem is that almost all accessors except one throw exceptions
+// if they are called for a newly created object.  So in the forth test case
+// (Basic Accessors) we have to use (yet untested) `parse` and `postprocess`
+// manipulators to modify object from the default state.
+// Third test case contains tests for the test specification generator.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 2] bslfmt::FormatSpecificationParser();
+//
+// MANIPULATORS
+// [5] void parse(t_PARSE_CONTEXT *parseContext, Sections sections);
+// [6] void postprocess(const t_FORMAT_CONTEXT& context);
+//
+// ACCESSORS
+// [4] const t_CHAR *filler() const;
+// [4] int numFillerCharacters() const;
+// [4] int fillerCodePointDisplayWidth() const;
+// [4] Alignment alignment() const;
+// [4] Sign sign() const;
+// [4] bool alternativeFlag() const;
+// [4] bool zeroPaddingFlag() const;
+// [4] const NumericValue postprocessedWidth() const;
+// [4] const NumericValue postprocessedPrecision() const;
+// [4] const NumericValue rawWidth() const;
+// [4] const NumericValue rawPrecision() const;
+// [4] bool localeSpecificFlag() const;
+// [4] ProcessingState processingState() const;
+// [4] const bsl::basic_string_view<t_CHAR> remainingSpec() const;
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] TEST SPECIFICATION GENERATOR
+
+// ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 namespace {
@@ -442,6 +485,94 @@ class TestSpecificationGenerator_TypedOption
                    // ================================
                    // class TestSpecificationGenerator
                    // ================================
+
+/// This class is a generator that provides a set of formatting specifications
+/// obtained by exhaustive search of all combinations of standard options.  Its
+/// use allows easy and thorough testing of formatters for standard types.  The
+/// generator is a state machine, each state of which corresponds to a separate
+/// specification.
+/// The set of options can be configured using a special language:
+///
+///LANGUAGE SPECIFICATION
+///----------------------
+/// 'V' - flag indicating if argument id must be present in format
+//        specification.  The generator substitutes only the preset zero index
+//        (i.e. `0:`).
+/// 'F' - command indicating if fill characters must be added to the produced
+///       specifications.  By default two preset characters are used: '*' and
+///       '=', but the user might add additional characters using
+///       `addFillCharacter` method.
+/// '^' - command indicating if alignment option must be added to the generated
+///       specifications. Three standard options are iterated through in
+///       sequence: '<', '^' and '>'.
+/// '+' - command indicating if sign option must be added to the generated
+///       specifications. Three standard options are iterated through in
+///       sequence: '+', '-' and ' '.
+/// '#' - flag indicating if alternate form option must be present in the
+//        generated specifications.
+/// '0' - flag indicating if zero option must be present in the generated
+//        specifications.
+/// 'W' - command indicating if width option must be added to the produced
+///       specifications.  By default the following values are iterated
+///       through: 1, 5, 6 and 10,  but the user might add additional values
+///       using `addWidth` method.  This command does not add nested width
+///       values.
+/// 'P' - command indicating if precision option must be added to the produced
+///       specifications.  By default the following values are iterated
+///       through: 0, 5, 6 and 10,  but the user might add additional values
+///       using `addPrecision` method.  This command does not add nested
+///       precision values.
+/// '{' - command indicating if nested width option must be added to the
+///       produced specifications.  By default the following indexes are
+///       iterated through: empty, 1, and 2 (i.e. `{}`, `{1}` and `{2}`.  Note
+///       that due to implementation specifics this command automatically adds
+///       non-nested width values (i.e. the default full set looks like ``(no
+///       option), `{}`, `{1}`, `{2}`, `1`, `5`, `6` and `10`.
+/// '}' - command indicating if nested precision option must be added to the
+///       produced specifications.  By default the following indexes are
+///       iterated through: empty, 1, and 2 (i.e. `.{}`, `.{1}` and `.{2}`.
+///       Note that due to implementation specifics this command automatically
+///       adds non-nested precision values (i.e. the default full set looks
+///       like ``(no option), `.{}`, `.{1}`, `.{2}`, `.0`, `.5`, `.6` and
+///       `.10`.
+/// 'L' - flag indicating if locale option must be present in the generated
+//        specifications.
+/// 's' - command indicating if string presentation type (i.e. `s`) must be
+///       present in the generated specifications.
+/// 'i' - command indicating if integer presentation types must be present in
+///       the generated specifications. The  following standard options are
+///       iterated through in sequence: `b`, `B`, `c`, `d`, `o`, `x` and `X`.
+/// 'c' - command indicating if character presentation types must be present in
+///       the generated specifications. The  following standard options are
+///       iterated through in sequence: `b`, `B`, `c`, `d`, `o`, `x` and `X`.
+/// 'b' - command indicating if boolean presentation types must be present in
+///       the generated specifications. The  following standard options are
+///       iterated through in sequence: `s`, `b`, `B`, `c`, `d`, `o`, `x` and
+///       `X`.
+/// 'f' - command indicating if floating-point presentation types must be
+///       present in the generated specifications. The  following standard
+///       options are iterated through in sequence: `a`, `A`, `e`, `E`, `f`,
+///       `F`, `g` and `G`.
+/// 'p' - command indicating if pointer presentation types must be present in
+///       the generated specifications. The  following standard options are
+///       iterated through in sequence: `p` and `P`.
+/// 'a' - command indicating if all presentation types must be present in the
+///       generated specifications. The  following standard options are
+///       iterated through in sequence: `s`, `b`, `B`, `c`, `d`, `o`, `x`, `X`,
+///       `a`, `A`, `e`, `E`, `f`, `F`, `g`, `G`, `p` and `P`.
+/// The default generator instruction is "F^+#0WP{}L".  Note that adding a
+/// particular command to an instruction does not mean that the corresponding
+/// option will be present in every generated specification; a specification
+/// with the missing option will also be generated.
+/// The generator produces both valid and invalid strings from the point of
+/// view of the standard, which also allows thorough testing of the processing
+/// of incorrect input data. But at the same time, it remains possible to
+/// iterate only through valid specifications using 'nextValidForParse` or
+/// 'nextValidForFormat` methods.
+///
+/// It is planned to move this class into a separate component afterwards,
+/// which will allow it to be used across the `bslfmt` package without
+/// duplicating the code.
 template <class t_CHAR>
 class TestSpecificationGenerator {
   public:
@@ -484,7 +615,8 @@ class TestSpecificationGenerator {
         e_TYPE_FIXED_UC,       // `F`
         e_TYPE_GENERAL,        // `g`
         e_TYPE_GENERAL_UC,     // `G`
-        e_TYPE_POINTER         // 'p'
+        e_TYPE_POINTER,        // 'p'
+        e_TYPE_POINTER_UC      // 'P'
     };
 
   private:
@@ -496,34 +628,100 @@ class TestSpecificationGenerator {
                                    // first node in the option list (if any)
 
     bool                       d_valueIdOptionIsPresent;
-                                   // flag indicating that
+                                   // flag indicating that value argument id is
+                                   // present in the current specification
+
     bool                       d_fillCharacterIsPresent;
+                                   // flag indicating that fill character is
+                                   // present in the current specification
+
     char                       d_fillCharacter;
+                                   // fill character value
+
     bool                       d_alignOptionIsPresent;
+                                   // flag indicating that align option is
+                                   // present in the current specification
+
     Alignment                  d_alignment;
+                                   // alignment option value
+
     bool                       d_signOptionIsPresent;
+                                   // flag indicating that sign option is
+                                   // present in the current specification
+
     Sign                       d_sign;
+                                   // sign option value
+
     bool                       d_hashOptionIsPresent;
+                                   // flag indicating that alternative form
+                                   // option is present in the current
+                                   // specification
+
     bool                       d_zeroOptionIsPresent;
+                                   // flag indicating that zero option is
+                                   // present in the current specification
+
     bool                       d_widthOptionIsPresent;
+                                   // flag indicating that width option is
+                                   // present in the current specification
+
     int                        d_width;
+                                   // width value
+
     bool                       d_nestedWidthIsPresent;
+                                   // flag indicating that nested width option
+                                   // is present in the current specification
+
     NestedVariant              d_nestedWidthVariant;
+                                   // nested width option value
+
     bool                       d_precisionOptionIsPresent;
+                                   // flag indicating that precision option is
+                                   // present in the current specification
+
     int                        d_precision;
+                                   // precision value
+
     bool                       d_nestedPrecisionIsPresent;
+                                   // flag indicating that nested precision
+                                   // option is present in the current
+                                   // specification
+
     NestedVariant              d_nestedPrecisionVariant;
+                                   // nested precision option value
+
     bool                       d_localeOptionIsPresent;
+                                   // flag indicating that locale option is
+                                   // present in the current specification
+
     bool                       d_typeOptionIsPresent;
+                                   // flag indicating that presentation type
+                                   // option is present in the current
+                                   // specification
+
     FormatType                 d_type;
+                                   // presentation type option value
 
     bsl::basic_string<t_CHAR>  d_spec;
+                                   // generated specification suitable for
+                                   // formatters `parse` method
+
     bsl::basic_string<t_CHAR>  d_formatSpec;
+                                   // generated specification suitable for
+                                   // formatters `format` method
+
     bsl::vector<char>          d_fillCharacters;
+                                   // fill characters set
+
     bsl::vector<int>           d_widths;
+                                   // width values set
+
     bsl::vector<int>           d_precisions;
-    bslma::Allocator          *d_allocator_p;   // allocator used to supply memory;
-                                                // held but not own
+                                   // precision values set
+
+    bslma::Allocator          *d_allocator_p;
+                                  // allocator used to supply memory (held, not
+                                  // own)
   public:
 
     // TRAITS
@@ -532,82 +730,155 @@ class TestSpecificationGenerator {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Add the specified `newOption` to the option list.
     void addOption(Option *newOption);
 
+    /// Generate a specification based on the current state of the object.
     void generateSpecification();
 
     // PRIVATE ACCESSORS
 
+    /// Return `true` if the current state of the object assumes an automatic
+    /// mode of indexing parameters, and `false` otherwise.
     bool isAutoIndexingMode() const;
 
+    /// Return `true` if the current state of the object assumes a manual mode
+    /// of indexing parameters, and `false` otherwise.
     bool isManualIndexingMode() const;
 
   public:
     // CREATORS
+
+    /// Create a generator object.  Optionally specify the `basicAllocator` to
+    /// supply memory.
     TestSpecificationGenerator(bslma::Allocator *basicAllocator = 0);
 
     // MANIPULATORS
+
+    /// Add the specified `character` to the set of fill characters.  Note that
+    /// generated instructions will contain the `character` only if this
+    /// function is called before the `setup` method invocation.
     void addFillCharacter(char character);
 
+    /// Add the specified `width` to the set of width values. Note that
+    /// generated instructions will contain the `width` only if this function
+    /// is called before the `setup` method invocation.
     void addWidth(int width);
 
+    /// Add the specified `precision` to the set of precision values. Note that
+    /// generated instructions will contain the `precision` only if this
+    /// function is called before the `setup` method invocation.
     void addPrecision(int precision);
 
+    /// Switch this object to the next state and generate specification based
+    /// on the new state.
     bool next();
 
+    /// Switch this object to the next state appropriate for generating a
+    /// specification valid for formatters `parse` method and generate
+    /// specification based on the new state.
     bool nextValidForParse();
 
+    /// Switch this object to the next state appropriate for generating a
+    /// specification valid for formatters `format` method and generate
+    /// specification based on the new state.
     bool nextValidForFormat();
 
-    void setup(const char *spec = 0);
+    /// Setup the sequence of this object's states based on the optionally
+    /// specified `instruction`.
+    void setup(const char *instruction = 0);
 
     // ACCESSORS
+
+    /// Return the specification for the formatters `parse` method based on the
+    /// current state of this object.
     const bsl::basic_string<t_CHAR>& spec() const;
 
+    /// Return the specification for the formatters `format` method based on
+    /// the current state of this object.
     const bsl::basic_string<t_CHAR>& formatSpec() const;
 
+    /// Return `true` if the generated specification based on the current state
+    /// of this object is valid for the formatters `parse` method, and `false`
+    /// otherwise.
     bool isStateValidForParse() const;
 
+    /// Return `true` if the generated specification based on the current state
+    /// of this object is valid for the formatters `format` method, and `false`
+    /// otherwise.
     bool isStateValidForFormat() const;
 
+    /// Return `true` if the value id option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isValueIdOptionPresent() const;
 
+    /// Return `true` if the value id option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isFillCharacterPresent() const;
 
+    /// Return the current fill character.
     char fillCharacter() const;
 
+    /// Return `true` if the align option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isAlignOptionPresent() const;
 
+    /// Return the current alignment type.
     Alignment alignment() const;
 
+    /// Return `true` if the sign option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isSignOptionPresent() const;
 
+    /// Return the current sign option value.
     Sign sign() const;
 
+    /// Return `true` if the alternative form option is present in the current
+    /// state of this object, and `false` otherwise.
     bool isHashOptionPresent() const;
 
+    /// Return `true` if the zero option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isZeroOptionPresent() const;
 
+    /// Return `true` if the width option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isWidthOptionPresent() const;
 
+    /// Return the current width value.
     int width() const;
 
+    /// Return `true` if the nested width option is present in the current
+    /// state of this object, and `false` otherwise.
     bool isNestedWidthPresent() const;
 
+    /// Return the current nested width variant.
     NestedVariant nestedWidthVariant() const;
 
+    /// Return `true` if the precision option is present in the current state
+    /// of this object, and `false` otherwise.
     bool isPrecisionOptionPresent() const;
 
+    /// Return the current precision value.
     int precision() const;
 
+    /// Return `true` if the nested precision option is present in the current
+    /// state of this object, and `false` otherwise.
     bool isNestedPrecisionPresent() const;
 
+    /// Return the current nested precision variant.
     NestedVariant nestedPrecisionVariant() const;
 
+    /// Return `true` if the locale option is present in the current state of
+    /// this object, and `false` otherwise.
     bool isLocaleOptionPresent() const;
 
+    /// Return `true` if the presentation type option is present in the current
+    /// state of this object, and `false` otherwise.
     bool isTypeOptionPresent() const;
 
+    /// Return the current presentation type value.
     FormatType type() const;
 };
 
@@ -790,6 +1061,9 @@ void TestSpecificationGenerator<t_CHAR>::generateSpecification()
           case e_TYPE_POINTER: {
             d_spec.push_back('p');
           } break;
+          case e_TYPE_POINTER_UC: {
+            d_spec.push_back('P');
+          } break;
           default: {
             ASSERTV("Unexpected type option", false);
           }
@@ -964,16 +1238,18 @@ bool TestSpecificationGenerator<t_CHAR>::nextValidForFormat()
 }
 
 template <class t_CHAR>
-void TestSpecificationGenerator<t_CHAR>::setup(const char *spec)
+void TestSpecificationGenerator<t_CHAR>::setup(const char *instruction)
 {
-    const char  *defaultSpec      = "F^+#0WP{}L";
-    bsl::string  specStr          = spec ? spec : defaultSpec;
-    bool         typeIsSpecified  = false;
-    bool         widthIsAdded     = false;
-    bool         precisionIsAdded = false;
+    const char  *defaultInstruction = "F^+#0WP{}L";
+    bsl::string  instructionStr     = instruction
+                                    ? instruction
+                                    : defaultInstruction;
+    bool         typeIsSpecified    = false;
+    bool         widthIsAdded       = false;
+    bool         precisionIsAdded   = false;
 
-    for (bsl::string::const_iterator it = specStr.begin();
-         it != specStr.end();
+    for (bsl::string::const_iterator it = instructionStr.begin();
+         it != instructionStr.end();
          ++it) {
         switch (*it) {
           case 'V': {
@@ -1171,7 +1447,10 @@ void TestSpecificationGenerator<t_CHAR>::setup(const char *spec)
             ASSERTV("Multiple types request", !typeIsSpecified);
             typeIsSpecified = true;
 
-            bsl::vector<FormatType> typeVector(1, e_TYPE_POINTER);
+            bsl::vector<FormatType> typeVector;
+            typeVector.push_back(e_TYPE_POINTER);     // 'P'
+            typeVector.push_back(e_TYPE_POINTER_UC);  // 'P'
+
             addOption(new (*d_allocator_p)
                           TestSpecificationGenerator_TypedOption<FormatType>(
                                                         &d_typeOptionIsPresent,
@@ -1201,6 +1480,7 @@ void TestSpecificationGenerator<t_CHAR>::setup(const char *spec)
             typeVector.push_back(e_TYPE_GENERAL);        // `g`
             typeVector.push_back(e_TYPE_GENERAL_UC);     // `G`
             typeVector.push_back(e_TYPE_POINTER);        // 'p'
+            typeVector.push_back(e_TYPE_POINTER_UC);     // 'p'
 
             addOption(new (*d_allocator_p)
                           TestSpecificationGenerator_TypedOption<FormatType>(
@@ -1209,7 +1489,7 @@ void TestSpecificationGenerator<t_CHAR>::setup(const char *spec)
                                                         typeVector));
           } break;
           default: {
-            ASSERTV(*it, "Unexpected specification option", false);
+            ASSERTV(*it, "Unexpected instruction command", false);
           }
         }
     }
@@ -1241,9 +1521,10 @@ bool TestSpecificationGenerator<t_CHAR>::isStateValidForParse() const
                                  (d_signOptionIsPresent ||
                                   d_hashOptionIsPresent ||
                                   d_zeroOptionIsPresent) &&
-                                 (e_TYPE_STRING    == d_type ||
-                                  e_TYPE_CHARACTER == d_type ||
-                                  e_TYPE_POINTER   == d_type);
+                                 (e_TYPE_STRING     == d_type ||
+                                  e_TYPE_CHARACTER  == d_type ||
+                                  e_TYPE_POINTER    == d_type ||
+                                  e_TYPE_POINTER_UC == d_type);
 
     // Rule: Precision can be used with floating-point and string types
     // only.
@@ -1256,7 +1537,8 @@ bool TestSpecificationGenerator<t_CHAR>::isStateValidForParse() const
                e_TYPE_OCTAL      == d_type ||
                e_TYPE_INT_HEX    == d_type ||
                e_TYPE_INT_HEX_UC == d_type ||
-               e_TYPE_POINTER    == d_type);
+               e_TYPE_POINTER    == d_type ||
+               e_TYPE_POINTER_UC == d_type);
 
     // Rule: An align option must follow a fill character.
     bool missedAlignOption = d_fillCharacterIsPresent &&
@@ -1413,6 +1695,9 @@ TestSpecificationGenerator<t_CHAR>::type() const
     return d_type;
 }
 
+/// Verify the state of the specified `parser` after processing the
+/// specification generated for the current state of the specified `generator`
+/// with the specified `sections`.
 template <class t_CHAR>
 void verifyParsedState(const FormatSpecificationParser<t_CHAR>&  parser,
                        const TestSpecificationGenerator<t_CHAR>& generator,
@@ -1681,6 +1966,10 @@ void verifyParsedState(const FormatSpecificationParser<t_CHAR>&  parser,
                    case TestSpecificationGenerator<t_CHAR>::e_TYPE_POINTER: {
                     expectedSpec.push_back('p');
                    } break;
+                   case TestSpecificationGenerator<
+                       t_CHAR>::e_TYPE_POINTER_UC: {
+                    expectedSpec.push_back('P');
+                   } break;
                    default: {
                     ASSERTV("Unexpected type option", false);
                    }
@@ -1699,6 +1988,10 @@ void verifyParsedState(const FormatSpecificationParser<t_CHAR>&  parser,
     }
 }
 
+/// Verify the state of the specified `parser` after postprocessing the
+/// specification generated for the current state of the specified `generator`
+/// with the specified `arg0`, 'arg1' and 'arg2' passed as parameters to the
+/// format context constructor.
 template <class t_CHAR>
 void verifyPostprocessedState(
                            const FormatSpecificationParser<t_CHAR>&  parser,
@@ -1813,15 +2106,21 @@ void verifyPostprocessedState(
     }
 }
 
+// ============================================================================
+//                            TEST DRIVER TEMPLATE
+// ----------------------------------------------------------------------------
 
+// This template struct provides a namespace for implementations of test
+// functions that verify the correctness of the `FormatSpecificationParser`
+// methods.
 template <class t_CHAR>
 struct TestDriver {
 
     // CLASS METHODS
-    /// Test `postprocess`.
+    /// Test `postprocess` method using test specification generator.
     static void testCase6(bool verbose, bool veryVerbose);
 
-    /// Test `parse`.
+    /// Test `parse` method using test specification generator.
     static void testCase5(bool verbose, bool veryVerbose);
 };
 
@@ -1846,7 +2145,9 @@ void TestDriver<t_CHAR>::testCase6(bool verbose, bool veryVerbose)
               bsl::basic_string_view<t_CHAR>    input(spec.c_str(),
                                                       spec.length());
               bslfmt::MockParseContext<t_CHAR>  parseContext(input, 3);
-              bslfmt::MockFormatContext<t_CHAR> formatContext(arg0, arg1, arg2);
+              bslfmt::MockFormatContext<t_CHAR> formatContext(arg0,
+                                                              arg1,
+                                                              arg2);
 
               parser.parse(&parseContext, Enums::e_SECTIONS_ALL);
 
@@ -1873,7 +2174,7 @@ void TestDriver<t_CHAR>::testCase5(bool verbose, bool veryVerbose)
         printf("\tTesting separate sections using specification generator\n");
     {
         static const struct {
-            int                    d_line;          // line of source code
+            int                    d_line;          // source line number
             const Enums::Sections  d_section;       // parser section
             const char            *d_instruction_p; // generator instr
         } DATA[] = {
@@ -1989,15 +2290,32 @@ int main(int argc, char **argv)
         // TESTING `postprocess`
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 The `postprocess` method correctly handles any unicode fill
+        //:   character.
+        //:
+        //: 2 The `postprocess` method modifies width and precision attributes
+        //:   in accordance with the arguments passed to the format context.
         //
         // Plan:
-        //: 1 Invoke public methods of class being tested and verify the
-        //:   results.
+        //: 1 Using table-based approach specify a set of unicode fill
+        //:   characters.  For each one parse the specification containing it,
+        //:   postprocess it and verify that unicode character is correctly
+        //:   handled.  (C-1)
+        //:
+        //: 2 Using table-based approach specify a set of specifications
+        //:   containing various combinations of nested width and nested
+        //:   precision options.  Parse these specifications and then
+        //:   postprocess them passing different width and precision values to
+        //:   the format context parameter.  Verify the values of the
+        //:   `postprocessedWidth` and `postprocessedPrecision` attributes of
+        //:   the parser.
+        //:
+        //: 3 Use test specification generator to produce a huge amount of
+        //:   input and thoroughly test the basic functionality of the
+        //:   `postprocess` method.  (C-2)
         //
         // Testing:
-        //   BREATHING TEST
+        //   void postprocess(const t_FORMAT_CONTEXT& context);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `postprocess`"
@@ -2006,7 +2324,7 @@ int main(int argc, char **argv)
         if (verbose) printf("\tTesting fill character postprocessing.\n");
         {
             static const struct {
-                int         d_line;        // code source line
+                int         d_line;        // source line number
                 const char *d_utf8String;  // UTF-8 filling character
                 const int   d_width;       // expected width of UTF-8 character
             } DATA[] = {
@@ -2056,7 +2374,7 @@ int main(int argc, char **argv)
             }
 
             static const struct {
-                int     d_line;          // code source line
+                int     d_line;          // source line number
                 wchar_t d_spec16[2];     // UTF-16 filling character
                 size_t  d_specLength16;  // length of UTF-16 filling character
                 size_t  d_width16;       // expected width of UTF-16 character
@@ -2085,7 +2403,7 @@ int main(int argc, char **argv)
             ASSERTV(sizeof(wchar_t),
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
-            for (size_t i = 0; i < NUM_DATA; ++i) {
+            for (size_t i = 0; i < NUM_WDATA; ++i) {
                 const int      LINE            = WDATA[i].d_line;
                 const bool     SIZEOF_WCHAR_32 = 4 == sizeof(wchar_t);
                 const wchar_t *SPEC            =  SIZEOF_WCHAR_32
@@ -2132,7 +2450,7 @@ int main(int argc, char **argv)
 
             static const struct {
                   int                     d_line;
-                                              // line of code
+                                              // source line number
 
                   const char             *d_spec_p;
                                               // specification
@@ -2217,34 +2535,58 @@ int main(int argc, char **argv)
             }
         }
 
+        if (verbose) printf("\tTesting basic functionality using generator\n");
+
         TestDriver<char   >::testCase6(verbose, veryVerbose);
         TestDriver<wchar_t>::testCase6(verbose, veryVerbose);
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING `parse`
-        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 The `parse` method correctly handles any valid parse
+        //:   specification.
+        //:
+        //: 2 The `parse` method throws an appropriate exception for the
+        //:   invalid specification.
+        //:
+        //: 3 The `parse` method parses specification parts exactly according
+        //:   to the passed `sections` parameter.
+        //:
+        //: 4 The `parse` method correctly handles unicode fill characters.
         //
         // Plan:
-        //: 1 Invoke public methods of class being tested and verify the
-        //:   results.
+        //: 1 Use test specification generator to produce a huge amount of
+        //:   input and thoroughly test the basic functionality.
+        //:
+        //: 2 Using table-based approach specify different combinations of
+        //:   specifications and sections for parsing.  For each pair parse the
+        //:   specification and verify the value of the unparsed leftover.
+        //:   (C-3)
+        //:
+        //: 3 Using table-based approach specify a set of invalid
+        //:   specifications.  Parse each of them and verify that an exception
+        //:   is thrown and contains the expected error message.  (C-2)
+        //:
+        //: 4 Using table-based approach specify a set of unicode fill
+        //:   characters.  For each one parse the specification containing it
+        //:   and verify that it is correctly handled.  (C-1, 4)
         //
         // Testing:
-        //   BREATHING TEST
+        //   void parse(t_PARSE_CONTEXT *parseContext, Sections sections);
         // --------------------------------------------------------------------
 
         if (verbose)
              printf("\nTESTING `parse`"
                     "\n===============\n");
 
+        if (verbose) printf("\tTesting basic functionality using generator\n");
+
         TestDriver<char   >::testCase5(verbose, veryVerbose);
         TestDriver<wchar_t>::testCase5(verbose, veryVerbose);
 
-        if (verbose) printf("\tTesting 'remainingSpec'\n");
+        if (verbose) printf("\tTesting correct leftovers handling\n");
         {
             // Table abbreviations
             const Enums::Sections NONE       = Enums::e_SECTIONS_NONE;
@@ -2262,7 +2604,7 @@ int main(int argc, char **argv)
             const Enums::Sections ALL = Enums::e_SECTIONS_ALL;
 
             static const struct {
-                int              d_line;        // line of source code
+                int              d_line;        // source line number
                 const char      *d_spec_p;      // parse specification
                 Enums::Sections  d_section;     // section required
                 const char      *d_expected_p;  // expected error message
@@ -2323,7 +2665,7 @@ int main(int argc, char **argv)
              const Enums::Sections ALL   = Enums::e_SECTIONS_ALL;
 
              static const struct {
-                int              d_line;        // line of source code
+                int              d_line;        // source line number
                 const char      *d_spec_p;      // parse specification
                 const wchar_t   *d_wSpec_p;     // parse specification
                 Enums::Sections  d_section;     // section required
@@ -2374,7 +2716,7 @@ int main(int argc, char **argv)
 
         {
             static const struct {
-                int           d_line;        // code source line
+                int           d_line;        // source line number
                 const char   *d_utf8String;  // UTF-8 filling character
                 const size_t  d_length;      // length of UTF-8 character
             } DATA[] = {
@@ -2426,7 +2768,7 @@ int main(int argc, char **argv)
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
             static const struct {
-                int     d_line;          // code source line
+                int     d_line;          // source line number
                 wchar_t d_spec16[2];     // UTF-16 filling character
                 size_t  d_specLength16;  // length of UTF-16 filling character
                 int     d_numChars16;    // number of bytes in UTF-16 character
@@ -2502,15 +2844,40 @@ int main(int argc, char **argv)
         //   `processingState` accessor only.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 The accessors throw exceptions if called before the appropriate
+        //:   parser's methods (`parse` and `postprocess`) have been called.
         //
         // Plan:
-        //: 1 Invoke public methods of class being tested and verify the
-        //:   results.
+        //: 1 Create a parser and call accessors.  Verify that all functions
+        //:   except `processingState` throw exceptions.  Verify that the
+        //:   `processingState` identifies the current parser's state as
+        //:   unparsed.
+        //:
+        //:  2 Call (untested yet) `parse` method and verify that all methods
+        //:   except those that required the `postprocess` function call return
+        //:   expected values.  Verify that the functions that required the
+        //:   `postprocess` function call (`fillerCodePointDisplayWidth`,
+        //:   `postprocessedWidth` and `postprocessedPrecision`) still throw
+        //:   exceptions.
+        //:
+        //:  3 Call (untested yet) `postprocess` method and verify that all
+        //:    methods return expected values.  (C-1)
         //
         // Testing:
-        //   BREATHING TEST
+        //   const t_CHAR *filler() const;
+        //   int numFillerCharacters() const;
+        //   int fillerCodePointDisplayWidth() const;
+        //   Alignment alignment() const;
+        //   Sign sign() const;
+        //   bool alternativeFlag() const;
+        //   bool zeroPaddingFlag() const;
+        //   const NumericValue postprocessedWidth() const;
+        //   const NumericValue postprocessedPrecision() const;
+        //   const NumericValue rawWidth() const;
+        //   const NumericValue rawPrecision() const;
+        //   bool localeSpecificFlag() const;
+        //   ProcessingState processingState() const;
+        //   const bsl::basic_string_view<t_CHAR> remainingSpec() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBASIC ACCESSORS"
@@ -2774,18 +3141,36 @@ int main(int argc, char **argv)
       case 3: {
         // --------------------------------------------------------------------
         // TESTING APPARATUS
-        //   This case exercises (but does not fully test) basic functionality.
+        //   `TestSpecificationGenerator` is planned to be moved into a
+        //   separate component where thorough testing will be carried out.
+        //   Therefore, this test case should be considered as a breathing test
+        //   for the generator.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 Generator produces all possible variations of specification
+        //:   according to the received instruction.
+        //:
+        //: 2 The main loop of the generator states can be run over and over,
+        //:   producing the same specifications.
         //
         // Plan:
-        //: 1 Invoke public methods of class being tested and verify the
-        //:   results.
+        //: 1 Specify some option and consequently check all generator states
+        //:   using table-based approach.
+        //:
+        //: 2. Setup generator and iterate through all its states once.  Setup
+        //:    second generator using the same instructions that have been used
+        //:    for the first one.  Now run both generators simultaneously and
+        //:    verify that they produce the same results.  (C-2)
+        //:
+        //: 3. Setup generator with nested width and nested precision options.
+        //:    Iterate through the certain number of generator states and
+        //:    verify its attributes using table-based approach.
+        //:
+        //: 4. Use standard formatting implementation (if available) to verify
+        //:    validity of the specifications produced by the generator.  (C-1)
         //
         // Testing:
-        //   BREATHING TEST
+        //   TEST SPECIFICATION GENERATOR
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING APPARATUS"
@@ -2798,28 +3183,28 @@ int main(int argc, char **argv)
         const Alignment alignNA = Generator::e_ALIGN_LEFT;
 
         static const struct {
-            int         d_line;
-            bool        d_fillCharacterPresence;  // month of datetime
-            char        d_fillCharacter;          // day of month of datetime
-            bool        d_alignmentPresence;      // hour of datetime
-            Alignment   d_alignment;              // minute of datetime
-            const char *d_spec_p;                 // year of datetime
+            int         d_line;                   // source line number
+            bool        d_fillCharacterPresence;  // fill character presence
+            char        d_fillCharacter;          // fill character
+            bool        d_alignmentPresence;      // align optionpresence
+            Alignment   d_alignment;              // alignment type
+            const char *d_spec_p;                 // specification
 
         } DATA[] = {
-            //    YEAR  MO  DAY  HOUR  MIN  SEC  MSEC   OFFSET
-            //    ----  --  ---  ----  ---  ---  ----  -------
-            { L_, false, charNA, false, alignNA,                   ""   },
-            { L_, false, charNA, true,  Generator::e_ALIGN_LEFT,   "<"  },
-            { L_, false, charNA, true,  Generator::e_ALIGN_MIDDLE, "^"  },
-            { L_, false, charNA, true,  Generator::e_ALIGN_RIGHT,  ">"  },
-        //  { L_, true,  '*',    false, alignNA,                   "*"  },
-            { L_, true , '*',    true,  Generator::e_ALIGN_LEFT,   "*<" },
-            { L_, true,  '*',    true,  Generator::e_ALIGN_MIDDLE, "*^" },
-            { L_, true,  '*',    true,  Generator::e_ALIGN_RIGHT,  "*>" },
-        //  { L_, true,  '=',    false, alignNA,                   "="  },
-            { L_, true , '=',    true,  Generator::e_ALIGN_LEFT,   "=<" },
-            { L_, true,  '=',    true,  Generator::e_ALIGN_MIDDLE, "=^" },
-            { L_, true,  '=',    true,  Generator::e_ALIGN_RIGHT,  "=>" },
+            //LINE FILL_P FILL_V  ALIGN_P ALIGN_V                     SPEC
+            //---- ------ ------  ------- --------------------------  ----
+            { L_,  false, charNA, false,   alignNA,                   ""   },
+            { L_,  false, charNA, true,    Generator::e_ALIGN_LEFT,   "<"  },
+            { L_,  false, charNA, true,    Generator::e_ALIGN_MIDDLE, "^"  },
+            { L_,  false, charNA, true,    Generator::e_ALIGN_RIGHT,  ">"  },
+        //  { L_,  true,  '*',    false,   alignNA,                   "*"  },
+            { L_,  true , '*',    true,    Generator::e_ALIGN_LEFT,   "*<" },
+            { L_,  true,  '*',    true,    Generator::e_ALIGN_MIDDLE, "*^" },
+            { L_,  true,  '*',    true,    Generator::e_ALIGN_RIGHT,  "*>" },
+        //  { L_,  true,  '=',    false,   alignNA,                   "="  },
+            { L_,  true , '=',    true,    Generator::e_ALIGN_LEFT,   "=<" },
+            { L_,  true,  '=',    true,    Generator::e_ALIGN_MIDDLE, "=^" },
+            { L_,  true,  '=',    true,    Generator::e_ALIGN_RIGHT,  "=>" },
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2927,19 +3312,45 @@ int main(int argc, char **argv)
             const NestedVar A_2 = Generator::e_NESTED_ARG_2;
 
             static const struct {
-                int              d_line;                    // line of source code
-                const char      *d_spec_p;                  // generator instr
-                const char      *d_format_p;                // generator instr
+                int              d_line;
+                                     // source line number
+                const char      *d_spec_p;
+                                     // expected `parse` specification
+                const char      *d_format_p;
+                                     // expected `format` specification
+
                 const bool       d_widthPresence;
+                                     // expected width option presence
+
                 const int        d_widthValue;
+                                     // expected width value
+
                 const bool       d_nestedWidthPresence;
+                                     // expected nested width option presence
+
                 const NestedVar  d_nestedWidthValue;
+                                     // expected nested width value
+
                 const bool       d_precisionPresence;
+                                     // expected precision option presence
+
                 const int        d_precisionValue;
+                                     // expected precision value
+
                 const bool       d_nestedPrecisionPresence;
+                                     // expected nested precision presence
+
                 const NestedVar  d_nestedPrecisionValue;
+                                     // expected nested precision value
+
                 const bool       d_isValidForParse;
+                                     // expected specification validity for
+                                     // the formatters `parse` method
+
                 const bool       d_isValidForFormat;
+                                     // expected specification validity for
+                                     // the formatters `format` method
+
             } DATA[] = {
   //------------^
   //L   PARSE      FORMAT        WP  WV  NWP NWV   PP  PV  NPP NPV   PVD  FVD
@@ -3206,7 +3617,7 @@ int main(int argc, char **argv)
         //:   accessor.  (C-1)
         //
         // Testing:
-        //   FormatSpecificationParser();
+        //   bslfmt::FormatSpecificationParser();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPRIMARY MANIPULATORS"
