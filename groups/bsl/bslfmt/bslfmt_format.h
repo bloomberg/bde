@@ -36,7 +36,6 @@ BSLS_IDENT("$Id: $")
 // `std::vformat`, and `std::vformat_to` functions of which the `format` and
 // `vformat` wrappers are allocator-aware.  Where a conforming implementation
 // or when compiling C++17 and earlier, BDE implementation is provided.
-// earlier, a BSL implementation is provided.
 //
 // Where a BSL implementation is provided, functionality is limited to that
 // provided by C++20 and excludes the following features:

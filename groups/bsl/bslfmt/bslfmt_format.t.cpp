@@ -206,7 +206,7 @@ struct formatter<FormattableType, t_CHAR> {
   #define u_TESTUTIL_VORACLE_NUMCALLS 0
 #else  // ndef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #define u_TESTUTIL_ORACLE_TEST(fmtstr, expected, ...)                       \
-      do {                                                                    \
+    do {                                                                      \
           const std::string stdResult = std::format(fmtstr, __VA_ARGS__);     \
           ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);    \
                                                                               \
@@ -216,7 +216,7 @@ struct formatter<FormattableType, t_CHAR> {
     } while (false)
 
   #define u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, ...)                      \
-      do {                                                                    \
+    do {                                                                      \
           const std::wstring stdResult = std::format(fmtstr, __VA_ARGS__);    \
           ASSERT(stdResult == result);                                        \
                                                                               \
@@ -228,7 +228,7 @@ struct formatter<FormattableType, t_CHAR> {
   // `vformat`, `vformat_to`
 
   #define u_TESTUTIL_VORACLE_TEST(fmtstr, expected, ...)                      \
-      do {                                                                    \
+    do {                                                                      \
           const std::string stdResult = std::vformat(                         \
                                         fmtstr,                               \
                                         std::make_format_args(__VA_ARGS__));  \
@@ -243,7 +243,7 @@ struct formatter<FormattableType, t_CHAR> {
     } while (false)
 
   #define u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, ...)                     \
-      do {                                                                    \
+    do {                                                                      \
           const std::wstring stdResult = std::vformat(                        \
                                         fmtstr,                               \
                                         std::make_wformat_args(__VA_ARGS__)); \
