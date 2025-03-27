@@ -861,7 +861,7 @@ struct IntFormatter {
 
         u_IF_NOT_CONSTEXPR {
             ParseContextContents<t_CHAR>::s_vector.push_back(
-                                   ParseContextContents<t_CHAR>::value_type());
+                          typename ParseContextContents<t_CHAR>::value_type());
             while (temp != end) {
                 ParseContextContents<t_CHAR>::s_vector.back().push_back(*temp);
                 ++temp;
