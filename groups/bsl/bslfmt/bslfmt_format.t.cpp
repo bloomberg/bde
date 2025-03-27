@@ -883,7 +883,7 @@ struct IntFormatter {
             int digit = output / divider;
             if (digit != 0) {
                 printed      = true;
-                *outIterator = '0' + digit;
+                *outIterator = '0' + static_cast<char>(digit);
                 ++outIterator;
             }
             output %= divider;
