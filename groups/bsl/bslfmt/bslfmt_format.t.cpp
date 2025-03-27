@@ -903,13 +903,13 @@ struct IntFormatter {
         }
         bool printed = false;
         while (output > 0) {
-            int digit = output / divider;
+            int digit = static_cast<int>(output / divider);
             if (digit != 0) {
                 printed      = true;
                 *outIterator = '0' + static_cast<char>(digit);
                 ++outIterator;
             }
-            output %= divider;
+            output = static_cast<int>(output % divider);
             divider /= 10;
         }
         if (!printed) {
