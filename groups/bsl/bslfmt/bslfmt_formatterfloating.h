@@ -162,7 +162,7 @@ struct FormatterFloating_Base {
     // PRIVATE MANIPULATORS
 
     /// Write the specified `numberBuffer` of size `numberLength` aligned with
-    /// fills according to the specified `remainingSpec` to the output iterator
+    /// fills according to the specified `finalSpec` to the output iterator
     /// of the `formatContext` and return an iterator one-past the last
     /// written.
     template <class t_FORMAT_CONTEXT>
@@ -174,7 +174,7 @@ struct FormatterFloating_Base {
 
     /// Create the fixed string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
-    /// `remainingSpec`, and write the result to the output iterator that the
+    /// `finalSpec`, and write the result to the output iterator that the
     /// `formatContext` points to.  The behavior is undefined unless the
     /// requested format is fixed or uppercase fixed.
     template <class t_FORMAT_CONTEXT>
@@ -185,7 +185,7 @@ struct FormatterFloating_Base {
 
     /// Create the minimal-round-tripping string representation of the
     /// specified `value`, customized in accordance with the requested format
-    /// in the specified `remainingSpec`, and write the result to the output
+    /// in the specified `finalSpec`, and write the result to the output
     /// iterator that the `formatContext` points to.  The behavior is undefined
     /// unless the requested format type is default and no precision is
     /// specified.  Notice that when a precision is specified the format used
@@ -198,7 +198,7 @@ struct FormatterFloating_Base {
 
     /// Create the general string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
-    /// `remainingSpec`, and write the result to the output iterator that the
+    /// `finalSpec`, and write the result to the output iterator that the
     /// `formatContext` points to.  The behavior is undefined unless the
     /// requested format is general or uppercase general.
     template <class t_FORMAT_CONTEXT>
@@ -209,7 +209,7 @@ struct FormatterFloating_Base {
 
     /// Create the minimal-round-tripping hexfloat string representation of the
     /// specified `value`, customized in accordance with the requested format
-    /// in the specified `remainingSpec`, and write the result to the output
+    /// in the specified `finalSpec`, and write the result to the output
     /// iterator that the `formatContext` points to.  The behavior is undefined
     /// unless the requested format is hexfloat or uppercase hexfloat and no
     /// precision is specified.  Notice that there is a separate implementation
@@ -222,7 +222,7 @@ struct FormatterFloating_Base {
 
     /// Create the hexfloat string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
-    /// `remainingSpec`, and write the result to the output iterator that the
+    /// `finalSpec`, and write the result to the output iterator that the
     /// `formatContext` points to.  The behavior is undefined unless the
     /// requested format is hexfloat or uppercase hexfloat and the required
     /// precision is explicitly specified.  Notice that there is a separate
@@ -235,7 +235,7 @@ struct FormatterFloating_Base {
 
     /// Create the scientific string representation of the specified `value`,
     /// customized in accordance with the requested format in the specified
-    /// `remainingSpec`, and write the result to the output iterator that the
+    /// `finalSpec`, and write the result to the output iterator that the
     /// `formatContext` points to.  The behavior is undefined unless the
     /// requested format is scientific or uppercase scientific.
     template <class t_FORMAT_CONTEXT>

@@ -4496,7 +4496,7 @@ struct Decimal_BslFmtFormatterImpl {
     // PRIVATE MANIPULATORS
 
     /// Copy the specified `numberBuffer` of size `numberLength` aligned with
-    /// fills according to the specified `remainingSpec` to the output iterator of
+    /// fills according to the specified `finalSpec` to the output iterator of
     /// the `formatContext` and return an iterator one-past the last written.
     /// The behavior is undefined unless `t_FORMAT_CONTEXT` is either
     /// `std::format_context` if that is supported, or otherwise

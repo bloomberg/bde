@@ -835,9 +835,8 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::rawParse(
     }
 
     if (0 != (sections & e_SECTIONS_REMAINING_SPEC)) {
-        bsl::basic_string_view<t_CHAR>                          temp(*start,
-                                                                     end);
-        size_t counter = 0;
+        bsl::basic_string_view<t_CHAR> temp(*start, end);
+        size_t                         counter = 0;
 
         // Take anything left up to but not including last closing brace.
         int level = 1;
