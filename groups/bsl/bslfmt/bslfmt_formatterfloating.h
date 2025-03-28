@@ -162,8 +162,9 @@ struct FormatterFloating_Base {
     // PRIVATE MANIPULATORS
 
     /// Write the specified `numberBuffer` of size `numberLength` aligned with
-    /// fills according to the specified `finalSpec` to the output iterator of
-    /// the `formatContext` and return an iterator one-past the last written.
+    /// fills according to the specified `finalSpec` to the output iterator
+    /// of the `formatContext` and return an iterator one-past the last
+    /// written.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator alignAndCopy(
                                         const char           *numberBuffer,
@@ -555,9 +556,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
 
     for (ptrdiff_t i = 0; i < leftPadFillerCopiesNum; ++i) {
         outIterator = bsl::copy(
-                            finalSpec.filler(),
-                            finalSpec.filler() + finalSpec.fillerCharacters(),
-                            outIterator);
+                          finalSpec.filler(),
+                          finalSpec.filler() + finalSpec.numFillerCharacters(),
+                          outIterator);
     }
 
     if (addSignChar) {
@@ -582,9 +583,9 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
 
     for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
         outIterator = bsl::copy(
-                             finalSpec.filler(),
-                             finalSpec.filler() + finalSpec.fillerCharacters(),
-                             outIterator);
+                          finalSpec.filler(),
+                          finalSpec.filler() + finalSpec.numFillerCharacters(),
+                          outIterator);
     }
 
     return outIterator;

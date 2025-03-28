@@ -244,9 +244,9 @@ int main(int argc, char **argv)
             const CharSpec& baseSpec = X.specification();
             ASSERTV(LINE,
                     bsl::string_view(baseSpec.filler(),
-                                     baseSpec.fillerCharacters()) ==
+                                     baseSpec.numFillerCharacters()) ==
                         bsl::string_view(spec.filler(),
-                                         spec.fillerCharacters()));
+                                         spec.numFillerCharacters()));
             ASSERTV(LINE, baseSpec.alignment() == spec.alignment());
             ASSERTV(LINE, baseSpec.sign() == spec.sign());
             ASSERTV(LINE,
@@ -321,9 +321,9 @@ int main(int argc, char **argv)
             const WcharSpec& baseSpec = X.specification();
             ASSERTV(LINE,
                     bsl::wstring_view(baseSpec.filler(),
-                                      baseSpec.fillerCharacters()) ==
+                                      baseSpec.numFillerCharacters()) ==
                         bsl::wstring_view(spec.filler(),
-                                          spec.fillerCharacters()));
+                                          spec.numFillerCharacters()));
             ASSERTV(LINE, baseSpec.alignment() == spec.alignment());
             ASSERTV(LINE, baseSpec.sign() == spec.sign());
             ASSERTV(LINE,

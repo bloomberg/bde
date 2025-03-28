@@ -105,6 +105,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslfmt_format_args.h>
+#include <bslfmt_formaterror.h>
+#include <bslfmt_formatterbase.h>
+
 #include <bslalg_numericformatterutil.h>
 
 #include <bslmf_assert.h>
@@ -128,9 +132,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
-
-#include <bslfmt_formaterror.h>
-#include <bslfmt_formatterbase.h>
 
 namespace BloombergLP {
 namespace bslfmt {

@@ -644,9 +644,9 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
 
     for (int i = 0; i < leftPadFillerCopies; ++i) {
         outIterator = bsl::copy(
-                             finalSpec.filler(),
-                             finalSpec.filler() + finalSpec.fillerCharacters(),
-                             outIterator);
+                          finalSpec.filler(),
+                          finalSpec.filler() + finalSpec.numFillerCharacters(),
+                          outIterator);
     }
 
     outIterator = bsl::copy(value.begin(),
@@ -655,9 +655,9 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
 
     for (int i = 0; i < rightPadFillerCopies; ++i) {
         outIterator = bsl::copy(
-                             finalSpec.filler(),
-                             finalSpec.filler() + finalSpec.fillerCharacters(),
-                             outIterator);
+                          finalSpec.filler(),
+                          finalSpec.filler() + finalSpec.numFillerCharacters(),
+                          outIterator);
     }
 
     return outIterator;
