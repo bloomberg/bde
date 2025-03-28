@@ -403,7 +403,8 @@ BSLS_IDENT("$Id: $")
 // for (int ti = 0; ti < k_NUM_THREADS; ++ti) {
 //     WorkerFunctor functor = { ti, &myDeque, &barrier };
 //
-//     bslmt::ThreadUtil::create(&handles[ti], functor);
+//     int rc = bslmt::ThreadUtil::create(&handles[ti], functor);
+//     assert(0 == rc);
 // }
 // ```
 // Then, wait on the barrier, that will set all the subthreads running:

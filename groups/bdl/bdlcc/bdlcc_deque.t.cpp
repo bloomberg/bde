@@ -1957,7 +1957,7 @@ void testTimedPushPopMove()
 
         TimedPopRecordBack<ELEMENT> testMObj(&x, &barrier, T3, VA);
         bslmt::ThreadUtil::Handle thread;
-        bslmt::ThreadUtil::create(&thread, testMObj);
+        ASSERT(0 == bslmt::ThreadUtil::create(&thread, testMObj));
 
         barrier.wait();
 
@@ -2021,7 +2021,7 @@ void testTimedPushPopMove()
 
         TimedPopRecordFront<ELEMENT> testMObj(&x, &barrier, T3, VA);
         bslmt::ThreadUtil::Handle thread;
-        bslmt::ThreadUtil::create(&thread, testMObj);
+        ASSERT(0 == bslmt::ThreadUtil::create(&thread, testMObj));
 
         barrier.wait();
 
@@ -4001,16 +4001,16 @@ void testMultiThreadedTryPop()
             switch (vecType) {
               case u::e_BSL: {
                 TestPopFront<bsl::vector<ELEMENT> > frontFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, frontFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
               } break;
               case u::e_STD: {
                 TestPopFront<std::vector<ELEMENT> > frontFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, frontFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
               } break;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
               case u::e_PMR: {
                 TestPopFront<std::pmr::vector<ELEMENT> > frontFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, frontFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
               } break;
 #endif
               default: {
@@ -4035,16 +4035,16 @@ void testMultiThreadedTryPop()
             switch (vecType) {
               case u::e_BSL: {
                 TestPopBack<bsl::vector<ELEMENT> > backFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, backFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
               } break;
               case u::e_STD: {
                 TestPopBack<std::vector<ELEMENT> > backFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, backFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
               } break;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
               case u::e_PMR: {
                 TestPopBack<std::pmr::vector<ELEMENT> > backFunc(&mX, &ta);
-                bslmt::ThreadUtil::create(&handle, backFunc);
+                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
               } break;
 #endif
               default: {
@@ -5479,7 +5479,8 @@ int main(int argc, char *argv[])
     for (int ti = 0; ti < k_NUM_THREADS; ++ti) {
         WorkerFunctor functor = { ti, &myDeque, &barrier };
 
-        bslmt::ThreadUtil::create(&handles[ti], functor);
+        int rc = bslmt::ThreadUtil::create(&handles[ti], functor);
+        ASSERT(0 == rc);
     }
 // ```
 // Then, wait on the barrier, that will set all the subthreads running:
@@ -6354,7 +6355,7 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadUtil::Handle handles[4];
         for (int ii = 0; ii < 4; ++ii) {
-            int rc =bslmt::ThreadUtil::create(
+            int rc = bslmt::ThreadUtil::create(
                                    &handles[ii],
                                    MultiThreadedForcePushTest(&container, ii));
             ASSERT(0 == rc);
@@ -6509,9 +6510,10 @@ int main(int argc, char *argv[])
                 ASSERT(X.length() == startLength);
 
                 bslmt::ThreadUtil::Handle handle;
-                bslmt::ThreadUtil::create(&handle,
-                                          FATHWMStressTest(&mX,
-                                          &barrier));
+                ASSERT(0 == bslmt::ThreadUtil::create(
+                                                  &handle,
+                                                  FATHWMStressTest(&mX,
+                                                                   &barrier)));
 
                 barrier.wait();
 
@@ -6701,7 +6703,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
 
             bslmt::ThreadUtil::Handle handle;
-            bslmt::ThreadUtil::create(&handle, HWMStressTest(&mX, &barrier));
+            ASSERT(0 == bslmt::ThreadUtil::create(&handle,
+                                                  HWMStressTest(&mX,
+                                                                &barrier)));
 
             while (X.length() < HIGH_WATER_MARK) {
                 bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -6995,7 +6999,7 @@ int main(int argc, char *argv[])
 
         TC::EmptyDequeFunctor functor(&mX, &barrier, &status);
 
-        bslmt::ThreadUtil::create(&handle, functor);
+        ASSERT(0 == bslmt::ThreadUtil::create(&handle, functor));
 
         mX.pushFront(e);
         mX.pushBack(e);
@@ -7738,9 +7742,9 @@ int main(int argc, char *argv[])
             ASSERT(VA == u::myBack(x));
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread,
-                                      &TC::doTimedHWMRecordBack,
-                                      &testObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  &TC::doTimedHWMRecordBack,
+                                                  &testObj));
 
             while (0 == TC::waitingFlag) {
                 bslmt::ThreadUtil::yield();
@@ -7852,9 +7856,9 @@ int main(int argc, char *argv[])
             ASSERT(VA == u::myFront(x));
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread,
-                                      &TC::doTimedHWMRecordFront,
-                                      &testObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  &TC::doTimedHWMRecordFront,
+                                                  &testObj));
 
             while (0 == TC::waitingFlag) {
                 bslmt::ThreadUtil::yield();
@@ -8066,7 +8070,7 @@ int main(int argc, char *argv[])
                 }
 
                 bslmt::ThreadUtil::Handle thread;
-                bslmt::ThreadUtil::create(&thread, testObj);
+                ASSERT(0 == bslmt::ThreadUtil::create(&thread, testObj));
 
                 for (int j = 0; 0 == TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -8114,7 +8118,7 @@ int main(int argc, char *argv[])
                 }
 
                 bslmt::ThreadUtil::Handle thread;
-                bslmt::ThreadUtil::create(&thread, testObj);
+                ASSERT(0 == bslmt::ThreadUtil::create(&thread, testObj));
 
                 for (int j = 0; 0 == TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -8182,9 +8186,9 @@ int main(int argc, char *argv[])
             TimedPopRecordBack testAObj(&x, &barrier, T10, VA);
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread,
-                                      &testClass4BackCaller,
-                                      &testAObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  &testClass4BackCaller,
+                                                  &testAObj));
 
             barrier.wait();
 
@@ -8215,9 +8219,9 @@ int main(int argc, char *argv[])
             TimedPopRecordFront testAObj(&x, &barrier, T10, VA);
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread,
-                                      &testClass4FrontCaller,
-                                      &testAObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  &testClass4FrontCaller,
+                                                  &testAObj));
 
             barrier.wait();
 
@@ -8303,7 +8307,9 @@ int main(int argc, char *argv[])
             PushPopRecordBack testObj(&x, VA, (!ti ? BY_VALUE : THROUGH_PTR));
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread, pushPopFunctionBack, &testObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  pushPopFunctionBack,
+                                                  &testObj));
 
             // Yielding is not bullet-proof because it does not ENSURE that
             // `testObj` is blocking on the `popFront`, so we make sure by
@@ -8341,7 +8347,9 @@ int main(int argc, char *argv[])
             PushPopRecordFront testObj(&x, VA, (!ti ? BY_VALUE : THROUGH_PTR));
 
             bslmt::ThreadUtil::Handle thread;
-            bslmt::ThreadUtil::create(&thread, pushPopFunctionFront, &testObj);
+            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
+                                                  pushPopFunctionFront,
+                                                  &testObj));
 
             // See note above.
 

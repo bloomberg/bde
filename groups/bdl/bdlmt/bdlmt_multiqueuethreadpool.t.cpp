@@ -1484,7 +1484,9 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(
         todos[i].d_data = args;
         todos[i].d_data.push_back(i);
 
-        bslmt::ThreadUtil::create(&handles[i], workFunc, &todos[i]);
+        ASSERT(0 == bslmt::ThreadUtil::create(&handles[i],
+                                              workFunc,
+                                              &todos[i]));
     }
     // Collect results
     VecTimeType        times(d_allocator_p);

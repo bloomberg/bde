@@ -1197,7 +1197,7 @@ int main(int argc, char *argv[])
                                             1,  // single priority
                                             &ta);
 
-        pool.startThreads();
+        STARTTHREADS(pool);
 
         for (int i = 0; 7 > i; ++i) {
             BlockFunctor bfInner;
@@ -1256,7 +1256,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(k_SCRAMBLE_LEN == pool.numPendingJobs());
-        pool.startThreads();
+        STARTTHREADS(pool);
         pool.drainJobs();
 
         ASSERT(k_SCRAMBLE_LEN == resultsVecIdx);
@@ -1891,7 +1891,7 @@ int main(int argc, char *argv[])
             otherCounter *= otherCounter;
         }
 
-        pool.startThreads();
+        STARTTHREADS(pool);
         pool.drainJobs();
 
         ASSERTV(counter, otherCounter, counter == otherCounter);
