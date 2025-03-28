@@ -175,17 +175,21 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <baljsn_encodingstyle.h>
+
 #include <bslalg_typetraits.h>
 
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_typetraits.h>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#include <bsla_deprecated.h>
+#endif
+
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
-
-#include <baljsn_encodingstyle.h>
 
 #include <bsl_limits.h>
 #include <bsl_iosfwd.h>
@@ -282,8 +286,8 @@ class EncoderOptions {
         e_COMPACT = baljsn::EncodingStyle::e_COMPACT,
         e_PRETTY  = baljsn::EncodingStyle::e_PRETTY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEJSN_COMPACT = e_COMPACT
-      , BAEJSN_PRETTY  = e_PRETTY
+      , BAEJSN_COMPACT BSLA_DEPRECATED = e_COMPACT
+      , BAEJSN_PRETTY  BSLA_DEPRECATED = e_PRETTY
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

@@ -163,24 +163,22 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
-#include <bslmt_readlockguard.h>
-#include <bslmt_rwmutex.h>
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#include <bsla_deprecated.h>
+#endif
 
 #include <bdlmt_timereventscheduler.h>
-
-#include <bsls_atomic.h>
-
 #include <bdlt_datetime.h>
-
-#include <bsls_timeinterval.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
-
 #include <bslmf_nestedtraitdeclaration.h>
-
+#include <bslmt_readlockguard.h>
+#include <bslmt_rwmutex.h>
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
@@ -296,28 +294,28 @@ class PerformanceMonitor {
         e_VIRTUAL_SIZE,      // number of MBs in the heap
         e_NUM_MEASURES
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEA_CPU_TIME        = e_CPU_TIME
-      , BAEA_CPU_TIME_USER   = e_CPU_TIME_USER
-      , BAEA_CPU_TIME_SYSTEM = e_CPU_TIME_SYSTEM
-      , BAEA_CPU_UTIL        = e_CPU_UTIL
-      , BAEA_CPU_UTIL_USER   = e_CPU_UTIL_USER
-      , BAEA_CPU_UTIL_SYSTEM = e_CPU_UTIL_SYSTEM
-      , BAEA_RESIDENT_SIZE   = e_RESIDENT_SIZE
-      , BAEA_NUM_THREADS     = e_NUM_THREADS
-      , BAEA_NUM_PAGEFAULTS  = e_NUM_PAGEFAULTS
-      , BAEA_VIRTUAL_SIZE    = e_VIRTUAL_SIZE
-      , BAEA_NUM_MEASURES    = e_NUM_MEASURES
-      , CPU_TIME        = e_CPU_TIME
-      , CPU_TIME_USER   = e_CPU_TIME_USER
-      , CPU_TIME_SYSTEM = e_CPU_TIME_SYSTEM
-      , CPU_UTIL        = e_CPU_UTIL
-      , CPU_UTIL_USER   = e_CPU_UTIL_USER
-      , CPU_UTIL_SYSTEM = e_CPU_UTIL_SYSTEM
-      , RESIDENT_SIZE   = e_RESIDENT_SIZE
-      , NUM_THREADS     = e_NUM_THREADS
-      , NUM_PAGEFAULTS  = e_NUM_PAGEFAULTS
-      , VIRTUAL_SIZE    = e_VIRTUAL_SIZE
-      , NUM_MEASURES    = e_NUM_MEASURES
+      , BAEA_CPU_TIME        BSLA_DEPRECATED = e_CPU_TIME
+      , BAEA_CPU_TIME_USER   BSLA_DEPRECATED = e_CPU_TIME_USER
+      , BAEA_CPU_TIME_SYSTEM BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
+      , BAEA_CPU_UTIL        BSLA_DEPRECATED = e_CPU_UTIL
+      , BAEA_CPU_UTIL_USER   BSLA_DEPRECATED = e_CPU_UTIL_USER
+      , BAEA_CPU_UTIL_SYSTEM BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
+      , BAEA_RESIDENT_SIZE   BSLA_DEPRECATED = e_RESIDENT_SIZE
+      , BAEA_NUM_THREADS     BSLA_DEPRECATED = e_NUM_THREADS
+      , BAEA_NUM_PAGEFAULTS  BSLA_DEPRECATED = e_NUM_PAGEFAULTS
+      , BAEA_VIRTUAL_SIZE    BSLA_DEPRECATED = e_VIRTUAL_SIZE
+      , BAEA_NUM_MEASURES    BSLA_DEPRECATED = e_NUM_MEASURES
+      , CPU_TIME             BSLA_DEPRECATED = e_CPU_TIME
+      , CPU_TIME_USER        BSLA_DEPRECATED = e_CPU_TIME_USER
+      , CPU_TIME_SYSTEM      BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
+      , CPU_UTIL             BSLA_DEPRECATED = e_CPU_UTIL
+      , CPU_UTIL_USER        BSLA_DEPRECATED = e_CPU_UTIL_USER
+      , CPU_UTIL_SYSTEM      BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
+      , RESIDENT_SIZE        BSLA_DEPRECATED = e_RESIDENT_SIZE
+      , NUM_THREADS          BSLA_DEPRECATED = e_NUM_THREADS
+      , NUM_PAGEFAULTS       BSLA_DEPRECATED = e_NUM_PAGEFAULTS
+      , VIRTUAL_SIZE         BSLA_DEPRECATED = e_VIRTUAL_SIZE
+      , NUM_MEASURES         BSLA_DEPRECATED = e_NUM_MEASURES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
