@@ -76,19 +76,19 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Multi-Line Matching
 ///- - - - - - - - - -
 // By default, a subject string supplied to `match` or `replace` is treated as
-// consisting of a single line of characters (even if it actually contains '\n'
+// consisting of a single line of characters (even if it actually contains `\n`
 // characters).  The start-of-line meta-character `^` matches only at the
 // beginning of the string, and the end-of-line meta-character `$` matches only
-// at the end of the string (or before a terminating '\n', if present).  This
+// at the end of the string (or before a terminating `\n`, if present).  This
 // matches the behavior of Perl.
 //
 // If `RegEx::k_FLAG_MULTILINE` is included in the flags supplied to `prepare`,
 // then start-of-line and end-of-line meta-characters match immediately
-// following or immediately before any '\n' characters in subject strings
+// following or immediately before any `\n` characters in subject strings
 // supplied to `match`, respectively (as well as at the very start and end of
 // subject strings).  This is equivalent to Perl's `/m` option, and can be
 // turned off within a pattern by a `(?m)` option setting.  If there are no
-// '\n' characters in the subject string, or if there are no occurrences of `^`
+// `\n` characters in the subject string, or if there are no occurrences of `^`
 // or `$` in the prepared pattern, then including `k_FLAG_MULTILINE` has no
 // effect.
 //
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // If `RegEx::k_FLAG_DOTMATCHESALL` is included in the flags supplied to
 // `prepare`, then a dot metacharacter in the pattern matches a character of
 // any value, including one that indicates a newline.  However, it only ever
-// matches one character, even if newlines are encoded as '\r\n'.  If
+// matches one character, even if newlines are encoded as `\r\n`.  If
 // `k_FLAG_DOTMATCHESALL` is not used to prepare a regular expression, a dot
 // metacharacter will *not* match a newline; hence, patterns expected to match
 // across lines will fail to do so.  This flag is equivalent to Perl's `/s`
@@ -187,22 +187,22 @@ BSLS_IDENT("$Id$ $CSID$")
 // change:
 //
 // * Firstly, backslash in a replacement string is interpreted as an escape
-//   character.  The usual forms such as '\n' or '\x{ddd}' can be used to
+//   character.  The usual forms such as `\n` or `\x{ddd}` can be used to
 //   specify particular character codes, and backslash followed by any
 //   non-alphanumeric character quotes that character.  Extended quoting can
-//   be coded using '\Q...\E', exactly as in the pattern string.
+//   be coded using `\Q...\E`, exactly as in the pattern string.
 // * The second effect is to add more flexibility to capture group
 //   substitution.  The syntax is similar to that used by Bash:
-//:..
-//:   ${<n>:-<string>}
-//:   ${<n>:+<string1>:<string2>}
-//:..
-//:   As before, `<n>` may be a group number or a name.  The first form
-//:   specifies a default value.  If group `<n>` is set, its value is inserted;
-//:   if not, `<string>` is expanded and the result inserted.  The second form
-//:   specifies strings that are expanded and inserted when group `<n>` is set
-//:   or unset, respectively.  The first form is just a convenient shorthand
-//:   for `${<n>:+${<n>}:<string>}`.
+//   ```
+//   ${<n>:-<string>}
+//   ${<n>:+<string1>:<string2>}
+//   ```
+//   As before, `<n>` may be a group number or a name.  The first form
+//   specifies a default value.  If group `<n>` is set, its value is inserted;
+//   if not, `<string>` is expanded and the result inserted.  The second form
+//   specifies strings that are expanded and inserted when group `<n>` is set
+//   or unset, respectively.  The first form is just a convenient shorthand
+//   for `${<n>:+${<n>}:<string>}`.
 //
 ///Treat Unknown Group As Unset
 ///-  -  -  -  -  -  -  -  -  -
@@ -346,20 +346,20 @@ BSLS_IDENT("$Id$ $CSID$")
 // a specified length and returns the text of the message's subject in the
 // `result` "out" parameter:
 // ```
+// /// Parse the specified `message` of the specified `messageLength` for
+// /// the "Subject:" field of `message`.  Return 0 on success and load the
+// /// specified `result` with the text of the subject of `message`; return
+// /// a non-zero value otherwise with no effect on `result`.
 // int parseSubject(bsl::string *result,
 //                  const char  *message,
 //                  bsl::size_t  messageLength)
-//     // Parse the specified 'message' of the specified 'messageLength' for
-//     // the "Subject:" field of 'message'.  Return 0 on success and load the
-//     // specified 'result' with the text of the subject of 'message'; return
-//     // a non-zero value otherwise with no effect on 'result'.
 // {
 // ```
 // The following is the regular expression that will be used to find the
 // subject text of `message`.  The "?P<subjectText>" syntax, borrowed from
 // Python, allows us later to refer to a particular matched sub-pattern (i.e.,
-// the text between the `:` and the '\r' in the "Subject:" field of the header)
-// by the name "subjectText":
+// the text between the `:` and the `\r` in the "Subject:" field of the header)
+// by the name `subjectText`:
 // ```
 //     const char PATTERN[] = "^subject:(?P<subjectText>[^\r]*)";
 // ```
@@ -466,30 +466,30 @@ BSLS_IDENT("$Id$ $CSID$")
 // assert that the next three characters are not `"a"`.  It just asserts that
 // the next character is not `"a"` three times (in principle: PCRE2 optimizes
 // this to run the assertion just once).  Perl allows repeat quantifiers on
-// other assertions such as '\b', but these do not seem to have any use.
+// other assertions such as `\b`, but these do not seem to have any use.
 //
 // 3) Capturing subpatterns that occur inside negative lookahead assertions are
 // counted, but their entries in the offsets vector are never set.  Perl
 // sometimes (but not always) sets its numerical variables from inside negative
 // assertions.
 //
-// 4) The following Perl escape sequences are not supported: '\l', '\u', '\L',
-// '\U', and '\N' when followed by a character name or Unicode value.  ('\N' on
+// 4) The following Perl escape sequences are not supported: `\l`, `\u`, `\L`,
+// `\U`, and `\N` when followed by a character name or Unicode value.  ('\N' on
 // its own, matching a non-newline character, is supported.)  In fact these are
 // implemented by Perl's general string-handling and are not part of its
 // pattern matching engine.  If any of these are encountered by PCRE2, an error
 // is generated by default.
 //
-// 5) The Perl escape sequences '\p,` `\P,` and `\X' are supported only if
+// 5) The Perl escape sequences `\p,` `\P,` and `\X` are supported only if
 // PCRE2 is built with Unicode support.  The properties that can be tested with
-// '\p' and '\P' are limited to the general category properties such as `Lu`
+// `\p` and `\P` are limited to the general category properties such as `Lu`
 // and `Nd`, script names such as Greek or Han, and the derived properties
 // `Any` and `L&`.  PCRE2 does support the `Cs` (surrogate) property, which
 // Perl does not; the Perl documentation says "Because Perl hides the need for
 // the user to understand the internal representation of Unicode characters,
 // there is no need to implement the somewhat messy concept of surrogates."
 //
-// 6) PCRE2 does support the '\Q...\E' escape for quoting substrings.
+// 6) PCRE2 does support the `\Q...\E` escape for quoting substrings.
 // Characters in between are treated as literals.  This is slightly different
 // from Perl in that `$` and `@` are also handled as literals inside the
 // quotes.  In Perl, they cause variable interpolation (but of course PCRE2
@@ -501,7 +501,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // \Qabc\$xyz\E       abc\$xyz       abc\$xyz
 // \Qabc\E\$\Qxyz\E   abc$xyz        abc$xyz
 // ```
-// The '\Q...\E' sequence is recognized both inside and outside character
+// The `\Q...\E` sequence is recognized both inside and outside character
 // classes.
 //
 // 7) PCRE2 does not support the `(?{code})` and `(??{code})` constructions.
@@ -543,8 +543,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // `(?|(?<a>A)|(?<b)B)`, where the two capturing parentheses have the same
 // number but different names, is not supported, and causes an error at compile
 // time.  If it were allowed, it would not be possible to distinguish which
-// parentheses matched, because both names map to capturing subpattern number
-// 1.  To avoid this confusing situation, an error is given at compile time.
+// parentheses matched, because both names map to capturing subpattern
+// number 1.  To avoid this confusing situation, an error is given at compile
+// time.
 //
 // 14) Perl recognizes comments in some places that PCRE2 does not, for
 // example, between the `(` and `?` at the start of a subpattern.  If the `/x`
@@ -559,7 +560,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // 16) In PCRE2, the upper/lower case character properties `Lu` and `Ll` are
 // not affected when case-independent matching is specified.  For example,
-// '\p{Lu}' always matches an upper case letter.
+// `\p{Lu}` always matches an upper case letter.
 //
 // 17) PCRE2 provides some extensions to the Perl regular expression
 // facilities.  This list is with respect to Perl 5.10:

@@ -11,14 +11,14 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 //
 // The PCRE2 library used by this component was configured with UTF-8 support.
 //
-// The 'RegEx_MatchContext' class currently implements the following strategy
+// The `RegEx_MatchContext` class currently implements the following strategy
 // for allocating/deallocating buffers used for pattern matching:
-//:
-//: o The match context for the main thread (the thread that calls
-//:   'initialize') is pre-allocated when the pattern is compiled.
-//:
-//: o Match contexts for all other threads are allocated and deallocated within
-//:   each call to 'loadMatchContext' (i.e. when invoked from other thread(s)).
+//
+// * The match context for the main thread (the thread that calls
+//   `initialize`) is pre-allocated when the pattern is compiled.
+//
+// * Match contexts for all other threads are allocated and deallocated within
+//   each call to `loadMatchContext` (i.e. when invoked from other thread(s)).
 
 #include <bslma_default.h>
 
