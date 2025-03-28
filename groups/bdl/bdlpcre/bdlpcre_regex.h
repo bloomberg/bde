@@ -1373,6 +1373,30 @@ class RegEx {
     /// `isPrepared() == true`.
     const bsl::string& pattern() const;
 
+    /// Replace parts of the specified `subject` that are matched with the
+    /// specified `replacement`.  Optionally specify a bit mask of `options`
+    /// flags that configure the behavior of the replacement.  `options` should
+    /// contain a bit-wise OR of the `k_REPLACE_*` constants defined by this
+    /// class, which indicate additional configuration parameters for the
+    /// replacement.  If `options` has `k_REPLACE_GLOBAL` flag then this
+    /// function iterates over `subject`, replacing every matching substring.
+    /// If `k_REPLACE_GLOBAL` flag is not set, only the first matching
+    /// substring is replaced.  UTF-8 validity checking is performed on
+    /// `subject` and `replacement` if `pattern()` was prepared with
+    /// `k_FLAG_UTF8`.  Return the number of substitutions that were carried
+    /// out on success, and load the specified `result` with the result of the
+    /// replacement.  Otherwise, if an error occurs, return a negative value.
+    /// If that error is a syntax error in `replacement`, load the specified
+    /// `errorOffset` (if non-null) with the offset in `replacement` where the
+    /// error was detected;  for other errors, such as invalid `subject` or
+    /// `replacement` UTF-8 string, load `errorOffset` with a negative value.
+    /// The behavior is undefined unless `true == isPrepared()`.  Note that if
+    /// the size of `result` is too small to fit the resultant string then this
+    /// method computes the size of `result` and adjusts it to the size that is
+    /// needed.  To avoid automatic calculation and adjustment which may
+    /// introduce a performance penalty, it is recommended that the size of
+    /// `result` has enough room to fit the resulting string including a
+    /// zero-terminating character.
     int replace(bsl::string             *result,
                 int                     *errorOffset,
                 const bsl::string_view&  subject,
@@ -1390,32 +1414,32 @@ class RegEx {
                 const bsl::string_view&  replacement,
                 size_t                   options = 0) const;
 #endif
-        // Replace parts of the specified 'subject' that are matched with the
-        // specified 'replacement'.  Optionally specify a bit mask of 'options'
-        // flags that configure the behavior of the replacement.  'options'
-        // should contain a bit-wise OR of the 'k_REPLACE_*' constants defined
-        // by this class, which indicate additional configuration parameters
-        // for the replacement.  If 'options' has 'k_REPLACE_GLOBAL' flag then
-        // this function iterates over 'subject', replacing every matching
-        // substring.  If 'k_REPLACE_GLOBAL' flag is not set, only the first
-        // matching substring is replaced.  UTF-8 validity checking is
-        // performed on 'subject' and 'replacement' if 'pattern()' was prepared
-        // with 'k_FLAG_UTF8'.  Return the number of substitutions that were
-        // carried out on success, and load the specified 'result' with the
-        // result of the replacement.  Otherwise, if an error occurs, return a
-        // negative value.  If that error is a syntax error in 'replacement',
-        // load the specified 'errorOffset' (if non-null) with the offset in
-        // 'replacement' where the error was detected;  for other errors, such
-        // as invalid 'subject' or 'replacement' UTF-8 string, load
-        // 'errorOffset' with a negative value.  The behavior is undefined
-        // unless 'true == isPrepared()'.  Note that if the size of 'result' is
-        // too small to fit the resultant string then this method computes the
-        // size of 'result' and adjusts it to the size that is needed.  To
-        // avoid automatic calculation and adjustment which may introduce a
-        // performance penalty, it is recommended that the size of 'result' has
-        // enough room to fit the resulting string including a zero-terminating
-        // character.
 
+    /// Replace parts of the specified `subject` that are matched with the
+    /// specified `replacement`.  Optionally specify a bit mask of `options`
+    /// flags that configure the behavior of the replacement.  `options`
+    /// should contain a bit-wise OR of the `k_REPLACE_*` constants defined
+    /// by this class, which indicate additional configuration parameters
+    /// for the replacement.  If `options` has `k_REPLACE_GLOBAL` flag then
+    /// this function iterates over `subject`, replacing every matching
+    /// substring.  If `k_REPLACE_GLOBAL` flag is not set, only the first
+    /// matching substring is replaced.  UTF-8 validity checking is
+    /// performed on `subject` if `pattern()` was prepared with
+    /// `k_FLAG_UTF8`.  Return the number of substitutions that were carried
+    /// out on success, and load the specified `result` with the result of
+    /// the replacement.  Otherwise, if an error occurs, return a negative
+    /// value.  If that error is a syntax error in `replacement`, load the
+    /// specified `errorOffset` (if non-null) with the offset in
+    /// `replacement` where the error was detected;  for other errors, such
+    /// as invalid `subject` UTF-8 string, load `errorOffset` with a
+    /// negative value.  The behavior is undefined unless
+    /// `true == isPrepared()`.  Note that if the size of `result` is too
+    /// small to fit the resultant string then this method computes the size
+    /// of `result` and adjusts it to the size that is needed.  To avoid
+    /// automatic calculation and adjustment which may introduce a
+    /// performance penalty, it is recommended that the size of `result` has
+    /// enough room to fit the resulting string including a zero-terminating
+    /// character.
     int replaceRaw(bsl::string             *result,
                    int                     *errorOffset,
                    const bsl::string_view&  subject,
@@ -1433,31 +1457,6 @@ class RegEx {
                    const bsl::string_view&  replacement,
                    size_t                   options = 0) const;
 #endif
-        // Replace parts of the specified 'subject' that are matched with the
-        // specified 'replacement'.  Optionally specify a bit mask of 'options'
-        // flags that configure the behavior of the replacement.  'options'
-        // should contain a bit-wise OR of the 'k_REPLACE_*' constants defined
-        // by this class, which indicate additional configuration parameters
-        // for the replacement.  If 'options' has 'k_REPLACE_GLOBAL' flag then
-        // this function iterates over 'subject', replacing every matching
-        // substring.  If 'k_REPLACE_GLOBAL' flag is not set, only the first
-        // matching substring is replaced.  UTF-8 validity checking is
-        // performed on 'subject' if 'pattern()' was prepared with
-        // 'k_FLAG_UTF8'.  Return the number of substitutions that were carried
-        // out on success, and load the specified 'result' with the result of
-        // the replacement.  Otherwise, if an error occurs, return a negative
-        // value.  If that error is a syntax error in 'replacement', load the
-        // specified 'errorOffset' (if non-null) with the offset in
-        // 'replacement' where the error was detected;  for other errors, such
-        // as invalid 'subject' UTF-8 string, load 'errorOffset' with a
-        // negative value.  The behavior is undefined unless
-        // 'true == isPrepared()'.  Note that if the size of 'result' is too
-        // small to fit the resultant string then this method computes the size
-        // of 'result' and adjusts it to the size that is needed.  To avoid
-        // automatic calculation and adjustment which may introduce a
-        // performance penalty, it is recommended that the size of 'result' has
-        // enough room to fit the resulting string including a zero-terminating
-        // character.
 
     /// Return the 1-based index of the sub-pattern having the specified
     /// `name` in the pattern held by this regular-expression object
