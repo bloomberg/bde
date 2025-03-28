@@ -398,13 +398,21 @@ void Print::printPtr(bsl::ostream& stream, const void *value)
 
     #if defined(BSLS_PLATFORM_CPU_32_BIT)
         // 32 bit pointer
-        bsl::sprintf(buf, "%x", reinterpret_cast<unsigned int>(value));
+        bsl::snprintf(buf,
+                      k_BDLB_PRINT_BUF_SIZE,
+                      "%x",
+                      reinterpret_cast<unsigned int>(value));
     #else
         // 64 bit pointer
     #if defined(BSLS_PLATFORM_CMP_MSVC)
-        bsl::sprintf(buf, "%I64x", reinterpret_cast<unsigned long long>(value));
+        bsl::snprintf(buf,
+                      k_BDLB_PRINT_BUF_SIZE,
+                      "%I64x",
+                      reinterpret_cast<unsigned long long>(value));
     #else
-        bsl::sprintf(buf, "%llx", reinterpret_cast<unsigned long long>(value));
+        bsl::snprintf(buf,
+                      k_BDLB_PRINT_BUF_SIZE,
+                      "%llx", reinterpret_cast<unsigned long long>(value));
     #endif
     #endif
 
@@ -489,7 +497,8 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
 
     int lineIndex = 0;
     while (bufferIndex < numBuffers) {
-        int ret = bsl::sprintf(scratch,
+        int ret = bsl::snprintf(scratch,
+                               k_SCRATCH_BUFFER_LEN,
                                "%6d:   ",
                                lineIndex * k_CHAR_PER_LINE);
         stream.write(scratch, ret);
@@ -512,8 +521,9 @@ bsl::ostream& Print::hexDump(bsl::ostream&                stream,
 
             for (int j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if (charIndex < length) {
-                    ret = bsl::sprintf(
+                    ret = bsl::snprintf(
                                 scratch,
+                                k_SCRATCH_BUFFER_LEN,
                                 "%.2X",
                                 static_cast<unsigned char>(buffer[charIndex]));
                     stream.write(scratch, ret);
@@ -590,7 +600,7 @@ bsl::ostream& Print::hexDump(bsl::ostream&  stream,
     for (int i = 0; i < length; i += k_CHAR_PER_LINE) {
         int j;
 
-        int ret = bsl::sprintf(scratch, "%6d:   ", i);
+        int ret = bsl::snprintf(scratch, k_SCRATCH_BUFFER_LEN, "%6d:   ", i);
         stream.write(scratch, ret);
         if (i + k_CHAR_PER_LINE <= length) {
             hexDumpFullLine(scratch, buffer + i, k_SCRATCH_BUFFER_LEN);
@@ -599,8 +609,9 @@ bsl::ostream& Print::hexDump(bsl::ostream&  stream,
         else {
             for (j = 0; j < k_CHAR_PER_LINE; ++j) {
                 if ((i + j) < length) {
-                    ret = bsl::sprintf(
+                    ret = bsl::snprintf(
                                     scratch,
+                                    k_SCRATCH_BUFFER_LEN,
                                     "%.2X",
                                     static_cast<unsigned char>(buffer[i + j]));
                     stream.write(scratch, ret);

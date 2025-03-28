@@ -71,7 +71,8 @@ BSLS_IDENT("$Id: $")
 // callback from the monitoring system, and verify the callback was
 // successfully removed:
 // ```
-// assert(0 == adapter.removeCollectionCallback(handle));
+// int rc = adapter.removeCollectionCallback(handle);
+// ASSERT(0 == rc);
 // ```
 
 #include <bdlf_bind.h>

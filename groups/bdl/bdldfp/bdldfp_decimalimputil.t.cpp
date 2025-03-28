@@ -10597,7 +10597,7 @@ void TestDriver::testCase14()
                               << ", MANTISSA: " << MANTISSA << '\n';
 
         char TEST_STRING[100];
-        sprintf(TEST_STRING, "%lld", MANTISSA);
+        snprintf(TEST_STRING, sizeof TEST_STRING, "%lld", MANTISSA);
 
         Util::ValueType32  value32 = Util::parse32(TEST_STRING);
         Util::ValueType64  value64 = Util::parse64(TEST_STRING);
@@ -10729,7 +10729,11 @@ void TestDriver::testCase13()
                                   << ", EXPONENT: " << EXPONENT << '\n';
 
                 char TEST_STRING[100];
-                sprintf(TEST_STRING, "%llde%d", MANTISSA, EXPONENT);
+                snprintf(TEST_STRING,
+                         sizeof TEST_STRING,
+                         "%llde%d",
+                         MANTISSA,
+                         EXPONENT);
 
                 Util::ValueType64 EXPECTED64 =
                     Util::parse64(TEST_STRING);

@@ -61,10 +61,19 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
     // Use only 2 digits for 'hours'.
 
     if (hours < 100) {
-        bsl::sprintf(offsetBuffer, "%c%02d%02d", sign, hours, minutes % 60);
+        bsl::snprintf(offsetBuffer,
+                      offsetSize,
+                      "%c%02d%02d",
+                      sign,
+                      hours,
+                      minutes % 60);
     }
     else {
-        bsl::sprintf(offsetBuffer, "%cXX%02d", sign, minutes % 60);
+        bsl::snprintf(offsetBuffer,
+                      offsetSize,
+                      "%cXX%02d",
+                      sign,
+                      minutes % 60);
     }
 
     oss << offsetBuffer;

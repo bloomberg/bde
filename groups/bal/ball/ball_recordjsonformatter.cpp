@@ -292,7 +292,9 @@ bsl::string_view getDefaultFormat()
     const  int  k_BUFFER_SIZE = 256;
     static char buffer[k_BUFFER_SIZE];
 
-    sprintf(buffer,
+    snprintf(
+            buffer,
+            k_BUFFER_SIZE,
             "[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]",
             k_KEY_TIMESTAMP,
             k_KEY_PROCESS_ID,

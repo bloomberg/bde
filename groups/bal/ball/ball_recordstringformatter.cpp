@@ -481,10 +481,19 @@ void PrintUtil::appendDatetime(bsl::string                  *result,
         // quickly as possible (DRQS 12693813).
 
         if (hours < 100) {
-            bsl::sprintf(offsetBuffer, "%c%02d%02d", sign, hours, minutes);
+            bsl::snprintf(offsetBuffer,
+                          sizeof buffer - numChars,
+                          "%c%02d%02d",
+                          sign,
+                          hours,
+                          minutes);
         }
         else {
-            bsl::sprintf(offsetBuffer, "%cXX%02d",   sign,        minutes);
+            bsl::snprintf(offsetBuffer,
+                          sizeof buffer - numChars,
+                          "%cXX%02d",
+                          sign,
+                          minutes);
         }
 
         *result += buffer;

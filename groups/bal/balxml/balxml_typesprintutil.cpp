@@ -856,18 +856,13 @@ bsl::ostream& printDecimalWithDigitsOptions(bsl::ostream& stream,
     // See explanation of the buffer size in the {Implementation Notes}.
     char buffer[k_BUFFER_SIZE];
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(push)
-#pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
-#endif
-
     // format: "-"  forces left alignment, "#" always prints period
-    const int len = bsl::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
+    const int len = bsl::snprintf(buffer,
+                                  k_BUFFER_SIZE,
+                                  "%-#1.*f",
+                                  maxFractionDigits,
+                                  object);
     (void)len; BSLS_ASSERT(len < (int)sizeof buffer); BSLS_ASSERT(len > 0);
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#pragma warning(pop)
-#endif
 
     const char *ptr = bsl::strchr(buffer, '.');
     BSLS_ASSERT(ptr != 0);

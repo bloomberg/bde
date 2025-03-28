@@ -231,7 +231,8 @@ int main(int argc, char *argv[])
 // callback from the monitoring system, and verify the callback was
 // successfully removed:
 // ```
-    ASSERT(0 == adapter.removeCollectionCallback(handle));
+    int rc = adapter.removeCollectionCallback(handle);
+    ASSERT(0 == rc);
 // ```
 
       } break;
