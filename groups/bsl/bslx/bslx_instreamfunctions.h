@@ -129,9 +129,9 @@ BSLS_IDENT("$Id: $")
 // ```
 // // mypoint.h
 //
+// /// This class provides a geometric point having integer coordinates and
+// /// an enumerated color property.
 // class MyPoint {
-//     // This class provides a geometric point having integer coordinates and
-//     // an enumerated color property.
 //
 //     short d_x;      // x coordinate
 //     short d_y;      // y coordinate
@@ -142,49 +142,52 @@ BSLS_IDENT("$Id: $")
 //     // ...
 //
 //     // CREATORS
+//
+//     /// Create a default point.
 //     MyPoint();
-//         // Create a default point.
 //
+//     /// Create a point having the specified `x` and `y` coordinates and the
+//     /// specified `color`.
 //     MyPoint(short x, short y, Color color);
-//         // Create a point having the specified 'x' and 'y' coordinates
-//         // and the specified 'color'.
 //
+//     /// Destroy this point.
 //     ~MyPoint();
-//         // Destroy this point.
 //
 //     // MANIPULATORS
 //     // ...
 //
 //     // ACCESSORS
+//
+//     /// Return the x coordinate of this point.
 //     short x() const;
-//         // Return the x coordinate of this point.
 //
+//     /// Return the y coordinate of this point.
 //     short y() const;
-//         // Return the y coordinate of this point.
 //
+//     /// Return the enumerated color of this point.
 //     Color color() const;
-//         // Return the enumerated color of this point.
 //
+//     /// Assign to this object the value read from the specified input
+//     /// `stream` using the specified `version` format, and return a
+//     /// reference to `stream`.  If `stream` is initially invalid, this
+//     /// operation has no effect.  If `version` is not supported, this
+//     /// object is unaltered and `stream` is invalidated, but otherwise
+//     /// unmodified.  If `version` is supported but `stream` becomes
+//     /// invalid during this operation, this object has an undefined, but
+//     /// valid, state.  Note that no version is read from `stream`.  See
+//     /// the `bslx` package-level documentation for more information on
+//     /// BDEX streaming of value-semantic types and containers.
 //     template <class STREAM>
 //     STREAM& bdexStreamIn(STREAM& stream, int version);
-//         // Assign to this object the value read from the specified input
-//         // 'stream' using the specified 'version' format, and return a
-//         // reference to 'stream'.  If 'stream' is initially invalid, this
-//         // operation has no effect.  If 'version' is not supported, this
-//         // object is unaltered and 'stream' is invalidated, but otherwise
-//         // unmodified.  If 'version' is supported but 'stream' becomes
-//         // invalid during this operation, this object has an undefined, but
-//         // valid, state.  Note that no version is read from 'stream'.  See
-//         // the 'bslx' package-level documentation for more information on
-//         // BDEX streaming of value-semantic types and containers.
 // };
 //
 // // FREE OPERATORS
+//
+// /// Return `true` if the specified `lhs` and `rhs` points have the same
+// /// value, and `false` otherwise.  Two points have the same value if
+// /// they have the same x and y coordinates and the same color.
 // inline
 // bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-//     // Return 'true' if the specified 'lhs' and 'rhs' points have the same
-//     // value, and 'false' otherwise.  Two points have the same value if
-//     // they have the same x and y coordinates and the same color.
 // ```
 // Representative (inline) implementations of these methods are shown below:
 // ```
@@ -270,68 +273,71 @@ BSLS_IDENT("$Id: $")
 // // myinstream.h
 // // ...
 //
+// /// This class implements a limited-size fixed-buffer input stream that
+// /// partially conforms to the BDEX protocol for input streams.  This
+// /// class is suitable for demonstration purposes only.
 // class MyInStream {
-//    // This class implements a limited-size fixed-buffer input stream that
-//    // partially conforms to the BDEX protocol for input streams.  This
-//    // class is suitable for demonstration purposes only.
 //
-//    const char *d_buffer;  // input buffer, held but not owned
-//    int         d_length;  // length of 'd_buffer' (bytes)
-//    int         d_cursor;  // cursor (index into 'd_buffer')
+//     const char *d_buffer;  // input buffer, held but not owned
+//     int         d_length;  // length of `d_buffer` (bytes)
+//     int         d_cursor;  // cursor (index into `d_buffer`)
 //
-//  public:
-//    // CREATORS
-//    MyInStream(const char *buffer, int length);
-//        // Create an input stream using the specified 'buffer' having the
-//        // specified 'length' (in bytes).
+//   public:
+//     // CREATORS
 //
-//    ~MyInStream();
-//        // Destroy this input byte stream.
+//     /// Create an input stream using the specified `buffer` having the
+//     /// specified `length` (in bytes).
+//     MyInStream(const char *buffer, int length);
 //
-//    // MANIPULATORS
-//    MyInStream& getVersion(int& version);
-//        // Consume a version value from this input stream, store that value
-//        // in the specified 'version', and return a reference to this
-//        // stream.  ...
+//     /// Destroy this input byte stream.
+//     ~MyInStream();
 //
-//    MyInStream& getInt32(int& value);
-//        // Consume a 32-bit signed integer value from this input stream,
-//        // store that value in the specified 'value', and return a reference
-//        // to this stream.  ...
+//     // MANIPULATORS
 //
-//    MyInStream& getInt16(short& value);
-//        // Consume a 16-bit signed integer value from this input stream,
-//        // store that value in the specified 'value', and return a reference
-//        // to this stream.  ...
+//     /// Consume a version value from this input stream, store that value
+//     /// in the specified `version`, and return a reference to this
+//     /// stream.  ...
+//     MyInStream& getVersion(int& version);
 //
-//    MyInStream& getInt8(char& value);
-//        // Consume an 8-bit signed integer value from this input stream,
-//        // store that value in the specified 'value', and return a reference
-//        // to this stream.  ...
+//     /// Consume a 32-bit signed integer value from this input stream,
+//     /// store that value in the specified `value`, and return a reference
+//     /// to this stream.  ...
+//     MyInStream& getInt32(int& value);
 //
-//    void invalidate();
-//        // Put this input stream in an invalid state.  ...
+//     /// Consume a 16-bit signed integer value from this input stream,
+//     /// store that value in the specified `value`, and return a reference
+//     /// to this stream.  ...
+//     MyInStream& getInt16(short& value);
 //
-//    // ACCESSORS
-//    operator const void *() const;
-//        // Return a non-zero value if this stream is valid, and 0
-//        // otherwise.  An invalid stream is a stream in which insufficient
-//        // or invalid data was detected during an extraction operation.
-//        // Note that an empty stream will be valid unless an extraction
-//        // attempt or explicit invalidation causes it to be otherwise.
+//     /// Consume an 8-bit signed integer value from this input stream,
+//     /// store that value in the specified `value`, and return a reference
+//     /// to this stream.  ...
+//     MyInStream& getInt8(char& value);
 //
-//    int cursor() const;
-//        // Return the index of the next byte to be extracted from this
-//        // stream.
+//     /// Put this input stream in an invalid state.  ...
+//     void invalidate();
 //
-//    bool isEmpty() const;
-//         // Return 'true' if this stream is empty, and 'false' otherwise.
-//         // Note that this function enables higher-level types to verify
-//         // that, after successfully reading all expected data, no data
-//         // remains.
+//     // ACCESSORS
 //
-//    int length() const;
-//        // Return the total number of bytes stored in this stream.
+//     /// Return a non-zero value if this stream is valid, and 0
+//     /// otherwise.  An invalid stream is a stream in which insufficient
+//     /// or invalid data was detected during an extraction operation.
+//     /// Note that an empty stream will be valid unless an extraction
+//     /// attempt or explicit invalidation causes it to be otherwise.
+//     operator const void *() const;
+//
+//     /// Return the index of the next byte to be extracted from this
+//     /// stream.
+//     int cursor() const;
+//
+//     /// Return `true` if this stream is empty, and `false` otherwise.
+//     /// Note that this function enables higher-level types to verify
+//     /// that, after successfully reading all expected data, no data
+//     /// remains.
+//     bool isEmpty() const;
+//
+//     /// Return the total number of bytes stored in this stream.
+//     int length() const;
 // };
 //
 // ```
@@ -493,14 +499,15 @@ namespace bslx {
                         // namespace InStreamFunctions
                         // ===========================
 
+/// This namespace facilitates unexternalization of all BDEX-compliant types
+/// in a type-independent manner.  The unexternalization functions are
+/// overloaded for fundamental types, enumeration types, `bsl::string`, and
+/// `bsl::vector`.  A compilation error will occur if the (template
+/// parameter) `VALUE_TYPE` of a non-overloaded method of
+/// `bslx::InStreamFunctions` does not support `bdexStreamIn` (with the
+/// appropriate signature).
 namespace InStreamFunctions {
-    // This namespace facilitates unexternalization of all BDEX-compliant types
-    // in a type-independent manner.  The unexternalization functions are
-    // overloaded for fundamental types, enumeration types, 'bsl::string', and
-    // 'bsl::vector'.  A compilation error will occur if the (template
-    // parameter) 'VALUE_TYPE' of a non-overloaded method of
-    // 'bslx::InStreamFunctions' does not support 'bdexStreamIn' (with the
-    // appropriate signature).
+
 
                    // ======================================
                    // class InStreamFunctions_AccessorHelper
