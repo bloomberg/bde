@@ -107,7 +107,7 @@ typedef balst::ObjectFileFormat          Obj;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The templated (specialized) `typeTest` function returns a unique, non-zero
 // value when passed an object of types
-// `balst::ObjectFileFormat::{Elf,Xcoff,Windows}`, and 0 otherwise.
+// `balst::ObjectFileFormat::{Elf,Windows}`, and 0 otherwise.
 // ```
 template <class TYPE>
 int typeTest(const TYPE &)
@@ -118,11 +118,6 @@ int typeTest(const TYPE &)
 int typeTest(const balst::ObjectFileFormat::Elf &)
 {
     return 1;
-}
-
-int typeTest(const balst::ObjectFileFormat::Xcoff &)
-{
-    return 2;
 }
 
 int typeTest(const balst::ObjectFileFormat::Windows &)
@@ -174,8 +169,8 @@ int main(int argc, char *argv[])
 #if !defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
 
 // We define an object `policy` of type `balst::ObjectFileFormat::Policy`,
-// which will be of type `...::Elf`, `...::Xcoff`, or `...::Windows`
-// appropriate for the platform.
+// which will be of type `...::Elf`, or `...::Windows` appropriate for the
+// platform.
 // ```
         balst::ObjectFileFormat::Policy policy;
 // ```
@@ -185,8 +180,6 @@ int main(int argc, char *argv[])
 
     #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         ASSERT(1 == typeTest(policy));
-    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-        ASSERT(2 == typeTest(policy));
     #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ASSERT(3 == typeTest(policy));
     #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
@@ -219,28 +212,18 @@ int main(int argc, char *argv[])
     defined(BSLS_PLATFORM_OS_LINUX)
 
         ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
-
-#elif defined(BSLS_PLATFORM_OS_AIX)
-
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Elf>()));
-        ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(0 == (bslmf::IsSame<Obj::Policy, Obj::Windows>()));
         ASSERT(1 == (bslmf::IsSame<Obj::Policy, Obj::Dladdr>()));
 
@@ -267,10 +250,6 @@ int main(int argc, char *argv[])
         int count = 0;
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-        ++count;
-#endif
-
-#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ++count;
 #endif
 
@@ -312,18 +291,7 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_ELF);
 
-# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
-     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
-#  error multiple file formats defined
-# endif
-
-#elif defined(BSLS_PLATFORM_OS_AIX)
-
-        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF);
-
-# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
      defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
@@ -333,7 +301,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 
 # if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
      defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
@@ -344,7 +311,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR);
 
 # if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
      defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 #  error multiple file formats defined
 # endif

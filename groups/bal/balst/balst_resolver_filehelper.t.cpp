@@ -5,6 +5,8 @@
 
 #include <bdls_filesystemutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -57,32 +59,28 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
 
-// ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define LOOP7_ASSERT BSLIM_TESTUTIL_LOOP7_ASSERT
+#define LOOP8_ASSERT BSLIM_TESTUTIL_LOOP8_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -93,8 +91,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 // ============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
@@ -102,6 +99,8 @@ static void aSsErT(int c, const char *s, int i)
 typedef bdls::FilesystemUtil            FilesystemUtil;
 typedef FilesystemUtil::FileDescriptor  FdType;           // shorthand for file
                                                           // descriptor
+typedef bsl::span<char>                 Span;
+typedef bsl::span<const char>           CSpan;
 typedef balst::Resolver_FileHelper      Obj;
 typedef bsls::Types::Int64              Int64;
 
@@ -122,6 +121,9 @@ int getProcessId()
 //-----------------------------------------------------------------------------
 
 namespace {
+namespace u {
+
+enum { e_FILE, e_MAPPED_FILE };
 
 class FileGuard {
     const char *d_fileName;
@@ -141,6 +143,7 @@ class FileGuard {
     }
 };
 
+}  // close namespace u
 }  // close unnamed namespace
 #endif
 
@@ -163,8 +166,7 @@ int main(int argc, char *argv[])
     // Note that we only have to create a tmp file on Unix platforms -- this
     // component is not used and thus is not tested on Windows.
 
-#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     const char *tmpDirName       = "/tmp";
     const char *fileNameTemplate = "/tmp/balst_Resolver_FileHelper.%d.%d.txt";
 
@@ -176,8 +178,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&ta);
 
     switch(test) { case 0:
-#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) \
-   || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -197,6 +198,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "balst::Resolver_FileHelper usage example\n"
                              "========================================\n";
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// First, we prepare the file to be used by this usage example:
 // ```
     bslma::TestAllocator ta;
 
@@ -236,8 +244,8 @@ int main(int argc, char *argv[])
     enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
 
     rc = (int) FilesystemUtil::seek(fd,
-                              OFFSET_OF_ZERO_BYTE,
-                              FilesystemUtil::e_SEEK_FROM_BEGINNING);
+                                    OFFSET_OF_ZERO_BYTE,
+                                    FilesystemUtil::e_SEEK_FROM_BEGINNING);
     ASSERT(OFFSET_OF_ZERO_BYTE == rc);
 
     rc = FilesystemUtil::write(fd, "", 1);        // write the zero byte
@@ -248,21 +256,19 @@ int main(int argc, char *argv[])
 
     {
         balst::Resolver_FileHelper helper;
-        rc = helper.initialize(fileNameBuffer);
+        rc = helper.openFile(fileNameBuffer);
         ASSERT(0 == rc);
 
-        char buf[100];
+        char buf[100];    Span bufSpan(buf);
         memset(buf, 0, sizeof(buf));
-        rc = helper.readExact(buf,
-                              6,                    // # chars to read
+        rc = helper.readExact(Span(buf, 6),
                               128);                 // offset
         ASSERT(0 == rc);
         ASSERT(!strcmp(buf, "abcdef"));
 // ```
 // `readExact` past EOF fails
 // ```
-        rc = helper.readExact(buf,
-                              6,                    // # chars to read
+        rc = helper.readExact(Span(buf, 6),
                               64 * 40);             // offset
         ASSERT(0 != rc);
 // ```
@@ -271,17 +277,10 @@ int main(int argc, char *argv[])
 // the string.
 // ```
         memset(buf, 'a', sizeof(buf));
-        char *result = helper.loadString(OFFSET_OF_ZERO_BYTE - 12,
-                                         buf,
-                                         sizeof(buf),
-                                         &ta);
-
-        ASSERT(12 == bsl::strlen(result));
-        ASSERT(!bsl::strcmp("0123456789+-", result));
-// ```
-// clean up
-// ```
-        ta.deallocate(result);
+        bsl::string_view result = helper.loadString(buf,
+                                                    OFFSET_OF_ZERO_BYTE - 12);
+        ASSERT(12 == result.length());
+        ASSERT("0123456789+-" == result);
     }
     bdls::FilesystemUtil::remove(fileNameBuffer);
 // ```
@@ -329,7 +328,7 @@ int main(int argc, char *argv[])
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        FileGuard fg(fileNameBuffer);
+        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -347,100 +346,89 @@ int main(int argc, char *argv[])
 
         // 64 char long string
 
-        const char *testString64 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+        bsl::string_view testString64(
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-");
+        bsl::string testString1280;
 
         int rc;
         for (int i = 0; i < 20; ++i) {
-            rc = FilesystemUtil::write(fd, testString64, 64);
+            rc = FilesystemUtil::write(fd,
+                                       testString64.data(),
+                                       static_cast<int>(testString64.size()));
             ASSERT(64 == rc);
+            testString1280 += testString64;
         }
 
         rc = (int) FilesystemUtil::seek(fd,
-                                  7 * 64,
-                                  FilesystemUtil::e_SEEK_FROM_BEGINNING);
+                                        7 * testString64.size(),
+                                        FilesystemUtil::e_SEEK_FROM_BEGINNING);
         ASSERT(7 * 64 == rc);
 
         rc = FilesystemUtil::write(fd, "", 1);
         ASSERT(1 == rc);
+        testString1280[7 * 64] = '\0';
 
         rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
-        if (verbose) cout << "\nloadString" << endl;
-        {
+        if (verbose) cout << "Testing loadString\n";
+
+        for (int ei = u::e_FILE; ei <= u::e_MAPPED_FILE; ++ei) {
             Obj mX;    const Obj& X = mX;
-            rc = mX.initialize(fileNameBuffer);
-            ASSERT(0 == rc);
+            switch (ei) {
+              case u::e_FILE: {
+                rc = mX.openFile(fileNameBuffer);
+              } break;
+              case u::e_MAPPED_FILE: {
+                rc = mX.openMappedFile(testString1280);
+              } break;
+            }
+            ASSERTV(ei, 0 == rc);
 
             char scratchBuf[2000];
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
+            Span scratchSpan(scratchBuf);
 
             // short strings
 
-            char *result = X.loadString(7 * 64 - 12,
-                                        scratchBuf,
-                                        sizeof(scratchBuf),
-                                        &ta);
-            ASSERT(!bsl::strcmp("0123456789+-", result));
-
-            memset(result, 0, strlen(result) + 1);
-            ta.deallocate(result);
+            bsl::string_view result = X.loadString(scratchSpan,
+                                                   7 * 64 - 12);
+            ASSERTV(ei, "0123456789+-" == result);
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
             // short string reaching EOF with no zero termination
 
-            result = X.loadString(20 * 64 - 12,
-                                  scratchBuf,
-                                  sizeof(scratchBuf),
-                                  &ta);
-            ASSERT(!bsl::strcmp("0123456789+-", result));
-
-            memset(result, 0, strlen(result) + 1);
-            ta.deallocate(result);
+            result = X.loadString(scratchSpan,
+                                  20 * 64 - 12);
+            ASSERTV(ei, result, "0123456789+-" == result);
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
             // big strings
 
-            char cmpBuf[2000];
+            bsl::string cmpString;
             for (int i = 0; i < 6; ++i) {
-                bsl::strcpy(cmpBuf + i * 64, testString64);
+                cmpString += testString64;
             }
-            ASSERT(64 * 6 == bsl::strlen(cmpBuf));
+            ASSERT(64 * 6 == cmpString.length());
 
-            result = X.loadString(64,
-                                  scratchBuf,
-                                  sizeof(scratchBuf),
-                                  &ta);
-            ASSERT(!bsl::strcmp(cmpBuf, result));
-
-            memset(result, 0, strlen(result) + 1);
-            ta.deallocate(result);
+            result = X.loadString(scratchSpan, 64);
+            ASSERTV(ei, cmpString, result, cmpString == result);
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
             // big string reaching EOF with no zero termination
 
-            result = X.loadString((20 - 6) * 64,
-                                  scratchBuf,
-                                  sizeof(scratchBuf),
-                                  &ta);
-            ASSERT(!bsl::strcmp(cmpBuf, result));
-
-            memset(result, 0, strlen(result) + 1);
-            ta.deallocate(result);
+            result = X.loadString(scratchSpan,
+                                  (20 - 6) * 64);
+            ASSERTV(ei, cmpString, result, cmpString == result);
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
 
-            // exhausting size of scratchBuf without reaching zero termination
+            // exhausting size of scratchSpan without reaching zero termination
 
-            result = X.loadString((20 - 6) * 64,
-                                  scratchBuf,
-                                  27,
-                                  &ta);
-            LOOP_ASSERT(result,
-                        !bsl::strcmp("abcdefghijklmnopqrstuvwxyz", result));
-
-            memset(result, 0, strlen(result) + 1);
-            ta.deallocate(result);
+            scratchSpan = scratchSpan.first(26);
+            result = X.loadString(scratchSpan,
+                                  (20 - 6) * 64);
+            ASSERTV(ei, result, u::e_MAPPED_FILE == ei ||
+                                       "abcdefghijklmnopqrstuvwxyz" == result);
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
         }
 
@@ -448,20 +436,23 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (veryVerbose) cout << "\tloadString" << endl;
-            {
-                char buf[1];
+            for (int ei = u::e_FILE; ei <= u::e_MAPPED_FILE; ++ei) {
                 Obj mX;    const Obj& X = mX;
+                char buf[1];
 
-                rc = mX.initialize(fileNameBuffer);
-                ASSERT(0 == rc);
+                switch (ei) {
+                  case u::e_FILE: {
+                    rc = mX.openFile(fileNameBuffer);
+                  } break;
+                  case u::e_MAPPED_FILE: {
+                    static char star[] = { "*" };
+                    rc = mX.openMappedFile(star);
+                  } break;
+                }
+                ASSERTV(ei, 0 == rc);
 
-                char *result = 0;
-                ASSERT_PASS(result = X.loadString(0, buf, 1, &ta));
-                if (result) ta.deallocate(result);
-
-                ASSERT_FAIL(result = X.loadString(0,   0, 1, &ta));
-                ASSERT_FAIL(result = X.loadString(0, buf, 0, &ta));
+                ASSERT_PASS(X.loadString(Span(buf), 0));
+                ASSERT_FAIL(X.loadString(Span(buf), -1));
             }
         }
       }  break;
@@ -506,7 +497,7 @@ int main(int argc, char *argv[])
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        FileGuard fg(fileNameBuffer);
+        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -524,11 +515,15 @@ int main(int argc, char *argv[])
 
         // 64 char long string
 
-        const char *testString64 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+        bsl::string_view testString64(
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-");
+        bsl::string testString640;
 
         for (int i = 0; i < 10; ++i) {
-            FilesystemUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd,
+                                  testString64.data(),
+                                  static_cast<int>(testString64.size()));
+            testString640 += testString64;
         }
 
         int rc = FilesystemUtil::close(fd);
@@ -536,12 +531,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting `readBytes`" << endl;
 
-        static const struct {
-            int                   d_line;
-            bsls::Types::UintPtr  d_numBytes;
-            FilesystemUtil::Offset      d_offset;
-            int                   d_eofFlag;  // reading pass EOF
-            const char           *d_result;
+        static const struct Data {
+            int                     d_line;
+            bsls::Types::UintPtr    d_numBytes;
+            FilesystemUtil::Offset  d_offset;
+            int                     d_eofFlag;  // reading pass EOF
+            const char             *d_result;
         } DATA[] = {
             //LINE  SIZE         OFFSET  FLAG   EXPECTED
             //----  ----         ------  ----   --------
@@ -558,35 +553,39 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                  LINE      = DATA[ti].d_line;
-            const bsls::Types::UintPtr SIZE      = DATA[ti].d_numBytes;
-            const FilesystemUtil::Offset     OFFSET    = DATA[ti].d_offset;
-            const char                 EOF_FLAG  = (char) DATA[ti].d_eofFlag;
-            const char *const          EXP_RES   = DATA[ti].d_result;
-            const bsls::Types::UintPtr EXP_RC    = strlen(EXP_RES);
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&                  data     = DATA[ti % NUM_DATA];
+            const int                    MAPPED   = ti / NUM_DATA;
+            const int                    LINE     = data.d_line;
+            const bsls::Types::UintPtr   SIZE     = data.d_numBytes;
+            const FilesystemUtil::Offset OFFSET   = data.d_offset;
+            const char                   EOF_FLAG = (char) data.d_eofFlag;
+            const char *const            EXP_RES  = data.d_result;
+            const size_t                 EXP_LEN  = strlen(EXP_RES);
 
             const char FILL_CHAR = '@';
             char       buf[100];
             bsl::memset(buf, FILL_CHAR, sizeof(buf));
+            Span outSpan(buf);
 
             Obj mX;    const Obj& X = mX;
-            rc = mX.initialize(fileNameBuffer);
+            rc = MAPPED ? mX.openMappedFile(testString640)
+                        : mX.openFile(fileNameBuffer);
             ASSERT(0 == rc);
 
-            const bsls::Types::UintPtr RC = X.readBytes(buf, SIZE, OFFSET);
-            LOOP_ASSERT(LINE, EXP_RC == RC);
+            CSpan retSpan = X.readBytes(outSpan.first(SIZE), OFFSET);
+            ASSERTV(LINE, EXP_LEN, retSpan.size(), EXP_LEN == retSpan.size());
+            ASSERTV(LINE, retSpan.data() == outSpan.data());
 
             if ('N' == EOF_FLAG) {
-                LOOP_ASSERT(LINE, SIZE == EXP_RC);
+                LOOP_ASSERT(LINE, SIZE == EXP_LEN);
             }
             else {
-                LOOP_ASSERT(LINE, SIZE > EXP_RC);
+                LOOP_ASSERT(LINE, SIZE > EXP_LEN);
             }
 
-            LOOP_ASSERT(LINE, !bsl::memcmp(EXP_RES, buf, EXP_RC));
-            LOOP_ASSERT(LINE, FILL_CHAR == buf[EXP_RC]);
-                                                           // Check for overrun
+            ASSERTV(LINE, !bsl::memcmp(EXP_RES, retSpan.data(), EXP_LEN));
+            ASSERTV(LINE, FILL_CHAR == buf[EXP_LEN]);  // Check for overrun
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -594,14 +593,19 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\treadBytes" << endl;
-            {
-                char buf[100];
+            for (int mapped = 0; mapped < 2; ++mapped) {
+                char buf[100];    Span bufSpan(buf);
                 Obj mX;    const Obj& X = mX;
-                rc = mX.initialize(fileNameBuffer);
+                rc = mapped ? mX.openMappedFile(testString64)
+                            : mX.openFile(fileNameBuffer);
+                ASSERT(0 == rc);
 
-                ASSERT_PASS(X.readBytes(buf, 0, 0));
-                ASSERT_FAIL(X.readBytes(0,   0, 0));
-                ASSERT_FAIL(X.readBytes(buf, 0, -1));
+                ASSERT_PASS(X.readBytes(bufSpan.first(0), 0));
+                ASSERT_PASS(X.readBytes(bufSpan.first(1), 1));
+                ASSERT_PASS(X.readBytes(Span(), 0));
+
+                ASSERT_FAIL(X.readBytes(bufSpan.first(0), -1));
+                ASSERT_FAIL(X.readBytes(bufSpan.first(1), -1));
             }
         }
       }  break;
@@ -641,7 +645,7 @@ int main(int argc, char *argv[])
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        FileGuard fg(fileNameBuffer);
+        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -659,11 +663,15 @@ int main(int argc, char *argv[])
 
         // 64 char long string
 
-        const char *testString64 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+        bsl::string_view testString64(
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-");
+        bsl::string testString640;
 
         for (int i = 0; i < 10; ++i) {
-            FilesystemUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd,
+                                  testString64.data(),
+                                  static_cast<int>(testString64.size()));
+            testString640 += testString64;
         }
 
         int rc = FilesystemUtil::close(fd);
@@ -671,12 +679,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting `readExact`" << endl;
 
-        static const struct {
-            int                  d_line;
-            bsls::Types::UintPtr d_numBytes;
-            FilesystemUtil::Offset     d_offset;
-            int                  d_eofFlag;  // reading pass EOF
-            const char          *d_result;
+        static const struct Data {
+            int                     d_line;
+            bsls::Types::UintPtr    d_numBytes;
+            FilesystemUtil::Offset  d_offset;
+            int                     d_eofFlag;  // reading pass EOF
+            const char             *d_result;
         } DATA[] = {
             //LINE  SIZE         OFFSET  FLAG   EXPECTED
             //----  ----         ------  ----   --------
@@ -693,22 +701,26 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int                  LINE     = DATA[ti].d_line;
-            const bsls::Types::UintPtr SIZE     = DATA[ti].d_numBytes;
-            const FilesystemUtil::Offset     OFFSET   = DATA[ti].d_offset;
-            const char                 EOF_FLAG = (char) DATA[ti].d_eofFlag;
-            const char *const          EXP_RES  = DATA[ti].d_result;
+        for (int ti = 0; ti < 2 * NUM_DATA; ++ti) {
+            const Data&                  data     = DATA[ti % NUM_DATA];
+            const bool                   MAPPED   = ti / NUM_DATA;
+            const int                    LINE     = data.d_line;
+            const bsls::Types::UintPtr   SIZE     = data.d_numBytes;
+            const FilesystemUtil::Offset OFFSET   = data.d_offset;
+            const char                   EOF_FLAG = (char) data.d_eofFlag;
+            const char *const            EXP_RES  = data.d_result;
 
             const char FILL_CHAR = '@';
             char       buf[100];
             bsl::memset(buf, FILL_CHAR, sizeof(buf));
 
             Obj mX;    const Obj& X = mX;
-            rc = mX.initialize(fileNameBuffer);
+            rc = MAPPED ? mX.openMappedFile(testString640)
+                        : mX.openFile(fileNameBuffer);
             ASSERT(0 == rc);
 
-            rc = X.readExact(buf, SIZE, OFFSET);
+            Span outSpan(buf, SIZE);
+            rc = X.readExact(outSpan, OFFSET);
             if ('N' == EOF_FLAG) {
                 LOOP_ASSERT(LINE, 0 == rc);
                 LOOP_ASSERT(LINE, !bsl::memcmp(EXP_RES, buf, SIZE));
@@ -724,16 +736,19 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\treadExact" << endl;
-            {
-                char buf[100] = { "" };
-                ++buf[0];                  // suppress unused variable warning
+            for (int mapped = 0; mapped < 2; ++mapped) {
+                char buf[100] = { 0 };
                 Obj mX;    const Obj& X = mX;
-                rc = mX.initialize(fileNameBuffer);
-                ASSERT(0 == rc);
+                rc = mapped ? mX.openMappedFile(testString640)
+                            : mX.openFile(fileNameBuffer);
+                ASSERTV(mapped, 0 == rc);
 
-                ASSERT_SAFE_PASS(X.readExact(buf, 0, 0));
-                ASSERT_SAFE_FAIL(X.readExact(0,   0, 0));
-                ASSERT_SAFE_FAIL(X.readExact(buf, 0, -1));
+                Span outSpan(buf, 1);
+                ASSERT_SAFE_PASS(X.readExact(outSpan, 0));
+                ASSERT_SAFE_FAIL(X.readExact(outSpan, -1));
+                outSpan = outSpan.subspan(0, 0);
+                ASSERT_SAFE_PASS(X.readExact(outSpan, 0));
+                ASSERT_SAFE_FAIL(X.readExact(outSpan, -1));
             }
         }
       }  break;
@@ -759,11 +774,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CTOR & DTOR\n"
                           << "===========\n";
 
-        char fileNameBuffer[256];
+        char  fileNameBuffer[256];
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        FileGuard fg(fileNameBuffer);
+        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -781,10 +796,12 @@ int main(int argc, char *argv[])
 
         // 64 char long string
 
-        const char *testString64 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+        bsl::string_view testString64(
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-");
 
-        FilesystemUtil::write(fd, testString64, 64);
+        FilesystemUtil::write(fd,
+                              testString64.data(),
+                              static_cast<int>(testString64.size()));
 
         int rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
@@ -796,14 +813,17 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tinitialize" << endl;
             {
                 Obj mX;
-                ASSERT_PASS(rc = mX.initialize("bogus"));
+                ASSERT_PASS(rc = mX.openFile("bogus"));
                 ASSERT(0 != rc);
-                ASSERT_PASS(rc = mX.initialize(NULL));
+                ASSERT_PASS(rc = mX.openFile(NULL));
                 ASSERT(0 != rc);
-                ASSERT_PASS(rc = mX.initialize((const char *) fileNameBuffer));
+                ASSERT_PASS(rc = mX.openFile(fileNameBuffer));
                 ASSERT(0 == rc);
-                ASSERT_PASS(rc = mX.initialize((const char *) fileNameBuffer));
+                ASSERT_PASS(rc = mX.openFile(fileNameBuffer));
                 ASSERT(0 == rc);
+                bsl::span<char> sp(fileNameBuffer, size_t(0));
+                ASSERT_PASS(rc = mX.openMappedFile(sp));
+                ASSERT(0 != rc);
             }
         }
       }  break;
@@ -829,7 +849,7 @@ int main(int argc, char *argv[])
         bsl::sprintf(fileNameBuffer, fileNameTemplate, test, getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        FileGuard fg(fileNameBuffer);
+        u::FileGuard fg(fileNameBuffer);
 
         // Then, make sure file does not already exist.
 
@@ -847,29 +867,39 @@ int main(int argc, char *argv[])
 
         // 64 char long string
 
-        const char *testString64 =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
+        bsl::string_view testString64(
+           "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-");
+        ASSERT('-' == testString64.back());         // no terminating '\0'
+                                                    // within `testString64`.
 
         for (int i = 0; i < 10; ++i) {
-            FilesystemUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd,
+                                  testString64.data(),
+                                  static_cast<int>(testString64.size()));
         }
 
         Int64 rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
-        {
+        for (int mapped = 0; mapped < 2; ++mapped) {
+            if (veryVerbose) P(mapped);
+
             Obj mX;    const Obj& X = mX;
-            rc = mX.initialize(fileNameBuffer);
-            ASSERT(0 == rc);
+            rc = mapped ? mX.openMappedFile(testString64)
+                        : mX.openFile(fileNameBuffer);
+            ASSERTV(mapped, 0 == rc);
 
             char buf[100];
-            rc = X.readExact(buf, 1, 0);
+            bsl::memset(buf, '*', sizeof(buf));
+            Span outSpan(buf, 1);
+            rc = X.readExact(outSpan, 0);
             ASSERT('a' == buf[0]);
             ASSERT(0 == rc);
 
-            rc = X.readBytes(buf, 1, 0);
-            ASSERT('a' == buf[0]);
-            ASSERT(1 == rc);
+            bsl::memset(buf, '*', sizeof(buf));
+            CSpan retSpan = X.readBytes(outSpan, 0);
+            ASSERT('a' == retSpan[0]);
+            ASSERT(retSpan.size() == outSpan.size());
         }
 
       }  break;

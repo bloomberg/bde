@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // (7): _start+0x5c at 0x31d4c in balst_stacktraceutil.t.dbg_exc_mt
 // ```
 // Notice that the lines have been truncated to fit this 79 column source file,
-// and that on AIX or Windows, source file name and line number information
+// and that on Linux or Windows, source file name and line number information
 // will also be displayed.
 //
 ///Example 2: Loading a Stack-Trace from an Array of Stack Addresses

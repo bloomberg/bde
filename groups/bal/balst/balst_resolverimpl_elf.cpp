@@ -26,10 +26,11 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cerrno.h>
+#include <bsl_charconv.h>
 #include <bsl_cstring.h>
-#include <bsl_climits.h>
 #include <bsl_cstdarg.h>
 #include <bsl_deque.h>
+#include <bsl_limits.h>
 #include <bsl_vector.h>
 
 #include <ctype.h>
@@ -50,6 +51,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 # include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
+# include <sys/auxv.h>
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
@@ -86,17 +88,15 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 # pragma GCC optimize ("O0")
 #endif
 
-// 'u_' PREFIX:
-// We have many types, static functions and macros defined in this file.  Prior
-// to when we were using package namespaces, all global types and functions
-// began with the package prefix, so the reader saw a type, macro, or function
-// without the package prefix they knew it was probably local to the file.  Now
-// that we have package prefixes, this is no longer the case, leading to
-// confusion.  Hence, local definitions at file scope begin with 'u_', lending
-// considerable clarity.
+// 'u_' PREFIX: We have many types, static functions and macros defined in this
+// file.  Prior to when we were using package namespaces, all global types and
+// functions began with the package prefix, so the reader saw a type, macro, or
+// function without the package prefix they knew it was probably local to the
+// file.  Now that we have package prefixes, this is no longer the case,
+// leading to confusion.  Hence, local definitions at file scope begin with
+// 'u_', lending considerable clarity.
 //
-// Rohan's:
-// IMPLEMENTATION NOTES:
+// Rohan's: IMPLEMENTATION NOTES:
 //
 // All of the following 'struct' definitions are specific to Sun Solaris and
 // are derived from '/usr/include/sys/elf.h'.  Note that we use 32-bit
@@ -105,7 +105,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // Each ELF object file or executable starts with an ELF header that specifies
 // how many segments are provided in the file.  The ELF header looks as
 // follows:
-//..
+// ```
 // typedef struct {
 //     unsigned char e_ident[EI_NIDENT];    //  ident bytes
 //     Elf32_Half    e_type;                //  file type
@@ -122,11 +122,11 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     Elf32_Half    e_shnum;               //  number of section headers
 //     Elf32_Half    e_shstrndx;            //  shdr string index
 // } u_Elf32_Ehdr;
-//..
+// ```
 // Each segment is described by a program header that is an array of
 // structures, each describing a segment or other information the system needs
 // to prepare the program for execution, and typically looks as follows:
-//..
+// ```
 // typedef struct {
 //     Elf32_Word p_type;                   //  entry type
 //     Elf32_Off  p_offset;                 //  file offset
@@ -137,12 +137,12 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     Elf32_Word p_flags;                  //  entry flags
 //     Elf32_Word p_align;                  //  memory/file alignment
 // } u_Elf32_Phdr;
-//..
+// ```
 // An object file segment contains one or more sections.  The string table
 // provides the names of the various sections corresponding to the integral
 // 'sh_name'.  An elf file will typically contain sections such as '.text',
 // '.data', '.bss' etc.
-//..
+// ```
 // typedef struct {
 //     Elf32_Word sh_name;                  //  section name
 //     Elf32_Word sh_type;                  //  SHT_...
@@ -165,7 +165,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     unsigned char st_other;              //  Symbol visibility
 //     Elf32_Section st_shndx;              //  Section index - 16-bit
 // } u_Elf32_Sym;
-//..
+// ```
 // Below we explain the strategies to resolve symbols on the various platforms
 // that we support.
 //
@@ -174,7 +174,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //
 // The _DYNAMIC symbol references a _dynamic structure that refers to the
 // linked symbols:
-//..
+// ```
 // typedef struct {
 //     Elf32_Sword d_tag;                   //  how to interpret value
 //     union {
@@ -183,9 +183,9 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //         Elf32_Off  d_off;
 //     } d_un;
 // } u_Elf32_Dyn;
-//..
+// ```
 // Tag values
-//..
+// ```
 // #define    DT_NULL      0                //  last entry in list
 // #define    DT_DEBUG    21                //  pointer to r_debug structure
 //
@@ -199,9 +199,9 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     rd_event_e     r_rdevent;            //  debug event
 //     rd_flags_e     r_flags;              //  misc flags.
 // };
-//..
+// ```
 // The link_map is a chain of loaded object.
-//..
+// ```
 // struct link_map {
 //
 //     unsigned long  l_addr;               // address at which object is
@@ -216,18 +216,18 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     Link_map     *l_prev;                //  previous link object
 //     char         *l_refname;             //  filters reference name
 // };
-//..
+// ```
 // Linux:
 // ----------------------------------------------------------------------------
-//..
-// int dl_iterate_phdr(int (*callback) (struct dl_phdr_info *info,
-//                                      size_t               size,
-//                                      void                *data),
-//                     void *data);
-//     // Walk through the list of an application's shared objects and invoke
-//     // the specified 'callback' (taking the specified 'info' object of
-//     // the specified 'size' and specifying the user supplied 'data') using
-//     // the specified 'data' to be passed to 'callback'.
+// ```
+//  /// Walk through the list of an application's shared objects and invoke the
+//  /// specified 'callback' (taking the specified 'info' object of the
+//  /// specified 'size' and specifying the user supplied 'data') using the
+//  /// specified 'data' to be passed to 'callback'.
+//  int dl_iterate_phdr(int (*callback) (struct dl_phdr_info *info,
+//                                       size_t               size,
+//                                       void                *data),
+//                      void *data);
 //
 // struct dl_phdr_info
 // {
@@ -247,7 +247,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     //  Incremented when an object may have been removed.
 //     unsigned long long int dlpi_subs;
 // };
-//..
+// ```
 
 // ----------------------------------------------------------------------------
 // Bill's:
@@ -272,7 +272,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // Each ELF object file or executable starts with an ELF header that specifies
 // how many segments are provided in the file.  The ELF header looks as
 // follows:
-//..
+// ```
 // typedef struct {
 //     unsigned char e_ident[EI_NIDENT];    //  ident bytes
 //     UintPtr       e_phoff;               //  program header file offset
@@ -280,30 +280,30 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     short         e_shentsize;           //  sizeof section header
 //     short         e_shnum;               //  number of section headers
 //     short         e_shstrndx;            //  shdr string index
-// } u_ElfHeader;
-//..
+// } u::ElfHeader;
+// ```
 // Each segment is described by a program header that is an array of
 // structures, each describing a segment or other information the system needs
 // to prepare the program for execution, and typically looks as follows:
-//..
+// ```
 // typedef struct {
 //     unsigned int p_type;                   //  entry type
 //     UintPtr      p_offset;                 //  file offset
 //     unsigned int p_vaddr;                  //  virtual address
 //     unsigned int p_memsz;                  //  memory size
-// } u_ElfProgramHeader;
-//..
+// } u::ElfProgramHeader;
+// ```
 // An object file segment contains one or more sections.  The string table
 // provides the names of the various sections corresponding to the integral
 // 'sh_name'.  An elf file will typically contain sections such as '.text',
 // '.data', '.bss' etc.
-//..
+// ```
 // typedef struct {
 //     unsigned int sh_name;                  //  section name
 //     unsigned int sh_type;                  //  SHT_...
 //     UintPtr      sh_offset;                //  file offset
 //     unsigned int sh_size;                  //  section size
-// } u_ElfSectionHeader;
+// } u::ElfSectionHeader;
 //
 // typedef struct
 // {
@@ -311,8 +311,8 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //     UintPtr       st_value;              //  Symbol value
 //     unsigned int  st_size;               //  Symbol size
 //     unsigned char st_info;               //  Symbol type and binding
-// } u_ElfSymbol;
-//..
+// } u::ElfSymbol;
+// ```
 // ----------------------------------------------------------------------------
 // The above definitions describe the data within one file.  However, if the
 // executable is dynamically linked, that usually being the case, multiple
@@ -324,7 +324,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // ----------------------------------------------------------------------------
 //
 // The link_map is a node in a chain, each representing a loaded object.
-//..
+// ```
 // struct link_map {
 //     unsigned long        l_addr;         // address at which object is
 //                                          // mapped
@@ -351,22 +351,22 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //
 // #define    DT_NULL      0                //  last entry in list
 // #define    DT_DEBUG    21                //  pointer to 'r_debug' structure
-//..
+// ```
 // The '_DYNAMIC' symbol is the address of the beginning of an array of objects
-// of type 'u_ElfDynamic', one of which contains a pointer to the
-// 'r_debug' object, which contains a pointer to the linked list of 'link_map'
-// objects, one of which exists for each executable or shared library.
+// of type 'u_ElfDynamic', one of which contains a pointer to the 'r_debug'
+// object, which contains a pointer to the linked list of 'link_map' objects,
+// one of which exists for each executable or shared library.
 //
 // Linux:
 // ----------------------------------------------------------------------------
-//..
+// ```
+// /// Walk through the list of an application's shared objects and invoke the
+// /// specified 'callback' (taking the specified 'info' object of the
+// /// specified 'size' and specifying the user supplied 'data') using the
+// /// specified 'data' to be passed to 'callback'.
 // int dl_iterate_phdr(int (*callback) (struct dl_phdr_info *info,
 //                                      size_t               size,
 //                                      void                *data),
-//     // Walk through the list of an application's shared objects and invoke
-//     // the specified 'callback' (taking the specified 'info' object of
-//     // the specified 'size' and specifying the user supplied 'data') using
-//     // the specified 'data' to be passed to 'callback'.
 //
 // struct dl_phdr_info
 // {
@@ -376,7 +376,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //                                                     // headers
 //     short                             dlpi_phnum;   // base address
 // };
-//..
+// ```
 // ============================================================================
 //
 //                                  // -----
@@ -384,9 +384,9 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //                                  // -----
 //
 // The information in ELF format only tells us:
-//: o function names
-//: o source file names, but only in the case of file-scope static functions,
-//:   and only the base names of those few source files.
+// * function names
+// * source file names, but only in the case of file-scope static functions,
+//   and only the base names of those few source files.
 //
 // Line number information and full source file information, if available at
 // all, is present in other formats.  On Linux, that information is in the
@@ -421,7 +421,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // depending on 'u_TRACES', may print out a message and possibly exit.
 // 'u_TRACES' will always be 0 in production, in which case 'u_ASSERT_BAIL'
 // will just return -1 without printing any error messages or exiting.
-//..
+// ```
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The DWARF information is in 7 sections:
 //
@@ -449,7 +449,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //                     string from the beginning of the .debug_str section.
 // .debug_line_str     Not always present, contains some strings in addition
 //                     to the .debug_str section.
-//..
+// ```
 //
 //                              // .debug_aranges
 //
@@ -498,7 +498,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //
 // The information in the abbrev section is a number of units of the following
 // form:
-//..
+// ```
 //=====================================================================
 // ULEB128: Abbrev index
 //---------------------------------------------------------------------
@@ -517,7 +517,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //---------------------------------------------------------------------
 // A terminating pair of 0's.
 //=====================================================================
-//..
+// ```
 // I strongly suspect there are some tags that can be followed by zero
 // '{ DW_AT_?, DW_FORM_? }' pairs, which means that if they have no children,
 // there can be three 0's in a row.  For that reason we parse the has children
@@ -560,23 +560,23 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // doc.  In the .debug_line section at the specified offset is the information
 // for the given compile unit.  It begins with the header, which includes,
 // among other things:
-//: o A table of all directories that source files (including include files)
-//:   are in, though not including the directory where the compilation was
-//:   run (which was in the .debug_info section).
-//: o A table of all source files, and what directories they're in, (but not
-//:   including the .cpp file that was compiled, which was in the .debug_info
-//:   section).
-//: o Initialization of some variables, including, among others:
-//:   1 'lineBase'
-//:   2 'lineRange'
-//:   3 'opcodeBase'
+// * A table of all directories that source files (including include files)
+//   are in, though not including the directory where the compilation was
+//   run (which was in the .debug_info section).
+// * A table of all source files, and what directories they're in, (but not
+//   including the .cpp file that was compiled, which was in the .debug_info
+//   section).
+// * Initialization of some variables, including, among others:
+//   1 'lineBase'
+//   2 'lineRange'
+//   3 'opcodeBase'
 //
 // The line number information header is followed by unsigned byte opcodes in a
 // program described in section 6.2.5 of the DWARF doc.  The opcodes describe a
 // state machine, that always has
-//: o A current line number, which may increase or decrease.
-//: o A current address, which always increases.
-//: o A current source file name.
+// * A current line number, which may increase or decrease.
+// * A current address, which always increases.
+// * A current source file name.
 // If '1 <= opcode < opcodeBase', 'opcode' is one of the 'e_DW_LNS_*'
 // identifiers described in the spec, and it's meaning and what arguments it
 // has is described in the DWARF doc.  If 'opcode >= opcodeBase', then it will
@@ -592,7 +592,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // current line number is the line number to be reported for the stack frame,
 // and the current file name is the source file name to be reported.
 //
-// // Subset of DWARF Doc to Read to Parse DWARF for g++
+///// Subset of DWARF Doc to Read to Parse DWARF for g++
 //
 // The DWARF 4 doc is 311 pages l, and sometimes wrong.  A key part of tackling
 // this task was determining the subset of it necessary to deliver line number
@@ -605,12 +605,12 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 //
 // To understand how to read the compilation unit, one must gather information
 // from several parts of the doc.  The compilation unit will tell us 3 things:
-//: o The directory in which the compilation was run.
-//: o The source file that was compiled.  Note that if the address was in a
-//:   function in an include file (an inline called out-of-line, or a template
-//:   function), then this will not be the right source file name.
-//: o The offset into the .debug_line section where the line number information
-//:   for the compile unit resides.
+// * The directory in which the compilation was run.
+// * The source file that was compiled.  Note that if the address was in a
+//   function in an include file (an inline called out-of-line, or a template
+//   function), then this will not be the right source file name.
+// * The offset into the .debug_line section where the line number information
+//   for the compile unit resides.
 // The compilation unit information will begin with the compile unit header,
 // which is described in chapter 7.5.1.1, which is not very long.  This header
 // will tell us the offset of the information in the .debug_abbrev section that
@@ -630,6 +630,12 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // in 6.2.4.
 //
 //                          // Clang Support For DWARF
+//
+// Apparently the clang compiler will produce the .debug_aranges section if
+// -gdwarf-aranges is passed to the compiler/linker, so getting the build team
+// to do that would be, by far, the easiest approach.  It's not clear why that
+// section is deleted by default, because the .debug_aranges section is not
+// terribly big.
 //
 // Doing line number information with DWARF on Linux using the clang compiler
 // is problematic.  There are two ways the DWARF information can tell you
@@ -657,9 +663,25 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // any do apply, assign the compile unit offset of the compile unit to those
 // frame records.  Then go back in a later pass and use the existing Linux
 // code to traverse those compile units and line number information.
+//
+//                    // Remote DWARF information in shared libs
+//
+// For some reason, some shared OS libs separate out the DWARF information from
+// the file where the code segments are to a separate file, and have a
+// ".note.gnu.build-id' section which contains a 20-byte hash that indicates
+// where to find this remote information in the file system.  There is a
+// function, 'HiddenRec::dwarfFindRemoteFile' which will locate this ELF file,
+// but we have left adding the code to parse it for a later date.  Probably the
+// best approach would be to encapsulate the code we have already written to
+// parse an ELF file looking for DWARF sections in such a way that it can be
+// called a second time for this remote file.
+//
+// These files can be examined with 'objdump -h <file>' to dump out the section
+// header names, which will show whether the file contains the wanted DWARf
+// sections.
 
 // ============================================================================
-//              Debugging trace macros: 'eprintf' and 'zprintf'
+// Debugging trace macros: 'eprintf' and 'zprintf'
 // ============================================================================
 
 #undef  u_TRACES
@@ -719,20 +741,21 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 static const char u_assertBailString[] = {
                 "Warning: assertion (%s) failed at line %d in function %s\n" };
 
+/// If the specified 'expr' evaluates to 'false', print a message and return
+/// -1.  Note that if 'TRACES > 1' the 'eprintf' will exit 1.
 #define u_ASSERT_BAIL(expr)    do {                                           \
         if (!(expr)) {                                                        \
             u_eprintf(u_assertBailString, #expr, __LINE__, rn);               \
             return -1;                                                        \
         }                                                                     \
     } while (false)
-    // If the specified 'expr' evaluates to 'false', print a message and return
-    // -1.  Note that if 'TRACES > 1' the 'eprintf' will exit 1.
 
-#if 0 // comment until used, avoid "never called" warnings.
+#if 0     // comment until used, avoid "never called" warnings.
+
+/// Print out the specified 'value' and the specified 'name', which is the name
+/// of the expression have value 'value'.  This function is intended only to be
+/// called by the macro 'u_PH'.  Return 'false'.
 static bool u_warnPrint(const char *name, const void *value)
-    // Print out the specified 'value' and the specified 'name', which is the
-    // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'u_PH'.  Return 'false'.
 {
     u_zprintf("%s = %p\n", name, value);
 
@@ -743,55 +766,55 @@ static bool u_warnPrint(const char *name, const void *value)
 // 'P()' and 'PH()' are only used in u_ASSERT_BAIL in DWARF code, only define
 // these functions in DWARF compiles, otherwise get unused messages.
 
+/// Print out the specified 'value' and the specified 'name', which is the name
+/// of the expression have value 'value'.  This function is intended only to be
+/// called by the macro 'u_P'.  Return 'false'.
 static bool u_warnPrint(const char                       *name,
                         BloombergLP::bsls::Types::Uint64  value)
-    // Print out the specified 'value' and the specified 'name', which is the
-    // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'u_P'.  Return 'false'.
 {
     u_zprintf("%s = %llu\n", name, value);
 
     return false;
 }
 
+/// Print out the specified string 'value' and the specified 'name', which is
+/// the name of the expression have value 'value'.  This function is intended
+/// only to be called by the macro 'u_P'.  Return 'false'.
 static bool u_warnPrint(const char *name,
                         const char *value)
-    // Print out the specified string 'value' and the specified 'name', which
-    // is the name of the expression have value 'value'.  This function is
-    // intended only to be called by the macro 'u_P'.  Return 'false'.
 {
     u_zprintf("%s = \"%s\"\n", name, value);
 
     return false;
 }
 
+/// Print out the specified 'value' and the specified 'name', which is the name
+/// of the expression have value 'value'.  This function is intended only to be
+/// called by the macro 'u_PH'.  Return 'false'.
 static bool u_warnPrintHex(const char                        *expr,
                            BloombergLP::bsls::Types::Uint64   value)
-    // Print out the specified 'value' and the specified 'name', which is the
-    // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'u_PH'.  Return 'false'.
 {
     u_zprintf("%s = 0x%llx\n", expr, value);
 
     return false;
 }
 
+/// Print '<source code for 'expr'> = <value of expr' with the value in decimal
+/// and return 'false'.
 #define u_P(expr)     u_warnPrint(   #expr, (expr))
-    // Print '<source code for 'expr'> = <value of expr' with the value in
-    // decimal and return 'false'.
 
+/// Print '<source code for 'expr'> = <value of expr' with the value in hex and
+/// return 'false'.
 #define u_PH(expr)    u_warnPrintHex(#expr, (expr))
-    // Print '<source code for 'expr'> = <value of expr' with the value in
-    // hex and return 'false'.
 #endif
 
 #if 1 == u_TRACES
 # define u_eprintf printf
 #else
-static
-int u_eprintf(const char *format, ...)
-    // Do with the arguments, including the specified 'format', exactly what
-    // 'printf' would do, then exit.
+
+/// Do with the arguments, including the specified 'format', exactly what
+/// 'printf' would do, then exit.
+static int u_eprintf(const char *format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -810,43 +833,43 @@ int u_eprintf(const char *format, ...)
 
 #else
 
+/// do nothing
 static inline
 int u_eprintf(const char *, ...)
-    // do nothing
 {
     return 0;
 }
 
+/// do nothing
 static inline
 int u_zprintf(const char *, ...)
-    // do nothing
 {
     return 0;
 }
 
+/// If the specified 'expr' evaluates to 'false', return -1, otherwise do
+/// nothing.
 #define u_ASSERT_BAIL(expr) do {                                              \
         if (!(expr)) {                                                        \
             return -1;                                                        \
         }                                                                     \
     } while (false)
-    // If the specified 'expr' evaluates to 'false', return -1, otherwise do
-    // nothing.
 
 #if defined(u_DWARF)
+/// Ignore 'expr' and return 'false'.
 #define u_P(expr)            (false)
-    // Ignore 'expr' and return 'false'.
+/// Ignore 'expr' and return 'false'.
 #define u_PH(expr)           (false)
-    // Ignore 'expr' and return 'false'.
 #endif
 
 #endif
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+/// Do u_ASSERT_BAIL
 # define u_ASSERT_BAIL_SAFE(expr) u_ASSERT_BAIL(expr)
-    // Do u_ASSERT_BAIL
 #else
+/// Do nothing.
 # define u_ASSERT_BAIL_SAFE(expr)
-    // Do nothing.
 #endif
 
 using bsl::size_t;
@@ -857,33 +880,46 @@ namespace BloombergLP {
 namespace {
 namespace u {
 
+/// Coerce the specied 'value' to a long long.
 static inline
 long long ll(long long value)
-    // Coerce the specied 'value' to a long long.
 {
     return value;
 }
 
+/// Coerce the specified 'value' to a long.
 static inline
 long l(long value)
-    // Coerce the specified 'value' to a long.
 {
     return value;
 }
 
+/// Coerce the specied 'value' to an unsigned long long.
+static inline
+unsigned long long ull(unsigned long long value)
+{
+    return value;
+}
+
+/// Return approximately the absolute value of the specified 'x'.
 template <class TYPE>
 static TYPE approxAbs(TYPE x)
-    // Return approximately the absolute value of the specified 'x'.
 {
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);
 
-    x = x < 0 ? -x : x;
-    x = x < 0 ? ~x : x;     // in the case of, i.e., INT_MIN, ~x is close
-                            // enough
+    x = x == bsl::numeric_limits<TYPE>::min()
+      ? bsl::numeric_limits<TYPE>::max()
+      : (x < 0 ? -x : x);
 
     BSLS_ASSERT(0 <= x);
 
     return x;
+}
+
+template <class TYPE>
+bsl::span<char> spanForType(TYPE *memory)
+{
+    return bsl::span<char>(reinterpret_cast<char *>(memory), sizeof(TYPE));
 }
 
 typedef bsls::Types::UintPtr          UintPtr;
@@ -938,13 +974,14 @@ enum { e_IS_BIG_ENDIAN = 0,
                                    // Constants
                                    // ---------
 
-enum { k_SCRATCH_BUF_LEN = 32 * 1024 - 64 };
+enum { k_SCRATCH_BUF_LEN =
+                       balst::Resolver_FileHelper::k_DEFAULT_SCRATCH_BUF_LEN };
     // length in bytes of d_buffer_p, 32K minus a little so we don't waste a
     // page
 
 #ifdef u_DWARF
-BSLMF_ASSERT(static_cast<int>(u::k_SCRATCH_BUF_LEN) ==
-                               static_cast<int>(u::Reader::k_SCRATCH_BUF_LEN));
+BSLMF_ASSERT(static_cast<size_t>(u::k_SCRATCH_BUF_LEN) ==
+                                                 u::Reader::k_SCRATCH_BUF_LEN);
     // u::Reader really needs the buffers passed to it to be at least
     // 'u::Reader::k_SCRATCH_BUF_LEN' long.
 #endif
@@ -1330,6 +1367,55 @@ class FreeGuard {
                       // ---------------------------------------
                       // free functions in the unnamed namespace
                       // ---------------------------------------
+
+/// The specified 'start' points to a vdso file that resides in memory.
+/// Traverse its data to determine its length, and return that length.
+static size_t calculateVdsoLength(const void *start)
+{
+    const char         *charStart = static_cast<const char *>(start);
+    const u::ElfHeader *elfHdr = static_cast<const u::ElfHeader *>(start);
+
+    Offset oRet = 0;    // The size of the vdso entry.
+
+    // The Elf header tells us how many program headers or section headers
+    // there are, but we don't know what order they are in in memory so we
+    // search through them to find the end of the last one.
+
+    // first, the program headers
+
+    {
+        const int     numPHdrs   = elfHdr->e_phnum;
+        const size_t  pHdrSize   = elfHdr->e_phentsize;
+        const char   *pHdrsStart = charStart + elfHdr->e_phoff;
+
+        oRet = bsl::max<Offset>(oRet, elfHdr->e_phoff + numPHdrs * pHdrSize);
+        for (int ii = 0; ii < numPHdrs; ++ii) {
+            const u::ElfProgramHeader *pHdr = reinterpret_cast<
+                      const u::ElfProgramHeader *>(pHdrsStart + ii * pHdrSize);
+            oRet = bsl::max<Offset>(oRet, pHdr->p_offset + pHdr->p_filesz);
+        }
+    }
+
+    // next, the section headers
+
+    {
+        const int     numSHdrs   = elfHdr->e_shnum;
+        const size_t  sHdrSize   = elfHdr->e_shentsize;
+        const char   *sHdrsStart = charStart + elfHdr->e_shoff;
+
+        oRet = bsl::max<Offset>(oRet, elfHdr->e_shoff + numSHdrs * sHdrSize);
+        for (int ii = 0; ii < numSHdrs; ++ii) {
+            const u::ElfSectionHeader *sHdr = reinterpret_cast<
+                      const u::ElfSectionHeader *>(sHdrsStart + ii * sHdrSize);
+            oRet = bsl::max<Offset>(oRet, sHdr->sh_offset + sHdr->sh_size);
+        }
+    }
+
+    const size_t ret = static_cast<size_t>(oRet);
+    BSLS_ASSERT(static_cast<Offset>(ret) == oRet);
+
+    return ret;
+}
 
 static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
     // Eliminate all instances of "/./" from the specified '*str', and also as
@@ -1787,6 +1873,8 @@ struct u::Resolver::HiddenRec {
     Section            d_arangesSec;       // .debug_aranges section
     Reader             d_arangesReader;    // reader for that section
 
+    Section            d_buildIdSec;       // .note.gnu.build-id section
+
     Section            d_infoSec;          // .debug_info section
     Reader             d_infoReader;       // reader for that section
 
@@ -1847,6 +1935,10 @@ struct u::Resolver::HiddenRec {
                          u::Offset      offset);
         // Read a ranges section and determine if an address matches.
 # endif
+
+    int dwarfFindRemoteFile(bsl::string *filePath);
+        // Read the information in 'd_buildIdSec' to locate the remote file
+        // containing the lib's DWARF inforation, to be stored in 'filePath'.
 
     int dwarfReadAll();
         // Read the DWARF information.
@@ -1962,6 +2054,8 @@ int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
     static const char rn[] = { "HR::dwCheckRanges:" };
     int rc;
 
+    static const bool traces = u_TRACES && true;
+
     *isMatch = false;
 
     rc = d_rangesReader.skipTo(d_rangesSec.d_offset + offset);
@@ -1976,7 +2070,7 @@ int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
         u_ASSERT_BAIL(0 == rc && "read hiAddress failed");
 
         if (0 == loAddress && 0 == hiAddress) {
-            u_TRACES && u_zprintf("%s done - no match found\n", rn);
+            traces && u_zprintf("%s done - no match found\n", rn);
 
             return 0;                                                 // RETURN
         }
@@ -1998,12 +2092,12 @@ int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
                     baseAddress = d_adjustment;
                 }
 
-                u_TRACES && u_zprintf("%s base address not in .debug_ranges,"
+                traces && u_zprintf("%s base address not in .debug_ranges,"
                                      " loAddress: %llx, baseAddress: 0x%llx\n",
                                      rn, u::ll(loAddress), u::ll(baseAddress));
             }
             if (addressToMatch < baseAddress) {
-                u_TRACES && u_zprintf("%s address to match 0x%llx below base"
+                traces && u_zprintf("%s address to match 0x%llx below base"
                                               " address 0x%llx -- not a bug\n",
                                 rn, u::ll(addressToMatch), u::ll(baseAddress));
 
@@ -2018,7 +2112,7 @@ int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
         u_ASSERT_BAIL_SAFE(loAddress <= hiAddress);
 
         if (loAddress <= addressToMatch && addressToMatch < hiAddress) {
-            u_TRACES && u_zprintf("%s .debug_ranges matched address 0x%llx in"
+            traces && u_zprintf("%s .debug_ranges matched address 0x%llx in"
                                                          " [0x%llx, 0x%llx)\n",
                                        rn, u::ll(addressToMatch + baseAddress),
                                                 u::ll(loAddress + baseAddress),
@@ -2030,6 +2124,143 @@ int u::Resolver::HiddenRec::dwarfCheckRanges(bool       *isMatch,
 }
 #endif
 
+int u::Resolver::HiddenRec::dwarfFindRemoteFile(bsl::string *filePath)
+{
+    const char rn[] = { "HR::dwarfFindRemoteFile" };
+
+    static const bool findTraces = u_TRACES && true;
+
+    enum { k_BUILDID_HASH_SUB_OFFSET  = 16,
+           k_BUILDID_HASH_SIZE        = 20 };
+
+    filePath->reserve(256);
+
+    if (!findTraces) {
+        // For the time being, this function exists only to give traces.
+
+        return -1;                                                    // RETURN
+    }
+
+    if (d_buildIdSec.d_size <
+                             k_BUILDID_HASH_SUB_OFFSET + k_BUILDID_HASH_SIZE) {
+        u_TRACES && u_zprintf("%s buildId section malformed: too small\n", rn);
+        return -1;                                                    // RETURN
+    }
+
+    char buildIdHashBuf[k_BUILDID_HASH_SIZE];
+    int rc = d_helper_p->readExact(
+                            Span(buildIdHashBuf),
+                            d_buildIdSec.d_offset + k_BUILDID_HASH_SUB_OFFSET);
+    if (0 != rc) {
+        u_TRACES && u_zprintf("%s bad read\n", rn);
+        return -1;                                                    // RETURN
+    }
+
+    char asciiHashBuf[2 * k_BUILDID_HASH_SIZE + 2];
+    char *pc = asciiHashBuf;
+    for (unsigned uu = 0; uu < k_BUILDID_HASH_SIZE; ++uu) {
+        if (1 == uu) {
+            *pc++ = '\0';
+        }
+
+        const unsigned char c = buildIdHashBuf[uu];
+        if (c < 16) {
+            *pc++ = '0';
+        }
+        bsl::to_chars_result tcr = bsl::to_chars(pc, pc + 2, c, 16);
+        BSLS_ASSERT(bsl::ErrcEnum() == tcr.ec);
+        pc = tcr.ptr;
+    }
+    *pc++ = '\0';
+    BSLS_ASSERT(asciiHashBuf + sizeof(asciiHashBuf) == pc);
+
+    // We have found empirically where the DWARF information lives on Red Hat
+    // and Ubuntu, but we might as well check out other locations
+
+    static const char *dirs[]     = { "/usr/lib/.build-id/",
+                                      "/usr/lib/debug/.build-id/",
+                                      "/lib/.build-id/",
+                                      "/lib/debug/.build-id/",
+                                      "/.cache/debuginfod_client/" };
+    static const char *slashes[]  = { "/", "" };
+
+    static const char *suffixes[] = { "", ".debug", "/debuginfo" };
+
+    static const struct {
+        bool          d_homePrefix;
+        unsigned char d_dirIdx;
+        unsigned char d_slashIdx;
+        unsigned char d_suffixIdx;
+    } records[] = {
+        { 0, 0, 0, 0 },    // Red Hat, OS files
+        { 0, 1, 0, 1 },    // Ubuntu, OS files
+        { 1, 4, 1, 2 },    // User-built files on some platforms
+
+        // search all other combinations for OS files
+
+//      { 0, 0, 0, 0 },    // (done above)
+        { 0, 0, 0, 1 },
+        { 0, 0, 1, 0 },
+        { 0, 0, 1, 1 },
+
+        { 0, 1, 0, 0 },
+//      { 0, 1, 0, 1 },    // (done above)
+        { 0, 1, 1, 0 },
+        { 0, 1, 1, 1 },
+
+        { 0, 2, 0, 0 },
+        { 0, 2, 0, 1 },
+        { 0, 2, 1, 0 },
+        { 0, 2, 1, 1 },
+
+        { 0, 3, 0, 0 },
+        { 0, 3, 0, 1 },
+        { 0, 3, 1, 0 },
+        { 0, 3, 1, 1 }
+    };
+    enum { k_NUM_RECORDS = sizeof records / sizeof *records };
+
+    for (int ii = 0; ii < k_NUM_RECORDS; ++ii) {
+        const bool         isHome =          records[ii].d_homePrefix;
+        const char * const dir    = dirs[    records[ii].d_dirIdx];
+        const char * const slash  = slashes[ records[ii].d_slashIdx];
+        const char * const suffix = suffixes[records[ii].d_suffixIdx];
+
+        filePath->clear();
+
+        if (isHome) {
+            static const char * const home = bsl::getenv("HOME");
+
+            if (home) {
+                *filePath = home;
+            }
+        }
+
+        *filePath += dir;
+        *filePath += asciiHashBuf;    // 1st 3 bytes are 2 nybbles and '\0'.
+        *filePath += slash;
+        *filePath += asciiHashBuf + 3;
+        *filePath += suffix;
+
+        u::Offset sz = bdls::FilesystemUtil::getFileSize(*filePath);
+
+        findTraces && u_zprintf(
+                           "%s remote DWARF buildId info size %lld %s at %s\n",
+                                                        rn,
+                                                        u::ll(sz),
+                                                        256 < sz ? "found"
+                                                                 : 0 <= sz
+                                                                 ? "too small"
+                                                                 : "not found",
+                                                        filePath->c_str());
+        if (256 < sz) {
+            return 0;                                                 // RETURN
+        }
+    }
+
+    return -1;
+}
+
 int u::Resolver::HiddenRec::dwarfReadAll()
 {
     static const char rn[] = { "HR::dwReadAll:" };    (void) rn;
@@ -2037,8 +2268,10 @@ int u::Resolver::HiddenRec::dwarfReadAll()
     u_TRACES && u_zprintf("%s starting\n", rn);
 
     if (0 == d_infoSec.d_size || 0 == d_lineSec.d_size) {
-        u_TRACES && u_zprintf("%s Not enough information to find file names"
-                                                    " or line numbers.\n", rn);
+        u_TRACES && u_zprintf("%s infoSec size: %llu, lineSec size: %llu."
+                                  "  Not enough information to find file names"
+                                                     " or line numbers.\n", rn,
+                             u::ll(d_infoSec.d_size), u::ll(d_lineSec.d_size));
         return -1;                                                    // RETURN
     }
 
@@ -2070,6 +2303,8 @@ int u::Resolver::HiddenRec::dwarfReadAranges()
 {
     static const char rn[] = { "HR::dwReadAranges:" };    (void) rn;
 
+    static const bool traces = u_TRACES && true;
+
     // Buffer use: this function usee only scratch buf A.
 
     int rc;
@@ -2079,7 +2314,7 @@ int u::Resolver::HiddenRec::dwarfReadAranges()
     BSLS_ASSERT(toMatch > 0);       // otherwise we should not have been called
     int matched = 0;
 
-    u_TRACES && u_zprintf("%s starting, toMatch=%d\n", rn, toMatch);
+    traces && u_zprintf("%s starting, toMatch=%d\n", rn, toMatch);
 
     rc = d_arangesReader.init(d_helper_p, d_scratchBufA_p, d_arangesSec,
                                                             d_libraryFileSize);
@@ -2180,12 +2415,12 @@ int u::Resolver::HiddenRec::dwarfReadAranges()
                            addressRange.d_address + addressRange.d_size - 1)) {
                 // Sometimes the address ranges are just garbage.
 
-                u_TRACES && u_zprintf("Garbage address range (0x%lx, 0x%lx)\n",
+                traces && u_zprintf("Garbage address range (0x%lx, 0x%lx)\n",
                       u::l(addressRange.d_address), u::l(addressRange.d_size));
                 continue;
             }
 
-            if (u_TRACES && prevRange.overlaps(addressRange)) {
+            if (traces && prevRange.overlaps(addressRange)) {
                 u_eprintf("%s overlapping ranges (0x%lx, 0x%lx)"
                                                        " (0x%lx, 0x%lx)\n", rn,
                              u::l(prevRange.d_address), u::l(prevRange.d_size),
@@ -2205,7 +2440,7 @@ int u::Resolver::HiddenRec::dwarfReadAranges()
                                   addressRange.contains(it->address()); ++it) {
                 const bool isRedundant =
                                        u::maxOffset != it->compileUnitOffset();
-                u_TRACES && u_zprintf("%s%s range [0x%lx, 0x%lx) size 0x%lx"
+                traces && u_zprintf("%s%s range [0x%lx, 0x%lx) size 0x%lx"
                              " matches frame %d, address: %p, offset 0x%llx\n",
                                            rn, isRedundant ? " redundant" : "",
                             u::l(addressRange.d_address),
@@ -2219,7 +2454,7 @@ int u::Resolver::HiddenRec::dwarfReadAranges()
 
                 it->setCompileUnitOffset(debugInfoOffset);
                 if (toMatch == ++matched) {
-                    u_TRACES && u_zprintf(
+                    traces && u_zprintf(
                                      "%s last frame in segment matched\n", rn);
 
                     d_arangesReader.disable();
@@ -2246,7 +2481,7 @@ int u::Resolver::HiddenRec::dwarfReadCompileOrPartialUnit(
 
     int rc;
 
-    static const bool compileTraces = u_TRACES && 0;
+    static const bool compileTraces = u_TRACES && true;
 
     enum ObtainedFlags {
         k_OBTAINED_ADDRESS_MATCH = 0x1,
@@ -2532,8 +2767,8 @@ int u::Resolver::HiddenRec::dwarfReadDebugInfoFrameRec(u::FrameRec *frameRec)
     (void) rn;
 
     static const int debugInfoTraces = u_TRACES ? 1 : 0;
-        // A value of 1 means some traces, a value of 2 means display all the
-        // tags we're skipping over.
+        // 0 means no traces, 1 means some traces, 2 means traces for tags
+        // we're skipping over.
 
     int rc;
     const int index = frameRec->index(); (void) index;
@@ -2698,7 +2933,7 @@ int u::Resolver::HiddenRec::dwarfReadDebugInfoFrameRec(u::FrameRec *frameRec)
             u_ASSERT_BAIL_SAFE(tag <= e_DW_TAG_template_alias ||
                         (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) ||
                                                                     u_PH(tag));
-            3 <= debugInfoTraces && u_zprintf("abbrev tag: %u\n", tag);
+            2 <= debugInfoTraces && u_zprintf("abbrev tag: %u\n", tag);
 
             BSLMF_ASSERT(0 == e_DW_CHILDREN_no && 1 == e_DW_CHILDREN_yes);
             unsigned char hasChildren;
@@ -2812,7 +3047,7 @@ int u::Resolver::HiddenRec::dwarfReadDebugLineFrameRec(u::FrameRec *frameRec)
     static const char rn[] = { "HR::dwfDebugLineFrameRec:" };
     (void) rn;
 
-    static const int lineTraces = u_TRACES;
+    static const int lineTraces = u_TRACES && false;
         // A value of 1 means do most traces, a value of 2 means dump out all
         // the directories and filenames.
 
@@ -3369,7 +3604,7 @@ int u::Resolver::HiddenRec::dwarfReadFileNames(
     static const char rn[] = { "HR::dwReadFileNames:" };
     (void) rn;
 
-    static const int fileTraces = u_TRACES ? 2 : 0;
+    static const int fileTraces = false ? u_TRACES : 0;
         // A value of 1 means do most traces but show only the first filename
         // and directory, a value of 2 means dump out all the directories and
         // filenames.
@@ -3692,10 +3927,14 @@ u::Resolver::ResolverImpl(balst::StackTrace *stackTrace,
 // PRIVATE MANIPULATORS
 int u::Resolver::loadSymbols(int matched)
 {
+    const char rn[] = { "Resolver::loadSymbols" };
+
+    u_ASSERT_BAIL(0 < matched);
+
     const int k_SYM_SIZE = static_cast<int>(sizeof(u::ElfSymbol));
 
-    char *symbolBuf = d_scratchBufA_p;
-    char *stringBuf = d_scratchBufB_p;
+    Span symbolSpan(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN);
+    Span stringSpan(d_scratchBufB_p, u::k_SCRATCH_BUF_LEN);
 
     const int       maxSymbolsPerPass = u::k_SCRATCH_BUF_LEN / k_SYM_SIZE;
     const u::Offset numSyms = d_hidden.d_symTableSize / k_SYM_SIZE;
@@ -3709,21 +3948,21 @@ int u::Resolver::loadSymbols(int matched)
 
         const u::Offset offsetToRead = d_hidden.d_symTableOffset +
                                                          symIndex * k_SYM_SIZE;
-        int          rc = d_hidden.d_helper_p->readExact(
-                                                  symbolBuf,
-                                                  numSymsThisTime * k_SYM_SIZE,
-                                                  offsetToRead);
+        int             rc = d_hidden.d_helper_p->readExact(
+                                symbolSpan.first(numSymsThisTime * k_SYM_SIZE),
+                                offsetToRead);
         if (rc) {
             u_eprintf(
-                     "failed to read %lu symbols from offset %llu, errno %d\n",
-                    u::l(numSymsThisTime),
-                    u::ll(offsetToRead),
-                    errno);
+                 "%s: failed to read %lu symbols from offset %llu, errno %d\n",
+                 rn,
+                 u::l(numSymsThisTime),
+                 u::ll(offsetToRead),
+                 errno);
             return -1;                                                // RETURN
         }
 
-        const u::ElfSymbol *symBufStart = static_cast<u::ElfSymbol *>(
-                                               static_cast<void *>(symbolBuf));
+        const u::ElfSymbol *symBufStart =
+                           reinterpret_cast<u::ElfSymbol *>(symbolSpan.data());
         const u::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
         for (const u::ElfSymbol *sym = symBufStart; sym < symBufEnd; ++sym) {
             switch (ELF32_ST_TYPE(sym->st_info)) {
@@ -3770,24 +4009,18 @@ int u::Resolver::loadSymbols(int matched)
                            && u::maxOffset != sourceFileNameOffset) {
                             frame.setSourceFileName(
                                       d_hidden.d_helper_p->loadString(
+                                           stringSpan,
                                            d_hidden.d_stringTableOffset +
-                                                          sourceFileNameOffset,
-                                           stringBuf,
-                                           u::k_SCRATCH_BUF_LEN,
-                                           &d_hbpAlloc));
+                                                        sourceFileNameOffset));
                         }
 
                         frame.setMangledSymbolName(
                                   d_hidden.d_helper_p->loadString(
+                                           stringSpan,
                                            d_hidden.d_stringTableOffset +
-                                                                  sym->st_name,
-                                           stringBuf,
-                                           u::k_SCRATCH_BUF_LEN,
-                                           &d_hbpAlloc));
+                                                                sym->st_name));
                         if (frame.isMangledSymbolNameKnown()) {
-                            setFrameSymbolName(&frame,
-                                               stringBuf,
-                                               u::k_SCRATCH_BUF_LEN);
+                            setFrameSymbolName(&frame, stringSpan);
 
                             it->setSymbolResolved();
 
@@ -3800,20 +4033,27 @@ int u::Resolver::loadSymbols(int matched)
 
                             if (0 == --matched) {
                                 u_TRACES && u_zprintf(
-                                            "Last symbol in segment loaded\n");
+                                    "%s: Last symbol in segment loaded\n", rn);
 
                                 return 0;                             // RETURN
                             }
                         }
                         else {
-                            u_TRACES && u_zprintf("Null symbol found for %p\n",
-                                                                it->address());
+                            u_TRACES && u_zprintf(
+                                              "%s: Null symbol found for %p\n",
+                                                            rn, it->address());
                         }
                     }
                 }
               }  break;
             }
         }
+    }
+
+    if (0 < matched) {
+        u_TRACES && u_zprintf(
+                           "%s: completed with %d symbol(s) still unmatched\n",
+                                                                  rn, matched);
     }
 
     return 0;
@@ -3882,9 +4122,23 @@ int u::Resolver::processLoadedImage(const char *fileName,
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
     balst::Resolver_FileHelper helper;
-    int rc = helper.initialize(name);
+    int rc = helper.openFile(name);
     if (rc) {
+#if defined(BSLS_PLATFORM_OS_LINUX)
+        if (bsl::strstr(fileName, "vdso")) {
+            char *vdsoStart = reinterpret_cast<char *>(
+                                                 ::getauxval(AT_SYSINFO_EHDR));
+            Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
+            rc = helper.openMappedFile(mappedFile);
+            if (rc) {
+                u_TRACES && u_zprintf("Couldn't access file %s\n", fileName);
+
+                return -1;                                            // RETURN
+            }
+        }
+#else
         return -1;                                                    // RETURN
+#endif
     }
 
     d_hidden.d_helper_p = &helper;
@@ -3938,6 +4192,7 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
                                 u::UintPtr  segmentSize,
                                 const char *libraryFileName)
 {
+    const char rn[] = { "Resolver::resolveSegment" };
     int rc;
 
     // Scratch Buffers: beginning: 'sec' is A
@@ -3969,13 +4224,12 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
     BSLS_ASSERT(0 <= matched);
     BSLS_ASSERT(matched <= d_stackTrace_p->length());
 
-    u_TRACES && u_zprintf(
-                       "ResolveSegment lfn=%s\nba=%p sp=%p se=%p matched=%d\n",
-                         libraryFileName, segmentBaseAddress, sp, se, matched);
+    u_TRACES && u_zprintf("%s lfn=%s\nba=%p sp=%p se=%p matched=%d\n",
+                     rn, libraryFileName, segmentBaseAddress, sp, se, matched);
 
     if (0 == matched) {
         u_TRACES && u_zprintf(
-                         "0 addresses match in library %s\n", libraryFileName);
+                  "%s 0 addresses match in library %s\n", rn, libraryFileName);
 
         return 0;                                                     // RETURN
     }
@@ -3988,7 +4242,7 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
 
     u::FrameRecVecIt it, end  = d_hidden.d_frameRecsEnd;
     for (it = d_hidden.d_frameRecsBegin; it < end; ++it) {
-        u_TRACES && u_zprintf("address %p MATCH\n", it->address());
+        u_TRACES && u_zprintf("%s address %p MATCH\n", rn, it->address());
         it->frame().setLibraryFileName(0 == cleanupRc ? libName.c_str()
                                                       : libraryFileName);
     }
@@ -3996,14 +4250,14 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
     // read the elf header
 
     u::ElfHeader elfHeader;
-    rc = d_hidden.d_helper_p->readExact(&elfHeader,
-                                        sizeof(u::ElfHeader),
-                                        0);
+    rc = d_hidden.d_helper_p->readExact(u::spanForType(&elfHeader), 0);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
     if (0 != u::checkElfHeader(&elfHeader)) {
+        u_TRACES && u_zprintf("%s check elf header failed\n", rn);
+
         return -1;                                                    // RETURN
     }
 
@@ -4011,7 +4265,6 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
 
     // find the section headers we're interested in, that is, .symtab and
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
-
 
     u::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
     u::bruteMemset(&symTabHdr, 0, sizeof(u::ElfSectionHeader));
@@ -4026,39 +4279,41 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
     u::UintPtr sectionHeaderSize = elfHeader.e_shentsize;
     u::Offset  sectionHeaderOffset = elfHeader.e_shoff;
     if (u::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
+        u_TRACES && u_zprintf("%s section too large: size %llu\n", rn,
+                                                    u::ull(sectionHeaderSize));
+
         return -1;                                                    // RETURN
     }
-    u::ElfSectionHeader *sec = static_cast<u::ElfSectionHeader *>(
-                                         static_cast<void *>(d_scratchBufA_p));
+    u::ElfSectionHeader *sec = reinterpret_cast<u::ElfSectionHeader *>(
+                                                              d_scratchBufA_p);
+    bsl::span<char> sectionSpan = u::spanForType(sec);
 
     // read the string table that is used for section names
 
-    int       stringSectionIndex = elfHeader.e_shstrndx;
-    u::Offset stringSectionHeaderOffset =
+    int        stringSectionIndex = elfHeader.e_shstrndx;
+    u::Offset  stringSectionHeaderOffset =
                   sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
-    if (0 != d_hidden.d_helper_p->readExact(sec,
-                                            sectionHeaderSize,
+    if (0 != d_hidden.d_helper_p->readExact(sectionSpan,
                                             stringSectionHeaderOffset)) {
         return -1;                                                    // RETURN
     }
     u::UintPtr headerStringsOffset = sec->sh_offset;
 
     for (int i = 0; i < numSections; ++i) {
-        if (0 != d_hidden.d_helper_p->readExact(sec,
-                                                sectionHeaderSize,
+        if (0 != d_hidden.d_helper_p->readExact(sectionSpan,
                                                 sectionHeaderOffset +
-                                                i * sectionHeaderSize)) {
+                                                      i * sectionHeaderSize)) {
             return -1;                                                // RETURN
         }
-        char sectionName[16];
+        char sectionName[64];
         if (0 !=  d_hidden.d_helper_p->readExact(sectionName,
-                                                 sizeof(sectionName),
                                                  headerStringsOffset +
                                                                sec->sh_name)) {
             return -1;                                                // RETURN
         }
+        sectionName[sizeof(sectionName) - 1] = 0;
 
-        u_zprintf("Section: type:%d name:%s", sec->sh_type, sectionName);
+        u_zprintf("%s type:%d name:%s", rn, sec->sh_type, sectionName);
 
         switch (sec->sh_type) {
           case SHT_STRTAB: {
@@ -4080,6 +4335,11 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
             }
           } break;
 #ifdef u_DWARF
+          case SHT_NOTE: {
+            if      (!bsl::strcmp(sectionName, ".note.gnu.build-id")) {
+                d_hidden.d_buildIdSec.reset(sec->sh_offset, sec->sh_size);
+            }
+          } break;
           case SHT_PROGBITS: {
             bool matched = true;
             if ('d' != sectionName[1]) {
@@ -4118,10 +4378,12 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
         u_zprintf("\n");
     }
 
-    u_TRACES && u_zprintf("symtab:(0x%llx, 0x%llx), strtab:(0x%llx, 0x%llx)\n",
+    u_TRACES && u_zprintf(
+            "%s symtab:(0x%llx, 0x%llx), strtab:(0x%llx, 0x%llx)\n", rn,
             u::ll(symTabHdr.sh_offset), u::ll(symTabHdr.sh_size),
             u::ll(strTabHdr.sh_offset), u::ll(strTabHdr.sh_size));
-    u_TRACES && u_zprintf("dynsym:(0x%llx, %llu), dynstr:(0x%llx, %llu)\n",
+    u_TRACES && u_zprintf(
+            "%s dynsym:(0x%llx, %llu), dynstr:(0x%llx, %llu)\n", rn,
             u::ll(dynSymHdr.sh_offset), u::ll(dynSymHdr.sh_size),
             u::ll(dynStrHdr.sh_offset), u::ll(dynStrHdr.sh_size));
 
@@ -4144,21 +4406,24 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
     else {
         // otherwise fail
 
+        u_TRACES && u_zprintf("%s symbol table not found\n", rn);
+
         return -1;                                                    // RETURN
     }
 
     u_TRACES && u_zprintf(
-                   "Sym table:(0x%llx, 0x%llx) string table:(0x%llx 0x%llx)\n",
+            "%s Sym table:(0x%llx, 0x%llx) string table:(0x%llx 0x%llx)\n", rn,
             u::ll(d_hidden.d_symTableOffset),
             u::ll(d_hidden.d_symTableSize),
             u::ll(d_hidden.d_stringTableOffset),
             u::ll(d_hidden.d_stringTableSize));
 
 #ifdef u_DWARF
-    u_TRACES && u_zprintf("abbrev:(0x%llx, 0x%llx) aranges:(0x%llx, 0x%llx)"
+    u_TRACES && u_zprintf(
+            "%s abbrev:(0x%llx, 0x%llx) aranges:(0x%llx, 0x%llx)"
             " info:(0x%llx 0x%llx) line::(0x%llx 0x%llx)"
             " ranges:(0x%llx, 0x%llx) str:(0x%llx, 0x%llx)"
-            " line_str:(0x%llx, 0x%llx)\n",
+            " line_str:(0x%llx, 0x%llx) buildId:(0x%llx, 0x%llx)\n", rn,
             u::ll(d_hidden.d_abbrevSec.d_offset),
             u::ll(d_hidden.d_abbrevSec.d_size),
             u::ll(d_hidden.d_arangesSec.d_offset),
@@ -4172,7 +4437,34 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
             u::ll(d_hidden.d_strSec.d_offset),
             u::ll(d_hidden.d_strSec.d_size),
             u::ll(d_hidden.d_lineStrSec.d_offset),
-            u::ll(d_hidden.d_lineStrSec.d_size));
+            u::ll(d_hidden.d_lineStrSec.d_size),
+            u::ll(d_hidden.d_buildIdSec.d_offset),
+            u::ll(d_hidden.d_buildIdSec.d_size));
+
+    const bool foundDwarf = 0 < d_hidden.d_abbrevSec.d_size
+                         && 0 < d_hidden.d_arangesSec.d_size
+                         && 0 < d_hidden.d_infoSec.d_size
+                         && 0 < d_hidden.d_lineSec.d_size
+                         && 0 < d_hidden.d_strSec.d_size;
+    if (foundDwarf) {
+        u_TRACES && u_zprintf("%s DWARF info found in file\n", rn);
+    }
+    else {
+        u_TRACES && u_zprintf("%s DWARF info not in file\n", rn);
+
+        if (0 == d_hidden.d_buildIdSec.d_size) {
+            u_TRACES && u_zprintf("%s no .buildId section\n", rn);
+        }
+        else {
+            bsl::string buildIdFilePath(&d_hbpAlloc);
+            rc = d_hidden.dwarfFindRemoteFile(&buildIdFilePath);
+            (void) rc;
+
+            // If we ever go to use DWARF information in shared libs with
+            // remote DWARF information, we will add code here to find that
+            // information at 'buildIdFilePath'.
+        }
+    }
 #endif
 
     // Note that 'loadSymbols' trashes scratchBufA and scratchBufB.
@@ -4203,15 +4495,13 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
 
 // PRIVATE ACCESSORS
 void u::Resolver::setFrameSymbolName(balst::StackTraceFrame *frame,
-                                     char                   *buffer,
-                                     size_t                  bufferLen) const
+                                     const Span&             scratchSpan) const
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // Linux or Sun g++
 
-    (void) buffer;    // silence 'unused' warning
-    (void) bufferLen; // silence 'unused' warning
+    (void) scratchSpan;    // silence 'unused' warning
 
     int          status = -1;
     if (d_demangle) {
@@ -4277,12 +4567,12 @@ void u::Resolver::setFrameSymbolName(balst::StackTraceFrame *frame,
         }
         if (funcPtr) {
             status = (*funcPtr)(frame->mangledSymbolName().c_str(),
-                                buffer,
-                                bufferLen);
+                                scratchSpan.data(),
+                                scratchSpan.size());
         }
     }
 
-    frame->setSymbolName(0 == status ? buffer
+    frame->setSymbolName(0 == status ? scratchSpan.data()
                                      : frame->mangledSymbolName().c_str());
 #endif
 }
@@ -4314,7 +4604,7 @@ int linkmapCallback(struct dl_phdr_info *info,
     // and the caller ignores and propagates the return value we pass to it.
     // So just return without doing any work once resolving is done.
 
-    if (0 == resolver->numUnmatchedFrames()) {
+    if (!u_TRACES && 0 == resolver->numUnmatchedFrames()) {
         return 0;                                                     // RETURN
     }
 
@@ -4328,7 +4618,8 @@ int linkmapCallback(struct dl_phdr_info *info,
                                     0,
                                     reinterpret_cast<void *>(info->dlpi_addr));
     if (rc) {
-        return -1;                                                    // RETURN
+        u_TRACES && u_zprintf("processLoadedImage failed on %s\n",
+                                                              info->dlpi_name);
     }
 
     return 0;
@@ -4410,7 +4701,11 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
                                                               linkMap->l_addr);
 
         if (0 != u::checkElfHeader(elfHeader)) {
-            return -1;
+            u_TRACES && u_zprintf("Bad ELF header:"
+                                           " skipping loaded image %s at $d\n",
+                                                           linkMap->l_name, i);
+
+            continue;
         }
 
         u::ElfProgramHeader *programHeaders =
@@ -4431,7 +4726,8 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
                                              static_cast<void *>(elfHeader),
                                              0);
         if (rc) {
-            return -1;                                                // RETURN
+            u_TRACES && u_zprintf("processLoadedImage failed on  %s at $d\n",
+                                                           linkMap->l_name, i);
         }
     }
 

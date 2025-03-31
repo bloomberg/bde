@@ -220,12 +220,13 @@ int Resolver_DwarfReader::reload(bsl::size_t numBytes)
               bsl::min<Offset>(d_endOffset - d_offset, k_SCRATCH_BUF_LEN));
     u_ASSERT_BAIL(lengthToRead >= numBytes || u_P(lengthToRead) ||
                                                                 u_P(numBytes));
-    d_helper_p->readExact(d_buffer_p, lengthToRead, d_offset);
+    bsl::span<char> dst(d_buffer_p, lengthToRead);
+    int ret = d_helper_p->readExact(dst, d_offset);
 
     d_readPtr = d_buffer_p;
     d_endPtr  = d_readPtr + lengthToRead;
 
-    return 0;
+    return ret;
 }
 
 // CLASS METHODS
@@ -979,30 +980,8 @@ int Resolver_DwarfReader::readStringAt(bsl::string *dst,
     u_ASSERT_BAIL(0 <= offset);
     u_ASSERT_BAIL(offset < d_endOffset || u_PH(offset) || u_PH(d_endOffset));
 
-    enum { k_START_LEN = 256 };
-
-    bsl::size_t maxReadLen = static_cast<bsl::size_t>(
-                                      bsl::min<Offset>(d_endOffset - offset,
-                                                       k_SCRATCH_BUF_LEN - 1));
-
-    bsl::size_t stringLen;
-    for (bsl::size_t readLen = k_START_LEN; true; readLen *= 4) {
-        if (readLen > maxReadLen) {
-            readLen = maxReadLen;
-        }
-
-        bsl::size_t bytes = d_helper_p->readBytes(d_buffer_p, readLen, offset);
-        u_ASSERT_BAIL(0 < bytes);
-
-        BSLS_ASSERT(bytes <= readLen);
-        d_buffer_p[bytes] = 0;
-        stringLen = bsl::strlen(d_buffer_p);
-        if (stringLen < bytes || bytes < readLen || maxReadLen == readLen) {
-            break;
-        }
-    }
-
-    dst->assign(d_buffer_p, stringLen);
+    bsl::span<char> writeSpan(d_buffer_p, k_SCRATCH_BUF_LEN);
+    *dst = d_helper_p->loadString(writeSpan, offset);
 
     return 0;
 }

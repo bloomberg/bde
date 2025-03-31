@@ -352,8 +352,9 @@ int main(int argc, char *argv[])
         // the time we can't, due to stubborn nfs `gremlin` files that appear
         // in the directory.
 
-        bsl::system("rm -rf `find . -mtime +1 -a"
-                                  " -name 'tmp.resolver_dwarfreader.case_*'`");
+        int systemRc = bsl::system("rm -rf `find . -mtime +1 -a"
+                      " -name 'tmp.resolver_dwarfreader.case_*' 2>/dev/null`");
+        ASSERT(0 == systemRc);
     }
 
     bsl::string origWorkingDirectory;
@@ -853,7 +854,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         FH helper;
-        rc = helper.initialize(fn);
+        rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
@@ -1143,7 +1144,7 @@ int main(int argc, char *argv[])
         u::writeUnsigned(fd, static_cast<unsigned>(initialLength));
 
         FH helper;
-        int rc = helper.initialize(fn);
+        int rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
@@ -1767,7 +1768,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         FH helper;
-        rc = helper.initialize(fn);
+        rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Section sec;
@@ -1914,7 +1915,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         FH helper;
-        rc = helper.initialize(fn);
+        rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Section sec;
@@ -2144,7 +2145,7 @@ int main(int argc, char *argv[])
         infoSec.   reset(endLineStrSec, endFile - endLineStrSec);
 
         FH helper;
-        int rc = helper.initialize(fn);
+        int rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj strReader;
@@ -2389,13 +2390,13 @@ int main(int argc, char *argv[])
         u::writeUnsigned(fd, static_cast<unsigned>(length));
 
         FH helper;
-        int rc = helper.initialize(fn);
+        int rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
         Section sec;
-        sec.reset(0x111, INT_MAX - 0x111);
+        sec.reset(0x111, endData - 0x111);
         rc = mX.init(&helper, buffer, sec, INT_MAX);
         ASSERT(0 == rc);
 
@@ -2427,6 +2428,7 @@ int main(int argc, char *argv[])
 
         (void) FU::seek(fd, 0x111, FU::e_SEEK_FROM_BEGINNING);
 
+        length -= sizeof(Offset);
         u::writeUnsigned(fd, 0xffffffff);
         u::writeUint64(fd, length);
 
@@ -2545,7 +2547,7 @@ int main(int argc, char *argv[])
         u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         FH helper;
-        int rc = helper.initialize(fn);
+        int rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
@@ -2757,7 +2759,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         FH helper;
-        rc = helper.initialize(fn);
+        rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
@@ -2913,7 +2915,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         FH helper;
-        rc = helper.initialize(fn);
+        rc = helper.openFile(fn);
         ASSERT(0 == rc);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {

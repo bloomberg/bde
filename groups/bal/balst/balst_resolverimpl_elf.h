@@ -76,6 +76,8 @@ class ResolverImpl<ObjectFileFormat::Elf> {
                                  Offset;    // Usually used for relative
                                             // offsets into a file.
 
+    typedef bsl::span<char>      Span;      // Range of writable characters.
+
     struct HiddenRec;                       // 'struct' defined locally in
                                             // in the imp file containing
                                             // additional information
@@ -147,15 +149,13 @@ class ResolverImpl<ObjectFileFormat::Elf> {
 
     // PRIVATE ACCESSORS
 
-    /// Set the `symbolName` field of the specified `frame`, which must
-    /// already have the `mangledSymbolName` field set, to the demangled
-    /// version of the `mangledSymbolName` field.  Use the specified
-    /// `buffer` of specified length `bufferLen` for temporary storage.  If
-    /// `d_demangle` is `false` or we are otherwise unable to demangle, just
-    /// set it to the same as `mangledSymbolName`.
+    /// Set the `symbolName` field of the specified `frame`, which must already
+    /// have the `mangledSymbolName` field set, to the demangled version of the
+    /// `mangledSymbolName` field.  Use the specified `scratchSpan` for
+    /// temporary storage.  If `d_demangle` is `false` or we are otherwise
+    /// unable to demangle, just set it to the same as `mangledSymbolName`.
     void setFrameSymbolName(StackTraceFrame *frame,
-                            char            *buffer,
-                            bsl::size_t      bufferLen) const;
+                            const Span&      scratchSpan) const;
 
   public:
     // CLASS METHOD

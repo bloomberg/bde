@@ -158,8 +158,7 @@ typedef balst::StackTraceUtil  Util;
 typedef bsls::StackAddressUtil Address;
 
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
-           FORMAT_DLADDR = 0 };
+    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
     enum { FORMAT_DWARF = 1 };
@@ -168,30 +167,21 @@ typedef bsls::StackAddressUtil Address;
 # endif
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
-    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_WIN=0 };
 # else
 #   error unknown platform
 # endif
 
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
-           FORMAT_DLADDR = 1 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
     enum { FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
-           PLAT_DARWIN = 1 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_WIN=0, PLAT_DARWIN = 1 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
-           FORMAT_DLADDR = 0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
     enum { FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
-           PLAT_DARWIN = 0 };
-#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
-           FORMAT_DLADDR = 0 };
-    enum { FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
 #else
 # error unknown object file format
@@ -378,19 +368,15 @@ const char *nullGuard(const char *string)
                                 // testStackTrace
                                 // --------------
 
-/// Verify that the specified StackTrace `st` is sane.  Tolerate up to
-/// `tolerateMisses` frames without line numbers, as xcoff fails to give
-/// line numbers when the code is in an inlined function.
+/// Verify that the specified StackTrace `st` is sane.
 static
-void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
+void testStackTrace(const balst::StackTrace& st)
 {
     LOOP_ASSERT(st.length(), st.length() > 0);
 
     bool reachedMain = false, pastMain = false;   // The trace above, at, and
                                                   // below `main` have
                                                   // different properties.
-
-    int numMisses = 0;
 
     for (int i = 0; i < st.length(); ++i) {
         const Frame& frame = st[i];
@@ -429,18 +415,9 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
         if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !pastMain) {
             ASSERT(frame.lineNumber() > 0);
         }
-        else if (FORMAT_XCOFF && !!DEBUG_ON) {
-            ASSERT(frame.isSourceFileNameKnown());
-
-            // There may be one stack frame that had inlined code in it.
-
-            numMisses += frame.lineNumber() < 0;
-        }
 
         pastMain |= reachedMain;
     }
-
-    ASSERT(numMisses <= tolerateMisses);
 }
 
                                 // ------------
@@ -505,23 +482,14 @@ void pushVec(bsl::vector<Data> *dst,
     // On most platforms, a member func ptr is multiple times the size of a
     // `void *`, so we've got to extract the address from it.
 
-    // On xcoff, a function ptr is really just a ptr to a location containing
-    // a ptr to the address, so it needs and extra dereference.
-
     void *& ptr = data.d_funcPtr;
-    UintPtr uPtr, *uPtr_p;
+    UintPtr uPtr;
 
     enum { k_DIM = sizeof(funcPtr) / sizeof(void *) };
     BSLS_ASSERT(k_DIM * sizeof(void *) == sizeof(funcPtr));
 
     if (!e_BIG_ENDIAN || sizeof(void *) == sizeof(funcPtr)) {
-        if (FORMAT_XCOFF) {
-            bsl::memcpy(&uPtr_p, &funcPtr, sizeof(void *));
-            uPtr = *uPtr_p;
-        }
-        else {
-            bsl::memcpy(&uPtr, &funcPtr, sizeof(void *));
-        }
+        bsl::memcpy(&uPtr, &funcPtr, sizeof(void *));
     }
     else if (PLAT_WIN) {
         UintPtr uPtrs[k_DIM];
@@ -534,24 +502,6 @@ void pushVec(bsl::vector<Data> *dst,
             cout << "PushVec: ptrs for: " << mangledSearch;
             for (int ii = 0; ii < k_DIM; ++ii) {
                 cout << " 0x" << (void *) uPtrs[ii];
-            }
-            cout << endl;
-        }
-    }
-    else if (FORMAT_XCOFF) {
-        ASSERTV(sizeof(funcPtr), sizeof(void *),
-                                        4 == sizeof(funcPtr) / sizeof(void *));
-
-        UintPtr *uPtrs[4];
-        ASSERT(sizeof(uPtrs) == sizeof(funcPtr));
-        bsl::memcpy(uPtrs, &funcPtr, sizeof(uPtrs));
-        uPtr = *uPtrs[0];
-        const bool uPtrOK = uPtr && (UintPtr) 0 - 1 != uPtr;
-        ASSERT(uPtrOK);
-        if (veryVeryVerbose || !uPtrOK) {
-            cout << "PushVec: ptrs: ";
-            for (int ii = 0; ii < 4; ++ii) {
-                cout << (ii ? " 0x" : "0x") << (void *) uPtrs[ii];
             }
             cout << endl;
         }
@@ -1173,7 +1123,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
     LOOP_ASSERT(rc, 0 == rc);
     sw.stop();
     if (0 == rc) {
-        testStackTrace(st, FORMAT_XCOFF);
+        testStackTrace(st);
 
         Util::printFormatted(*out_p, st);
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
@@ -1956,7 +1906,7 @@ void bottom(bslma::Allocator *alloc)
 // (7): _start+0x5c at 0x31d4c in balst_stacktraceutil.t.dbg_exc_mt
 // ```
 // Notice that the lines have been truncated to fit this 79 column source file,
-// and that on AIX or Windows, source file name and line number information
+// and that on Linux or Windows, source file name and line number information
 // will also be displayed.
 
 // ============================================================================
@@ -2273,14 +2223,7 @@ int main(int argc, char *argv[])
 
             const int startTestStatus = testStatus;
 
-            if (FORMAT_XCOFF) {
-                bsl::size_t pos = expName.rfind("(");
-                pos = expName.rfind("::", pos);
-                ASSERT(npos != pos);
-                ASSERT(':' == expName[pos]);
-                expName.insert(pos + 2, 1, '.');
-            }
-            else if (FORMAT_WINDOWS) {
+            if (FORMAT_WINDOWS) {
                 bsl::size_t pos = expName.find("(");
                 expName.resize(pos);
             }

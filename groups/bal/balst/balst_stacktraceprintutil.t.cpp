@@ -132,27 +132,19 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { e_FORMAT_ELF = 1, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
-    enum { e_PLAT_SUN=1, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
-                                                                e_PLAT_WIN=0 };
+    enum { e_PLAT_SUN=1, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
-    enum { e_PLAT_SUN=0, e_PLAT_LINUX=1, e_PLAT_HP=0, e_PLAT_AIX=0,
-                                                                e_PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=1, e_PLAT_HP=0, e_PLAT_WIN=0 };
 # else
 #   error unknown platform
 # endif
 
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 1 };
-    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
-                                                                e_PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_WIN=0 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 1, e_FORMAT_DLADDR = 0 };
-    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
-                                                                e_PLAT_WIN=1 };
-#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0 };
-    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=1,
-                                                                e_PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_WIN=1 };
 #else
 # error unknown object file format
 #endif
@@ -888,7 +880,7 @@ void recurseAndPrintStack(int *depth)
 
 // Then, we call `recurseAndPrintStack` from the main program.
 
-// Now, invoking the main program on AIX produces the following output:
+// Now, invoking the main program on Linux produces the following output:
 
 // Finally, we observe the following about the above output to `cout`.  Notice
 // that as the actual output would write each stack trace frame all on a single

@@ -92,9 +92,8 @@ class Resolver_DwarfReader {
     };
 
     // PUBLIC CONSTANTS
-    enum { k_SCRATCH_BUF_LEN = 32 * 1024 - 64 };
-        // length in bytes of d_buffer_p; 32K minus a little so we don't
-        // waste a page
+    enum { k_SCRATCH_BUF_LEN =
+                              Resolver_FileHelper::k_DEFAULT_SCRATCH_BUF_LEN };
 
                                // DWARF enums
 

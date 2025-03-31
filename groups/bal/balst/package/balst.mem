@@ -4,7 +4,6 @@ balst_resolver_filehelper
 balst_resolverimpl_dladdr
 balst_resolverimpl_elf
 balst_resolverimpl_windows
-balst_resolverimpl_xcoff
 balst_stacktrace
 balst_stacktraceconfigurationutil
 balst_stacktraceframe

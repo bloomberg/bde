@@ -7,7 +7,6 @@ BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <balst_objectfileformat.h>
 #include <balst_resolverimpl_dladdr.h>
 #include <balst_resolverimpl_elf.h>
-#include <balst_resolverimpl_xcoff.h>
 #include <balst_resolverimpl_windows.h>
 #include <balst_stacktraceframe.h>
 

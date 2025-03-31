@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's object file format properties.  For example, the
 // `balst::ObjectFileFormat::ResolverPolicy` trait is ascribed a "value" (i.e.,
-// `Elf` or `Xcoff`) appropriate for each supported platform.  The various
+// `Elf` or `Windows`) appropriate for each supported platform.  The various
 // stack trace traits are actually types declared in the
 // `bdescu_ObjectFileFormat` `struct`.  These types are intended to be used in
 // specializing template implementations or to enable function overloading
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The templated (specialized) `typeTest` function returns a unique, non-zero
 // value when passed an object of types
-// `balst::ObjectFileFormat::{Elf,Xcoff,Windows}`, and 0 otherwise.
+// `balst::ObjectFileFormat::{Elf,Windows}`, and 0 otherwise.
 // ```
 // template <typename TYPE>
 // int typeTest(const TYPE &)
@@ -72,11 +72,6 @@ BSLS_IDENT("$Id: $")
 //     return 1;
 // }
 //
-// int typeTest(const balst::ObjectFileFormat::Xcoff &)
-// {
-//     return 2;
-// }
-//
 // int typeTest(const balst::ObjectFileFormat::Windows &)
 // {
 //     return 3;
@@ -85,8 +80,8 @@ BSLS_IDENT("$Id: $")
 // int main() ...
 // ```
 // We define an object `policy` of type `balst::ObjectFileFormat::Policy`,
-// which will be of type `...::Elf`, `...::Xcoff`, or `...::Windows`
-// appropriate for the platform.
+// which will be of type `...::Elf`, or `...::Windows` appropriate for the
+// platform.
 // ```
 //     balst::ObjectFileFormat::Policy policy;
 // ```
@@ -96,10 +91,6 @@ BSLS_IDENT("$Id: $")
 //
 // #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 //     assert(1 == typeTest(policy));
-// #endif
-//
-// #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-//     assert(2 == typeTest(policy));
 // #endif
 //
 // #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
@@ -127,8 +118,6 @@ struct ObjectFileFormat {
 
     struct Elf {};        // resolve as elf object
 
-    struct Xcoff {};      // resolve as xcoff object
-
     struct Windows {};    // format used on Microsoft Windows platform
 
     struct Dladdr {};     // resolve using the 'dladdr' call
@@ -144,11 +133,6 @@ struct ObjectFileFormat {
 # if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
 # endif
-
-#elif defined(BSLS_PLATFORM_OS_AIX)
-
-    typedef Xcoff Policy;
-#   define BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
