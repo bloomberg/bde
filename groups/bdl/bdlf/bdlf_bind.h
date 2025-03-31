@@ -877,6 +877,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_memberfunctionpointertraits.h>
+#include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 #include <bslmf_removecv.h>
@@ -6878,11 +6879,36 @@ struct Bind_PlaceHolderIndex<PlaceHolder<INDEX> > {
 /// or reference.  This class is declared to have pointer semantics, such
 /// that `MemFn` will properly dereference the object to invoke the member
 /// function.
-template <class TYPE>
+template <class t_TYPE>
 class Bind_MemFnObjectWrapper {
 
     // DATA
-    TYPE *d_object;  // held, not owned
+    t_TYPE *d_object_p;  // held, not owned
+
+    // PRIVATE CLASS METHODS
+
+    // The second unnamed argument is a boolean that is 'true' if 't_ARG_TYPE'
+    // has pointer sematics.  If it does, return '&*pointerLink' implicitly
+    // cast to 't_TYPE'.  Note that if 't_ARG_TYPE' is a smart pointer type,
+    // the '&*' operation will convert it to a raw pointer.  If 't_ARG_TYPE'
+    // does not have pointer semantics, implicitly cast a raw pointer to it to
+    // 't_TYPE *'.  Note that 't_ARG_TYPE' and/or 't_TYPE' may be 'const',
+    // though a compilation error will occur if 't_ARG_TYPE' is 'const' and
+    // 't_TYPE' is not.
+    template <class t_ARG_TYPE>
+    static
+    t_TYPE *getObjectPtr(t_ARG_TYPE&       pointerLike,
+                         bsl::true_type    )  // has pointer semantics
+    {
+        return &*pointerLike;
+    }
+    template <class t_ARG_TYPE>
+    static
+    t_TYPE *getObjectPtr(t_ARG_TYPE&       notPointerLike,
+                         bsl::false_type   )  // doesn't have pointer semantics
+    {
+        return &notPointerLike;
+    }
 
   public:
     // TRAITS
@@ -6892,18 +6918,32 @@ class Bind_MemFnObjectWrapper {
                                    bslmf::IsBitwiseMoveable);
 
     // CREATORS
-    Bind_MemFnObjectWrapper(TYPE  *object)                     // IMPLICIT
-    : d_object(object) {}
-    Bind_MemFnObjectWrapper(TYPE&  object)                     // IMPLICIT
-    : d_object(&object) {}
-        // Implicitly converts the specified object (of parameterized 'TYPE')
-        // to a 'Bind_MemFnObjectWrapper'.
+
+    /// If the c'tor argument has pointer sematics to 't_TYPE', perform '&*' on
+    /// it to initialize 'd_object_p', otherwise take its address to initialize
+    /// 'd_object_p'.  Note that 't_TYPE' and/or 't_ARG_TYPE' may be 'const',
+    /// though a compilation error will result if 't_ARG_TYPE' is 'const' and
+    /// 't_TYPE' is not.
+    template <class t_ARG_TYPE>
+    Bind_MemFnObjectWrapper(t_ARG_TYPE&                         object)
+                                                                    // IMPLICIT
+    : d_object_p(getObjectPtr(object,
+                              bslmf::HasPointerSemantics<
+                                 typename bsl::remove_cv<t_ARG_TYPE>::type>()))
+    {}
+    template <class t_ARG_TYPE>
+    Bind_MemFnObjectWrapper(BSLMF_MOVABLEREF_DEDUCE(t_ARG_TYPE) object)
+                                                                    // IMPLICIT
+    : d_object_p(getObjectPtr(static_cast<t_ARG_TYPE&>(object),
+                              bslmf::HasPointerSemantics<
+                                 typename bsl::remove_cv<t_ARG_TYPE>::type>()))
+    {}
 
     // ACCESSORS
 
     /// Returns a reference to the object (of parameterized `TYPE`) pointed
     /// to by this `Bind_MemFnObjectWrapper`.
-    TYPE& operator*() const { return *d_object; }
+    t_TYPE& operator*() const { return *d_object_p; }
 
 };
 

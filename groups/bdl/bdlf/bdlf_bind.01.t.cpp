@@ -205,6 +205,208 @@ typedef bsls::Types::Int64 Int64;
 bool globalVerbose = false;
 
 // ----------------------------------------------------------------------------
+//                   TESTING FUNCTIONS/CLASSES FOR CASE 12
+// ----------------------------------------------------------------------------
+
+namespace BDLF_BIND_TEST_CASE_12 {
+
+namespace TC = BDLF_BIND_TEST_CASE_12;
+using namespace bdlf::PlaceHolders;
+typedef bdlf::BindUtil Util;
+
+class Thing {
+    // DATA
+    int d_data;
+
+  public:
+    // CREATORS
+    Thing(int initValue)
+    : d_data(initValue)
+    {}
+
+    Thing(const Thing& original)
+    : d_data(original.d_data)
+    {}
+
+    Thing(bslmf::MovableRef<Thing> original)
+    {
+        Thing& local = original;
+        d_data = local.d_data;
+        local = -1;
+    }
+
+    ~Thing()
+    {
+        d_data = -1;
+    }
+
+    // MANIPULATORS
+    Thing& operator=(int value)
+    {
+        d_data = value;
+        return *this;
+    }
+
+    void multiply(int factor)
+    {
+        d_data *= factor;
+    }
+
+    // ACCESSORS
+    int read() const
+    {
+        return d_data;
+    }
+};
+
+/// Return the specified 'object' as a const ref.
+template <class t_TYPE>
+const t_TYPE& cvalue(const t_TYPE& object)
+{
+    return object;
+}
+
+/// Return the specified 'object' by rvalue reference.  Note that we have to
+/// take the object as an lvalue since it might be an 'auto_ptr'.
+template <class t_TYPE>
+bslmf::MovableRef<t_TYPE> rvalue(t_TYPE& object)
+{
+    return bslmf::MovableRefUtil::move(object);
+}
+
+template <class t_OBJ,
+          bool  t_THING_IS_CONST,
+          bool  t_POINTER = bslmf::HasPointerSemantics<
+                                                bsl::remove_cv<t_OBJ> >::value>
+struct Case12Test;
+
+template <>
+struct Case12Test<Thing, false, false> {
+    void operator()(Thing& tt40, const char *trace)
+    {
+        if (trace) printf("%s", trace);
+
+        int rc;
+
+        Util::bind(&TC::Thing::multiply, _1, _2)(tt40, 10);
+        Util::bind(&TC::Thing::multiply, _1, _2)(TC::rvalue(tt40), 2);
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(tt40)));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::cvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::rvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(tt40)));
+
+        bsl::function<int(TC::Thing&)> funcLvalue;
+        funcLvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcLvalue(tt40)));
+
+        bsl::function<int(const TC::Thing&)> funcCvalue;
+        funcCvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcCvalue(TC::cvalue(tt40))));;
+
+        bsl::function<int(bslmf::MovableRef<TC::Thing>)> funcRvalue;
+        funcRvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcRvalue(TC::rvalue(tt40))));
+
+        ASSERTV(rc, 40 == (rc = funcLvalue(tt40)));
+    }
+};
+
+
+template <>
+struct Case12Test<const Thing, true, false> {
+    void operator()(const Thing& tt40, const char *trace)
+    {
+        if (trace) printf("%s", trace);
+
+        int rc;
+
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(tt40)));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::cvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::rvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(tt40)));
+
+        bsl::function<int(const TC::Thing&)> func;
+        func = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = func(tt40)));
+        ASSERTV(rc, 40 == (rc = func(TC::cvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = func(TC::rvalue(tt40))));
+        ASSERTV(rc, 40 == (rc = func(tt40)));
+    }
+};
+
+template <class t_PTR>
+struct Case12Test<t_PTR, false, true> {
+    void operator()(t_PTR& pt40, const char *trace)
+    {
+        if (trace) printf("%s", trace);
+
+        int rc;
+
+        Util::bind(&TC::Thing::multiply, _1, _2)(pt40, 5);
+        Util::bind(&TC::Thing::multiply, _1, _2)(TC::cvalue(pt40),2);
+        Util::bind(&TC::Thing::multiply, _1, _2)(TC::rvalue(pt40),2);
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(pt40)));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::cvalue(pt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::rvalue(pt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(pt40)));
+
+        bsl::function<int(t_PTR&)> funcLvalue;
+        funcLvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcLvalue(pt40)));
+
+        bsl::function<int(const t_PTR&)> funcCvalue;
+        funcCvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcCvalue(TC::cvalue(pt40))));
+
+        bsl::function<int(bslmf::MovableRef<t_PTR>)> funcRvalue;
+        funcRvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcRvalue(TC::rvalue(pt40))));
+
+        ASSERTV(rc, 40 == (rc = funcLvalue(pt40)));
+    }
+};
+
+
+template <class t_PTR>
+struct Case12Test<t_PTR, true, true> {
+    void operator()(t_PTR& pt40, const char *trace)
+    {
+        if (trace) printf("%s", trace);
+
+        int rc;
+
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(pt40)));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::cvalue(pt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(
+                                                           TC::rvalue(pt40))));
+        ASSERTV(rc, 40 == (rc = Util::bind(&TC::Thing::read, _1)(pt40)));
+
+        bsl::function<int(t_PTR&)> funcLvalue;
+        funcLvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcLvalue(pt40)));
+
+        bsl::function<int(const t_PTR&)> funcCvalue;
+        funcCvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcCvalue(TC::cvalue(pt40))));
+
+        bsl::function<int(bslmf::MovableRef<t_PTR>)> funcRvalue;
+        funcRvalue = Util::bind(&TC::Thing::read, _1);
+        ASSERTV(rc, 40 == (rc = funcRvalue(TC::rvalue(pt40))));
+
+        ASSERTV(rc, 40 == (rc = funcLvalue(pt40)));
+    }
+};
+
+}  // close namespace BDLF_BIND_TEST_CASE_12
+
+// ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 11
 // ----------------------------------------------------------------------------
 
@@ -1785,6 +1987,250 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
 //                                TEST CASES
 // ----------------------------------------------------------------------------
 
+
+DEFINE_TEST_CASE(12)
+{
+    // ------------------------------------------------------------------------
+    // TESTING PASS OBJECT FOR METHOD THROUGH PLACEHOLDER BY SMART POINTER
+    //
+    // Concerns:
+    //: 1 The object can be passed as a:
+    //:   o simple pointer
+    //:
+    //:   o reference
+    //:
+    //:   o bsl::shared_ptr
+    //:
+    //:   o std::shared_ptr
+    //:
+    //:   o bslma::ManagedPtr
+    //:
+    //:   o std::unique_ptr
+    //:
+    //:   o std::auto_ptr
+    //:
+    //: 2 The object held by the smart pointer may be modifiable or 'const'.
+    //:
+    //: 3 If the object passed is a smart pointer, it is never copied or moved
+    //:   -- if it were and it were a managed ptr, auto ptr or unique ptr, then
+    //:   the object to which it refers would be destroyed at the end of the
+    //:   statement.  Therefore we want to make sure that it is passed by
+    //:   reference everywhere regardless of how it is passed, so it must be
+    //:   passed as every possible type of reference.
+    //
+    // Plan:
+    //: 1 Create a 'class', 'TC::Thing', which has an integral value, and two
+    //:   mehods:
+    //:   o 'multiply', a manipulator that will multiply to 'Thing's integral
+    //:     value by an integer.
+    //:
+    //:   o 'read', an accessor that will return the integral value.
+    //:
+    //:   o d'tor that will change the integral value.
+    //:
+    //: 2 Create two reference free functions:
+    //:   o 'TC::cvalue' which returns the reference passed cast to a const
+    //:     reference.
+    //:
+    //:   o 'TC::rvalue' which returns the reference passed cast to an rvalue
+    //:     reference.
+    //:
+    //: 3 Create functions TC::TestCase12::operator() that can deal with 4
+    //:   cases:
+    //:   o a modifiable reference is passed
+    //:
+    //:   o a const reference is passed
+    //:
+    //:   o something with pointer semantics to a modifiable 'Thing' is passed
+    //:
+    //:   o something with pointer semantics to a const 'Thing' is passed
+    //:
+    //: 4: For each passing mode, if the object being passed is modifiable,
+    //:    call the 'multiply' method a few times to ensure that the ref being
+    //:    passed is non-const.
+    //:
+    //: 5 For each passing mode, whether the object being passed is 'const' or
+    //:   not, call the 'read' method a few times to verify that the object's
+    //:   value is expected.
+    //:
+    //: 6 For each passing mode, create a 'bsl::function' object that expects
+    //:   the appropriate passing mode.
+    //:
+    //: 7 For each method call, do it:
+    //:   o with a raw reference
+    //:
+    //:   o with a reference passed through 'TC::cvalue' (unless the call is to
+    //:     'multiply' and the 'const' would interfere with that))
+    //:
+    //:   o with a reference passed through 'TC::rvalue'.
+    //:
+    //:   o after the last call through 'TC::rvalue', perform another call to
+    //:     the 'read' method to verify the value to see that the passed object
+    //:     wasn't moved (which in some cases would destroy the 'TC::Thing').
+    //:
+    //: 8 Exercise the following passing modes, modifiable and 'const' in each
+    //:   case:
+    //:   o reference
+    //:
+    //:   o raw pointer
+    //:
+    //:   o bsl::shared_ptr
+    //:
+    //:   o std::shared_ptr
+    //:
+    //:   o bslma::ManagedPtr
+    //:
+    //:   o std::unique_ptr
+    //:
+    //:   o std::auto_ptr
+    //
+    // Testing:
+    //   PASS OBJECT FOR METHOD THROUGH PLACEHOLDER BY SMART POINTER
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf(
+              "PASS OBJECT FOR METHOD THROUGH PLACEHOLDER BY SMART POINTER\n"
+              "===========================================================\n");
+
+    (void) (verbose = veryVerbose = veryVeryVerbose);
+
+    namespace TC = BDLF_BIND_TEST_CASE_12;
+
+    {
+        TC::Thing tt40(2);
+        TC::Case12Test<TC::Thing, 0, 0>()(tt40,
+                                          veryVerbose ? "Lvalue Ref\n" : 0);
+    }
+
+    {
+        const TC::Thing tt40(40);
+        TC::Case12Test<const TC::Thing, 1, 0>()(
+                                             tt40,
+                                             veryVerbose ? "Cvalue Ref\n" : 0);
+    }
+
+    {
+        TC::Thing tt40(2);    TC::Thing *pt40 = &tt40;
+        TC::Case12Test<TC::Thing *, 0, 1>()(pt40,
+                                            veryVerbose ? "Raw Ptr\n" : 0);
+    }
+
+    {
+        const TC::Thing tt40(40);    const TC::Thing *pt40 = &tt40;
+        TC::Case12Test<const TC::Thing *, 1, 1>()(
+                                          pt40,
+                                          veryVerbose ? "Const Raw Ptr\n" : 0);
+    }
+
+    {
+        bsl::shared_ptr<TC::Thing> pt40(bsl::make_shared<TC::Thing>(2));
+        TC::Case12Test<bsl::shared_ptr<TC::Thing>, 0, 1>()(
+                                        pt40,
+                                        veryVerbose ? "bsl::shared_ptr\n" : 0);
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    {
+        std::shared_ptr<TC::Thing> pt40(std::make_shared<TC::Thing>(2));
+        TC::Case12Test<std::shared_ptr<TC::Thing>, 0, 1>()(
+                                        pt40,
+                                        veryVerbose ? "std::shared_ptr\n" : 0);
+    }
+#else
+    if (veryVerbose) printf("no std::shared_ptr\n");
+#endif
+
+    {
+        bsl::shared_ptr<const TC::Thing> pt40(
+                                        bsl::make_shared<const TC::Thing>(40));
+        TC::Case12Test<bsl::shared_ptr<const TC::Thing>, 1, 1>()(
+                                 pt40,
+                                 veryVerbose ? "bsl::shared_ptr<const>\n" : 0);
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    {
+        std::shared_ptr<const TC::Thing> pt40(
+                                        std::make_shared<const TC::Thing>(40));
+        TC::Case12Test<std::shared_ptr<const TC::Thing>, 1, 1>()(
+                                 pt40,
+                                 veryVerbose ? "std::shared_ptr<const>\n" : 0);
+    }
+#else
+    if (veryVerbose) printf("no std::shared_ptr<const T>\n");
+#endif
+
+    // Test passing the object via managed ptr, unique ptr, & auto_ptr, to
+    // confirm that the managed ptr never gets passed by value, since if it
+    // was the pointed-to thing would be destroyed at the end of the statement.
+
+    {
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
+        bslma::ManagedPtr<TC::Thing> pt40(new (*alloc) TC::Thing(2));
+        TC::Case12Test<bslma::ManagedPtr<TC::Thing>, 0, 1>()(
+                                      pt40,
+                                      veryVerbose ? "bslma::ManagedPtr\n" : 0);
+    }
+
+    {
+        bslma::Allocator *alloc = bslma::Default::defaultAllocator();
+        bslma::ManagedPtr<const TC::Thing> pt40(new (*alloc) TC::Thing(40));
+        TC::Case12Test<bslma::ManagedPtr<const TC::Thing>, 1, 1>()(
+                               pt40,
+                               veryVerbose ? "bslma::ManagedPtr<const>\n" : 0);
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    {
+        std::unique_ptr<TC::Thing> pt40(new TC::Thing(2));
+        TC::Case12Test<std::unique_ptr<TC::Thing>, 0, 1>()(
+                                        pt40,
+                                        veryVerbose ? "std::unique_ptr\n" : 0);
+    }
+#else
+    if (veryVerbose) printf("no std::unique_ptr\n");
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    if (veryVerbose) printf("std::unique_ptr<const T>\n");
+    {
+        std::unique_ptr<const TC::Thing> pt40(new const TC::Thing(40));
+        TC::Case12Test<std::unique_ptr<const TC::Thing>, 1, 1>()(
+                                 pt40,
+                                 veryVerbose ? "std::unique_ptr<const>\n" : 0);
+    }
+#else
+    if (veryVerbose) printf("no std::unique_ptr<const T>\n");
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
+
+    {
+        std::auto_ptr<TC::Thing> pt40(new TC::Thing(2));
+        TC::Case12Test<std::auto_ptr<TC::Thing>, 0, 1>()(
+                                          pt40,
+                                          veryVerbose ? "std::auto_ptr\n" : 0);
+    }
+
+    {
+        std::auto_ptr<const TC::Thing> pt40(new TC::Thing(40));
+        TC::Case12Test<std::auto_ptr<const TC::Thing>, 1, 1>()(
+                                   pt40,
+                                   veryVerbose ? "std::auto_ptr<const>\n" : 0);
+    }
+
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
+#else
+    if (veryVerbose) printf("no std::auto_ptr\n");
+    if (veryVerbose) printf("no std::auto_ptr<const T>\n");
+#endif
+}
 
 DEFINE_TEST_CASE(11)
 {
@@ -4946,6 +5392,7 @@ int main(int argc, char *argv[])
       case NUMBER: {                                                          \
         testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);              \
       } break
+        CASE(12);
         CASE(11);
         CASE(10);
         CASE(9);

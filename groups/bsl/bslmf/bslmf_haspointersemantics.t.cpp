@@ -100,6 +100,29 @@ int main(int argc, char *argv[])
 
         ASSERT(!bslmf::HasPointerSemantics<int>::value);
         ASSERT( bslmf::HasPointerSemantics<void*>::value);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+        if (veryVerbose) printf("auto_ptr\n");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+        ASSERT( bslmf::HasPointerSemantics<std::auto_ptr<int> >::value);
+#pragma GCC diagnostic pop
+#else
+        if (veryVerbose) printf("no auto_ptr\n");
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        if (veryVerbose) printf("shared_ptr\n");
+        ASSERT( bslmf::HasPointerSemantics<std::shared_ptr<int> >::value);
+#else
+        if (veryVerbose) printf("no shared_ptr - not C++11\n");
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+        if (veryVerbose) printf("unique_ptr\n");
+        ASSERT( bslmf::HasPointerSemantics<std::unique_ptr<int> >::value);
+#else
+        if (veryVerbose) printf("no unique_ptr\n");
+#endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

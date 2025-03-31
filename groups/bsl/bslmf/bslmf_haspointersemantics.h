@@ -27,6 +27,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_ispointer.h>
 
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
+
+#include <memory>
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_ispointer.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -41,6 +46,32 @@ struct HasPointerSemantics
       bsl::is_pointer<t_TYPE>::value ||
           DetectNestedTrait<t_TYPE, HasPointerSemantics>::value> {
 };
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
+template <class t_POINTED_TO_TYPE>
+struct HasPointerSemantics<std::auto_ptr<t_POINTED_TO_TYPE> > :
+                                                          public bsl::true_type
+{};
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class t_POINTED_TO_TYPE>
+struct HasPointerSemantics<std::shared_ptr<t_POINTED_TO_TYPE> > :
+                                                          public bsl::true_type
+{};
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+template <class t_POINTED_TO_TYPE>
+struct HasPointerSemantics<std::unique_ptr<t_POINTED_TO_TYPE> > :
+                                                          public bsl::true_type
+{};
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace
