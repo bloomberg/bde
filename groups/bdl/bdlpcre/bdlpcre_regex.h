@@ -369,7 +369,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // informational string and an index into the pattern at which the error
 // occurred, respectively).  Two flags, `RegEx::k_FLAG_CASELESS` and
 // `RegEx::k_FLAG_MULTILINE`, are used in preparing the pattern since Internet
-// message headers contain case-insensitive content as well as '\n' characters.
+// message headers contain case-insensitive content as well as `\n` characters.
 // The `prepare` method returns 0 on success, and a non-zero value otherwise:
 // ```
 //     RegEx       regEx;
