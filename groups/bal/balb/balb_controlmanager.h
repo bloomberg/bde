@@ -81,10 +81,6 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 namespace BloombergLP {
 namespace balb {
 
@@ -107,9 +103,9 @@ class ControlManager {
         ControlHandler;
 
   private:
-    // PRIVATE TYPES 
+    // PRIVATE TYPES
 
-                        // ========================== 
+                        // ==========================
                         // class ControlManager_Entry
                         // ==========================
 

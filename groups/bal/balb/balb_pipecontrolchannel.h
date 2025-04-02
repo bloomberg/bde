@@ -223,10 +223,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #include <string>           // 'std::string', 'std::pmr::string'
 
 namespace BloombergLP {

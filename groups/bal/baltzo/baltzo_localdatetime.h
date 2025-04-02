@@ -109,12 +109,6 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
-
-#include <bsl_algorithm.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 namespace BloombergLP {
 namespace baltzo {
 
