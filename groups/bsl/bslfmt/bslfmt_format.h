@@ -837,7 +837,7 @@ string format(allocator<char>          alloc,
 }
 
 template <class... t_ARGS>
-wstring format(allocator<char>           alloc,
+wstring format(allocator<wchar_t>        alloc,
                const std::locale&        loc,
                wformat_string<t_ARGS...> fmtStr,
                t_ARGS&&...               args)
