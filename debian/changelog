@@ -1,5 +1,37 @@
-bsl-internal (4.22.0.0) unstable; urgency=low
+bsl-internal (4.23.0.0) unstable; urgency=low
 
+  * 0f82a8cf4 Bumped version to 4.23.0.0
+  * 72de58a1b bslstl::iterator: add distance, ranges::{advance,iter_move,next,prev} (#5268)
+  * 0db80e472 Bdlf bind method object shared ptr drqs 137621114 (#5001)
+  * 974bd695b Balst dynamic libs drqs 177234629 (#5249)
+  * 1defbfea0 Merge pull request #5264 from dsokolov7/review/bde-bsl-format-formatspecificationparser-gold-drqs-178234972
+  * d6843d3b4 reduce sprintf warnings (#5279)
+  * 92bf3945e Fix bdlpcre documentation rendering (#5278)
+  * 02199e747 check thread creation result (#5276)
+  * ed4a567a9 correct two ubsan issues (#5274)
+  * 5b5662c98 Drqs 178547535/bbldc basicisda11 (#5259)
+  * fc4d20b27 Added numUnknownElementsSkipped() (#5269)
+  * bb4fc1740 correct minor nb issues (#5270)
+  * 373a3751e Add baljsn and bdljsn unescaped forward slash support (#5222)
+  * 6dd703269 check thread creation return value (#5267)
+  * a89149325 Suppress incorrect warning on Sun in bslh (#5265)
+  * c45b9f19e Merge pull request #5169 from afeher/drqs-177649511-TestAllocatorStatisticsGuard
+  * 6675aa2f0 reduce warnings (#5262)
+  * f2861af7c Fix bsls_platform formatting (#5263)
+  * a614b2c26 Merge pull request #5261 from jberne4/die_assertionlogger
+  * 82a77e17a fix fflush test errors (#5260)
+  * 6a616d079 Merge pull request #5258 from jberne4/allocatemanaged_deletefix
+  * e2094c73a Merge pull request #5256 from jberne4/allocatemanaged_deletefix
+  * 9b0f66761 Add fflush(stdout) to avoid incorrect interleaving by ctest. (#5238)
+  * 9890345ee Merge pull request #5257 from afeher/drqs-178586468-add-bsl_memory_resource-to-mem-file
+  * 5146c369a reducing testing requirements of some bdlmt components (#5255)
+  * d09c438a1 Drqs 178494680/nb 20250314 (#5254)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 3 Apr 2025 14:39:29 -0400
+
+bsl-internal (4.22.0.0) git; urgency=low
+
+  * ecee48b93 Changelog for version 4.22.0.0
   * e6fedb05f Bumped version to 4.22.0.0
   * ac9a3cf00 Drqs 178484473 bslfmt fix end dereference (#5247)
   * b3c20ced2 fix bdls::FilesystemUtil::move docstring and add tests (DRQS 178057845) (#5220)
@@ -32,7 +64,7 @@ bsl-internal (4.22.0.0) unstable; urgency=low
   * 96f4f75fc [bsl::format] Usage example of 'MockFormatContext' has been refactored. DRQS 178070286 (#5198)
   * fdea83311 Remove unsupported platform/compiler ifdefs/workarounds in bdlb (DRQS 177859641) (#5221)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Mar 2025 14:08:16 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Mar 2025 10:17:55 -0400
 
 bsl-internal (4.21.0.0) git; urgency=low
 
