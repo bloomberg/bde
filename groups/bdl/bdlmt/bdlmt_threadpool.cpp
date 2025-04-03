@@ -281,7 +281,8 @@ int ThreadPool::startNewThread()
 void ThreadPool::workerThread()
 {
     ThreadPoolWaitNode waitNode;
-    Job functor;
+    Job functor(bsl::allocator_arg,
+                bsl::allocator<char>(d_queue.get_allocator()));
     while (1) {
         // The functor has to be cleared when we are *not* holding the lock
         // because it might have some objects bound with non-trivial
@@ -289,7 +290,7 @@ void ThreadPool::workerThread()
 
         bool functorWasSetFlag = false;
         if (functor) {
-            functor = Job();
+            functor = bsl::nullptr_t();
             functorWasSetFlag = true;
         }
 

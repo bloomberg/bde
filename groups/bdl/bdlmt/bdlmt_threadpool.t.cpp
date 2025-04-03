@@ -820,10 +820,239 @@ void threadNameCheckJob(void *arg)
 }  // close namespace THREAD_NAMES_TEST
 
 // ============================================================================
-//                         CASE 14 RELATED ENTITIES
+//                         CASE 17 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-namespace case14 {
+namespace case17 {
+                          // ==========================
+                          // CheckAllocatorMatchFunctor
+                          // ==========================
+
+/// This class checks whether all copy/move operations on a given object used
+/// both `move` (rather than `copy`) operations and matched allocators between
+/// the sides of the operation.
+class CheckAllocatorMatchFunctor {
+  private:
+    // DATA
+    int               d_matchedCopyCount;     // number of copies where
+                                              // allocators matched
+    int               d_matchedMoveCount;     // number of copies where
+                                              // allocators matched
+    int               d_mismatchedCopyCount;  // number of copies where
+                                              // allocators did not match
+    int               d_mismatchedMoveCount;  // number of copies where
+                                              // allocators did not match
+
+    bslma::Allocator *d_allocator_p;  // allocator used to supply memory
+                                      // (held, not owned)
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CheckAllocatorMatchFunctor,
+                                   bsl::is_nothrow_move_constructible);
+#endif
+
+  public:
+    // CREATORS
+
+    /// Create a `CheckAllocatorMatchFunctor` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
+    CheckAllocatorMatchFunctor();
+    explicit CheckAllocatorMatchFunctor(bslma::Allocator *basicAllocator);
+
+    CheckAllocatorMatchFunctor(bslmf::MovableRef<CheckAllocatorMatchFunctor>
+                                   original) BSLS_KEYWORD_NOEXCEPT;
+
+    CheckAllocatorMatchFunctor(
+                bslmf::MovableRef<CheckAllocatorMatchFunctor>  original,
+                bslma::Allocator                              *basicAllocator);
+
+    /// Create a `CheckAllocatorMatchFunctor` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
+    CheckAllocatorMatchFunctor(
+                        const CheckAllocatorMatchFunctor&  original,
+                        bslma::Allocator                  *basicAllocator = 0);
+
+    // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    CheckAllocatorMatchFunctor& operator=(
+                                        const CheckAllocatorMatchFunctor& rhs);
+
+    /// TBD: comment this
+    CheckAllocatorMatchFunctor& operator=(
+                            bslmf::MovableRef<CheckAllocatorMatchFunctor> rhs);
+
+    /// Invoke a functor validating this functor's match and copy counts.
+    void operator()();
+};
+
+                         // --------------------------
+                         // CheckAllocatorMatchFunctor
+                         // --------------------------
+
+// CREATORS
+CheckAllocatorMatchFunctor::CheckAllocatorMatchFunctor()
+: d_matchedCopyCount(0)
+, d_matchedMoveCount(0)
+, d_mismatchedCopyCount(0)
+, d_mismatchedMoveCount(0)
+, d_allocator_p(bslma::Default::allocator(0))
+{
+}
+
+CheckAllocatorMatchFunctor::CheckAllocatorMatchFunctor(
+                                              bslma::Allocator *basicAllocator)
+: d_matchedCopyCount(0)
+, d_matchedMoveCount(0)
+, d_mismatchedCopyCount(0)
+, d_mismatchedMoveCount(0)
+, d_allocator_p(basicAllocator)
+{
+}
+
+CheckAllocatorMatchFunctor::CheckAllocatorMatchFunctor(
+ bslmf::MovableRef<CheckAllocatorMatchFunctor> original) BSLS_KEYWORD_NOEXCEPT
+: d_allocator_p(bslma::Default::allocator(0))
+{
+    const CheckAllocatorMatchFunctor& orig =
+                      static_cast<const CheckAllocatorMatchFunctor&>(original);
+
+    d_matchedCopyCount    = orig.d_matchedCopyCount;
+    d_mismatchedCopyCount = orig.d_mismatchedCopyCount;
+    d_matchedMoveCount    = orig.d_matchedMoveCount;
+    d_mismatchedMoveCount = orig.d_mismatchedMoveCount;
+
+    if (orig.d_allocator_p == d_allocator_p) {
+        ++d_matchedMoveCount;
+    }
+    else {
+        ++d_mismatchedMoveCount;
+    }
+}
+
+CheckAllocatorMatchFunctor::CheckAllocatorMatchFunctor(
+                bslmf::MovableRef<CheckAllocatorMatchFunctor>  original,
+                bslma::Allocator                              *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    const CheckAllocatorMatchFunctor& orig =
+                      static_cast<const CheckAllocatorMatchFunctor&>(original);
+
+    d_matchedCopyCount    = orig.d_matchedCopyCount;
+    d_mismatchedCopyCount = orig.d_mismatchedCopyCount;
+    d_matchedMoveCount    = orig.d_matchedMoveCount;
+    d_mismatchedMoveCount = orig.d_mismatchedMoveCount;
+
+    if (orig.d_allocator_p == d_allocator_p) {
+        ++d_matchedMoveCount;
+    }
+    else {
+        ++d_mismatchedMoveCount;
+    }
+}
+
+CheckAllocatorMatchFunctor::CheckAllocatorMatchFunctor(
+                    const CheckAllocatorMatchFunctor&  original,
+                    bslma::Allocator                  *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_matchedCopyCount    = original.d_matchedCopyCount;
+    d_mismatchedCopyCount = original.d_mismatchedCopyCount;
+    d_matchedMoveCount    = original.d_matchedMoveCount;
+    d_mismatchedMoveCount = original.d_mismatchedMoveCount;
+
+    if (original.d_allocator_p == d_allocator_p) {
+        ++d_matchedCopyCount;
+    }
+    else {
+        ++d_mismatchedCopyCount;
+    }
+}
+
+// MANIPULATORS
+CheckAllocatorMatchFunctor& CheckAllocatorMatchFunctor::operator=(
+                                    const CheckAllocatorMatchFunctor& rhs)
+{
+    d_matchedCopyCount    = rhs.d_matchedCopyCount;
+    d_mismatchedCopyCount = rhs.d_mismatchedCopyCount;
+    d_matchedMoveCount    = rhs.d_matchedMoveCount;
+    d_mismatchedMoveCount = rhs.d_mismatchedMoveCount;
+
+    if (rhs.d_allocator_p == d_allocator_p) {
+        ++d_matchedCopyCount;
+    }
+    else {
+        ++d_mismatchedCopyCount;
+    }
+
+    return *this;
+}
+
+CheckAllocatorMatchFunctor& CheckAllocatorMatchFunctor::operator=(
+                        bslmf::MovableRef<CheckAllocatorMatchFunctor> rhs)
+{
+    const CheckAllocatorMatchFunctor& source =
+                           static_cast<const CheckAllocatorMatchFunctor&>(rhs);
+
+    d_matchedCopyCount    = source.d_matchedCopyCount;
+    d_mismatchedCopyCount = source.d_mismatchedCopyCount;
+    d_matchedMoveCount    = source.d_matchedMoveCount;
+    d_mismatchedMoveCount = source.d_mismatchedMoveCount;
+
+    if (source.d_allocator_p == d_allocator_p) {
+        ++d_matchedCopyCount;
+    }
+    else {
+        ++d_mismatchedCopyCount;
+    }
+
+    return *this;
+}
+
+void CheckAllocatorMatchFunctor::operator()()
+{
+    // No mismatched allocators.
+    ASSERTV(d_mismatchedCopyCount,
+            d_mismatchedMoveCount,
+            0 == d_mismatchedCopyCount && 0 == d_mismatchedMoveCount);
+
+    ASSERTV(d_matchedMoveCount, d_matchedCopyCount,
+            d_matchedMoveCount > d_matchedCopyCount);
+    ASSERTV(d_matchedMoveCount,
+            0 < d_matchedMoveCount);
+
+    if (veryVerbose) {
+        bsl::cout << "CheckAllocatorMatchFunctor::operator(): ";
+        P_(d_matchedCopyCount);
+        P_(d_mismatchedCopyCount);
+        P_(d_matchedMoveCount);
+        P(d_mismatchedMoveCount);
+    }
+}
+
+}  // close namespace case17
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<case17::CheckAllocatorMatchFunctor>
+: bsl::true_type {
+};
+}  // close namespace bslma
+}  // close enterprise namespace
+
+// ============================================================================
+//                         CASE 15 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace case15 {
                             // ===================
                             // OnceBlockingFunctor
                             // ===================
@@ -949,7 +1178,7 @@ void CopyCountingFunctor::operator()()
     (void)foo; // To avoid warning of unused field.
 }
 
-}  // close namespace case14
+}  // close namespace case15
 
 // ============================================================================
 //                          CASE 8 RELATED ENTITIES
@@ -1090,6 +1319,46 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0: // 0 is always the first test case
+      case 17: {
+        // --------------------------------------------------------------------
+        // INTERNAL FUNCTOR MOVE
+        //
+        // Concerns:
+        // 1. In the `workerThread()` method, when the functor is taken off of
+        //    the queue, it should be moved more often than copied, and the
+        //    allocators should match on each move/copy.
+        //
+        // Plan:
+        // 1. Create a simple functor, `CheckAllocatorMatchFunctor` and check
+        //    the various move/copy counts in its `operator()`.
+        //
+        // Testing:
+        //   INTERNAL FUNCTOR MOVE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "INTERNAL FUNCTOR MOVE\n"
+                             "=====================\n";
+
+        const int k_MIN_THREADS = 1;
+        const int k_MAX_THREADS = 1;
+        const int k_IDLE_TIME   = 0;
+
+        bslmt::ThreadAttributes attributes;
+        Obj                     mX(attributes,
+                                   k_MIN_THREADS,
+                                   k_MAX_THREADS,
+                                   k_IDLE_TIME,
+                                   &testAllocator);
+        mX.start();
+
+        case17::CheckAllocatorMatchFunctor f(&testAllocator);
+
+        Obj::Job job(bsl::allocator_arg_t(), &testAllocator, f);
+
+        ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+
+        mX.drain();
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING THREAD NAMES
@@ -1348,14 +1617,14 @@ int main(int argc, char *argv[])
         // Stop the pool from running jobs until we are done with the
         // counting of copies, otherwise race conditions will arise.
 
-        case14::OnceBlockingFunctor blocker(&latch);
+        case15::OnceBlockingFunctor blocker(&latch);
         ASSERT(0 == mX.enqueueJob(blocker));
 
         // Counter to count the number of copies made of the functor.
 
         int counter = 0;
 
-        case14::CopyCountingFunctor f(&counter);
+        case15::CopyCountingFunctor f(&counter);
 
         ASSERTV(counter, 0 == counter);  // Sanity check
 

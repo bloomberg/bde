@@ -306,7 +306,7 @@ int FunctorWithoutAllocator::operator()(int n) const
                          // class FunctorWithAllocator
                          // ==========================
 
-/// A functor that does not use allocators.
+/// A functor that does use allocators.
 class FunctorWithAllocator {
 
   private:
