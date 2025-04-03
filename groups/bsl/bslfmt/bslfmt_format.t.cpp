@@ -1348,7 +1348,9 @@ void testCase10()
             catch (bsl::format_error&) {
                 formatErrorCaught = true;
             }
-            if (veryVerbose) printDelimitedIntGlobals();
+            ASSERT(formatErrorCaught);
+            if (veryVerbose)
+                printDelimitedIntGlobals();
 
             resetDelimitedIntGlobals();
             formatErrorCaught = false;
@@ -1359,6 +1361,7 @@ void testCase10()
             catch (bsl::format_error&) {
                 formatErrorCaught = true;
             }
+            ASSERT(formatErrorCaught);
             if (veryVerbose) printDelimitedIntGlobals();
         }
 #endif
