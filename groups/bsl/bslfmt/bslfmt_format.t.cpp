@@ -10,6 +10,10 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #include <locale>
+#endif
+
 #include <limits.h>
 #include <wchar.h>
 #include <stdio.h>
@@ -106,7 +110,7 @@ void check(const std::string&, const char *) {
     ASSERT(false);
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 template <class... t_ARGS>
 bool doTestWithOracle(string_view                   result,
@@ -199,6 +203,7 @@ struct formatter<FormattableType, t_CHAR> {
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #define u_TESTUTIL_ORACLE_TEST(fmtstr, expected, ...)
   #define u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, ...)
+#define u_TESTUTIL_ORACLE_NUMCALLS 0
 
   #define u_TESTUTIL_VORACLE_TEST(fmtstr, expected, ...)
   #define u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, ...)
@@ -207,39 +212,39 @@ struct formatter<FormattableType, t_CHAR> {
 #else  // ndef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #define u_TESTUTIL_ORACLE_TEST(fmtstr, expected, ...)                       \
     do {                                                                      \
-          const std::string stdResult = std::format(fmtstr, __VA_ARGS__);     \
-          ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);    \
+        const std::string stdResult = std::format(fmtstr, __VA_ARGS__);       \
+        ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
                                                                               \
-          const size_t stdFmtdSize = std::formatted_size(fmtstr, __VA_ARGS__);\
-          ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);            \
-                                                                              \
+        const size_t stdFmtdSize = std::formatted_size(fmtstr, __VA_ARGS__);  \
+        ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);              \
     } while (false)
 
   #define u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, ...)                      \
     do {                                                                      \
-          const std::wstring stdResult = std::format(fmtstr, __VA_ARGS__);    \
-          ASSERT(stdResult == result);                                        \
+        const std::wstring stdResult = std::format(fmtstr, __VA_ARGS__);      \
+        ASSERT(stdResult == result);                                          \
                                                                               \
-          const size_t stdFmtdSize = std::formatted_size(fmtstr, __VA_ARGS__);\
-          ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);            \
-                                                                              \
+        const size_t stdFmtdSize = std::formatted_size(fmtstr, __VA_ARGS__);  \
+        ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);              \
     } while (false)
+
+#define u_TESTUTIL_ORACLE_NUMCALLS 2
 
   // `vformat`, `vformat_to`
 
   #define u_TESTUTIL_VORACLE_TEST(fmtstr, expected, ...)                      \
     do {                                                                      \
-          const std::string stdResult = std::vformat(                         \
-                                        fmtstr,                               \
-                                        std::make_format_args(__VA_ARGS__));  \
-          ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);    \
-                                                                              \
-          memset(buff, 0, sizeof buff);                                       \
-          char *end = std::vformat_to(buff,                                   \
+        const std::string stdResult = std::vformat(                           \
                                       fmtstr,                                 \
                                       std::make_format_args(__VA_ARGS__));    \
-          *end = 0;                                                           \
-          ASSERTV(buff, result.c_str(), buff == result);                      \
+        ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        char *end = std::vformat_to(buff,                                     \
+                                    fmtstr,                                   \
+                                    std::make_format_args(__VA_ARGS__));      \
+        *end = 0;                                                             \
+        ASSERTV(buff, result.c_str(), buff == result);                        \
     } while (false)
 
   #define u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, ...)                     \
@@ -259,6 +264,33 @@ struct formatter<FormattableType, t_CHAR> {
     } while (false)
 
   #define u_TESTUTIL_VORACLE_NUMCALLS 2
+
+  #define u_TESTUTIL_ORACLE_LTEST(fmtstr, expected, ...)                      \
+    do {                                                                      \
+        const std::string stdResult = std::format(myLocale,                   \
+                                                  fmtstr,                     \
+                                                  __VA_ARGS__);               \
+        ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
+                                                                              \
+        const size_t stdFmtdSize = std::formatted_size(myLocale,              \
+                                                       fmtstr,                \
+                                                       __VA_ARGS__);          \
+        ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);              \
+                                                                              \
+    } while (false)
+
+#define u_TESTUTIL_ORACLE_WLTEST(fmtstr, expected, ...)                       \
+    do {                                                                      \
+        const std::wstring stdResult = std::format(myWlocale,                 \
+                                                   fmtstr,                    \
+                                                   __VA_ARGS__);              \
+        ASSERT(stdResult == result);                                          \
+                                                                              \
+        const size_t stdFmtdSize = std::formatted_size(myWlocale,             \
+                                                       fmtstr,                \
+                                                       __VA_ARGS__);          \
+        ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);              \
+    } while (false)
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // TEST CALLS FOR FORMAT
@@ -308,6 +340,8 @@ struct formatter<FormattableType, t_CHAR> {
         u_TESTUTIL_ORACLE_TEST(fmtstr, expected, __VA_ARGS__);                \
     } while (false)
 
+#define u_VERIFY_FORMAT_NUMCALLS (6 + u_TESTUTIL_ORACLE_NUMCALLS)
+
 
 #define u_VERIFY_WFORMAT(fmtstr, expected, ...)                               \
     do {                                                                      \
@@ -353,12 +387,17 @@ struct formatter<FormattableType, t_CHAR> {
         u_TESTUTIL_ORACLE_WTEST(fmtstr, expected, __VA_ARGS__);               \
     } while (false)
 
+#define u_VERIFY_WFORMAT_NUMCALLS u_VERIFY_FORMAT_NUMCALLS
 
 #define u_VERIFY_FORMAT_BOTH(fmtstr, expected, ...)                           \
     do {                                                                      \
         u_VERIFY_FORMAT(fmtstr, expected, __VA_ARGS__);                       \
         u_VERIFY_WFORMAT(L##fmtstr, L##expected, __VA_ARGS__);                \
     } while (false)
+
+#define u_VERIFY_FORMAT_BOTH_NUMCALLS                                         \
+    (u_VERIFY_FORMAT_NUMCALLS + u_VERIFY_WFORMAT_NUMCALLS)
+
 
 // `vformat`, `vformat_to`
 
@@ -376,10 +415,9 @@ struct formatter<FormattableType, t_CHAR> {
         ASSERTV(resulta.c_str(), result == expected);                         \
         ASSERT(resulta.get_allocator() == &oa);                               \
                                                                               \
-        const size_t fmtdSize = bsl::formatted_size(fmtstr, __VA_ARGS__);     \
-        ASSERTV(strlen(expected), fmtdSize, strlen(expected) == fmtdSize);    \
-                                                                              \
-        char buff[sizeof expected + 8];                                       \
+        bsl::string buffStr;                                                  \
+        buffStr.resize(result.size() + 8);                                    \
+        char *buff = &buffStr[0];                                             \
                                                                               \
         char * const end = bsl::vformat_to(                                   \
                                         buff,                                 \
@@ -393,7 +431,7 @@ struct formatter<FormattableType, t_CHAR> {
                                                                               \
         u_TESTUTIL_VORACLE_TEST(fmtstr, expected, __VA_ARGS__);               \
     } while (false)
-#define u_VERIFY_VFORMAT_NUMCALLS (4 + u_TESTUTIL_VORACLE_NUMCALLS)
+#define u_VERIFY_VFORMAT_NUMCALLS (3 + u_TESTUTIL_VORACLE_NUMCALLS)
 
 #define u_VERIFY_WVFORMAT(fmtstr, expected, ...)                              \
     do {                                                                      \
@@ -409,10 +447,9 @@ struct formatter<FormattableType, t_CHAR> {
         ASSERT(resulta == expected);                                          \
         ASSERT(resulta.get_allocator() == &oa);                               \
                                                                               \
-        const size_t fmtdSize = bsl::formatted_size(fmtstr, __VA_ARGS__);     \
-        ASSERTV(wcslen(expected), fmtdSize, wcslen(expected) == fmtdSize);    \
-                                                                              \
-        wchar_t buff[sizeof expected / sizeof(wchar_t) + 16];                 \
+        bsl::wstring buffStr;                                                 \
+        buffStr.resize(result.size() + 8);                                    \
+        wchar_t *buff = &buffStr[0];                                          \
                                                                               \
         wchar_t * const end = bsl::vformat_to(                                \
                                        buff,                                  \
@@ -437,6 +474,124 @@ struct formatter<FormattableType, t_CHAR> {
 
 #define u_VERIFY_VFORMAT_BOTH_NUMCALLS                                         \
     (u_VERIFY_VFORMAT_NUMCALLS + u_VERIFY_WVFORMAT_NUMCALLS)
+
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+#define u_VERIFY_LFORMAT(fmtstr, expected, ...)                               \
+    do {                                                                      \
+        const bsl::string result = bsl::format(myLocale,                      \
+                                               fmtstr,                        \
+                                               __VA_ARGS__);                  \
+        ASSERTV(result.c_str(), result == expected);                          \
+                                                                              \
+        const bsl::string resulta =                                           \
+                             bsl::format(&oa, myLocale, fmtstr, __VA_ARGS__); \
+        ASSERTV(resulta.c_str(), result == expected);                         \
+        ASSERT(resulta.get_allocator() == &oa);                               \
+                                                                              \
+        const size_t fmtdSize = bsl::formatted_size(myLocale,                 \
+                                                    fmtstr,                   \
+                                                    __VA_ARGS__);             \
+        ASSERTV(strlen(expected), fmtdSize, strlen(expected) == fmtdSize);    \
+                                                                              \
+        char buff[sizeof expected + 8];                                       \
+                                                                              \
+        char *const end =                                                     \
+                         bsl::format_to(buff, myLocale, fmtstr, __VA_ARGS__); \
+        ASSERTV(end - buff, sizeof expected - 1,                              \
+                end - buff == sizeof expected - 1);                           \
+        *end = 0;                                                             \
+        ASSERTV(buff, expected, 0 == strcmp(buff, expected));                 \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        bsl::format_to_n_result<char *> f2nRes = bsl::format_to_n(            \
+                                                             buff,            \
+                                                             sizeof expected, \
+                                                             myLocale,        \
+                                                             fmtstr,          \
+                                                             __VA_ARGS__);    \
+        ASSERTV(f2nRes.size,                                                  \
+                strlen(expected),                                             \
+                f2nRes.size == strlen(expected));                             \
+        *f2nRes.out = 0;                                                      \
+        ASSERT(0 == strcmp(buff, expected));                                  \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        f2nRes = bsl::format_to_n(buff,                                       \
+                                  strlen(expected) - 1,                       \
+                                  myLocale,                                   \
+                                  fmtstr,                                     \
+                                  __VA_ARGS__);                               \
+        ASSERTV(f2nRes.size,                                                  \
+                strlen(expected),                                             \
+                f2nRes.size == strlen(expected));                             \
+        *f2nRes.out = 0;                                                      \
+        ASSERT(0 == strncmp(buff, expected, strlen(expected) - 1));           \
+                                                                              \
+        u_TESTUTIL_ORACLE_LTEST(fmtstr, expected, __VA_ARGS__);               \
+    } while (false)
+
+#define u_VERIFY_WLFORMAT(fmtstr, expected, ...)                              \
+    do {                                                                      \
+        const bsl::wstring result = bsl::format(myWlocale,                    \
+                                                fmtstr,                       \
+                                                __VA_ARGS__);                 \
+        ASSERT(result == expected);                                           \
+                                                                              \
+        const bsl::wstring resulta =                                          \
+                            bsl::format(&oa, myWlocale, fmtstr, __VA_ARGS__); \
+        ASSERT(resulta == expected);                                          \
+        ASSERT(resulta.get_allocator() == &oa);                               \
+                                                                              \
+        const size_t fmtdSize = bsl::formatted_size(myWlocale,                \
+                                                    fmtstr,                   \
+                                                    __VA_ARGS__);             \
+        ASSERTV(wcslen(expected), fmtdSize, wcslen(expected) == fmtdSize);    \
+                                                                              \
+        wchar_t buff[sizeof expected / sizeof(wchar_t) + 16];                 \
+                                                                              \
+        wchar_t *const end =                                                  \
+                        bsl::format_to(buff, myWlocale, fmtstr, __VA_ARGS__); \
+        ASSERTV(end - buff,                                                   \
+                wcslen(expected),                                             \
+                static_cast<size_t>(end - buff) == wcslen(expected));         \
+        *end = 0;                                                             \
+        ASSERTV(buff, expected, 0 == wcscmp(buff, expected));                 \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        bsl::format_to_n_result<wchar_t *> f2nRes = bsl::format_to_n(         \
+                                           buff,                              \
+                                           sizeof expected / sizeof(wchar_t), \
+                                           myWlocale,                         \
+                                           fmtstr,                            \
+                                           __VA_ARGS__);                      \
+        ASSERTV(f2nRes.size,                                                  \
+                wcslen(expected),                                             \
+                static_cast<size_t>(f2nRes.size) == wcslen(expected));        \
+        *f2nRes.out = 0;                                                      \
+        ASSERT(0 == wcscmp(buff, expected));                                  \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        f2nRes = bsl::format_to_n(buff,                                       \
+                                  wcslen(expected) - 1,                       \
+                                  myWlocale,                                  \
+                                  fmtstr,                                     \
+                                  __VA_ARGS__);                               \
+        ASSERTV(f2nRes.size,                                                  \
+                wcslen(expected),                                             \
+                static_cast<size_t>(f2nRes.size) == wcslen(expected));        \
+        *f2nRes.out = 0;                                                      \
+        ASSERT(0 == wcsncmp(buff, expected, wcslen(expected) - 1));           \
+                                                                              \
+        u_TESTUTIL_ORACLE_WLTEST(fmtstr, expected, __VA_ARGS__);              \
+    } while (false)
+
+#define u_VERIFY_LFORMAT_BOTH(fmtstr, expected, ...)                          \
+    do {                                                                      \
+        u_VERIFY_LFORMAT(fmtstr, expected, __VA_ARGS__);                      \
+        u_VERIFY_WLFORMAT(L##fmtstr, L##expected, __VA_ARGS__);               \
+    } while (false)
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -778,7 +933,7 @@ struct ParseContextContents<wchar_t> {
 };
 bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector;
 
-    static void resetFormattedIntGlobals()
+static void resetDelimitedIntGlobals()
 {
     g_numCtorInvocations = 0;
     g_numParseInvocations = 0;
@@ -788,7 +943,7 @@ bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector;
     ParseContextContents<wchar_t>::s_vector.clear();
 }
 
-static void printFormattedIntGlobals()
+static void printDelimitedIntGlobals()
 {
     P(g_numCtorInvocations);
     P(g_numParseInvocations);
@@ -814,28 +969,40 @@ static void printFormattedIntGlobals()
     puts("}");
 }
 
-class FormattedInt {
+class DelimitedInt {
     // DATA
     int d_value;
 
   public:
     // CREATORS
-    FormattedInt(int value) : d_value(value) {}
+    DelimitedInt(int value) : d_value(value) {}
 
     // ACCESSORS
     int value() const { return d_value; }
 };
 
 template <class t_CHAR>
-struct IntFormatter {
+struct DelimitedIntFormatter {
+  // DATA
+  bool   d_isDefaultDelimiter;
+  t_CHAR d_delimiters[2];
+
+  // CLASS DATA
+  static const t_CHAR s_defaultDelimiters[2];
+
   public:
     // CREATORS
 
     /// Create an `IntFormatter` and increment `g_numCtorInvocations`.
-    BSLS_KEYWORD_CONSTEXPR_CPP20 IntFormatter() {
+    BSLS_KEYWORD_CONSTEXPR_CPP20 DelimitedIntFormatter()
+    : d_isDefaultDelimiter(true)
+    {
         u_IF_NOT_CONSTEXPR {
             ++g_numCtorInvocations;
         }
+
+        d_delimiters[0] = '<';
+        d_delimiters[1] = '>';
     }
 
     // MANIPULATORS
@@ -868,8 +1035,20 @@ struct IntFormatter {
             }
         }
 
-        while ('}' != *current && end != current) {
+        if (end != current && '}' != *current) {
+            // There is a delimiter specified
+            d_delimiters[0] = *current;
+
             ++current;
+            if (end == current || '}' == *current) {
+                throw bsl::format_error("Two delimiters required");    // THROW
+            }
+            d_delimiters[1] = *current;
+
+            ++current;  // Move off of the second delimiter
+        }
+        if (end != current  && '}' != *current) {
+            throw bsl::format_error("Extra characters in format");     // THROW
         }
 
         context.advance_to(current);
@@ -885,12 +1064,15 @@ struct IntFormatter {
     /// integer value to the end of `g_values`.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                                             const FormattedInt& value,
+                                             const DelimitedInt& value,
                                              t_FORMAT_CONTEXT&   context) const
     {
         ++g_numFormatInvocations;
         typename t_FORMAT_CONTEXT::iterator outIterator = context.out();
         g_values.push_back(value.value());
+
+        *outIterator++ = d_delimiters[0];
+
         long divider = sizeof(int) == 4 ? 1000000000 : 1000000000000000000;
             // INT_MAX 9,223,372,036,854,775,807 on 64-bit INT_MAX
             // 2,147,483,647 on 32-bit
@@ -902,9 +1084,9 @@ struct IntFormatter {
             output = -output;
         }
         bool printed = false;
-        while (output > 0) {
+        while (divider > 0) {
             int digit = static_cast<int>(output / divider);
-            if (digit != 0) {
+            if (printed || digit != 0) {
                 printed      = true;
                 *outIterator = '0' + static_cast<char>(digit);
                 ++outIterator;
@@ -917,21 +1099,60 @@ struct IntFormatter {
             ++outIterator;
         }
 
+        *outIterator++ = d_delimiters[1];
+
         return outIterator;
     }
 };
 
+template <>
+const char DelimitedIntFormatter<char>::s_defaultDelimiters[2] = { '<', '>' };
+
+template <>
+const wchar_t DelimitedIntFormatter<wchar_t>::s_defaultDelimiters[2] = {L'<',
+                                                                        L'>'};
+
+
 namespace bsl {
 template <class t_CHAR>
-struct formatter<FormattedInt, t_CHAR> : IntFormatter<t_CHAR> {
+struct formatter<DelimitedInt, t_CHAR> : DelimitedIntFormatter<t_CHAR> {
 };
 }  // close namespace bsl
+
+//=============================================================================
+//                   LOCALE ARGUMENT PASSING TEST SUPPORT
+//-----------------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+template <class t_CHAR>
+struct MyDecSep;
+
+template <>
+struct MyDecSep<char> {
+    static const char s_separator = ',';
+};
+
+template <>
+struct MyDecSep<wchar_t> {
+    static const wchar_t s_separator = L',';
+};
+
+template <class t_CHAR>
+class CustomNumPunct : public std::numpunct<t_CHAR> {
+  protected:
+    t_CHAR do_decimal_point() const override
+    {
+        return MyDecSep<t_CHAR>::s_separator;
+    }
+};
+
+#endif
 
 //=============================================================================
 //                          TEST CASE FUNCTIONS
 //-----------------------------------------------------------------------------
 
-void testCase10()
+void testCase11()
 {
     // ------------------------------------------------------------------------
     // BAD FORMAT STRINGS
@@ -983,6 +1204,227 @@ void testCase10()
         throw;
     }
     ASSERT(formatErrorCaught);
+}
+
+void testCase10()
+{
+    // ------------------------------------------------------------------------
+    // ARGUMENT PASSING
+    //
+    // Concerns:
+    // 1. Arguments are passed to the implementation.  Note that this test case
+    //    works in conjunction of the rest of the test driver, not all
+    //    parameters are directly verified here.
+    //
+    // 2. The locale argument is passed to the standard implementation.
+    //
+    // Plan:
+    // 1. Use `bsl::vformat` for runtime testing.
+    //
+    // Testing:
+    //   CONCERN: ARGUMENT PASSING
+    // ------------------------------------------------------------------------
+
+    if (verbose) puts("\nARGUMENT PASSING"
+                      "\n================");
+
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+    if (veryVerbose) puts("Verify user-defined formatter invocation");
+    {
+        {  // Calling vformat* with default delimiters
+            resetDelimitedIntGlobals();
+
+            DelimitedInt tested(42);
+
+            u_VERIFY_VFORMAT_BOTH("{}", "<42>", tested);
+
+            ASSERTV(g_numCtorInvocations,
+                    u_VERIFY_VFORMAT_BOTH_NUMCALLS,
+                    g_numCtorInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
+            ASSERTV(g_numFormatInvocations,
+                    u_VERIFY_VFORMAT_BOTH_NUMCALLS,
+                    g_numFormatInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
+            ASSERTV(g_numParseInvocations,
+                    u_VERIFY_VFORMAT_BOTH_NUMCALLS,
+                    g_numParseInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
+            ASSERTV(ParseContextContents<char>::s_vector.size(),
+                    u_VERIFY_VFORMAT_NUMCALLS,
+                    ParseContextContents<char>::s_vector.size() ==
+                        u_VERIFY_VFORMAT_NUMCALLS);
+            ASSERTV(ParseContextContents<wchar_t>::s_vector.size(),
+                    u_VERIFY_WVFORMAT_NUMCALLS,
+                    ParseContextContents<wchar_t>::s_vector.size() ==
+                        u_VERIFY_WVFORMAT_NUMCALLS);
+            ASSERTV(g_values.size(),
+                    u_VERIFY_VFORMAT_BOTH_NUMCALLS,
+                    g_values.size() == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
+            for (size_t i = 0; i < ParseContextContents<char>::s_vector.size();
+                 ++i) {
+                ASSERTV(i,
+                        ParseContextContents<char>::s_vector[i].c_str(),
+                        ParseContextContents<char>::s_vector[i] == "}");
+            }
+            for (size_t i = 0;
+                 i < ParseContextContents<wchar_t>::s_vector.size();
+                 ++i) {
+                ASSERTV(i,
+                        ParseContextContents<wchar_t>::s_vector[i].c_str(),
+                        ParseContextContents<wchar_t>::s_vector[i] == L"}");
+            }
+            for (size_t i = 0; i < g_values.size(); ++i) {
+                ASSERTV(i, g_values[i], g_values[i] == 42);
+            }
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+
+        {  // Calling format* with default delimiters
+            resetDelimitedIntGlobals();
+
+            DelimitedInt tested(42);
+
+            u_VERIFY_FORMAT_BOTH("{}", "<42>", tested);
+
+            ASSERTV(g_numCtorInvocations,
+                    u_VERIFY_FORMAT_BOTH_NUMCALLS,
+                    g_numCtorInvocations == u_VERIFY_FORMAT_BOTH_NUMCALLS);
+            ASSERTV(g_numFormatInvocations,
+                    u_VERIFY_FORMAT_BOTH_NUMCALLS,
+                    g_numFormatInvocations == u_VERIFY_FORMAT_BOTH_NUMCALLS);
+            ASSERTV(g_numParseInvocations,
+                    u_VERIFY_FORMAT_BOTH_NUMCALLS,
+                    g_numParseInvocations == u_VERIFY_FORMAT_BOTH_NUMCALLS);
+            ASSERTV(ParseContextContents<char>::s_vector.size(),
+                    u_VERIFY_FORMAT_NUMCALLS,
+                    ParseContextContents<char>::s_vector.size() ==
+                        u_VERIFY_FORMAT_NUMCALLS);
+            ASSERTV(ParseContextContents<wchar_t>::s_vector.size(),
+                    u_VERIFY_WFORMAT_NUMCALLS,
+                    ParseContextContents<wchar_t>::s_vector.size() ==
+                        u_VERIFY_WFORMAT_NUMCALLS);
+            ASSERTV(g_values.size(),
+                    u_VERIFY_FORMAT_BOTH_NUMCALLS,
+                    g_values.size() == u_VERIFY_FORMAT_BOTH_NUMCALLS);
+            for (size_t i = 0; i < ParseContextContents<char>::s_vector.size();
+                 ++i) {
+                ASSERTV(i,
+                        ParseContextContents<char>::s_vector[i].c_str(),
+                        ParseContextContents<char>::s_vector[i] == "}");
+            }
+            for (size_t i = 0;
+                 i < ParseContextContents<wchar_t>::s_vector.size();
+                 ++i) {
+                ASSERTV(i,
+                        ParseContextContents<wchar_t>::s_vector[i].c_str(),
+                        ParseContextContents<wchar_t>::s_vector[i] == L"}");
+            }
+            for (size_t i = 0; i < g_values.size(); ++i) {
+                ASSERTV(i, g_values[i], g_values[i] == 42);
+            }
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+
+        {  // Calling vformat* with custom delimiters
+            resetDelimitedIntGlobals();
+
+            DelimitedInt tested(42);
+
+            u_VERIFY_VFORMAT_BOTH("{:][}", "]42[", tested);
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        {  // Calling vformat* with error in the format string
+            resetDelimitedIntGlobals();
+            DelimitedInt tested(42);
+            bool         formatErrorCaught = false;
+            try {
+                const char *fmt = "{:]}";
+                u_VERIFY_VFORMAT(fmt, "", tested);
+            }
+            catch (bsl::format_error&) {
+                formatErrorCaught = true;
+            }
+            if (veryVerbose) printDelimitedIntGlobals();
+
+            resetDelimitedIntGlobals();
+            formatErrorCaught = false;
+            try {
+                const char *fmt = "{:123}";
+                u_VERIFY_VFORMAT(fmt, "", tested);
+            }
+            catch (bsl::format_error&) {
+                formatErrorCaught = true;
+            }
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+#endif
+
+        {  // Calling format* with custom delimiters
+            resetDelimitedIntGlobals();
+
+            DelimitedInt tested(42);
+
+            u_VERIFY_FORMAT_BOTH("{:][}", "]42[", tested);
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+
+        // format* with bad format string would not compile , hence no test
+
+        {  // Calling vformat* with combinations of arguments
+            resetDelimitedIntGlobals();
+
+            DelimitedInt di42(42);
+            DelimitedInt di65490(65490);
+            int          i8(8);
+            int          i234876(234876);
+
+            u_VERIFY_VFORMAT_BOTH("{} over {}: {:()}.{:02}~{:==}",
+                                  "<42> over 234876: (65490).08~=42=",
+                                  di42,
+                                  i234876,
+                                  di65490,
+                                  i8,
+                                  di42);
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+
+
+        {  // Calling format* with combinations of arguments
+            resetDelimitedIntGlobals();
+
+            DelimitedInt di42(42);
+            DelimitedInt di65490(65490);
+            int          i8(8);
+            int          i234876(234876);
+
+            u_VERIFY_FORMAT_BOTH("{} over {}: {:()}.{:02}~{:==}",
+                                 "<42> over 234876: (65490).08~=42=",
+                                 di42,
+                                 i234876,
+                                 di65490,
+                                 i8,
+                                 di42);
+
+            if (veryVerbose) printDelimitedIntGlobals();
+        }
+    }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    if (veryVeryVerbose) puts("Verify passing of locale argument");
+    {
+        std::locale myLocale(std::locale(), new CustomNumPunct<char>);
+        std::locale myWlocale(std::locale(), new CustomNumPunct<wchar_t>);
+
+        u_VERIFY_LFORMAT_BOTH("{:L}",      "42,24",      42.24);
+        u_VERIFY_LFORMAT_BOTH("{:L} {:L}", "42,24 3,14", 42.24, 3.14f);
+    }
+#endif
 }
 
 void testCase9()
@@ -1122,50 +1564,6 @@ void testCase9()
                       L"this={:010}, name={:<8}, id={:04x}, heat={:a}",
                       L"this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
                        p, wt, i, d);
-    }
-
-    if (veryVerbose) puts("Verify user-defined formatter invocation");
-    {
-        resetFormattedIntGlobals();
-
-        FormattedInt tested(42);
-
-        u_VERIFY_VFORMAT_BOTH("{}", "42", tested);
-
-        ASSERTV(g_numCtorInvocations, u_VERIFY_VFORMAT_BOTH_NUMCALLS,
-                g_numCtorInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        ASSERTV(g_numFormatInvocations, u_VERIFY_VFORMAT_BOTH_NUMCALLS,
-                g_numFormatInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        ASSERTV(g_numParseInvocations, u_VERIFY_VFORMAT_BOTH_NUMCALLS,
-                g_numParseInvocations == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        ASSERTV(ParseContextContents<char>::s_vector.size(),
-                u_VERIFY_VFORMAT_NUMCALLS,
-                ParseContextContents<char>::s_vector.size() ==
-                    u_VERIFY_VFORMAT_NUMCALLS);
-        ASSERTV(ParseContextContents<wchar_t>::s_vector.size(),
-                u_VERIFY_WVFORMAT_NUMCALLS,
-                ParseContextContents<wchar_t>::s_vector.size() ==
-                    u_VERIFY_WVFORMAT_NUMCALLS);
-        ASSERTV(g_values.size(),
-                u_VERIFY_VFORMAT_BOTH_NUMCALLS,
-               g_values.size() == u_VERIFY_VFORMAT_BOTH_NUMCALLS);
-        for (size_t i = 0; i < ParseContextContents<char>::s_vector.size();
-             ++i) {
-            ASSERTV(i,
-                    ParseContextContents<char>::s_vector[i].c_str(),
-                    ParseContextContents<char>::s_vector[i] == "}");
-        }
-        for (size_t i = 0; i < ParseContextContents<wchar_t>::s_vector.size();
-             ++i) {
-            ASSERTV(i,
-                    ParseContextContents<wchar_t>::s_vector[i].c_str(),
-                    ParseContextContents<wchar_t>::s_vector[i] == L"}");
-        }
-        for (size_t i = 0; i < g_values.size(); ++i) {
-            ASSERTV(i, g_values[i], g_values[i] == 42);
-        }
-
-        if (veryVerbose) printFormattedIntGlobals();
     }
 }
 
@@ -2316,7 +2714,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2361,6 +2759,9 @@ int main(int argc, char **argv)
     result = bsl::format("{:N}", date);
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
+      } break;
+      case 11: {
+        testCase11();
       } break;
       case 10: {
         testCase10();
