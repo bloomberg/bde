@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bbldc' package currently has 25 components having 2 levels of physical
+ The 'bbldc' package currently has 26 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -31,6 +31,7 @@
      bbldc_basicactual36525
      bbldc_basicactual365fixed
      bbldc_basicdaycount
+     bbldc_basicisda11
      bbldc_basicisdaactualactual
      bbldc_basicisma30360
      bbldc_basicnl365
@@ -66,6 +67,9 @@
 :
 : 'bbldc_basicdaycountutil':
 :      Support for day-count calculations of `enum`-specified conventions.
+:
+: 'bbldc_basicisda11':
+:      Provide stateless functions for the ISDA 1/1 convention.
 :
 : 'bbldc_basicisdaactualactual':
 :      Provide stateless functions for the ISDA Actual/Actual convention.

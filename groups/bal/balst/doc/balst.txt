@@ -9,7 +9,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balst' package currently has 14 components having 7 levels of physical
+ The 'balst' package currently has 13 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -26,7 +26,6 @@
   3. balst_resolver_dwarfreader                                       !PRIVATE!
      balst_resolverimpl_dladdr                                        !PRIVATE!
      balst_resolverimpl_windows                                       !PRIVATE!
-     balst_resolverimpl_xcoff                                         !PRIVATE!
 
   2. balst_resolver_filehelper                                        !PRIVATE!
      balst_stacktrace
@@ -55,9 +54,6 @@
 :
 : 'balst_resolverimpl_windows':                                       !PRIVATE!
 :      Provide resolution of symbols in stack trace for Windows objects.
-:
-: 'balst_resolverimpl_xcoff':                                         !PRIVATE!
-:      Provide a mechanism to resolve xcoff symbols in a stack trace.
 :
 : 'balst_stacktrace':
 :      Provide a description of a function-call stack.

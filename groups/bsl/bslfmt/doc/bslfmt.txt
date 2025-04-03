@@ -22,20 +22,20 @@ bslfmt.txt
      bslfmt_formattercharacter
      bslfmt_formatterintegral
      bslfmt_formatterpointer
+     bslfmt_formattertestutil
 
   6. bslfmt_formatterfloating
      bslfmt_formatterintegralbase
      bslfmt_formatterstring
-     bslfmt_formattertestutil
+     bslfmt_mockformatcontext
 
-  5. bslfmt_mockformatcontext
+  5. bslfmt_format_context                                            !PRIVATE!
      bslfmt_standardformatspecification
 
   4. bslfmt_format_args                                               !PRIVATE!
      bslfmt_formatspecificationparser
 
   3. bslfmt_format_arg                                                !PRIVATE!
-     bslfmt_format_context                                            !PRIVATE!
      bslfmt_formatparsecontext
      bslfmt_formatterspecificationnumericvalue
      bslfmt_mockparsecontext

@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 #define BBL_VERSION_MAJOR     4
 
 /// Provide the minor version number of the current (latest) BBL release.
-#define BBL_VERSION_MINOR     22
+#define BBL_VERSION_MINOR     23
 
 /// Construct an integer (unique to the specified `BBL_VERSION_MAJOR` and
 /// `BBL_VERSION_MINOR` numbers) corresponding to the major and minor
