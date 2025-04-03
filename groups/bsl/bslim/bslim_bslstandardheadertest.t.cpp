@@ -880,6 +880,9 @@ class CompletionFunction {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+namespace U_COMMON_ITERATOR_NAMESPACE {
+    using bsl::common_iterator;
+}  // close namespace U_COMMON_ITERATOR_NAMESPACE
 
                             // =====================
                             // class RangesDummyView
@@ -2891,15 +2894,32 @@ int main(int argc, char *argv[])
             (void)ms;
         }
 
-        // 23.5.4, common iterators
-#ifdef BSLS_LIBRARY_FEATURES_HASS_CPP20_RANGES
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         {
-            bsl::common_iterator<bsl::ranges::iterator_t<Vector::iterator>,
-                                 bsl::ranges::sentinel_t<Vector::iterator> >
-                ci;
-            (void)ci;
+            Vector::iterator it = v.begin();
+            bsl::ranges::advance(it, 2);
+            ASSERT(v.end() == it);
+            ASSERT(2 == bsl::        distance(v.begin(), v.end()));
+            ASSERT(2 == bsl::ranges::distance(v.begin(), v.end()));
+            Vector::iterator itB = v.begin();
+            itB++;
+            ASSERT(itB == bsl::ranges::next(v.begin()));
+            ASSERT(itB == bsl::ranges::prev(it));
+            bsl::ranges::advance(it, -2);
+
+            ASSERT(2 == *it);
+            ASSERT(1 == *itB);
+            ASSERT(&v[0] == &*it);
+            ASSERT(&v[1] == &*itB);
+            bsl::ranges::iter_swap(itB, it);
+            ASSERT(1 == *it);
+            ASSERT(2 == *itB);
+            ASSERT(&v[0] == &*it);
+            ASSERT(&v[1] == &*itB);
+
+            ASSERT(2 == bsl::ranges::iter_move(itB));
         }
-#endif  // BSLS_LIBRARY_FEATURES_HASS_CPP20_RANGES
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
         // 23.5.5, default sentinel
         {

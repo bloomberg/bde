@@ -214,6 +214,7 @@ using std::iterator;
 
 // 24.3.4 iterator operations
 using std::advance;
+using std::distance;
 
 // 24.3.4 predefined iterators
 using std::back_insert_iterator;
@@ -920,8 +921,12 @@ reverse_iterator<const T *> crend(const T (&array)[N]);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 namespace ranges {
 
+using std::ranges::advance;
 using std::ranges::distance;
+using std::ranges::iter_move;
 using std::ranges::iter_swap;
+using std::ranges::next;
+using std::ranges::prev;
 
 }  // close namespace ranges
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
