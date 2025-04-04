@@ -291,6 +291,40 @@ struct formatter<FormattableType, t_CHAR> {
                                                        __VA_ARGS__);          \
         ASSERTV(stdFmtdSize, fmtdSize, stdFmtdSize == fmtdSize);              \
     } while (false)
+
+#define u_TESTUTIL_VORACLE_LTEST(fmtstr, expected, ...)                       \
+    do {                                                                      \
+        const std::string stdResult = std::vformat(                           \
+                                         myLocale,                            \
+                                         fmtstr,                              \
+                                         std::make_format_args(__VA_ARGS__)); \
+        ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        char *end = std::vformat_to(buff,                                     \
+                                    myLocale,                                 \
+                                    fmtstr,                                   \
+                                    std::make_format_args(__VA_ARGS__));      \
+        *end      = 0;                                                        \
+        ASSERTV(buff, result.c_str(), buff == result);                        \
+    } while (false)
+
+#define u_TESTUTIL_VORACLE_WLTEST(fmtstr, expected, ...)                      \
+    do {                                                                      \
+        const std::wstring stdResult = std::vformat(                          \
+                                        myWlocale,                            \
+                                        fmtstr,                               \
+                                        std::make_wformat_args(__VA_ARGS__)); \
+        ASSERTV(stdResult == result);                                         \
+                                                                              \
+        memset(buff, 0, sizeof buff);                                         \
+        wchar_t *end = std::vformat_to(buff,                                  \
+                                       myWlocale,                             \
+                                       fmtstr,                                \
+                                       std::make_wformat_args(__VA_ARGS__));  \
+        *end         = 0;                                                     \
+        ASSERTV(buff == result);                                              \
+    } while (false)
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // TEST CALLS FOR FORMAT
@@ -314,6 +348,13 @@ struct formatter<FormattableType, t_CHAR> {
                 end - buff == sizeof expected - 1);                           \
         *end = 0;                                                             \
         ASSERTV(buff, expected, 0 == strcmp(buff, expected));                 \
+                                                                              \
+        bsl::string toBslString;                                              \
+        bsl::format_to(&toBslString, fmtstr, __VA_ARGS__);                    \
+        ASSERTV(toBslString.size(),                                           \
+                sizeof expected - 1,                                          \
+                toBslString.size() == sizeof expected - 1);                   \
+        ASSERTV(toBslString.c_str(), expected, toBslString == expected);      \
                                                                               \
         memset(buff, 0, sizeof buff);                                         \
         bsl::format_to_n_result<char *> f2nRes = bsl::format_to_n(buff,       \
@@ -340,7 +381,7 @@ struct formatter<FormattableType, t_CHAR> {
         u_TESTUTIL_ORACLE_TEST(fmtstr, expected, __VA_ARGS__);                \
     } while (false)
 
-#define u_VERIFY_FORMAT_NUMCALLS (6 + u_TESTUTIL_ORACLE_NUMCALLS)
+#define u_VERIFY_FORMAT_NUMCALLS (7 + u_TESTUTIL_ORACLE_NUMCALLS)
 
 
 #define u_VERIFY_WFORMAT(fmtstr, expected, ...)                               \
@@ -362,6 +403,13 @@ struct formatter<FormattableType, t_CHAR> {
                 static_cast<size_t>(end - buff) == wcslen(expected));         \
         *end = 0;                                                             \
         ASSERTV(buff, expected, 0 == wcscmp(buff, expected));                 \
+                                                                              \
+        bsl::wstring toBslString;                                             \
+        bsl::format_to(&toBslString, fmtstr,  __VA_ARGS__);                   \
+        ASSERTV(toBslString.size(),                                           \
+                wcslen(expected),                                             \
+                toBslString.size() == wcslen(expected));                      \
+        ASSERT(toBslString == expected);                                      \
                                                                               \
         memset(buff, 0, sizeof buff);                                         \
         bsl::format_to_n_result<wchar_t *> f2nRes = bsl::format_to_n(         \
@@ -424,14 +472,24 @@ struct formatter<FormattableType, t_CHAR> {
                                         fmtstr,                               \
                                         bsl::make_format_args(__VA_ARGS__));  \
         ASSERTV(end - buff,                                                   \
-                sizeof expected - 1,                              \
+                sizeof expected - 1,                                          \
                 end - buff == sizeof expected - 1);                           \
         *end = 0;                                                             \
         ASSERTV(buff, expected, 0 == strcmp(buff, expected));                 \
                                                                               \
+        bsl::string toBslStrResult;                                           \
+        bsl::vformat_to(&toBslStrResult,                                      \
+                        fmtstr,                                               \
+                        bsl::make_format_args(__VA_ARGS__));                  \
+        ASSERTV(toBslStrResult.size(),                                        \
+                sizeof expected - 1,                                          \
+                toBslStrResult.size() == sizeof expected - 1);                \
+        ASSERTV(toBslStrResult.c_str(), expected,                             \
+                toBslStrResult == expected);                                  \
+                                                                              \
         u_TESTUTIL_VORACLE_TEST(fmtstr, expected, __VA_ARGS__);               \
     } while (false)
-#define u_VERIFY_VFORMAT_NUMCALLS (3 + u_TESTUTIL_VORACLE_NUMCALLS)
+#define u_VERIFY_VFORMAT_NUMCALLS (4 + u_TESTUTIL_VORACLE_NUMCALLS)
 
 #define u_VERIFY_WVFORMAT(fmtstr, expected, ...)                              \
     do {                                                                      \
@@ -456,10 +514,19 @@ struct formatter<FormattableType, t_CHAR> {
                                        fmtstr,                                \
                                        bsl::make_wformat_args(__VA_ARGS__));  \
         ASSERTV(end - buff,                                                   \
-                wcslen(expected),                                 \
+                wcslen(expected),                                             \
                 static_cast<size_t>(end - buff) == wcslen(expected));         \
         *end = 0;                                                             \
         ASSERTV(buff, expected, 0 == wcscmp(buff, expected));                 \
+                                                                              \
+        bsl::wstring toBslStrResult;                                          \
+        bsl::vformat_to(&toBslStrResult,                                      \
+                        fmtstr,                                               \
+                        bsl::make_wformat_args(__VA_ARGS__));                 \
+        ASSERTV(toBslStrResult.size(),                                        \
+                wcslen(expected),                                             \
+                toBslStrResult.size() == wcslen(expected));                   \
+        ASSERT(toBslStrResult == expected);                                   \
                                                                               \
         u_TESTUTIL_VORACLE_WTEST(fmtstr, expected, __VA_ARGS__);              \
     } while (false)
@@ -472,7 +539,7 @@ struct formatter<FormattableType, t_CHAR> {
         u_VERIFY_WVFORMAT(L##fmtstr, L##expected, __VA_ARGS__);               \
     } while (false)
 
-#define u_VERIFY_VFORMAT_BOTH_NUMCALLS                                         \
+#define u_VERIFY_VFORMAT_BOTH_NUMCALLS                                        \
     (u_VERIFY_VFORMAT_NUMCALLS + u_VERIFY_WVFORMAT_NUMCALLS)
 
 
@@ -528,6 +595,15 @@ struct formatter<FormattableType, t_CHAR> {
         *f2nRes.out = 0;                                                      \
         ASSERT(0 == strncmp(buff, expected, strlen(expected) - 1));           \
                                                                               \
+        bsl::string toBslStrResult;                                           \
+        bsl::format_to(&toBslStrResult, myLocale, fmtstr, __VA_ARGS__);       \
+        ASSERTV(toBslStrResult.size(),                                        \
+                sizeof expected - 1,                                          \
+                toBslStrResult.size() == sizeof expected - 1);                \
+        ASSERTV(toBslStrResult.c_str(),                                       \
+                expected,                                                     \
+                toBslStrResult == expected);                                  \
+                                                                              \
         u_TESTUTIL_ORACLE_LTEST(fmtstr, expected, __VA_ARGS__);               \
     } while (false)
 
@@ -557,6 +633,13 @@ struct formatter<FormattableType, t_CHAR> {
                 static_cast<size_t>(end - buff) == wcslen(expected));         \
         *end = 0;                                                             \
         ASSERTV(buff, expected, 0 == wcscmp(buff, expected));                 \
+                                                                              \
+        bsl::wstring toBslStrResult;                                          \
+        bsl::format_to(&toBslStrResult, myWlocale, fmtstr, __VA_ARGS__);      \
+        ASSERTV(toBslStrResult.size(),                                        \
+                wcslen(expected),                                             \
+                toBslStrResult.size() == wcslen(expected));                   \
+        ASSERT(toBslStrResult == expected);                                   \
                                                                               \
         memset(buff, 0, sizeof buff);                                         \
         bsl::format_to_n_result<wchar_t *> f2nRes = bsl::format_to_n(         \
@@ -590,6 +673,104 @@ struct formatter<FormattableType, t_CHAR> {
     do {                                                                      \
         u_VERIFY_LFORMAT(fmtstr, expected, __VA_ARGS__);                      \
         u_VERIFY_WLFORMAT(L##fmtstr, L##expected, __VA_ARGS__);               \
+    } while (false)
+
+// `vformat`, `vformat_to`
+
+#define u_VERIFY_VLFORMAT(fmtstr, expected, ...)                              \
+    do {                                                                      \
+        const bsl::string result = bsl::vformat(                              \
+                                         myLocale,                            \
+                                         fmtstr,                              \
+                                         bsl::make_format_args(__VA_ARGS__)); \
+        ASSERTV(result.c_str(), result == expected);                          \
+                                                                              \
+        const bsl::string resulta = bsl::vformat(                             \
+                                         &oa,                                 \
+                                         myLocale,                            \
+                                         fmtstr,                              \
+                                         bsl::make_format_args(__VA_ARGS__)); \
+        ASSERTV(resulta.c_str(), result == expected);                         \
+        ASSERT(resulta.get_allocator() == &oa);                               \
+                                                                              \
+        bsl::string buffStr;                                                  \
+        buffStr.resize(result.size() + 8);                                    \
+        char *buff = &buffStr[0];                                             \
+                                                                              \
+        char *const end = bsl::vformat_to(                                    \
+                                         buff,                                \
+                                         myLocale,                            \
+                                         fmtstr,                              \
+                                         bsl::make_format_args(__VA_ARGS__)); \
+        ASSERTV(end - buff,                                                   \
+                sizeof expected - 1,                                          \
+                end - buff == sizeof expected - 1);                           \
+        *end = 0;                                                             \
+        ASSERTV(buff, expected, 0 == strcmp(buff, expected));                 \
+                                                                              \
+        bsl::string toBslStrResult;                                           \
+        bsl::vformat_to(&toBslStrResult,                                      \
+                        myLocale,                                             \
+                        fmtstr,                                               \
+                        bsl::make_format_args(__VA_ARGS__));                  \
+        ASSERTV(toBslStrResult.size(),                                        \
+                sizeof expected - 1,                                          \
+                toBslStrResult.size() == sizeof expected - 1);                \
+        ASSERTV(toBslStrResult.c_str(),                                       \
+                expected,                                                     \
+                toBslStrResult == expected);                                  \
+                                                                              \
+        u_TESTUTIL_VORACLE_LTEST(fmtstr, expected, __VA_ARGS__);              \
+    } while (false)
+
+#define u_VERIFY_WVLFORMAT(fmtstr, expected, ...)                             \
+    do {                                                                      \
+        const bsl::wstring result = bsl::vformat(                             \
+                                        myWlocale,                            \
+                                        fmtstr,                               \
+                                        bsl::make_wformat_args(__VA_ARGS__)); \
+        ASSERT(result == expected);                                           \
+                                                                              \
+        const bsl::wstring resulta = bsl::vformat(                            \
+                                        &oa,                                  \
+                                        myWlocale,                            \
+                                        fmtstr,                               \
+                                        bsl::make_wformat_args(__VA_ARGS__)); \
+        ASSERT(resulta == expected);                                          \
+        ASSERT(resulta.get_allocator() == &oa);                               \
+                                                                              \
+        bsl::wstring buffStr;                                                 \
+        buffStr.resize(result.size() + 8);                                    \
+        wchar_t *buff = &buffStr[0];                                          \
+                                                                              \
+        wchar_t *const end = bsl::vformat_to(                                 \
+                                        buff,                                 \
+                                        myWlocale,                            \
+                                        fmtstr,                               \
+                                        bsl::make_wformat_args(__VA_ARGS__)); \
+        ASSERTV(end - buff,                                                   \
+                wcslen(expected),                                             \
+                static_cast<size_t>(end - buff) == wcslen(expected));         \
+        *end = 0;                                                             \
+        ASSERTV(buff, expected, 0 == wcscmp(buff, expected));                 \
+                                                                              \
+        bsl::wstring toBslStrResult;                                          \
+        bsl::vformat_to(&toBslStrResult,                                      \
+                        myWlocale,                                            \
+                        fmtstr,                                               \
+                        bsl::make_wformat_args(__VA_ARGS__));                 \
+        ASSERTV(toBslStrResult.size(),                                        \
+                wcslen(expected),                                             \
+                toBslStrResult.size() == wcslen(expected));                   \
+        ASSERT(toBslStrResult == expected);                                   \
+                                                                              \
+        u_TESTUTIL_VORACLE_WLTEST(fmtstr, expected, __VA_ARGS__);             \
+    } while (false)
+
+#define u_VERIFY_VLFORMAT_BOTH(fmtstr, expected, ...)                         \
+    do {                                                                      \
+        u_VERIFY_VLFORMAT(fmtstr, expected, __VA_ARGS__);                     \
+        u_VERIFY_WVLFORMAT(L##fmtstr, L##expected, __VA_ARGS__);              \
     } while (false)
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
@@ -1426,6 +1607,11 @@ void testCase10()
 
         u_VERIFY_LFORMAT_BOTH("{:L}",      "42,24",      42.24);
         u_VERIFY_LFORMAT_BOTH("{:L} {:L}", "42,24 3,14", 42.24, 3.14f);
+
+        double d = 42.24;
+        float  f = 3.14f;
+        u_VERIFY_VLFORMAT_BOTH("{:L}",      "42,24",      d);
+        u_VERIFY_VLFORMAT_BOTH("{:L} {:L}", "42,24 3,14", d, f);
     }
 #endif
 }
