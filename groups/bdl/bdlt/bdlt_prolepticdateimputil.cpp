@@ -283,6 +283,9 @@ int ProlepticDateImpUtil::ymdToSerial(int year, int month, int day)
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
     if (s_firstCachedYear <= year && year <= s_lastCachedYear) {
+        // Prevent out-of-bounds read in case of an out-of-contract call (see
+        // {DRQS 178292903}).
+        if (month < 1 || month > 12) return k_MAX_SERIAL_DATE;        // RETURN
         return s_cachedSerialDate[year - s_firstCachedYear][month] + day;
                                                                       // RETURN
     }
@@ -294,6 +297,10 @@ int ProlepticDateImpUtil::ymdToSerial(int year, int month, int day)
 int ProlepticDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
+
+    // Prevent out-of-bounds read in case of an out-of-contract call (see
+    // {DRQS 178292903}).
+    if (month < 1 || month > 12) return k_MAX_SERIAL_DATE;            // RETURN
 
     const int y = year - 1;
 

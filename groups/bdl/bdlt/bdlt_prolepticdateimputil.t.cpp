@@ -2233,6 +2233,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
+            // For months that are out of range, the result should be
+            // 9999/12/31 if the assertion doesn't fire; an out-of-bounds read
+            // used to occur (see {DRQS 178292903}).
+#ifdef BSLS_ASSERT_IS_ACTIVE
+# define ASSERT_FAIL_OR_MAX(expr) ASSERT_FAIL(expr)
+#else
+# define ASSERT_FAIL_OR_MAX(expr) ASSERT((expr) == \
+                                         Util::ymdToSerial(9999, 12, 31))
+#endif
             bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\t'ymdToSerial'" << endl;
@@ -2243,11 +2252,13 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Util::ymdToSerial(k_MAX_YEAR    , 9, 23));
                 ASSERT_FAIL(Util::ymdToSerial(k_MAX_YEAR + 1, 9, 23));
 
-                ASSERT_FAIL(Util::ymdToSerial(1812, k_MIN_MONTH - 1, 23));
+                ASSERT_FAIL_OR_MAX(
+                                 Util::ymdToSerial(1812, k_MIN_MONTH - 1, 23));
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, k_MIN_MONTH    , 23));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, k_MAX_MONTH    , 23));
-                ASSERT_FAIL(Util::ymdToSerial(1812, k_MAX_MONTH + 1, 23));
+                ASSERT_FAIL_OR_MAX(
+                                 Util::ymdToSerial(1812, k_MAX_MONTH + 1, 23));
 
                 ASSERT_FAIL(Util::ymdToSerial(1812, 9,  0));
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, 9,  1));
@@ -2274,14 +2285,14 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(
                               Util::ymdToSerialNoCache(k_MAX_YEAR + 1, 9, 23));
 
-                ASSERT_FAIL(
+                ASSERT_FAIL_OR_MAX(
                           Util::ymdToSerialNoCache(1812, k_MIN_MONTH - 1, 23));
                 ASSERT_SAFE_PASS(
                           Util::ymdToSerialNoCache(1812, k_MIN_MONTH    , 23));
 
                 ASSERT_SAFE_PASS(
                           Util::ymdToSerialNoCache(1812, k_MAX_MONTH    , 23));
-                ASSERT_FAIL(
+                ASSERT_FAIL_OR_MAX(
                           Util::ymdToSerialNoCache(1812, k_MAX_MONTH + 1, 23));
 
                 ASSERT_FAIL(Util::ymdToSerialNoCache(1812, 9,  0));
@@ -2296,6 +2307,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Util::ymdToSerialNoCache(1813, 2, 28));
                 ASSERT_FAIL(Util::ymdToSerialNoCache(1813, 2, 29));
             }
+#undef ASSERT_FAIL_OR_MAX
         }
 
       } break;

@@ -486,6 +486,10 @@ struct PosixDateImpUtil {
         char  d_day;
     };
 
+    enum {
+        k_MAX_SERIAL_DATE = 3652061  // 9999/12/31
+    };
+
     // PRIVATE CLASS DATA
     static const int          s_firstCachedYear;
     static const int          s_lastCachedYear;
@@ -713,7 +717,7 @@ bool PosixDateImpUtil::isValidYearMonthDay(int year, int month, int day)
 inline
 bool PosixDateImpUtil::isValidSerial(int serialDay)
 {
-    return (static_cast<unsigned>(serialDay) - 1) < 3652061; // # == 9999/12/31
+    return (static_cast<unsigned>(serialDay) - 1) < k_MAX_SERIAL_DATE;
 }
 
                         // To Day-Of-Year Date (yd)

@@ -3067,11 +3067,6 @@ if (verbose)
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(     -1,       1,      1));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(INT_MIN,       1,      1));
 
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,      13,      1));
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,       0,      1));
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,      -1,      1));
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1, INT_MIN,      1));
-
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,       1,     32));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,       1,      0));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(      1,       1,     -1));
@@ -3086,14 +3081,9 @@ if (verbose)
                 ASSERT(  12 == X.month());
                 ASSERT(  31 == X.day());
 
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,       0,     31));
-
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,      12,      0));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(  10000,      12,     31));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(INT_MAX,      12,     31));
-
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,      13,     31));
-                ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999, INT_MAX,     31));
 
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,      12,     32));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,      12,INT_MAX));
@@ -3105,6 +3095,25 @@ if (verbose)
                 ASSERT(9999 == X.year());
                 ASSERT(  12 == X.month());
                 ASSERT(  31 == X.day());
+
+                // For months that are out of range, the result should be
+                // 9999/12/31 if the assertion doesn't fire; an out-of-bounds
+                // read used to occur (see {DRQS 178292903}).
+#ifdef BSLS_ASSERT_IS_ACTIVE
+# define ASSERT_FAIL_RAW_OR_MAX(expr) ASSERT_FAIL_RAW(expr)
+#else
+# define ASSERT_FAIL_RAW_OR_MAX(expr) ASSERT(((expr), X) == Obj(9999, 12, 31))
+#endif
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(1,      13, 1));
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(1,       0, 1));
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(1,      -1, 1));
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(1, INT_MIN, 1));
+
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(9999, 0, 31));
+
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(9999,      13, 31));
+                ASSERT_FAIL_RAW_OR_MAX(mX.setYearMonthDay(9999, INT_MAX, 31));
+#undef ASSERT_FAIL_RAW_OR_MAX
             }
 
             if (verbose) cout << "\t'getYearMonthDay'" << endl;
@@ -4671,10 +4680,18 @@ if (verbose)
                 ASSERT_FAIL_RAW(Obj(     -1,       1,       1));
                 ASSERT_FAIL_RAW(Obj(INT_MIN,       1,       1));
 
-                ASSERT_FAIL_RAW(Obj(      1,      13,       1));
-                ASSERT_FAIL_RAW(Obj(      1,       0,       1));
-                ASSERT_FAIL_RAW(Obj(      1,      -1,       1));
-                ASSERT_FAIL_RAW(Obj(      1, INT_MIN,       1));
+                // For months that are out of range, the result should be
+                // 9999/12/31 if the assertion doesn't fire; an out-of-bounds
+                // read used to occur (see {DRQS 178292903}).
+#ifdef BSLS_ASSERT_IS_ACTIVE
+# define ASSERT_FAIL_RAW_OR_MAX(expr) ASSERT_FAIL_RAW(expr)
+#else
+# define ASSERT_FAIL_RAW_OR_MAX(expr) ASSERT((expr) == Obj(9999, 12, 31))
+#endif
+                ASSERT_FAIL_RAW_OR_MAX(Obj(      1,      13,       1));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(      1,       0,       1));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(      1,      -1,       1));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(      1, INT_MIN,       1));
 
                 ASSERT_FAIL_RAW(Obj(      1,       1,      32));
                 ASSERT_FAIL_RAW(Obj(      1,       1,       0));
@@ -4683,14 +4700,15 @@ if (verbose)
 
                 ASSERT_SAFE_PASS_RAW(Obj(   9999,      12,      31));
 
-                ASSERT_FAIL_RAW(Obj(   9999,       0,      31));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(   9999,       0,      31));
 
                 ASSERT_FAIL_RAW(Obj(   9999,      12,       0));
                 ASSERT_FAIL_RAW(Obj(  10000,      12,      31));
                 ASSERT_FAIL_RAW(Obj(INT_MAX,      12,      31));
 
-                ASSERT_FAIL_RAW(Obj(   9999,      13,      31));
-                ASSERT_FAIL_RAW(Obj(   9999, INT_MAX,      31));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(   9999,      13,      31));
+                ASSERT_FAIL_RAW_OR_MAX(Obj(   9999, INT_MAX,      31));
+#undef ASSERT_FAIL_RAW_OR_MAX
 
                 ASSERT_FAIL_RAW(Obj(   9999,      12,      32));
                 ASSERT_FAIL_RAW(Obj(   9999,      12, INT_MAX));

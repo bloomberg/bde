@@ -1705,6 +1705,25 @@ if (veryVerbose)
             }
         }
 
+        if (verbose) cout << "\nNegative Testing" << endl;
+        {
+            // For months that are out of range, the result should be
+            // 9999/12/31 if the assertion doesn't fire; an out-of-bounds read
+            // used to occur (see {DRQS 178292903}).
+#ifdef BSLS_ASSERT_IS_ACTIVE
+# define ASSERT_FAIL_OR_MAX(expr) ASSERT_FAIL(expr)
+#else
+# define ASSERT_FAIL_OR_MAX(expr) ASSERT((expr) == \
+                                         Util::ymdToSerial(9999, 12, 31))
+#endif
+            bsls::AssertTestHandlerGuard guard;
+            ASSERT_FAIL_OR_MAX(Util::ymdToSerial(1812, 0, 23));
+            ASSERT_FAIL_OR_MAX(Util::ymdToSerialNoCache(1812, 0, 23));
+            ASSERT_FAIL_OR_MAX(Util::ymdToSerial(1812, 13, 23));
+            ASSERT_FAIL_OR_MAX(Util::ymdToSerialNoCache(1812, 13, 23));
+#undef ASSERT_FAIL_OR_MAX
+        }
+
         if (veryVerbose) {
             cout << "\nTesting: `ymdToSerial` vs `ymdToSerialNoCache`" << endl;
 
