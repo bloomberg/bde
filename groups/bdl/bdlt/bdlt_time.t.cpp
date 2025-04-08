@@ -572,6 +572,7 @@ int main(int argc, char *argv[])
         ASSERT_OPT_FAIL(mInvalid.setMillisecond(0));
         ASSERT_OPT_FAIL(mInvalid.setMicrosecond(0));
 
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         ASSERT_OPT_FAIL(mInvalid == Obj());
         ASSERT_OPT_FAIL(mInvalid != Obj());
         ASSERT_OPT_FAIL(mInvalid <  Obj());
@@ -585,6 +586,7 @@ int main(int argc, char *argv[])
         ASSERT_OPT_FAIL(Obj() <= mInvalid);
         ASSERT_OPT_FAIL(Obj() >  mInvalid);
         ASSERT_OPT_FAIL(Obj() >= mInvalid);
+#endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -1884,6 +1886,7 @@ if (veryVerbose)
 
             Obj mZ;              const Obj Z = mZ;  (void)Z;
 
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             ASSERT_SAFE_PASS(X <  Y);
             ASSERT_SAFE_FAIL(X <  Z);
             ASSERT_SAFE_FAIL(Z <  X);
@@ -1899,6 +1902,7 @@ if (veryVerbose)
             ASSERT_SAFE_PASS(X >  Y);
             ASSERT_SAFE_FAIL(X >  Z);
             ASSERT_SAFE_FAIL(Z >  X);
+#endif
         }
 
       } break;

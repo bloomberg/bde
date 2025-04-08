@@ -1365,9 +1365,10 @@ IsValidResult::Enum isValid(bsl::size_t        *errorIndex,
                                       (hash >> groupControlShift) * blockSize);
 
                     char s[128];
-                    sprintf(s,
-                            "ERROR: incorrect position for initial index %i",
-                            initialIndex);
+                    snprintf(s,
+                             sizeof s,
+                             "ERROR: incorrect position for initial index %i",
+                             initialIndex);
                     *errorIndex = i;
                     return IsValidResult::e_BAD_POSITION;             // RETURN
                 }

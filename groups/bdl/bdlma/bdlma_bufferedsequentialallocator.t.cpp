@@ -214,7 +214,7 @@ void receivePriceQuotes(bsl::map<bsl::string, double> *updateMap)
 
     for (int i = 0; i < k_NUM_SECURITIES; ++i) {
         char buffer[256];
-        int n = bsl::sprintf(buffer, "sec%d", i);
+        int n = bsl::snprintf(buffer, sizeof buffer, "sec%d", i);
         bsl::string security(buffer, n);
         updateMap->insert(bsl::make_pair(security, 1.0));
     }

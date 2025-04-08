@@ -7839,7 +7839,7 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i < 4; ++i) {
                 char name[16];
-                sprintf(name, "woof.a.%d", i);
+                snprintf(name, sizeof name, "woof.a.%d", i);
                 Obj::FileDescriptor fd = Obj::open(name,
                                                    Obj::e_OPEN_OR_CREATE,
                                                    Obj::e_READ_WRITE);
@@ -10656,9 +10656,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_TOTAL_FILES; ++i) {
                 bool isOld = i < NUM_OLD_FILES;
 
-                int filenameLength = sprintf(filenameBuffer,
-                                             "filesystemutil%02d_%c.log", i,
-                                             isOld ? 'o' : 'n');
+                int filenameLength = snprintf(filenameBuffer,
+                                              sizeof filenameBuffer,
+                                              "filesystemutil%02d_%c.log", i,
+                                              isOld ? 'o' : 'n');
 
                 ASSERT(0 == bdls::PathUtil::appendIfValid(&logPath,
                             filenameBuffer));

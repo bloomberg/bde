@@ -679,8 +679,11 @@ int main(int argc, char *argv[])
         cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
         char buffer[200];
-        bsl::sprintf(buffer, "ctrl.pcctest.%d.%d", test,
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(buffer,
+                      sizeof buffer,
+                      "ctrl.pcctest.%d.%d",
+                      test,
+                      bdls::ProcessUtil::getProcessId());
         ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&pipeName, buffer));
         if (veryVerbose) bsl::cerr << "pipeName: " << pipeName << bsl::endl;
     }

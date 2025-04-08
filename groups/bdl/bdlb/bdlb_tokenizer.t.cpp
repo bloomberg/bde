@@ -675,8 +675,8 @@ int main(int argc, char **argv)
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             ASSERT_SAFE_FAIL("foo" == *itw);  // can cause ignored return value
                                               // warning in newer compilers
-#endif
             ASSERT_SAFE_FAIL(false == (*itw).empty());
+#endif
         }
 
         if (verbose) cout << "\nTest operator->\n";
@@ -692,7 +692,9 @@ int main(int argc, char **argv)
             bsls::AssertTestHandlerGuard hG;
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             ASSERT_SAFE_FAIL(false == itw->empty());
+#endif
         }
 
       } break;

@@ -2978,12 +2978,14 @@ int main(int argc, char *argv[])
                           const int busyPool = busyWork[bwPool];
                           if (4 <= numPool) {
                               char s[1024];
-                              sprintf(s, "%s,%i,%i,%i,%i",
-                                      name.c_str(),
-                                      numPush,
-                                      numPool,
-                                      busyPush,
-                                      busyPool);
+                              snprintf(s,
+                                       sizeof s,
+                                       "%s,%i,%i,%i,%i",
+                                       name.c_str(),
+                                       numPush,
+                                       numPool,
+                                       busyPush,
+                                       busyPool);
 
                               if (have.end() == have.find(s)) {
                                   have.insert(s);

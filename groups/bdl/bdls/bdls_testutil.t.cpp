@@ -350,7 +350,7 @@ bool tempFileName(char *result)
         return false;                                                 // RETURN
     }
 #else
-    sprintf(result, "bslsXXXXXX");
+    snprintf(result, k_PATH_BUFFER_SIZE, "bslsXXXXXX");
     int fd = mkstemp(result);
     if (-1 != fd) {
         close(fd);

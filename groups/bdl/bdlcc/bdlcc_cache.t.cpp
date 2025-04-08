@@ -972,7 +972,7 @@ int CachePerformance::testInsert(CachePerformance *cacheperf_p,
 
     for (int i = 0; i < size; ++i) {
         int key = offset++;
-        bsl::sprintf(buf, "V%d", key);
+        bsl::snprintf(buf, sizeof buf, "V%d", key);
         string val(buf);
         cacheperf_p->cache().insert(key, val);
     }
@@ -1000,7 +1000,7 @@ int CachePerformance::testInsertBulk(CachePerformance *cacheperf_p,
         bsl::vector<PairBulkType> insertData(size, cacheperf_p->d_allocator_p);
         for (int i = 0; i < size; ++i) {
             int key = offset++;
-            bsl::sprintf(buf, "V%d", key);
+            bsl::snprintf(buf, sizeof buf, "V%d", key);
             valuePtr.createInplace(cacheperf_p->d_allocator_p, buf,
                                                    cacheperf_p->d_allocator_p);
             insertData[i] = PairBulkType(key, valuePtr);
@@ -1027,7 +1027,7 @@ int CachePerformance::initRead(CachePerformance *cacheperf_p, VecIntType& args)
 
     bsl::vector<PairBulkType> insertData(size, cacheperf_p->d_allocator_p);
     for (int i = 0; i < size; ++i) {
-        bsl::sprintf(buf, "V%d", key);
+        bsl::snprintf(buf, sizeof buf, "V%d", key);
         valuePtr.createInplace(cacheperf_p->d_allocator_p, buf,
                                                  cacheperf_p->d_allocator_p);
         insertData[i] = PairBulkType(key, valuePtr);
@@ -1085,7 +1085,7 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
     for (int i = 0; i < numCalcs; ++i) {
         int key = rand() % range;
         if (isWThread) {
-            bsl::sprintf(buf, "V%d", key);
+            bsl::snprintf(buf, sizeof buf, "V%d", key);
             string val(buf);
             cacheperf_p->cache().insert(key, val);
         }

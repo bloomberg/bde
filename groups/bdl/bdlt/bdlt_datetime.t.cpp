@@ -4909,6 +4909,7 @@ if (veryVerbose)
             const Obj    defaultObject;
             const Obj nonDefaultObject(1, 1, 2);
 
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             if (veryVerbose) cout << "\t'operator<'" << endl;
             {
                 ASSERT_SAFE_PASS(nonDefaultObject <  nonDefaultObject);
@@ -4940,8 +4941,8 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(   defaultObject >= nonDefaultObject);
                 ASSERT_SAFE_FAIL(   defaultObject >=    defaultObject);
             }
+#endif
         }
-
       } break;
       case 12: {
         // --------------------------------------------------------------------

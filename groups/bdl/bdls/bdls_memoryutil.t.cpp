@@ -204,9 +204,14 @@ int main(int argc, char *argv[])
 #else
                 const char* redirectToNull = " >/dev/null 2>&1";
 #endif
-                bsl::sprintf(buffer, "%s -1 %s %d %d%s",
-                                             argv[0], argv[0], -10-op, mode,
-                                             verbose ? "" : redirectToNull);
+                bsl::snprintf(buffer,
+                              sizeof buffer,
+                              "%s -1 %s %d %d%s",
+                              argv[0],
+                              argv[0],
+                              -10-op,
+                              mode,
+                              verbose ? "" : redirectToNull);
                 int rc = system(buffer);
                 LOOP4_ASSERT(modes[mode], operations[op], rc, expected_rc,
                              !rc == !expected_rc);

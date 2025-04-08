@@ -996,8 +996,11 @@ int main(int argc, char *argv[])
                 bsl::ostringstream os(&oa);
 
                 char EXP[1000];
-                sprintf(EXP, FORMAT, BASIC ? "true" : "false",
-                                                   RELAXED ? "true" : "false");
+                snprintf(EXP,
+                         sizeof EXP,
+                         FORMAT,
+                         BASIC ? "true" : "false",
+                         RELAXED ? "true" : "false");
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 

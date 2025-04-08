@@ -389,7 +389,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //
 //      for (int i = 0; i < 50; ++i) {
 //          char b[100];
-//          bsl::sprintf(b, "%d", i);
+//          bsl::snprintf(b, sizeof b, "%d", i);
 //          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my1_WorkItem request;
@@ -434,7 +434,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //          // ...
 //
 //          char b[100];
-//          bsl::sprintf(b, "%d", i);
+//          bsl::snprintf(b, sizeof b, "%d", i);
 //          ASSERT(bsl::strcmp(b, item.d_item) == 0);   // check content
 //
 //          queue->d_alloc_p->deallocate(item.d_item);  // deallocate
@@ -476,7 +476,7 @@ void stretchRemoveAll(Obj *object, int numElements)
         for (int i = 0; i < 50; ++i) {
 
             char b[100];
-            bsl::sprintf(b, "%d", i);
+            bsl::snprintf(b, sizeof b, "%d", i);
             int len = static_cast<int>(bsl::strlen(b));
 
             my1_WorkItem request;
@@ -535,7 +535,7 @@ void stretchRemoveAll(Obj *object, int numElements)
             }
 
             char b[100];
-            bsl::sprintf(b, "%d", i);
+            bsl::snprintf(b, sizeof b, "%d", i);
             ASSERT(bsl::strcmp(b, item.d_item) == 0);
 
             queue->d_alloc_p->deallocate(item.d_item);
@@ -614,7 +614,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //      for (int i = 0; i < 50; ++i) {
 //
 //          char b[100];
-//          bsl::sprintf(b, "%d", i);
+//          bsl::snprintf(b, sizeof b, "%d", i);
 //          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my2_WorkItem request;
@@ -661,7 +661,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //          // ...
 //
 //          char b[100];
-//          bsl::sprintf(b, "%d", i);
+//          bsl::snprintf(b, sizeof b, "%d", i);
 //          ASSERT(bsl::strcmp(b, item.d_item) == 0);   // verify content
 //
 //          queue->d_alloc_p->deallocate(item.d_item);  // deallocate
@@ -704,7 +704,7 @@ void stretchRemoveAll(Obj *object, int numElements)
         for (int i = 0; i < 50; ++i) {
 
             char b[100];
-            bsl::sprintf(b, "%d", i);
+            bsl::snprintf(b, sizeof b, "%d", i);
             int len = static_cast<int>(bsl::strlen(b));
 
             my2_WorkItem request;
@@ -763,7 +763,7 @@ void stretchRemoveAll(Obj *object, int numElements)
             }
 
             char b[100];
-            bsl::sprintf(b, "%d", i);
+            bsl::snprintf(b, sizeof b, "%d", i);
             ASSERT(bsl::strcmp(b, item.d_item) == 0);
 
             queue->d_alloc_p->deallocate(item.d_item);

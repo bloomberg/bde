@@ -202,14 +202,16 @@ ostream& dump(ostream& stream, const tm& time)
 ostream& operator<<(ostream& stream, const tm& time)
 {
     char buffer[100];
-    sprintf(buffer,
-        "%3s-%04d/%02d/%02d-%02d/%02d/%02d-(%3d,%s)",
-        (time.tm_wday != time.tm_wday % 7 + 7 % 7 ? "???" :
-        bdlt::DayOfWeek::toAscii(bdlt::DayOfWeek::Enum(time.tm_wday + 1))),
-        1900 + time.tm_year, 1 + time.tm_mon, time.tm_mday,
-        time.tm_hour, time.tm_min, time.tm_sec,
-        1 + time.tm_yday,
-        (time.tm_isdst < 0 ? "?" : time.tm_isdst > 0 ? "Y" : "N"));
+    snprintf(
+            buffer,
+            sizeof buffer,
+            "%3s-%04d/%02d/%02d-%02d/%02d/%02d-(%3d,%s)",
+            (time.tm_wday != time.tm_wday % 7 + 7 % 7 ? "???" :
+            bdlt::DayOfWeek::toAscii(bdlt::DayOfWeek::Enum(time.tm_wday + 1))),
+            1900 + time.tm_year, 1 + time.tm_mon, time.tm_mday,
+            time.tm_hour, time.tm_min, time.tm_sec,
+            1 + time.tm_yday,
+            (time.tm_isdst < 0 ? "?" : time.tm_isdst > 0 ? "Y" : "N"));
 
     return stream << buffer << flush;
 }

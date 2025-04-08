@@ -2211,7 +2211,9 @@ int main(int argc, char *argv[])
                     ASSERT(0 == pCat->setLevels(111, 112, 113, 114));  // reset
 
                     char setName[] = "Setiii";
-                    sprintf(setName + 3, "%03d", i);  // unique name for set
+                    snprintf(setName + 3, sizeof setName - 3, "%03d", i);
+                                                         // unique name for set
+
                     ASSERT(0 == X.lookupCategory(setName));
 
                     const Entry *pCat3 = 0;

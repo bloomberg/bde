@@ -1557,7 +1557,7 @@ int HashPerformance::initRead(HashPerformance *hashPerf_p, VecIntType& args)
 
     bsl::vector<PairType> insertData(size, hashPerf_p->d_allocator_p);
     for (int i = 0; i < size; ++i) {
-        bsl::sprintf(buf, "V%d", key);
+        bsl::snprintf(buf, sizeof buf, "V%d", key);
         insertData[i] = PairType(key, buf);
         key += sparsity;
     }
@@ -1589,8 +1589,14 @@ int HashPerformance::initRead2(HashPerformance *hashPerf_p, VecIntType& args)
 
     bsl::vector<PairType2> insertData(size, hashPerf_p->d_allocator_p);
     for (int i = 0; i < size; ++i) {
-        bsl::sprintf(buf, "VABCDEFGHIJKLMNOABCDEFGHIJKLMNO%d%10d%10d%10d%10d",
-                                       keyGen, keyGen, keyGen, keyGen, keyGen);
+        bsl::snprintf(buf,
+                      sizeof buf,
+                      "VABCDEFGHIJKLMNOABCDEFGHIJKLMNO%d%10d%10d%10d%10d",
+                      keyGen,
+                      keyGen,
+                      keyGen,
+                      keyGen,
+                      keyGen);
         bsl::string      key(buf);
         bsl::vector<int> value(10);
         for (int j = 0; j < 10; ++j) value[j] = i + j;
@@ -1733,8 +1739,14 @@ int HashPerformance::testReadWrite2(HashPerformance *hashPerf_p,
 
     for (int i = 0; i < size; ++i) {
         int keyGen = rand() % range;
-        bsl::sprintf(buf, "VABCDEFGHIJKLMNOABCDEFGHIJKLMNO%d%10d%10d%10d%10d",
-                                       keyGen, keyGen, keyGen, keyGen, keyGen);
+        bsl::snprintf(buf,
+                      sizeof buf,
+                      "VABCDEFGHIJKLMNOABCDEFGHIJKLMNO%d%10d%10d%10d%10d",
+                      keyGen,
+                      keyGen,
+                      keyGen,
+                      keyGen,
+                      keyGen);
         bsl::string key(buf);
         if (isWThread) {
             bsl::vector<int> value(10);

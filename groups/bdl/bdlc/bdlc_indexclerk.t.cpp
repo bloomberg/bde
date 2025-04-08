@@ -756,7 +756,10 @@ int main(int argc, char *argv[])
         {
             const int TESTSIZE = 9;
             char buf[12];  // 1 for ',', 1 for '\0', 10 for digits.
-            sprintf(buf, ",%d", TESTSIZE);
+            snprintf(buf,
+                     sizeof buf,
+                     ",%d",
+                     TESTSIZE);
 
             if (veryVerbose) { T_ P(buf) }
 

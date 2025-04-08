@@ -297,8 +297,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         char tmpFileName[1024];
-        bsl::sprintf(tmpFileName, "tmp.bdls_processutil.case4.%s.%d.txt",
-                                                hostName, Obj::getProcessId());
+        bsl::snprintf(tmpFileName,
+                      sizeof tmpFileName,
+                      "tmp.bdls_processutil.case4.%s.%d.txt",
+                      hostName,
+                      Obj::getProcessId());
         FUtil::remove(tmpFileName);
 
         enum { k_ITERATIONS  = 30,
@@ -375,8 +378,12 @@ int main(int argc, char *argv[])
 
         int rc;
         char directoryName[1024];
-        bsl::sprintf(directoryName, "tmp.bdls_processutil.t.case%d.%s.%d.dir",
-                                          test, hostName, Obj::getProcessId());
+        bsl::snprintf(directoryName,
+                      sizeof directoryName,
+                      "tmp.bdls_processutil.t.case%d.%s.%d.dir",
+                      test,
+                      hostName,
+                      Obj::getProcessId());
 
         {
             // `FUtil::remove` uses the default allocator on directories, and

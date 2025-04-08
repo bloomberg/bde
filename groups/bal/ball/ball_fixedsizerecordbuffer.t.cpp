@@ -273,7 +273,7 @@ void *workerThread15(void *arg)
         // build a message
         enum { MAX = 100 };
         char msg[MAX];
-        sprintf(msg, "message no. %d from thread no. %d", i, id);
+        snprintf(msg, sizeof msg, "message no. %d from thread no. %d", i, id);
 
         record->fixedFields().setMessage(msg);
         Handle handle(record, basicAllocator, basicAllocator);

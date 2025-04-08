@@ -652,9 +652,9 @@ static const char* fmt(int n) {
     if (n>=1000) { f=n/10; n/=1000; f-=n*100; c='G'; }
     static char buf[0x100];
     if (c) {
-        sprintf(buf, "%d.%02d%c", n, f, c);
+        snprintf(buf, sizeof buf, "%d.%02d%c", n, f, c);
     } else {
-        sprintf(buf, "%d", n);
+        snprintf(buf, sizeof buf, "%d", n);
     }
     return buf;
 }

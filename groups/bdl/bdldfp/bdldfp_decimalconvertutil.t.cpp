@@ -2045,10 +2045,15 @@ int main(int argc, char* argv[])
         {
             for (int i = 0; i <= 9999999; i += rand() % 33) {
                 char buf1[32];
-                bsl::sprintf(buf1, "%.7d", i);
+                bsl::snprintf(buf1, sizeof buf1,  "%.7d", i);
                 for (int j = 0; j <= 7; ++j) {
                     char buf2[32];
-                    bsl::sprintf(buf2, "%.*s.%s", j, buf1, buf1 + j);
+                    bsl::snprintf(buf2,
+                                  sizeof buf2,
+                                  "%.*s.%s",
+                                  j,
+                                  buf1,
+                                  buf1 + j);
                     if (veryVerbose) {
                         if (rand() % 400 == 0 && rand() % 400 == 0) {
                             P(buf2);
@@ -2086,10 +2091,15 @@ int main(int argc, char* argv[])
         {
             for (int i = 0; i <= 999999; ++i) {
                 char buf1[32];
-                sprintf(buf1, "%.7d", i);
+                snprintf(buf1, sizeof buf1, "%.7d", i);
                 for (int j = 0; j <= 7; ++j) {
                     char buf2[64];
-                    bsl::sprintf(buf2, "%.*s.%s", j, buf1, buf1 + j);
+                    bsl::snprintf(buf2,
+                                  sizeof buf2,
+                                  "%.*s.%s",
+                                  j,
+                                  buf1,
+                                  buf1 + j);
                     float f;
                     bsl::sscanf(buf2, "%f", &f);
                     volatile float pe = interdata(i, j - 7);
@@ -9797,7 +9807,7 @@ int main(int argc, char* argv[])
             for (int e = -9; e <= 4; ++e) {
                 for (int n = -999999; n <= 999999; ++n) {
                     char buf[30];
-                    sprintf(buf, "%de%d", n, e);
+                    snprintf(buf, sizeof buf, "%de%d", n, e);
                     float b;
                     sscanf(buf, "%f", &b);
                     Decimal64 d = Util::decimal64FromFloat(b);
@@ -9822,7 +9832,7 @@ int main(int argc, char* argv[])
                 for (int l = -9; l <= 9; ++l) {
                     for (int m = 0; m <= 999999; ++m) {
                         char buf[30];
-                        sprintf(buf, "%d.%.6de%d", l, m, e);
+                        snprintf(buf, sizeof buf, "%d.%.6de%d", l, m, e);
                         float b;
                         sscanf(buf, "%f", &b);
                         Decimal64 d = Util::decimal64FromFloat(b);
@@ -9849,7 +9859,7 @@ int main(int argc, char* argv[])
             for (int e = -9; e <= 0; ++e) {
                 for (int n = -99999999; n <= 99999999; ++n) {
                     char buf[30];
-                    sprintf(buf, "%de%d", n, e);
+                    snprintf(buf, sizeof buf, "%de%d", n, e);
                     double    b = strtod(buf, 0);
                     Decimal64 d = Util::decimal64FromDouble(b);
                     Decimal64 p = PARSEDEC64(buf);
@@ -9933,7 +9943,7 @@ int main(int argc, char* argv[])
             int       z = tens[digits];
             for (int i = 0; i < z; ++i) {
                 char buf[32];
-                sprintf(buf, "%0*d", digits, i);
+                snprintf(buf, sizeof buf, "%0*d", digits, i);
                 for (int j = 0; j <= digits; ++j) {
                     char buf2[32];
                     memcpy(buf2, buf, j);

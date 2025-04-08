@@ -416,8 +416,11 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "usage.2",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fileNameBuffer,
+                      sizeof fileNameBuffer,
+                      fileNameTemplate,
+                      "usage.2",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) bsl::cout << "Filename: " << fileNameBuffer << bsl::endl;
 
@@ -567,8 +570,11 @@ int main(int argc, char *argv[])
         // that name already exists:
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "usage.1",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fileNameBuffer,
+                      sizeof fileNameBuffer,
+                      fileNameTemplate,
+                      "usage.1",
+                      bdls::ProcessUtil::getProcessId());
 
         // Then, make sure file does not already exist:
 
@@ -835,8 +841,11 @@ int main(int argc, char *argv[])
             // We start by selecting a file name for our (temporary) file.
 
             char fileNameBuffer[100];
-            bsl::sprintf(fileNameBuffer, fileNameTemplate, "16",
-                                            bdls::ProcessUtil::getProcessId());
+            bsl::snprintf(fileNameBuffer,
+                          sizeof fileNameBuffer,
+                          fileNameTemplate,
+                          "16",
+                          bdls::ProcessUtil::getProcessId());
 
             if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -1060,8 +1069,11 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fileNameBuffer,
+                      sizeof fileNameBuffer,
+                      fileNameTemplate,
+                      "15",
+                      bdls::ProcessUtil::getProcessId());
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
         FileUtil::remove(fileNameBuffer);
@@ -1209,8 +1221,11 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "14",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fileNameBuffer,
+                      sizeof fileNameBuffer,
+                      fileNameTemplate,
+                      "14",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -1422,8 +1437,11 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "13",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fileNameBuffer,
+                      sizeof fileNameBuffer,
+                      fileNameTemplate,
+                      "13",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -1544,8 +1562,10 @@ int main(int argc, char *argv[])
                   "========================================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "12",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate, "12",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1716,8 +1736,11 @@ int main(int argc, char *argv[])
                              "=====================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "11",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "11",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1893,8 +1916,11 @@ int main(int argc, char *argv[])
         bsl::memset(mirror, 0, mFileSize);
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "10",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "10",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2028,8 +2054,11 @@ int main(int argc, char *argv[])
                              "=================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "9",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "9",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2118,10 +2147,16 @@ int main(int argc, char *argv[])
 
         char fnBuf[100];
         char fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "8a",
-                                            bdls::ProcessUtil::getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "8b",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "8a",
+                      bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf2,
+                      sizeof fnBuf2,
+                      fileNameTemplate,
+                      "8b",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2273,9 +2308,11 @@ int main(int argc, char *argv[])
         FdType fd3;
         {
             char filename[100];
-            bsl::sprintf(filename,
-                         fileNameTemplate, "reset-bad-handle",
-                                            bdls::ProcessUtil::getProcessId());
+            bsl::snprintf(filename,
+                          sizeof filename,
+                          fileNameTemplate,
+                          "reset-bad-handle",
+                          bdls::ProcessUtil::getProcessId());
 
             Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
 
@@ -2318,10 +2355,16 @@ int main(int argc, char *argv[])
 
         char fnBuf[100];
         char fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "7a",
-                                            bdls::ProcessUtil::getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "7b",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "7a",
+                      bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf2,
+                      sizeof fnBuf2,
+                      fileNameTemplate,
+                      "7b",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2524,10 +2567,16 @@ int main(int argc, char *argv[])
                              "========================\n";
 
         char fnBuf[100], fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "6a",
-                                            bdls::ProcessUtil::getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "6b",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "6a",
+                      bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf2,
+                      sizeof fnBuf2,
+                      fileNameTemplate,
+                      "6b",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2642,8 +2691,11 @@ int main(int argc, char *argv[])
                              "============================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "5a",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "5a",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2800,8 +2852,11 @@ int main(int argc, char *argv[])
                              "================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "4",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "4",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2931,8 +2986,11 @@ int main(int argc, char *argv[])
                              "=================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "3",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "3",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -3049,8 +3107,11 @@ int main(int argc, char *argv[])
                              "================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "2",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "2",
+                      bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -3249,8 +3310,11 @@ int main(int argc, char *argv[])
                              "============================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "1",
-                                            bdls::ProcessUtil::getProcessId());
+        bsl::snprintf(fnBuf,
+                      sizeof fnBuf,
+                      fileNameTemplate,
+                      "1",
+                      bdls::ProcessUtil::getProcessId());
 
         const char line1[] = "To be or not to be, that is the question.\n";
         const char line2[] =
