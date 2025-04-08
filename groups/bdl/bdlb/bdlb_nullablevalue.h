@@ -627,11 +627,11 @@ class NullableValue : public bsl::optional<TYPE> {
     #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
     BSLS_DEPRECATE
     #endif
-    /// **DEPRECATED**: Use `addressOr` instead.
-    ///
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `value` otherwise.
+    ///
+    /// @DEPRECATED: Use `addressOr` instead.
     const TYPE *valueOr(const TYPE *value) const;
 
     /// Return an address providing non-modifiable access to the underlying

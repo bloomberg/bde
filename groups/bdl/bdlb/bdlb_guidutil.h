@@ -338,8 +338,6 @@ struct GuidUtil {
 
     // DEPRECATED CLASS METHODS
 
-    /// **DEPRECATED**: Use `generate(Guid *, size_t)` instead.
-    ///
     /// Generate a sequence of GUIDs meeting the RFC 4122 version 4
     /// specification, and load the bytes of the resulting GUIDs into the
     /// array referred to by the specified `result`.  Optionally specify
@@ -349,6 +347,8 @@ struct GuidUtil {
     /// "variant" bits set to `10`, and four "version" bits set to `0100`.
     /// The behavior is undefined unless `result` refers to a contiguous
     /// sequence of at least `16 * numGuids` bytes.
+    ///
+    /// @DEPRECATED: Use `generate(Guid *, size_t)` instead.
     static void generate(unsigned char *result, bsl::size_t numGuids = 1);
 };
 

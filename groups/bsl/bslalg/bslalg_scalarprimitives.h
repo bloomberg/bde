@@ -585,27 +585,26 @@ struct ScalarPrimitives {
                           void         *allocator);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    /// **DEPRECATED**: Use `bslma::DestructionUtil::destroy` without an
-    /// allocator argument instead.
+    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`, as
+    /// if by calling the `TARGET_TYPE` destructor, but do not deallocate the
+    /// memory occupied by `object`.  Note that the destructor may deallocate
+    /// other memory owned by `object`.  Also note that this function is a
+    /// no-op if the `TARGET_TYPE` has the trivial destructor trait.  Further
+    /// note that the specified `allocator` is not used.
     ///
-    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`,
-    /// as if by calling the `TARGET_TYPE` destructor, but do not deallocate
-    /// the memory occupied by `object`.  Note that the destructor may
-    /// deallocate other memory owned by `object`.  Also note that this
-    /// function is a no-op if the `TARGET_TYPE` has the trivial destructor
-    /// trait.  Further note that the specified `allocator` is not used.
+    /// @DEPRECATED: Use `bslma::DestructionUtil::destroy` without an
+    /// allocator argument instead.
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
 
-    /// **DEPRECATED**: Use `bslma::DestructionUtil::destroy` instead.
+    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`, as
+    /// if by calling the `TARGET_TYPE` destructor, but do not deallocate the
+    /// memory occupied by `object`.  Note that the destructor may deallocate
+    /// other memory owned by `object`.  Also note that this function is a
+    /// no-op if the `TARGET_TYPE` has the trivial destructor trait.
     ///
-    /// Destroy the specified `object` of the parameterized `TARGET_TYPE`,
-    /// as if by calling the `TARGET_TYPE` destructor, but do not deallocate
-    /// the memory occupied by `object`.  Note that the destructor may
-    /// deallocate other memory owned by `object`.  Also note that this
-    /// function is a no-op if the `TARGET_TYPE` has the trivial destructor
-    /// trait.
+    /// @DEPRECATED: Use `bslma::DestructionUtil::destroy` instead.
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

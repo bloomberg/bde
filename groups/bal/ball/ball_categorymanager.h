@@ -452,7 +452,7 @@ class CategoryManager {
 /// the categories in the registry of a category manager.  The order of the
 /// iteration is undefined.
 ///
-/// **DEPRECATED**: Use the `CategoryManager::visitCategories` accessor
+/// @DEPRECATED: Use the `CategoryManager::visitCategories` accessor
 /// instead.
 class CategoryManagerIter {
 
@@ -507,7 +507,7 @@ class CategoryManagerIter {
 /// to the categories in the registry of a category manager.  The order of
 /// the iteration is undefined.
 ///
-/// **DEPRECATED**: Use the `CategoryManager::visitCategories` manipulator
+/// @DEPRECATED: Use the `CategoryManager::visitCategories` manipulator
 /// instead.
 class CategoryManagerManip {
 

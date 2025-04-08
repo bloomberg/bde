@@ -1327,10 +1327,10 @@ class PackedCalendar {
 
     // DEPRECATED METHODS
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22

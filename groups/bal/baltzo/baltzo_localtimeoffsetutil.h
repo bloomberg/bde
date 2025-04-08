@@ -182,8 +182,6 @@ struct LocalTimeOffsetUtil {
 
     // DEPRECATED CLASS METHODS
 
-    /// **DEPRECATED**: Use `localTimeOffset` instead.
-    ///
     /// Efficiently load to the specified `result` the offset of the local
     /// time from UTC for the specified `utcDatetime`.  This function is
     /// thread-safe.  The behavior is undefined unless the local time zone
@@ -191,6 +189,8 @@ struct LocalTimeOffsetUtil {
     /// This method *is* thread-safe.  Note that this function is no longer
     /// used as a callback function.  It exisis for backwards compatibility
     /// with code that called it directly, and is deprecated.
+    ///
+    /// @DEPRECATED: Use `localTimeOffset` instead.
     static void loadLocalTimeOffset(int                   *result,
                                     const bdlt::Datetime&  utcDatetime);
 

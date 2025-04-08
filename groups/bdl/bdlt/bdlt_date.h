@@ -234,13 +234,12 @@ namespace bdlt {
                                   // ==========
 
 /// This class implements a complex-constrained, value-semantic type for
-/// representing dates according to the Unix (POSIX) calendar.  Each object
-/// of this class *always* represents a *valid* date value in the range
-/// `[0001JAN01 .. 9999DEC31]` inclusive.  The interface of this class
-/// supports `Date` values expressed in terms of either year/month/day (the
-/// canonical representation) or year/day-of-year (an alternate
-/// representation).  See {Valid Date Values and Their Representations} for
-/// details.
+/// representing dates according to the Unix (POSIX) calendar.  Each object of
+/// this class *always* represents a *valid* date value in the range
+/// `[0001JAN01 .. 9999DEC31]` inclusive.  The interface of this class supports
+/// `Date` values expressed in terms of either year/month/day (the canonical
+/// representation) or year/day-of-year (an alternate representation).  See
+/// [](#Valid Date Values and Their Representations) for details.
 class Date {
 
     // DATA
@@ -264,13 +263,13 @@ class Date {
     // PRIVATE CLASS METHODS
 
     /// Return `true` if the specified `serialDate` represents a valid value
-    /// for a `Date` object, and `false` otherwise.  `serialDate` represents
-    /// a valid `Date` value if it corresponds to a valid date as defined by
-    /// the Unix (POSIX) calendar confined to the year range `[1 .. 9999]`
+    /// for a `Date` object, and `false` otherwise.  `serialDate` represents a
+    /// valid `Date` value if it corresponds to a valid date as defined by the
+    /// Unix (POSIX) calendar confined to the year range `[1 .. 9999]`
     /// inclusive, where serial date 1 corresponds to `0001/01/01` and each
-    /// successive day has a serial date value that is 1 greater than that
-    /// of the previous day.  See {Valid Date Values and Their
-    /// Representations} for details.
+    /// successive day has a serial date value that is 1 greater than that of
+    /// the previous day.  See
+    /// [](#Valid Date Values and Their Representations} for details.
     static bool isValidSerial(int serialDate);
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
@@ -280,30 +279,31 @@ class Date {
 #endif
 
 #ifdef BDE_USE_PROLEPTIC_DATES
-    // Return the serial date in the POSIX calendar having the same
-    // year-month-day representation as the specified `serialDate`
-    // represents in the proleptic Gregorian calendar.  The behavior is
-    // undefined if `Date` is using a proleptic Gregorian representation
-    // and `serialDate` has a year-month-day representation earlier than
-    // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
-    // with Legacy POSIX-Based Date} has further details.
+    /// Return the serial date in the POSIX calendar having the same
+    /// year-month-day representation as the specified `serialDate`
+    /// represents in the proleptic Gregorian calendar.  The behavior is
+    /// undefined if `Date` is using a proleptic Gregorian representation
+    /// and `serialDate` has a year-month-day representation earlier than
+    /// 1752/09/14 that is not 0001/01/01.  Note that
+    /// [](#BDEX Compatibility with Legacy POSIX-Based Date) has further
+    /// details.
     static int convertProlepticDateToPosix(int serialDate);
 
-    // Return the serial date in the proleptic Gregorian calendar having
-    // the same year-month-day representation as the specified `serialDate`
-    // represents in the POSIX calendar.  The behavior is undefined if
-    // `Date` is using a proleptic Gregorian representation and
-    // `serialDate` has a year-month-day representation earlier than
-    // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
-    // with Legacy POSIX-Based Date} has further details.
+    /// Return the serial date in the proleptic Gregorian calendar having
+    /// the same year-month-day representation as the specified `serialDate`
+    /// represents in the POSIX calendar.  The behavior is undefined if
+    /// `Date` is using a proleptic Gregorian representation and
+    /// `serialDate` has a year-month-day representation earlier than
+    /// 1752/09/14 that is not 0001/01/01.  Note that
+    /// [](#BDEX Compatibility with Legacy POSIX-Based Date) has further details.
     static int convertPosixDateToProleptic(int serialDate);
 #endif
 
     // PRIVATE CREATORS
 
     /// Create a date initialized with the value indicated by the specified
-    /// `serialDate`.  The behavior is undefined unless `serialDate`
-    /// represents a valid `Date` value.
+    /// `serialDate`.  The behavior is undefined unless `serialDate` represents
+    /// a valid `Date` value.
     explicit Date(int serialDate);
 
   public:
@@ -505,43 +505,41 @@ class Date {
 
     // DEPRECATED METHODS
 
-    /// **DEPRECATED**: Use `isValidYearDay` instead.
-    ///
     /// Return `true` if the specified `year` and `dayOfYear` represent a
     /// valid value for a `Date` object, and `false` otherwise.  `year` and
     /// `dayOfYear` represent a valid `Date` value if they correspond to a
     /// valid date as defined by the Unix (POSIX) calendar confined to the
     /// year range `[1 .. 9999]` inclusive.  See {Valid Date Values and
     /// Their Representations} for details.
+    ///
+    /// @DEPRECATED: Use `isValidYearDay` instead.
     static bool isValid(int year, int dayOfYear);
 
-    /// **DEPRECATED**: Use `isValidYearMonthDay` instead.
-    ///
     /// Return `true` if the specified `year`, `month`, and `day` represent
     /// a valid value for a `Date` object, and `false` otherwise.  `year`,
     /// `month`, and `day` represent a valid `Date` value if they correspond
     /// to a valid date as defined by the Unix (POSIX) calendar confined to
     /// the year range `[1 .. 9999]` inclusive.  See {Valid Date Values and
     /// Their Representations} for details.
+    ///
+    /// @DEPRECATED: Use `isValidYearMonthDay` instead.
     static bool isValid(int year, int month, int day);
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedVersion();
 
-    /// **DEPRECATED**: Use `print` instead.
-    ///
     /// Write the value of this object to the specified output `stream` in a
     /// single-line format, and return a reference to `stream`.  If `stream`
     /// is not valid on entry, this operation has no effect.  Note that this
@@ -550,22 +548,24 @@ class Date {
     /// ```
     /// print(stream, 0, -1);
     /// ```
+    ///
+    /// @DEPRECATED: Use `print` instead.
     bsl::ostream& streamOut(bsl::ostream& stream) const;
 
-    /// **DEPRECATED**: Use `setYearDayIfValid` instead.
-    ///
     /// Set this object to have the value represented by the specified
     /// `year` and `dayOfYear` if they comprise a valid `Date` value (see
     /// `isValidYearDay`).  Return 0 on success, and a non-zero value (with
     /// no effect) otherwise.
+    ///
+    /// @DEPRECATED: Use `setYearDayIfValid` instead.
     int validateAndSetYearDay(int year, int dayOfYear);
 
-    /// **DEPRECATED**: Use `setYearMonthDayIfValid` instead.
-    ///
     /// Set this object to have the value represented by the specified
     /// `year`, `month`, and `day` if they comprise a valid `Date` value
     /// (see `isValidYearMonthDay`).  Return 0 on success, and a non-zero
     /// value (with no effect) otherwise.
+    ///
+    /// @DEPRECATED: Use `setYearMonthDayIfValid` instead.
     int validateAndSetYearMonthDay(int year, int month, int day);
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22

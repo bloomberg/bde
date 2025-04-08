@@ -19,11 +19,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Attributes
 ///----------
-// ```
-// Name                Type         Default
-// ------------------  -----------  -------
-// data                int          0
-// ```
+//
+// | Name   | Type | Default |
+// | ------ | ---- | ------- |
+// | data   | int  | 0       |
+//
 // * `data`: representation of the class value
 //
 ///Usage
@@ -37,9 +37,9 @@ BSLS_IDENT("$Id: $")
 // First, we create a function template `printTypeTraits` with a parameterized
 // `TYPE`:
 // ```
+// /// Prints the traits of the parameterized `TYPE` to the console.
 // template <class TYPE>
 // void printTypeTraits()
-//     // Prints the traits of the parameterized 'TYPE' to the console.
 // {
 //     if (bslma::UsesBslmaAllocator<TYPE>::value) {
 //         printf("Type defines bslma::UsesBslmaAllocator.\n");
@@ -84,11 +84,9 @@ namespace bsltf {
                         // ==================================
 
 /// This unconstrained (value-semantic) attribute class that is
-/// bitwise-moveable, uses a `bslma::Allocator` to supply memory, and
-/// defines the type traits `bslma::UsesBslmaAllocator` and
-/// `bslmf::IsBitwiseMoveable`.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.
+/// bitwise-moveable, uses a `bslma::Allocator` to supply memory, and defines
+/// the type traits `bslma::UsesBslmaAllocator` and `bslmf::IsBitwiseMoveable`.
+/// See the [](#Attributes) section for information on the class attributes.
 class AllocBitwiseMoveableTestType {
 
     // DATA
@@ -113,17 +111,17 @@ class AllocBitwiseMoveableTestType {
 
 
     /// Create a `AllocBitwiseMoveableTestType` object having the specified
-    /// `data` attribute value.  Optionally specify a `basicAllocator` used
-    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// `data` attribute value.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
     /// default allocator is used.
     explicit AllocBitwiseMoveableTestType(
                                          int               data,
                                          bslma::Allocator *basicAllocator = 0);
 
-    /// Create a `AllocBitwiseMoveableTestType` object having the same value
-    /// as the specified `original` object.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// Create a `AllocBitwiseMoveableTestType` object having the same value as
+    /// the specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     AllocBitwiseMoveableTestType(
                      const AllocBitwiseMoveableTestType&   original,
                      bslma::Allocator                     *basicAllocator = 0);
@@ -154,16 +152,15 @@ class AllocBitwiseMoveableTestType {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `AllocBitwiseMoveableTestType`
-/// objects have the same if their `data` attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `AllocBitwiseMoveableTestType` objects have the
+/// same if their `data` attributes are the same.
 bool operator==(const AllocBitwiseMoveableTestType& lhs,
                 const AllocBitwiseMoveableTestType& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `AllocBitwiseMoveableTestType`
-/// objects do not have the same value if their `data` attributes are not
-/// the same.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `AllocBitwiseMoveableTestType` objects
+/// do not have the same value if their `data` attributes are not the same.
 bool operator!=(const AllocBitwiseMoveableTestType& lhs,
                 const AllocBitwiseMoveableTestType& rhs);
 

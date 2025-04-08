@@ -7,7 +7,7 @@
 //@CLASSES:
 //  bdld::DatumMaker: a mechanism for easily creating `bdld::Datum` objects
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bdld_datum
 //
 //@DESCRIPTION: This component defines a concrete mechanism, `DatumMaker` that
 // allows `bdld::Datum` objects to be created with minimal syntax.
@@ -2322,9 +2322,9 @@ private:
 
     // ACCESSORS
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return `get_allocator().mechanism()`.
+    ///
+    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
     /// Return the allocator used by this object to supply memory.  Note

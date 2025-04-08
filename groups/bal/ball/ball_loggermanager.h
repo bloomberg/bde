@@ -1136,7 +1136,7 @@ class Logger {
     /// logger.  Note that the returned buffer is intended to be used *only*
     /// for formatting log messages immediately before calling `logMessage`.
     ///
-    /// **DEPRECATED**: Use `obtainMessageBuffer` instead.  Do *not* use this
+    /// @DEPRECATED: Use `obtainMessageBuffer` instead.  Do *not* use this
     /// method in multi-threaded code.
     char *messageBuffer();
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -1405,7 +1405,7 @@ class LoggerManager {
     /// method does *not* create the singleton logger manager used by the
     /// macros of the BALL logging framework.
     ///
-    /// **DEPRECATED**: Use the `createLoggerManager` method that does not
+    /// @DEPRECATED: Use the `createLoggerManager` method that does not
     /// take a *raw* pointer to an `observer`, together with the
     /// `registerObserver` method (which takes a *shared* pointer to an
     /// `observer`), instead.
@@ -1449,7 +1449,7 @@ class LoggerManager {
     /// singleton already exists.  The behavior is undefined if `observer`
     /// is 0, goes out of scope, or is otherwise destroyed.
     ///
-    /// **DEPRECATED**: Use the `initSingleton` method that does not take a
+    /// @DEPRECATED: Use the `initSingleton` method that does not take a
     /// *raw* pointer to an `observer`, together with the `registerObserver`
     /// method (which takes a *shared* pointer to an `observer`), instead.
     static LoggerManager& initSingleton(
@@ -1582,7 +1582,7 @@ class LoggerManager {
     /// `observer` is *not* transferred, and hence, will *not* be destroyed
     /// (or otherwise affected) after the logger is deallocated.
     ///
-    /// **DEPRECATED**: Use the `allocateLogger` method that does not take a
+    /// @DEPRECATED: Use the `allocateLogger` method that does not take a
     /// *raw* pointer to an `observer`, together with the `registerObserver`
     /// method (which takes a *shared* pointer to an `observer`), instead.
     Logger *allocateLogger(RecordBuffer *buffer,
@@ -1754,7 +1754,7 @@ class LoggerManager {
     /// Return the address of the modifiable legacy observer registered with
     /// this logger manager.
     ///
-    /// **DEPRECATED**: Use `findObserver` instead.
+    /// @DEPRECATED: Use `findObserver` instead.
     Observer *observer();
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -1951,7 +1951,7 @@ class LoggerManager {
     /// Return the address of the non-modifiable observer registered with
     /// this logger manager.
     ///
-    /// **DEPRECATED**: Use `findObserver` instead.
+    /// @DEPRECATED: Use `findObserver` instead.
     const Observer *observer() const;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -2037,7 +2037,7 @@ class LoggerManagerScopedGuard {
     /// destroyed.  Note that on destruction, this scoped guard will destroy
     /// the logger manager singleton, if the singleton exists at that time.
     ///
-    /// **DEPRECATED**: Use the `LoggerManagerScopedGuard` constructor that
+    /// @DEPRECATED: Use the `LoggerManagerScopedGuard` constructor that
     /// does not take a *raw* pointer to an `observer`, together with the
     /// `registerObserver` method (which takes a *shared* pointer to an
     /// `observer`), instead.
@@ -2074,7 +2074,7 @@ class LoggerManagerScopedGuard {
 /// the categories in the registry of a logger manager's category manager.
 /// The order of the iteration is undefined.
 ///
-/// **DEPRECATED**: Use the `LoggerManager::visitCategories` accessor instead.
+/// @DEPRECATED: Use the `LoggerManager::visitCategories` accessor instead.
 class LoggerManagerCategoryIter {
 
     // DATA
@@ -2127,8 +2127,7 @@ class LoggerManagerCategoryIter {
 /// to the categories in the registry of a logger manager's category
 /// manager.  The order of the iteration is undefined.
 ///
-/// **DEPRECATED**: Use the `LoggerManager::visitCategories` manipulator
-/// instead.
+/// @DEPRECATED: Use the `LoggerManager::visitCategories` manipulator instead.
 class LoggerManagerCategoryManip {
 
     // DATA

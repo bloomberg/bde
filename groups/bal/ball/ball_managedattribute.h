@@ -227,7 +227,7 @@ class ManagedAttribute {
     /// should not be used to get the attribute name if the name string
     /// contains embedded zeros.
     ///
-    /// **DEPRECATED**: Use `key()` instead.
+    /// @DEPRECATED: Use `key()` instead.
     const char *name() const;
 
     /// Return a `const` reference to the attribute value of this object.

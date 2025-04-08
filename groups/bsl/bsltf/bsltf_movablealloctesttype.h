@@ -194,12 +194,14 @@ class MovableAllocTestType {
     /// Return the value of the `data` attribute of this object.
     int data() const;
 
-    /// **DEPRECATED** Use `CopyMoveState::isMovedInto` instead.
     /// Return the move state of this object as target of a move operation.
+    ///
+    /// @DEPRECATED: Use `CopyMoveState::isMovedInto` instead.
     MoveState::Enum movedInto() const;
 
-    /// **DEPRECATED** Use `CopyMoveState::isMovedFrom` instead.
     /// Return the move state of this object as source of a move operation.
+    ///
+    /// @DEPRECATED: Use `CopyMoveState::isMovedFrom` instead.
     MoveState::Enum movedFrom() const;
 
                                   // Aspects

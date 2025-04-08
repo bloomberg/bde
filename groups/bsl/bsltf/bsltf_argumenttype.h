@@ -280,7 +280,6 @@ class ArgumentType {
     /// Return the copy/move state of this object.
     CopyMoveState::Enum copyMoveState() const;
 
-    /// **DEPRECATED**: Use `CopyMoveState::isMovedFrom` instead.
     /// Return `MoveState::e_MOVED` if this object was the source of a move
     /// construction or move-assignment operation, `MoveState::e_NOT_MOVED`
     /// if it was not the source of a move operation, and
@@ -289,9 +288,10 @@ class ArgumentType {
     /// object was moved from and `false` otherwise.  Note also that the
     /// value returned by this accessor may change if this object is
     /// subsequently the target of an assignment.
+    ///
+    /// @DEPRECATED: Use `CopyMoveState::isMovedFrom` instead.
     MoveState::Enum movedFrom() const;
 
-    /// **DEPRECATED**: Use `CopyMoveState::isMovedInto` instead.
     /// Return `MoveState::e_MOVED` if this object was the target of a move
     /// construction or move-assignment operation, `MoveState::e_NOT_MOVED`
     /// if it was not the target of a move operation, and
@@ -300,6 +300,8 @@ class ArgumentType {
     /// object was moved into and `false` otherwise.  Note that the value
     /// returned by this accessor may change if this object is subsequently
     /// the source of a move operation or the target of an assignment.
+    ///
+    /// @DEPRECATED: Use `CopyMoveState::isMovedInto` instead.
     MoveState::Enum movedInto() const;
 
     /// Return the copy/move state of the specified `obj`.  This function is

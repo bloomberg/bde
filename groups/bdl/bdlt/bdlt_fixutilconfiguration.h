@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Attributes
 ///----------
-// ```
-//            Name             Type   Default
-// -------------------------   ----   -------
-// fractionalSecondPrecision   int     3
-// useZAbbreviationForUtc      bool    false
-// ```
+//
+// | Name                      | Type | Default |
+// | ------------------------- | ---- | ------- |
+// | fractionalSecondPrecision | int  | 3       |
+// | useZAbbreviationForUtc    | bool | false   |
+//
 // * `fractionalSecondPrecision`: number of digits used to represent
 //   fractional seconds; must be in the range `0 .. 6`.
 // * `useZAbbreviationForUtc`: `true` if `Z` should be used for the timezone
@@ -152,9 +152,8 @@ namespace bdlt {
 /// This unconstrained (value-semantic) attribute class characterizes how to
 /// configure certain behavior in `FixUtil` functions.  Currently, only the
 /// `generate` and `generateRaw` methods of that utility are affected by
-/// `FixUtilConfiguration` settings.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.
+/// `FixUtilConfiguration` settings.  See the [](#Attributes) section for
+/// information on the class attributes.
 class FixUtilConfiguration {
 
   private:

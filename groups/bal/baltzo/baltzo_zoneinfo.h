@@ -508,11 +508,11 @@ class Zoneinfo {
 
     // ACCESSORS
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return the allocator used by this object to supply memory.  Note
     /// that if no allocator was supplied at construction the currently
     /// installed default allocator is used.
+    ///
+    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
     /// Return an iterator providing non-modifiable access to the transition

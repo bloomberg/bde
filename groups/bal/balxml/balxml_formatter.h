@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // "          x22    quote          &quot;
 // &          x26    ampersand      &amp;
 // '          x27    apostrophe     &apos;
-// <          x3C    less than      &lt;  
+// <          x3C    less than      &lt;
 // >          x3E    greater than   &gt;
 // ```
 // The following methods:
@@ -494,7 +494,7 @@ class Formatter {
 
     static const WhitespaceType BAEXML_NEWLINE_INDENT =
         FormatterWhitespaceType::e_NEWLINE_INDENT;
-    // !DEPRECATED!: Use 'e_NEWLINE_INDENT' instead.
+    // @DEPRECATED: Use 'e_NEWLINE_INDENT' instead.
 
 #ifdef BDE_VERIFY
 #pragma bde_verify pop
@@ -586,13 +586,13 @@ class Formatter {
     /// `>` to the opened tag.
     void addBlankLine();
 
-    /// [**DEPRECATED**] Use `addValidComment` instead.
-    ///
     /// Write the specified `comment` into the stream.  The optionally
     /// specified `forceNewline`, if true, forces to start a new line solely
     /// for the comment if it's not on a new line already.  Otherwise,
     /// comments continue on current line.  If an element-opening tag is not
     /// completed with a `>`, `addComment` will add `>`.
+    ///
+    /// @DEPRECATED: Use `addValidComment` instead.
     void addComment(const bsl::string_view& comment, bool forceNewline = true);
 
     /// Add the specified `value` as the data content, where `value` can be

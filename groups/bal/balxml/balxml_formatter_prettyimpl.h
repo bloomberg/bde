@@ -457,8 +457,6 @@ struct Formatter_PrettyImplUtil {
     /// tag.
     static bsl::ostream& addBlankLine(bsl::ostream& stream, State *state);
 
-    /// **DEPRECATED**: Use `addValidComment` instead.
-    ///
     /// Write the specified `comment` into the specified `stream`, with
     /// formatting depending on the specified `state`, and update the
     /// `state` accordingly.  Return the `stream`.  The optionally specified
@@ -466,6 +464,8 @@ struct Formatter_PrettyImplUtil {
     /// comment if it's not on a new line already.  Otherwise, comments
     /// continue on current line.  If an element-opening tag is not
     /// completed with a `>`, `addComment` will add `>`.
+    ///
+    /// @DEPRECATED: Use `addValidComment` instead.
     static bsl::ostream& addComment(
                                  bsl::ostream&            stream,
                                  State                   *state,

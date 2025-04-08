@@ -903,35 +903,35 @@ class Datetime {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedVersion();
 
-    /// **DEPRECATED**: Use `print` instead.
-    ///
     /// Format this datetime to the specified output `stream` and return a
     /// reference to the modifiable `stream`.
+    ///
+    /// @DEPRECATED: Use `print` instead.
     bsl::ostream& streamOut(bsl::ostream& stream) const;
 
-    /// **DEPRECATED**: Use `setDatetimeIfValid` instead.
-    ///
     /// Set the "date" part of this object's value to the specified `year`,
     /// `month`, and `day`, and the "time" part to the optionally specified
     /// `hour`, `minute`, `second`, and `millisecond`, if they represent a
     /// valid `Datetime` value, with trailing fields that are not specified
     /// set to 0.  Return 0 on success, and a non-zero value (with no
     /// effect) otherwise.
+    ///
+    /// @DEPRECATED: Use `setDatetimeIfValid` instead.
     int validateAndSetDatetime(int year,
                                int month,
                                int day,

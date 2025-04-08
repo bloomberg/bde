@@ -18,20 +18,20 @@ BSLS_IDENT("$Id$")
 //
 ///Attributes
 ///----------
-// ```
-// Name        Type      Default          Simple Constraints
-// ---------   ------    ---------------  ------------------
-// style       Style     e_NATURAL        none
-// precision   int       0                >= -1
-// sign        Sign      e_NEGATIVE_ONLY  none
-// infinity    string    "inf"            none
-// nan         string    "nan"            none
-// snan        string    "snan"           none
-// point       char      '.'              none
-// exponent    char      'e'              none
-// showpoint   bool      false            none
-// expwidth    int       2                >= 1, <= 4
-// ```
+//
+// | Name      | Type   | Default         | Simple Constraints |
+// | --------- | ------ | --------------- | ------------------ |
+// | style     | Style  | e_NATURAL       | none               |
+// | precision | int    | 0               | >= -1              |
+// | sign      | Sign   | e_NEGATIVE_ONLY | none               |
+// | infinity  | string | "inf"           | none               |
+// | nan       | string | "nan"           | none               |
+// | snan      | string | "snan"          | none               |
+// | point     | char   | '.'             | none               |
+// | exponent  | char   | 'e'             | none               |
+// | showpoint | bool   | false           | none               |
+// | expwidth  | int    | 2               | >= 1, <= 4         |
+//
 // * `style`: control how the decimal number is written.  If `style` is
 //   `e_SCIENTIFIC`, the number is written as its sign, then a single digit,
 //   then the decimal point, then `precision` digits, then the `exponent`
@@ -153,9 +153,8 @@ class DecimalFormatConfig {
     /// to force at least that many digits to be written for an exponent, up
     /// to the number of digits in the largest supported exponent.  If it is
     /// not specified, 2 is used.  The behavior is undefined unless
-    /// `expWidth` is 1, 2, 3, or 4.  See the Attributes section under
-    /// @DESCRIPTION in the component-level documentation for information on
-    /// the class attributes.
+    /// `expWidth` is 1, 2, 3, or 4.  See the [](#Attributes) section for
+    /// information on the class attributes.
     explicit
     DecimalFormatConfig(int         precision,
                         Style       style     = e_NATURAL,

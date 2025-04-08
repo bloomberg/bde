@@ -66,11 +66,11 @@ BSLS_IDENT("$Id$")
 // array of security prices, and returns that sum as a decimal floating point
 // value:
 // ```
+// /// Return a Decimal Floating Point number representing the arithmetic
+// /// total of the values specified by `prices` and `numPrices`.
 // bdldfp::DecimalImpUtil::ValueType64
 // totalSecurities(bdldfp::DecimalImpUtil::ValueType64 *prices,
 //                 int                                  numPrices)
-//     // Return a Decimal Floating Point number representing the arithmetic
-//     // total of the values specified by 'prices' and 'numPrices'.
 // {
 // ```
 // Then, we create a local variable to hold the intermediate sum, and set it to
@@ -359,14 +359,6 @@ class DecimalImpUtil {
 
                         // compose and decompose
 
-    //static ValueType32  composeDecimal32 (DecimalTriple triple);
-    //static ValueType64  composeDecimal64 (DecimalTriple triple);
-    //static ValueType128 composeDecimal128(DecimalTriple triple);
-        // Return a 'ValueTypeXX' number having the value as specified by the
-        // salient attributes of the specified 'triple'.  The behavior is
-        // undefined if the 'significand' has too many decimal digits for
-        // 'ValueType', or the 'exponent' is too large for 'ValueType'
-
     /// Decompose the specified decimal `value` into the components of
     /// the decimal floating-point format and load the result into the
     /// specified `sign`, `significand` and `exponent` such that
@@ -422,10 +414,9 @@ class DecimalImpUtil {
     /// value indicating the necessary size.  This function does not write
     /// a terminating null character.  If `length` is not positive, `buffer`
     /// is permitted to be null.  This can be used to determine the
-    /// necessary buffer size.  See the Attributes section under
-    /// @DESCRIPTION in the component-level documentation for
-    /// `bdldfp::DecimalFormatConfig` component for information on the
-    /// configuration attributes.
+    /// necessary buffer size.  See the
+    /// [](bdldfp_decimalformatconfig#Attributes) section for information on
+    /// the configuration attributes.
     ///
     /// Note that for some combinations of `value` and precision provided by
     /// `cfg` object, the number being written must first be rounded to

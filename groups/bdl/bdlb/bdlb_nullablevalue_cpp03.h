@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Mar  5 13:23:05 2025
+// Generated on Tue Apr  8 14:33:21 2025
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -555,11 +555,11 @@ class NullableValue : public bsl::optional<TYPE> {
     #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
     BSLS_DEPRECATE
     #endif
-    /// **DEPRECATED**: Use `addressOr` instead.
-    ///
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `value` otherwise.
+    ///
+    /// @DEPRECATED: Use `addressOr` instead.
     const TYPE *valueOr(const TYPE *value) const;
 
     /// Return an address providing non-modifiable access to the underlying

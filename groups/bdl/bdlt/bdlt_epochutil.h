@@ -299,23 +299,23 @@ struct EpochUtil {
 
     // DEPRECATED CLASS METHODS
 
-    /// **DEPRECATED**: Use `convertToTimeInterval(datetime)` instead.
-    ///
     /// If `datetime - epoch() >= DatetimeInterval()`, load into the
     /// specified `result` the relative time converted to a
     /// `bsls::TimeInterval`, computed as the difference between the
     /// specified absolute `datetime` and the epoch, and return 0.
     /// Otherwise, return a non-zero value (with no effect on `result`).
+    ///
+    /// @DEPRECATED: Use `convertToTimeInterval(datetime)` instead.
     static int convertToTimeInterval(bsls::TimeInterval *result,
                                      const Datetime&     datetime);
 
-    /// **DEPRECATED**: Use `convertToDatetimeInterval(datetime)` instead.
-    ///
     /// If `datetime - epoch() >= DatetimeInterval()`, load into the
     /// specified `result` the relative time converted to a
     /// `DatetimeInterval`, computed as the difference between the specified
     /// absolute `datetime` and the epoch, and return 0.  Otherwise, return
     /// a non-zero value (with no effect on `result`).
+    ///
+    /// @DEPRECATED: Use `convertToDatetimeInterval(datetime)` instead.
     static int convertToDatetimeInterval(DatetimeInterval *result,
                                          const Datetime&   datetime);
 };

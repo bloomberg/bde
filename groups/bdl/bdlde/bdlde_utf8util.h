@@ -518,11 +518,11 @@ struct Utf8Util {
                              const bsl::string_view&   string,
                              IntPtr                    numCodePoints);
 
-    /// **DEPRECATED**: Use `appendUtf8CodePoint` instead.
-    ///
     /// Append the UTF-8 encoding of the specified Unicode `codePoint` to
     /// the specified `output` string.  Return 0 on success, and a non-zero
     /// value otherwise.
+    ///
+    /// @DEPRECATED: Use `appendUtf8CodePoint` instead.
     static int appendUtf8Character(bsl::string  *output,
                                    unsigned int  codePoint);
 
@@ -544,14 +544,14 @@ struct Utf8Util {
     /// encoded character.
     static int codePointValue(const char *codePoint);
 
-    /// **DEPRECATED**: Use `numBytesInCodePoint` instead.
-    ///
     /// Return the length (in bytes) of the UTF-8-encoded code point
     /// beginning at the specified `codePoint`.  The behavior is undefined
     /// unless `codePoint` is the address of the first byte of a valid UTF-8
     /// encoded character.  Note that the value returned will be in the
     /// range `[1 .. 4]`.  Also note that 1 is returned if `0 == *codePoint`
     /// since '\0' is a valid 1-byte encoding.
+    ///
+    /// @DEPRECATED: Use `numBytesInCodePoint` instead.
     static int getByteSize(const char *codePoint);
 
     /// Return the length (in bytes) of the UTF-8-encoded code point
@@ -642,14 +642,14 @@ struct Utf8Util {
                                  const char *codePoint,
                                  size_type   numBytes);
 
-    /// **DEPRECATED**: Use `numBytesRaw` instead.
-    ///
     /// Return the length (in bytes) of the specified `numCodePoints` UTF-8
     /// encodings in the specified `string`, or a value less than 0 if
     /// `string` contains less than `numCodePoints` encodings.  The behavior
     /// is undefined unless `string` refers to valid UTF-8.  Note that
     /// `string` may contain more than `numCodePoints` encodings in which
     /// case the trailing ones are ignored.
+    ///
+    /// @DEPRECATED: Use `numBytesRaw` instead.
     static IntPtr numBytesIfValid(const bsl::string_view& string,
                                   IntPtr                  numCodePoints);
 
@@ -662,27 +662,25 @@ struct Utf8Util {
     static IntPtr numBytesRaw(const bsl::string_view& string,
                               IntPtr                  numCodePoints);
 
-    /// **DEPRECATED**: Use `numCodePointsRaw` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`.
     /// `string` is necessarily null-terminated, so it cannot contain
     /// embedded null bytes.  The behavior is undefined unless `string`
     /// contains valid UTF-8.  Note that `string` may contain less than
     /// `bsl::strlen(string)` Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsRaw` instead.
     static IntPtr numCharacters(const char *string);
 
-    /// **DEPRECATED**: Use `numCodePointsRaw` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`
     /// having the specified `length` (in bytes).  `string` need not be
     /// null-terminated and can contain embedded null bytes, and `string`
     /// may be null if `0 == length` (see {Empty Input Strings}).  The
     /// behavior is undefined unless `string` contains valid UTF-8.  Note
     /// that `string` may contain less than `length` Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsRaw` instead.
     static IntPtr numCharacters(const char *string, size_type length);
 
-    /// **DEPRECATED**: Use `numCodePointsIfValid` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`
     /// if it contains valid UTF-8, with no effect on the specified
     /// `invalidString`.  Otherwise, return a negative value and load into
@@ -690,11 +688,11 @@ struct Utf8Util {
     /// code point traversed.  `string` is necessarily null-terminated, so
     /// it cannot contain embedded null bytes.  Note that `string` may
     /// contain less than `bsl::strlen(string)` Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsIfValid` instead.
     static IntPtr numCharactersIfValid(const char **invalidString,
                                        const char  *string);
 
-    /// **DEPRECATED**: Use `numCodePointsIfValid` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`
     /// having the specified `length` (in bytes) if `string` contains valid
     /// UTF-8, with no effect on the specified `invalidString`.  Otherwise,
@@ -704,27 +702,29 @@ struct Utf8Util {
     /// bytes, and `string` may be null if `0 == length` (see {Empty Input
     /// Strings}).  Note that `string` may contain less than `length`
     /// Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsIfValid` instead.
     static IntPtr numCharactersIfValid(const char **invalidString,
                                        const char  *string,
                                        size_type    length);
 
-    /// **DEPRECATED**: Use `numCodePointsRaw` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`.
     /// `string` is necessarily null-terminated, so it cannot contain
     /// embedded null bytes.  The behavior is undefined unless `string`
     /// contains valid UTF-8.  Note that `string` may contain less than
     /// `bsl::strlen(string)` Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsRaw` instead.
     static IntPtr numCharactersRaw(const char *string);
 
-    /// **DEPRECATED**: Use `numCodePointsRaw` instead.
-    ///
     /// Return the number of Unicode code points in the specified `string`
     /// having the specified `length` (in bytes).  `string` need not be
     /// null-terminated and can contain embedded null bytes, and `string`
     /// may be null if `0 == length` (see {Empty Input Strings}).  The
     /// behavior is undefined `string` contains valid UTF-8.  Note that
     /// `string` may contain less than `length` Unicode code points.
+    ///
+    /// @DEPRECATED: Use `numCodePointsRaw` instead.
     static IntPtr numCharactersRaw(const char *string, size_type length);
 
     /// Return the number of Unicode code points in the specified `string`

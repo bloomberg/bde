@@ -213,7 +213,7 @@ class Rule {
     /// already exists in this object.
     int addAttribute(const ManagedAttribute& value);
 
-    /// **DEPRECATED**: Use `addAttribute` instead.
+    /// @DEPRECATED: Use `addAttribute` instead.
     int addPredicate(const ManagedAttribute& value);
 
     /// Remove the attribute having the specified `value` from this object.
@@ -221,13 +221,13 @@ class Rule {
     /// and 0 if no attribute having `value` exists in this object).
     int removeAttribute(const ManagedAttribute& value);
 
-    /// **DEPRECATED**: Use `removeAttribute` instead.
+    /// @DEPRECATED: Use `removeAttribute` instead.
     int removePredicate(const ManagedAttribute& value);
 
     /// Remove all attributes from this rule.
     void removeAll();
 
-    /// **DEPRECATED**: Use `removeAll` instead.
+    /// @DEPRECATED: Use `removeAll` instead.
     void removeAllPredicates();
 
     /// Set the threshold levels of this object to the specified
@@ -253,14 +253,14 @@ class Rule {
     /// Return the number of attributes managed by this object.
     int numAttributes() const;
 
-    /// **DEPRECATED**: Use `numAttributes` instead.
+    /// @DEPRECATED: Use `numAttributes` instead.
     int numPredicates() const;
 
     /// Return `true` if an attribute having specified `value` exists in
     /// this object, and `false` otherwise.
     bool hasAttribute(const ManagedAttribute& value) const;
 
-    /// **DEPRECATED**: Use `hasAttribute` instead.
+    /// @DEPRECATED: Use `hasAttribute` instead.
     bool hasPredicate(const Predicate& value) const;
 
     /// Return an iterator referring to the first member of the attribute set

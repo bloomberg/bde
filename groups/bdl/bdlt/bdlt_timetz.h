@@ -289,26 +289,26 @@ class TimeTz {
 
     // DEPRECATED
 
-    /// **DEPRECATED**: replaced by `utcTime`.
-    ///
     /// Return a `Time` object having the value of the UTC time represented
     /// by this object.  Note that the returned value is equal to
     /// `localTime() - offset()` minutes.
+    ///
+    /// @DEPRECATED: replaced by `utcTime`.
     Time gmtTime() const;
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
-    /// **DEPRECATED**: replaced by `setTimeTzIfValid`.
-    ///
     /// Set the local time and the time zone offset of this object to the
     /// specified `localTime` and `offset` values respectively if
     /// `localTime` and `offset` represent a valid `TimeTz` value.  Return 0
     /// on success, and a non-zero value with no effect on this object
     /// otherwise.
+    ///
+    /// @DEPRECATED: replaced by `setTimeTzIfValid`.
     int validateAndSetTimeTz(const Time& localTime, int offset);
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation

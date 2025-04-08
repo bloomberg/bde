@@ -278,7 +278,7 @@ class LocalTimePeriod {
 
     /// Return `get_allocator().mechanism()`.
     ///
-    /// @DEPRECATED Use `get_allocator()` instead.
+    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
     /// Return a reference providing non-modifiable access to the

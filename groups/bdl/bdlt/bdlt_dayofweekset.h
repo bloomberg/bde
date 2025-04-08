@@ -521,10 +521,10 @@ class DayOfWeekSet {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation

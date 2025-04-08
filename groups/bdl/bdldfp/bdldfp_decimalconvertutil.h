@@ -407,7 +407,7 @@ struct DecimalConvertUtil {
     static double decimal32ToDouble (Decimal32  decimal);
     static double decimal64ToDouble (Decimal64  decimal);
 
-    /// [**DEPRECATED**] Use `deciamalToDouble` instead.
+    /// @DEPRECATED: Use `deciamalToDouble` instead.
     static double decimal128ToDouble(Decimal128 decimal);
 
     /// Return a `double` object having the value closest to the value of
@@ -448,7 +448,7 @@ struct DecimalConvertUtil {
     static float decimal32ToFloat (Decimal32  decimal);
     static float decimal64ToFloat (Decimal64  decimal);
 
-    /// [**DEPRECATED**] Use `deciamalToFloat` instead.
+    /// @DEPRECATED: Use `deciamalToFloat` instead.
     static float decimal128ToFloat(Decimal128 decimal);
 
     /// Return a `float` object having the value closest to the value of the

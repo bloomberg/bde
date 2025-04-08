@@ -721,14 +721,14 @@ class Queue {
     /// Return a reference to the modifiable condition variable used by this
     /// queue to signal that the queue is not empty.
     ///
-    /// @DEPRECATED Use `notEmptyCondition` instead.
+    /// @DEPRECATED: Use `notEmptyCondition` instead.
     bslmt::Condition& condition();
 
     /// Return a reference to the modifiable condition variable used by this
     /// queue to signal that the queue is not full (i.e., has fewer items
     /// than its high-water mark).
     ///
-    /// @DEPRECATED Use `notFullCondition` instead.
+    /// @DEPRECATED: Use `notFullCondition` instead.
     bslmt::Condition& insertCondition();
 
     /// Return a reference to the modifiable mutex used by this queue to

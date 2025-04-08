@@ -187,7 +187,7 @@ class MultiplexObserver : public Observer {
     /// `context` by forwarding `record` and `context` to each of the
     /// observers registered with this multiplexing observer.
     ///
-    /// **DEPRECATED**: Use the alternative `publish` overload instead.
+    /// @DEPRECATED: Use the alternative `publish` overload instead.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 

@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace ball {
 
-/// **DEPRECATED**: Use `ball::ManagedAttributeSet` instead.
+/// @DEPRECATED: Use `ball::ManagedAttributeSet` instead.
 typedef ManagedAttributeSet PredicateSet;
 
 }  // close package namespace

@@ -205,21 +205,21 @@ class Observer {
     /// Process the specified log `record` having the specified publishing
     /// `context`.
     ///
-    /// **DEPRECATED**: Use the alternative `publish` overload instead.
+    /// @DEPRECATED: Use the alternative `publish` overload instead.
     virtual void publish(const Record& record, const Context& context);
 
     /// Process the specified log `record` having the specified publishing
-    /// `context`.  The exact definition of publish depends on the
-    /// implementing class, though the intention is that the log `record`
-    /// (whose publication has occurred according to `context`) be
-    /// distributed in a human or machine readable form.
+    /// `context`.  The exact definition of publish depends on the implementing
+    /// class, though the intention is that the log `record` (whose publication
+    /// has occurred according to `context`) be distributed in a human or
+    /// machine readable form.
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);
 
-    /// Discard any shared references to `Record` objects that were supplied
-    /// to the `publish` method, and are held by this observer.  Note that
-    /// this operation should be called if resources underlying the
-    /// previously provided shared pointers must be released.
+    /// Discard any shared references to `Record` objects that were supplied to
+    /// the `publish` method, and are held by this observer.  Note that this
+    /// operation should be called if resources underlying the previously
+    /// provided shared pointers must be released.
     virtual void releaseRecords();
 };
 

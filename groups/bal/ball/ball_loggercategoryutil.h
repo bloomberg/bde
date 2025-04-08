@@ -178,7 +178,7 @@ struct LoggerCategoryUtil {
     /// that this function has no effect on the threshold levels of
     /// categories added to the registry after it is called.
     ///
-    /// **DEPRECATED**: Use `setThresholdLevelsHierarchically` instead.
+    /// @DEPRECATED: Use `setThresholdLevelsHierarchically` instead.
     static int setThresholdLevels(LoggerManager *loggerManager,
                                   const char    *pattern,
                                   int            recordLevel,

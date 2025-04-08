@@ -566,7 +566,7 @@ class FileObserver : public Observer {
     /// file observer.  This method has no effect if
     /// rotation-on-time-interval is not enabled.
     ///
-    /// **DEPRECATED**: Use `disableTimeIntervalRotation` instead.
+    /// @DEPRECATED: Use `disableTimeIntervalRotation` instead.
     void disableLifetimeRotation();
 
     /// Disable log file rotation based on a periodic time interval for this
@@ -592,7 +592,7 @@ class FileObserver : public Observer {
     /// enabled, or if a format string other than the default one is in
     /// effect.
     ///
-    /// **DEPRECATED**: Use `setLogFormat` instead.
+    /// @DEPRECATED: Use `setLogFormat` instead.
     void disableUserFieldsLogging();
 
     /// Disable publishing of the timestamp attribute of records in local
@@ -637,7 +637,7 @@ class FileObserver : public Observer {
     /// and `logFilenamePattern` does not contain any `%`-escape sequences,
     /// this method behaves as if ".%T" is appended to `logFilenamePattern`.
     ///
-    /// **DEPRECATED**: Use `enableFileLogging(logFilenamePattern)` instead
+    /// @DEPRECATED: Use `enableFileLogging(logFilenamePattern)` instead
     /// (use the ".%T" pattern to replicate `true == appendTimestampFlag`
     /// behavior).
     int enableFileLogging(const char *logFilenamePattern,
@@ -657,7 +657,7 @@ class FileObserver : public Observer {
     /// already enabled, or if a format string other than the default one is
     /// in effect.
     ///
-    /// **DEPRECATED**: Use `setLogFormat` instead.
+    /// @DEPRECATED: Use `setLogFormat` instead.
     void enableUserFieldsLogging();
 
     /// Enable publishing of the timestamp attribute of records in local
@@ -672,7 +672,7 @@ class FileObserver : public Observer {
     /// if the severity of `record` is at least as severe as the value
     /// returned by `stdoutThreshold`.
     ///
-    /// **DEPRECATED**: Do not use.
+    /// @DEPRECATED: Do not use.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 
@@ -704,7 +704,7 @@ class FileObserver : public Observer {
     /// undefined unless `0 < timeInterval.totalMilliseconds()`.  This rule
     /// replaces any rotation-on-time-interval rule currently in effect.
     ///
-    /// **DEPRECATED**: Use `rotateOnTimeInterval` instead.
+    /// @DEPRECATED: Use `rotateOnTimeInterval` instead.
     void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
 
     /// Set this file observer to perform log file rotation when the size of
@@ -806,7 +806,7 @@ class FileObserver : public Observer {
     /// Return `true` if the logging of user-defined fields is enabled for
     /// this file observer, and `false` otherwise.
     ///
-    /// **DEPRECATED**: Do not use.
+    /// @DEPRECATED: Do not use.
     bool isUserFieldsLoggingEnabled() const;
 
     /// Return `true` if this file observer writes the timestamp attribute
@@ -827,7 +827,7 @@ class FileObserver : public Observer {
     /// UTC time changes (e.g., when transitioning into or out of daylight
     /// savings time).
     ///
-    /// **DEPRECATED**: Use `bdlt::LocalTimeOffset` instead.
+    /// @DEPRECATED: Use `bdlt::LocalTimeOffset` instead.
     bdlt::DatetimeInterval localTimeOffset() const;
 
     /// Return the lifetime of the log file that will trigger a file

@@ -375,7 +375,7 @@ class RecordAttributes {
     /// and cannot be safely called concurrently.  It may modify the stream
     /// buffer returned by `messageStreamBuf`.
     ///
-    /// **DEPRECATED**: Use `messageRef` instead.
+    /// @DEPRECATED: Use `messageRef` instead.
     const char *message() const;
 
     /// Return a string reference providing non-modifiable access to the

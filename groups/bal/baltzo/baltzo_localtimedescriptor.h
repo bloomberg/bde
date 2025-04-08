@@ -274,9 +274,9 @@ class LocalTimeDescriptor {
 
                                   // Aspects
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return `get_allocator().mechanism()`.
+    ///
+    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
     /// Return the allocator used by this object to supply memory.  Note

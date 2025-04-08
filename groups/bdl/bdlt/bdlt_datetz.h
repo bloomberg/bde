@@ -267,8 +267,6 @@ class DateTz {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
-    /// **DEPRECATED**: replaced by `utcStartTime`.
-    ///
     /// Return a `Datetime` object having the value of the UTC "point in
     /// time" when the local date starts (i.e., 0000 hours local time).  The
     /// behavior is undefined unless the local date starting time represents
@@ -277,12 +275,14 @@ class DateTz {
     /// ```
     /// Datetime(localDate()).addMinutes(-offset());
     /// ```
+    ///
+    /// @DEPRECATED: replaced by `utcStartTime`.
     Datetime gmtStartTime() const;
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
     /// Set the local date and time zone offset of this object to the

@@ -233,7 +233,7 @@ class TestObserver : public Observer {
     /// to `stream`.  Note that the `setVerbose` method can affect this
     /// default behavior.
     ///
-    /// **DEPRECATED**: Use the constructor taking `bsl::ostream *` instead.
+    /// @DEPRECATED: Use the constructor taking `bsl::ostream *` instead.
     explicit
     TestObserver(bsl::ostream& stream, bslma::Allocator *basicAllocator = 0);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -250,7 +250,7 @@ class TestObserver : public Observer {
     /// verbose mode, but that the `setVerbose` method can affect this mode,
     /// and thus the behavior of this method.
     ///
-    /// **DEPRECATED**: Use the alternative `publish` overload instead.
+    /// @DEPRECATED: Use the alternative `publish` overload instead.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 

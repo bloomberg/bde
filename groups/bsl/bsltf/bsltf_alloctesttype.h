@@ -22,20 +22,20 @@ BSLS_IDENT("$Id: $")
 //
 ///Salient Attributes
 ///------------------
-// ```
-// Name                Type         Default
-// ------------------  -----------  -------
-// data                int          0
-// ```
+//
+// | Name  | Type  | Default  |
+// | ----- | ----- | -------- |
+// | data  | int   | 0        |
+//
 // * `data`: representation of the object's value
 //
 ///Non-salient Attributes
 ///----------------------
-// ```
-// Name                Type              Default
-// ------------------  ----------------  ------------------
-// allocator           bsl::allocator<>  bsl::allocator<>{}
-// ```
+//
+// | Name       | Type              | Default            |
+// | ---------- | ----------------- | ------------------ |
+// | allocator  | bsl::allocator<>  | bsl::allocator<>{} |
+//
 // * `allocator`: allocator used by the object
 //
 ///Usage
@@ -49,9 +49,9 @@ BSLS_IDENT("$Id: $")
 // First, we create a function template `printTypeTraits` with a parameterized
 // `TYPE`:
 // ```
+// /// Prints the traits of the parameterized `TYPE` to the console.
 // template <class TYPE>
 // void printTypeTraits()
-//     // Prints the traits of the parameterized 'TYPE' to the console.
 // {
 //     if (bslma::UsesBslmaAllocator<TYPE>::value) {
 //         printf("Type defines bslma::UsesBslmaAllocator.\n");

@@ -2657,8 +2657,6 @@ class shared_ptr {
                        ARGS&&...                      args);
 #endif
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Modify this shared pointer to manage the same modifiable object (if
     /// any) as the specified `source` shared pointer to the (template
     /// parameter) type `ANY_TYPE`, and refer to the modifiable object at
@@ -2682,6 +2680,8 @@ class shared_ptr {
     /// ```
     /// Further note that the behavior of this method is the same as
     /// `reset(source, object)`.
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     template <class ANY_TYPE>
     void loadAlias(const shared_ptr<ANY_TYPE>&  source,
                    ELEMENT_TYPE                *object);
@@ -2708,18 +2708,16 @@ class shared_ptr {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY MANIPULATORS
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Reset this shared pointer to the empty state.  If this shared
     /// pointer is managing a (possibly shared) object, then release the
     /// reference to the shared object, calling the associated deleter to
     /// destroy the shared object if this shared pointer is the last
     /// reference.  Note that the behavior of this method is the same as
     /// `reset()`.
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     void clear() BSLS_KEYWORD_NOEXCEPT;
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Modify this shared pointer to manage the modifiable object of the
     /// (template parameter) type `COMPATIBLE_TYPE` at the specified `ptr`
     /// address and to refer to `(ELEMENT_TYPE *)ptr`.  If this shared
@@ -2740,11 +2738,11 @@ class shared_ptr {
     /// state, which will be reclaimed when the last reference is destroyed.
     /// Also note also that the behavior of this method is the same as
     /// `reset(ptr)`.
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     template <class COMPATIBLE_TYPE>
     void load(COMPATIBLE_TYPE *ptr);
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Modify this shared pointer to manage the modifiable object of the
     /// (template parameter) type `COMPATIBLE_TYPE` at the specified `ptr`
     /// address and to refer to `(ELEMENT_TYPE *)ptr`.  If this shared
@@ -2770,12 +2768,12 @@ class shared_ptr {
     /// ```
     /// *this = shared_ptr<ELEMENT_TYPE>(ptr, basicAllocator);
     /// ```
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     template <class COMPATIBLE_TYPE>
     void load(COMPATIBLE_TYPE               *ptr,
               BloombergLP::bslma::Allocator *basicAllocator);
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Modify this shared pointer to manage the modifiable object of the
     /// (template parameter) type `COMPATIBLE_TYPE` at the specified `ptr`
     /// address, refer to `(ELEMENT_TYPE *)ptr` and use the specified
@@ -2815,6 +2813,8 @@ class shared_ptr {
     /// ```
     /// *this = shared_ptr<ELEMENT_TYPE>(ptr, deleter, basicAllocator);
     /// ```
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     template <class COMPATIBLE_TYPE, class DELETER>
     void load(COMPATIBLE_TYPE               *ptr,
               const DELETER&                 deleter,
@@ -2912,7 +2912,7 @@ class shared_ptr {
     /// reliable in a multi-threaded program, where a weak pointer may be
     /// locked on another thread.
     ///
-    /// DEPRECATED: This function is deprecated in C++17 because its
+    /// @DEPRECATED: This function is deprecated in C++17 because its
     /// correctness is not guaranteed since the value returned by the used
     /// `use_count` function is approximate.
     bool unique() const BSLS_KEYWORD_NOEXCEPT;
@@ -2946,21 +2946,21 @@ class shared_ptr {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY ACCESSORS
 
-    /// [**DEPRECATED**] Use `use_count` instead.
-    ///
     /// Return a "snapshot" of the number of shared pointers (including this
     /// one) that share ownership of the object managed by this shared
     /// pointer.  Note that the behavior of this function is the same as
     /// `use_count`, and the result may be unreliable in multi-threaded code
     /// for the same reasons.
+    ///
+    /// @DEPRECATED: Use `use_count` instead.
     int numReferences() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// [**DEPRECATED**] Use `get` instead.
-    ///
     /// Return the address providing modifiable access to the object
     /// referred to by this shared pointer, or 0 if this shared pointer does
     /// not refer to an object.  Note that the behavior of this function is
     /// the same as `get`.
+    ///
+    /// @DEPRECATED: Use `get` instead.
     element_type *ptr() const BSLS_KEYWORD_NOEXCEPT;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
@@ -3862,13 +3862,13 @@ class weak_ptr {
     /// the same as that of `lock`.
     shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const BSLS_KEYWORD_NOEXCEPT;
 
-    /// [**DEPRECATED**] Use `use_count` instead.
-    ///
     /// Return a "snapshot" of the current number of shared pointers that
     /// share ownership of the object referred to by this weak pointer, or 0
     /// if this weak pointer is in the empty state.  Note that the behavior
     /// of this method is the same as that of `use_count`, and the result
     /// may be unreliable in multi-threaded code for the same reasons.
+    ///
+    /// @DEPRECATED: Use `use_count` instead.
     int numReferences() const BSLS_KEYWORD_NOEXCEPT;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };

@@ -550,7 +550,7 @@ class FileObserver2 : public Observer {
     /// file observer.  This method has no effect if
     /// rotation-on-time-interval is not enabled.
     ///
-    /// **DEPRECATED**: Use `disableTimeIntervalRotation` instead.
+    /// @DEPRECATED: Use `disableTimeIntervalRotation` instead.
     void disableLifetimeRotation();
 
     /// Disable publishing of the timestamp attribute of records in local
@@ -605,7 +605,7 @@ class FileObserver2 : public Observer {
     /// and `logFilenamePattern` does not contain any `%`-escape sequences,
     /// this method behaves as if ".%T" is appended to `logFilenamePattern`.
     ///
-    /// **DEPRECATED**: Use `enableFileLogging(logFilenamePattern)` instead
+    /// @DEPRECATED: Use `enableFileLogging(logFilenamePattern)` instead
     /// (use the ".%T" pattern to replicate `true == appendTimestampFlag`
     /// behavior).
     int enableFileLogging(const char *logFilenamePattern,
@@ -623,7 +623,7 @@ class FileObserver2 : public Observer {
     /// no effect if file logging is not enabled, in which case `record` is
     /// dropped.
     ///
-    /// **DEPRECATED**: Do not use.
+    /// @DEPRECATED: Do not use.
     void publish(const Record&  record,
                  const Context& context) BSLS_KEYWORD_OVERRIDE;
 
@@ -660,7 +660,7 @@ class FileObserver2 : public Observer {
     /// rotation-on-time-interval rule currently in effect.  The behavior is
     /// undefined unless `0 < timeInterval.totalMilliseconds()`.
     ///
-    /// **DEPRECATED**: Use `rotateOnTimeInterval` instead.
+    /// @DEPRECATED: Use `rotateOnTimeInterval` instead.
     void rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval);
 
     /// Set this file observer to perform a periodic log file rotation at
@@ -752,7 +752,7 @@ class FileObserver2 : public Observer {
     /// UTC time changes (e.g., when transitioning into or out of daylight
     /// savings time).
     ///
-    /// **DEPRECATED**: Use `bdlt::LocalTimeOffset` instead.
+    /// @DEPRECATED: Use `bdlt::LocalTimeOffset` instead.
     bdlt::DatetimeInterval localTimeOffset() const;
 };
 

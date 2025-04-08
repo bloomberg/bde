@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Attributes
 ///----------
-// ```
-//            Name             Type   Default
-// -------------------------   ----   -------
-// fractionalSecondPrecision   int     3
-// omitColonInZoneDesignator   bool    false
-// useCommaForDecimalSign      bool    false
-// useZAbbreviationForUtc      bool    false
-// ```
+//
+// | Name                      | Type | Default |
+// | ------------------------- | ---- | ------- |
+// | fractionalSecondPrecision | int  | 3       |
+// | omitColonInZoneDesignator | bool | false   |
+// | useCommaForDecimalSign    | bool | false   |
+// | useZAbbreviationForUtc    | bool | false   |
+//
 // * `fractionalSecondPrecision`: number of digits used to represent
 //   fractional seconds; must be in the range `0 .. 6`.
 // * `omitColonInZoneDesignator`: `true` if `:` should be omitted from zone
@@ -169,11 +169,10 @@ namespace bdlt {
                       // ==============================
 
 /// This unconstrained (value-semantic) attribute class characterizes how to
-/// configure certain behavior in `Iso8601Util` functions.  Currently, only
-/// the `generate` and `generateRaw` methods of that utility are affected by
-/// `Iso8601UtilConfiguration` settings.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.
+/// configure certain behavior in `Iso8601Util` functions.  Currently, only the
+/// `generate` and `generateRaw` methods of that utility are affected by
+/// `Iso8601UtilConfiguration` settings.  See the [](#Attributes) section for
+/// information on the class attributes.
 class Iso8601UtilConfiguration {
 
   private:
@@ -205,23 +204,23 @@ class Iso8601UtilConfiguration {
   private:
     // PRIVATE CREATORS
 
-    /// Create an `Iso8601UtilConfiguration` object having the value
-    /// indicated by the specified `configurationMask`.  The behavior is
-    /// undefined unless `configurationMask` represents a valid
-    /// `Iso8601UtilConfiguration` value.
+    /// Create an `Iso8601UtilConfiguration` object having the value indicated
+    /// by the specified `configurationMask`.  The behavior is undefined unless
+    /// `configurationMask` represents a valid `Iso8601UtilConfiguration`
+    /// value.
     explicit Iso8601UtilConfiguration(int configurationMask);
 
   public:
     // CLASS METHODS
 
-    /// Return the value of the process-wide `Iso8601UtilConfiguration` that
-    /// is currently in effect.
+    /// Return the value of the process-wide `Iso8601UtilConfiguration` that is
+    /// currently in effect.
     static Iso8601UtilConfiguration defaultConfiguration();
 
     /// Set the value of the process-wide `Iso8601UtilConfiguration` to the
     /// specified `configuration`.  Note that the expected usage is that the
-    /// process-wide configuration will be established *once*, early in
-    /// `main`, and not changed throughout the lifetime of a process.
+    /// process-wide configuration will be established *once*, early in `main`,
+    /// and not changed throughout the lifetime of a process.
     static void setDefaultConfiguration(
                                 const Iso8601UtilConfiguration& configuration);
 
@@ -246,14 +245,13 @@ class Iso8601UtilConfiguration {
 
     // MANIPULATORS
 
-    /// Assign to this object the value of the specified `rhs`
-    /// configuration, and return a reference providing modifiable access to
-    /// this object.
+    /// Assign to this object the value of the specified `rhs` configuration,
+    /// and return a reference providing modifiable access to this object.
     Iso8601UtilConfiguration& operator=(const Iso8601UtilConfiguration& rhs);
 
     /// Set the `fractionalSecondPrecision` attribute of this object to the
-    /// specified `value`.  The behavior is undefined unless `0 <= value`
-    /// and `6 >= value`.
+    /// specified `value`.  The behavior is undefined unless `0 <= value` and
+    /// `6 >= value`.
     void setFractionalSecondPrecision(int value);
 
     /// Set the `omitColonInZoneDesignator` attribute of this object to the
@@ -270,12 +268,12 @@ class Iso8601UtilConfiguration {
 
     // ACCESSORS
 
-    /// Return the value of the `fractionalSecondPrecision` attribute of
-    /// this object.
+    /// Return the value of the `fractionalSecondPrecision` attribute of this
+    /// object.
     int fractionalSecondPrecision() const;
 
-    /// Return the value of the `omitColonInZoneDesignator` attribute of
-    /// this object.
+    /// Return the value of the `omitColonInZoneDesignator` attribute of this
+    /// object.
     bool omitColonInZoneDesignator() const;
 
     /// Return the value of the `useCommaForDecimalSign` attribute of this
@@ -289,18 +287,17 @@ class Iso8601UtilConfiguration {
                                   // Aspects
 
     /// Write the value of this object to the specified output `stream` in a
-    /// human-readable format, and return a reference to `stream`.
-    /// Optionally specify an initial indentation `level`, whose absolute
-    /// value is incremented recursively for nested objects.  If `level` is
-    /// specified, optionally specify `spacesPerLevel`, whose absolute value
-    /// indicates the number of spaces per indentation level for this and
-    /// all of its nested objects.  If `level` is negative, suppress
-    /// indentation of the first line.  If `spacesPerLevel` is negative,
-    /// format the entire output on one line, suppressing all but the
-    /// initial indentation (as governed by `level`).  If `stream` is not
-    /// valid on entry, this operation has no effect.  Note that this
-    /// human-readable format is not fully specified, and can change without
-    /// notice.
+    /// human-readable format, and return a reference to `stream`.  Optionally
+    /// specify an initial indentation `level`, whose absolute value is
+    /// incremented recursively for nested objects.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, whose absolute value indicates the
+    /// number of spaces per indentation level for this and all of its nested
+    /// objects.  If `level` is negative, suppress indentation of the first
+    /// line.  If `spacesPerLevel` is negative, format the entire output on one
+    /// line, suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.  Note that this human-readable format is not fully specified,
+    /// and can change without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -308,28 +305,28 @@ class Iso8601UtilConfiguration {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `Iso8601UtilConfiguration` objects
-/// have the same value if each of their `fractionalSecondPrecision`,
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `Iso8601UtilConfiguration` objects have the
+/// same value if each of their `fractionalSecondPrecision`,
 /// `omitColonInZoneDesignator`, `useCommaForDecimalSign`, and
 /// `useZAbbreviationForUtc` attributes (respectively) have the same value.
 bool operator==(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `Iso8601UtilConfiguration`
-/// objects do not have the same value if any of their
-/// `fractionalSecondPrecision`, `omitColonInZoneDesignator`,
-/// `useCommaForDecimalSign`, or `useZAbbreviationForUtc` attributes
-/// (respectively) do not have the same value.
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the same
+/// value, and `false` otherwise.  Two `Iso8601UtilConfiguration` objects do
+/// not have the same value if any of their `fractionalSecondPrecision`,
+/// `omitColonInZoneDesignator`, `useCommaForDecimalSign`, or
+/// `useZAbbreviationForUtc` attributes (respectively) do not have the same
+/// value.
 bool operator!=(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a reference to `stream`.
-/// If `stream` is not valid on entry, this operation has no effect.  Note
-/// that this human-readable format is not fully specified and can change
-/// without notice.  Also note that this method has the same behavior as
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a reference to `stream`.  If `stream`
+/// is not valid on entry, this operation has no effect.  Note that this
+/// human-readable format is not fully specified and can change without notice.
+/// Also note that this method has the same behavior as
 /// `object.print(stream, 0, -1)`, but with the attribute names elided.
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const Iso8601UtilConfiguration& object);

@@ -163,21 +163,22 @@ class ManagedAttributeSet {
     /// reference providing modifiable access to this object.
     ManagedAttributeSet& operator=(const ManagedAttributeSet& rhs);
 
-    /// Add an attribute having the specified `value` to this object.
-    /// Return `true` on success and `false` if an attribute having the
-    /// same `value` already exists in this object.
+    /// Add an attribute having the specified `value` to this object.  Return
+    /// `true` on success and `false` if an attribute having the same `value`
+    /// already exists in this object.
     bool addAttribute(const ManagedAttribute& value);
 
-    /// Add an attribute having the specified `value` to this object.
-    /// Return 1 on success and 0 if an attribute having the same value
-    /// already exists in this object.
-    /// **DEPRECATED**: Use `addAttribute` instead.
+    /// Add an attribute having the specified `value` to this object.  Return 1
+    /// on success and 0 if an attribute having the same value already exists
+    /// in this object.
+    ///
+    /// @DEPRECATED: Use `addAttribute` instead.
     int addPredicate(const ManagedAttribute& value);
 
     /// Remove all attributes from this attribute set.
     void removeAll();
 
-    /// **DEPRECATED**: Use `removeAll` instead.
+    /// @DEPRECATED: Use `removeAll` instead.
     void removeAllPredicates();
 
     /// Remove the attribute having the specified `value` from this object.
@@ -188,34 +189,34 @@ class ManagedAttributeSet {
     /// Remove the attribute having the specified `value` from this object.
     /// Return the number of attributes removed (i.e., 1 on success and 0 if
     /// an attribute having `value` does not exist in this object).
-    /// **DEPRECATED**: Use `removeAttribute` instead.
+    ///
+    /// @DEPRECATED: Use `removeAttribute` instead.
     int removePredicate(const ManagedAttribute& value);
 
     // ACCESSORS
 
     /// Return `true` if for every attribute maintained by this object, an
     /// attribute with the same name and value exists in the specified
-    /// `containerList`, or if this object has no attributes; otherwise
-    /// return `false`.
+    /// `containerList`, or if this object has no attributes; otherwise return
+    /// `false`.
     bool evaluate(const AttributeContainerList& containerList) const;
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     allocator_type get_allocator() const;
 
-    /// Return `true` if an attribute having specified `value` exists in
-    /// this object, and `false` otherwise.
+    /// Return `true` if an attribute having specified `value` exists in this
+    /// object, and `false` otherwise.
     bool isMember(const ManagedAttribute& value) const;
 
     /// Return the number of attributes managed by this object.
     int numAttributes() const;
 
-    /// **DEPRECATED**: Use `numAttributes` instead.
+    /// @DEPRECATED: Use `numAttributes` instead.
     int numPredicates() const;
 
-    /// Return an iterator referring to the first member of this attribute
-    /// set.
+    /// Return an iterator referring to the first member of this attribute set.
     const_iterator begin() const;
 
     /// Return an iterator referring to one past the last member of this

@@ -576,8 +576,6 @@ class StripedUnorderedMap {
     /// found having `key`.
     bsl::size_t setValue(const KEY& key, bslmf::MovableRef<VALUE> value);
 
-    /// **DEPRECATED**: Use `visit(key, visitor)` instead.
-    ///
     /// Call the specified `visitor` with the element (if one exists) in
     /// this hash map having the specified `key`.  That is:
     /// ```
@@ -588,6 +586,8 @@ class StripedUnorderedMap {
     /// element for during its invocation.  The behavior is undefined if
     /// hash map manipulators and `getValue*` methods are invoked from
     /// within `visitor`, as it may lead to a deadlock.
+    ///
+    /// @DEPRECATED: Use `visit(key, visitor)` instead.
     int update(const KEY& key, const VisitorFunction& visitor);
 
     /// Call the specified `visitor` (in an unspecified order) on all

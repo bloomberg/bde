@@ -252,7 +252,7 @@ class RecordStringFormatter {
     /// "\n%d %p:%t %s %f:%l %c %m %u\n"
     /// ```
     ///
-    /// **DEPRECATED**: Use a constructor taking `publishInLocalTime` instead.
+    /// @DEPRECATED: Use a constructor taking `publishInLocalTime` instead.
     explicit RecordStringFormatter(
                    const bdlt::DatetimeInterval& offset,
                    const allocator_type&         allocator = allocator_type());
@@ -279,7 +279,7 @@ class RecordStringFormatter {
     /// specify an `allocator` (e.g., the address of a `bslma::Allocator`
     /// object) to supply memory; otherwise, the default allocator is used.
     ///
-    /// **DEPRECATED**: Use a constructor taking `publishInLocalTime` instead.
+    /// @DEPRECATED: Use a constructor taking `publishInLocalTime` instead.
     RecordStringFormatter(
                   const char                    *format,
                   const bdlt::DatetimeInterval&  offset,
@@ -332,7 +332,7 @@ class RecordStringFormatter {
     /// Set the timestamp offset of this record formatter to the specified
     /// `offset`.
     ///
-    /// **DEPRECATED**: Use `enablePublishInLocalTime` instead.
+    /// @DEPRECATED: Use `enablePublishInLocalTime` instead.
     void setTimestampOffset(const bdlt::DatetimeInterval& offset);
 
     // ACCESSORS
@@ -353,7 +353,7 @@ class RecordStringFormatter {
     /// Return a reference to the non-modifiable timestamp offset of this
     /// record formatter.
     ///
-    /// **DEPRECATED**: Use `isPublishInLocalTimeEnabled` instead.
+    /// @DEPRECATED: Use `isPublishInLocalTimeEnabled` instead.
     const bdlt::DatetimeInterval& timestampOffset() const;
 
                                   // Aspects

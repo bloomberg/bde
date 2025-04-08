@@ -1044,8 +1044,6 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// change.
     bsl::size_t setValueFirst(const KEY& key, bslmf::MovableRef<VALUE> value);
 
-    /// **DEPRECATED**: Use `visit(key, visitor)` instead.
-    ///
     /// Serially call the specified `visitor` on each element (if one
     /// exists) in this hash map having the specified `key` until every such
     /// element has been updated or `visitor` returns `false`.  That is, for
@@ -1059,6 +1057,8 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
     /// for duration of each invocation.  The behavior is undefined if hash
     /// map manipulators and `getValue*` methods are invoked from within
     /// `visitor`, as it may lead to a deadlock.
+    ///
+    /// @DEPRECATED: Use `visit(key, visitor)` instead.
     int update(const KEY& key, const VisitorFunction& visitor);
 
     /// Call the specified `visitor` (in an unspecified order) on the

@@ -38,21 +38,20 @@ namespace bdldfp {
 
                     // HISTORICAL PRIVATE TYPE DECLARATIONS
 
+/// These are the actual (decimal floating-point) types being implemented.
+/// They use a different name to cause an error if the official types are
+/// forward declared: The exact definition of the decimal types is left
+/// unspecified so that that can potentially be aliases for built-in types.
 class Decimal_Type32;
 class Decimal_Type64;
 class Decimal_Type128;
-    // These are the actual (decimal floating-point) types being implemented.
-    // They use a different name to cause an error if the official types are
-    // forward declared: The exact definition of the decimal types is left
-    // unspecified so that that can potentially be aliases for built-in types.
 
                           // FORWARD DECLARATIONS
 
-typedef Decimal_Type32  Decimal32;
-typedef Decimal_Type64  Decimal64;
-
 /// The decimal floating-point types are typedefs to the unspecified
 /// implementation types.
+typedef Decimal_Type32  Decimal32;
+typedef Decimal_Type64  Decimal64;
 typedef Decimal_Type128 Decimal128;
 
 }  // close package namespace

@@ -503,34 +503,34 @@ class Time {
 
     // DEPRECATED METHODS
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedBdexVersion();
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
-    /// **DEPRECATED**: Use `maxSupportedBdexVersion(int)` instead.
-    ///
     /// Return the most current BDEX streaming version number supported by
     /// this class.
+    ///
+    /// @DEPRECATED: Use `maxSupportedBdexVersion(int)` instead.
     static int maxSupportedVersion();
 
-    /// **DEPRECATED**: Use `print` instead.
-    ///
     /// Format this time to the specified output `stream`, and return a
     /// reference to the modifiable `stream`.
+    ///
+    /// @DEPRECATED: Use `print` instead.
     bsl::ostream& streamOut(bsl::ostream& stream) const;
 
-    /// **DEPRECATED**: Use `setTimeIfValid` instead.
-    ///
     /// Set the value of this time object to the specified `hour`, and the
     /// optionally specified `minute`, `second`, and `millisecond`, if they
     /// would comprise a valid `Time` value (see `isValid`).  Return 0 on
     /// success, and a non-zero value (with no effect) otherwise.
     /// Unspecified arguments default to 0.
+    ///
+    /// @DEPRECATED: Use `setTimeIfValid` instead.
     int validateAndSetTime(int hour,
                            int minute = 0,
                            int second = 0,

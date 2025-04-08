@@ -1998,7 +1998,6 @@ class Assert {
 
                 // Dispatcher Method (called from within macros)
 
-    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     /// Invoke the currently installed assertion-failure handler function
     /// with the specified `violation`.  The behavior is undefined if the
     /// macro `BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined,
@@ -2012,11 +2011,9 @@ class Assert {
     /// support static analysis tools, which require an annotation to see
     /// that a failed "ASSERT" prevents further execution of a function with
     /// "bad" values.
+    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     static void invokeHandler(const AssertViolation& violation);
 
-    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
-    /// **DEPRECATED**: Use `invokeHandler(const AssertViolation&)` instead.
-    ///
     /// Invoke the currently installed assertion-failure handler function
     /// with the specified expression `text`, `file` name, and `line` number
     /// as its arguments.  The behavior is undefined if the macro
@@ -2026,6 +2023,9 @@ class Assert {
     /// `terminate`, `throw`, or hang).  Note that this function is
     /// deprecated, as the (BSLS) "ASSERT" macros all now use the
     /// `bsls::AssertViolation` overload of `invokeHandler` instead.
+    ///
+    /// @DEPRECATED: Use `invokeHandler(const AssertViolation&)` instead.
+    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     static void invokeHandler(const char *text, const char *file, int line);
 
     /// Invoke the currently installed assertion-failure handler function
@@ -2035,10 +2035,10 @@ class Assert {
     static void invokeHandlerNoReturn(const AssertViolation &violation);
 
 #ifdef BSLS_ASSERT_USE_CONTRACTS
+    /// Call `invokeHandler` with an `AssertViolation` with properties from
+    /// the specified `violation`.
     static void invokeLanguageContractHandler(
                                      const std::contract_violation& violation);
-        // Call 'invokeHandler' with an 'AssertViolation' with properties from
-        // the specified 'violation'.
 #endif
 
                       // Standard Assertion-Failure Handlers
@@ -2287,18 +2287,18 @@ int AssertViolation::lineNumber() const
                  // =========================================
                  // IMPLEMENTATION USING THE C++ PREPROCESSOR
                  // =========================================
-//
+
 // At most one of the following build options may be set during the compilation
 // of any component that includes 'bsls_assert.h':
-//..
-//  BSLS_ASSERT_LEVEL_ASSERT_SAFE
-//  BSLS_ASSERT_LEVEL_ASSERT
-//  BSLS_ASSERT_LEVEL_ASSERT_OPT
-//  BSLS_ASSERT_LEVEL_NONE
-//  BSLS_ASSERT_LEVEL_ASSUME_SAFE
-//  BSLS_ASSERT_LEVEL_ASSUME_ASSERT
-//  BSLS_ASSERT_LEVEL_ASSUME_OPT
-//..
+// ```
+// BSLS_ASSERT_LEVEL_ASSERT_SAFE
+// BSLS_ASSERT_LEVEL_ASSERT
+// BSLS_ASSERT_LEVEL_ASSERT_OPT
+// BSLS_ASSERT_LEVEL_NONE
+// BSLS_ASSERT_LEVEL_ASSUME_SAFE
+// BSLS_ASSERT_LEVEL_ASSUME_ASSERT
+// BSLS_ASSERT_LEVEL_ASSUME_OPT
+// ```
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) &&                                 \

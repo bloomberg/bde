@@ -443,7 +443,7 @@ class ForwardingTypeUtil
 
 #ifndef BDE_OMIT_DEPRECATED
 
-///**DEPRECATED**: Use `ForwardingType` instead.
+/// @DEPRECATED: Use `ForwardingType` instead.
 template <class t_TYPE>
 struct ConstForwardingType : public ForwardingType<t_TYPE> {
 };
@@ -636,7 +636,7 @@ struct ForwardingType_Imp<t_TYPE, ForwardingType_Category::e_CLASS> {
 #ifdef bslmf_ForwardingType
 #undef bslmf_ForwardingType
 #endif
-/// **DEPRECATED** This alias is defined for backward compatibility.
+/// @DEPRECATED: This alias is defined for backward compatibility.
 #define bslmf_ForwardingType bslmf::ForwardingType
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
@@ -645,7 +645,7 @@ struct ForwardingType_Imp<t_TYPE, ForwardingType_Category::e_CLASS> {
 #endif
 // BDE_VERIFY pragma: -SLM01 // Allow non-standard macro to leak from header
 
-/// **DEPRECATED** This alias is defined for backward compatibility.
+/// @DEPRECATED: This alias is defined for backward compatibility.
 #define bslmf_ConstForwardingType bslmf::ConstForwardingType
 
 // BDE_VERIFY pragma: pop // Restore bde_verify rules

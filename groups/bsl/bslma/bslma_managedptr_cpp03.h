@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Mar 17 14:37:18 2025
+// Generated on Tue Apr  8 14:32:42 2025
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -394,11 +394,6 @@ class ManagedPtr {
     ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    /// [**DEPRECATED**]: Instead, use:
-    /// ```
-    /// template <class MANAGED_TYPE>
-    /// ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
-    /// ```
     /// Create a managed pointer having a target object referenced by the
     /// specified `ptr`, owning the managed object `*ptr`, and having a
     /// deleter that will invoke the specified `deleter` with the address of
@@ -417,16 +412,17 @@ class ManagedPtr {
     /// that this function is *deprecated* as it relies on undefined
     /// compiler behavior for its implementation (that luckily performs as
     /// required on every platform supported by BDE).
+    ///
+    /// @DEPRECATED: Instead, use:
+    /// ```
+    /// template <class MANAGED_TYPE>
+    /// ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
+    /// ```
     template <class MANAGED_TYPE, class MANAGED_BASE>
     ManagedPtr(MANAGED_TYPE *ptr,
                void         *cookie,
                void        (*deleter)(MANAGED_BASE *, void *));
 
-    /// [**DEPRECATED**]: Instead, use:
-    /// ```
-    /// template <class MANAGED_TYPE>
-    /// ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
-    /// ```
     /// Create a managed pointer having a target object referenced by the
     /// specified `ptr`, owning the managed object `*ptr`, and having a
     /// deleter that will invoke the specified `deleter` with the address of
@@ -442,6 +438,12 @@ class ManagedPtr {
     /// *deprecated* as it relies on undefined compiler behavior for its
     /// implementation (that luckily performs as required on every platform
     /// supported by BDE).
+    ///
+    /// @DEPRECATED: Instead, use:
+    /// ```
+    /// template <class MANAGED_TYPE>
+    /// ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
+    /// ```
     template <class MANAGED_TYPE,
               class MANAGED_BASE,
               class COOKIE_TYPE,
@@ -526,10 +528,10 @@ class ManagedPtr {
     template <class REFERENCED_TYPE>
     operator ManagedPtr_Ref<REFERENCED_TYPE>();
 
-    /// [**DEPRECATED**] Use `reset` instead.
-    ///
     /// Destroy the current managed object (if any) and reset this managed
     /// pointer to empty.
+    ///
+    /// @DEPRECATED: Use `reset` instead.
     void clear();
 
     /// Destroy the currently managed object, if any.  Then, set the target
@@ -598,11 +600,6 @@ class ManagedPtr {
               void         *cookie,
               void        (*deleter)(MANAGED_BASE *, void *));
 
-    /// [**DEPRECATED**]: Instead, use:
-    /// ```
-    /// template <class MANAGED_TYPE>
-    /// void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
-    /// ```
     /// Destroy the currently managed object, if any.  Then, set the target
     /// object of this managed pointer to be that referenced by the
     /// specified `ptr`, take ownership of `*ptr` as the currently managed
@@ -618,6 +615,12 @@ class ManagedPtr {
     /// overload is not available (e.g., GCC 3.4) code should be written as
     /// if it were available, as an appropriate (deprecated) overload will
     /// be selected with the correct (non-deprecated) behavior.
+    ///
+    /// @DEPRECATED: Instead, use:
+    /// ```
+    /// template <class MANAGED_TYPE>
+    /// void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
+    /// ```
     template <class MANAGED_TYPE,
               class MANAGED_BASE,
               class COOKIE_TYPE,
@@ -695,10 +698,10 @@ class ManagedPtr {
     /// pointer is empty.
     TARGET_TYPE *get() const;
 
-    /// [**DEPRECATED**]: Use `get` instead.
-    ///
     /// Return the address of the target object, or 0 if this managed
     /// pointer is empty.
+    ///
+    /// @DEPRECATED: Use `get` instead.
     TARGET_TYPE *ptr() const;
 };
 
@@ -1626,13 +1629,13 @@ struct ManagedPtrUtil {
                      // struct ManagedPtrNilDeleter
                      // ===========================
 
-/// [**DEPRECATED**]: Use `ManagedPtrUtil::noOpDeleter` instead.
-///
 /// This utility class provides a general no-op deleter, which is useful
 /// when creating managed pointers to stack-allocated objects.  Note that
 /// the non-template class `ManagedPtrUtil` should be used in preference to
 /// this deprecated class, avoiding both template bloat and undefined
 /// behavior.
+///
+/// @DEPRECATED: Use `ManagedPtrUtil::noOpDeleter` instead.
 template <class TARGET_TYPE>
 struct ManagedPtrNilDeleter {
 

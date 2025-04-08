@@ -617,7 +617,7 @@ BSLS_IDENT("$Id: $")
 //   - `set_unexpected`
 //   - `get_unexpected`
 //
-// @DEPRECATED: Do not use the API listed above.
+// **DEPRECATED**: Do not use the API listed above.
 //
 // This macro is defined first for the following compiler versions:
 //

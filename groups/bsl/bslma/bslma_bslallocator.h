@@ -610,18 +610,19 @@ class allocator : public polymorphic_allocator<TYPE> {
 
     // MANIPULATORS
     BSLMA_BSLALLOCATOR_DEPRECATE_ASSIGN
-    /// **DEPRECATED** `bsl::allocator` should not be assigned.  Modify this
-    /// allocator to use the same mechanism as the specified `rhs` allocator
-    /// and return a modifiable reference to this object.  Note that
-    /// `bsl::allocator` objects should never be assigned at runtime, but,
-    /// in the absence of `if constexpr`, such assignments can sometimes be
-    /// found legitimately in dead branches (branches that are never taken
-    /// at runtime) within function templates; ideally, such code would be
+    /// Modify this allocator to use the same mechanism as the specified `rhs`
+    /// allocator and return a modifiable reference to this object.  Note that
+    /// `bsl::allocator` objects should never be assigned at runtime, but, in
+    /// the absence of `if constexpr`, such assignments can sometimes be found
+    /// legitimately in dead branches (branches that are never taken at
+    /// runtime) within function templates; ideally, such code would be
     /// replaced by more sophisticated metaprogramming that avoided calls to
     /// this operator entirely.  Invoking this assignment will result in a
-    /// review error unless `rhs == *this`, i.e., when the assignment would
-    /// be a no-op.  In the future, the review error may be replaced with an
-    /// a hard assertion failure.
+    /// review error unless `rhs == *this`, i.e., when the assignment would be
+    /// a no-op.  In the future, the review error may be replaced with an a
+    /// hard assertion failure.
+    ///
+    /// @DEPRECATED:`bsl::allocator` should not be assigned.
     allocator& operator=(const allocator& rhs);
 
     /// Return a block of memory having sufficient size and alignment to

@@ -189,7 +189,7 @@ struct PlatformUtil {
     /// integral multiple of the maximum alignment.  The behavior is
     /// undefined unless `0 <= size`.
     ///
-    /// @DEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
+    /// lmf_ForwardingTypeDEPRECATED: Use `AlignmentUtil::roundUpToMaximalAlignment` instead.
     static int roundUpToMaximalAlignment(int size);
 };
 

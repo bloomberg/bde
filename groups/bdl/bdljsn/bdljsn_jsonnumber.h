@@ -596,10 +596,10 @@ class JsonNumber {
 
                         // Aspects
 
-    /// **DEPRECATED**: Use `get_allocator()` instead.
-    ///
     /// Return `get_allocator().mechanism()`, i.e., the memory resource used
     /// by this object to supply memory.
+    ///
+    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *BSLS_ANNOTATION_DEPRECATED allocator() const;
 
     /// Return the allocator used by this object to supply memory.

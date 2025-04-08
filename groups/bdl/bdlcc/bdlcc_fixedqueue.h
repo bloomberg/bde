@@ -368,10 +368,10 @@ class FixedQueue {
     /// Returns the number of elements currently in this queue.
     int numElements() const;
 
-    /// [**DEPRECATED**] Invoke `numElements`.
+    /// @DEPRECATED: Use `numElements()` instead.
     int length() const;
 
-    /// [**DEPRECATED**] Invoke `capacity`.
+    /// @DEPRECATED: Use `capacity()` instead.
     int size() const;
 
 };

@@ -597,9 +597,6 @@ class Printer {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // DEPRECATED
 
-    /// [**DEPRECATED**  -- use `printAttribute` instead, or `printValue` if
-    /// no name is wanted.]
-    ///
     /// Format to the output stream supplied at construction the specified
     /// `data`, prefixed by the specified `name` if `name` is not 0.  Format
     /// `data` based on the parameterized `TYPE`:
@@ -623,10 +620,13 @@ class Printer {
     ///   current one.  There will be a compile-time error if `TYPE` does
     ///   not provide a standard `print` method.
     ///
-    /// If `spacesPerLevel() < 0`, format `data` on a single line.
-    /// Otherwise, indent `data` by `(absLevel() + 1) * spacesPerLevel()`
-    /// blank spaces.  The behavior is undefined if `TYPE` is a `char *`,
-    /// but not a null-terminated string.
+    /// If `spacesPerLevel() < 0`, format `data` on a single line.  Otherwise,
+    /// indent `data` by `(absLevel() + 1) * spacesPerLevel()` blank spaces.
+    /// The behavior is undefined if `TYPE` is a `char *`, but not a
+    /// null-terminated string.
+    ///
+    /// @DEPRECATED: Use `printAttribute` instead, or `printValue` if no name
+    /// is wanted.
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
 #endif  // BDE_OPENSOURCE_PUBLICATION

@@ -1907,18 +1907,18 @@ class Datum {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED
 
-    /// [**DEPRECATED**] Use `createUninitializedMap` instead.
+    /// @DEPRECATED: Use `createUninitializedMap` instead.
     static void createUninitializedMapOwningKeys(
                                     DatumMutableMapOwningKeysRef *result,
                                     SizeType                      capacity,
                                     SizeType                      keysCapacity,
                                     const AllocatorType&          allocator);
 
-    /// [**DEPRECATED**] Use `adoptMap` instead.
+    /// @DEPRECATED: Use `adoptMap` instead.
     static Datum adoptMapOwningKeys(
                                   const DatumMutableMapOwningKeysRef& mapping);
 
-    /// [**DEPRECATED**] Use `disposeUninitializedMap` instead.
+    /// @DEPRECATED: Use `disposeUninitializedMap` instead.
     static void disposeUninitializedMapOwningKeys(
                                 const DatumMutableMapOwningKeysRef& mapping,
                                 const AllocatorType&                allocator);

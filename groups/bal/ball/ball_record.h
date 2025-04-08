@@ -208,13 +208,13 @@ class Record {
     /// Set the custom user-defined fields of this log record to the value
     /// of the specified `userFields`.
     ///
-    /// **DEPRECATED**: Use log record attributes.
+    /// @DEPRECATED: Use log record attributes.
     void setCustomFields(const ball::UserFields& userFields);
 
     /// Return a reference providing modifiable access to the custom
     /// user-defined fields of this log record.
     ///
-    /// **DEPRECATED**: Use log record attributes.
+    /// @DEPRECATED: Use log record attributes.
     ball::UserFields& customFields();
 
     // ACCESSORS
@@ -225,7 +225,7 @@ class Record {
     /// Return a reference providing non-modifiable access to the custom
     /// user-defined fields of this log record.
     ///
-    /// **DEPRECATED**: Use log record attributes.
+    /// @DEPRECATED: Use log record attributes.
     const ball::UserFields& customFields() const;
 
     /// Return a reference providing non-modifiable access to the attributes

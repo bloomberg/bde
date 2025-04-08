@@ -881,7 +881,7 @@ class TimeQueue {
     explicit TimeQueue(bslma::Allocator *basicAllocator = 0);
     explicit TimeQueue(int numIndexBits, bslma::Allocator *basicAllocator = 0);
 
-    /// [**DEPRECATED**] Use the other constructor overloads instead.  Note
+    /// @DEPRECATED: Use the other constructor overloads instead.  Note
     /// that the specified `poolTimerMemory` argument controlled whether
     /// additional memory used by an internal `bsl::map` was pooled.  When
     /// `bsl::map` was modified to pool its own nodes, this option became

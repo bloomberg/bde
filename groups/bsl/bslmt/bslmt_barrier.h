@@ -440,12 +440,10 @@ class Barrier {
     /// will unblock.
     int numArrivals() const;
 
-    // DEPRECATED METHODS
-
     /// Return the required number of arrivals before all waiting threads
     /// will unblock.
     ///
-    /// **DEPRECATED**: Use `numArrivals` instead.
+    /// @DEPRECATED: Use `numArrivals` instead.
     int numThreads() const;
 };
 

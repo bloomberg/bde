@@ -988,7 +988,7 @@ class AsyncFileObserver : public Observer {
     /// Return `true` if the logging of user-defined fields is enabled for
     /// this async file observer, and `false` otherwise.
     ///
-    /// **DEPRECATED**: Do not use.
+    /// @DEPRECATED: Do not use.
     bool isUserFieldsLoggingEnabled() const;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -999,7 +999,7 @@ class AsyncFileObserver : public Observer {
     /// UTC time changes (e.g., when transitioning into or out of daylight
     /// savings time).
     ///
-    /// **DEPRECATED**: Use `bdlt::LocalTimeOffset` instead.
+    /// @DEPRECATED: Use `bdlt::LocalTimeOffset` instead.
     bdlt::DatetimeInterval localTimeOffset() const;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
