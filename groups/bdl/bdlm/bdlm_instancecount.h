@@ -52,7 +52,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$")
 
-#include <bsls_atomic.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -88,9 +88,8 @@ template <class OBJECT_TYPE>
 inline
 InstanceCount::Value InstanceCount::nextInstanceNumber()
 {
-    static bsls::AtomicUint64 count(0);
-
-    return ++count;
+    static bsls::AtomicOperations::AtomicTypes::Uint64 count;
+    return bsls::AtomicOperations::incrementUint64Nv(&count);
 }
 
 }  // close package namespace
