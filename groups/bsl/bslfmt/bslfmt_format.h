@@ -37,10 +37,10 @@ BSLS_IDENT("$Id: $")
 // `vformat` wrappers are allocator-aware.  Where a conforming implementation
 // or when compiling C++17 and earlier, BDE implementation is provided.
 //
-// Where a BSL implementation is provided, functionality is limited to that
+// Where a BDE implementation is provided, functionality is limited to that
 // provided by C++20 and excludes the following features:
 //
-// * Support for locales other than the default ("C") locale.
+// * Support for locales other than the default ("C") locale
 // * Support for wide strings
 // * Alternative date/time representations
 // * Date/time directives not supported by the standard `strftime` function
@@ -597,7 +597,7 @@ auto make_wformat_args(t_ARGS&... args);
 /// addressed by the specified `out` parameter.  In the event of an error throw
 /// the exception `format_error`.  The behavior is undefined if `out` does not
 /// point to a valid `bsl::string` object.  Note that this overload is provided
-/// in addition to the overloads in the standard library, and the requires
+/// in addition to the overloads in the standard library, and the `requires`
 /// clause is necessary to avoid ambiguity.
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)

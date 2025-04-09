@@ -453,6 +453,8 @@ int main(int argc, char **argv)
 
             const unsigned long long ULL_VALUE =
                                         static_cast<unsigned long long>(VALUE);
+            const signed char        SC_VALUE =
+                                               static_cast<signed char>(VALUE);
             const unsigned char      UC_VALUE =
                                              static_cast<unsigned char>(VALUE);
 
@@ -462,6 +464,7 @@ int main(int argc, char **argv)
             testRuntimeCharParse<     unsigned long int>(LINE, FORMAT);
             testRuntimeCharParse<         long long int>(LINE, FORMAT);
             testRuntimeCharParse<unsigned long long int>(LINE, FORMAT);
+            testRuntimeCharParse<  signed          char>(LINE, FORMAT);
             testRuntimeCharParse<unsigned          char>(LINE, FORMAT);
 
             testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
@@ -470,6 +473,7 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  SC_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 
@@ -500,6 +504,7 @@ int main(int argc, char **argv)
 
             const unsigned long long ULL_VALUE  =
                                         static_cast<unsigned long long>(VALUE);
+            const signed char   SC_VALUE = static_cast<signed char>(VALUE);
             const unsigned char UC_VALUE = static_cast<unsigned char>(VALUE);
 
             testRuntimeWcharParse<                   int>(LINE, FORMAT);
@@ -508,6 +513,7 @@ int main(int argc, char **argv)
             testRuntimeWcharParse<     unsigned long int>(LINE, FORMAT);
             testRuntimeWcharParse<         long long int>(LINE, FORMAT);
             testRuntimeWcharParse<unsigned long long int>(LINE, FORMAT);
+            testRuntimeWcharParse<  signed          char>(LINE, FORMAT);
             testRuntimeWcharParse<unsigned          char>(LINE, FORMAT);
 
             testRuntimeFormat(LINE, EXPECTED, FORMAT,     VALUE);
@@ -515,6 +521,7 @@ int main(int argc, char **argv)
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  LL_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT, ULL_VALUE);
+            testRuntimeFormat(LINE, EXPECTED, FORMAT,  SC_VALUE);
             testRuntimeFormat(LINE, EXPECTED, FORMAT,  UC_VALUE);
         }
 

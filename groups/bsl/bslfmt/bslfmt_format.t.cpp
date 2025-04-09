@@ -1,9 +1,9 @@
 // bslfmt_format.t.cpp                                                -*-C++-*-
 #include <bslfmt_format.h>
 
-#include <bslma_testallocator.h>
-
 #include <bslfmt_standardformatspecification.h>
+
+#include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -15,9 +15,9 @@
 #endif
 
 #include <limits.h>
-#include <wchar.h>
 #include <stdio.h>
 #include <string.h>
+#include <wchar.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
   #include <type_traits> // For std::is_constant_evaluated
@@ -28,6 +28,104 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+
+// ============================================================================
+//                                 TEST PLAN
+// ----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
+// The component under test provides the functionality of the `bsl_format.h`
+// header therefore it defines its names in the `bsl` namespace.  It has two
+// major "modes of operation": when BDE has to implement the functionality, and
+// when the standard library provides a "good enough" implementation for us to
+// build on.  To simplify the test driver we do not differentiate between those
+// two modes of implementation but use the same verification for both.
+//
+// This special component defines classes, class templates, and namespace-level
+// function templates as well.  Because many of the classes are designed for
+// internal use by the format "system" and provide very limited testability we
+// will often only test the presence of the name, or a very simple use case
+// that does not require elaborate testing harness.
+//
+// Due to the large number of types (and combinations) the functions may be
+// called as formatted arguments (and class templates instantiated) the
+// verification for most named entities is done in more than one test case,
+// and those test cases verify large concerns, for example if all integer types
+// are formatted as expected, arguments are forwarded as expected, format
+// strings with syntax errors result in an exception etc.
+// ----------------------------------------------------------------------------
+// CLASSES AND CLASS TEMPLATES
+//  - `bsl::basic_format_arg`
+//  - `bsl::basic_format_args`
+//  - `bsl::basic_format_context`
+//  - `bsl::basic_format_parse_context`
+//  - `bsl::basic_format_string`
+//  - `bsl::formatter`
+//  - `bsl::format_args`
+//  - `bsl::format_error`
+//  - `bsl::format_parse_context`
+//  - `bsl::format_string`
+//  - `bsl::format_to_n_result`
+//  - `bsl::wformat_args`
+//  - `bsl::wformat_parse_context`
+//  - `bsl::wformat_string`
+//
+// FUNCTIONS AND FUNCTION TEMPLATES
+//  - `bsl::formatted_size()`
+//
+//  - `bsl::format(fmtstr, ...)`
+//  - `bsl::format(wfmtstr, ...)`
+//  - `bsl::format(locale, fmtstr, ...)`
+//  - `bsl::format(locale, wfmtstr, ...)`
+//  - `bsl::format(allocator, fmtstr, ...)`
+//  - `bsl::format(allocator, wfmtstr, ...)`
+//  - `bsl::format(allocator, locale, fmtstr, ...)`
+//  - `bsl::format(allocator, locale, wfmtstr, ...)`
+//
+//  - `bsl::format_to(bsl::string* str,  fmtstr, ...)`
+//  - `bsl::format_to(bsl::wstring* str, wfmtstr, ...)`
+//  - `bsl::format_to(bsl::string* str,  locale, fmtstr, ...)`
+//  - `bsl::format_to(bsl::wstring* str, locale, wfmtstr, ...)`
+//
+//  - `bsl::format_to_n(outIter, n, fmtstr, ...)`
+//  - `bsl::format_to_n(outIter, n, wfmtstr, ...)`
+//  - `bsl::format_to_n(outIter, n, locale, fmtstr, ...)`
+//  - `bsl::format_to_n(outIter, n, locale, wfmtstr, ...)`
+//
+//  - `bsl::vformat(fmtstr, ...)`
+//  - `bsl::vformat(wfmtstr, ...)`
+//  - `bsl::vformat(locale, fmtstr, ...)`
+//  - `bsl::vformat(locale, wfmtstr, ...)`
+//  - `bsl::vformat(allocator, fmtstr, ...)`
+//  - `bsl::vformat(allocator, wfmtstr, ...)`
+//  - `bsl::vformat(allocator, locale, fmtstr, ...)`
+//  - `bsl::vformat(allocator, locale, wfmtstr, ...)`
+//
+//  - `bsl::vformat_to(bsl::string *str,  locale, fmtstr, ...)`
+//  - `bsl::vformat_to(bsl::wstring *str, locale, wfmtstr, ...)`
+//  - `bsl::vformat_to(bsl::string *str,  locale, fmtstr, ...)`
+//  - `bsl::vformat_to(bsl::wstring *str, locale, wfmtstr, ...)`
+//
+//  - `bsl::make_format_args(...)`
+//  - `bsl::make_wformat_args(...)`
+//
+//  - `bsl::visit_format_arg(visitor, arg)`
+//
+// ----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 2] CONCERN: CLASSES AND CLASS TEMPLATES
+// [ 3] CONCERN: INTEGERS
+// [ 4] CONCERN: CHAR AND WCHAR_T
+// [ 5] CONCERN: FLOAT AND DOUBLE
+// [ 6] CONCERN: STRINGS
+// [ 7] CONCERN: BOOLEAN
+// [ 8] CONCERN: POINTERS
+// [ 9] CONCERN: COMBINATIONS OF FORMATTED TYPES
+// [10] CONCERN: VFORMAT, VFORMAT_TO
+// [11] CONCERN: ARGUMENT PASSING
+// [12] CONCERN: BAD FORMAT STRINGS
+// [13] USAGE EXAMPLES
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -96,6 +194,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                       HELPER CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
+    defined(BSLSTL_STRING_VIEW_IS_ALIASED)
+  #define u_STD_STRING_VIEW_EXISTS                                            1
+#endif
+
 void check(const bsl::string& actual, const char *expected) {
     ASSERT(expected == actual);
 }
@@ -142,8 +245,6 @@ bool doTestWithOracle(wstring_view                   result,
 # define DOTESTWITHORACLE(RESULT, ...)                                        \
              (RESULT == bslfmt::format(__VA_ARGS__));
 #endif
-
-struct NonFormattableType {};
 
 struct FormattableType {
     int x;
@@ -1095,18 +1196,24 @@ static bool veryVeryVeryVerbose;
 //                        TEST HELPERS FOR VFORMAT
 //-----------------------------------------------------------------------------
 
+//-------------------------------------------------------------------
+// Global variables that collect usage information for `DelimitedInt`
 static int                      g_numCtorInvocations;
 static int                      g_numParseInvocations;
 static int                      g_numFormatInvocations;
 static bsl::vector<int>         g_values;
+
+// Contexts have to be collected separately for `char` and `wchar_t`
 template <class t_CHAR>
 struct ParseContextContents;
+
 template <>
 struct ParseContextContents<char>{
     typedef bsl::string             value_type;
     static bsl::vector<bsl::string> s_vector;
 };
 bsl::vector<bsl::string> ParseContextContents<char>::s_vector;
+
 template <>
 struct ParseContextContents<wchar_t> {
     typedef bsl::wstring             value_type;
@@ -1114,6 +1221,8 @@ struct ParseContextContents<wchar_t> {
 };
 bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector;
 
+//--------------------------------------------------------------
+// Access and reset global "spying" variables for `DelimitedInt`
 static void resetDelimitedIntGlobals()
 {
     g_numCtorInvocations = 0;
@@ -1150,6 +1259,11 @@ static void printDelimitedIntGlobals()
     puts("}");
 }
 
+                              //===================
+                              // class DelimitedInt
+                              //===================
+
+/// Represents an integer that is special-formatted between delimiters.
 class DelimitedInt {
     // DATA
     int d_value;
@@ -1162,6 +1276,17 @@ class DelimitedInt {
     int value() const { return d_value; }
 };
 
+
+                  //======================================
+                  // template struct DelimitedIntFormatter
+                  //======================================
+
+/// Custom formatter class template that formats a `DelimitedInt`, integer
+/// value as text between two delimiters that default to "<>" such as: "<42>".
+/// The delimiters may be changed by the format string that may be an empty set
+/// of curly braces, or it may contain the ':' for formatting information
+/// followed by two exactly characters for the opening and closing delimiter,
+/// followed by the closing '}'.
 template <class t_CHAR>
 struct DelimitedIntFormatter {
   // DATA
@@ -1293,7 +1418,7 @@ template <>
 const wchar_t DelimitedIntFormatter<wchar_t>::s_defaultDelimiters[2] = {L'<',
                                                                         L'>'};
 
-
+// Partial specialization of `bsl::formatter` for `DelimitedInt`.
 namespace bsl {
 template <class t_CHAR>
 struct formatter<DelimitedInt, t_CHAR> : DelimitedIntFormatter<t_CHAR> {
@@ -1333,14 +1458,14 @@ class CustomNumPunct : public std::numpunct<t_CHAR> {
 //                          TEST CASE FUNCTIONS
 //-----------------------------------------------------------------------------
 
-void testCase11()
+void testCase12()
 {
     // ------------------------------------------------------------------------
     // BAD FORMAT STRINGS
     //
     // Concerns:
-    // 1. Too many format placeholders cause an error (not enough
-    //    arguments to format).
+    // 1. Too many format placeholders cause an error (not enough arguments to
+    //    format).
     //
     // Plan:
     // 1. Use `bsl::vformat` for runtime testing.
@@ -1387,7 +1512,7 @@ void testCase11()
     ASSERT(formatErrorCaught);
 }
 
-void testCase10()
+void testCase11()
 {
     // ------------------------------------------------------------------------
     // ARGUMENT PASSING
@@ -1400,7 +1525,10 @@ void testCase10()
     // 2. The locale argument is passed to the standard implementation.
     //
     // Plan:
-    // 1. Use `bsl::vformat` for runtime testing.
+    // 1. Use `bsl::vformat` overloads for runtime testing.
+    // 2. Also verify `bsl::format` overloads.
+    // 3. Use a custom formatted type in the tests.
+    // 4. Verify all overloads, including locale when supported.
     //
     // Testing:
     //   CONCERN: ARGUMENT PASSING
@@ -1616,14 +1744,14 @@ void testCase10()
 #endif
 }
 
-void testCase9()
+void testCase10()
 {
     // ------------------------------------------------------------------------
     // VFORMAT, VFORMAT_TO
     //
     // Concerns:
     // 1. `vformat`, `vformat_t` calls format as expected.
-    // 1. `vformat` uses the specified allocator for the returned string.
+    // 2. `vformat` uses the specified allocator for the returned string.
     //
     // Plan:
     // 1. Use `bsl::vformat` for runtime testing.
@@ -1686,11 +1814,6 @@ void testCase9()
 
         bsl::string_view  bslView("Text");
         bsl::wstring_view bslWview(L"Text");
-
-#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST) ||                \
-    defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-    #define u_STD_STRING_VIEW_EXISTS                                          1
-#endif
 
 #ifdef u_STD_STRING_VIEW_EXISTS
         std::string_view stdView("Text");
@@ -1756,10 +1879,10 @@ void testCase9()
     }
 }
 
-void testCase8()
+void testCase9()
 {
     // ------------------------------------------------------------------------
-    // COMBINATIONS
+    // COMBINATIONS OF FORMATTED TYPES
     //
     // Concerns:
     // 1. Mixed kinds (types) of arguments result in the invocation of
@@ -1771,11 +1894,11 @@ void testCase8()
     //    format strings.
     //
     // Testing:
-    //   COMBINATIONS
+    //   CONCERN: COMBINATIONS OF FORMATTED TYPES
     // ------------------------------------------------------------------------
 
-    if (verbose) puts("\nCOMBINATIONS"
-                      "\n============");
+    if (verbose) puts("\nCOMBINATIONS OF FORMATTED TYPES"
+                      "\n===============================");
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -1792,10 +1915,9 @@ void testCase8()
                      L"PgDown",
                      32,
                      13.75);
-
 }
 
-void testCase7()
+void testCase8()
 {
     // ------------------------------------------------------------------------
     // POINTERS
@@ -1913,7 +2035,7 @@ void testCase7()
 #undef u_VERIFY_POINTER
 }
 
-void testCase6()
+void testCase7()
 {
     // ------------------------------------------------------------------------
     // BOOLEAN
@@ -2015,7 +2137,7 @@ void testCase6()
     u_VERIFY_FORMAT_BOTH("{:x}", "0", false);
 }
 
-void testCase5()
+void testCase6()
 {
     // ------------------------------------------------------------------------
     // STRINGS
@@ -2100,7 +2222,7 @@ void testCase5()
 #undef u_VERIFY_STRINGS
 }
 
-void testCase4()
+void testCase5()
 {
     // ------------------------------------------------------------------------
     // FLOAT AND DOUBLE
@@ -2329,7 +2451,7 @@ void testCase4()
     u_VERIFY_FORMAT_BOTH("{:#G}", "42.2400", 42.24f);
 }
 
-void testCase3()
+void testCase4()
 {
     // ------------------------------------------------------------------------
     // CHAR AND WCHAR_T
@@ -2352,7 +2474,7 @@ void testCase3()
     //    covers the concerns.
     //
     // Testing:
-    //   CHAR AND WCHAR_T
+    //   CONCERN: CHAR AND WCHAR_T
     // ------------------------------------------------------------------------
 
     if (verbose) puts("\nCHAR AND WCHAR_T"
@@ -2449,7 +2571,7 @@ void testCase3()
     u_VERIFY_WFORMAT(L"{:#B}", L"0B101010", L'*');
 }
 
-void testCase2()
+void testCase3()
 {
     // ------------------------------------------------------------------------
     // INTEGERS
@@ -2460,20 +2582,20 @@ void testCase2()
     // 2. Sign format specification works as intended (' ', '+', '-').
     //
     // 3. Width specification with and without alignment works according to
-    //    the standard requirements in its direct form as well as when
-    //    width is specified by an argument (embedded).
+    //    the standard requirements in its direct form as well as when width is
+    //    specified by an argument (embedded).
     //
-    // 4. Presentation format specifiers (characters) print using the
-    //    specified standard presentation format.
+    // 4. Presentation format specifiers (characters) print using the specified
+    //    standard presentation format.
     //
     // 5. Alternate formats work as per standard.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
-    //   INTEGERS
+    //   CONCERN: INTEGERS
     // ------------------------------------------------------------------------
 
     if (verbose) puts("\nINTEGERS"
@@ -2903,9 +3025,9 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLES
         //   Extracted from component header file.
         //
         // Concerns:
@@ -2918,11 +3040,11 @@ int main(int argc, char **argv)
         //    (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLES
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nUSAGE EXAMPLE"
-                          "\n=============");
+        if (verbose) puts("\nUSAGE EXAMPLES"
+                          "\n==============");
 
 ///Example 1: Simple Integer Formatting
 /// - - - - - - - - - - - - - - - - - -
@@ -2949,35 +3071,319 @@ int main(int argc, char **argv)
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // BAD FORMAT STRINGS
+        //
+        // Concerns:
+        // 1. Too many format placeholders cause an error (not enough arguments
+        //    to format).
+        // --------------------------------------------------------------------
+        testCase12();
+      } break;
       case 11: {
+        // --------------------------------------------------------------------
+        // ARGUMENT PASSING
+        //
+        // Concerns:
+        // 1. Arguments are passed to the implementation.  Note that this test
+        //    case works in conjunction of the rest of the test driver, not all
+        //    parameters are directly verified here.
+        //
+        // 2. The locale argument is passed to the standard implementation.
+        // --------------------------------------------------------------------
         testCase11();
       } break;
       case 10: {
+        // --------------------------------------------------------------------
+        // VFORMAT, VFORMAT_TO
+        //
+        // Concerns:
+        // 1. `vformat`, `vformat_t` calls format as expected.
+        // 2. `vformat` uses the specified allocator for the returned string.
+        // --------------------------------------------------------------------
         testCase10();
       } break;
       case 9: {
+        // --------------------------------------------------------------------
+        // COMBINATIONS
+        //
+        // Concerns:
+        // 1. Mixed kinds (types) of arguments result in the invocation of
+        //    differently configured parser that have to all do proper parsing
+        //    of portions of the format string.
+        // --------------------------------------------------------------------
         testCase9();
       } break;
       case 8: {
+        // --------------------------------------------------------------------
+        // POINTERS
+        //
+        // Concerns:
+        // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as
+        //    0x0.
+        //
+        // 2. Pointer values are printed as hexadecimal addresses with `0x`
+        //    prefix.
+        //
+        // 3. Zero padding places the right number of zeros after the prefix.
+        //
+        // 4. Width and alignment combinations work as expected.
+        //
+        // 5. Width may be specified as an argument, without or with arg id.
+        //
+        // 6. Presentation may be specified as 'p' and it results in the same
+        //    output as no presentation format specified.
+        //
+        // 7. Presentation may be specified as 'P' and it results in the prefix
+        //    changing to "0X" and the hexadecimal output being uppercase.
+        //
+        // 8. `char` and `wchar_t` formatting both work.
+        // --------------------------------------------------------------------
         testCase8();
       } break;
       case 7: {
+        // --------------------------------------------------------------------
+        // BOOLEAN
+        //
+        // Concerns:
+        // 1. Static text in format string is copied to the output unmodified.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. Format specification characters have the intended result.
+        // --------------------------------------------------------------------
         testCase7();
       } break;
       case 6: {
+        // --------------------------------------------------------------------
+        // STRINGS
+        //
+        // Concerns:
+        // 1. All supported string types print their value properly.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. The 's' format specification character may be used.
+        //
+        // 4. A "precision" specification ('.' followed by an integer)
+        //   truncates the printed string.
+        // --------------------------------------------------------------------
         testCase6();
       } break;
       case 5: {
+        // --------------------------------------------------------------------
+        // FLOAT AND DOUBLE
+        //
+        // Concerns:
+        // 1. Both supported types ('double', and 'float') print their values
+        //    properly.
+        //
+        // 2. Sign format specification works as intended (' ', '+', '-').
+        //
+        // 3. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 4. Presentation format specifiers (characters) print using the
+        //    specified standard presentation format.
+        //
+        // 5. Precision specification works as per standard in all presentation
+        //    formats including the default.
+        //
+        // 6. Alternate formats work as per standard.
+        // --------------------------------------------------------------------
         testCase5();
       } break;
       case 4: {
+        // --------------------------------------------------------------------
+        // CHAR AND WCHAR_T
+        //
+        // Concerns:
+        // 1. Characters and wide characters are printed (by default) as a
+        //    string that consists of that character only.
+        //
+        // 2. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 3. Presentation format specifiers (characters) work as per standard.
+        //
+        // 4. Alternate format adds the format prefixes in the appropriate
+        //    presentation formats as per standard.
+        // --------------------------------------------------------------------
         testCase4();
       } break;
       case 3: {
+        // --------------------------------------------------------------------
+        // INTEGERS
+        //
+        // Concerns:
+        // 1. All integers types are converted to string properly.
+        //
+        // 2. Sign format specification works as intended (' ', '+', '-').
+        //
+        // 3. Width specification with and without alignment works according to
+        //    the standard requirements in its direct form as well as when
+        //    width is specified by an argument (embedded).
+        //
+        // 4. Presentation format specifiers (characters) print using the
+        //    specified standard presentation format.
+        //
+        // 5. Alternate formats work as per standard.
+        // --------------------------------------------------------------------
         testCase3();
       } break;
       case 2: {
-        testCase2();
+        // --------------------------------------------------------------------
+        // CLASSES AND CLASS TEMPLATES
+        //
+        // Concerns:
+        // 1. The standard-mandated types and class templates exist in the
+        //    `bsl` namespace.
+        //
+        // 2. Where possible (without significant test infrastructure) verify
+        //    that the type/template behaves as expected
+        //
+        // Plan:
+        // 1. Verify the existence of names,
+        //
+        // Testing:
+        //   CONCERN: CLASSES AND CLASS TEMPLATES
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nCLASSES AND CLASS TEMPLATES"
+                          "\n===========================");
+
+        // `basic_format_arg` cannot be directly created or accessed so we are
+        // not able to provide a verification in C++03..C++20.  Standard
+        // library implementations may not even provide a definition for the
+        // "main" template. only for the specifications for the contexts they
+        // implement.
+
+        // `basic_format_args` cannot be directly created or accessed so we are
+        // not able to provide a verification in C++03..C++20.  Standard
+        // library implementations may not even provide a definition for the
+        // "main" template. only for the specifications for the contexts they
+        // implement.
+
+        // `basic_format_context` cannot be directly created since it is
+        // unspecified what is their first template argument, and the main
+        // class template of standard library implementations is not
+        // necessarily defined, only those specializations that may only be
+        // created indirectly by `make_format_args` and `make_wformat_args`.
+
+        // `bsl::basic_format_parse_context`
+        // `bsl::format_parse_context`
+        // `bsl::wformat_parse_context`
+        bsl::basic_format_parse_context<char> bfpc("{} {}", 2);
+        (void)bfpc;
+        bsl::basic_format_parse_context<wchar_t> wbfpc(L"{} {}", 2);
+        (void)wbfpc;
+
+        ASSERT((bsl::is_same<bsl::basic_format_parse_context<char>,
+                             bsl::format_parse_context>::value));
+        ASSERT((bsl::is_same<bsl::basic_format_parse_context<wchar_t>,
+                             bsl::wformat_parse_context>::value));
+
+        // `bsl::basic_format_string`
+        // `bsl::format_string`
+        // `bsl::wformat_string`
+#ifndef BSLS_PLATFORM_CMP_SUN
+        bsl::basic_format_string<char, int, int>    bfs("{} {}");   (void)bfs;
+        bsl::basic_format_string<wchar_t, int, int> wbfs(L"{} {}"); (void)wbfs;
+
+        ASSERT((bsl::is_same<bsl::basic_format_string<char, int, int>,
+                             bsl::format_string<int, int> >::value));
+        ASSERT((bsl::is_same<bsl::basic_format_string<wchar_t, int, int>,
+                             bsl::wformat_string<int, int> >::value));
+#endif  // not the Solaris Studio compiler
+
+        // `bsl::formatter` is once verified by the formattable types we use in
+        // this test driver (by specializing it).  In addition to that we
+        // verify here that the expected standard specializations do exist:
+
+        // formatters for character types
+        bsl::formatter<char, char>       fmtrcc;    (void)fmtrcc;
+        bsl::formatter<char, wchar_t>    fmtrcwc;   (void)fmtrcwc;
+        bsl::formatter<wchar_t, wchar_t> fmtrwcwc;  (void)fmtrwcwc;
+
+        // formatters for string types
+        bsl::formatter<char*, char>             fmtrcpc;     (void)fmtrcpc;
+        bsl::formatter<const char*, char>       fmtrccpc;    (void)fmtrccpc;
+        bsl::formatter<wchar_t*, wchar_t>       fmtrwcpwc;   (void)fmtrwcpwc;
+        bsl::formatter<const wchar_t*, wchar_t> fmtrcwcpwc;  (void)fmtrcwcpwc;
+        // formatters for character arrays are templates on size
+        bsl::formatter<std::string, char>     fmtrssc;    (void)fmtrssc;
+        bsl::formatter<std::wstring, wchar_t> fmtrwsswc;  (void)fmtrwsswc;
+        bsl::formatter<bsl::string, char>     fmtrbsc;    (void)fmtrbsc;
+        bsl::formatter<bsl::wstring, wchar_t> fmtrwbswc;  (void)fmtrwbswc;
+
+#ifdef u_STD_STRING_VIEW_EXISTS
+        bsl::formatter<std::string_view, char>     fmtrsvc;    (void)fmtrsvc;
+        bsl::formatter<std::wstring_view, wchar_t> fmtrwsvwc;  (void)fmtrwsvwc;
+        bsl::formatter<bsl::string_view, char>     fmtrbvc;    (void)fmtrbvc;
+        bsl::formatter<bsl::wstring_view, wchar_t> fmtrwbvwc;  (void)fmtrwbvwc;
+#endif  // u_STD_STRING_VIEW_EXISTS
+
+        // formatters for arithmetic types
+        bsl::formatter<bool, char>    fmtrbc;  (void)fmtrbc;
+        bsl::formatter<bool, wchar_t> fmtrbwc; (void)fmtrbwc;
+
+        bsl::formatter<signed char, char>      fmtrscc;  (void)fmtrscc;
+        bsl::formatter<signed char, wchar_t>   fmtrscwc; (void)fmtrscwc;
+        bsl::formatter<unsigned char, char>    fmtrucc;  (void)fmtrucc;
+        bsl::formatter<unsigned char, wchar_t> fmtrucwc; (void)fmtrucwc;
+
+        bsl::formatter<short, char>             fmtrhc;   (void)fmtrhc;
+        bsl::formatter<short, wchar_t>          fmtrhwc;  (void)fmtrhwc;
+        bsl::formatter<unsigned short, char>    fmtruhc;  (void)fmtruhc;
+        bsl::formatter<unsigned short, wchar_t> fmtruhwc; (void)fmtruhwc;
+
+        bsl::formatter<int,      char>    fmtrsic;  (void)fmtrsic;
+        bsl::formatter<int,      wchar_t> fmtrsiwc; (void)fmtrsiwc;
+        bsl::formatter<unsigned, char>    fmtruic;  (void)fmtruic;
+        bsl::formatter<unsigned, wchar_t> fmtruiwc; (void)fmtruiwc;
+
+        bsl::formatter<long,          char>    fmtrslc;  (void)fmtrslc;
+        bsl::formatter<long,          wchar_t> fmtrslwc; (void)fmtrslwc;
+        bsl::formatter<unsigned long, char>    fmtrulc;  (void)fmtrulc;
+        bsl::formatter<unsigned long, wchar_t> fmtrulwc; (void)fmtrulwc;
+
+        bsl::formatter<long long,          char>    fmtrsllc;  (void)fmtrsllc;
+        bsl::formatter<long long,          wchar_t> fmtrsllwc; (void)fmtrsllwc;
+        bsl::formatter<unsigned long long, char>    fmtrullc;  (void)fmtrullc;
+        bsl::formatter<unsigned long long, wchar_t> fmtrullwc; (void)fmtrullwc;
+
+        // `bsl::format_error`
+        {  // `char *` initializer
+            const char        *WHAT = "Just an error.";
+            bsl::format_error  err(WHAT);
+            ASSERTV(err.what(), 0 == strcmp(err.what(), WHAT));
+        }
+        {  // `bsl::string` initializer
+            bsl::string       WHAT("Just an error.");
+            bsl::format_error err(WHAT);
+            ASSERTV(err.what(), WHAT == err.what());
+        }
+        {  // `std::string` initializer
+            std::string       WHAT("Just an error.");
+            bsl::format_error err(WHAT);
+            ASSERTV(err.what(), WHAT == err.what());
+        }
+
+        // `bsl::format_to_n_result`
+        {
+            char                            buff[32];
+            bsl::format_to_n_result<char *> ftnr = {buff + 12, 12};
+            ASSERTV((const void *)(buff + 12), (const void *)ftnr.out,
+                    (const void *)(buff + 12) == (const void *)ftnr.out);
+            ASSERTV(ftnr.size, 12 == ftnr.size);
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
