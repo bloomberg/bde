@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Mon Mar  3 12:36:05 2025
+// Generated on Wed Apr  9 09:04:17 2025
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.t.cpp
 
 // Expanded test driver only when compiling bdlc_flathashtable.cpp
@@ -2469,9 +2469,10 @@ IsValidResult::Enum isValid(bsl::size_t        *errorIndex,
                                       (hash >> groupControlShift) * blockSize);
 
                     char s[128];
-                    sprintf(s,
-                            "ERROR: incorrect position for initial index %i",
-                            initialIndex);
+                    snprintf(s,
+                             sizeof s,
+                             "ERROR: incorrect position for initial index %i",
+                             initialIndex);
                     *errorIndex = i;
                     return IsValidResult::e_BAD_POSITION;             // RETURN
                 }
