@@ -83,9 +83,9 @@ BSLS_IDENT("$Id: $")
 // as that text is separated from the valid JSON by a delimiter character
 // (i.e., either the JSON text ends in a delimiter, or the text that follows
 // starts with a delimiter).  Here, delimiters are white-space characters,
-// `[`,`]`,`{`,`}`,`,`, or `"`.  Per RFC 8259, white space characters are
-// Space (0x20), Horizontal tab (0x09), New Line (0x0A), and Carriage Return
-// (0x0D).
+// `[`, `]`, `{`, `}`, `,`, or double-quotes.  Per RFC 8259, white space
+// characters are Space (0x20), Horizontal tab (0x09), New Line (0x0A), and
+// Carriage Return (0x0D).
 //
 // The table below shows some examples:
 // ```
