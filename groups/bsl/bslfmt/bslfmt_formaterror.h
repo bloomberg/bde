@@ -77,21 +77,15 @@ class format_error : public std::runtime_error {
     BSLS_KEYWORD_EXPLICIT format_error(const char *whatArg);
 
     /// Create an object of this type holding the error message given by the
-    /// specified `whatArg`.  Note that if a `bsl::string` would be passed to
-    /// the `std::string` constructor, two copies occur (one to initialize
+    /// specified `whatArg`.
+    BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& whatArg);
+    // Implementation Note: If a `bsl::string ` would be passed to the
+    // `std::string` constructor, two copies would occur (one to initialize
     /// `whatArg`, and one to initialize the internal reference-counted
     /// string).  This constructor ensures that only a single copy needs to be
-    /// performed.  TBD afeher: Except it does not do the same thing because
-    /// the way it is implemented in bslfmt will stop copying on the first null
-    /// character in the string but the implicit conversion that
-    /// `bsl::basic_string` does copies up to the `length` of the string that
-    /// may be longer.  Also, we are throwing an exception here that is known
-    /// to be 2-3 orders of magnitude more expensive than returning from the
-    /// functions on the call stack so this temporary allocation probably won't
-    /// make a lot of difference.  We are trying to patch up the fact that WG21
-    /// forgot to add `string_view` parameters to the exceptions.  We probably
-    /// should not.
-    BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& whatArg);
+    /// performed.  Note that when we have and use the `std::format_error`
+    /// directly (unchanged) that has only a `std::string` constructor so the
+    /// two copies will occur there.
 
     /// Create an object of this type which is a copy of the specified `other`.
     format_error(const format_error& other) BSLS_KEYWORD_NOEXCEPT;

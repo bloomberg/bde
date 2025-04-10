@@ -1526,8 +1526,11 @@ void testCase11()
     //
     // Plan:
     // 1. Use `bsl::vformat` overloads for runtime testing.
+    //
     // 2. Also verify `bsl::format` overloads.
+    //
     // 3. Use a custom formatted type in the tests.
+    //
     // 4. Verify all overloads, including locale when supported.
     //
     // Testing:
@@ -1751,6 +1754,7 @@ void testCase10()
     //
     // Concerns:
     // 1. `vformat`, `vformat_t` calls format as expected.
+    //
     // 2. `vformat` uses the specified allocator for the returned string.
     //
     // Plan:
@@ -1890,8 +1894,8 @@ void testCase9()
     //    of portions of the format string.
     //
     // Plan:
-    // 1. Spot check different combinations by using real-life looking
-    //    format strings.
+    // 1. Spot check different combinations by using real-life looking format
+    //    strings.
     //
     // Testing:
     //   CONCERN: COMBINATIONS OF FORMATTED TYPES
@@ -1923,11 +1927,9 @@ void testCase8()
     // POINTERS
     //
     // Concerns:
-    // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as
-    //    0x0.
+    // 1. `nullptr` (if supported) and `bsl::nullptr_t()` are printed as 0x0.
     //
-    // 2. Pointer values are printed as hexadecimal addresses with `0x`
-    //    prefix.
+    // 2. Pointer values are printed as hexadecimal addresses with `0x` prefix.
     //
     // 3. Zero padding places the right number of zeros after the prefix.
     //
@@ -1944,8 +1946,8 @@ void testCase8()
     // 8. `char` and `wchar_t` formatting both work.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
     //   CONCERN: POINTERS
@@ -2043,15 +2045,15 @@ void testCase7()
     // Concerns:
     // 1. Static text in format string is copied to the output unmodified.
     //
-    // 2. Width specification with and without alignment works according to
-    //    the standard requirements in its direct form as well as when
-    //    width is specified by an argument (embedded).
+    // 2. Width specification with and without alignment works according to the
+    //    standard requirements in its direct form as well as when width is
+    //    specified by an argument (embedded).
     //
     // 3. Format specification characters have the intended result.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
     //   CONCERN: BOOLEAN
@@ -2145,18 +2147,18 @@ void testCase6()
     // Concerns:
     // 1. All supported string types print their value properly.
     //
-    // 2. Width specification with and without alignment works according to
-    //    the standard requirements in its direct form as well as when
-    //    width is specified by an argument (embedded).
+    // 2. Width specification with and without alignment works according to the
+    //    standard requirements in its direct form as well as when width is
+    //    specified by an argument (embedded).
     //
     // 3. The 's' format specification character may be used.
     //
-    // 4. A "precision" specification ('.' followed by an integer)
-    //   truncates the printed string.
+    // 4. A "precision" specification ('.' followed by an integer) truncates
+    //    the printed string.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
     //   CONCERN: STRINGS
@@ -2233,12 +2235,12 @@ void testCase5()
     //
     // 2. Sign format specification works as intended (' ', '+', '-').
     //
-    // 3. Width specification with and without alignment works according to
-    //    the standard requirements in its direct form as well as when
-    //    width is specified by an argument (embedded).
+    // 3. Width specification with and without alignment works according to the
+    //    standard requirements in its direct form as well as when width is
+    //    specified by an argument (embedded).
     //
-    // 4. Presentation format specifiers (characters) print using the
-    //    specified standard presentation format.
+    // 4. Presentation format specifiers (characters) print using the specified
+    //    standard presentation format.
     //
     // 5. Precision specification works as per standard in all presentation
     //    formats including the default.
@@ -2246,8 +2248,8 @@ void testCase5()
     // 6. Alternate formats work as per standard.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
     //   CONCERN: FLOAT AND DOUBLE
@@ -2457,12 +2459,12 @@ void testCase4()
     // CHAR AND WCHAR_T
     //
     // Concerns:
-    // 1. Characters and wide characters are printed (by default) as a
-    //    string that consists of that character only.
+    // 1. Characters and wide characters are printed (by default) as a string
+    //    that consists of that character only.
     //
-    // 2. Width specification with and without alignment works according to
-    //    the standard requirements in its direct form as well as when
-    //    width is specified by an argument (embedded).
+    // 2. Width specification with and without alignment works according to the
+    //    standard requirements in its direct form as well as when width is
+    //    specified by an argument (embedded).
     //
     // 3. Presentation format specifiers (characters) work as per standard.
     //
@@ -2470,8 +2472,8 @@ void testCase4()
     //    presentation formats as per standard.
     //
     // Plan:
-    // 1. Use individual macros to create rows of a table-like test that
-    //    covers the concerns.
+    // 1. Use individual macros to create rows of a table-like test that covers
+    //    the concerns.
     //
     // Testing:
     //   CONCERN: CHAR AND WCHAR_T
@@ -3262,13 +3264,13 @@ int main(int argc, char **argv)
         // `basic_format_arg` cannot be directly created or accessed so we are
         // not able to provide a verification in C++03..C++20.  Standard
         // library implementations may not even provide a definition for the
-        // "main" template. only for the specifications for the contexts they
+        // "main" template, only for the specifications for the contexts they
         // implement.
 
         // `basic_format_args` cannot be directly created or accessed so we are
         // not able to provide a verification in C++03..C++20.  Standard
         // library implementations may not even provide a definition for the
-        // "main" template. only for the specifications for the contexts they
+        // "main" template, only for the specifications for the contexts they
         // implement.
 
         // `basic_format_context` cannot be directly created since it is
