@@ -75,13 +75,6 @@ class format_error : public std::runtime_error {
     /// specified `whatArg`.
     BSLS_KEYWORD_EXPLICIT format_error(const std::string& whatArg);
     BSLS_KEYWORD_EXPLICIT format_error(const char *whatArg);
-
-    /// Create an object of this type holding the error message given by the
-    /// specified `whatArg`.  Note that if a `bsl::string` would be passed to
-    /// the `std::string` constructor, two copies occur (one to initialize
-    /// `whatArg`, and one to initialize the internal reference-counted
-    /// string).  This constructor ensures that only a single copy needs to be
-    /// performed.
     BSLS_KEYWORD_EXPLICIT format_error(const bsl::string& whatArg);
 
     /// Create an object of this type which is a copy of the specified `other`.

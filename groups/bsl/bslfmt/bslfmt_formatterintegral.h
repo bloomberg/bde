@@ -97,6 +97,13 @@ namespace bsl {
 // FORMATTER SPECIALIZATIONS
 
 /// Partial specialization of the `bsl::formatter` template for the type
+/// `signed char`.
+template <class t_CHAR>
+struct formatter<signed char, t_CHAR>
+: BloombergLP::bslfmt::FormatterIntegral_Imp<signed char, t_CHAR> {
+};
+
+/// Partial specialization of the `bsl::formatter` template for the type
 /// `unsigned char`.
 template <class t_CHAR>
 struct formatter<unsigned char, t_CHAR>

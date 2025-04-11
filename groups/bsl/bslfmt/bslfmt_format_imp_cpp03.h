@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Mar  5 10:00:53 2025
+// Generated on Tue Mar 25 16:07:57 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -2988,7 +2988,7 @@ bsl::string vformat(bsl::allocator<char> alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr, args);
-    return result;
+    return bsl::string(result, alloc);
 }
 
 inline
@@ -2998,7 +2998,7 @@ bsl::wstring vformat(bsl::allocator<wchar_t> alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr, args);
-    return result;
+    return bsl::wstring(result, alloc);
 }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -4614,7 +4614,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args());
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
 
@@ -4626,7 +4626,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args(args_01));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
 
@@ -4641,7 +4641,7 @@ bsl::string format(bsl::allocator<char>           alloc,
     bsl::string result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args(args_01,
                                                                args_02));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
 
@@ -4659,7 +4659,7 @@ bsl::string format(bsl::allocator<char>           alloc,
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args(args_01,
                                                                args_02,
                                                                args_03));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
 
@@ -4680,7 +4680,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_02,
                                                                args_03,
                                                                args_04));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
 
@@ -4704,7 +4704,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_03,
                                                                args_04,
                                                                args_05));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
 
@@ -4731,7 +4731,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_04,
                                                                args_05,
                                                                args_06));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
 
@@ -4761,7 +4761,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_05,
                                                                args_06,
                                                                args_07));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
 
@@ -4794,7 +4794,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_06,
                                                                args_07,
                                                                args_08));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
 
@@ -4830,7 +4830,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_07,
                                                                args_08,
                                                                args_09));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
 
@@ -4869,7 +4869,7 @@ bsl::string format(bsl::allocator<char>           alloc,
                                                                args_08,
                                                                args_09,
                                                                args_10));
-    return result;
+    return bsl::string(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
 
@@ -4880,7 +4880,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args());
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
 
@@ -4892,7 +4892,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args(args_01));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
 
@@ -4907,7 +4907,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args(args_01,
                                                                 args_02));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
 
@@ -4925,7 +4925,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args(args_01,
                                                                 args_02,
                                                                 args_03));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
 
@@ -4946,7 +4946,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_02,
                                                                 args_03,
                                                                 args_04));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
 
@@ -4970,7 +4970,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_03,
                                                                 args_04,
                                                                 args_05));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
 
@@ -4997,7 +4997,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_04,
                                                                 args_05,
                                                                 args_06));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
 
@@ -5027,7 +5027,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_05,
                                                                 args_06,
                                                                 args_07));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
 
@@ -5060,7 +5060,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_06,
                                                                 args_07,
                                                                 args_08));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
 
@@ -5096,7 +5096,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_07,
                                                                 args_08,
                                                                 args_09));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
 
@@ -5135,7 +5135,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
                                                                 args_08,
                                                                 args_09,
                                                                 args_10));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
 
@@ -6671,7 +6671,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args(args...));
-    return result;
+    return bsl::string(result, alloc);
 }
 
 template <class... t_ARGS>
@@ -6681,7 +6681,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args(args...));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 
 template <class... t_ARGS>

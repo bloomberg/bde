@@ -970,7 +970,7 @@ bsl::string vformat(bsl::allocator<char> alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr, args);
-    return result;
+    return bsl::string(result, alloc);
 }
 
 inline
@@ -980,7 +980,7 @@ bsl::wstring vformat(bsl::allocator<wchar_t> alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr, args);
-    return result;
+    return bsl::wstring(result, alloc);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -1050,7 +1050,7 @@ bsl::string format(bsl::allocator<char>           alloc,
 {
     bsl::string result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_format_args(args...));
-    return result;
+    return bsl::string(result, alloc);
 }
 
 template <class... t_ARGS>
@@ -1060,7 +1060,7 @@ bsl::wstring format(bsl::allocator<wchar_t>         alloc,
 {
     bsl::wstring result(alloc);
     vformat_to(&result, fmtStr.get(), bslfmt::make_wformat_args(args...));
-    return result;
+    return bsl::wstring(result, alloc);
 }
 
 template <class... t_ARGS>
