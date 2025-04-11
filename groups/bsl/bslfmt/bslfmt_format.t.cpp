@@ -876,6 +876,35 @@ struct formatter<FormattableType, t_CHAR> {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 // ============================================================================
+//                      BASIC_FORMAT_ARG[S] TEST HELPERS
+// ----------------------------------------------------------------------------
+
+// There has to be two of these functions because if I make it into a template
+// the lookup fails.
+
+void verifyArgAndArgs(int LINE, const bsl::format_args& fargs)
+{
+    // Here we get to use the `basic_format_arg` name
+    bsl::basic_format_arg<bsl::format_context> fa = fargs.get(0);
+    ASSERTV(LINE, !!fa);
+
+    ASSERTV(LINE, !!fargs.get(0)); // The only usable member is `operator bool`
+    ASSERTV(LINE, !!fargs.get(1)); // in `basic_format_arg`
+    ASSERTV(LINE, !fargs.get(2));
+}
+
+void verifyArgAndArgs(int LINE, const bsl::wformat_args& fargs)
+{
+    // Here we get to use the `basic_format_arg` name
+    bsl::basic_format_arg<bsl::wformat_context> fa = fargs.get(0);
+    ASSERTV(LINE, !!fa);
+
+    ASSERTV(LINE, !!fargs.get(0)); // The only usable member is `operator bool`
+    ASSERTV(LINE, !!fargs.get(1)); // in `basic_format_arg`
+    ASSERTV(LINE, !fargs.get(2));
+}
+
+// ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -3285,20 +3314,8 @@ int main(int argc, char **argv)
         // `basic_format_arg`
         int   i = 42;
         float f = 3.14f;
-
-        bsl::format_args fargs = bsl::make_format_args(i, f);
-        bsl::basic_format_arg<bsl::format_context> fa = fargs.get(0);
-        ASSERT(!!fa);
-        ASSERT(!!fargs.get(0));  // The only usable member is `operator bool`
-        ASSERT(!!fargs.get(1));  // in `basic_format_arg`
-        ASSERT(!fargs.get(2));
-
-        bsl::wformat_args wfargs = bsl::make_wformat_args(i, f);
-        bsl::basic_format_arg<bsl::wformat_context> wfa = wfargs.get(0);
-        ASSERT(!!wfa);
-        ASSERT(!!wfargs.get(0));  // The only usable member is `operator bool`
-        ASSERT(!!wfargs.get(1));  // in `basic_format_arg`
-        ASSERT(!wfargs.get(2));
+        verifyArgAndArgs(L_, bsl::make_format_args(i, f));
+        verifyArgAndArgs(L_, bsl::make_wformat_args(i, f));
 
         // `bsl::basic_format_parse_context`
         // `bsl::format_parse_context`
