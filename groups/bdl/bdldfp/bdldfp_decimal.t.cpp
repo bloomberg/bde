@@ -195,6 +195,18 @@ static bslma::TestAllocator *pa;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_UBSAN)
+// gcc with undefined behavior sanitizer appears to emit faulty code for the
+// part used for denormals for 128 bit dfp which results in a false "null
+// pointer read" error.  The test lines for denormals are simply removed when
+// (gcc UBSAN is active) because verification of the production code (no UBSAN)
+// shows that the use of a pointer is completely optimized away so there is no
+// possibility of dereferencing a null pointer.  For future reference the file
+// for the error is bid_internal.h, line 1711 (`if (!(*prounding_mode))`), in
+// the function `handle_UF_128` (UF is for underflow).
+    #define u_GCC_UBSAN_DENORMAL_WORKAROUND                                   1
+#endif  // gcc with ubsan
+
 namespace BDEC = BloombergLP::bdldfp;
 
 //=============================================================================
@@ -3538,7 +3550,7 @@ void TestDriver::testCase4()
                            << "\n=========================="
                            << bsl::endl;
 
-    if (veryVerbose) bsl::cout << "\tTesting decimal formatting in fixed "
+    if (veryVerbose) bsl::cout << "\tTesting Decimal32 formatting in fixed "
                                << "notation"
                                << bsl::endl;
     {
@@ -3842,6 +3854,8 @@ void TestDriver::testCase4()
             }
         }
     }
+    if (veryVerbose) cout << "\tTesting Decimal32 formatting in scientific "
+                             "notation\n";
     {
         static const struct {
             int              d_line;
@@ -4260,6 +4274,8 @@ void TestDriver::testCase4()
             }
         }
     }
+    if (veryVerbose) cout << "\tTesting Decimal32 formatting with width and "
+                             "precision\n";
     {
         static const struct {
             int              d_line;
@@ -4526,6 +4542,8 @@ void TestDriver::testCase4()
         }
     }
 #undef DFP
+    if (veryVerbose) cout << "\tTesting Decimal32 formatting of special "
+                             "values\n";
     {
         const char *INF_P  =   "inf";
         const char *INF_N  =  "-inf";
@@ -4892,6 +4910,9 @@ void TestDriver::testCase4()
             }
         }
     }
+
+    if (veryVerbose) cout << "\tTesting Decimal32 formatting of boundary "
+                             "values\n";
     {
         // Test max, min and denormalized Decimal32 values.
         typedef BDEC::Decimal32 Tested;
@@ -4993,6 +5014,9 @@ void TestDriver::testCase4()
             ASSERTV(LINE, ACTUAL_VALUE, VALUE, ACTUAL_VALUE == VALUE);
         }
     }
+
+    if (veryVerbose) cout << "\tTesting Decimal64 formatting of boundary "
+                             "values\n";
     {
         // Test max, min and denormalized Decimal64 values.
 
@@ -5097,6 +5121,9 @@ void TestDriver::testCase4()
 
         }
     }
+
+    if (veryVerbose) cout << "\tTesting Decimal128 formatting of boundary "
+                             "values\n";
     {
         // Test max, min and denormalized Decimal128 values.
 
@@ -5143,6 +5170,7 @@ void TestDriver::testCase4()
 
             {  L_, DEN_P,    'F',   MAX_PRS,        2 + MAX_PRS     },
             {  L_, DEN_N,    'F',   MAX_PRS,        3 + MAX_PRS     },
+
             //-------------------------------------------------------
             // Scientific notation
             //-------------------------------------------------------
@@ -5164,6 +5192,7 @@ void TestDriver::testCase4()
             {  L_, MIN_N,    'S',   1,             10               },
             {  L_, MIN_N,    'S',   2,             11               },
 
+#ifndef u_GCC_UBSAN_DENORMAL_WORKAROUND
             {  L_, DEN_P,    'S',   0,              7               },
             {  L_, DEN_P,    'S',   1,              9               },
             {  L_, DEN_P,    'S',   2,             10               },
@@ -5171,6 +5200,7 @@ void TestDriver::testCase4()
             {  L_, DEN_N,    'S',   0,              8               },
             {  L_, DEN_N,    'S',   1,             10               },
             {  L_, DEN_N,    'S',   2,             11               },
+#endif  // not u_GCC_UBSAN_DENORMAL_WORKAROUND
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -5180,6 +5210,10 @@ void TestDriver::testCase4()
             const char   STYLE     = DATA[ti].d_style;
             const int    PRECISION = DATA[ti].d_precision;
             const int    EXPECTED  = DATA[ti].d_expectedLength;
+
+            if (veryVeryVerbose) {
+                P(LINE);
+            }
 
             bsl::ostringstream outdec(pa);
 

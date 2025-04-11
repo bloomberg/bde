@@ -305,6 +305,18 @@ void aSsErT(bool b, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_UBSAN)
+// gcc with undefined behavior sanitizer appears to emit faulty code for the
+// part used for denormals for 128 bit dfp which results in a false "null
+// pointer read" error.  The test lines for denormals are simply removed when
+// (gcc UBSAN is active) because verification of the production code (no UBSAN)
+// shows that the use of a pointer is completely optimized away so there is no
+// possibility of dereferencing a null pointer.  For future reference the file
+// for the error is bid_internal.h, line 1711 (`if (!(*prounding_mode))`), in
+// the function `handle_UF_128` (UF is for underflow).
+    #define u_GCC_UBSAN_DENORMAL_WORKAROUND                                   1
+#endif  // gcc with ubsan
+
 namespace BDEC = BloombergLP::bdldfp;
 
 typedef BDEC::DecimalImpUtil      Util;
@@ -9167,6 +9179,10 @@ void TestDriver::testCase18()
                 for (int ei = EXPONENT_MIN; ei <= EXPONENT_MAX; ++ei) {
                     const int EXPONENT = ei;
 
+                    if (veryVerbose) {
+                        P_(ci) P_(si) P(ei);
+                    }
+
                     value = Util::scaleB(value, EXPONENT);
 
                     const Type EXPECTED = value;
@@ -9175,7 +9191,11 @@ void TestDriver::testCase18()
                                            BUFFER_SIZE,
                                            value,
                                            CONFIG);
-
+#ifdef u_GCC_UBSAN_DENORMAL_WORKAROUND
+                    if (Util::classify(value) == FP_SUBNORMAL) {
+                        continue;                                   // CONTINUE
+                    }
+#endif  // u_GCC_UBSAN_DENORMAL_WORKAROUND
                     const Type RESULT = Util::parse128(
                                         bsl::string(BUFFER, len, pa).c_str());
                     LOOP3_ASSERT(L_,
