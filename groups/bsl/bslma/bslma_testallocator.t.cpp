@@ -1112,14 +1112,16 @@ int main(int argc, char *argv[])
                 std::strcat(preBuf, NAME);
             }
 
-            std::sprintf(preBuf + std::strlen(preBuf),
-                         " [%lld]: Deallocated " ZU " byte%sat %p.\n",
-                         ALLOCIDX,
-                         SIZE,
-                         1 == SIZE ? " " : "s ", ADDRESS);
+            snprintf(preBuf + std::strlen(preBuf),
+                     sizeof preBuf - std::strlen(preBuf),
+                     " [%lld]: Deallocated " ZU " byte%sat %p.\n",
+                     ALLOCIDX,
+                     SIZE,
+                     1 == SIZE ? " " : "s ", ADDRESS);
 
-            std::sprintf(
+            snprintf(
                  postBuf,
+                 sizeof postBuf,
                  "TestAllocator%s%s [%lld]: Deallocated " ZU " byte%sat %p.\n",
                  NAME ? " " : "",
                  NAME ? NAME : "",
@@ -1884,21 +1886,23 @@ int main(int argc, char *argv[])
             char        expBuffer[BUF_SIZE];
 
             if (NAME) {
-                sprintf(expBuffer,
-                        TEMPLATE_WITH_NAME,
-                        NAME,
-                        X.numBlocksInUse(), X.numBytesInUse(),
-                        X.numBlocksMax(), X.numBytesMax(),
-                        X.numBlocksTotal(), X.numBytesTotal(),
-                        X.numMismatches(), X.numBoundsErrors());
+                snprintf(expBuffer,
+                         sizeof expBuffer,
+                         TEMPLATE_WITH_NAME,
+                         NAME,
+                         X.numBlocksInUse(), X.numBytesInUse(),
+                         X.numBlocksMax(), X.numBytesMax(),
+                         X.numBlocksTotal(), X.numBytesTotal(),
+                         X.numMismatches(), X.numBoundsErrors());
             }
             else {
-                sprintf(expBuffer,
-                        TEMPLATE_WITHOUT_NAME,
-                        X.numBlocksInUse(), X.numBytesInUse(),
-                        X.numBlocksMax(), X.numBytesMax(),
-                        X.numBlocksTotal(), X.numBytesTotal(),
-                        X.numMismatches(), X.numBoundsErrors());
+                snprintf(expBuffer,
+                         sizeof expBuffer,
+                         TEMPLATE_WITHOUT_NAME,
+                         X.numBlocksInUse(), X.numBytesInUse(),
+                         X.numBlocksMax(), X.numBytesMax(),
+                         X.numBlocksTotal(), X.numBytesTotal(),
+                         X.numMismatches(), X.numBoundsErrors());
             }
 
             size_t offset = std::strlen(expBuffer);
@@ -1926,12 +1930,17 @@ int main(int argc, char *argv[])
                 offset = std::strlen(expBuffer);
 
                 for (int i = 0; i != numRemAllocs; ++i) {
-                    sprintf(expBuffer + offset, "\t%d", remAllocs[i]);
+                    snprintf(expBuffer + offset,
+                             sizeof expBuffer - offset,
+                             "\t%d",
+                             remAllocs[i]);
                     offset = std::strlen(expBuffer);
                 }
 
                 if (numRemAllocs > 0) {
-                    sprintf(expBuffer + offset, "\n");
+                    snprintf(expBuffer + offset,
+                             sizeof expBuffer - offset,
+                             "\n");
                 }
             }
 

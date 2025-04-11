@@ -494,10 +494,10 @@ BSLS_IDENT("$Id: $")
 //
 //    // Use at most 2 digits for 'hours'
 //    if (hours < 100) {
-//        bsl::sprintf(buf, "%c%02d%02d", sign, hours, minutes % 60);
+//        snprintf(buf, sizeof buf, "%c%02d%02d", sign, hours, minutes % 60);
 //    }
 //    else {
-//        bsl::sprintf(buf, "%cXX%02d", sign, minutes % 60);
+//        snprintf(buf, sizeof buf, "%cXX%02d", sign, minutes % 60);
 //    }
 //
 //    tmp << buf;

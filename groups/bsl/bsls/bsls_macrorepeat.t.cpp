@@ -120,8 +120,8 @@ void aSsErT(bool condition, const char *message, int line)
     #include <cstring>
     #include <cstdio>
 
-    void fmtQuartet(char *result, int a, int b, int c, int d) {
-        std::sprintf(result, "%d %d %d %d", a, b, c, d);
+    void fmtQuartet(char *result, int length, int a, int b, int c, int d) {
+        snprintf(result, length, "%d %d %d %d", a, b, c, d);
     }
 // ```
 // Now we wish to invoke this function, but in a context where the last three
@@ -139,7 +139,7 @@ void aSsErT(bool condition, const char *message, int line)
 // `fmtQuart`.  We use `BSLS_MACROREPEAT_COMMA` for these invocations, as it
 // inserts a comma between each repetition:
 // ```
-        fmtQuartet(buffer, 7, BSLS_MACROREPEAT_COMMA(3, X));
+        fmtQuartet(buffer, sizeof buffer, 7, BSLS_MACROREPEAT_COMMA(3, X));
         ASSERT(0 == std::strcmp(buffer, "7 8 8 8"));
         return 0;
     }

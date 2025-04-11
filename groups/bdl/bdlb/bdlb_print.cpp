@@ -310,8 +310,9 @@ void hexDumpFullLine(char *dst, const char *src, int length)
     BSLS_ASSERT(src);
     BSLS_ASSERT(0 <= length);
 
-    const int ret = bsl::sprintf(
+    const int ret = bsl::snprintf(
                             dst,
+                            length,
                             "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X "
                             "%.2X%.2X%.2X%.2X %.2X%.2X%.2X%.2X"
                             "     |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|\n",

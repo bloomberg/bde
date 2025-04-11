@@ -4220,7 +4220,10 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
         struct sockaddr_un address;
         address.sun_family = AF_UNIX;
-        sprintf(address.sun_path, "%s", filename.c_str());
+        snprintf(address.sun_path,
+                 sizeof address.sun_path,
+                 "%s",
+                 filename.c_str());
 
         // Add one to account for the null terminator for the filename.
 
@@ -8599,7 +8602,10 @@ int main(int argc, char *argv[])
 
             struct sockaddr_un address;
             address.sun_family = AF_UNIX;
-            sprintf(address.sun_path, "%s", filename.c_str());
+            snprintf(address.sun_path,
+                     sizeof address.sun_path,
+                     "%s",
+                     filename.c_str());
 
             // Add one to account for the null terminator for the filename.
 

@@ -4926,7 +4926,7 @@ int main(int argc, char *argv[]) {
             // test spec's of "a0", "a1", "a2"...
             for (i = 0; i < 3; ++i) {
                 static char spec[10];    memset((void *) spec, 0, 10);
-                sprintf(spec, "a%d", i);
+                snprintf(spec, sizeof spec, "a%d", i);
                 if (veryVerbose) cout << "\tSPEC : \"" << spec << '"' << endl;
                 Out mX(VERSION_SELECTOR);    const Out& X = mX;
                 mX.putArrayInt8(VA, i);

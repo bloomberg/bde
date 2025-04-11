@@ -160,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //     my_String asString() const {
 //         if (INT == d_type) {
 //             char temp[15];
-//             sprintf(temp, "%d", d_int);
+//             snprintf(temp, sizeof temp, "%d", d_int);
 //             return my_String(temp);
 //         }
 //         else {

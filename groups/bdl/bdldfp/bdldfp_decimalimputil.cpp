@@ -309,7 +309,7 @@ int formatScientific(char                      *buffer,
     const int k_MAX_EXPONENT_LENGTH = 6;
     char      exp[k_MAX_EXPONENT_LENGTH];
     int       exponentLength =
-        bsl::sprintf(&exp[0], "%+.*d", cfg.expWidth(), exponent);
+         bsl::snprintf(&exp[0], sizeof exp, "%+.*d", cfg.expWidth(), exponent);
 
     int outputLength = 1 + (cfg.precision() > 0 || cfg.showpoint()) +
                        cfg.precision() + static_cast<int>(sizeof 'E') +

@@ -94,9 +94,9 @@ static void aSsErT(int c, const char *s, int i)
 #endif
 
 /// Convert the specified 64-bit `value` to a hexadecimal string.
-char *hex64(char *buffer, bsls::PlatformUtil::Uint64 value)
+char *hex64(char *buffer, int length, bsls::PlatformUtil::Uint64 value)
 {
-    sprintf(buffer, INT64_FMT_STR, value);
+    snprintf(buffer, length, INT64_FMT_STR, value);
     return buffer;
 }
 
@@ -387,7 +387,9 @@ if (verbose)
                 memcpy(buf2, CTRL_BUF2, SIZE);  // Preset buf1 to Z2 values
 
                 if (verbose) cout << "\tSpec = \t\t      \""
-                                  << hex64(buf64, SPEC) << '"' << endl;
+                                  << hex64(buf64, sizeof buf64, SPEC)
+                                  << '"'
+                                  << endl;
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
@@ -448,7 +450,9 @@ if (verbose)
                 memcpy(buf2, CTRL_BUF2, SIZE);  // Preset buf1 to Z2 values
 
                 if (verbose) cout << "\tSpec = \t\t      \""
-                                  << hex64(buf64, SPEC) << '"' << endl;
+                                  << hex64(buf64, sizeof buf64, SPEC)
+                                  << '"'
+                                  << endl;
                 if (veryVerbose)
                     cout << "\tEXPECTED FORMAT     : " << FMT << endl;
 
@@ -556,7 +560,10 @@ if (verbose)
             memcpy(buf2, CTRL_BUF2, SIZE);  // Preset buf1 to Z2 values
 
             if (verbose)
-                cout << "\tSpec = \"" << hex64(buf64, SPEC) << '"' << endl;
+                cout << "\tSpec = \""
+                     << hex64(buf64, sizeof buf64, SPEC)
+                     << '"'
+                     << endl;
             if (veryVerbose)
                 cout << "EXPECTED FORMAT:" << endl << FMT << endl;
 
@@ -613,7 +620,9 @@ if (verbose)
             memcpy(buf2, CTRL_BUF2, SIZE);  // Preset buf1 to Z2 values
 
             if (verbose) cout << "\tSpec = \t\t      \""
-                              << hex64(buf64, SPEC) << '"' << endl;
+                              << hex64(buf64, sizeof buf64, SPEC)
+                              << '"'
+                              << endl;
             if (veryVerbose)
                 cout << "\tSpec = \t\t      " << SPEC << endl
                      << "\tEXPECTED FORMAT     : " << FMT << endl;

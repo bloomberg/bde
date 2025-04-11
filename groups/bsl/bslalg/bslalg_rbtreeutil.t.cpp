@@ -827,7 +827,7 @@ const char *tempFileName(bool verboseFlag)
     GetTempPath(MAX_PATH, tmpPathBuf);
     GetTempFileName(tmpPathBuf, "bael", 0, result);
 #else
-    sprintf(result, "baelXXXXXX");
+    snprintf(result, sizeof result, "baelXXXXXX");
     close(mkstemp(result));
 #endif
 

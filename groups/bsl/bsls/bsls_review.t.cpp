@@ -2241,13 +2241,16 @@ void test_case_7() {
                         0 == std::strcmp(file, profile.d_file));
 
                 char shorttext[32];
-                sprintf(shorttext,"(bsls_review.t.cpp:%d", line);
+                snprintf(shorttext,
+                         sizeof shorttext,
+                         "(bsls_review.t.cpp:%d",
+                         line);
                 ASSERTV(shorttext, profile.d_text,
                         NULL != std::strstr(profile.d_text,shorttext));
 
                 if (skipped > 0) {
                     char skipText[32];
-                    sprintf(skipText,"skipped:%d", skipped);
+                    snprintf(skipText, sizeof skipText, "skipped:%d", skipped);
 
                     ASSERT( NULL != std::strstr(profile.d_text, skipText) );
 
@@ -3467,7 +3470,7 @@ void test_case_m4() {
 
                 if (skipped > 0) {
                     char skipText[32];
-                    sprintf(skipText,"skipped:%d", skipped);
+                    snprintf(skipText, sizeof skipText, "skipped:%d", skipped);
 
                     ASSERT( NULL != std::strstr(profile.d_text, skipText) );
 
