@@ -1328,9 +1328,11 @@ int main(int argc, char *argv[])
 // expect.
 // ```
     ASSERT(family->isArray());
-    ASSERT(5 == family->theArray().length());
+    
+    const bdld::DatumArrayRef &familyArray = family->theArray();
+    ASSERT(5 == familyArray.length());
 
-    const bdld::Datum &lisa = family->theArray()[3];
+    const bdld::Datum &lisa = familyArray[3];
 
     ASSERT(lisa.isMap());
     ASSERT(2         == lisa.theMap().size());

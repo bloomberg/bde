@@ -248,7 +248,10 @@ BSLS_IDENT("$Id$ $CSID$")
 // assert(family->isArray());
 // assert(5 == family->theArray().length());
 //
-// const bdld::Datum &lisa = family->theArray()[3];
+// const bdld::DatumArrayRef &familyArray = family->theArray();
+// assert(5 == familyArray.length());
+//
+// const bdld::Datum &lisa = familyArray[3];
 //
 // assert(lisa.isMap());
 // assert(2         == lisa.theMap().size());
