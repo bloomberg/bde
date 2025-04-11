@@ -3284,7 +3284,7 @@ int main(int argc, char **argv)
         // `basic_format_args`
         // `basic_format_arg`
         int   i = 42;
-        float f = 3.14;
+        float f = 3.14f;
 
         bsl::format_args fargs = bsl::make_format_args(i, f);
         bsl::basic_format_arg<bsl::format_context> fa = fargs.get(0);
