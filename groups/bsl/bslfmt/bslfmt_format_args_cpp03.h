@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Jan 21 13:39:37 2025
+// Generated on Wed Apr  9 07:21:55 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_args.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARGS_H
@@ -937,7 +937,7 @@ class basic_format_args {
 
     // PRIVATE ACCESSORS
 
-    // Return the number of arguments contained within this object.
+    /// Return the number of arguments contained within this object.
     size_t size() const;
 
     // FRIENDS
@@ -946,7 +946,7 @@ class basic_format_args {
   public:
     // CREATORS
 
-    // Create a `basic_format_args` object which contains no arguments.
+    /// Create a `basic_format_args` object which contains no arguments.
     basic_format_args() BSLS_KEYWORD_NOEXCEPT;
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1124,9 +1124,9 @@ class basic_format_args {
 
     // ACCESSORS
 
-    // Return the argument held at the position given by the specified `pos`.
-    // If `pos >= size()` then a default-constructed `basic_format_arg` is
-    // returned.
+    /// Return the argument held at the position given by the specified `pos`.
+    /// If `pos >= size()` then a default-constructed `basic_format_arg` is
+    /// returned.
     basic_format_arg<t_CONTEXT> get(size_t pos) const BSLS_KEYWORD_NOEXCEPT;
 };
 
@@ -2155,8 +2155,7 @@ Format_ArgsStore<t_CONTEXT>
 Format_ArgsUtil::makeFormatArgs()
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  0u> arg_array;
-    Format_ArgUtil::makeFormatArgArray<t_CONTEXT>(
-                                                                  &arg_array);
+    Format_ArgUtil::makeFormatArgArray<t_CONTEXT>(&arg_array);
     return Format_ArgsStore<t_CONTEXT>(
                                        bslmf::MovableRefUtil::move(arg_array));
 }
@@ -2169,9 +2168,8 @@ Format_ArgsStore<t_CONTEXT, t_ARGS_01>
 Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01)
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  1u> arg_array;
-    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01>(
-                                                                  &arg_array,
-                                                                  fmt_args_01);
+    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01>(&arg_array,
+                                                             fmt_args_01);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01>(
                                        bslmf::MovableRefUtil::move(arg_array));
 }
@@ -2188,10 +2186,9 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
 {
     bsl::array<basic_format_arg<t_CONTEXT>,  2u> arg_array;
     Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
-                                                  t_ARGS_02>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02);
+                                                  t_ARGS_02>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02>(
                                        bslmf::MovableRefUtil::move(arg_array));
@@ -2213,11 +2210,10 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
     bsl::array<basic_format_arg<t_CONTEXT>,  3u> arg_array;
     Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
                                                   t_ARGS_02,
-                                                  t_ARGS_03>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03);
+                                                  t_ARGS_03>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03>(
@@ -2244,12 +2240,11 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
     Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS_01,
                                                   t_ARGS_02,
                                                   t_ARGS_03,
-                                                  t_ARGS_04>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04);
+                                                  t_ARGS_04>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2281,13 +2276,12 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_02,
                                                   t_ARGS_03,
                                                   t_ARGS_04,
-                                                  t_ARGS_05>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05);
+                                                  t_ARGS_05>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2324,14 +2318,13 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_03,
                                                   t_ARGS_04,
                                                   t_ARGS_05,
-                                                  t_ARGS_06>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06);
+                                                  t_ARGS_06>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05,
+                                                             fmt_args_06);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2373,15 +2366,14 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_04,
                                                   t_ARGS_05,
                                                   t_ARGS_06,
-                                                  t_ARGS_07>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07);
+                                                  t_ARGS_07>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05,
+                                                             fmt_args_06,
+                                                             fmt_args_07);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2428,16 +2420,15 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_05,
                                                   t_ARGS_06,
                                                   t_ARGS_07,
-                                                  t_ARGS_08>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08);
+                                                  t_ARGS_08>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05,
+                                                             fmt_args_06,
+                                                             fmt_args_07,
+                                                             fmt_args_08);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2489,17 +2480,16 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_06,
                                                   t_ARGS_07,
                                                   t_ARGS_08,
-                                                  t_ARGS_09>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09);
+                                                  t_ARGS_09>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05,
+                                                             fmt_args_06,
+                                                             fmt_args_07,
+                                                             fmt_args_08,
+                                                             fmt_args_09);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2556,18 +2546,17 @@ Format_ArgsUtil::makeFormatArgs(t_ARGS_01& fmt_args_01,
                                                   t_ARGS_07,
                                                   t_ARGS_08,
                                                   t_ARGS_09,
-                                                  t_ARGS_10>(
-                                                                  &arg_array,
-                                                                  fmt_args_01,
-                                                                  fmt_args_02,
-                                                                  fmt_args_03,
-                                                                  fmt_args_04,
-                                                                  fmt_args_05,
-                                                                  fmt_args_06,
-                                                                  fmt_args_07,
-                                                                  fmt_args_08,
-                                                                  fmt_args_09,
-                                                                  fmt_args_10);
+                                                  t_ARGS_10>(&arg_array,
+                                                             fmt_args_01,
+                                                             fmt_args_02,
+                                                             fmt_args_03,
+                                                             fmt_args_04,
+                                                             fmt_args_05,
+                                                             fmt_args_06,
+                                                             fmt_args_07,
+                                                             fmt_args_08,
+                                                             fmt_args_09,
+                                                             fmt_args_10);
     return Format_ArgsStore<t_CONTEXT, t_ARGS_01,
                                        t_ARGS_02,
                                        t_ARGS_03,
@@ -2592,9 +2581,8 @@ Format_ArgsStore<t_CONTEXT, t_ARGS...>
 Format_ArgsUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
-                                                                  &arg_array,
-                                                                  fmt_args...);
+    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array,
+                                                             fmt_args...);
     return Format_ArgsStore<t_CONTEXT, t_ARGS...>(
                                        bslmf::MovableRefUtil::move(arg_array));
 }

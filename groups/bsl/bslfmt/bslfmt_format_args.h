@@ -40,24 +40,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: 1 Create a basic_format_args object
-/// - - - - - - - - - - - - - - - - - - - - - -
-// We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
-// there are only a very limited number of public methods so this example is
-// necessarily unrealistic.
-//
-// Suppose we want to construct a `basic_format_args` containing a single int.
-//
-// ```
-//   int                 value = 5;
-//   bslfmt::format_args args(bslfmt::make_format_args(value));
-//
-//   assert( args.get(0));
-//   assert(!args.get(1));
-// ```
-//
-///Example 2: Non-default construction and value verification
+///Example: 1 Non-default construction and value verification
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
@@ -66,8 +49,11 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose we want to construct a int-containing `basic_format_args` and verify
 // that it contains that int.  Note the use of a function to workaround the
-// lifetime issues specified above.
-//
+// lifetime issues specified above.  `Format_ArgsStore` passed to the
+// `basic_format_args` constructor must outlive the constructed object.
+// `bslfmt::make_format_args` returns temporary `Format_ArgsStore` object so to
+// avoid its destruction we have to do all the useful work within the
+// execution of one function.
 // ```
 //   struct UsageExampleVisitor {
 //
@@ -100,11 +86,14 @@ BSLS_IDENT("$Id: $")
 //     }
 //   };
 //
-//   int value2 = 99;
-//   UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
+//   int value = 99;
+//   UsageExampleChecker::checkValue(bslfmt::make_format_args(value));
 // ```
 
 #include <bslscm_version.h>
+
+#include <bslfmt_format_arg.h>
+#include <bslfmt_formaterror.h>
 
 #include <bslalg_numericformatterutil.h>
 
@@ -121,16 +110,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_unspecifiedbool.h>
 #include <bsls_util.h>
 
-#include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
 #include <bslstl_array.h>
+#include <bslstl_iterator.h>
 #include <bslstl_monostate.h>
 #include <bslstl_utility.h>
 #include <bslstl_variant.h>
-
-#include <bslfmt_format_arg.h>
-#include <bslfmt_formaterror.h>
+#include <bslstl_vector.h>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -250,7 +235,7 @@ class basic_format_args {
 
     // PRIVATE ACCESSORS
 
-    // Return the number of arguments contained within this object.
+    /// Return the number of arguments contained within this object.
     size_t size() const;
 
     // FRIENDS
@@ -259,13 +244,13 @@ class basic_format_args {
   public:
     // CREATORS
 
-    // Create a `basic_format_args` object which contains no arguments.
+    /// Create a `basic_format_args` object which contains no arguments.
     basic_format_args() BSLS_KEYWORD_NOEXCEPT;
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    // Create a `basic_format_args` object which contains the arguments held by
-    // the specified `store`. Typically this constructor would be called using
-    // the return value of `make_format_args` or of `make_wformat_args`.
+    /// Create a `basic_format_args` object which contains the arguments held
+    /// by the specified `store`. Typically this constructor would be called
+    /// using the return value of `make_format_args` or of `make_wformat_args`.
     template <class... t_ARGS>
     basic_format_args(const Format_ArgsStore<t_CONTEXT, t_ARGS...>& store)
         BSLS_KEYWORD_NOEXCEPT;                                     // IMPLICIT
@@ -273,9 +258,9 @@ class basic_format_args {
 
     // ACCESSORS
 
-    // Return the argument held at the position given by the specified `pos`.
-    // If `pos >= size()` then a default-constructed `basic_format_arg` is
-    // returned.
+    /// Return the argument held at the position given by the specified `pos`.
+    /// If `pos >= size()` then a default-constructed `basic_format_arg` is
+    /// returned.
     basic_format_arg<t_CONTEXT> get(size_t pos) const BSLS_KEYWORD_NOEXCEPT;
 };
 
@@ -396,9 +381,8 @@ Format_ArgsStore<t_CONTEXT, t_ARGS...>
 Format_ArgsUtil::makeFormatArgs(t_ARGS&... fmt_args)
 {
     bsl::array<basic_format_arg<t_CONTEXT>, sizeof...(t_ARGS)> arg_array;
-    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(
-                                                                  &arg_array,
-                                                                  fmt_args...);
+    Format_ArgUtil::makeFormatArgArray<t_CONTEXT, t_ARGS...>(&arg_array,
+                                                             fmt_args...);
     return Format_ArgsStore<t_CONTEXT, t_ARGS...>(
                                        bslmf::MovableRefUtil::move(arg_array));
 }

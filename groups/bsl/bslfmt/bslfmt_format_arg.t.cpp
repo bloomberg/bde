@@ -209,8 +209,8 @@ class basic_format_parse_context {
                        const basic_format_parse_context&) BSLS_KEYWORD_DELETED;
 };
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace {
 
@@ -221,57 +221,110 @@ struct TestVisitor {
     typedef typename bslfmt::basic_format_arg<
         bslfmt::basic_format_context<t_CHAR *, t_CHAR> >::handle handle;
 
+    // FRIENDS
+    friend bool getValueFn(const TestVisitor& visitor, bool * = 0)
+    {
+        return visitor.d_bool;
+    }
+    friend t_CHAR getValueFn(const TestVisitor& visitor, t_CHAR * = 0)
+    {
+        return visitor.d_char;
+    }
+    friend int getValueFn(const TestVisitor& visitor, int * = 0)
+    {
+        return visitor.d_int;
+    }
+    friend unsigned getValueFn(const TestVisitor& visitor, unsigned * = 0)
+    {
+        return visitor.d_unsigned;
+    }
+    friend long long getValueFn(const TestVisitor& visitor, long long * = 0)
+    {
+        return visitor.d_longLong;
+    }
+    friend unsigned long long getValueFn(const TestVisitor&  visitor,
+                                         unsigned long long * = 0)
+    {
+        return visitor.d_unsignedLongLong;
+    }
+    friend float getValueFn(const TestVisitor& visitor, float * = 0)
+    {
+        return visitor.d_float;
+    }
+    friend double getValueFn(const TestVisitor& visitor, double * = 0)
+    {
+        return visitor.d_double;
+    }
+    friend long double getValueFn(const TestVisitor&  visitor,
+                                  long double        * = 0)
+    {
+        return visitor.d_longDouble;
+    }
+    friend const t_CHAR *getValueFn(const TestVisitor&   visitor,
+                                    const t_CHAR       ** = 0)
+    {
+        return visitor.d_constCharPtr_p;
+    }
+    friend const void *getValueFn(const TestVisitor&   visitor,
+                                  const void         ** = 0)
+    {
+        return visitor.d_constVoidPtr_p;
+    }
+    friend const bsl::basic_string_view<t_CHAR> getValueFn(
+                                 const TestVisitor&                    visitor,
+                                 const bsl::basic_string_view<t_CHAR> * = 0)
+    {
+        return visitor.d_stringView;
+    }
+
   public:
     // PUBLIC DATA
-
     bool                            d_bool;
     t_CHAR                          d_char;
     int                             d_int;
     unsigned                        d_unsigned;
-    long long                       d_longlong;
-    unsigned long long              d_unsignedlonglong;
+    long long                       d_longLong;
+    unsigned long long              d_unsignedLongLong;
     float                           d_float;
     double                          d_double;
-    long double                     d_longdouble;
-    const t_CHAR                   *d_charstar;
-    const void                     *d_voidstar;
-    bsl::basic_string_view<t_CHAR>  d_stringview;
+    long double                     d_longDouble;
+    const t_CHAR                   *d_constCharPtr_p;
+    const void                     *d_constVoidPtr_p;
+    bsl::basic_string_view<t_CHAR>  d_stringView;
     bool                            d_ishandle;
 
     // CREATORS
-
     TestVisitor()
     : d_bool(false)
     , d_char(0)
     , d_int(0)
     , d_unsigned(0)
-    , d_longlong(0)
-    , d_unsignedlonglong(0)
+    , d_longLong(0)
+    , d_unsignedLongLong(0)
     , d_float(0)
     , d_double(0)
-    , d_longdouble(0)
-    , d_charstar(0)
-    , d_voidstar(0)
+    , d_longDouble(0)
+    , d_constCharPtr_p(0)
+    , d_constVoidPtr_p(0)
     , d_ishandle(false) {};
 
     // MANIPULATORS
-
     void operator()(bsl::monostate) const {}
 
     void operator()(bool x) { d_bool = x; }
     void operator()(t_CHAR x) { d_char = x; }
     void operator()(unsigned x) { d_unsigned = x; }
-    void operator()(long long x) { d_longlong = x; }
-    void operator()(unsigned long long x) { d_unsignedlonglong = x; }
+    void operator()(long long x) { d_longLong = x; }
+    void operator()(unsigned long long x) { d_unsignedLongLong = x; }
     void operator()(float x) { d_float = x; }
     void operator()(double x) { d_double = x; }
-    void operator()(long double x) { d_longdouble = x; }
-    void operator()(const t_CHAR *x) { d_charstar = x; }
-    void operator()(const void *x) { d_voidstar = x; }
+    void operator()(long double x) { d_longDouble = x; }
+    void operator()(const t_CHAR *x) { d_constCharPtr_p = x; }
+    void operator()(const void *x) { d_constVoidPtr_p = x; }
     void operator()(int x) { d_int = x; }
     void operator()(bsl::basic_string_view<t_CHAR> sv)
     {
-        d_stringview = sv;
+        d_stringView = sv;
     }
     void operator()(const handle& h)
     {
@@ -281,25 +334,53 @@ struct TestVisitor {
         h.format(pc, fc);
         d_ishandle = true;
     }
+
+    // ACCESSORS
+    template <class t_TYPE>
+    t_TYPE getValue() const
+    {
+        return getValueFn(*this, static_cast<t_TYPE *>(0));
+    }
 };
+
 
 /// A minimal user defined type for testing.
-struct FormattableType {
-    // PUBLIC DATA
-    int x;
+class FormattableType {
+  private:
+    // CLASS DATA
+    static int s_parseCalls;
+    static int s_formatSum;
+
+    // DATA
+    int d_value;
+
+  public:
+    // CLASS METHODS
+    static int& parseCalls() { return s_parseCalls; }
+
+    static int& formatSum() { return s_formatSum; }
+
+    static void resetCounters()
+    {
+        s_parseCalls = 0;
+        s_formatSum  = 0;
+    }
 
     // CREATORS
-    FormattableType(int v)
-    : x(v)
-    {}
+    FormattableType(int value)
+    : d_value(value)
+    {
+    }
 
-    // PUBLIC CLASS DATA
-    static int parseCalls;
-    static int formatSum;
+    // MANIPULATORS
+    void setValue(int value) { d_value = value; }
+
+    // ACCESSORS
+    int value() const { return d_value; }
 };
 
-int FormattableType::parseCalls = 0;
-int FormattableType::formatSum = 0;
+int FormattableType::s_parseCalls = 0;
+int FormattableType::s_formatSum = 0;
 }
 
 namespace bsl {
@@ -318,22 +399,20 @@ struct formatter<FormattableType, t_CHAR> {
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                            t_PARSE_CONTEXT& pc)
     {
-        FormattableType::parseCalls++;
+        FormattableType::parseCalls()++;
         return pc.begin();
     }
 
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(const FormattableType& v,
-                                               t_FORMAT_CONTEXT& fc) const
+    typename t_FORMAT_CONTEXT::iterator format(const FormattableType& value,
+                                               t_FORMAT_CONTEXT&      fc) const
     {
-        FormattableType::formatSum += v.x;
+        FormattableType::formatSum() += value.value();
         return fc.out();
     }
 };
 
 }
-
-
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -414,7 +493,7 @@ bool checkValue(bslfmt::basic_format_arg<
 
     visit_format_arg(visitor2, arg);
 
-    return visitor.d_longlong == value && visitor2.d_longlong == value;
+    return visitor.d_longLong == value && visitor2.d_longLong == value;
 }
 
 template <class t_CHAR>
@@ -423,8 +502,7 @@ bool checkFormattableTypeValue(
          arg,
      int handleValue)
 {
-    FormattableType::parseCalls = 0;
-    FormattableType::formatSum  = 0;
+    FormattableType::resetCounters();
 
     TestVisitor<t_CHAR> visitor;
 
@@ -434,8 +512,47 @@ bool checkFormattableTypeValue(
 
     visit_format_arg(visitor2, arg);
 
-    return (FormattableType::parseCalls == 2) &&
-           (FormattableType::formatSum == 2 * handleValue);
+    return (FormattableType::parseCalls() == 2) &&
+           (FormattableType::formatSum() == 2 * handleValue);
+}
+
+/// Test the `basic_format_arg`class for the ability to be visited by assigning
+/// its object the specified `value` and obtaining it back using test visitors.
+/// The specified `line` is used to identify the function call location.
+template <class t_CHAR, class t_TYPE>
+void visitTest(int line, t_TYPE value)
+{
+    typedef bslfmt::basic_format_arg<
+        bslfmt::basic_format_context<t_CHAR *, t_CHAR> >
+           FA;
+
+    // To make sure that scalar and pointer types are stored by value we are
+    // going to create a copy of the original value, modify the original
+    // variable, passed to the `makeTestArg` and then compare the obtained
+    // result with the copy.
+
+    t_TYPE model = value;
+    ASSERTV(line, value == model);
+
+    FA cArg = makeTestArg<t_CHAR>(value);
+
+    // Modify the original variable
+    value  = t_TYPE();
+
+    // Obtain value of the `basic_format_arg`
+    TestVisitor<t_CHAR> visitor;
+    cArg.visit(visitor);
+    t_TYPE result = visitor.template getValue<t_TYPE>();
+
+    // Compare obtained result with the copy
+    ASSERTV(line, model != value);
+    ASSERTV(line, model == result);
+
+    // Repeat the test using `visit_format_arg` function
+    TestVisitor<t_CHAR> visitor2;
+    visit_format_arg(visitor2, cArg);
+    result = visitor2.template getValue<t_TYPE>();
+    ASSERTV(line, model == result);
 }
 
 //=============================================================================
@@ -548,310 +665,63 @@ int main(int argc, char **argv)
 
         // Testing bool
 
-        {
-            bool value = true;
-            FA   arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_bool == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_bool == value);
-        }
-
-        {
-            bool value = true;
-            WFA arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_bool == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_bool == value);
-        }
+        bool boolValue = true;
+        visitTest<char   >(L_, boolValue);
+        visitTest<wchar_t>(L_, boolValue);
 
         // Testing int
 
-        {
-            int value = 21;
-            FA  arg   = makeTestArg<char>(value);
+        int intValue1 = 21;
+        visitTest<char   >(L_, intValue1);
+        int intValue2 = 22;
+        visitTest<wchar_t>(L_, intValue2);
 
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_int == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_int == value);
-        }
-
-        {
-            int value = 22;
-            WFA arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_int == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_int == value);
-        }
 
         // Testing char
 
-        {
-            char value = 'm';
-            FA   arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_char == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_char == value);
-        }
-
-        {
-            char value = 'm';
-            WFA arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_char == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_char == value);
-        }
+        char charValue = 'm';
+        visitTest<char>(L_, charValue);
 
         // Testing wchar_t
 
-        {
-            wchar_t value = 'n';
-            WFA  arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_char == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_char == value);
-        }
+        wchar_t wcharValue = 'n';
+        visitTest<wchar_t>(L_, wcharValue);
 
         // Testing unsigned
 
-        {
-            unsigned value = 33;
-            FA   arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_unsigned == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_unsigned == value);
-        }
-
-        {
-            unsigned value = 34;
-            WFA  arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_unsigned == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_unsigned == value);
-        }
+        unsigned unsignedValue1 = 33;
+        visitTest<char   >(L_, unsignedValue1);
+        unsigned unsignedValue2 = 34;
+        visitTest<wchar_t>(L_, unsignedValue2);
 
         // Testing long long
 
-        {
-            long long value = 45;
-            FA        arg   = makeTestArg<char>(value);
+        long long longLongValue1 = 45;
+        visitTest<char   >(L_, longLongValue1);
+        long long longLongValue2 = 46;
+        visitTest<wchar_t>(L_, longLongValue2);
 
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longlong == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longlong == value);
-        }
-
-        {
-            long long value = 46;
-            WFA       arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longlong == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longlong == value);
-        }
 
         // Testing unsigned long long
 
-        {
-            unsigned long long value = 57;
-            FA                 arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_unsignedlonglong == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_unsignedlonglong == value);
-        }
-
-        {
-            unsigned long long value = 58;
-            WFA                arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_unsignedlonglong == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_unsignedlonglong == value);
-        }
+        unsigned long long unsignedLongLongValue1 = 57;
+        visitTest<char   >(L_, unsignedLongLongValue1);
+        unsigned long long unsignedLongLongValue2 = 58;
+        visitTest<wchar_t>(L_, unsignedLongLongValue2);
 
         // Testing float
 
-        {
-            float value = 3.1f;
-            FA    arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_float == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_float == value);
-        }
-
-        {
-            float value = 4.2f;
-            WFA   arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_float == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_float == value);
-        }
+        float floatValue1 = 6.9f;
+        visitTest<char   >(L_, floatValue1);
+        float floatValue2 = 6.0f;
+        visitTest<wchar_t>(L_, floatValue2);
 
         // Testing double
 
-        {
-            double value = 5.1;
-            FA     arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_double == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_double == value);
-        }
-
-        {
-            double value = 6.2;
-            WFA    arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_double == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_double == value);
-        }
+        double doubleValue1 = 7.1;
+        visitTest<char   >(L_, doubleValue1);
+        double doubleValue2 = 7.2;
+        visitTest<wchar_t>(L_, doubleValue2);
 
         // TODO: The following should be re-added if we update our
         // implementation to support long double.
@@ -859,158 +729,45 @@ int main(int argc, char **argv)
         // Testing long double
 
 #if u_BSLFMT_LONG_DOUBLE_IS_SUPPORTED
-        {
-            long double value = 7.1;
-            FA          arg   = makeTestArg<char>(value);
 
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longdouble == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longdouble == value);
-        }
-
-        {
-            long double value = 8.2;
-            WFA         arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_longdouble == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_longdouble == value);
-        }
+        long double longDoubleValue1 = 8.3;
+        visitTest<char   >(L_, longDoubleValue1);
+        long double longDoubleValue2 = 8.4;
+        visitTest<wchar_t>(L_, longDoubleValue2);
 #endif
 
         // Testing char*
 
-        {
-            const char *value = "testing testing";
-            FA       arg   = makeTestArg<char>(value);
+        const char *constCharPtrValue = "95";
+        visitTest<char>(L_, constCharPtrValue);
 
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_charstar == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_charstar == value);
-        }
 
         // Testing wchar_t*
 
-        {
-            const wchar_t *value = L"more testing testing";
-            WFA      arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_charstar == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_charstar == value);
-        }
+        const wchar_t *constWcharPtrValue = L"96";
+        visitTest<wchar_t>(L_, constWcharPtrValue);
 
         // Testing void*
 
-        {
-            int         dummy = 0;
-            const void *value = static_cast<const void *>(&dummy);
-            FA          arg   = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_voidstar == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_voidstar == value);
-        }
-
-        {
-            int         dummy = 0;
-            const void *value = static_cast<const void *>(&dummy);
-            WFA            arg   = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_voidstar == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_voidstar == value);
-        }
+        int         intDummy1          = 107;
+        const void *constVoidPtrValue1 = static_cast<const void *>(&intDummy1);
+        visitTest<char>(L_, constVoidPtrValue1);
+        int         intDummy2          = 108;
+        const void *constVoidPtrValue2 = static_cast<const void *>(&intDummy2);
+        visitTest<wchar_t>(L_, constVoidPtrValue2);
 
         // Testing bsl::basic_string_view
 
-        {
-            bsl::basic_string<char>      dummy("Testing");
-            bsl::basic_string_view<char> value(dummy);
-            FA                           arg = makeTestArg<char>(value);
-
-            TestVisitor<char> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_stringview == value);
-
-            TestVisitor<char> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_stringview == value);
-        }
-
-        {
-            bsl::basic_string<wchar_t>      dummy(L"Testing");
-            bsl::basic_string_view<wchar_t> value(dummy);
-            WFA                             arg = makeTestArg<wchar_t>(value);
-
-            TestVisitor<wchar_t> visitor;
-
-            arg.visit(visitor);
-
-            ASSERT(visitor.d_stringview == value);
-
-            TestVisitor<wchar_t> visitor2;
-
-            visit_format_arg(visitor2, arg);
-
-            ASSERT(visitor2.d_stringview == value);
-        }
+        bsl::basic_string<char>      strDummy("119");
+        bsl::basic_string_view<char> stringViewValue(strDummy);
+        visitTest<char>(L_, stringViewValue);
+        bsl::basic_string<wchar_t>      wStrDummy(L"110");
+        bsl::basic_string_view<wchar_t> wStringViewValue(wStrDummy);
+        visitTest<wchar_t>(L_, wStringViewValue);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        // Testing std::basic_string_view
 
+        // Testing std::basic_string_view
         {
             std::basic_string<char>  dummy("Testing");
             std::basic_string_view<char> value(dummy);
@@ -1020,13 +777,13 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 
         {
@@ -1038,13 +795,13 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 #endif
 
@@ -1058,13 +815,13 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 
         {
@@ -1075,13 +832,13 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 
         // Testing std::basic_string
@@ -1094,13 +851,13 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 
         {
@@ -1111,69 +868,76 @@ int main(int argc, char **argv)
 
             arg.visit(visitor);
 
-            ASSERT(visitor.d_stringview == value);
+            ASSERT(visitor.d_stringView == value);
 
             TestVisitor<wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
-            ASSERT(visitor2.d_stringview == value);
+            ASSERT(visitor2.d_stringView == value);
         }
 
         // Testing handle of FormattableType and handle::format()
 
         {
             FormattableType value(44);
-            FA                      arg = makeTestArg<char>(value);
+            FA              arg = makeTestArg<char>(value);
 
-            FormattableType::parseCalls = 0;
-            FormattableType::formatSum  = 0;
+            // Check that user-defined types are stored by reference
+
+            value.setValue(45);
+            ASSERTV(value.value(), 45 == value.value());
+
+            FormattableType::resetCounters();
 
             TestVisitor<char> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_ishandle);
-            ASSERT(FormattableType::parseCalls == 1);
-            ASSERT(FormattableType::formatSum == value.x);
+            ASSERT(FormattableType::parseCalls() == 1);
+            ASSERT(FormattableType::formatSum() == value.value());
 
-            FormattableType::parseCalls = 0;
-            FormattableType::formatSum  = 0;
+            FormattableType::resetCounters();
 
             TestVisitor<char> visitor2;
 
             visit_format_arg(visitor2, arg);
 
             ASSERT(visitor2.d_ishandle);
-            ASSERT(FormattableType::parseCalls == 1);
-            ASSERT(FormattableType::formatSum == value.x);
+            ASSERT(FormattableType::parseCalls() == 1);
+            ASSERT(FormattableType::formatSum() == value.value());
         }
 
         {
-            FormattableType value(45);
-            WFA             arg = makeTestArg<wchar_t>(value);
+            FormattableType value(46);
 
-            FormattableType::parseCalls = 0;
-            FormattableType::formatSum  = 0;
+            WFA arg = makeTestArg<wchar_t>(value);
+
+            // Check that user-defined types are stored by reference
+
+            value.setValue(47);
+            ASSERTV(value.value(), 47 == value.value());
+
+            FormattableType::resetCounters();
 
             TestVisitor<wchar_t> visitor;
 
             arg.visit(visitor);
 
             ASSERT(visitor.d_ishandle);
-            ASSERT(FormattableType::parseCalls == 1);
-            ASSERT(FormattableType::formatSum == value.x);
+            ASSERT(FormattableType::parseCalls() == 1);
+            ASSERT(FormattableType::formatSum() == value.value());
 
-            FormattableType::parseCalls = 0;
-            FormattableType::formatSum  = 0;
+            FormattableType::resetCounters();
 
             TestVisitor<wchar_t> visitor2;
 
             visit_format_arg(visitor2, arg);
 
             ASSERT(visitor2.d_ishandle);
-            ASSERT(FormattableType::parseCalls == 1);
-            ASSERT(FormattableType::formatSum == value.x);
+            ASSERT(FormattableType::parseCalls() == 1);
+            ASSERT(FormattableType::formatSum() == value.value());
         }
 
       } break;
@@ -1397,9 +1161,10 @@ int main(int argc, char **argv)
             printf("\nValidating swap\n");
 
         {
-            FA a1;
-            FA a2 = makeTestArg<char>((int)99);
-            FA a3 = makeTestArg<char>(FormattableType(42));
+            FormattableType formattable(42);
+            FA              a1;
+            FA              a2 = makeTestArg<char>((int)99);
+            FA              a3 = makeTestArg<char>(formattable);
 
             bsl::swap(a1, a2);
             bsl::swap(a2, a3);
@@ -1410,9 +1175,10 @@ int main(int argc, char **argv)
         }
 
         {
-            WFA a1;
-            WFA a2 = makeTestArg<wchar_t>((int)99);
-            WFA a3 = makeTestArg<wchar_t>(FormattableType(42));
+            FormattableType formattable(42);
+            WFA             a1;
+            WFA             a2 = makeTestArg<wchar_t>((int)99);
+            WFA             a3 = makeTestArg<wchar_t>(formattable);
 
             bsl::swap(a1, a2);
             bsl::swap(a2, a3);

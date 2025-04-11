@@ -789,7 +789,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                  bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value = bslmf::MovableRefUtil::move(
-                                 bslmf::MovableRefUtil::access(rhs).d_value);
+                                   bslmf::MovableRefUtil::access(rhs).d_value);
 }
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
@@ -812,7 +812,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator=(
                  bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value = bslmf::MovableRefUtil::move(
-                                 bslmf::MovableRefUtil::access(rhs).d_value);
+                                   bslmf::MovableRefUtil::access(rhs).d_value);
     return *this;
 }
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)

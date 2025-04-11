@@ -133,13 +133,16 @@ struct FormatterCharUtil<wchar_t> {
     /// starting at the specified `begin` address and ending immediately before
     /// the specified `end` address.  Return `out` incremented by the number of
     /// characters written.  The behavior is undefined unless `begin <= end`.
+    /// Note that in case of a negative input character the outputted result is
+    /// unspecified.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char *begin,
                                      const char *end,
                                      t_ITERATOR  out);
 
     /// Output to the specified output iterator `out` the specified `value`.
-    /// Return incremented `out`.
+    /// Return incremented `out`.  Note that in case of a negative input
+    /// character the outputted result is unspecified.
     template <class t_ITERATOR>
     static t_ITERATOR outputFromChar(const char value, t_ITERATOR out);
 };
@@ -206,6 +209,9 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char *begin,
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());
 
     for (; begin != end; (void)++begin, (void)++out) {
+
+        BSLS_ASSERT(0 <= *begin);
+
         *out = ct.widen(*begin);
     }
 
@@ -219,6 +225,9 @@ t_ITERATOR FormatterCharUtil<wchar_t>::outputFromChar(const char value,
     typedef typename bsl::iterator_traits<t_ITERATOR>::value_type ValueType;
     BSLMF_ASSERT((bsl::is_same<ValueType, wchar_t>::value) ||
                  (bsl::is_same<ValueType, void>::value));
+
+    BSLS_ASSERT(0 <= value);
+
 
     static const std::ctype<wchar_t>& ct =
                   std::use_facet<std::ctype<wchar_t> >(std::locale::classic());

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Jan 31 11:05:39 2025
+// Generated on Wed Apr  2 17:20:16 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_arg.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_ARG_H
@@ -885,7 +885,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::basic_format_arg(
                  bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value = bslmf::MovableRefUtil::move(
-                                 bslmf::MovableRefUtil::access(rhs).d_value);
+                                   bslmf::MovableRefUtil::access(rhs).d_value);
 }
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
@@ -908,7 +908,7 @@ basic_format_arg<basic_format_context<t_OUT, t_CHAR> >::operator=(
                  bslmf::MovableRef<basic_format_arg> rhs) BSLS_KEYWORD_NOEXCEPT
 {
     d_value = bslmf::MovableRefUtil::move(
-                                 bslmf::MovableRefUtil::access(rhs).d_value);
+                                   bslmf::MovableRefUtil::access(rhs).d_value);
     return *this;
 }
 #endif  // !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)

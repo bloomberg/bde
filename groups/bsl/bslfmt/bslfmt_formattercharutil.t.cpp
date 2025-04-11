@@ -175,10 +175,8 @@ static const struct {
     //----  -----------------   -----------------   -----------------   ---
     // 1 character
     { L_,   {  0            },  {  0            },  {  0            },  1   },
-    { L_,   { -1            },  { -1            },  {  255          },  1   },
     { L_,   {  1            },  {  1            },  {  1            },  1   },
     { L_,   {  31           },  {  31           },  {  31           },  1   },
-    { L_,   {  CHAR_MIN     },  { CHAR_MIN      },  {  128          },  1   },
     { L_,   {  CHAR_MAX     },  { CHAR_MAX      },  {  CHAR_MAX     },  1   },
 
     // 2 characters
@@ -186,10 +184,6 @@ static const struct {
     { L_,   {  0,  'a'      },  {  0,  'A'      },  {  0,  'a'      },  2   },
     { L_,   { 'b',  0       },  { 'B',  0       },  { 'b',  0       },  2   },
     { L_,   { 'b', 'a'      },  { 'B', 'A'      },  { 'b', 'a'      },  2   },
-
-    { L_,   { -1,  -2       },  { -1,  -2       },  { 255, 254      },  2   },
-    { L_,   { -1,  'x'      },  { -1,  'X'      },  { 255, 'x'      },  2   },
-    { L_,   { 'y', -2       },  { 'Y', -2       },  { 'y', 254      },  2   },
 
     { L_,   {  1,   2       },  {  1,   2       },  {  1,   2       },  2   },
     { L_,   {  1,  'k'      },  {  1,  'K'      },  {  1,  'k'      },  2   },
@@ -204,15 +198,6 @@ static const struct {
     { L_,   { 'c',  0,  'a' },  { 'C',  0,  'A' },  { 'c',  0,  'a' },  3   },
     { L_,   { 'c', 'b',  0  },  { 'C', 'B',  0  },  { 'c', 'b',  0  },  3   },
     { L_,   { 'c', 'b', 'a' },  { 'C', 'B', 'A' },  { 'c', 'b', 'a' },  3   },
-
-    { L_,   { -1,  -2,  -3  },  { -1,  -2,  -3  },  { 255, 254, 253 },  3   },
-    { L_,   { -1,  -2,  'x' },  { -1,  -2,  'X' },  { 255, 254, 'x' },  3   },
-    { L_,   { -1,  'y', -3  },  { -1,  'Y', -3  },  { 255, 'y', 253 },  3   },
-    { L_,   { -1,  'y', 'x' },  { -1,  'Y', 'X' },  { 255, 'y', 'x' },  3   },
-    { L_,   { 'z', -2,  -3  },  { 'Z', -2,  -3  },  { 'z', 254, 253 },  3   },
-    { L_,   { 'z', -2,  'x' },  { 'Z', -2,  'X' },  { 'z', 254, 'x' },  3   },
-    { L_,   { 'z', 'y', -3  },  { 'Z', 'Y', -3  },  { 'z', 'y', 253 },  3   },
-    { L_,   { 'z', 'y', 'x' },  { 'Z', 'Y', 'X' },  { 'z', 'y', 'x' },  3   },
 
     { L_,   {  1,   2,   3  },  {  1,   2,   3  },  {  1,   2,   3  },  3   },
     { L_,   {  1,   2,  'k' },  {  1,   2,  'K' },  {  1,   2,  'k' },  3   },
@@ -429,8 +414,8 @@ int main(int argc, char **argv)
         //
         // Concern:
         //: 1 All `outputFromChar` specializations and overloads successfully
-        //:   outputs any `char` value (including zero, negative and control
-        //:   ones).
+        //:   outputs any `char` value from the basic character set (including
+        //:   zero).
         //:
         //: 2 All `outputFromChar` specializations and overloads return a copy
         //:   of the iterator passed to the function, shifted by the number of

@@ -521,24 +521,7 @@ int main(int argc, char **argv)
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-///Example: 1 Construct a `basic_format_args` object
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// We do not expect most users of `bsl::format` to interact with this type
-// directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
-// there are only a very limited number of public methods so this example is
-// necessarily unrealistic.
-//
-// Suppose we want to construct a `basic_format_args` containing a single int.
-//
-//..
-        int                 value = 5;
-        bslfmt::format_args args(bslfmt::make_format_args(value));
-
-        ASSERT( args.get(0));
-        ASSERT(!args.get(1));
-//..
-//
-///Example 2: Non-default construction and value verification
+///Example: 1 Non-default construction and value verification
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We do not expect most users of `bsl::format` to interact with this type
 // directly and instead use `bsl::format` or `bsl::vformat`.  In addition,
@@ -547,12 +530,15 @@ int main(int argc, char **argv)
 //
 // Suppose we want to construct a int-containing `basic_format_args` and verify
 // that it contains that int.  Note the use of a function to workaround the
-// lifetime issues specified above.
-//
-//..
-        int value2 = 99;
-        UsageExampleChecker::checkValue(bslfmt::make_format_args(value2));
-//..
+// lifetime issues specified above.  `Format_ArgsStore` passed to the
+// `basic_format_args` constructor must outlive the constructed object.
+// `bslfmt::make_format_args` returns temporary `Format_ArgsStore` object so to
+// avoid its destruction we have to do all the useful work within the
+// execution of one function.
+// ```
+     int value = 99;
+     UsageExampleChecker::checkValue(bslfmt::make_format_args(value));
+// ```
       } break;
       case 12: {
         // --------------------------------------------
