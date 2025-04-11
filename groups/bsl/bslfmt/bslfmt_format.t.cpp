@@ -3102,6 +3102,7 @@ int main(int argc, char **argv)
         //
         // Concerns:
         // 1. `vformat`, `vformat_t` calls format as expected.
+        //
         // 2. `vformat` uses the specified allocator for the returned string.
         // --------------------------------------------------------------------
         testCase10();
@@ -3249,10 +3250,15 @@ int main(int argc, char **argv)
         //    `bsl` namespace.
         //
         // 2. Where possible (without significant test infrastructure) verify
-        //    that the type/template behaves as expected
+        //    that the type/template behaves as expected.
         //
         // Plan:
-        // 1. Verify the existence of names,
+        // 1. Verify the existence of names by creating variables or typedefs
+        //    that create an instance of a template (and possibly a variable).
+        //
+        // 2. Verify functionality that is not directly or indirectly verified
+        //    by other tests, or those that are very easy to do (like
+        //    `format_to_n_result`).
         //
         // Testing:
         //   CONCERN: CLASSES AND CLASS TEMPLATES
@@ -3261,23 +3267,38 @@ int main(int argc, char **argv)
         if (verbose) puts("\nCLASSES AND CLASS TEMPLATES"
                           "\n===========================");
 
-        // `basic_format_arg` cannot be directly created or accessed so we are
-        // not able to provide a verification in C++03..C++20.  Standard
-        // library implementations may not even provide a definition for the
-        // "main" template, only for the specifications for the contexts they
-        // implement.
-
-        // `basic_format_args` cannot be directly created or accessed so we are
-        // not able to provide a verification in C++03..C++20.  Standard
-        // library implementations may not even provide a definition for the
-        // "main" template, only for the specifications for the contexts they
-        // implement.
-
         // `basic_format_context` cannot be directly created since it is
         // unspecified what is their first template argument, and the main
         // class template of standard library implementations is not
         // necessarily defined, only those specializations that may only be
         // created indirectly by `make_format_args` and `make_wformat_args`.
+
+        // `basic_format_args`, `format_context`, `wformat_context`
+        ASSERT((bsl::is_same<
+                    bsl::format_args,
+                    bsl::basic_format_args<bsl::format_context> >::value));
+        ASSERT((bsl::is_same<
+                    bsl::wformat_args,
+                    bsl::basic_format_args<bsl::wformat_context> >::value));
+
+        // `basic_format_args`
+        // `basic_format_arg`
+        int   i = 42;
+        float f = 3.14;
+
+        bsl::format_args fargs = bsl::make_format_args(i, f);
+        bsl::basic_format_arg<bsl::format_context> fa = fargs.get(0);
+        ASSERT(!!fa);
+        ASSERT(!!fargs.get(0));  // The only usable member is `operator bool`
+        ASSERT(!!fargs.get(1));  // in `basic_format_arg`
+        ASSERT(!fargs.get(2));
+
+        bsl::wformat_args wfargs = bsl::make_wformat_args(i, f);
+        bsl::basic_format_arg<bsl::wformat_context> wfa = wfargs.get(0);
+        ASSERT(!!wfa);
+        ASSERT(!!wfargs.get(0));  // The only usable member is `operator bool`
+        ASSERT(!!wfargs.get(1));  // in `basic_format_arg`
+        ASSERT(!wfargs.get(2));
 
         // `bsl::basic_format_parse_context`
         // `bsl::format_parse_context`
