@@ -3882,9 +3882,9 @@ class variant
     /// `allocator` is used to supply memory.  This constructor participates in
     /// overload resolution only if the 0th alternative is default
     /// constructible.
-    template <class FIRST = t_HEAD,
-              class       = typename bsl::enable_if_t<
-                  std::is_default_constructible<FIRST>::value> >
+    template <class t_FIRST = t_HEAD,
+              class         = typename bsl::enable_if_t<
+                  std::is_default_constructible<t_FIRST>::value> >
     variant(bsl::allocator_arg_t, allocator_type allocator)
     : Variant_Base(bsl::allocator_arg_t(), allocator)
     {
@@ -3900,10 +3900,10 @@ class variant
     /// copy-constructed from the contained value of `original`.  This
     /// constructor is deleted unless all alternatives are copy constructible.
     template <
-        class FIRST = t_HEAD,
-        class       = typename bsl::enable_if_t<
+        class t_FIRST = t_HEAD,
+        class         = typename bsl::enable_if_t<
             BloombergLP::bslstl::
-                Variant_IsCopyConstructibleAll<FIRST, t_TAIL...>::value> >
+                Variant_IsCopyConstructibleAll<t_FIRST, t_TAIL...>::value> >
     variant(bsl::allocator_arg_t,
             allocator_type allocator,
             const variant& original)
@@ -3922,10 +3922,10 @@ class variant
     /// constructor participates in overload resolution only if all
     /// alternatives are move constructible.
     template <
-        class FIRST = t_HEAD,
-        class       = typename bsl::enable_if_t<
+        class t_FIRST = t_HEAD,
+        class         = typename bsl::enable_if_t<
             BloombergLP::bslstl::
-                Variant_IsMoveConstructibleAll<FIRST, t_TAIL...>::value> >
+                Variant_IsMoveConstructibleAll<t_FIRST, t_TAIL...>::value> >
     variant(bsl::allocator_arg_t, allocator_type allocator, variant&& original)
     : Variant_Base(bsl::allocator_arg_t(), allocator, std::move(original))
     {
