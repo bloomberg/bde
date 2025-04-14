@@ -4,7 +4,9 @@
 #include <bslim_testutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
+#include <bdlma_bufferedsequentialpool.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslmt_threadutil.h>
@@ -100,7 +102,8 @@ using namespace bdlpcre;
 // [18] MEMORY ALIGNMENT
 // [19] CONCERN: `match` IS THREAD-SAFE
 // [21] DUPLICATE NAMED GROUPS
-// [22] USAGE EXAMPLE
+// [22] REGRESSIONS
+// [23] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -475,6 +478,101 @@ typedef RegEx Obj;
 
 namespace {
 
+                            // ====================
+                            // class ArenaAllocator
+                            // ====================
+
+/// This class implements the `bslma::ManagedAllocator` protocol using a
+/// standard sequential allocator.
+class ArenaAllocator : public bslma::ManagedAllocator {
+
+    // DATA
+    bdlma::BufferedSequentialPool d_pool;
+    char                          d_poolBuffer[256];
+    bslma::Allocator              *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED
+    ArenaAllocator(const ArenaAllocator&);
+    ArenaAllocator& operator=(const ArenaAllocator&);
+
+  public:
+    // CREATORS
+
+    /// Create an `Arena` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory for both the arena and the managed objects.
+    /// If `basicAllocator` is 0, the currently installed default allocator
+    /// is used.
+    explicit ArenaAllocator(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this object.  All memory allocated from the arena is
+    /// released, but destructors are not run on allocated objects.
+    ~ArenaAllocator();
+
+    // MANIPULATORS
+
+    /// Return a newly allocated block of memory of (at least) the specified
+    /// positive `numBytes`.  If `numBytes` is 0, a null pointer is returned
+    /// with no effect.  The behavior is undefined unless `0 <= numBytes`.
+    /// Note that the alignment of the address returned is the maximum
+    /// alignment for any fundamental type defined for the calling platform.
+    virtual void *allocate(size_type numBytes);
+
+    /// This method has no effect for this allocator.
+    virtual void deallocate(void *);
+
+    /// Release all memory currently allocated through this allocator.
+    virtual void release();
+
+    // ACCESSORS
+
+    /// Return the allocator supplied at construction.
+    bslma::Allocator *basicAllocator() const;
+};
+
+                            // --------------------
+                            // class ArenaAllocator
+                            // --------------------
+
+// CREATORS
+inline
+ArenaAllocator::ArenaAllocator(bslma::Allocator *basicAllocator)
+: d_pool(d_poolBuffer, sizeof(d_poolBuffer), basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+ArenaAllocator::~ArenaAllocator()
+{
+}
+
+// MANIPULATORS
+inline
+void *ArenaAllocator::allocate(size_type numBytes)
+{
+    return d_pool.allocate(static_cast<int>(numBytes));
+}
+
+inline
+void ArenaAllocator::deallocate(void *)
+{
+    // do nothing
+}
+
+inline
+void ArenaAllocator::release()
+{
+    d_pool.release();
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *ArenaAllocator::basicAllocator() const
+{
+    return d_allocator_p;
+}
+
                         // ========
                         // MatchJob
                         // ========
@@ -776,7 +874,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -828,6 +926,43 @@ int main(int argc, char *argv[])
         ASSERT(" This is the subject text" == subject);
 //  }
 // ```
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // REGRESSIONS
+        //
+        // Concerns:
+        // 1. DRQS 178916073 -- misaligned memory access UBSAN error.  Note
+        //    that while this test case resembles `case 18`, that had failed to
+        //    capture the issue in the mentioned ticket.
+        //
+        // Plan:
+        // 1. DRQS 178916073: Use the call-pattern that triggered the issue (in
+        //    another test driver) so that USBAN-enabled builds can pick up if
+        //    the issue is still present.  The error requires an allocator that
+        //    calculates its own alignment.  We are going to use a so-called
+        //    Arena allocator that is locally defined.
+        //
+        // Testing:
+        //   REGRESSIONS
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nREGRESSIONS"
+                             "\n===========\n";
+
+        ArenaAllocator aa;
+        Obj            regex(&aa);
+
+        static const char emailRegex[] =
+                "(\\b)([A-Za-z0-9._-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-z]{2,4}\\b)";
+        static const char subject[] = "Bla me@there.com yadda yadda.',";
+
+        const int flags = bdlpcre::RegEx::k_FLAG_UTF8;
+        int       rc    = regex.prepare(0, 0, emailRegex, flags);
+        ASSERT(0 == rc);
+
+        bsl::pair<size_t, size_t> result;
+        rc = regex.match(&result, subject, sizeof subject - 1, 5);
+        ASSERT(0 != rc);
       } break;
       case 21: {
         // --------------------------------------------------------------------

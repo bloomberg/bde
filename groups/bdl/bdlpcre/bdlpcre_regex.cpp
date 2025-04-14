@@ -24,14 +24,17 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 
 #include <bslmt_threadutil.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <bsl_climits.h>    // 'INT_MAX'
-#include <bsl_cmath.h>      // 'abs'
+#include <bsl_climits.h>    // `INT_MAX`
+#include <bsl_cmath.h>      // `abs`
+#include <bsl_cstddef.h>    // for `std::max_align_t`
 #include <bsl_cstring.h>
-#include <bsl_new.h>        // placement 'new' syntax
+#include <bsl_new.h>        // placement `new` syntax
 
 extern "C" {
 
@@ -42,6 +45,34 @@ void *bdlpcre_malloc(size_t size, void* context)
     BloombergLP::bslma::Allocator *basicAllocator =
                      reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
     BSLS_TRY {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        size_t alignment = alignof(std::max_align_t);
+#else
+        size_t alignment =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+        // Closely mimic the alignment behavior of `malloc` by giving a `size`
+        // to the allocator that will result in the maximum possible natural
+        // alignment for the original `size`.  For example `size` 6 may contain
+        // an element that requires 4 for alignment.
+        //
+        // Details: most BDE allocators will calculate alignment from the
+        // `size` (wrongly) assuming that the allocated area is made up of
+        // homogeneous elements (like a vector's allocation).  However in PCRE2
+        // that is not true.  BDE will allocate memory with 1 alignment for
+        // `size` 9, but from PCRE2 that is possibly an 8-aligned struct
+        // followed by a one byte flag.  So here we need to align anything
+        // equal or larger than 8 to 8, 4 to 4, 2 to 2.
+        while (alignment > 1) {
+            if (size >= alignment) {
+                if (size % alignment > 0) {
+                    size += alignment - (size % alignment);
+                }
+                break;                                                 // BREAK
+            }
+
+            alignment /= 2;
+        }
         result = basicAllocator->allocate(size);
     } BSLS_CATCH( ... ) {
     }
