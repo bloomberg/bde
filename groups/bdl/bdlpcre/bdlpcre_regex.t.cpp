@@ -12,8 +12,10 @@
 #include <bslmt_threadutil.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
@@ -478,23 +480,27 @@ typedef RegEx Obj;
 
 namespace {
 
-                            // ====================
-                            // class ArenaAllocator
-                            // ====================
+                          // ========================
+                          // class WeakAlignAllocator
+                          // ========================
 
-/// This class implements the `bslma::ManagedAllocator` protocol using a
-/// standard sequential allocator.
-class ArenaAllocator : public bslma::ManagedAllocator {
+/// This class implements the `bslma::ManagedAllocator` protocol and returns
+/// the most weakly aligned pointer that might be returned by a sequential
+/// allocator for the specified `size`.  It essentially will return byte, 2
+/// bytes, 4 bytes aligned memory (speaking of 64 bits) and it will only return
+/// maximum aligned memory when `size` is a multiple of the maximum alignment.
+/// In the free function, since we know that we have a minimally-aligned
+/// pointer we restore the pointer we got the upstream allocator by looking at
+/// the alignment of the actual pointer and subtracting that from it.
+class WeakAlignAllocator : public bslma::Allocator {
 
     // DATA
-    bdlma::BufferedSequentialPool d_pool;
-    char                          d_poolBuffer[256];
-    bslma::Allocator              *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   private:
     // NOT IMPLEMENTED
-    ArenaAllocator(const ArenaAllocator&);
-    ArenaAllocator& operator=(const ArenaAllocator&);
+    WeakAlignAllocator(const WeakAlignAllocator&);
+    WeakAlignAllocator& operator=(const WeakAlignAllocator&);
 
   public:
     // CREATORS
@@ -503,26 +509,27 @@ class ArenaAllocator : public bslma::ManagedAllocator {
     /// used to supply memory for both the arena and the managed objects.
     /// If `basicAllocator` is 0, the currently installed default allocator
     /// is used.
-    explicit ArenaAllocator(bslma::Allocator *basicAllocator = 0);
+    explicit WeakAlignAllocator(bslma::Allocator *basicAllocator = 0);
 
-    /// Destroy this object.  All memory allocated from the arena is
-    /// released, but destructors are not run on allocated objects.
-    ~ArenaAllocator();
+    /// Destroy this object.  Memory still allocated from this allocator
+    /// remains allocated.
+    ~WeakAlignAllocator();
 
     // MANIPULATORS
 
     /// Return a newly allocated block of memory of (at least) the specified
-    /// positive `numBytes`.  If `numBytes` is 0, a null pointer is returned
-    /// with no effect.  The behavior is undefined unless `0 <= numBytes`.
-    /// Note that the alignment of the address returned is the maximum
-    /// alignment for any fundamental type defined for the calling platform.
+    /// positive `numBytes`.  The behavior is undefined unless `0 <= numBytes`.
+    /// Note that the alignment of the address returned is the minimum
+    /// alignment for the specified `numBytes` if it is considered to be the
+    /// size of a single object.  So for 11 bytes the alignment will be on
+    /// 1 byte boundary because an object with the size of 11 byte would
+    /// naturally also have that one byte alignment due to the fact that arrays
+    /// have no padding between elements, so the second element of an array of
+    /// such 11-bytes-sized objects would be on a 1 byte boundary.
     virtual void *allocate(size_type numBytes);
 
     /// This method has no effect for this allocator.
     virtual void deallocate(void *);
-
-    /// Release all memory currently allocated through this allocator.
-    virtual void release();
 
     // ACCESSORS
 
@@ -530,45 +537,85 @@ class ArenaAllocator : public bslma::ManagedAllocator {
     bslma::Allocator *basicAllocator() const;
 };
 
-                            // --------------------
-                            // class ArenaAllocator
-                            // --------------------
+                          // ------------------------
+                          // class WeakAlignAllocator
+                          // ------------------------
 
 // CREATORS
 inline
-ArenaAllocator::ArenaAllocator(bslma::Allocator *basicAllocator)
-: d_pool(d_poolBuffer, sizeof(d_poolBuffer), basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+WeakAlignAllocator::WeakAlignAllocator(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
-ArenaAllocator::~ArenaAllocator()
+WeakAlignAllocator::~WeakAlignAllocator()
 {
 }
 
 // MANIPULATORS
 inline
-void *ArenaAllocator::allocate(size_type numBytes)
+void *WeakAlignAllocator::allocate(size_type numBytes)
 {
-    return d_pool.allocate(static_cast<int>(numBytes));
-}
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    const size_t maxAlign = alignof(std::max_align_t);
+#else
+    const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
+    if (0 == numBytes % maxAlign) {
+        // Maximally aligned memory, we just call the upstream allocator
+        void *upstream_ptr = d_allocator_p->allocate(numBytes);
+        return upstream_ptr;
+    }
+
+    // What alignment do we need?
+    const int align =
+                     bsls::AlignmentUtil::calculateAlignmentFromSize(numBytes);
+    const size_t maxAddBytes = 2 * align;
+
+    void *upstream_ptr = d_allocator_p->allocate(numBytes + maxAddBytes);
+
+    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
+                                                                 upstream_ptr,
+                                                                 align * 2) > 0
+                           ? align * 2
+                           : align;
+    // Get a pointer that has byte pointer arithmetics and allows us to write
+    // the offset to the byte just before the one we return the ptr to
+    unsigned char *ucptr  = static_cast<unsigned char *>(upstream_ptr);
+    ucptr += offset;
+    ucptr[-1] = static_cast<unsigned char>(offset);
+    return ucptr;
+ }
 
 inline
-void ArenaAllocator::deallocate(void *)
+void WeakAlignAllocator::deallocate(void *ptr)
 {
-    // do nothing
-}
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    const size_t maxAlign = alignof(std::max_align_t);
+#else
+    const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
 
-inline
-void ArenaAllocator::release()
-{
-    d_pool.release();
+    const size_t asInt = reinterpret_cast<size_t>(ptr);
+
+    if (0 == asInt % maxAlign) {
+        // Maximum aligned, no offset
+        d_allocator_p->deallocate(ptr);
+        return;                                                       // RETURN
+    }
+
+    // There is an offset in the byte just before the ptr
+    unsigned char *ucptr = static_cast<unsigned char *>(ptr);
+    d_allocator_p->deallocate(ucptr - ucptr[-1]);
 }
 
 // ACCESSORS
 inline
-bslma::Allocator *ArenaAllocator::basicAllocator() const
+bslma::Allocator *WeakAlignAllocator::basicAllocator() const
 {
     return d_allocator_p;
 }
@@ -874,7 +921,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -926,43 +973,6 @@ int main(int argc, char *argv[])
         ASSERT(" This is the subject text" == subject);
 //  }
 // ```
-      } break;
-      case 22: {
-        // --------------------------------------------------------------------
-        // REGRESSIONS
-        //
-        // Concerns:
-        // 1. DRQS 178916073 -- misaligned memory access UBSAN error.  Note
-        //    that while this test case resembles `case 18`, that had failed to
-        //    capture the issue in the mentioned ticket.
-        //
-        // Plan:
-        // 1. DRQS 178916073: Use the call-pattern that triggered the issue (in
-        //    another test driver) so that USBAN-enabled builds can pick up if
-        //    the issue is still present.  The error requires an allocator that
-        //    calculates its own alignment.  We are going to use a so-called
-        //    Arena allocator that is locally defined.
-        //
-        // Testing:
-        //   REGRESSIONS
-        // --------------------------------------------------------------------
-        if (verbose) cout << "\nREGRESSIONS"
-                             "\n===========\n";
-
-        ArenaAllocator aa;
-        Obj            regex(&aa);
-
-        static const char emailRegex[] =
-                "(\\b)([A-Za-z0-9._-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-z]{2,4}\\b)";
-        static const char subject[] = "Bla me@there.com yadda yadda.',";
-
-        const int flags = bdlpcre::RegEx::k_FLAG_UTF8;
-        int       rc    = regex.prepare(0, 0, emailRegex, flags);
-        ASSERT(0 == rc);
-
-        bsl::pair<size_t, size_t> result;
-        rc = regex.match(&result, subject, sizeof subject - 1, 5);
-        ASSERT(0 != rc);
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -1291,7 +1301,7 @@ int main(int argc, char *argv[])
         // TESTING MEMORY ALIGNMENT
         //
         // Concerns:
-        // 1. That alignment requirements aren't violated.
+        // 1. That alignment requirements aren't violated.  DRQS 178916073
         //
         // Plan:
         // 1. Run this test built with the Sun CC compiler and linker with the
@@ -1301,20 +1311,23 @@ int main(int argc, char *argv[])
         // Testing:
         //   MEMORY ALLIGNMENT
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING MEMORY ALIGNMENT" << endl
-                          <<"=========================" << endl;
+        if (verbose)
+            cout << "\nTESTING MEMORY ALIGNMENT"
+                    "\n========================\n";
 
-        static const char k_PATTERN[] =
+        {
+            static const char k_PATTERN[] =
                   "\\b[A-Za-z0-9._-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-zaz]{2,4}\\b";
 
-        bsls::AlignedBuffer<256>           buffer;
-        bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
-                                                 sizeof(buffer));
+            bsls::AlignedBuffer<256>           buffer;
+            bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
+                                                     sizeof(buffer));
+            WeakAlignAllocator                 wa(&arena);
 
-        Obj regex(&arena);
+            Obj regex(&wa);
 
-        regex.prepare(0, 0, k_PATTERN, 0);
+            regex.prepare(0, 0, k_PATTERN, 0);
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
