@@ -182,6 +182,20 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='EncodeAnonSequenceInChoice' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='true'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying if anonymous sequence elements in choice should
+            be encoded.  The preferred value for this option is `false`, but
+            the default value is `true` for backward-compatibility purposes
+            only.  Note that `baljsn::Decoder` currently fails to decode such
+            elements.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 

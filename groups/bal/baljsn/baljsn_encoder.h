@@ -1019,6 +1019,9 @@ class Encoder_SelectionDispatcher {
     template <class TYPE>
     int operator()(const TYPE&                     selection,
                    bdlat_TypeCategory::DynamicType category);
+    template <class TYPE>
+    int operator()(const TYPE&                  selection,
+                   bdlat_TypeCategory::Sequence category);
     template <class TYPE, class CATEGORY>
     int operator()(const TYPE& selection, CATEGORY category);
 
@@ -2321,6 +2324,30 @@ int Encoder_SelectionDispatcher::operator()(
                                      bdlat_TypeCategory::DynamicType)
 {
     return bdlat_TypeCategoryUtil::accessByCategory(selection, *this);
+}
+
+template <class TYPE>
+inline
+int Encoder_SelectionDispatcher::operator()(
+                                        const TYPE&                  selection,
+                                        bdlat_TypeCategory::Sequence category)
+{
+    int rc = Encoder_EncodeImplUtil::encodeMember(&d_isNextObjectFirst,
+                                                  d_formatter_p,
+                                                  d_logStream_p,
+                                                  d_selectionName.data(),
+                                                  selection,
+                                                  d_formattingMode,
+                                                  *d_options_p,
+                                                  d_isNextObjectFirst,
+                                                  category);
+    if ((bdlat_FormattingMode::e_UNTAGGED & d_formattingMode) && rc == 0 &&
+          !d_options_p->encodeAnonSequenceInChoice() && !d_isNextObjectFirst) {
+        *d_logStream_p <<
+          "Cannot encode non-empty anonymous sequence in choice." << bsl::endl;
+        return -1;                                                    // RETURN
+    }
+    return rc;
 }
 
 template <class TYPE, class CATEGORY>

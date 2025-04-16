@@ -68,6 +68,7 @@
 #include <bsl_vector.h>
 
 #include <s_baltst_address.h>
+#include <s_baltst_anonymouschoicesequence.h>
 #include <s_baltst_employee.h>
 #include <s_baltst_featuretestmessage.h>
 #include <s_baltst_featuretestmessageutil.h>
@@ -131,7 +132,8 @@ using bsl::endl;
 // [20] ENCODING UNSET CHOICE
 // [21] ENCODING NULL CHOICE
 // [22] ENCODING VECTORS OF VECTORS
-// [23] USAGE EXAMPLE
+// [23] ENCODING NON-EMPTY ANONYMOUS SEQUENCE IN CHOICE
+// [24] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1216,7 +1218,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1332,6 +1334,64 @@ int main(int argc, char *argv[])
 
     ASSERT(EXP_OUTPUT == os.str());
 // ```
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING NON-EMPTY ANONYMOUS SEQUENCE IN CHOICE
+        //   This case tests that `baljsn::Encoder::encode` forbids encoding
+        //   non-empty anonymous sequences in choice when the
+        //   `encodeAnonSequenceInChoice` option is set to `false` (because the
+        ///  decoder fails to decode it, see DRQS 165509318).
+        //
+        // Concerns:
+        // 1. The encoder successfully encodes non-empty anonymous sequences in
+        //    choice when the `encodeAnonSequenceInChoice` option is set to
+        //    `true`, which is default.
+        //
+        // 2. The encoder fails to encode non-empty anonymous sequences in
+        //    choice when the `encodeAnonSequenceInChoice` option is set to
+        //    `false`.
+        //
+        // Plan:
+        //
+        // 1. Construct an instance of `s_baltst::AnonChoice` and call the
+        //    `makeSelection` function.
+        //
+        // 2. Construct an instance of `baljsn::EncoderOptions` using the
+        //    default constructor.
+        //
+        // 3. Verify that `encodeAnonSequenceInChoice == true`. (C-1).
+        //
+        // 4. Try to encode the choice using the options.  Verify that the
+        //    encoding was successful (C-1).
+        //
+        // 5. Set `encodeAnonSequenceInChoice == false`.
+        //
+        // 6. Try to encode the choice again using the options.  Verify that
+        //    the encoding failed (C-2).
+        //
+        // Testing:
+        //   ENCODING NON-EMPTY ANONYMOUS SEQUENCE IN CHOICE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                   "\nENCODING NON-EMPTY ANONYMOUS SEQUENCE IN CHOICE"
+                   "\n===============================================" << endl;
+
+        s_baltst::AnonChoice ch;
+        ch.makeSequence();
+
+        bsl::ostringstream oss;
+        Options options;
+
+        ASSERT(options.encodeAnonSequenceInChoice() == true);
+        ASSERTV(ImplUtil::encode(&oss, ch, options) == 0);
+        ASSERT(oss.str() == "{\"a\":0}");
+
+        oss.str("");
+        options.setEncodeAnonSequenceInChoice(false);
+        ASSERT(options.encodeAnonSequenceInChoice() == false);
+        ASSERTV(ImplUtil::encode(&oss, ch, options) != 0);
       } break;
       case 22: {
         // --------------------------------------------------------------------

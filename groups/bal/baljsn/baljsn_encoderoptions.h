@@ -35,6 +35,8 @@ BSLS_IDENT("$Id: $")
 // maxFloatPrecision   int            0               >= 1 and <= 9  or 0
 // maxDoublePrecision  int            0               >= 1 and <= 17 or 0
 // escapeForwardSlash  bool           true            none
+// encodeAnonSequenceInChoice
+//                     bool           true            none
 // ```
 // * `encodingStyle`: encoding style used to encode the JSON data.
 // * `initialIndentLevel`: Initial indent level for the topmost element.
@@ -93,6 +95,13 @@ BSLS_IDENT("$Id: $")
 //                         original value) being available.
 // * `escapeForwardSlash`: option specifying whether `/` characters in names or
 //                         strings are output with a preceding `\` or not.
+// * `encodeAnonSequenceInChoice`: option specifying if anonymous sequence
+//                                 elements in choice should be encoded.  The
+//                                 preffered value for this option is `false`,
+//                                 but the default value is `true` for
+//                                 backward-compatibility purposes only.  Note
+//                                 that `baljsn::Decoder` currently fails to
+//                                 decode such elements.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -122,6 +131,7 @@ BSLS_IDENT("$Id: $")
 // const int  DOUBLE_PRECISION          = 9;
 // const bool ENCODE_QUOTED_DECIMAL64   = false;
 // const bool ESCAPE_FORWARD_SLASH      = false;
+// const bool ENCODE_ANON_SEQUENCE_IN_CHOICE = false;
 //
 // baljsn::EncoderOptions options;
 // assert(0     == options.initialIndentLevel());
@@ -135,6 +145,7 @@ BSLS_IDENT("$Id: $")
 // assert(0     == options.maxDoublePrecision());
 // assert(true  == options.encodeQuotedDecimal64());
 // assert(true  == options.escapeForwardSlash());
+// assert(true  == options.encodeAnonSequenceInChoice());
 // ```
 // Next, we populate that object to encode in a prett format using a
 // pre-defined initial indent level and spaces per level:
@@ -171,6 +182,10 @@ BSLS_IDENT("$Id: $")
 //
 // options.setEscapeForwardSlash(ESCAPE_FORWARD_SLASH);
 // assert(ESCAPE_FORWARD_SLASH == options.escapeForwardSlash());
+//
+// options.setEncodeAnonSequenceInChoice(ENCODE_ANON_SEQUENCE_IN_CHOICE);
+// assert(ENCODE_ANON_SEQUENCE_IN_CHOICE ==
+//                                       options.encodeAnonSequenceInChoice());
 // ```
 
 #include <balscm_version.h>
@@ -276,6 +291,10 @@ class EncoderOptions {
     // or not (e.g., rendered as `\/` or `/`).
     bool                   d_escapeForwardSlash;
 
+    // option specifying if anonymous sequence elements in choice should be
+    // encoded
+    bool                   d_encodeAnonSequenceInChoice;
+
   public:
     // TYPES
 
@@ -303,10 +322,11 @@ class EncoderOptions {
       , ATTRIBUTE_ID_MAX_DOUBLE_PRECISION                 =  8
       , ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64              =  9
       , ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH                 = 10
+      , ATTRIBUTE_ID_ENCODE_ANON_SEQUENCE_IN_CHOICE       = 11
     };
 
     enum {
-        NUM_ATTRIBUTES = 10
+        NUM_ATTRIBUTES = 12
     };
 
     enum {
@@ -321,6 +341,7 @@ class EncoderOptions {
       , ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION                 =  8
       , ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64              =  9
       , ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH                 = 10
+      , ATTRIBUTE_INDEX_ENCODE_ANON_SEQUENCE_IN_CHOICE       = 11
     };
 
     // CONSTANTS
@@ -347,6 +368,8 @@ class EncoderOptions {
     static const bool DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
 
     static const bool DEFAULT_INITIALIZER_ESCAPE_FORWARD_SLASH;
+
+    static const bool DEFAULT_INITIALIZER_ENCODE_ANON_SEQUENCE_IN_CHOICE;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -459,6 +482,10 @@ class EncoderOptions {
     /// specified `value`.
     void setEscapeForwardSlash(bool value);
 
+    /// Set the "EncodeAnonSequenceInChoice" attribute of this object to the
+    /// specified `value`.
+    void setEncodeAnonSequenceInChoice(bool value);
+
     // ACCESSORS
 
     /// Format this object to the specified output `stream` at the
@@ -548,6 +575,10 @@ class EncoderOptions {
 
     /// Return the value of the "EscapeForwardSlash" attribute of this object.
     bool escapeForwardSlash() const;
+
+    /// Return the value of the "EncodeAnonSequenceInChoice" attribute of this
+    /// object.
+    bool encodeAnonSequenceInChoice() const;
 };
 
 // FREE OPERATORS
@@ -648,6 +679,13 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(
+         &d_encodeAnonSequenceInChoice,
+         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_ANON_SEQUENCE_IN_CHOICE]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -689,6 +727,11 @@ int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH: {
         return manipulator(&d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
+      } break;
+      case ATTRIBUTE_ID_ENCODE_ANON_SEQUENCE_IN_CHOICE: {
+        return manipulator(
+         &d_encodeAnonSequenceInChoice,
+         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_ANON_SEQUENCE_IN_CHOICE]);
       } break;
       default:
         return NOT_FOUND;
@@ -792,6 +835,12 @@ void EncoderOptions::setEscapeForwardSlash(bool value)
     d_escapeForwardSlash = value;
 }
 
+inline
+void EncoderOptions::setEncodeAnonSequenceInChoice(bool value)
+{
+    d_encodeAnonSequenceInChoice = value;
+}
+
 // ACCESSORS
 template <class ACCESSOR>
 int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
@@ -853,6 +902,13 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(
+         d_encodeAnonSequenceInChoice,
+         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_ANON_SEQUENCE_IN_CHOICE]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -894,6 +950,11 @@ int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       } break;
       case ATTRIBUTE_ID_ESCAPE_FORWARD_SLASH: {
         return accessor(d_escapeForwardSlash, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ESCAPE_FORWARD_SLASH]);
+      } break;
+      case ATTRIBUTE_ID_ENCODE_ANON_SEQUENCE_IN_CHOICE: {
+        return accessor(
+         d_encodeAnonSequenceInChoice,
+         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_ANON_SEQUENCE_IN_CHOICE]);
       } break;
       default:
         return NOT_FOUND;
@@ -983,6 +1044,12 @@ bool EncoderOptions::escapeForwardSlash() const
     return d_escapeForwardSlash;
 }
 
+inline
+bool EncoderOptions::encodeAnonSequenceInChoice() const
+{
+    return d_encodeAnonSequenceInChoice;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -1002,7 +1069,9 @@ bool baljsn::operator==(
          && lhs.maxFloatPrecision() == rhs.maxFloatPrecision()
          && lhs.maxDoublePrecision() == rhs.maxDoublePrecision()
          && lhs.encodeQuotedDecimal64() == rhs.encodeQuotedDecimal64()
-         && lhs.escapeForwardSlash() == rhs.escapeForwardSlash();
+         && lhs.escapeForwardSlash() == rhs.escapeForwardSlash()
+         && lhs.encodeAnonSequenceInChoice() ==
+                                              rhs.encodeAnonSequenceInChoice();
 }
 
 inline
@@ -1020,7 +1089,9 @@ bool baljsn::operator!=(
          || lhs.maxFloatPrecision() != rhs.maxFloatPrecision()
          || lhs.maxDoublePrecision() != rhs.maxDoublePrecision()
          || lhs.encodeQuotedDecimal64() != rhs.encodeQuotedDecimal64()
-         || lhs.escapeForwardSlash() != rhs.escapeForwardSlash();
+         || lhs.escapeForwardSlash() != rhs.escapeForwardSlash()
+         || lhs.encodeAnonSequenceInChoice() !=
+                                              rhs.encodeAnonSequenceInChoice();
 }
 
 inline
