@@ -3333,15 +3333,17 @@ int main(int argc, char **argv)
         // `bsl::basic_format_string`
         // `bsl::format_string`
         // `bsl::wformat_string`
-#ifndef BSLS_PLATFORM_CMP_SUN
-        bsl::basic_format_string<char, int, int>    bfs("{} {}");   (void)bfs;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES) &&                 \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+        bsl::basic_format_string<char, int, int> bfs("{} {}");
+        (void)bfs;
         bsl::basic_format_string<wchar_t, int, int> wbfs(L"{} {}"); (void)wbfs;
 
         ASSERT((bsl::is_same<bsl::basic_format_string<char, int, int>,
                              bsl::format_string<int, int> >::value));
         ASSERT((bsl::is_same<bsl::basic_format_string<wchar_t, int, int>,
                              bsl::wformat_string<int, int> >::value));
-#endif  // not the Solaris Studio compiler
+#endif  // C++11 or above (essentially)
 
         // `bsl::formatter` is once verified by the formattable types we use in
         // this test driver (by specializing it).  In addition to that we
