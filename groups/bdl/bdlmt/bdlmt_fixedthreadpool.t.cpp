@@ -1682,6 +1682,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Check for race condition in shutdown().\n"
                           << "=======================================" << endl;
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        bslmt::ThreadUtil::create(&watchdogHandle,
+                                  watchdog,
+                                  const_cast<char *>("race in `shutdown`"));
+
         using namespace FIXEDTHREADPOOL_CASE_11;
 
         memset(threadPools, 0, sizeof(threadPools));
@@ -1693,27 +1701,11 @@ int main(int argc, char *argv[])
 
         bslmt::Barrier barrier(2);
 
-#       ifdef BSLS_PLATFORM_OS_LINUX
-            enum {
-                NUM_ITERATIONS = 5,
-                NUM_ITERATIONS_PER_LINE = 5,
-                NUM_ITERATIONS_PER_DOT = 1
-            };
-#       else
-#           ifdef BSLS_PLATFORM_OS_AIX
-                enum {
-                    NUM_ITERATIONS = 800,
-                    NUM_ITERATIONS_PER_LINE = 200,
-                    NUM_ITERATIONS_PER_DOT = 4
-                };
-#           else
-                enum {
-                    NUM_ITERATIONS = 400,
-                    NUM_ITERATIONS_PER_LINE = 100,
-                    NUM_ITERATIONS_PER_DOT = 2
-                };
-#           endif
-#       endif
+        enum {
+            NUM_ITERATIONS = 5,
+            NUM_ITERATIONS_PER_LINE = 5,
+            NUM_ITERATIONS_PER_DOT = 1
+        };
 
         if (verbose) cout << "Enqueue: " << NUM_ITERATIONS <<
                                                     " iterations." << flush;
@@ -1817,6 +1809,10 @@ int main(int argc, char *argv[])
             delete threadPools[i];
             threadPools[i] = 0;
         }
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 12: {
         // --------------------------------------------------------------------

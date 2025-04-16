@@ -527,11 +527,11 @@ double wasteCpuTime()
         x -= 0.000001;
         rc = times(&tmsBuffer);
         BSLS_ASSERT(-1 != rc);
-    } while (tmsBuffer.tms_utime + tmsBuffer.tms_stime - startTime < 50);
+    } while (tmsBuffer.tms_utime + tmsBuffer.tms_stime - startTime < 20);
 
     return x;
 #else
-    bslmt::ThreadUtil::microSleep(0, 1);
+    bslmt::ThreadUtil::microSleep(100000, 0);
     return 1.0;
 #endif
 }
@@ -1394,8 +1394,8 @@ int main(int argc, char *argv[])
         //   ConstIterator operator++(int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING INCRERMENT OPERATORS\n"
-                          << "============================\n";
+        if (verbose) cout << "TESTING INCREMENT OPERATORS\n"
+                          << "===========================\n";
 
         // Testing signatures.
         {
@@ -1720,7 +1720,7 @@ int main(int argc, char *argv[])
             ASSERT(ELAPSED ==   XIt->elapsedTime());
             ASSERT(ELAPSED == (*XIt).elapsedTime());
 
-            bslmt::ThreadUtil::microSleep(10000, 0);
+            bslmt::ThreadUtil::microSleep(0, 1);
             mX.collect();
 
             ASSERT(ELAPSED !=   XIt->elapsedTime());
@@ -1906,7 +1906,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
 
                 for (int i = 0; i < 6; ++i) {
-                    bslmt::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(250000, 0);
                     for (ObjIterator it  = perfmon.begin();
                                      it != perfmon.end();
                                    ++it)

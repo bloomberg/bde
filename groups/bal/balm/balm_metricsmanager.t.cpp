@@ -1875,7 +1875,6 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime start = bdlt::CurrentTime::utc();
             bsls::TimeInterval startIntvl = bdlt::CurrentTime::now();
-            bslmt::ThreadUtil::microSleep(100000, 0);
 
             bsl::vector<balm::MetricRecord>      recordsBsl(Z);
             balm::MetricSample sample;

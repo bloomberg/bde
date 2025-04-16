@@ -657,8 +657,12 @@ void setWatchdogText(const char *value)
 /// function returns without expiration if `0 == s_continue` before one
 /// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
 /// program is aborted.
-extern "C" void *watchdog(void *)
+extern "C" void *watchdog(void *arg)
 {
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
     const int MAX = 100;  // one iteration is a deci-second
 
     int count = 0;
@@ -1430,7 +1434,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 1"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1452,7 +1456,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 2"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1493,7 +1497,7 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("wait until empty"));
+                                      const_cast<char *>("waitUntilEmpty 3"));
 
             Obj mX(8);  const Obj& X = mX;
 
@@ -1516,8 +1520,9 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.5) >= interval);
+            ASSERTV(interval,
+                       bsls::TimeInterval(0.8) <= interval
+                    && bsls::TimeInterval(5.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 

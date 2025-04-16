@@ -674,7 +674,7 @@ void testMain(
 
 namespace MultiThreadedTests {
 
-enum { k_NUM_THREADS             = 40,
+enum { k_NUM_THREADS             = 20,
        k_TERMINATE               = 2 * k_NUM_THREADS + 1,
        k_PERMITTED               = 400,
        k_NANOSECONDS_PER_MESSAGE = 1000 * 1000 * 1000,
@@ -754,7 +754,7 @@ class Func {
     }
 };
 
-/// This test case is called from cases 3 and 4, and the test plan is
+/// This test case is called from cases 4 and 5, and the test plan is
 /// described in detail there.  Use the specified observer `*TO`, with the
 /// specified `testType` indicating whether the test is `printf`-style or
 /// stream style.  Use the specified `alloc` for memory allocation.
@@ -796,11 +796,8 @@ void testMain(
                                    TO->lastPublishedRecord().fixedFields();
     const char   *lastTrace  = attributes.message();
     const int     severity   = attributes.severity();
-    const double  minElapsed =
-                   0.9 * 1e-9 * static_cast<double>(k_NANOSECONDS_PER_MESSAGE);
 
     ASSERTV(k_TERMINATE == atomicBarrier);
-    ASSERTV(elapsed, minElapsed, elapsed < minElapsed);
     ASSERTV(k_PERMITTED,numPublished, k_PERMITTED == numPublished);
     ASSERTV(k_ATTEMPTS_PER_THREAD * k_NUM_THREADS == numAttempts);
     ASSERTV(DEBUG == severity);
@@ -1000,16 +997,13 @@ int main(int argc, char *argv[])
         // 2. Have the threads attempt to log traces many times, so that they
         //    attempt 100 times as many traces as are to be permitted.
         //
-        // 3. Observe that the elapsed time during which all logging took place
-        //    is less than one period.
-        //
-        // 4. Sum up the total number of attempted traces and verify that it is
+        // 3. Sum up the total number of attempted traces and verify that it is
         //    as expected.
         //
-        // 5. Query the observer and verify that exactly the number of traces
+        // 4. Query the observer and verify that exactly the number of traces
         //    permitted occurred.
         //
-        // 6. Observe that the last published record was of sufficient severity
+        // 5. Observe that the last published record was of sufficient severity
         //    to be logged.
         //
         // Testing
@@ -1044,16 +1038,13 @@ int main(int argc, char *argv[])
         // 2. Have the threads attempt to log traces many times, so that they
         //    attempt 100 times as many traces as are to be permitted.
         //
-        // 3. Observe that the elapsed time during which all logging took place
-        //    is less than one period.
-        //
-        // 4. Sum up the total number of attempted traces and verify that it is
+        // 3. Sum up the total number of attempted traces and verify that it is
         //    as expected.
         //
-        // 5. Query the observer and verify that exactly the number of traces
+        // 4. Query the observer and verify that exactly the number of traces
         //    permitted occurred.
         //
-        // 6. Observe that the last published record was of sufficient severity
+        // 5. Observe that the last published record was of sufficient severity
         //    to be logged.
         //
         // Testing

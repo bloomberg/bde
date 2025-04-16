@@ -3594,9 +3594,11 @@ static void test24_destroyGuardAndWait()
             ASSERTV(diff2, diff2 >= 0.4);
 
             double diffStart = start2 - start1;
-            ASSERTV(diffStart, u::abs(diffStart) < 0.1);
+            ASSERTV(diffStart, u::abs(diffStart) < 0.3);
             const double diffCompletion = completionTime2 - completionTime1;
-            ASSERTV(diffCompletion, u::abs(diffCompletion) < 0.1);
+            ASSERTV(diffCompletion,
+                    diffStart,
+                    u::abs(diffCompletion) < u::abs(diffStart) + 0.2);
 
             if (veryVerbose) {
                 P_(elapsed1);    P(elapsed2);

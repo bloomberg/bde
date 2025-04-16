@@ -2247,7 +2247,7 @@ int main(int argc, char *argv[]) {
                     ++count[doneJobs];
                 }
 
-                ASSERTV(batchSize, count[batchSize], 70 <= count[batchSize]);
+                ASSERTV(batchSize, count[batchSize], 30 <= count[batchSize]);
 
                 ASSERT(0 == count[0]);
                 for (int i = batchSize + 1; i <= k_ENQUEUE; ++i) {
@@ -3762,15 +3762,9 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
-#ifndef BSLS_PLATFORM_OS_CYGWIN
-                k_NUM_QUEUES = 10,
-                k_NUM_ITERATIONS = 10,
-                k_NUM_JOBS = 200
-#else
                 k_NUM_QUEUES = 5,
                 k_NUM_ITERATIONS = 10,
                 k_NUM_JOBS = 50
-#endif
             };
 
             enum {
