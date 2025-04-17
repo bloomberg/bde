@@ -484,16 +484,15 @@ namespace {
                           // class WeakAlignAllocator
                           // ========================
 
-/// This class implements the `bslma::ManagedAllocator` protocol and returns
-/// the most weakly aligned pointer that might be returned by a sequential
-/// allocator for the specified `size`.  It essentially will return byte, 2
-/// bytes, 4 bytes aligned memory (speaking of 64 bits) and it will only return
-/// maximum aligned memory when `size` is a multiple of the maximum alignment.
-/// In the free function, since we know that we have a minimally-aligned
-/// pointer we restore the pointer we got the upstream allocator by looking at
-/// the alignment of the actual pointer and subtracting that from it.
+/// This class implements the `bslma::Allocator` protocol and returns the most
+/// weakly aligned pointer that might be returned by a sequential allocator for
+/// the specified `size`.  It essentially will return byte, 2 bytes, 4 bytes
+/// aligned memory (speaking of 64 bits) and it will only return maximum
+/// aligned memory when `size` is a multiple of the maximum alignment.  In the
+/// deallocate function, since we know that we have a minimally-aligned pointer
+/// we restore the pointer we got the upstream allocator by looking at the
+/// alignment of the actual pointer and subtracting that from it.
 class WeakAlignAllocator : public bslma::Allocator {
-
     // DATA
     bslma::Allocator *d_allocator_p;
 
@@ -505,10 +504,10 @@ class WeakAlignAllocator : public bslma::Allocator {
   public:
     // CREATORS
 
-    /// Create an `Arena` object.  Optionally specify a `basicAllocator`
-    /// used to supply memory for both the arena and the managed objects.
-    /// If `basicAllocator` is 0, the currently installed default allocator
-    /// is used.
+    /// Create an `WeakAlignAllocator` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory for both the arena and the
+    /// managed objects.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit WeakAlignAllocator(bslma::Allocator *basicAllocator = 0);
 
     /// Destroy this object.  Memory still allocated from this allocator
@@ -528,8 +527,11 @@ class WeakAlignAllocator : public bslma::Allocator {
     /// such 11-bytes-sized objects would be on a 1 byte boundary.
     virtual void *allocate(size_type numBytes);
 
-    /// This method has no effect for this allocator.
-    virtual void deallocate(void *);
+    /// Deallocate the memory block that the specified `ptr` represents by
+    /// restoring the pointer to the original value (returned by `allocate` of
+    /// the upstream allocator) and call the upstream deallocate with that
+    /// pointer.
+    virtual void deallocate(void *ptr);
 
     // ACCESSORS
 
@@ -573,20 +575,29 @@ void *WeakAlignAllocator::allocate(size_type numBytes)
     // What alignment do we need?
     const int align =
                      bsls::AlignmentUtil::calculateAlignmentFromSize(numBytes);
-    const size_t maxAddBytes = 2 * align;
 
-    void *upstream_ptr = d_allocator_p->allocate(numBytes + maxAddBytes);
+    void *upstream_ptr = d_allocator_p->allocate(numBytes + align);
 
-    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                                 upstream_ptr,
-                                                                 align * 2) > 0
-                           ? align * 2
-                           : align;
+    // Because we added `align` to `size` `upstream_ptr` is guaranteed to be
+    // aligned on `2 * align` boundary.  Why?  The original `size` was equal to
+    // `2 * n * align + align` (where `n` is a positive integer or zero)
+    // because that is the only way to get `align` for alignment of `size`.  By
+    // adding `align` to size we make the allocated size to be
+    // `2 * (n + 1) * align`, which has the required natural alignment of
+    // `2 * align)`.  The assert below is a paranoid check to state the above.
+    BSLS_ASSERT(bsls::AlignmentUtil::calculateAlignmentOffset(upstream_ptr,
+                                                              align * 2) == 0);
+
+    // Since we know that our `upstream_pointer` is aligned on `2 * align`
+    // boundary we also know that to make it weakly aligned for `align` we just
+    // need to "move it up" by `align` bytes, which also conveniently creates
+    // space where we can store that offset.
+
     // Get a pointer that has byte pointer arithmetics and allows us to write
     // the offset to the byte just before the one we return the ptr to
     unsigned char *ucptr  = static_cast<unsigned char *>(upstream_ptr);
-    ucptr += offset;
-    ucptr[-1] = static_cast<unsigned char>(offset);
+    ucptr += align;
+    ucptr[-1] = static_cast<unsigned char>(align);
     return ucptr;
  }
 
@@ -600,10 +611,8 @@ void WeakAlignAllocator::deallocate(void *ptr)
                           BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 #endif
 
-    const size_t asInt = reinterpret_cast<size_t>(ptr);
-
-    if (0 == asInt % maxAlign) {
-        // Maximum aligned, no offset
+    if (0 == bsls::AlignmentUtil::calculateAlignmentOffset(ptr, maxAlign)) {
+        // Maximum aligned, no offset was added
         d_allocator_p->deallocate(ptr);
         return;                                                       // RETURN
     }

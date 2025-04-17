@@ -58,14 +58,18 @@ void *bdlpcre_malloc(size_t size, void* context)
         //
         // Details: `bdlma::allocator` will calculate alignment from the
         // `size` as its contract guarantees allocation of a single object of
-        // that given `size`.  However in PCRE2 that is not true, it allocates
-        // space for a non-homogeneous data structure that requires higher
-        // alignment than the size suggests.  For example BDE allocators may
-        // allocate memory with 1 byte alignment for `size` 9, but what PCRE2
-        // is possibly allocating is an 8-aligned struct followed by a one byte
-        // flag.  So we need to align anything equal or larger than 8 to 8, 4
-        // to 4, 2 to 2 to ensure that the largest type fitting into to
-        // allocated memory determines the alignment, not the `size` argument.
+        // that given `size`.  However, PCRE2's requirements on its allocation
+        // function are stricter.  The memory allocated will be used to store a
+        // non-homogeneous data structure and has higher alignment requirements
+        // than an object of that exact size would have.  For example BDE
+        // allocators may allocate memory with 1 byte alignment for `size` 9,
+        // but PCRE2 may attempt to create an 8-aligned struct followed by a
+        // one byte flag in that space. Hence we need to allocate storage with
+        // alignment sufficient for the largest object that might fit within
+        // the requested size.  So we need to align any size equal or larger
+        // than 8 to 8, 4 to 4, 2 to 2 to ensure that the largest type fitting
+        // into to allocated memory determines the alignment, not the `size`
+        // argument.
         while (alignment > 1) {
             if (size >= alignment) {
                 if (size % alignment > 0) {
