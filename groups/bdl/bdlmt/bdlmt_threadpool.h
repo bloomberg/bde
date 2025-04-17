@@ -471,6 +471,9 @@ class ThreadPool {
                                            // (callbacks) across all threads,
                                            // in nanoseconds
 
+    bsls::AtomicInt64    d_numThreadCreateFailures;
+                                           // count of thread creation failures
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
     sigset_t             d_blockSet;       // set of signals to be blocked in
                                            // managed threads

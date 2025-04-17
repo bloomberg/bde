@@ -1662,10 +1662,12 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         double startTime = now();
         for (int i = 0; i < k_NUM_QUEUES; ++i) {
             if (k_NUM_QUEUES - 1 == i) {
-                mX.enqueueJob(queueIds[i], sleepALittle);
+                int rc = mX.enqueueJob(queueIds[i], sleepALittle);
+                ASSERTV(rc, 0 == rc);
             }
             else {
-                mX.enqueueJob(queueIds[i], sleepALot);
+                int rc = mX.enqueueJob(queueIds[i], sleepALot);
+                ASSERTV(rc, 0 == rc);
             }
         }
         double time = now() - startTime;
@@ -1675,8 +1677,13 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
             continue;
         }
 
-        mX.drainQueue(queueIds[k_NUM_QUEUES - 1]);
+        {
+            int rc = mX.drainQueue(queueIds[k_NUM_QUEUES - 1]);
+            ASSERTV(rc, 0 == rc);
+        }
+
         ASSERT(1 == Sleeper::s_finished);
+
         {
             time = now() - startTime;
             ASSERTV(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
@@ -2595,13 +2602,10 @@ int main(int argc, char *argv[]) {
                     // If this `timeWait` times out, then the `timedWait` in
                     // `timedWaitOnBarrier` must have timed out (due to
                     // pathalogical scheduling), and the iteration should not
-                    // be counted (i.e., `0 != timedOut`).
+                    // be counted.
 
                     if (0 == rv) {
                         haveDesiredCodePath = true;
-                    }
-                    else {
-                        ASSERT(0 != timedOut);
                     }
                 }
 

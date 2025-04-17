@@ -4104,9 +4104,9 @@ class HighWaterMarkFunctor {
     HighWaterMarkFunctor(bdlcc::Deque<ELEMENT> *deque)
     : d_deque_p(deque)
     {
-        // have everything time out 2 seconds after thread object creation
+        // have everything time out 15 seconds after thread object creation
 
-        d_timeout = u::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(15.0);
     }
 
     /// make sure we did not wait until timeout

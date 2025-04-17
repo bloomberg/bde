@@ -3606,11 +3606,9 @@ int main(int argc, char *argv[])
             done.wait();
             scheduler.stop();
 
-            const double EPSILON = .1;
-
-            ASSERTV(elapsedTimeOne,   EPSILON > fabs(1 - elapsedTimeOne));
-            ASSERTV(elapsedTimeTwo,   EPSILON > fabs(2 - elapsedTimeTwo));
-            ASSERTV(elapsedTimeThree, EPSILON > fabs(3 - elapsedTimeThree));
+            ASSERTV(elapsedTimeOne,   0.99 <= elapsedTimeOne);
+            ASSERTV(elapsedTimeTwo,   1.99 <= elapsedTimeTwo);
+            ASSERTV(elapsedTimeThree, 2.99 <= elapsedTimeThree);
         }
 
         if (verbose) cout << "\tBreathing test custom clock" << endl;

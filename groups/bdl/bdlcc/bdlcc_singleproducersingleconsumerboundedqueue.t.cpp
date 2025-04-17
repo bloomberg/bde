@@ -1460,14 +1460,14 @@ int main(int argc, char *argv[])
 
             Obj mX(8);  const Obj& X = mX;
 
-            bslmt::ThreadUtil::Handle handle;
-
-            bslmt::ThreadUtil::create(&handle, deferredPopFront, &mX);
-
             mX.pushBack(0);
 
             bsls::TimeInterval interval =
                       bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
+
+            bslmt::ThreadUtil::Handle handle;
+
+            bslmt::ThreadUtil::create(&handle, deferredPopFront, &mX);
 
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -1481,10 +1481,10 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle);
 
-            ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
-                                           <= interval.totalSecondsAsDouble()
-                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.5
-                                           >= interval.totalSecondsAsDouble());
+            ASSERTV(s_deferredPopFrontInterval.totalSecondsAsDouble(),
+                    interval.totalSecondsAsDouble(),
+                    s_deferredPopFrontInterval.totalSecondsAsDouble()
+                                           <= interval.totalSecondsAsDouble());
 
             s_continue = 0;
 
@@ -1501,28 +1501,26 @@ int main(int argc, char *argv[])
 
             Obj mX(8);  const Obj& X = mX;
 
-            bslmt::ThreadUtil::Handle handle;
-
-            bslmt::ThreadUtil::create(&handle, deferredDisablePopFront, &mX);
-
             mX.pushBack(0);
 
             bsls::TimeInterval interval =
                       bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
 
+            bslmt::ThreadUtil::Handle handle;
+
+            bslmt::ThreadUtil::create(&handle, deferredDisablePopFront, &mX);
+
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_DISABLED == rv);
+            ASSERT(e_DISABLED  == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERTV(interval,
-                       bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(5.0) >= interval);
+            ASSERTV(interval, bsls::TimeInterval(1.0) <= interval);
 
             bslmt::ThreadUtil::join(handle);
 

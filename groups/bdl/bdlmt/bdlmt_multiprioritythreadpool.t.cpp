@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_USAGE_1;
 
-        bdlmt::MultipriorityThreadPool pool(20,  // threads
+        bdlmt::MultipriorityThreadPool pool(10,  // threads
                                             2,   // priorities
                                             &ta);
 
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
         doneFlag = false;
 
         threadPool =
-            new (ta) bdlmt::MultipriorityThreadPool(20, NUM_PRIORITIES, &ta);
+            new (ta) bdlmt::MultipriorityThreadPool(10, NUM_PRIORITIES, &ta);
         threadPool->startThreads();
 
         bsls::TimeInterval startJobs = bsls::SystemTime::nowRealtimeClock();
@@ -1097,6 +1097,15 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                               &watchdogHandle,
+                               watchdog,
+                               const_cast<char *>("removeJobs 1")));
+
         bdlmt::MultipriorityThreadPool pool(1, 1, &ta);
 
         memset(resultsVec, 0x8f, sizeof resultsVec);
@@ -1117,10 +1126,12 @@ int main(int argc, char *argv[])
                                                                      " jobs\n";
         }
 
+        setWatchdogText("removeJobs 2");
+
         ASSERT(0 == resultsVecIdx);
         ASSERT(0 == pool.numPendingJobs());
 
-        pool.startThreads();
+        STARTTHREADS(pool);
         pool.drainJobs();
 
         ASSERT(0 == resultsVecIdx);
@@ -1128,6 +1139,8 @@ int main(int argc, char *argv[])
 
         pool.suspendProcessing();
         pool.removeJobs();
+
+        setWatchdogText("shutdown 1");
 
         pool.enqueueJob(&pushInt, (void *) 0, 0);
         pool.enqueueJob(&pushInt, (void *) 0, 0);
@@ -1143,10 +1156,12 @@ int main(int argc, char *argv[])
             cout << "After shutdown(): " << pool.numPendingJobs() << " jobs\n";
         }
 
+        setWatchdogText("shutdown 2");
+
         ASSERT(0 == resultsVecIdx);
         ASSERT(0 == pool.numPendingJobs());
 
-        pool.startThreads();
+        STARTTHREADS(pool);
         pool.resumeProcessing();
         pool.enableQueue();
 
@@ -1156,6 +1171,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == pool.numPendingJobs());
 
         pool.shutdown();
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2009,7 +2028,7 @@ int main(int argc, char *argv[])
                                                         1, // priorities
                                                         &ta);
 
-            pool->startThreads();
+            STARTTHREADS((*pool));
 
             counter = 0;
 

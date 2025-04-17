@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bslmt_threadutil.h>        // for testing only
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -201,11 +202,19 @@ int ThreadPool::startThreadIfNeeded()
         // fails.  But by then they have many threads and their jobs get
         // processed and things work.  To avoid disturbing such jobs in
         // production, work if 'startNewThread' failed as long as
-        // '0 != d_threadCount'.  The following safe assert will alert clients
-        // in development to the problem.
+        // '0 != d_threadCount'.   Use exponential back-off to prevent log
+        // spamming.
 
-        BSLS_ASSERT_SAFE(0 == rc && "Client is not getting as many threads as"
-            "requested, check thread stack size.");
+        if (0 != rc) {
+            ++d_numThreadCreateFailures;
+            if (0 == (d_numThreadCreateFailures
+                                          & (d_numThreadCreateFailures - 1))) {
+                BSLS_LOG_INFO("Client is not getting as many threads as"
+                              " requested, check thread stack size."
+                              "  (creation rc = %i)",
+                              rc);
+            }
+        }
     }
     return 0;
 }
@@ -420,6 +429,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_numThreadCreateFailures(0)
 {
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
@@ -451,6 +461,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_numThreadCreateFailures(0)
 {
     BSLS_ASSERT(0          <= minThreads);
     BSLS_ASSERT(minThreads <= maxThreads);
@@ -481,6 +492,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_numThreadCreateFailures(0)
 {
     BSLS_ASSERT(0                        <= minThreads);
     BSLS_ASSERT(minThreads               <= maxThreads);
@@ -512,6 +524,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
 , d_enabled(0)
 , d_waitHead(0)
 , d_lastResetTime(bsls::TimeUtil::getTimer()) // now
+, d_numThreadCreateFailures(0)
 {
     BSLS_ASSERT(0                        <= minThreads);
     BSLS_ASSERT(minThreads               <= maxThreads);

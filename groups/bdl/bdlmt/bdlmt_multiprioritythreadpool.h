@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // meaning *all* of the urgent jobs completed, while approximately 95% of the
 // less urgent jobs did not:
 // ```
-//      bdlmt::MultipriorityThreadPool pool(20,  // # of threads
+//      bdlmt::MultipriorityThreadPool pool(10,  // # of threads
 //                                          2);  // # of priorities
 //
 //      bsls::TimeInterval finishTime =
@@ -355,7 +355,7 @@ BSLS_IDENT("$Id: $")
 //     doneFlag = false;
 //
 //     threadPool =
-//         new (ta) bdlmt::MultipriorityThreadPool(20, NUM_PRIORITIES, &ta);
+//         new (ta) bdlmt::MultipriorityThreadPool(10, NUM_PRIORITIES, &ta);
 //     threadPool->startThreads();
 //
 //     bsls::TimeInterval startJobs = bsls::SystemTime::nowRealtimeClock();
