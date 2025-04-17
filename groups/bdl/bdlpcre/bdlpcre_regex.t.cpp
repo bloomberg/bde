@@ -1303,10 +1303,24 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. That alignment requirements aren't violated.  DRQS 178916073
         //
+        // 2. That the special allocator that returns the weakest necessary
+        //    alignment actually does so.
+        //
         // Plan:
         // 1. Run this test built with the Sun CC compiler and linker with the
         //    `-xmemalign=8s` option set.  If alignment violations occur, there
         //    will be a bus error.  (C-1)
+        //
+        // 2. Run this test built with gcc with a `ubsan` UFID.  If an
+        //    alignment violations occur, there will be ubsan error.  (C-1)
+        //
+        // 3. Run a table based test in which we verify that the alignment of
+        //    the returned pointer is the expected value and it is not
+        //    well-aligned for 2 times the expected value.  The table data
+        //    columns are size and expected alignment.  Note that we provide
+        //    test-table data lines for up to 16 bytes alignment but correct
+        //    the alignments that are larger than the supported maximum natural
+        //    alignment of the platform in the loop.
         //
         // Testing:
         //   MEMORY ALLIGNMENT
@@ -1314,6 +1328,93 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nTESTING MEMORY ALIGNMENT"
                     "\n========================\n";
+
+        if (veryVerbose) cout << "`WeakAlignAllocator breathing test\n";
+        {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            const size_t maxAlign = alignof(std::max_align_t);
+#else
+            const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
+            static struct {
+                size_t d_line;
+                size_t d_size;
+                size_t d_expectedAlignment;
+            } TEST_DATA[] = {
+                { L_,  0, maxAlign  },
+
+                { L_,  1,  1        },
+                { L_,  2,  2        },
+                { L_,  3,  1        },
+                { L_,  4,  4        },
+                { L_,  5,  1        },
+                { L_,  6,  2        },
+                { L_,  7,  1        },
+                { L_,  8,  8        },
+                { L_,  9,  1        },
+                { L_, 10,  2        },
+                { L_, 11,  1        },
+                { L_, 12,  4        },
+                { L_, 13,  1        },
+                { L_, 14,  2        },
+                { L_, 15,  1        },
+                { L_, 16, 16        },
+
+                { L_, 17,  1        },
+                { L_, 18,  2        },
+                { L_, 19,  1        },
+                { L_, 20,  4        },
+                { L_, 21,  1        },
+                { L_, 22,  2        },
+                { L_, 23,  1        },
+                { L_, 24,  8        },
+                { L_, 25,  1        },
+                { L_, 26,  2        },
+                { L_, 27,  1        },
+                { L_, 28,  4        },
+                { L_, 29,  1        },
+                { L_, 30,  2        },
+                { L_, 31,  1        },
+                { L_, 32, 16        },
+            };
+
+            const size_t TEST_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+            WeakAlignAllocator   wa(&ta);
+
+            for (size_t ti = 0; ti < TEST_SIZE; ++ti) {
+                const size_t LINE           = TEST_DATA[ti].d_line;
+                const size_t SIZE           = TEST_DATA[ti].d_size;
+                const size_t EXPECTED_ALIGN =
+                                   TEST_DATA[ti].d_expectedAlignment > maxAlign
+                                       ? maxAlign
+                                       : TEST_DATA[ti].d_expectedAlignment;
+
+                if (veryVeryVerbose) {
+                    P_(LINE) P_(SIZE) P(EXPECTED_ALIGN);
+                }
+
+                void *ptr = wa.allocate(SIZE);
+                const size_t ptrAsInt = reinterpret_cast<size_t>(ptr);
+                wa.deallocate(ptr);
+
+                // Verify that we are aligned to the expected boundary
+                ASSERTV(LINE, ptrAsInt % EXPECTED_ALIGN,
+                        0 == ptrAsInt % EXPECTED_ALIGN);
+
+                // Maximum Alignment is pass-through, we don't care about
+                // alignments larger than the maximum
+                if (EXPECTED_ALIGN != maxAlign) {
+                    // Verify that we aren't aligned stricter than the
+                    // expected boundary
+                    ASSERTV(LINE, ptrAsInt % EXPECTED_ALIGN * 2,
+                            0 != ptrAsInt % (EXPECTED_ALIGN * 2));
+                }
+            }
+        }
 
         {
             static const char k_PATTERN[] =
