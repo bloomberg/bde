@@ -566,7 +566,7 @@ void *WeakAlignAllocator::allocate(size_type numBytes)
                           BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 #endif
 
-    if (0 == numBytes % maxAlign) {
+    if (0 == (numBytes & (maxAlign - 1))) {
         // Maximally aligned memory, we just call the upstream allocator
         void *upstream_ptr = d_allocator_p->allocate(numBytes);
         return upstream_ptr;

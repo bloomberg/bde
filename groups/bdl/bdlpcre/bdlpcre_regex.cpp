@@ -38,12 +38,12 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 
 extern "C" {
 
-void *bdlpcre_malloc(size_t size, void* context)
+void *bdlpcre_malloc(size_t size, void *context)
 {
     void *result = 0;
 
     BloombergLP::bslma::Allocator *basicAllocator =
-                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+                    reinterpret_cast<BloombergLP::bslma::Allocator *>(context);
     BSLS_TRY {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         size_t alignment = alignof(std::max_align_t);
@@ -70,16 +70,8 @@ void *bdlpcre_malloc(size_t size, void* context)
         // than 8 to 8, 4 to 4, 2 to 2 to ensure that the largest type fitting
         // into to allocated memory determines the alignment, not the `size`
         // argument.
-        while (alignment > 1) {
-            if (size >= alignment) {
-                if (size % alignment > 0) {
-                    size += alignment - (size % alignment);
-                }
-                break;                                                 // BREAK
-            }
+        size = (size + alignment - 1) & ~(alignment - 1);
 
-            alignment /= 2;
-        }
         result = basicAllocator->allocate(size);
     } BSLS_CATCH( ... ) {
     }
@@ -87,10 +79,10 @@ void *bdlpcre_malloc(size_t size, void* context)
     return result;
 }
 
-void bdlpcre_free(void* data, void* context)
+void bdlpcre_free(void *data, void *context)
 {
     BloombergLP::bslma::Allocator *basicAllocator =
-                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+                    reinterpret_cast<BloombergLP::bslma::Allocator *>(context);
 
     basicAllocator->deallocate(data);
     return;
