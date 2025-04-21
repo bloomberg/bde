@@ -133,7 +133,8 @@ using bsl::endl;
 // [21] ENCODING NULL CHOICE
 // [22] ENCODING VECTORS OF VECTORS
 // [23] ENCODING NON-EMPTY ANONYMOUS SEQUENCE IN CHOICE
-// [24] USAGE EXAMPLE
+// [24] ENCODING UNTAGGED NULL
+// [25] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1218,7 +1219,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1334,6 +1335,80 @@ int main(int argc, char *argv[])
 
     ASSERT(EXP_OUTPUT == os.str());
 // ```
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING UNTAGGED NULL
+        //
+        // Concerns:
+        // 1. When encoding an object containing null anonymous nullable value
+        //    and `encodeNullElements` is `true`, then the encoder succeeds and
+        //    returns valid JSON (DRQS 178183006).
+        //
+        // Plan:
+        // 1. Create a message object
+        //    `s_baltst::FeatureTestMessage::s_XML_MESSAGES[46]` which contains
+        //    null anonymous nullable value.  Encode it with the
+        //    `encodeNullElements` option set to `true`.
+        //
+        // 2. Verify that the `encode` function returns success, and the
+        //    produced JSON string matches the expected one.
+        //
+        // Testing:
+        //   ENCODING UNTAGGED NULL
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING ENCODING UNTAGGED NULL"
+                             "\n==============================" << endl;
+
+        static const char EXP[] = "{\n"
+                                  "  \"selection11\" : {\n"
+                                  "    \"selection1\" : {\n"
+                                  "      \"element1\" : null,\n"
+                                  "      \"element2\" : null,\n"
+                                  "      \"element3\" : null,\n"
+                                  "      \"element4\" : 3123123123,\n"
+                                  "      \"element5\" : 255,\n"
+                                  "      \"element7\" : \"custom\",\n"
+                                  "      \"element8\" : 999,\n"
+                                  "      \"element9\" : null\n"
+                                  "    },\n"
+                                  "    \"selection5\" : true,\n"
+                                  "    \"element4\" : {\n"
+                                  "      \"element1\" : null,\n"
+                                  "      \"element2\" : null,\n"
+                                  "      \"element3\" : null,\n"
+                                  "      \"element4\" : 3123123123,\n"
+                                  "      \"element5\" : 255,\n"
+                                  "      \"element7\" : \"custom\",\n"
+                                  "      \"element8\" : 999,\n"
+                                  "      \"element9\" : null\n"
+                                  "    }\n"
+                                  "  }\n"
+                                  "}\n";
+
+        int testNum = 46;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        testNum -= 2;
+#endif
+        bsl::vector<s_baltst::FeatureTestMessage> testObjects;
+        u::constructFeatureTestMessage(&testObjects);  // we need only #46
+
+        baljsn::EncoderOptions options;
+        options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+        options.setInitialIndentLevel(0);
+        options.setSpacesPerLevel(2);
+        options.setEncodeNullElements(true);  // needed to show the problem
+
+        bdlsb::MemOutStreamBuf osb;
+        baljsn::Encoder encoder;
+        ASSERTV(0 == encoder.encode(&osb, testObjects[testNum], options));
+
+        bsl::string ACTUAL(osb.data(), osb.length());
+        ASSERTV(ACTUAL, EXP, ACTUAL == EXP);
+        if (ACTUAL != EXP) {
+            u::printStringDifferences(ACTUAL, EXP);
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------

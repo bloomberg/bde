@@ -2517,7 +2517,10 @@ int Encoder_AttributeDispatcher::operator()(
                                    bdlat_TypeCategory::NullableValue category)
 {
     if (bdlat_NullableValueFunctions::isNull(attribute) &&
-        !d_options_p->encodeNullElements()) {
+        (!d_options_p->encodeNullElements() ||
+         // don't encode UNTAGGED element if it isn't first, but allow "{null}"
+         ((d_formattingMode & bdlat_FormattingMode::e_UNTAGGED) &&
+           !d_isNextAttributeFirst))) {
         return 0;                                                     // RETURN
     }
 
