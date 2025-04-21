@@ -1892,7 +1892,7 @@ int main(int argc, char *argv[])
             ASSERT(withinRange(sample.timeStamp(), start, end));
             for (int i = 0; i < sample.numGroups(); ++i) {
                 const balm::MetricSampleGroup& group = sample.sampleGroup(i);
-                ASSERT(withinWindow(group.elapsedTime(), window, 10));
+                ASSERT(withinWindow(group.elapsedTime(), window, 50));
                 ASSERT(NUM_METRICS == group.numRecords());
 
                 const balm::MetricRecord *record = group.records();

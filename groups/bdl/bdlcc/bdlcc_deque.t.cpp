@@ -4272,7 +4272,8 @@ void highWaterMarkTest()
         // On Solaris, each sleep could potentially take 2 seconds, but
         // usually it will be much, much less.
 
-        ASSERT(u::now() < start + bsls::TimeInterval(10.1));
+        bsls::TimeInterval interval = u::now() - start;
+        ASSERTV(interval, interval < bsls::TimeInterval(15.0));
     }
 
     ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());

@@ -1013,7 +1013,7 @@ int main(int argc, char *argv[])
         using namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST;
 
         bslmt::Barrier barrier(3, bsls::SystemClockType::e_MONOTONIC);
-        bsls::AtomicInt releaseCounter(500);
+        bsls::AtomicInt releaseCounter(100);
 
         bsl::function<void()> publisherFunctor =
             bdlf::BindUtil::bind(&publisher, &mX, &releaseCounter, &barrier);

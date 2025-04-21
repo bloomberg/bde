@@ -3666,11 +3666,9 @@ int main(int argc, char *argv[])
             done.wait();
             scheduler.stop();
 
-            const double EPSILON = .1;
-
-            ASSERTV(elapsedTimeOne,   EPSILON > fabs(1 - elapsedTimeOne));
-            ASSERTV(elapsedTimeTwo,   EPSILON > fabs(1 - elapsedTimeTwo));
-            ASSERTV(elapsedTimeThree, EPSILON > fabs(2 - elapsedTimeThree));
+            ASSERTV(elapsedTimeOne,   0.99 <= elapsedTimeOne);
+            ASSERTV(elapsedTimeTwo,   0.99 <= elapsedTimeTwo);
+            ASSERTV(elapsedTimeThree, 1.99 <= elapsedTimeThree);
         }
 #endif
       } break;

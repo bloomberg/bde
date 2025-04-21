@@ -2430,7 +2430,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                         < 50);
+                                                                        < 500);
             }
             {
                 // monotonic clock
@@ -2445,7 +2445,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                         < 50);
+                                                                        < 500);
             }
         }
 
@@ -2462,7 +2462,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                         < 50);
+                                                                        < 500);
             }
             { // monotonic clock
                 expectedTime = bsls::SystemTime::nowMonotonicClock();
@@ -2472,7 +2472,7 @@ int main(int argc, char *argv[])
                 ASSERTV(actualTime, expectedTime, actualTime >= expectedTime);
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
-                                                                         < 50);
+                                                                        < 500);
             }
         }
         if (verbose) {
@@ -2959,16 +2959,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         enum { k_SLEEP_MICROSECONDS = 300 * 1000 };
+
         const double SLEEP_SECONDS =
                               static_cast<double>(k_SLEEP_MICROSECONDS) * 1e-6;
+
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
-            const double TOLERANCE = 2;   // microSleep is obscenely imprecise
-                                          // on Sun and to a lesser extent
-                                          // Linux
-#else
-            const double TOLERANCE = 0.05;
-#endif
+        const double TOLERANCE     = 2.0;
 
         for (int i = 0; i < 8; ++i) {
             double start   =

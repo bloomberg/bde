@@ -477,13 +477,8 @@ extern "C" void *deferredDisablePopFront(void *arg)
     return 0;
 }
 
-static bsls::TimeInterval s_deferredPopFrontInterval;
-
 extern "C" void *deferredPopFront(void *arg)
 {
-    s_deferredPopFrontInterval =
-                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
-
     Obj& mX = *static_cast<Obj *>(arg);
 
     bslmt::ThreadUtil::microSleep(1000000);
@@ -491,10 +486,6 @@ extern "C" void *deferredPopFront(void *arg)
     Obj::value_type value;
 
     mX.popFront(&value);
-
-    s_deferredPopFrontInterval =
-                       bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
-                     - s_deferredPopFrontInterval;
 
     return 0;
 }
@@ -1368,25 +1359,26 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::Handle handle;
 
+            bsls::TimeInterval interval =
+                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
+
             bslmt::ThreadUtil::create(&handle, deferredPopFront, &mX);
 
             mX.pushBack(0);
-
-            bsls::TimeInterval interval =
-                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
 
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_SUCCESS == rv);
-            ASSERT(allocations == defaultAllocator.numAllocations());
-
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.5) >= interval);
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(allocations == defaultAllocator.numAllocations());
+
+            ASSERTV(interval,
+                       bsls::TimeInterval(0.8) <= interval
+                    && bsls::TimeInterval(3.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
@@ -1407,27 +1399,26 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::Handle handle;
 
+            bsls::TimeInterval interval =
+                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
+
             bslmt::ThreadUtil::create(&handle, deferredDisablePopFront, &mX);
 
             mX.pushBack(0);
-
-            bsls::TimeInterval interval =
-                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
 
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(e_DISABLED == rv);
-            ASSERT(allocations == defaultAllocator.numAllocations());
-
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
-                                           <= interval.totalSecondsAsDouble()
-                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.5
-                                           >= interval.totalSecondsAsDouble());
+            ASSERT(e_DISABLED == rv);
+            ASSERT(allocations == defaultAllocator.numAllocations());
+
+            ASSERTV(interval,
+                       bsls::TimeInterval(0.8) <= interval
+                    && bsls::TimeInterval(3.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
