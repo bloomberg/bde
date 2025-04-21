@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Wed Dec 18 17:14:49 2024
+// Generated on Mon Apr 21 13:38:17 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.xt.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -157,12 +157,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define MSVC_2019 0
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION >= 1930 \
- && BSLS_PLATFORM_CMP_VERSION <= 1940
-#define MSVC_2022 1
-#else
-#define MSVC_2022 0
+// Some MSVC versions incorrectly drop reference qualifiers from return
+// types that are references to arrays:
+// https://developercommunity.visualstudio.com/t/Decay-of-array-reference-in-function-ret/10628367
+#if MSVC && BSLS_PLATFORM_CMP_VERSION < 1941
+# define MSVC_ARRAY_REFERENCE_BUG
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
@@ -3315,7 +3314,8 @@ int main(int argc, char *argv[])
         static const bool YES = true;
         static const bool NO = false;
 
-#if MSVC && !(MSVC_2022 && (BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L))
+#if MSVC && (BSLS_PLATFORM_CMP_VERSION < 1930 || \
+             BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L)
         // MSVC 2019 and earlier, and MSVC 2022 in C++17 (or earlier) mode
         // incorrectly handles volatile-qualified invocable types.  This has
         // been rectified in MSVC 2022 compiling in C++20 mode.
@@ -4633,11 +4633,7 @@ int main(int argc, char *argv[])
         // Arrays and functions cannot be returned by value, so we test only
         // references.  Can't apply a pointer or reference to something that is
         // already a reference, so simply call the `apply` method directly.
-        // MSVC 2022 and earlier fails to propagate the reference qualifier.
-        // However, MSVC 2013 uses the C++03 implementation of
-        // `bsl::invoke_result`, which calculates the return type manually,
-        // without `decltype` machinery, and is correct.
-#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
+#ifdef MSVC_ARRAY_REFERENCE_BUG
         PtrToMemFuncTest<MyClass>::apply<Arry&      , Arry>(L_);
         PtrToMemFuncTest<MyClass>::apply<Arry const&, Arry const>(L_);
 #else
@@ -4646,11 +4642,11 @@ int main(int argc, char *argv[])
 #endif
         PtrToMemFuncTest<MyClass>::apply<F&>(L_);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
+# ifdef MSVC_ARRAY_REFERENCE_BUG
         PtrToMemFuncTest<MyClass>::apply<Arry&&, Arry>(L_);
-#else
+# else
         PtrToMemFuncTest<MyClass>::apply<Arry&&>(L_);
-#endif
+# endif
 
         // Rvalue references to functions are special in that they are lvalues,
         // unlike rvalue references to other types, which are conditionally
@@ -4825,11 +4821,8 @@ int main(int argc, char *argv[])
         // Arrays and functions cannot be returned by value, so we test only
         // references.  We can't apply a pointer or reference to something that
         // is already a reference, so simply call the `apply` method directly.
-        // MSVC 2022 and earlier fails to propagate the reference qualifier.
-        // However, MSVC 2013 uses the C++03 implementation of
-        // `bsl::invoke_result`, which correctly calculates the return type.
 
-#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
+#ifdef MSVC_ARRAY_REFERENCE_BUG
         FuncTest::apply<Arry&      , Arry>(L_);
         FuncTest::apply<Arry const&, Arry const>(L_);
 #else
@@ -4838,21 +4831,21 @@ int main(int argc, char *argv[])
 #endif
         FuncTest::apply<F&>(L_);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
+# ifdef MSVC_ARRAY_REFERENCE_BUG
         FuncTest::apply<Arry&&, Arry>(L_);
-#else
+# else
         FuncTest::apply<Arry&&>(L_);
-#endif
+# endif
 
         // Rvalue references to functions are special in that they are lvalues,
         // unlike rvalue references to other types, which are conditionally
         // either lvalues or xvalues.  MSVC 2022 and earlier appears to get
         // this wrong.
-#if MSVC
+# if MSVC
         FuncTest::apply<F&&, F&&>(L_);
-#else
+# else
         FuncTest::apply<F&&, F&>(L_);
-#endif
+# endif
 #endif
 
         // Step 2, Concern 3
