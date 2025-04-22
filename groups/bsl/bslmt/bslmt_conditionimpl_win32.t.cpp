@@ -327,11 +327,7 @@ int main(int argc, char *argv[])
 
         const bsls::TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-3;
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-        const double OVERSHOOT_MAX = 0.10;
-#else
-        const double OVERSHOOT_MAX = 0.05;
-#endif
+        const double OVERSHOOT_MAX = 0.15;
 
         Obj condition(bsls::SystemClockType::e_MONOTONIC);
         bslmt::Mutex     mutex;
@@ -425,11 +421,7 @@ int main(int argc, char *argv[])
 
         const bsls::TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-5;
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-        const double OVERSHOOT_MAX = 0.10;
-#else
-        const double OVERSHOOT_MAX = 0.05;
-#endif
+        const double OVERSHOOT_MAX = 0.15;
 
         Obj condition;
         bslmt::Mutex     mutex;

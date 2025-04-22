@@ -2079,7 +2079,7 @@ int main(int argc, char *argv[])
 
         // Third subtest: Consume time; verify that it appears in the counts.
         {
-            const unsigned longLoop = 8 * 1000L * 1000L;
+            const unsigned longLoop = 50 * 1000L * 1000L;
 
             // Burn a little processor time--at least one timeQuantum.
             // The `volatile` should force every access to memory and slow

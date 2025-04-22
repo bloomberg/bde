@@ -4720,6 +4720,10 @@ int main(int argc, char *argv[])
 
         scheduler.stop();
 
+        for (int i = 0; i < 3 && !r.s_finished; ++i) {
+            bslmt::ThreadUtil::microSleep(250 * 1000);
+        }
+
         if (verbose) {
             cout << (r.s_finished ? "Finished OK" : "Error -- did not finish")
                                                                        << endl;

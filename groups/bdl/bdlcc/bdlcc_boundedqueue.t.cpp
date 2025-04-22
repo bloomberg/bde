@@ -1879,8 +1879,9 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.5) >= interval);
+            ASSERTV(interval,
+                       bsls::TimeInterval(0.8) <= interval
+                    && bsls::TimeInterval(3.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 

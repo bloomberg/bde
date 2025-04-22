@@ -1998,8 +1998,10 @@ int main(int argc, char *argv[])
             Obj localX(attr, MIN, MAX, IDLE);
             xP = &localX;
             STARTPOOL(localX);
+            depthCounter = 0;
             localX.enqueueJob(TestJobFunction7, NULL);
-            barrier.wait();
+            ASSERT(0 == barrier.timedWait(
+                         bsls::SystemTime::nowRealtimeClock().addSeconds(30)));
             ASSERT(DEPTH_LIMIT == depthCounter);
             if (veryVerbose) { T_ P(depthCounter); }
         }

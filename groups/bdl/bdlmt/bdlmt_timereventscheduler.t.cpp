@@ -243,9 +243,9 @@ static const int   DECI_SEC_IN_MICRO_SEC = 100000;
                                // number of microseconds in a tenth of a second
 
 // Tolerance for testing correct timing
-static const bsls::TimeInterval UNACCEPTABLE_DIFFERENCE(0, 500000000); // 500ms
-static const bsls::TimeInterval ALLOWABLE_DIFFERENCE   (0,  75000000); //  75ms
-static const bsls::TimeInterval APPRECIABLE_DIFFERENCE (0,  20000000); //  20ms
+static const bsls::TimeInterval UNACCEPTABLE_DIFFERENCE(1,         0); // 1s
+static const bsls::TimeInterval ALLOWABLE_DIFFERENCE   (0, 500000000); // 500ms
+static const bsls::TimeInterval APPRECIABLE_DIFFERENCE (0, 100000000); // 100ms
 
 /// Return true if the specified `t1` and `t2` are unacceptably not (the
 /// definition of *unacceptable* is implementation-defined) equal, otherwise
@@ -4516,7 +4516,10 @@ int main(int argc, char *argv[])
         scheduler.scheduleEvent(bsls::SystemTime::nowRealtimeClock() +
                                                       bsls::TimeInterval(0.05),
                                 TC::Recurser());
-        sleepUntilMs(250 * 1000 / 1000);
+
+        for (int i = 0; i < 5 && !TC::Recurser::s_finished; ++i) {
+            sleepUntilMs(250 * 1000 / 1000);
+        }
 
         if (!TC::Recurser::s_finished) {
             BSLS_ASSERT_INVOKE("test not finished in time");

@@ -118,6 +118,32 @@ static int veryVeryVeryVerbose = 0;
 //             GLOBAL SUPPORT FUNCTIONS AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+#define STARTPOOL(x) \
+    if (0 != x.start()) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.start()) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.start()) { \
+                cout << "Thread start() failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
+#define ADDTHREAD(x, f)     \
+    if (0 != x.addThread(f)) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.addThread(f)) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.addThread(f)) { \
+                cout << "`addThread` failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
                               // ===============
                               // class TestQueue
                               // ===============
@@ -383,10 +409,7 @@ int usageExample(bslma::Allocator *allocator)
     JobQueue               urgentQueue(maxProc, &tp);
     JobQueue               criticalQueue(maxProc, &tp);
 
-    if (0 != tp.start()) {
-       ASSERT(0 == "Could not start thread pool! Threads cannot be created!");
-       return -1;                                                     // RETURN
-    }
+    STARTPOOL(tp);
 
     bsls::AtomicInt iCheck, uCheck, cCheck;
 
@@ -477,12 +500,11 @@ int main(int argc, char *argv[])
                   bdlf::BindUtil::bind(&bsls::AtomicInt::add, &timesCalled, 1);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                LOOP_ASSERT(i, 0 == threads.addThread(bdlf::BindUtil::bind(
-                                                               &testCase6,
-                                                               &startSemaphore,
-                                                               &mX,
-                                                               (int)NUM_JOBS,
-                                                               addFunc)));
+                ADDTHREAD(threads, bdlf::BindUtil::bind(&testCase6,
+                                                        &startSemaphore,
+                                                        &mX,
+                                                        (int)NUM_JOBS,
+                                                        addFunc));
             }
 
             startSemaphore.post(NUM_THREADS);
@@ -534,11 +556,7 @@ int main(int argc, char *argv[])
             TestQueue             otherQueue
                (OQUEUE_MAX_PROC, MAX_QUEUESIZE, &tp, &ta);
 
-            if (0 != tp.start()) {
-               ASSERT(0 == "Could not start thread pool!  "
-                           "Threads cannot be created!");
-               break;
-            }
+            STARTPOOL(tp);
             if (veryVerbose) cout << "Thread-pool Started" << endl;
 
             UsageTestChecker iChecker(importantQueue.multiplexor());
@@ -639,11 +657,7 @@ int main(int argc, char *argv[])
 
             bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, &ta);
 
-            if (0 != tp.start()) {
-               ASSERT(0 == "Could not start thread pool!  "
-                           "Threads cannot be created!");
-               break;
-            }
+            STARTPOOL(tp);
             if (veryVerbose) cout << "Thread-pool Started" << endl;
 
             TestQueue theQueue(MAX_PROC, MAX_QUEUESIZE, &tp, &ta);
@@ -708,11 +722,7 @@ int main(int argc, char *argv[])
             TestQueue urgentQueue(maxProc, MAX_QUEUESIZE, &tp, &ta);
             TestQueue otherQueue(maxProc, MAX_QUEUESIZE, &tp, &ta);
 
-            if (0 != tp.start()) {
-               ASSERT(0 == "Could not start thread pool!  "
-                           "Threads cannot be created!");
-               break;
-            }
+            STARTPOOL(tp);
             if (veryVerbose) cout << "Thread-pool Started" << endl;
 
             UsageTestChecker iChecker(importantQueue.multiplexor());
