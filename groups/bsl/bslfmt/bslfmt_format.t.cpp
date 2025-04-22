@@ -198,8 +198,13 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) &&                               \
     (13 == _GLIBCXX_RELEASE || 14 == _GLIBCXX_RELEASE)
+// We disable tests for certain pointer-formatting on gcc-13 and gcc-14 because
+// those platforms do not (yet) support zero-padding of pointers, and the
+// (uppercase) 'P' format specifier, but are in other ways preferable to the
+// proprietary (C++ 03 supporting) implementation in `bslfmt`.
+//
 // GNU C++ supports an almost perfect std::format implementation starting with
-// gcc-13.  Unfortunately it does not support zero padding of pointers and an
+// gcc-13.  Unfortunately it does not support zero padding of pointers and the
 // attempt results in a compilation error (for compile-time format string
 // evaluation) stating that "0 width cannot be used".  Even more unfortunately
 // gcc-14 does not implement the feature either.  The 'P' format specifier is
