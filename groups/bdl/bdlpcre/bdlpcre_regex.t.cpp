@@ -4,14 +4,18 @@
 #include <bslim_testutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
+#include <bdlma_bufferedsequentialpool.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
@@ -100,7 +104,8 @@ using namespace bdlpcre;
 // [18] MEMORY ALIGNMENT
 // [19] CONCERN: `match` IS THREAD-SAFE
 // [21] DUPLICATE NAMED GROUPS
-// [22] USAGE EXAMPLE
+// [22] REGRESSIONS
+// [23] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -474,6 +479,155 @@ typedef RegEx Obj;
 //-----------------------------------------------------------------------------
 
 namespace {
+
+                          // ========================
+                          // class WeakAlignAllocator
+                          // ========================
+
+/// This class implements the `bslma::Allocator` protocol and returns the most
+/// weakly aligned pointer that might be returned by a sequential allocator for
+/// the specified `size`.  It essentially will return byte, 2 bytes, 4 bytes
+/// aligned memory (speaking of 64 bits) and it will only return maximum
+/// aligned memory when `size` is a multiple of the maximum alignment.  In the
+/// deallocate function, since we know that we have a minimally-aligned pointer
+/// we restore the pointer we got the upstream allocator by looking at the
+/// alignment of the actual pointer and subtracting that from it.
+class WeakAlignAllocator : public bslma::Allocator {
+    // DATA
+    bslma::Allocator *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED
+    WeakAlignAllocator(const WeakAlignAllocator&);
+    WeakAlignAllocator& operator=(const WeakAlignAllocator&);
+
+  public:
+    // CREATORS
+
+    /// Create an `WeakAlignAllocator` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory for both the arena and the
+    /// managed objects.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit WeakAlignAllocator(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this object.  Memory still allocated from this allocator
+    /// remains allocated.
+    ~WeakAlignAllocator();
+
+    // MANIPULATORS
+
+    /// Return a newly allocated block of memory of (at least) the specified
+    /// positive `numBytes`.  The behavior is undefined unless `0 <= numBytes`.
+    /// Note that the alignment of the address returned is the minimum
+    /// alignment for the specified `numBytes` if it is considered to be the
+    /// size of a single object.  So for 11 bytes the alignment will be on
+    /// 1 byte boundary because an object with the size of 11 byte would
+    /// naturally also have that one byte alignment due to the fact that arrays
+    /// have no padding between elements, so the second element of an array of
+    /// such 11-bytes-sized objects would be on a 1 byte boundary.
+    virtual void *allocate(size_type numBytes);
+
+    /// Deallocate the memory block that the specified `ptr` represents by
+    /// restoring the pointer to the original value (returned by `allocate` of
+    /// the upstream allocator) and call the upstream deallocate with that
+    /// pointer.
+    virtual void deallocate(void *ptr);
+
+    // ACCESSORS
+
+    /// Return the allocator supplied at construction.
+    bslma::Allocator *basicAllocator() const;
+};
+
+                          // ------------------------
+                          // class WeakAlignAllocator
+                          // ------------------------
+
+// CREATORS
+inline
+WeakAlignAllocator::WeakAlignAllocator(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+WeakAlignAllocator::~WeakAlignAllocator()
+{
+}
+
+// MANIPULATORS
+inline
+void *WeakAlignAllocator::allocate(size_type numBytes)
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    const size_t maxAlign = alignof(std::max_align_t);
+#else
+    const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
+    if (0 == (numBytes & (maxAlign - 1))) {
+        // Maximally aligned memory, we just call the upstream allocator
+        void *upstream_ptr = d_allocator_p->allocate(numBytes);
+        return upstream_ptr;
+    }
+
+    // What alignment do we need?
+    const int align =
+                     bsls::AlignmentUtil::calculateAlignmentFromSize(numBytes);
+
+    void *upstream_ptr = d_allocator_p->allocate(numBytes + align);
+
+    // Because we added `align` to `size` `upstream_ptr` is guaranteed to be
+    // aligned on `2 * align` boundary.  Why?  The original `size` was equal to
+    // `2 * n * align + align` (where `n` is a positive integer or zero)
+    // because that is the only way to get `align` for alignment of `size`.  By
+    // adding `align` to size we make the allocated size to be
+    // `2 * (n + 1) * align`, which has the required natural alignment of
+    // `2 * align)`.  The assert below is a paranoid check to state the above.
+    BSLS_ASSERT(bsls::AlignmentUtil::calculateAlignmentOffset(upstream_ptr,
+                                                              align * 2) == 0);
+
+    // Since we know that our `upstream_pointer` is aligned on `2 * align`
+    // boundary we also know that to make it weakly aligned for `align` we just
+    // need to "move it up" by `align` bytes, which also conveniently creates
+    // space where we can store that offset.
+
+    // Get a pointer that has byte pointer arithmetics and allows us to write
+    // the offset to the byte just before the one we return the ptr to
+    unsigned char *ucptr  = static_cast<unsigned char *>(upstream_ptr);
+    ucptr += align;
+    ucptr[-1] = static_cast<unsigned char>(align);
+    return ucptr;
+ }
+
+inline
+void WeakAlignAllocator::deallocate(void *ptr)
+{
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    const size_t maxAlign = alignof(std::max_align_t);
+#else
+    const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
+    if (0 == bsls::AlignmentUtil::calculateAlignmentOffset(ptr, maxAlign)) {
+        // Maximum aligned, no offset was added
+        d_allocator_p->deallocate(ptr);
+        return;                                                       // RETURN
+    }
+
+    // There is an offset in the byte just before the ptr
+    unsigned char *ucptr = static_cast<unsigned char *>(ptr);
+    d_allocator_p->deallocate(ucptr - ucptr[-1]);
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *WeakAlignAllocator::basicAllocator() const
+{
+    return d_allocator_p;
+}
 
                         // ========
                         // MatchJob
@@ -1156,30 +1310,134 @@ int main(int argc, char *argv[])
         // TESTING MEMORY ALIGNMENT
         //
         // Concerns:
-        // 1. That alignment requirements aren't violated.
+        // 1. That alignment requirements aren't violated.  DRQS 178916073
+        //
+        // 2. That the special allocator that returns the weakest necessary
+        //    alignment actually does so.
         //
         // Plan:
         // 1. Run this test built with the Sun CC compiler and linker with the
         //    `-xmemalign=8s` option set.  If alignment violations occur, there
         //    will be a bus error.  (C-1)
         //
+        // 2. Run this test built with gcc with a `ubsan` UFID.  If an
+        //    alignment violations occur, there will be ubsan error.  (C-1)
+        //
+        // 3. Run a table based test in which we verify that the alignment of
+        //    the returned pointer is the expected value and it is not
+        //    well-aligned for 2 times the expected value.  The table data
+        //    columns are size and expected alignment.  Note that we provide
+        //    test-table data lines for up to 16 bytes alignment but correct
+        //    the alignments that are larger than the supported maximum natural
+        //    alignment of the platform in the loop.
+        //
         // Testing:
         //   MEMORY ALLIGNMENT
         // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING MEMORY ALIGNMENT" << endl
-                          <<"=========================" << endl;
+        if (verbose)
+            cout << "\nTESTING MEMORY ALIGNMENT"
+                    "\n========================\n";
 
-        static const char k_PATTERN[] =
+        if (veryVerbose) cout << "`WeakAlignAllocator breathing test\n";
+        {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            const size_t maxAlign = alignof(std::max_align_t);
+#else
+            const size_t maxAlign =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+
+            static struct {
+                size_t d_line;
+                size_t d_size;
+                size_t d_expectedAlignment;
+            } TEST_DATA[] = {
+                { L_,  0, maxAlign  },
+
+                { L_,  1,  1        },
+                { L_,  2,  2        },
+                { L_,  3,  1        },
+                { L_,  4,  4        },
+                { L_,  5,  1        },
+                { L_,  6,  2        },
+                { L_,  7,  1        },
+                { L_,  8,  8        },
+                { L_,  9,  1        },
+                { L_, 10,  2        },
+                { L_, 11,  1        },
+                { L_, 12,  4        },
+                { L_, 13,  1        },
+                { L_, 14,  2        },
+                { L_, 15,  1        },
+                { L_, 16, 16        },
+
+                { L_, 17,  1        },
+                { L_, 18,  2        },
+                { L_, 19,  1        },
+                { L_, 20,  4        },
+                { L_, 21,  1        },
+                { L_, 22,  2        },
+                { L_, 23,  1        },
+                { L_, 24,  8        },
+                { L_, 25,  1        },
+                { L_, 26,  2        },
+                { L_, 27,  1        },
+                { L_, 28,  4        },
+                { L_, 29,  1        },
+                { L_, 30,  2        },
+                { L_, 31,  1        },
+                { L_, 32, 16        },
+            };
+
+            const size_t TEST_SIZE = sizeof TEST_DATA / sizeof *TEST_DATA;
+
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+            WeakAlignAllocator   wa(&ta);
+
+            for (size_t ti = 0; ti < TEST_SIZE; ++ti) {
+                const size_t LINE           = TEST_DATA[ti].d_line;
+                const size_t SIZE           = TEST_DATA[ti].d_size;
+                const size_t EXPECTED_ALIGN =
+                                   TEST_DATA[ti].d_expectedAlignment > maxAlign
+                                       ? maxAlign
+                                       : TEST_DATA[ti].d_expectedAlignment;
+
+                if (veryVeryVerbose) {
+                    P_(LINE) P_(SIZE) P(EXPECTED_ALIGN);
+                }
+
+                void *ptr = wa.allocate(SIZE);
+                const size_t ptrAsInt = reinterpret_cast<size_t>(ptr);
+                wa.deallocate(ptr);
+
+                // Verify that we are aligned to the expected boundary
+                ASSERTV(LINE, ptrAsInt % EXPECTED_ALIGN,
+                        0 == ptrAsInt % EXPECTED_ALIGN);
+
+                // Maximum Alignment is pass-through, we don't care about
+                // alignments larger than the maximum
+                if (EXPECTED_ALIGN != maxAlign) {
+                    // Verify that we aren't aligned stricter than the
+                    // expected boundary
+                    ASSERTV(LINE, ptrAsInt % EXPECTED_ALIGN * 2,
+                            0 != ptrAsInt % (EXPECTED_ALIGN * 2));
+                }
+            }
+        }
+
+        {
+            static const char k_PATTERN[] =
                   "\\b[A-Za-z0-9._-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-zaz]{2,4}\\b";
 
-        bsls::AlignedBuffer<256>           buffer;
-        bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
-                                                 sizeof(buffer));
+            bsls::AlignedBuffer<256>           buffer;
+            bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
+                                                     sizeof(buffer));
+            WeakAlignAllocator                 wa(&arena);
 
-        Obj regex(&arena);
+            Obj regex(&wa);
 
-        regex.prepare(0, 0, k_PATTERN, 0);
+            regex.prepare(0, 0, k_PATTERN, 0);
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------

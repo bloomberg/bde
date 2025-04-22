@@ -24,24 +24,54 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 
 #include <bslmt_threadutil.h>
 
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <bsl_climits.h>    // 'INT_MAX'
-#include <bsl_cmath.h>      // 'abs'
+#include <bsl_climits.h>    // `INT_MAX`
+#include <bsl_cmath.h>      // `abs`
+#include <bsl_cstddef.h>    // for `std::max_align_t`
 #include <bsl_cstring.h>
-#include <bsl_new.h>        // placement 'new' syntax
+#include <bsl_new.h>        // placement `new` syntax
 
 extern "C" {
 
-void *bdlpcre_malloc(size_t size, void* context)
+void *bdlpcre_malloc(size_t size, void *context)
 {
     void *result = 0;
 
     BloombergLP::bslma::Allocator *basicAllocator =
-                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+                    reinterpret_cast<BloombergLP::bslma::Allocator *>(context);
     BSLS_TRY {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        size_t alignment = alignof(std::max_align_t);
+#else
+        size_t alignment =
+                          BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+#endif
+        // Closely mimic the alignment behavior of `malloc` by giving a `size`
+        // to the allocator that will result in the maximum possible natural
+        // alignment for the original `size`.  For example `size` 6 may contain
+        // an element that requires 4 for alignment.
+        //
+        // Details: `bdlma::Allocator` will calculate alignment from the
+        // `size` as its contract guarantees allocation of a single object of
+        // that given `size`.  However, PCRE2's requirements on its allocation
+        // function are stricter.  The memory allocated will be used to store a
+        // non-homogeneous data structure and has higher alignment requirements
+        // than an object of that exact size would have.  For example BDE
+        // allocators may allocate memory with 1 byte alignment for `size` 9,
+        // but PCRE2 may attempt to create an 8-aligned struct followed by a
+        // one byte flag in that space. Hence we need to allocate storage with
+        // alignment sufficient for the largest object that might fit within
+        // the requested size.  So we need to align any size equal or larger
+        // than 8 to 8, 4 to 4, 2 to 2 to ensure that the largest type fitting
+        // into to allocated memory determines the alignment, not the `size`
+        // argument.
+        size = (size + alignment - 1) & ~(alignment - 1);
+
         result = basicAllocator->allocate(size);
     } BSLS_CATCH( ... ) {
     }
@@ -49,10 +79,10 @@ void *bdlpcre_malloc(size_t size, void* context)
     return result;
 }
 
-void bdlpcre_free(void* data, void* context)
+void bdlpcre_free(void *data, void *context)
 {
     BloombergLP::bslma::Allocator *basicAllocator =
-                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+                    reinterpret_cast<BloombergLP::bslma::Allocator *>(context);
 
     basicAllocator->deallocate(data);
     return;
