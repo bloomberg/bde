@@ -751,6 +751,13 @@ int randomValue(unsigned int *seed)
 #endif
 }
 
+/// Return the number of unique rules maintained in this specified `manager`'s
+/// `RuleSet`, while holding the `RuleSet`'s lock as per its API.
+int numRulesLocked(CatMngr *manager) {
+    bslmt::LockGuard<bslmt::Mutex> guard(&manager->rulesetMutex());     // LOCK
+    return manager->ruleSet().numRules();
+}
+
 extern "C" void *case4RuleThread(void *args)
 {
     ThreadArgs *threadArgs = reinterpret_cast<ThreadArgs *>(args);
@@ -784,14 +791,14 @@ extern "C" void *case4RuleThread(void *args)
 
     // Add rules to the category manager.
 
-    while (manager->ruleSet().numRules() < ball::RuleSet::e_MAX_NUM_RULES) {
+    while (numRulesLocked(manager) < ball::RuleSet::e_MAX_NUM_RULES) {
         int r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
 
         // 2/3 chance to add a rule, 1/3 chance to remove a rule
 
         if (0 != (randomValue(&seed) % 3)) {
             while (0 == manager->addRule(*ruleSet.getRuleById(r))
-                   && manager->ruleSet().numRules() <
+                   && numRulesLocked(manager) <
                                               ball::RuleSet::e_MAX_NUM_RULES) {
                 r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
             }
@@ -800,7 +807,8 @@ extern "C" void *case4RuleThread(void *args)
             manager->removeRule(*ruleSet.getRuleById(r));
         }
     }
-    ASSERT(ball::RuleSet::e_MAX_NUM_RULES == manager->ruleSet().numRules());
+
+    ASSERT(ball::RuleSet::e_MAX_NUM_RULES == numRulesLocked(manager));
 
     barrier.wait();
 
@@ -816,14 +824,14 @@ extern "C" void *case4RuleThread(void *args)
                << MTENDL;
     }
 
-    while (manager->ruleSet().numRules() > 0) {
+    while (numRulesLocked(manager) > 0) {
         int r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
 
         // 2/3 chance to remove a rule, 1/3 chance to add a rule
 
         if (0 != (randomValue(&seed) % 3)) {
             while (0 == manager->removeRule(*ruleSet.getRuleById(r))
-                   && manager->ruleSet().numRules() > 0) {
+                   && numRulesLocked(manager) > 0) {
                 r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
             }
         }
@@ -831,7 +839,7 @@ extern "C" void *case4RuleThread(void *args)
             manager->addRule(*ruleSet.getRuleById(r));
         }
     }
-    ASSERT(0 == manager->ruleSet().numRules());
+    ASSERT(0 == numRulesLocked(manager));
 
     if (veryVerbose) {
         MTCOUT << "\n\tPhase 4: Wait for \"context\" threads." << MTENDL;
