@@ -56,7 +56,7 @@ void *bdlpcre_malloc(size_t size, void *context)
         // alignment for the original `size`.  For example `size` 6 may contain
         // an element that requires 4 for alignment.
         //
-        // Details: `bdlma::allocator` will calculate alignment from the
+        // Details: `bdlma::Allocator` will calculate alignment from the
         // `size` as its contract guarantees allocation of a single object of
         // that given `size`.  However, PCRE2's requirements on its allocation
         // function are stricter.  The memory allocated will be used to store a
