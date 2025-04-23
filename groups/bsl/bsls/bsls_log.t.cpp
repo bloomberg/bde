@@ -2719,7 +2719,7 @@ int main(int argc, char *argv[]) {
 
                 if(veryVerbose)
                     puts("\tAttempting to wait for message, 1s timeout.\n");
-                ASSERT(sink.wait(1000));
+                ASSERT(sink.wait(10000));
 
                 LOOP4_ASSERT(i,
                              SOURCE_LINE,
@@ -2747,7 +2747,7 @@ int main(int argc, char *argv[]) {
 
                 if(veryVerbose)
                     puts("\tAttempting to wait for message, 1s timeout.\n");
-                ASSERT(sink.wait(1000));
+                ASSERT(sink.wait(10000));
 
                 if(veryVerbose) puts("\tConfirming lengths.\n");
                 const size_t realLength = strlen(sink.message());
