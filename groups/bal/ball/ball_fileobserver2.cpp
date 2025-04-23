@@ -495,23 +495,27 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
         newFileName += '.';
         newFileName += getTimestampSuffix(timeStampSuffix);
 
-        if (0 == bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
-            *rotatedLogFileName = newFileName;
-        }
-        else {
-            char errorBuffer[k_ERROR_BUFFER_SIZE];
+        // Rotation is attempted with a sub-second delay (the file with an old
+        // timestamp already exists).  Ignore.
+        if (! bdls::FilesystemUtil::exists(newFileName.c_str())) {
+            if (0 == bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
+                *rotatedLogFileName = newFileName;
+            }
+            else {
+                char errorBuffer[k_ERROR_BUFFER_SIZE];
 
-            snprintf(errorBuffer,
-                     sizeof errorBuffer,
-                     "Cannot rename %s to %s: %s.",
-                     d_logFileName.c_str(),
-                     newFileName.c_str(),
-                     bsl::strerror(getErrorCode()));
-            bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
-                                                     __FILE__,
-                                                     __LINE__,
-                                                     errorBuffer);
-            returnStatus = k_ROTATE_RENAME_ERROR;
+                snprintf(errorBuffer,
+                         sizeof errorBuffer,
+                         "Cannot rename %s to %s: %s.",
+                         d_logFileName.c_str(),
+                         newFileName.c_str(),
+                         bsl::strerror(getErrorCode()));
+                bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                         __FILE__,
+                                                         __LINE__,
+                                                         errorBuffer);
+                returnStatus = k_ROTATE_RENAME_ERROR;
+            }
         }
     }
 
