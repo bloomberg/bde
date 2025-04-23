@@ -316,11 +316,11 @@ void test(int numIterations, int numThreads)
 
     for (int i = 0; i<numThreads-1; ++i) {
         bslmt::ThreadUtil::Handle h;
-        bslmt::ThreadUtil::create(&h, &a, (void *)&c);
+        ASSERT(0 == bslmt::ThreadUtil::create(&h, &a, (void *)&c));
         hh.push_back(h);
     }
     bslmt::ThreadUtil::Handle h;
-    bslmt::ThreadUtil::create(&h, &b, (void *)&c);
+    ASSERT(0 == bslmt::ThreadUtil::create(&h, &b, (void *)&c));
     hh.push_back(h);
 
     for (int i = 0; i<numThreads; ++i) {
@@ -898,10 +898,11 @@ int main(int argc, char *argv[])
                         s_waited = 0;
 
                         for (int i = 0; i < numWait; ++i) {
-                            bslmt::ThreadUtil::create(&threadHandles[i],
-                                                      attributes,
-                                                      threadWait,
-                                                      &mX);
+                            ASSERT(0 == bslmt::ThreadUtil::create(
+                                                             &threadHandles[i],
+                                                             attributes,
+                                                             threadWait,
+                                                             &mX));
                         }
 
                         for (int i = 0; i < numArrive; ++i) {
@@ -947,10 +948,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadAttributes attributes;
 
             for (int i = 0; i < k_NUM_THREADS; ++i) {
-                bslmt::ThreadUtil::create(&threadHandles[i],
-                                          attributes,
-                                          threadWait100,
-                                          &mX);
+                ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                      attributes,
+                                                      threadWait100,
+                                                      &mX));
             }
 
             for (int iter = 0; iter < 100; ++iter) {
@@ -1144,8 +1145,10 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::Handle threadHandles[k_NTHREADS];
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread5a, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread5a,
+                                                          &args));
                 }
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
@@ -1159,8 +1162,10 @@ int main(int argc, char *argv[])
                                  bsls::SystemClockType::e_REALTIME);
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread5b, &args1);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread5b,
+                                                          &args1));
                 }
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
@@ -1179,8 +1184,10 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::Handle threadHandles[k_NTHREADS];
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread5a, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread5a,
+                                                          &args));
                 }
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
@@ -1194,8 +1201,10 @@ int main(int argc, char *argv[])
                                  bsls::SystemClockType::e_MONOTONIC);
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread5b, &args1);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread5b,
+                                                          &args1));
                 }
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
@@ -1271,8 +1280,10 @@ int main(int argc, char *argv[])
                                  k_TIMEOUT,
                                  bsls::SystemClockType::e_REALTIME);
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread4, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread4,
+                                                          &args));
                 }
 
                 // Wait until all the threads have stopped.
@@ -1301,8 +1312,10 @@ int main(int argc, char *argv[])
                                  k_TIMEOUT,
                                  bsls::SystemClockType::e_MONOTONIC);
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread4, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread4,
+                                                          &args));
                 }
 
                 // Wait until all the threads have stopped.
@@ -1339,8 +1352,10 @@ int main(int argc, char *argv[])
                 args.d_stopCount = 0;
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread4, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread4,
+                                                          &args));
                 }
 
                 // Note: previous testing used `wait()`, but this fails to make
@@ -1407,8 +1422,10 @@ int main(int argc, char *argv[])
                 args.d_stopCount = 0;
 
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                                             testThread4, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread4,
+                                                          &args));
                 }
 
                 // Note: previous testing used `wait()`, but this fails to make
@@ -1523,8 +1540,10 @@ int main(int argc, char *argv[])
             {
                 if (verbose) cout << "\titeration number " << n << endl;
                 for (int i = 0; i < k_NTHREADS; ++i) {
-                    bslmt::ThreadUtil::create(&threadHandles[i], attributes,
-                            testThread3, &args);
+                    ASSERT(0 == bslmt::ThreadUtil::create(&threadHandles[i],
+                                                          attributes,
+                                                          testThread3,
+                                                          &args));
                 }
                 while (k_NTHREADS != args.d_waitCount) {
 #ifdef BSLS_PLATFORM_OS_AIX

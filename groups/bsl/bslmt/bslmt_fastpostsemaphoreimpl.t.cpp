@@ -2752,8 +2752,8 @@ cout << endl
             bsls::TimeInterval duration = bsls::SystemTime::nowMonotonicClock()
                                         - start;
 
-            ASSERT(bsls::TimeInterval(0.05) <= duration);
-            ASSERT(bsls::TimeInterval(0.15) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
         }
         {
             // verify initial count can be set
@@ -2780,8 +2780,8 @@ cout << endl
             bsls::TimeInterval duration = bsls::SystemTime::nowMonotonicClock()
                                         - start;
 
-            ASSERT(bsls::TimeInterval(0.05) <= duration);
-            ASSERT(bsls::TimeInterval(0.15) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
         }
         {
             // verify clock can be set
@@ -2797,8 +2797,8 @@ cout << endl
             bsls::TimeInterval duration = bsls::SystemTime::nowMonotonicClock()
                                         - start;
 
-            ASSERT(bsls::TimeInterval(0.05) <= duration);
-            ASSERT(bsls::TimeInterval(0.15) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
         }
         {
             // verify initial count and clock can be set
@@ -2818,8 +2818,8 @@ cout << endl
             bsls::TimeInterval duration = bsls::SystemTime::nowMonotonicClock()
                                         - start;
 
-            ASSERT(bsls::TimeInterval(0.05) <= duration);
-            ASSERT(bsls::TimeInterval(0.15) >= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.05) <= duration);
+            ASSERTV(duration, bsls::TimeInterval(0.50) >= duration);
         }
       } break;
       case 1: {

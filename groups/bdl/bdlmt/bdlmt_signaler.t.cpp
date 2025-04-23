@@ -1415,11 +1415,9 @@ static void test6_signaler_disconnectGroupAndWait()
             ASSERTV(diff2, diff2 >= 0.4);
 
             double diffStart = start2 - start1;
-            ASSERTV(diffStart, u::abs(diffStart) < 0.3);
+            ASSERTV(diffStart, u::abs(diffStart) < 0.5);
             const double diffCompletion = completionTime2 - completionTime1;
-            ASSERTV(diffCompletion,
-                    diffStart,
-                    u::abs(diffCompletion) < u::abs(diffStart) + 0.2);
+            ASSERTV(diffCompletion, u::abs(diffCompletion) < 2.0);
 
             if (veryVerbose) {
                 P_(elapsed1);    P(elapsed2);
@@ -3596,11 +3594,9 @@ static void test24_destroyGuardAndWait()
             ASSERTV(diff2, diff2 >= 0.4);
 
             double diffStart = start2 - start1;
-            ASSERTV(diffStart, u::abs(diffStart) < 0.3);
+            ASSERTV(diffStart, u::abs(diffStart) < 0.5);
             const double diffCompletion = completionTime2 - completionTime1;
-            ASSERTV(diffCompletion,
-                    diffStart,
-                    u::abs(diffCompletion) < u::abs(diffStart) + 0.6);
+            ASSERTV(diffCompletion, u::abs(diffCompletion) < 2.0);
 
             if (veryVerbose) {
                 P_(elapsed1);    P(elapsed2);

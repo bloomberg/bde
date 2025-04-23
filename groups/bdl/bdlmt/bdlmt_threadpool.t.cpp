@@ -310,6 +310,19 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
         } \
     }
 
+#define CREATETHREAD(h, a, f, arg) \
+    if (0 != bslmt::ThreadUtil::create(&h, a, f, &arg)) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != bslmt::ThreadUtil::create(&h, a, f, &arg)) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != bslmt::ThreadUtil::create(&h, a, f, &arg)) { \
+                cout << "`create` failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
 void noopFunc()
 {
 }
@@ -3154,11 +3167,11 @@ int main(int argc, char *argv[])
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                ASSERT(0 == bslmt::ThreadUtil::create(
-                        &threadHandles[i],
+                CREATETHREAD(
+                        threadHandles[i],
                         attributes,
                         (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction1,
-                        &args));
+                        args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }
@@ -3199,11 +3212,11 @@ int main(int argc, char *argv[])
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                ASSERT(0 == bslmt::ThreadUtil::create(
-                        &threadHandles[i],
+                CREATETHREAD(
+                        threadHandles[i],
                         attributes,
                         (bslmt::ThreadUtil::ThreadFunction)TestThreadFunction2,
-                        &args));
+                        args);
                 while ( !args.d_startSig ) {
                     startCond.wait(&mutex);
                 }

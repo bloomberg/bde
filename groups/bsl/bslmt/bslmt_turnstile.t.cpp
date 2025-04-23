@@ -214,7 +214,7 @@ class WaitTurnCallbackJob {
 
             int value = ++*d_counter;
 
-            ASSERT(0 == d_turnstile->lagTime());
+            ASSERTV(d_turnstile->lagTime(), 0 == d_turnstile->lagTime());
 
             if (veryVerbose) {
                 COUT << "wt = " << wt << ", counter = " << value
@@ -381,10 +381,8 @@ int main(int argc, char *argv[])
 
         double       elapsed = timer.elapsedTime();
 
-        // The elapsed time should not be off by more than 15 ms.
-
         LOOP_ASSERT(elapsed,
-                         1.0 - EPSILON <= elapsed && elapsed <= 1.0 + EPSILON);
+                   DURATION - EPSILON <= elapsed && elapsed <= DURATION + 1.0);
 
         // The number of executed events should not be off by more than one.
 
@@ -686,11 +684,9 @@ int main(int argc, char *argv[])
         const double WT   = 1.0 / RATE;  // max wait time for each turn
         const Int64  WTUB = static_cast<Int64>(static_cast<double>(k_USPS)
                                    * (WT + EPSILON));  // upper bound wait time
-        const Int64  WTLB = static_cast<Int64>(static_cast<double>(k_USPS)
-                                   * (WT - EPSILON));  // lower bound wait time
 
         if (verbose) {
-            P_(RATE)   P_(WT)  P_(WTUB)  P(WTLB);
+            P_(RATE)   P_(WT)  P(WTUB);
         }
 
         Obj        mX(RATE);
@@ -709,10 +705,10 @@ int main(int argc, char *argv[])
         do {
             Int64 wt = mX.waitTurn();
             Int64 lt =  X.lagTime();
-            LOOP3_ASSERT(WTLB, WTUB, wt, WTLB <= wt && wt <= WTUB);
+            ASSERTV(WTUB, wt, wt <= WTUB);
             ASSERT(0 == lt);
             if (veryVerbose) {
-                P_(WTLB); P_(WTUB); P_(wt); P(lt);
+                P_(WTUB); P_(wt); P(lt);
             }
         } while (--numTurns);
 

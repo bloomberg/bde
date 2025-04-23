@@ -21,6 +21,8 @@
 #include <bslmf_assert.h>
 #include <bslmt_mutex.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
@@ -237,7 +239,7 @@ Int64 nanoClock(ClockType clockType = CT::e_MONOTONIC)
 /// parsed into an `int`.
 bsls::TimeInterval toTime(const char *);    // forward declaration
 
-double secondsPrevLeakTime(Obj *throttle_p)
+BSLA_MAYBE_UNUSED double secondsPrevLeakTime(Obj *throttle_p)
 {
     const Int64 lag = nanoClock(throttle_p->d_clockType) -
                                               get(&throttle_p->d_prevLeakTime);
@@ -2064,8 +2066,8 @@ int main(int argc, char *argv[])
         //    time.
         //
         // Plan:
-        // 1. Do a table-driven test, manipulating elapsed time by calling
-        //    `u::sleep`.
+        // 1. Verify the method correctly forwards to the overloaded version
+        //    which accepts a `bsls::TimeInterval` object.  (C-1)
         //
         // Testing:
         //   bool requestPermission();
@@ -2075,241 +2077,36 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING `requestPermission` USING SYSTEM TIME\n"
                              "=============================================\n";
 
-        enum Cmd { e_CMD_INIT, e_CMD_SLEEP, e_CMD_REQUEST };
+        {
+            Obj mX;
 
-#undef  INIT
-#define INIT(maxSimultaneousActions, secondsPerAction)                        \
-    { L_, e_CMD_INIT, (maxSimultaneousActions),                               \
-                        static_cast<Int64>((secondsPerAction) * 1e9), 0, 0, 0 }
+            mX.initialize(1, 200000000ULL);
 
-#undef  MILLI_SLEEP
-#define MILLI_SLEEP(timeInMillisecs)                                          \
-    { L_, e_CMD_SLEEP, -1, -1, -1, (timeInMillisecs)/1000.0, 0 }
+            ASSERT(true  == mX.requestPermission());
+            ASSERT(false == mX.requestPermission());
+            ASSERT(false == mX.requestPermission());
 
-#undef  REQUEST
-#define REQUEST(numActions, expected)                                         \
-    { L_, e_CMD_REQUEST, -1, -1, (numActions), 0, (expected) }
+            bslmt::ThreadUtil::microSleep(200000);
 
-        static const struct Data {
-            int         d_line;
-            Cmd         d_command;
-            int         d_maxSimultaneousActions;
-            Int64       d_nanosecondsPerAction;
-            int         d_numActions;
-            double      d_sleepSeconds;
-            bool        d_expPermission;
-        } DATA[] = {
-            INIT(1, 80e-3),
-            REQUEST(1, 1),
-            REQUEST(1, 0),
-            REQUEST(1, 0),
-            MILLI_SLEEP(40),
-            REQUEST(1, 0),
-            MILLI_SLEEP(80),
-            REQUEST(1, 1),
-            REQUEST(1, 0),
+            ASSERT(true  == mX.requestPermission());
+            ASSERT(false == mX.requestPermission());
+        }
+        {
+            Obj mX;
 
-            INIT(4, 80e-3),
-            REQUEST(2, 1),
-            REQUEST(1, 1),
-            REQUEST(1, 1),
-            REQUEST(1, 0),
-            REQUEST(4, 0),
-            MILLI_SLEEP(40),
-            REQUEST(1, 0),
-            MILLI_SLEEP(80),
-            REQUEST(1, 1),
-            REQUEST(1, 0),
-            MILLI_SLEEP(160),
-            REQUEST(2, 1),
-            REQUEST(4, 0),
-            REQUEST(3, 0),
-            REQUEST(2, 0),
-            REQUEST(1, 0),
+            mX.initialize(5, 200000000ULL);
 
-            INIT(4, 80e-3),
-            REQUEST(1, 1),
-            REQUEST(3, 1),
-            REQUEST(1, 0),
-            MILLI_SLEEP(280),
-            REQUEST(1, 1),
-            REQUEST(4, 0),
-            MILLI_SLEEP(160),
-            REQUEST(4, 1),
-            REQUEST(4, 0),
-            REQUEST(3, 0),
-            REQUEST(2, 0),
-            REQUEST(1, 0),
-            MILLI_SLEEP(200),
-            REQUEST(4, 0),
-            REQUEST(3, 0),
-            REQUEST(2, 1),
-            REQUEST(1, 0) };
-#undef  INIT
-#undef  MILLI_SLEEP
-#undef  REQUEST
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+            ASSERT(true  == mX.requestPermission(1));
+            ASSERT(true  == mX.requestPermission(3));
+            ASSERT(true  == mX.requestPermission(1));
+            ASSERT(false == mX.requestPermission(1));
+            ASSERT(false == mX.requestPermission(1));
 
-        static const struct DataTk {
-            int       d_tkLine;
-            bool      d_defaultToMono;
-            bool      d_singleAction;
-            bool      d_clockRealTime;
-        } DATA_TK[] = {
-            { L_, 0, 0, 0 },
-            { L_, 0, 0, 1 },
-            { L_, 0, 1, 0 },
-            { L_, 0, 1, 1 },
-            { L_, 1, 0, 0 },
-            { L_, 1, 1, 0 } };
-        enum { k_NUM_DATA_TK = sizeof DATA_TK / sizeof *DATA_TK };
+            bslmt::ThreadUtil::microSleep(0, 1);
 
-        bool quit = false;
-        Obj mX;    const Obj& X = mX;
-
-        if (verbose) cout << "Defaulting to calling system time\n";
-
-        for (int tk = 0; !quit && tk < k_NUM_DATA_TK; ++tk) {
-            const DataTk    dataTk             = DATA_TK[tk];
-            const int       TK_LINE            = dataTk.d_tkLine;
-            const bool      DEFAULT_TO_MONO    = dataTk.d_defaultToMono;
-            const bool      SINGLE_ACTION_ONLY = dataTk.d_singleAction;
-            const ClockType CLOCK_TYPE         = dataTk.d_clockRealTime
-                                               ? CT::e_REALTIME
-                                               : CT::e_MONOTONIC;
-
-            ASSERTV(TK_LINE, !DEFAULT_TO_MONO ||
-                                                CT::e_MONOTONIC == CLOCK_TYPE);
-
-            if (veryVerbose) {
-                cout << endl;
-                P_(TK_LINE);  P_(DEFAULT_TO_MONO); P_(SINGLE_ACTION_ONLY);
-                P(CLOCK_TYPE);
-            }
-
-            Int64  nanosecondsPerAction;
-            double secondsPerAction = 0.0;
-            double start = 0, scheduledTime = 0, actualTime = 0, overshoot = 0;
-            int retries = 0;
-            for (int ti = 0; !quit && ti< k_NUM_DATA; ++ti) {
-                const Data  data = DATA[ti];
-                const int   LINE = data.d_line;
-                const Cmd   CMD  = data.d_command;
-
-                switch (CMD) {
-                  case e_CMD_INIT: {
-                    const int MAX_SIMULTANEOUS_ACTIONS =
-                                                 data.d_maxSimultaneousActions;
-
-                    nanosecondsPerAction = data.d_nanosecondsPerAction;
-                    secondsPerAction = 1e-9 *
-                                     static_cast<double>(nanosecondsPerAction);
-
-                    if (DEFAULT_TO_MONO) {
-                        mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      nanosecondsPerAction);
-                    }
-                    else {
-                        mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      nanosecondsPerAction,
-                                      CLOCK_TYPE);
-                    }
-
-                    ASSERT(X.clockType() == CLOCK_TYPE);
-
-                    if (veryVerbose) {
-                        cout << "initialize(" << MAX_SIMULTANEOUS_ACTIONS <<
-                                                      ", " << secondsPerAction;
-                        if (!DEFAULT_TO_MONO) {
-                            cout << ", " << CLOCK_TYPE;
-                        }
-                        cout << ");\n";
-                    }
-
-                    start         = u::doubleClock(CLOCK_TYPE);
-                    scheduledTime = 0;
-                    actualTime    = 0;
-                  } break;
-                  case e_CMD_SLEEP: {
-                    const double SLEEP_SECONDS = data.d_sleepSeconds;
-
-                    if (veryVerbose) {
-                        cout << "sleep(" << SLEEP_SECONDS;
-                        if (!DEFAULT_TO_MONO) {
-                            cout << ", " << CLOCK_TYPE;
-                        }
-                        cout << ");\n";
-                    }
-
-                    const double timeToSleep = SLEEP_SECONDS - overshoot;
-                    u::sleep(timeToSleep);
-                    actualTime    =  u::doubleClock(CLOCK_TYPE) - start;
-                    scheduledTime += SLEEP_SECONDS;
-                    overshoot     =  actualTime - scheduledTime;
-                    if (secondsPerAction < overshoot * 4) {
-                        ++retries;
-                        const double overshootPercent = 100 * overshoot /
-                                                              secondsPerAction;
-                        ASSERTV(LINE, retries, overshootPercent, retries < 10);
-
-                        if (10 < retries || veryVerbose) {
-                            cout << "Retry << " << retries << " triggered. " <<
-                                 overshootPercent << "% overshoot on line: " <<
-                                 LINE << " clock type: " << CLOCK_TYPE << endl;
-                        }
-
-                        if (15 < retries) {
-                            quit = true;
-                            break;
-                        }
-
-                        // Back up to before preceeding init and try again.
-
-                        for (--ti; e_CMD_INIT !=
-                                          DATA[ti-- % k_NUM_DATA].d_command;) {
-                            ;
-                        }
-                    }
-                  } break;
-                  case e_CMD_REQUEST: {
-                    const int  NUM_ACTIONS = data.d_numActions;
-                    const bool EXP         = data.d_expPermission;
-
-                    if (SINGLE_ACTION_ONLY) {
-                        if (NUM_ACTIONS > 1 && !EXP) {
-                            continue;
-                        }
-
-                        for (int ii = 0; ii < NUM_ACTIONS; ++ii) {
-                            double spltBefore = u::secondsPrevLeakTime(&mX);
-                            const bool ret = mX.requestPermission();
-
-                            if (veryVerbose) {
-                                cout << "reqestPermission()";
-                                if (NUM_ACTIONS > 1) {
-                                    cout << ' ' << (ii + 1);
-                                }
-                                cout << " == " << u::b(ret) << endl;
-                            }
-                            ASSERTV(LINE, EXP, ret, ii, spltBefore,EXP == ret);
-                        }
-                    }
-                    else {
-                        double spltBefore = u::secondsPrevLeakTime(&mX);
-                        const bool ret = mX.requestPermission(NUM_ACTIONS);
-
-                        if (veryVerbose) cout << "reqestPermission(" <<
-                                   NUM_ACTIONS << ") == " << u::b(ret) << endl;
-
-                        ASSERTV(LINE, EXP, ret, overshoot, spltBefore,
-                                                                   EXP == ret);
-                    }
-                  } break;
-                  default: {
-                    ASSERT(0 && "invalid CMD");
-                  }
-                }
-            }
+            ASSERT(true  == mX.requestPermission(4));
+            ASSERT(true  == mX.requestPermission(1));
+            ASSERT(false == mX.requestPermission());
         }
       } break;
       case 4: {

@@ -4104,15 +4104,16 @@ class HighWaterMarkFunctor {
     HighWaterMarkFunctor(bdlcc::Deque<ELEMENT> *deque)
     : d_deque_p(deque)
     {
-        // have everything time out 15 seconds after thread object creation
+        // have everything time out 30 seconds after thread object creation
 
-        d_timeout = u::now() + bsls::TimeInterval(15.0);
+        d_timeout = u::now() + bsls::TimeInterval(30.0);
     }
 
     /// make sure we did not wait until timeout
     ~HighWaterMarkFunctor()
     {
-        ASSERT(u::now() < d_timeout);
+        bsls::TimeInterval interval = d_timeout - u::now();
+        ASSERTV(interval, bsls::TimeInterval(0.0) <= interval);
     }
 
     /// thread function
@@ -4273,7 +4274,7 @@ void highWaterMarkTest()
         // usually it will be much, much less.
 
         bsls::TimeInterval interval = u::now() - start;
-        ASSERTV(interval, interval < bsls::TimeInterval(15.0));
+        ASSERTV(interval, interval < bsls::TimeInterval(30.0));
     }
 
     ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());

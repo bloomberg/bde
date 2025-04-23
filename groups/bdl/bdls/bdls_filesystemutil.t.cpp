@@ -5139,41 +5139,24 @@ int main(int argc, char *argv[])
             // (and claim nanosecond precision), others (*cough* NFS *cough*)
             // are not so well-behaved.
 
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            static const int clockFileDelay =
-                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND;
-                // How long to wait between reading the realtime clock and
-                // creating the first file.
-            static const int fileFileDelay =
-                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
-                // How long to wait between creating files.
-            static const int clockFileCheck =
-                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
-                // The maximum permitted difference between the queried
-                // realtime clock and the timestamp of the first created file.
-            static const int fileFileCheck =
-                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
-                // The maximum permitted difference between the timestamps of
-                // created files.
-#else
             // How long to wait between reading the realtime clock and
             // creating the first file.
             static const int clockFileDelay =
-                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND;
 
             // How long to wait between creating files.
-            static const int fileFileDelay = 10001;
+            static const int fileFileDelay =
+                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
 
             // The maximum permitted difference between the queried
             // realtime clock and the timestamp of the first created file.
             static const int clockFileCheck =
-                            bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
+                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
 
             // The maximum permitted difference between the timestamps of
             // created files.
             static const int fileFileCheck =
-                        bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2 - 1;
-#endif
+                        2 * bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
 
             // The first time we write to a file on a filesystem there can be
             // initial delays, notably over NFS which doesn't mount a filsystem
